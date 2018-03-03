@@ -1,0 +1,45 @@
+# Targets (1): Making the executable
+# ------------
+
+djazz: bin_debug $(objects)
+	@echo "Making DEBUG Jazz ..."
+	g++ -o bin_debug/jazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
+
+jazz: bin_release $(objects)
+	@echo "Making RELEASE Jazz ..."
+	g++ -o bin_release/rjazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
+
+tjazz: bin_test $(objects)
+	@echo "Making DEBUG&TEST Jazz ..."
+	g++ -o bin_test/tjazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
+
+# Targets (2): Phony targets
+# ------------
+
+.PHONY : clean
+clean  :
+	@echo "Cleaning up all files not stored in the repo ..."
+	@cd $(HOME)
+
+.PHONY : info
+info   :
+	@echo "Current Jazz version   : $(VERSION)"
+	@echo "Current Jazz home      : $(HOME)"
+	@echo "Current Linux platform : $(LINUX)"
+	@echo "Current CPPFLAGS       : $(CPPFLAGS)"
+	@echo "Current CXXFLAGS       : $(CXXFLAGS)"
+
+.PHONY  : runtest
+runtest : tjazz
+	@echo "Not implemented ..."
+
+# Targets (3): System targets
+# ------------
+
+.PHONY  : install
+install :
+	@echo "Not implemented ..."
+
+.PHONY    : uninstall
+uninstall :
+	@echo "Not implemented ..."
