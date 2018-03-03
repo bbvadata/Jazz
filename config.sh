@@ -1,5 +1,26 @@
 #!/bin/bash
 
+#    (c) 2018 kaalam.ai (The Authors of Jazz)
+#
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#   you may not use this file except in compliance with the License.
+#   You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS,
+#   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#   See the License for the specific language governing permissions and
+#   limitations under the License.
+
+
+mode='RUN'	# Set mode='DEBUG' for echoing all variables before confirmation.
+
+
+# Section 1. Gathering all necessary information. 1. Fail if necessary. 2. Do nothing without confirmation
+# ----------
+
 if [[ $1 = '--help' ]]; then
   cat _config_/help_on_config.txt
   exit 0
@@ -61,6 +82,28 @@ jazz_depends=`depends`
 
 cd $jazz_pwd
 
+# End of section 1: Dump all variables if debugging
+if [[ $mode =~ 'DEBUG' ]]; then
+  echo "jazz_pwd     = $jazz_pwd"
+  echo "jazz_version = $jazz_version"
+  echo "jz_processor = $jz_processor"
+  echo "jazz_distro1 = $jazz_distro1"
+  echo "jazz_distro2 = $jazz_distro2"
+  echo "mhd_inclpath = $mhd_inclpath"
+  echo "mhd_libpath  = $mhd_libpath"
+  echo "vpath        = $vpath"
+  echo "jzpat        = $jzpat"
+  echo "cpps         = $cpps"
+  echo "objs         = $objs"
+  echo "jazz_depends = $jazz_depends"
+
+  printf "\n"
+fi
+
+
+# Section 2. Ask for confirmation. Do nothing if not.
+# ----------
+
 printf "You will now override:\n\n"
 cat _config_/help_on_config.txt | grep '  - '
 printf "\n"
@@ -70,15 +113,78 @@ echo    # (optional) move to a new line
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
 
-echo "jazz_pwd     = $jazz_pwd"
-echo "jazz_version = $jazz_version"
-echo "jz_processor = $jz_processor"
-echo "jazz_distro1 = $jazz_distro1"
-echo "jazz_distro2 = $jazz_distro2"
-echo "mhd_inclpath = $mhd_inclpath"
-echo "mhd_libpath  = $mhd_libpath"
-echo "vpath        = $vpath"
-echo "jzpat        = $jzpat"
-echo "cpps         = $cpps"
-echo "objs         = $objs"
-echo "jazz_depends = $jazz_depends"
+
+# Section 3. Start the Kung-fu
+# ----------
+
+printf "Writing: server/src/include/jazz_platform.h ... "
+
+echo "`cat _config_/copyright_notice`
+
+#define JAZZ_VERSION \"$jazz_version\"
+#define JAZZ_DEBUG_HOME \"$jazz_pwd\"
+
+#define LINUX_DISTRO \"$jazz_distro1\"
+#define LINUX_VERSION \"$jazz_distro2\"
+#define LINUX_PROCESSOR \"$jz_processor\"
+
+#define LINUX_PLATFORM LINUX_DISTRO \"_\" LINUX_VERSION \"_\" LINUX_PROCESSOR" > server/src/include/jazz_platform.h
+
+printf "Ok.\n"
+
+
+printf "Writing: server/Makefile ... "
+
+echo "`cat _config_/makefile_head`
+
+CXXFLAGS := -std=c++11 -Isrc/include -I$mhd_inclpath
+CPPFLAGS := \$(RFLAGS)
+
+LINUX   := ${jazz_distro1}_${jazz_distro2}
+HOME    := $jazz_pwd
+VERSION := $jazz_version
+
+VPATH = $vpath
+
+objects = $objs
+
+# Header file dependencies:
+
+$jazz_depends
+
+`cat _config_/makefile_tail`" > server/Makefile
+
+printf "Ok.\n"
+
+
+printf "Writing: server/src/main.dox ... "
+
+printf "Ok.\n"
+
+
+printf "Writing: r_package/rjazz/DESCRIPTION ... "
+
+printf "Ok.\n"
+
+
+printf "Writing: r_package/build.sh ... "
+
+printf "Ok.\n"
+
+
+printf "Writing: py_package/pyjazz/jazz_version.py ... "
+
+printf "Ok.\n"
+
+
+printf "Writing: py_package/build.sh ... "
+
+printf "Ok.\n"
+
+
+printf "Writing: docker/jazz_dockerfile ... "
+
+printf "Ok.\n"
+
+
+cat _config_/help_on_done.txt
