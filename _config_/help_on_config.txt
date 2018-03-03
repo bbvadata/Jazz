@@ -1,0 +1,16 @@
+This script creates:
+
+  - server/src/include/jazz_platform.h (Version and other platform constants)
+  - server/Makefile (for C++)
+  - server/src/main.dox (main page for Doxygen)
+  - rjazz/DESCRIPTION (With version information for the R package)
+  - rjazz/build.sh (to build, test and install the R package)
+  - pyjazz/jazz_version.py (With version information for the Python package)
+  - pyjazz/build.sh (to build, test and install the Python 2.7 and 3.x compatible package)
+  - docker/jazzDockerfile (for the reference Docker image)
+
+config.sh usage:
+
+  This script is not configured via arguments, but by creating chuncks in the _config_ folder.
+  The simple uses will be described in some _config_/help_* file.
+  Do not assume any promises about the future of this building process.

@@ -1,0 +1,28 @@
+
+The Jazz server requires libmicrohttpd (development version)!
+
+1. If you haven't yet installed libmicrohttpd:
+
+  You will have to install it with:
+
+    .. apt:
+
+       sudo apt-get update
+       sudo apt-get install libmicrohttpd-dev
+
+    .. yum:
+
+       sudo yum install libmicrohttpd-devel
+
+    .. rpm or other:
+
+       Find an rpm package or follow https://www.gnu.org/software/libmicrohttpd/ 
+
+2. If you know where to find the library (libmicrohttpd.so) and the header (microhttpd.h):
+
+  You can set the paths (ONLY the paths, no extra characters) in _config_ as follows:
+
+    echo '/home/me/my_lib/include' > _config_/mhd_include_path
+    echo '/home/me/my_lib/libs'    > _config_/mhd_library_path
+
+  and run ./config.sh again. It will use these paths instead of trying to guess.
