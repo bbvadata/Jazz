@@ -169,6 +169,11 @@ printf "Ok.\n"
 
 printf "Writing: r_package/rjazz/DESCRIPTION ... "
 
+echo "`cat _config_/description_head`
+Version: $jazz_version
+Date: $(date +%F)
+`cat _config_/description_tail`" > r_package/rjazz/DESCRIPTION
+
 printf "Ok.\n"
 
 
