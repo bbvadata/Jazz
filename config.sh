@@ -179,6 +179,12 @@ printf "Ok.\n"
 
 printf "Writing: r_package/build.sh ... "
 
+echo "`cat _config_/build_r_head`
+R CMD check rjazz_$jazz_version.tar.gz
+R CMD INSTALL rjazz_$jazz_version.tar.gz" > r_package/build.sh
+
+chmod 777 r_package/build.sh
+
 printf "Ok.\n"
 
 
