@@ -159,6 +159,11 @@ printf "Ok.\n"
 
 printf "Writing: server/src/main.dox ... "
 
+echo "/**
+\mainpage [Programming documentation for the Jazz Server version \"$jazz_version\"]
+
+`cat _config_/main_dox_tail`" > server/src/main.dox
+
 printf "Ok.\n"
 
 

@@ -6,3 +6,4 @@
 .vscode
 server/Makefile
 server/src/include/jazz_platform.h
+server/src/main.dox
