@@ -190,15 +190,32 @@ printf "Ok.\n"
 
 printf "Writing: py_package/pyjazz/jazz_version.py ... "
 
+echo "JAZZ_VERSION = \"$jazz_version\"" > py_package/pyjazz/jazz_version.py
+
 printf "Ok.\n"
 
 
 printf "Writing: py_package/build.sh ... "
 
+echo "#!/bin/bash
+
+export LD_LIBRARY_PATH=~/anaconda3/lib:$LD_LIBRARY_PATH
+
+swig -python example.i" > py_package/build.sh
+
+chmod 777 py_package/build.sh
+
 printf "Ok.\n"
 
 
 printf "Writing: docker/jazz_dockerfile ... "
+
+echo "FROM ubuntu
+MAINTAINER kaalam.ai
+
+RUN jazz
+
+CMD [\"/bin/bash\"]" > docker/jazz_dockerfile
 
 printf "Ok.\n"
 
