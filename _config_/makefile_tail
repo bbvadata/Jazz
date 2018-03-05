@@ -1,15 +1,15 @@
 # Targets (1): Making the executable
 # ------------
 
-djazz: bin_debug $(objects)
+djazz: $(objects)
 	@echo "Making DEBUG Jazz ..."
 	g++ -o bin_debug/jazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
 
-jazz: bin_release $(objects)
+jazz: $(objects) mdb.o midl.o
 	@echo "Making RELEASE Jazz ..."
-	g++ -o bin_release/rjazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb
+	g++ -o jazz $(objects) mdb.o midl.o -lmicrohttpd -lpthread
 
-tjazz: bin_test $(objects)
+tjazz: $(objects)
 	@echo "Making DEBUG&TEST Jazz ..."
 	g++ -o bin_test/tjazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
 
@@ -19,17 +19,10 @@ tjazz: bin_test $(objects)
 .PHONY : clean
 clean  :
 	@echo "Cleaning up all files not stored in the repo ..."
-	@rm -f src/lmdb/*.o
-	@rm -f src/lmdb/*.a
-	@rm -f src/lmdb/*.so
-	@rm -f src/lmdb/*.lo
-	@rm -f src/lmdb/mdb_copy
-	@rm -f src/lmdb/mdb_dump
-	@rm -f src/lmdb/mdb_load
-	@rm -f src/lmdb/mdb_stat
-	@rm -f src/lmdb/mtest
-	@rm -f src/lmdb/mtest?
-	@cd $(HOME)
+	@rm -f *.o
+	@rm -f tjazz
+	@rm -f djazz
+	@rm -f jazz
 
 .PHONY : info
 info   :
