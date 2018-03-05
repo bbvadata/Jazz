@@ -69,3 +69,18 @@ midl.o:
 DFLAGS := -DDEBUG -g
 RFLAGS := -DNDEBUG
 TFLAGS := -DDEBUG -DCATCH_TEST -g
+
+# Auto detect compile_mode and set CPPFLAGS accordingly
+# -----------
+
+ifneq ("$(wildcard compile_mode_debug)","")
+	CPPFLAGS := $(DFLAGS)
+endif
+
+ifneq ("$(wildcard compile_mode_release)","")
+	CPPFLAGS := $(RFLAGS)
+endif
+
+ifneq ("$(wildcard compile_mode_test)","")
+	CPPFLAGS := $(TFLAGS)
+endif
