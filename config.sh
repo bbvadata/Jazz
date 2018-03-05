@@ -137,7 +137,7 @@ printf "Writing: server/Makefile ... "
 
 echo "`cat _config_/makefile_head`
 
-CXXFLAGS := -std=c++11 -Isrc/include -I$mhd_inclpath
+CXXFLAGS := -std=c++11 -I. -I$mhd_inclpath
 CPPFLAGS := \$(RFLAGS)
 
 LINUX   := ${jazz_distro1}_${jazz_distro2}
