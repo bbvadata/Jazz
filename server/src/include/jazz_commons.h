@@ -38,7 +38,7 @@ in the appropriate source files in: jzzMISCUTILS, jzzALLOC, jzzCONFIG, jzzACCESS
 */
 
 #define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
-#include "src/include/microhttpd.h"
+#include "microhttpd.h"
 
 #if defined CATCH_TEST
 
@@ -55,8 +55,7 @@ in the appropriate source files in: jzzMISCUTILS, jzzALLOC, jzzCONFIG, jzzACCESS
 
 #include <math.h>
 
-#include "src/include/auto_version.h"
-#include "src/include/auto_linux_platform.h"
+#include "src/include/jazz_platform.h"
 
 #ifndef jzz_IG_JAZZCOMMONS
 #define jzz_IG_JAZZCOMMONS

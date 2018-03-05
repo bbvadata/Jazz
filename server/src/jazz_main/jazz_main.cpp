@@ -81,21 +81,6 @@ void hello()
  */
 void help()
 {
-	cout << "\x20 usage: " << JAZZ_ARTIFOLDER << " <config> start | stop | reload | status" << endl << endl
-
-		 << " <config>: A configuration file for command start. Default configuration has two steps:" << endl
-		 << "\x20 \x20 \x20 \x20 \x20 \x20 \x20 1. read configuration from file jazz_config.ini" << endl
-		 << "\x20 \x20 \x20 \x20 \x20 \x20 \x20 2. read configuration from file jazz_config.me" << endl
-		 << " \x20 \x20 \x20 \x20 \x20 The first step is mandatory. It is the cluster configuration valid for all nodes." << endl
-		 << " \x20 \x20 \x20 \x20 \x20 The second is optional and overrides specific settings for this node only." << endl
-		 << " \x20 \x20 \x20 \x20 \x20 In case <config> is given via command line, only that configuration applies. " << endl
-		 << "\x20 start\x20 : Start " << JAZZ_ARTIFOLDER << "." << endl
-		 << "\x20 stop \x20 : Stop " << JAZZ_ARTIFOLDER << "." << endl
-		 << "\x20 reload : Reload server configuration without stopping. Some options may not be changed." << endl
-		 << "\x20 \x20 \x20 \x20 \x20 \x20 \x20 1. Edit " << JAZZ_SERVICE_ROOT << "/" << JAZZ_ARTIFOLDER << "/config/jazz_config.me" << endl
-		 << "\x20 \x20 \x20 \x20 \x20 \x20 \x20 2. service " << JAZZ_ARTIFOLDER << " reload" << endl
-		 << " \x20 \x20 \x20 \x20 \x20 Reload will force the running process to load its specific configuration again." << endl
-		 << "\x20 status : Just check if server is running. Use the sys API for server statistics." << endl;
 }
 
 
@@ -119,33 +104,11 @@ int parse_arg(const char *arg)
 */
 bool normal_verbose_load_configuration()
 {
-	string cfn (JAZZ_SERVICE_ROOT);
+	string cfn;
 
-	cfn = cfn + "/" + JAZZ_ARTIFOLDER + "/config/jazz_config.ini";
+	cfn = "config/jazz_config.ini";
 
-#ifdef DEBUG
-	cfn = "./serverconf/jazz_config.ini";
-#endif
-
-#ifdef USER
-	cfn = "./serverconf/jazz_config.ini";
-#endif
-
-	bool cnf_ok = jCommons.load_config_file(cfn.c_str());
-
-	cout << "Loading cluster configuration \"" << cfn << "\" " << okfail(cnf_ok) << endl;
-
-	cfn.assign(JAZZ_SERVICE_ROOT);
-
-	cfn = cfn + "/" + JAZZ_ARTIFOLDER + "/config/jazz_config.me";
-
-#ifdef DEBUG
-	cfn = "./serverconf/jazz_config.me";
-#endif
-
-	cout << "Loading node configuration \"" << cfn << "\" " << okfail(jCommons.load_config_file(cfn.c_str())) << endl;
-
-	return cnf_ok;
+	return jCommons.load_config_file(cfn.c_str());
 }
 
 
@@ -527,12 +490,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	string proc_name ("./bin_debug/jazz");
 #else
-	#ifdef USER
-		string proc_name ("./bin_user/rjazz");
-	#else
-		string proc_name (JAZZ_SERVICE_ROOT);
-		proc_name = proc_name + "/" + JAZZ_ARTIFOLDER + "/" + JAZZ_SERVICE_BINARY;
-	#endif
+	string proc_name ("./bin_user/rjazz");
 #endif
 
 	pid_t jzzPID = proc_find(proc_name.c_str());
