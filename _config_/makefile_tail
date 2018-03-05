@@ -1,28 +1,48 @@
-# Targets (1): Making the executable
+# Targets (1): Compiling mode switching
 # ------------
 
-djazz: $(objects)
+compile_mode_debug:
+	@echo "Switching to compile mode DEBUG ..."
+	@make clean
+	@touch compile_mode_debug
+	$(eval CPPFLAGS = $(DFLAGS))
+
+compile_mode_release:
+	@echo "Switching to compile mode RELEASE ..."
+	@make clean
+	@touch compile_mode_release
+	$(eval CPPFLAGS = $(RFLAGS))
+
+compile_mode_test:
+	@echo "Switching to compile mode DEBUG&TEST ..."
+	@make clean
+	@touch compile_mode_test
+	$(eval CPPFLAGS = $(TFLAGS))
+
+# Targets (2): Making the executable
+# ------------
+
+djazz: compile_mode_debug $(objects) mdb.o midl.o
 	@echo "Making DEBUG Jazz ..."
-	g++ -o bin_debug/jazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
+	g++ -o djazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -lmicrohttpd -lpthread
 
-jazz: $(objects) mdb.o midl.o
+jazz: compile_mode_release $(objects) mdb.o midl.o
 	@echo "Making RELEASE Jazz ..."
-	g++ -o jazz $(objects) mdb.o midl.o -lmicrohttpd -lpthread
+	g++ -o jazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -lmicrohttpd -lpthread
 
-tjazz: $(objects)
+tjazz: compile_mode_test $(objects) mdb.o midl.o
 	@echo "Making DEBUG&TEST Jazz ..."
-	g++ -o bin_test/tjazz $(objects) -Ilibs -Llibs -lmicrohttpd -lpthread -lR -llmdb -lcrypto -lssl -lcurl
+	g++ -o tjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -lmicrohttpd -lpthread
 
-# Targets (2): Phony targets
+# Targets (3): Phony targets
 # ------------
 
 .PHONY : clean
 clean  :
 	@echo "Cleaning up all files not stored in the repo ..."
 	@rm -f *.o
-	@rm -f tjazz
-	@rm -f djazz
-	@rm -f jazz
+	@rm -f *jazz
+	@rm -f compile_mode_*
 
 .PHONY : info
 info   :
