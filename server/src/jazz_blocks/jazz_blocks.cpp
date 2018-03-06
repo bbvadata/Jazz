@@ -1892,7 +1892,7 @@ void jzzBLOCKS::log_lmdb_err_as_miss(int err, const char * msg)
 SCENARIO("Write/read some blocks in new sources jzzBLOCKS.")
 {
 	jzzBLOCKS jb;
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
+	jCommons.load_config_file("./config/jazz_config.ini");
 
 	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
 
@@ -2011,7 +2011,7 @@ SCENARIO("Read again previous blocks in new sources jzzBLOCKS.")
 //TODO: Enable this when TEST_PERSISTED_MODE is implemented.
 #ifdef TEST_PERSISTED_MODE
 	jzzBLOCKS jb;
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
+	jCommons.load_config_file("./config/jazz_config.ini");
 
 	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
 
@@ -2109,7 +2109,7 @@ SCENARIO("Read again previous blocks in new sources jzzBLOCKS.")
 SCENARIO("Testing jzzBLOCKS.")
 {
 	jzzBLOCKS jb;
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
+	jCommons.load_config_file("./config/jazz_config.ini");
 	REQUIRE(jb.start());
 
 	GIVEN("A configured, started and running jzzBLOCKS object.")
@@ -3187,7 +3187,7 @@ SCENARIO("Testing all LMDB functions.")
 {
 	jzzBLOCKS jb;
 
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
+	jCommons.load_config_file("./config/jazz_config.ini");
 
 	struct stat sb;
 
