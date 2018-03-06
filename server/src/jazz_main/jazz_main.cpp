@@ -441,12 +441,14 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef DEBUG
-	string proc_name ("./bin_debug/jazz");
+	string proc_name ("./djazz");
 #else
 	string proc_name ("./jazz");
 #endif
 
 	pid_t jzzPID = proc_find(proc_name.c_str());
+
+	if (!jzzPID) jzzPID = proc_find("/etc/jazz-server/jazz");
 
 	if (!jzzPID)
 	{
