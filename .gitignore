@@ -11,6 +11,7 @@ server/src/include/jazz_platform.h
 server/src/main.dox
 r_package/rjazz/DESCRIPTION
 r_package/build.sh
+r_package/*.tar.gz
 py_package/pyjazz/jazz_version.py
 py_package/build.sh
 docker/jazz_dockerfile
