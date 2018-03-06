@@ -84,7 +84,7 @@ install : jazz
 .PHONY    : uninstall
 uninstall :
 	@echo "Checking if jazz-server is already running ..."
-	@if ./jazz status; then echo 'Service is already running. Stop it first.' && false; fi;
+	@if /etc/jazz-server/jazz status; then echo 'Service is already running. Stop it first.' && false; fi;
 	@echo "Installing service jazz-server ..."
 	@sudo rm -rf /etc/jazz-server
 	@sudo rm -f /etc/init.d/jazz-server
