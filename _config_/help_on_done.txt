@@ -5,9 +5,9 @@ you should be able to:
   1. Build the server
 
   - cd server
-  - make                // Shows help when invoked without arguments
-  - make jazz           // Compiles the server in RELEASE mode
-  - sudo make install   // Installs the compiled server as a Linux service
+  - make           // Shows help when invoked without arguments
+  - make jazz      // Compiles the server in RELEASE mode
+  - make install   // Requires sudo and installs as a Linux service
 
   2. Build the R package
 
