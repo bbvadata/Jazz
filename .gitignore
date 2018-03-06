@@ -4,6 +4,8 @@
 .Ruserdata
 *.Rproj
 .vscode
+*.cbp
+*.layout
 server/Makefile
 server/src/include/jazz_platform.h
 server/src/main.dox
