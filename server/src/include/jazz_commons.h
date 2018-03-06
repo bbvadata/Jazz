@@ -45,7 +45,7 @@ in the appropriate source files in: jzzMISCUTILS, jzzALLOC, jzzCONFIG, jzzACCESS
 	#ifndef jzz_IG_CATCH
 	#define jzz_IG_CATCH
 
-		#include "include/catch/catch.h"
+		#include "src/catch2/catch.hpp"
 
 	#endif
 
