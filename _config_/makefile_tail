@@ -60,9 +60,33 @@ runtest : tjazz
 # ------------
 
 .PHONY  : install
-install :
-	@echo "Not implemented ..."
+install : jazz
+	@echo "Checking if jazz-server is already running ..."
+	@if ./jazz status; then echo 'Service is already running. Stop it first.' && false; fi;
+	@echo "Installing service jazz-server ..."
+	@sudo rm -rf /etc/jazz-server
+	@sudo mkdir /etc/jazz-server
+	@sudo mkdir /etc/jazz-server/config
+	@sudo rm -f /etc/init.d/jazz-server
+	@sudo cp ./jazz /etc/jazz-server/
+	@sudo chmod 755 /etc/jazz-server/jazz
+	@sudo chown root:root /etc/jazz-server/jazz
+	@sudo cp ./config/jazz_config.ini /etc/jazz-server/config/
+	@sudo chown root:root /etc/jazz-server/config/jazz_config.ini
+	@sudo cp ./config/jazz-server.init.d /etc/init.d/jazz-server
+	@sudo chmod 755 /etc/init.d/jazz-server
+	@sudo chown root:root /etc/init.d/jazz-server
+	@echo ""
+	@echo "Service installed as \"jazz-server\"."
+	@echo ""
+	@echo "Try: sudo service jazz-server  (You may also need to 'sudo systemctl daemon-reload')"
 
 .PHONY    : uninstall
 uninstall :
-	@echo "Not implemented ..."
+	@echo "Checking if jazz-server is already running ..."
+	@if ./jazz status; then echo 'Service is already running. Stop it first.' && false; fi;
+	@echo "Installing service jazz-server ..."
+	@sudo rm -rf /etc/jazz-server
+	@sudo rm -f /etc/init.d/jazz-server
+	@echo ""
+	@echo "Service \"jazz-server\" was removed.  (You may also need to 'sudo systemctl daemon-reload')"
