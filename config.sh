@@ -208,14 +208,18 @@ chmod 777 py_package/build.sh
 printf "Ok.\n"
 
 
-printf "Writing: docker/jazz_dockerfile ... "
+printf "Writing: docker/upload_docker.sh ... "
 
-echo "FROM ubuntu
-MAINTAINER kaalam.ai
+echo "`cat _config_/upload_docker_head`
 
-RUN jazz
+sudo docker tag jazz_ref_stable kaalam/jazz_neat:$jazz_version
+sudo docker push kaalam/jazz_neat:$jazz_version
 
-CMD [\"/bin/bash\"]" > docker/jazz_dockerfile
+# docker run -ti kaalam/jazz_neat:0.2.1 /bin/bash
+# docker run -b kaalam/jazz_neat:0.2.1
+# docker run kaalam/jazz_neat:0.2.1" > docker/upload_docker.sh
+
+chmod 777 docker/upload_docker.sh
 
 printf "Ok.\n"
 

@@ -7,7 +7,7 @@ This script creates:
   - r_package/build.sh (to build, test and install the R package)
   - py_package/pyjazz/jazz_version.py (Version info for Python)
   - py_package/build.sh (build, test and install Python package)
-  - docker/jazz_dockerfile (for the reference Docker image)
+  - docker/upload_docker.sh (build & upload reference Docker image)
 
 config.sh usage:
 
