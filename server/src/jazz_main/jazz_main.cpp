@@ -50,8 +50,7 @@ using namespace std;
 #define CMND_HELP		0	///< Command 'help' as a numerical constant (see parse_arg())
 #define CMND_START		1	///< Command 'start' as a numerical constant (see parse_arg())
 #define CMND_STOP		2	///< Command 'stop' as a numerical constant (see parse_arg())
-#define CMND_RELOAD		3	///< Command 'reload' as a numerical constant (see parse_arg())
-#define CMND_STATUS		4	///< Command 'status' as a numerical constant (see parse_arg())
+#define CMND_STATUS		3	///< Command 'status' as a numerical constant (see parse_arg())
 
 #define NOT_CONDITIONAL 0	///< 'fun' value for register_service(): Register always.
 #define IF_PERIMETER	1	///< 'fun' value for register_service(): Register if key is MODE_INTERNAL_PERIMETER | MODE_EXTERNAL_PERIMETER.
@@ -81,6 +80,13 @@ void hello()
  */
 void help()
 {
+	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
+
+		 << " <config>: A configuration file for the server in case of command start." << endl
+		 << "\x20 \x20 \x20 \x20 \x20 \x20 by default, Jazz will try to load: config/jazz_config.ini" << endl
+		 << "\x20 start\x20 : Start the jazz server." << endl
+		 << "\x20 stop \x20 : Stop the jazz server." << endl
+		 << "\x20 status : Just check if server is running." << endl;
 }
 
 
@@ -93,7 +99,6 @@ int parse_arg(const char *arg)
 {
 	if (!strcmp("start",  arg)) return CMND_START;
 	if (!strcmp("stop",	  arg)) return CMND_STOP;
-	if (!strcmp("reload", arg)) return CMND_RELOAD;
 	if (!strcmp("status", arg)) return CMND_STATUS;
 
 	return CMND_HELP;
@@ -112,52 +117,6 @@ bool normal_verbose_load_configuration()
 }
 
 
-/** Capture SIGHUP. This callback procedure reloads the configuration on a running server.
-
-	See main_server_start() for details on the server's start/reload/stop.
-*/
-void signalHandler_SIGHUP(int signum)
-{
-	cout << "Interrupt signal (" << signum << ") received." << endl;
-
-	cout << "Reloading the configuration ..." << endl;
-
-	bool rel_ok = normal_verbose_load_configuration();
-
-	if (!rel_ok)
-	{
-		cout << "No valid configuration loaded in reload procedure from signalHandler_SIGHUP()." << endl;
-		jCommons.log(LOG_ERROR, "No valid configuration loaded in reload procedure from signalHandler_SIGHUP()");
-
-		cout << "Killing the server from signalHandler_SIGHUP() ..." << endl;
-		jCommons.log(LOG_ERROR, "Killing the server from signalHandler_SIGHUP() ...");
-
-		kill(getpid(), SIGTERM);
-
-		return;
-	}
-
-	cout << "Reloading all services ..." << endl;
-
-	rel_ok = jServices.reload_all();
-
-	cout << "Reloaded all services : " << okfail(rel_ok) << endl;
-
-	if (!rel_ok)
-	{
-		cout << "Failed to reload all services from signalHandler_SIGHUP()." << endl;
-		jCommons.log(LOG_ERROR, "Failed to reload all services from signalHandler_SIGHUP()");
-
-		cout << "Killing the server from signalHandler_SIGHUP() ..." << endl;
-		jCommons.log(LOG_ERROR, "Killing the server from signalHandler_SIGHUP() ...");
-
-		kill(getpid(), SIGTERM);
-
-		return;
-	}
-}
-
-
 /** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
 */
 struct MHD_Daemon * jzzdaemon;
@@ -165,7 +124,7 @@ struct MHD_Daemon * jzzdaemon;
 
 /** Capture SIGTERM. This callback procedure stops a running server.
 
-	See main_server_start() for details on the server's start/reload/stop.
+	See main_server_start() for details on the server's start/stop.
 */
 void signalHandler_SIGTERM(int signum)
 {
@@ -241,9 +200,7 @@ Starting logic:
  1. This first loads a configuration, returns EXIT_FAILURE if that fails.
 
 	If conf is not void, it uses this file as the configuration source,
-	else
-		it loads from JAZZ_SERVICE_ROOT/JAZZ_ARTIFOLDER/config/jazz_config.ini (mandatory)
-		it loads from JAZZ_SERVICE_ROOT/JAZZ_ARTIFOLDER/config/jazz_config.me (optional)
+	else it tries config/jazz_config.ini
 
  2. Initializes the logger, returns EXIT_FAILURE if that fails.
 
@@ -263,7 +220,7 @@ Starting logic:
 	if anyone fails:
 		calls jServices.stop_all() and returns EXIT_FAILURE
 
- 8. Registers the signal handlers for SIGHUP and SIGTERM
+ 8. Registers the signal handlers for SIGTERM
 
 	if that fails:
 		calls jServices.stop_all() and returns EXIT_FAILURE
@@ -373,9 +330,9 @@ int main_server_start(const char *conf)
 		return EXIT_FAILURE;
 	}
 
-// 8. Registers the signal handlers for SIGHUP and SIGTERM
+// 8. Registers the signal handlers for SIGTERM
 
-	int sig_ok = signal(SIGHUP,	 signalHandler_SIGHUP) != SIG_ERR && signal(SIGTERM, signalHandler_SIGTERM) != SIG_ERR;
+	int sig_ok = signal(SIGTERM, signalHandler_SIGTERM) != SIG_ERR;
 
 	if (!sig_ok)
 	{
@@ -463,10 +420,6 @@ When the command is "stop":
 		if the server closes before 20 seconds, message + EXIT_SUCCESS
 		else message + EXIT_FAILURE
 
-When the command is "reload":
-	if not running already, message + EXIT_FAILURE
-	else send a SIGHUP to the server, message + EXIT_SUCCESS
-
 When the command is "status":
 	if not running already, message + EXIT_FAILURE
 	else message + EXIT_SUCCESS
@@ -490,7 +443,7 @@ int main(int argc, char* argv[])
 #ifdef DEBUG
 	string proc_name ("./bin_debug/jazz");
 #else
-	string proc_name ("./bin_user/rjazz");
+	string proc_name ("./jazz");
 #endif
 
 	pid_t jzzPID = proc_find(proc_name.c_str());
@@ -549,16 +502,6 @@ int main(int argc, char* argv[])
 			cout << "Waiting for \"" << proc_name << "\" to stop timed out." << endl;
 
 			exit(EXIT_FAILURE);
-		}
-
-		if (cmnd == CMND_RELOAD)
-		{
-			kill(jzzPID, SIGHUP);
-
-			cout << "Reload signal was sent to process \"" << proc_name << "\" running with pid = " << jzzPID << "." << endl;
-			cout << "To verify what changes where applied, use the sys API." << endl;
-
-			exit(EXIT_SUCCESS);
 		}
 
 //		if (cmnd == CMND_STATUS)
