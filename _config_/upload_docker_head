@@ -26,6 +26,6 @@ cd $docker_pwd
 
 cp ../server/config/jazz_config.ini .
 
-sudo docker build -t jazz_ref_stable .
+docker build -t jazz_ref_stable .
 
-sudo docker login
+docker login

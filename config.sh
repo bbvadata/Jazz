@@ -212,12 +212,10 @@ printf "Writing: docker/upload_docker.sh ... "
 
 echo "`cat _config_/upload_docker_head`
 
-sudo docker tag jazz_ref_stable kaalam/jazz_neat:$jazz_version
-sudo docker push kaalam/jazz_neat:$jazz_version
+docker tag jazz_ref_stable kaalam/jazz_neat:$jazz_version
+docker push kaalam/jazz_neat:$jazz_version
 
-# docker run -ti kaalam/jazz_neat:0.2.1 /bin/bash
-# docker run -b kaalam/jazz_neat:0.2.1
-# docker run kaalam/jazz_neat:0.2.1" > docker/upload_docker.sh
+`cat _config_/upload_docker_tail`" > docker/upload_docker.sh
 
 chmod 777 docker/upload_docker.sh
 
