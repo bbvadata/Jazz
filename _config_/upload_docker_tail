@@ -1,6 +1,5 @@
-# docker run -ti kaalam/jazz_neat:0.2.1 /bin/bash
-# docker run -b kaalam/jazz_neat:0.2.1
-# docker run kaalam/jazz_neat:0.2.1
+# docker run -p8888:8888 -ti kaalam/jazz_neat:0.2.0.99 /bin/bash
+# docker run -p8888:8888 kaalam/jazz_neat:0.2.0.99
 
 rm jazz
 rm jazz_config.ini
