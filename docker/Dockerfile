@@ -10,9 +10,10 @@ RUN ln -s /usr/lib/x86_64-linux-gnu/libmicrohttpd.so.10 /usr/lib/x86_64-linux-gn
 
 RUN mkdir /home/jadmin/mdb
 
+ADD ./start.sh /home/jadmin
 ADD ./jazz /home/jadmin
 ADD ./jazz_config.ini /home/jadmin/config/jazz_config.ini
 
 EXPOSE 8888
 
-CMD ["/home/jadmin/jazz", "start"]
+CMD ["/home/jadmin/start.sh"]
