@@ -211,24 +211,6 @@ setup(name='pyjazz',
 printf "Ok.\n"
 
 
-printf "Writing: py_package/build.sh ... "
-
-echo "#!/bin/bash
-
-rm -rf dist/
-rm -rf pyjazz.egg-info/
-
-python setup.py sdist
-twine upload dist/*
-
-rm -rf dist/
-rm -rf pyjazz.egg-info/" > py_package/build.sh
-
-chmod 777 py_package/build.sh
-
-printf "Ok.\n"
-
-
 printf "Writing: docker/upload_docker.sh ... "
 
 echo "`cat _config_/upload_docker_head`
