@@ -17,7 +17,7 @@ This is the official R Jazz client maintained by the Authors of Jazz.
 ## The simplest way to start
 
  - [Using the R package without a server](http://kaalam.github.io/jazz_reference/rjazz_walkthough_client_only.html)
- - [Using the client with a server](http://kaalam.github.io/jazz_reference/rjazz_walkthough_with_server.html)
+ - [Using the R client with a server](http://kaalam.github.io/jazz_reference/rjazz_walkthough_with_server.html)
 
 
 ## License
