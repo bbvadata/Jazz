@@ -188,9 +188,25 @@ chmod 777 r_package/build.sh
 printf "Ok.\n"
 
 
-printf "Writing: py_package/pyjazz/jazz_version.py ... "
+printf "Writing: py_package/pyjazz/__init__.py ... "
 
-echo "JAZZ_VERSION = \"$jazz_version\"" > py_package/pyjazz/jazz_version.py
+echo "def get_jazz_version():
+	return(\"$jazz_version\")" > py_package/pyjazz/__init__.py
+
+printf "Ok.\n"
+
+printf "Writing: py_package/setup.py ... "
+
+echo "from setuptools import setup
+
+setup(name='pyjazz',
+	version='$jazz_version',
+	description='Official Python client for Jazz',
+	url='http://github.com/kaalam/jazz',
+	author='kaalam.ai',
+	author_email='kaalam@kaalam.ai',
+	license='Apache 2.0',
+	zip_safe=False)" > py_package/setup.py
 
 printf "Ok.\n"
 
