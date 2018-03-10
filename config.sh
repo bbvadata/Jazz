@@ -188,14 +188,14 @@ chmod 777 r_package/build.sh
 printf "Ok.\n"
 
 
-printf "Writing: py_package/pyjazz/__init__.py ... "
+printf "Writing: py_package/pyjazz/pyjazz/get_jazz_version.py ... "
 
 echo "def get_jazz_version():
-	return(\"$jazz_version\")" > py_package/pyjazz/__init__.py
+	return(\"$jazz_version\")" > py_package/pyjazz/pyjazz/get_jazz_version.py
 
 printf "Ok.\n"
 
-printf "Writing: py_package/setup.py ... "
+printf "Writing: py_package/pyjazz/setup.py ... "
 
 echo "from setuptools import setup
 
@@ -206,7 +206,7 @@ setup(name='pyjazz',
 	author='kaalam.ai',
 	author_email='kaalam@kaalam.ai',
 	license='Apache 2.0',
-	zip_safe=False)" > py_package/setup.py
+	packages=['pyjazz'])" > py_package/pyjazz/setup.py
 
 printf "Ok.\n"
 

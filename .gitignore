@@ -12,7 +12,6 @@ server/src/main.dox
 r_package/rjazz/DESCRIPTION
 r_package/build.sh
 r_package/*.tar.gz
-py_package/pyjazz/__init__.py
-py_package/setup.py
-py_package/build.sh
+py_package/pyjazz/pyjazz/get_jazz_version.py
+py_package/pyjazz/setup.py
 docker/upload_docker.sh
