@@ -215,9 +215,14 @@ printf "Writing: py_package/build.sh ... "
 
 echo "#!/bin/bash
 
-export LD_LIBRARY_PATH=~/anaconda3/lib:$LD_LIBRARY_PATH
+rm -rf dist/
+rm -rf pyjazz.egg-info/
 
-swig -python example.i" > py_package/build.sh
+python setup.py sdist
+twine upload dist/*
+
+rm -rf dist/
+rm -rf pyjazz.egg-info/" > py_package/build.sh
 
 chmod 777 py_package/build.sh
 
