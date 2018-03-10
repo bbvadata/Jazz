@@ -13,5 +13,11 @@ r_package/rjazz/DESCRIPTION
 r_package/build.sh
 r_package/*.tar.gz
 py_package/pyjazz/pyjazz/get_jazz_version.py
+py_package/pyjazz/pyjazz/jazz_blocks.py
 py_package/pyjazz/setup.py
+py_package/pyjazz/dist/
+py_package/pyjazz/pyjazz.egg-info/
+py_package/pyjazz/pyjazz/*.pyc
+py_package/pyjazz/pyjazz/*.so
+py_package/pyjazz/pyjazz/__pycache__/
 docker/upload_docker.sh
