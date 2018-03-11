@@ -9,6 +9,8 @@ rm -rf pyjazz.egg-info/
 
 cd pyjazz
 
+rm -f *.so
+
 export LD_LIBRARY_PATH=~/anaconda3/lib:$LD_LIBRARY_PATH
 
 swig -python jazz_blocks.i
