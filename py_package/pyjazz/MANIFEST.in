@@ -1,1 +1,1 @@
-recursive-include *.so
+recursive-include pyjazz *.so
