@@ -8,6 +8,7 @@ rm -rf dist/
 rm -rf pyjazz.egg-info/
 rm -f *.rst
 
+cp ../html/index.md README.md
 pandoc --from=markdown --to=rst --output=README.rst README.md
 
 cd pyjazz
