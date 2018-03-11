@@ -17,6 +17,7 @@ py_package/pyjazz/pyjazz/jazz_blocks.py
 py_package/pyjazz/setup.py
 py_package/pyjazz/dist/
 py_package/pyjazz/*.rst
+py_package/pyjazz/README.md
 py_package/pyjazz/pyjazz.egg-info/
 py_package/pyjazz/pyjazz/*.pyc
 py_package/pyjazz/pyjazz/*.so
