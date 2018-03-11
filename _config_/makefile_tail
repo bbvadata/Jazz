@@ -1,0 +1,92 @@
+# Targets (1): Compiling mode switching
+# ------------
+
+compile_mode_debug:
+	@echo "Switching to compile mode DEBUG ..."
+	@make clean
+	@touch compile_mode_debug
+	$(eval CPPFLAGS = $(DFLAGS))
+
+compile_mode_release:
+	@echo "Switching to compile mode RELEASE ..."
+	@make clean
+	@touch compile_mode_release
+	$(eval CPPFLAGS = $(RFLAGS))
+
+compile_mode_test:
+	@echo "Switching to compile mode DEBUG&TEST ..."
+	@make clean
+	@touch compile_mode_test
+	$(eval CPPFLAGS = $(TFLAGS))
+
+# Targets (2): Making the executable
+# ------------
+
+djazz: compile_mode_debug $(objects) mdb.o midl.o
+	@echo "Making DEBUG Jazz ..."
+	g++ -o djazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -lmicrohttpd -lpthread
+
+jazz: compile_mode_release $(objects) mdb.o midl.o
+	@echo "Making RELEASE Jazz ..."
+	g++ -o jazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -lmicrohttpd -lpthread
+
+tjazz: compile_mode_test $(objects) mdb.o midl.o
+	@echo "Making DEBUG&TEST Jazz ..."
+	g++ -o tjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -lmicrohttpd -lpthread
+
+# Targets (3): Phony targets
+# ------------
+
+.PHONY : clean
+clean  :
+	@echo "Cleaning up all files not stored in the repo ..."
+	@rm -f *.o
+	@rm -f *jazz
+	@rm -f compile_mode_*
+
+.PHONY : info
+info   :
+	@echo "Current Jazz version   : $(VERSION)"
+	@echo "Current Jazz home      : $(HOME)"
+	@echo "Current Linux platform : $(LINUX)"
+	@echo "Current CPPFLAGS       : $(CPPFLAGS)"
+	@echo "Current CXXFLAGS       : $(CXXFLAGS)"
+
+.PHONY  : runtest
+runtest : tjazz
+	@./tjazz -sa
+
+# Targets (4): System admin targets
+# ------------
+
+.PHONY  : install
+install : jazz
+	@echo "Checking if jazz-server is already running ..."
+	@if ./jazz status; then echo 'Service is already running. Stop it first.' && false; fi;
+	@echo "Installing service jazz-server ..."
+	@sudo rm -rf /etc/jazz-server
+	@sudo mkdir /etc/jazz-server
+	@sudo mkdir /etc/jazz-server/config
+	@sudo rm -f /etc/init.d/jazz-server
+	@sudo cp ./jazz /etc/jazz-server/
+	@sudo chmod 755 /etc/jazz-server/jazz
+	@sudo chown root:root /etc/jazz-server/jazz
+	@sudo cp ./config/jazz_config.ini /etc/jazz-server/config/
+	@sudo chown root:root /etc/jazz-server/config/jazz_config.ini
+	@sudo cp ./config/jazz-server.init.d /etc/init.d/jazz-server
+	@sudo chmod 755 /etc/init.d/jazz-server
+	@sudo chown root:root /etc/init.d/jazz-server
+	@echo ""
+	@echo "Service installed as \"jazz-server\"."
+	@echo ""
+	@echo "Try: sudo service jazz-server  (You may also need to 'sudo systemctl daemon-reload')"
+
+.PHONY    : uninstall
+uninstall :
+	@echo "Checking if jazz-server is already running ..."
+	@if /etc/jazz-server/jazz status; then echo 'Service is already running. Stop it first.' && false; fi;
+	@echo "Installing service jazz-server ..."
+	@sudo rm -rf /etc/jazz-server
+	@sudo rm -f /etc/init.d/jazz-server
+	@echo ""
+	@echo "Service \"jazz-server\" was removed.  (You may also need to 'sudo systemctl daemon-reload')"
