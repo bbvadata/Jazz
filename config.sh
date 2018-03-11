@@ -240,6 +240,18 @@ setup(name='pyjazz',
 printf "Ok.\n"
 
 
+printf "Writing: py_package/html/index.md ... "
+
+echo "`cat _config_/pyjazz_index_head`
+
+
+## Reference for version $jazz_version
+
+`cat _config_/pyjazz_index_tail`" > py_package/html/index.md
+
+printf "Ok.\n"
+
+
 printf "Writing: docker/upload_docker.sh ... "
 
 echo "`cat _config_/upload_docker_head`
