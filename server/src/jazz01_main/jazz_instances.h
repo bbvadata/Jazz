@@ -31,7 +31,7 @@ normally DEBUG or NDEBUG) except under CATCH_TEST. jzzAPI is instantiated in jzz
 */
 
 #include "src/include/jazz01_commons.h"
-#include "src/jazz_blocks/jazz_blockconv.h"
+#include "src/jazz01_blocks/jazz_blockconv.h"
 
 /*~ end of automatic header ~*/
 

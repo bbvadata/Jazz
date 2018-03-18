@@ -31,7 +31,7 @@ using namespace std;
 	This module includes all the LMDB management in the server.
 */
 
-#include "src/jazz_blocks/jazz_blocks.h"
+#include "src/jazz01_blocks/jazz_blocks.h"
 
 /*~ end of automatic header ~*/
 

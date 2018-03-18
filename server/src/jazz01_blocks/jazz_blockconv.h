@@ -30,7 +30,7 @@ move here tho make the top API PUT function (exec_block_put_function()) simpler.
 */
 
 #include "src/include/jazz01_commons.h"
-#include "src/jazz_blocks/jazz_blocks.h"
+#include "src/jazz01_blocks/jazz_blocks.h"
 
 /*~ end of automatic header ~*/
 
