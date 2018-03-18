@@ -29,7 +29,7 @@ well formed http protocol messages.
 */
 
 #include "src/include/jazz01_commons.h"
-#include "src/jazz_misc/jazz_websource.h"
+#include "src/jazz01_misc/jazz_websource.h"
 
 /*~ end of automatic header ~*/
 
