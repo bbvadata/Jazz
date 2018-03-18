@@ -8,6 +8,20 @@ You can start with the object <a href="hierarchy.html">hierarchy</a>.
 
 ![Jazz modules](diagrams/jazz_modules.png)
 
+This diagram shows how the different Jazz module fit. Everything except the dotted nodes
+is in the repository.\n
+\n
+A. Is the folder jazz_elemets (all the pieces that work on blocks)\n
+B. Is the folder jazz_functional (all the pieces that support higher level abstractions)\n
+C. Is the folder jazz_main (for the http server only)\n
+\n
+You will typically use (5) for extending the backend in C++. (noted as (x))\n
+You will typically use (4) for connect to other languages, other than R & Python.\n
+You will typically use (3) to run R & Python scripts for both local and remote sources.\n
+You will typically use (2) build docker images containing your applications.\n
+\n
+If you use (1), you are the end user, not a developer. ;-)\n
+
 \n
 \section note_sec TRANSITION FROM Jazz 0.1.x
 
