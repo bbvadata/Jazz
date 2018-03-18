@@ -31,8 +31,8 @@ call with the url if not. If that call is successful it provides the resource, i
 */
 
 #include "src/include/jazz01_commons.h"
-#include "src/jazz_misc/jazz_websource.h"
-#include "src/jazz_main/jazz_instances.h"
+#include "src/jazz01_misc/jazz_websource.h"
+#include "src/jazz01_main/jazz_instances.h"
 
 /*~ end of automatic header ~*/
 
