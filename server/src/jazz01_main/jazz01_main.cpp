@@ -41,8 +41,8 @@ using namespace std;
 */
 
 #include "src/include/jazz01_commons.h"
-#include "src/jazz01_main/jazz_instances.h"
-#include "src/jazz01_main/jazz_api.h"
+#include "src/jazz01_main/jazz01_instances.h"
+#include "src/jazz01_main/jazz01_api.h"
 
 /*~ end of automatic header ~*/
 

@@ -34,7 +34,7 @@ queried via find_websource(). websources do no exist for the API, they are just 
 
 #include "src/include/jazz01_commons.h"
 #include "src/jazz01_blocks/jazz_blocks.h"
-#include "src/jazz01_main/jazz_instances.h"
+#include "src/jazz01_main/jazz01_instances.h"
 
 /*~ end of automatic header ~*/
 
