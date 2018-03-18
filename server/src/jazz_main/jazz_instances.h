@@ -30,7 +30,7 @@ normally DEBUG or NDEBUG) except under CATCH_TEST. jzzAPI is instantiated in jzz
 	See the RFC instantiation.html for details on instantiation.
 */
 
-#include "src/include/jazz_commons.h"
+#include "src/include/jazz01_commons.h"
 #include "src/jazz_blocks/jazz_blockconv.h"
 
 /*~ end of automatic header ~*/

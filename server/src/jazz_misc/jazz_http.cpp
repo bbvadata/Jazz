@@ -28,7 +28,7 @@ This module includes the support for gathering http statistics, server configura
 well formed http protocol messages.
 */
 
-#include "src/include/jazz_commons.h"
+#include "src/include/jazz01_commons.h"
 #include "src/jazz_misc/jazz_websource.h"
 
 /*~ end of automatic header ~*/

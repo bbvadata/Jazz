@@ -27,7 +27,7 @@ using namespace std;
 	This module includes all the LMDB management in the server.
 */
 
-#include "src/include/jazz_commons.h"
+#include "src/include/jazz01_commons.h"
 #include "src/lmdb/lmdb.h"
 
 /*~ end of automatic header ~*/
