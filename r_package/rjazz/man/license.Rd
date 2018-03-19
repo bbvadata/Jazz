@@ -1,6 +1,10 @@
-## BBVA - Jazz: A lightweight analytical web server for data-driven applications - R client.
+\name{license}
 
+\title{
+BBVA - Jazz: A lightweight analytical web server for data-driven applications - R client.
+}
 
+\description{
    Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
 
   This product includes software developed at
@@ -18,3 +22,4 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
+}
