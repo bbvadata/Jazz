@@ -5,7 +5,7 @@ Jazz is a lightweight modular data processing framework, including a web server.
 
 ## Jazz modules diagram
 
-![Jazz modules](_config_/jazz_modules.png)
+![Jazz modules](https://kaalam.github.io/develop_jazz02/diagrams/jazz_modules.png)
 
 
 ## History and Objectives
