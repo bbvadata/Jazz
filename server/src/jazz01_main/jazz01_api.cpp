@@ -1665,7 +1665,7 @@ int jzzAPI::exec_instr_get(parsedURL &pars, struct MHD_Response * &response)
 {
 	jCommons.log(LOG_MISS, "exec_instr_get()");
 
-//TODO: Implement exec_instr_get().
+//_in_deprecated_code_TODO: Implement exec_instr_get().
 
 	return MHD_HTTP_NOT_IMPLEMENTED;
 }
@@ -1682,7 +1682,7 @@ int jzzAPI::exec_instr_get_function(parsedURL &pars, struct MHD_Response * &resp
 {
 	jCommons.log(LOG_MISS, "exec_instr_get_function()");
 
-//TODO: Implement exec_instr_get_function().
+//_in_deprecated_code_TODO: Implement exec_instr_get_function().
 
 	return MHD_HTTP_NOT_IMPLEMENTED;
 }
@@ -1700,7 +1700,7 @@ bool jzzAPI::exec_instr_put(parsedURL &pars, const char * upload, size_t size)
 {
 	jCommons.log(LOG_MISS, "exec_instr_put()");
 
-//TODO: Implement exec_instr_put().
+//_in_deprecated_code_TODO: Implement exec_instr_put().
 
 	return false;
 }
@@ -1718,7 +1718,7 @@ bool jzzAPI::exec_instr_put_function(parsedURL &pars, const char * upload, size_
 {
 	jCommons.log(LOG_MISS, "exec_instr_put_function()");
 
-//TODO: Implement exec_instr_put_function().
+//_in_deprecated_code_TODO: Implement exec_instr_put_function().
 
 	return false;
 }
@@ -1734,7 +1734,7 @@ int jzzAPI::exec_instr_kill(parsedURL &pars)
 {
 	jCommons.log(LOG_MISS, "exec_instr_kill()");
 
-//TODO: Implement exec_instr_kill().
+//_in_deprecated_code_TODO: Implement exec_instr_kill().
 
 	return MHD_HTTP_NOT_IMPLEMENTED;
 }
