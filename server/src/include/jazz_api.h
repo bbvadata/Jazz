@@ -21,13 +21,6 @@
   limitations under the License.
 */
 
-using namespace std;
-
-/**< \brief TODO
-
-TODO: complete this!
-*/
-
 
 #include "src/include/jazz.h"
 
