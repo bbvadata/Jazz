@@ -37,7 +37,9 @@ using namespace std;
 
 /**< \brief Basic JAZZ types and definitions.
 
-	This file contains constants, codeless types and API-level classes.
+	This file merges headers in src/jazz_elements/ to define all the higher level types and root classes. This is what you need to create
+your own descendent classes to extend Jazz en C++. If you need the core implementations, Bebop or extending in scripting languages, you
+need jazz_api.h
 */
 
 #define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
@@ -56,5 +58,11 @@ using namespace std;
 #define INCLUDED_JAZZ_INCLUDE_JAZZ
 
 
+#include "src/jazz_elements/jazz_datablocks.h"
+#include "src/jazz_elements/jazz_alloc.h"
+#include "src/jazz_elements/jazz_utils.h"
+#include "src/jazz_elements/jazz_primitives.h"
+#include "src/jazz_elements/jazz_persistence.h"
+#include "src/jazz_elements/jazz_classes.h"
 
 #endif
