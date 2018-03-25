@@ -228,7 +228,7 @@ JazzHTTPSERVER.REST_SAMPLE_PROPORTION.
 */
 void jazzCommons::enter_api_call (struct MHD_Connection *connection, const char *url, int method)
 {
-//TODO: Implement enter_api_call.
+//_in_deprecated_code_TODO: Implement enter_api_call.
 
 }
 
@@ -243,7 +243,7 @@ pair. The number of calls sampled depends on the configuration variable JazzHTTP
 */
 void jazzCommons::leave_api_call (int status)
 {
-//TODO: Implement leave_api_call.
+//_in_deprecated_code_TODO: Implement leave_api_call.
 
 }
 

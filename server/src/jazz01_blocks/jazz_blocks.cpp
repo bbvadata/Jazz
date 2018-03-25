@@ -145,11 +145,11 @@ bool jzzBLOCKS::start()
 
 	strcpy(lmdb.path, pat.c_str());
 
-//TODO: Understand why this breaks CATCH_TEST
+//_in_deprecated_code_TODO: Understand why this breaks CATCH_TEST
 
 #ifndef CATCH_TEST
 
-//TODO: Now every run removes the database from file to avoid syssegv. -- Remove this when fixed -------//
+//_in_deprecated_code_TODO: Now every run removes the database from file to avoid syssegv. -- Remove this when fixed -------//
 	struct stat st1 = {0};																				//
 																										//
 	if (stat(lmdb.path, &st1) == 0 && S_ISDIR(st1.st_mode))												//
@@ -163,7 +163,7 @@ bool jzzBLOCKS::start()
 			return false;																				//
 		}																								//
 	}																									//
-//TODO: Now every run removes the database from file to avoid syssegv. -- Remove this when fixed -------//
+//_in_deprecated_code_TODO: Now every run removes the database from file to avoid syssegv. -- Remove this when fixed -------//
 
 #endif
 
@@ -240,10 +240,10 @@ bool jzzBLOCKS::stop()
 
 	close_all_sources();
 
-//TODO: Flushing mechanism (Is it necessary?)
+//_in_deprecated_code_TODO: Flushing mechanism (Is it necessary?)
 	jCommons.log(LOG_INFO, "Flushing LMDB environment.");
 	mdb_env_sync(lmdb_env, true);
-//TODO: Flushing mechanism (Is it necessary?)
+//_in_deprecated_code_TODO: Flushing mechanism (Is it necessary?)
 
 	jCommons.log(LOG_INFO, "Closing LMDB environment.");
 
@@ -269,7 +269,7 @@ bool jzzBLOCKS::reload()
 
 	if (!ok) return false;
 
-//TODO: reloading lmdb
+//_in_deprecated_code_TODO: reloading lmdb
 //	jCommons.log(LOG_INFO, "Flushing LMDB environment.");
 //
 //	mdb_env_sync(lmdb_env, true);
@@ -1219,14 +1219,14 @@ release_txn_and_fail:
 */
 void jzzBLOCKS::close_all_sources()
 {
-//TODO: Remove remark
+//_in_deprecated_code_TODO: Remove remark
 
 	for(int idx = 0; idx < numsources; idx++)
 		if (source_open[idx]) mdb_dbi_close(lmdb_env, source_dbi[idx]);
 
 	numsources = 0;
 
-//TODO: Flushing mechanism (Is it necessary?)
+//_in_deprecated_code_TODO: Flushing mechanism (Is it necessary?)
 //	mdb_env_sync(lmdb_env, true);
 
 	update_source_idx(false);

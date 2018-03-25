@@ -376,7 +376,7 @@ When an error is returned, the request will not be able to complete and http sta
 */
 int jazzCommons::enter_persistence(int acmode)
 {
-//TODO: Implement enter_persistence.
+//_in_deprecated_code_TODO: Implement enter_persistence.
 
 	return 0;
 }
@@ -388,7 +388,7 @@ int jazzCommons::enter_persistence(int acmode)
 */
 void jazzCommons::leave_persistence(int tid)
 {
-//TODO: Implement leave_persistence.
+//_in_deprecated_code_TODO: Implement leave_persistence.
 
 }
 
