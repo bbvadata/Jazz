@@ -28,6 +28,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <math.h>
+
+#include "src/include/jazz_platform.h"
+
 
 using namespace std;
 
@@ -40,25 +44,16 @@ using namespace std;
 #include "microhttpd.h"
 
 #if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
 
-	#ifndef jzz_IG_CATCH
-	#define jzz_IG_CATCH
-
-		#include "src/catch2/catch.hpp"
-
-	#endif
+#include "src/catch2/catch.hpp"
 
 #endif
+#endif
 
-/*~ end of automatic header ~*/
-
-#include <math.h>
-
-#include "src/include/jazz_platform.h"
-
-#ifndef jzz_IG_JAZZ
-#define jzz_IG_JAZZ
-
+#ifndef INCLUDED_JAZZ_INCLUDE_JAZZ
+#define INCLUDED_JAZZ_INCLUDE_JAZZ
 
 
 
