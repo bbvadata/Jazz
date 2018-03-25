@@ -21,3 +21,12 @@
   limitations under the License.
 */
 
+#ifndef INCLUDED_JAZZ_ELEMENTS_UTILS
+#define INCLUDED_JAZZ_ELEMENTS_UTILS
+
+namespace jazz_utils
+{
+
+}
+
+#endif
