@@ -414,35 +414,3 @@ jazzCommons	 jCommons;
 jazzServices jServices;
 
 double		 R_NA = R_ValueOfNA();
-
-/*	-----------------------------------------------
-	  U N I T	t e s t i n g
---------------------------------------------------- */
-
-#if defined CATCH_TEST
-TEST_CASE("Assertions on some jazzCommons sizes")
-{
-	REQUIRE(sizeof(jzzBlockHeader)	   == 24);
-	REQUIRE(sizeof(block_C_BOOL)	   == 24);
-	REQUIRE(sizeof(block_C_OFFS_CHARS) == 24);
-	REQUIRE(sizeof(block_C_INTEGER)	   == 24);
-	REQUIRE(sizeof(block_C_REAL)	   == 24);
-	REQUIRE(sizeof(block_C_RAW)		   == 24);
-
-	REQUIRE(sizeof(string_buffer) == 8);
-
-	string_buffer sb;
-	char * pt = (char *) &sb;
-
-	sb.NA	 = 1;
-	sb.EMPTY = 2;
-	REQUIRE(pt[JAZZC_NA_STRING]	   == 1);
-	REQUIRE(pt[JAZZC_EMPTY_STRING] == 2);
-	sb.NA	 = 3;
-	sb.EMPTY = 4;
-	REQUIRE(pt[JAZZC_NA_STRING]	   == 3);
-	REQUIRE(pt[JAZZC_EMPTY_STRING] == 4);
-
-	REQUIRE(sizeof(bool) == 1);
-}
-#endif

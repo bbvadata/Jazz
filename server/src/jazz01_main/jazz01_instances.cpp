@@ -40,15 +40,3 @@ normally DEBUG or NDEBUG) except under CATCH_TEST. jzzAPI is instantiated in jzz
 
 jzzBLOCKCONV  jBLOCKC;
 
-/*	-----------------------------------------------
-	  U N I T	t e s t i n g
---------------------------------------------------- */
-
-#if defined CATCH_TEST
-TEST_CASE("Test for jzzINSTANCES")
-{
-	// No real tests here. This line is added to avoid a warning when running ./switch_tests.R
-
-	REQUIRE(sizeof(jzzBLOCKCONV) == sizeof(jBLOCKC));
-}
-#endif

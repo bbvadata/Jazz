@@ -174,16 +174,3 @@ void jazzCommons::logger_close()
 {
 	log_block_size = 0;
 }
-
-/*	--------------------------------------------------
-	  U N I T	t e s t i n g
---------------------------------------------------- */
-
-#if defined CATCH_TEST
-
-SCENARIO("Scenario jzzLOGGER ...")
-{
-	jCommons.log_printf(LOG_INFO, "log_printf(2+2=%d, name=%s, hex=%08x, pi=%4.2f)", 4, "me", 0xbadf00d, 3.141592);
-}
-
-#endif
