@@ -108,7 +108,7 @@ void jazzCommons::log(int loglevel, const char *message)
 		return;
 	}
 
-//TODO: Implement logging to the persistence blocks.
+//_in_deprecated_code_TODO: Implement logging to the persistence blocks.
 
 };
 
