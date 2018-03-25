@@ -21,10 +21,3 @@
   limitations under the License.
 */
 
-using namespace std;
-
-/**< \brief TODO
-
-TODO: complete this!
-*/
-
