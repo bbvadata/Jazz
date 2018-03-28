@@ -21,6 +21,25 @@
   limitations under the License.
 */
 
+
+/**< \brief Miscelaneous utility functions for Jazz.
+
+	This module defines many unrelated functions needed by Jazz. The only rule is: functions, not classes and
+without global variables. For example, the logger does not belong here, since it is a configurable object, but
+some elements of the logger that are just pure functions are here.
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
 #ifndef INCLUDED_JAZZ_ELEMENTS_UTILS
 #define INCLUDED_JAZZ_ELEMENTS_UTILS
 
