@@ -1,0 +1,396 @@
+/* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+   BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+   Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+  This product includes software developed at
+
+   BBVA (https://www.bbva.com/)
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+
+SCENARIO("Testing CountBytesFromUtf8().")
+{
+	char buf1[80] = {"abcdefghi"};
+	char buf2[80] = {"ácido"};
+	char buf3[80] = {"eñe"};
+	char buf4[80] = {"\xF0...\xE0..\xC0.Z"};
+
+	REQUIRE(CountBytesFromUtf8(buf1, 0) ==  0);
+	REQUIRE(CountBytesFromUtf8(buf1, 1) ==  1);
+	REQUIRE(CountBytesFromUtf8(buf1, 2) ==  2);
+	REQUIRE(CountBytesFromUtf8(buf1, 9) ==  9);
+
+	REQUIRE(CountBytesFromUtf8(buf2, 0) ==  0);
+	REQUIRE(CountBytesFromUtf8(buf2, 1) ==  2);
+	REQUIRE(CountBytesFromUtf8(buf2, 2) ==  3);
+	REQUIRE(CountBytesFromUtf8(buf2, 5) ==  6);
+
+	REQUIRE(CountBytesFromUtf8(buf3, 0) ==  0);
+	REQUIRE(CountBytesFromUtf8(buf3, 1) ==  1);
+	REQUIRE(CountBytesFromUtf8(buf3, 2) ==  3);
+	REQUIRE(CountBytesFromUtf8(buf3, 3) ==  4);
+
+	REQUIRE(CountBytesFromUtf8(buf4, 0) ==  0);
+	REQUIRE(CountBytesFromUtf8(buf4, 1) ==  4);
+	REQUIRE(CountBytesFromUtf8(buf4, 2) ==  7);
+	REQUIRE(CountBytesFromUtf8(buf4, 3) ==  9);
+	REQUIRE(CountBytesFromUtf8(buf4, 4) == 10);
+}
+
+
+// SCENARIO("Testing tenbits().")
+// {
+// 	REQUIRE(tenbits("7") == 0x17);
+// 	REQUIRE(tenbits("0") == 0x10);
+// 	REQUIRE(tenbits("a") == 0x01);
+
+// 	REQUIRE(tenbits("77") == 0x2f7);
+// 	REQUIRE(tenbits("70") == 0x217);
+// 	REQUIRE(tenbits("7a") == 0x037);
+// 	REQUIRE(tenbits("a7") == 0x2e1);
+// 	REQUIRE(tenbits("a0") == 0x201);
+// 	REQUIRE(tenbits("aa") == 0x021);
+// 	REQUIRE(tenbits("00") == 0x210);
+
+// 	REQUIRE(tenbits("77x")	 == 0x2f7);
+// 	REQUIRE(tenbits("70y")	 == 0x217);
+// 	REQUIRE(tenbits("7az")	 == 0x037);
+// 	REQUIRE(tenbits("a7xx")	 == 0x2e1);
+// 	REQUIRE(tenbits("a0yy")	 == 0x201);
+// 	REQUIRE(tenbits("aazz")	 == 0x021);
+// 	REQUIRE(tenbits("00ttt") == 0x210);
+// }
+
+
+// SCENARIO("Testing expand_escaped().")
+// {
+// 	char buff[80];
+
+// 	buff[0] = 0;
+// 	REQUIRE(!strlen(expand_escaped(buff)));
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "Hello, world!")), "Hello, world!"));
+
+// 	buff[5] = 4;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\abc")), "\abc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\ab")), "9\ab"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\a")), "89\a"));
+
+// 	REQUIRE(buff[5] == 4);
+// 	buff[3] = 2;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
+
+// 	REQUIRE(buff[3] == 2);
+// 	buff[5] = 5;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\bbc")), "\bbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\bb")), "9\bb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\a")), "89\a"));
+
+// 	REQUIRE(buff[5] == 5);
+// 	buff[3] = 3;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\b")), "\b"));
+
+// 	REQUIRE(buff[3] == 3);
+// 	buff[5] = 6;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\fbc")), "\fbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\fb")), "9\fb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\f")), "89\f"));
+
+// 	REQUIRE(buff[5] == 6);
+// 	buff[3] = 4;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\f")), "\f"));
+
+// 	REQUIRE(buff[3] == 4);
+// 	buff[5] = 7;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\nbc")), "\nbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\nb")), "9\nb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\n")), "89\n"));
+
+// 	REQUIRE(buff[5] == 7);
+// 	buff[3] = 5;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\n")), "\n"));
+
+// 	REQUIRE(buff[3] == 5);
+// 	buff[5] = 8;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\rbc")), "\rbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\rb")), "9\rb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\r")), "89\r"));
+
+// 	REQUIRE(buff[5] == 8);
+// 	buff[3] = 6;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\r")), "\r"));
+
+// 	REQUIRE(buff[3] == 6);
+// 	buff[5] = 9;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\tbc")), "\tbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\tb")), "9\tb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\t")), "89\t"));
+
+// 	REQUIRE(buff[5] == 9);
+// 	buff[3] = 7;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\t")), "\t"));
+
+// 	REQUIRE(buff[3] == 7);
+// 	buff[5] = 8;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\vbc")), "\vbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\vb")), "9\vb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\v")), "89\v"));
+
+// 	REQUIRE(buff[5] == 8);
+// 	buff[3] = 8;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\v")), "\v"));
+
+// 	REQUIRE(buff[3] == 8);
+// 	buff[5] = 7;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\abc")), "\abc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\ab")), "9\ab"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\a")), "89\a"));
+
+// 	REQUIRE(buff[5] == 7);
+// 	buff[3] = 9;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
+
+// 	REQUIRE(buff[3] == 9);
+// 	buff[5] = 6;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\\bc")), "\\bc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\\b")), "9\\b"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\\")), "89\\"));
+
+// 	REQUIRE(buff[5] == 6);
+// 	buff[3] = 8;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\\")), "\\"));
+
+// 	REQUIRE(buff[3] == 8);
+// 	buff[5] = 5;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\'bc")), "\'bc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\'b")), "9\'b"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\'")), "89\'"));
+
+// 	REQUIRE(buff[5] == 5);
+// 	buff[3] = 7;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\'")), "\'"));
+
+// 	REQUIRE(buff[3] == 7);
+// 	buff[5] = 4;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\"bc")), "\"bc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\"b")), "9\"b"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\"")), "89\""));
+
+// 	REQUIRE(buff[5] == 4);
+// 	buff[3] = 6;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
+
+// 	REQUIRE(buff[3] == 6);
+// 	buff[5] = 3;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\?bc")), "\?bc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\?b")), "9\?b"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\?")), "89\?"));
+
+// 	REQUIRE(buff[5] == 3);
+// 	buff[3] = 5;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
+
+// 	REQUIRE(buff[3] == 5);
+// 	buff[7] = 1;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\141bc")), "abc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "d\\145f")), "def"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\040A")), "z A"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\40A")),	 "z40A"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "78\\071")), "789"));
+
+// 	REQUIRE(buff[7] == 1);
+// 	buff[5] = 9;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\112")), "J"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\011")), "\t"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\11")),  "11"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\007")), "\a"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\07")),  "07"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\7")),   "7"));
+
+// 	REQUIRE(buff[5] == 9);
+// 	buff[5] = 8;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\cbc")), "cbc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\cb")), "9cb"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\c")), "89c"));
+
+// 	REQUIRE(buff[5] == 8);
+// 	buff[3] = 7;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\c")), "c"));
+
+// 	REQUIRE(buff[3] == 7);
+// 	buff[7] = 9;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x61bc")), "abc"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "d\\x65f")), "def"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\x20A")), "z A"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\x09A")), "z\tA"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\x9G")),	 "zx9G"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "78\\x39")), "789"));
+
+// 	REQUIRE(buff[7] == 9);
+// 	buff[5] = 8;
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x4a")), "J"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x4A")), "J"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x09")), "\t"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x9")),  "x9"));
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x78")), "x"));
+
+// 	REQUIRE(buff[5] == 8);
+
+// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x078")), "\a8"));
+// }
+
+
+// SCENARIO("Elementary hashing.")
+// {
+// 	REQUIRE(sizeof(uint64_t) == 8);
+// 	REQUIRE(MURMUR_SEED	== 76493);
+
+// 	int today = 02022017;
+
+// 	REQUIRE(MurmurHash64A(&today, 4) == 1361846023767824266);
+// 	//cout << "Origin of time's hash " << MurmurHash64A(&today, 4) << endl;
+
+// 	GIVEN("Three sets of vars of different types. A!=B, A==C")
+// 	{
+// 		int	   ia	  = 299792458;
+// 		double da	  = 3.141592;
+// 		char   sa[16] = "Hello, world!";
+
+// 		REQUIRE(sizeof(ia) == 4);
+// 		REQUIRE(sizeof(da) == 8);
+// 		REQUIRE(sizeof(sa) == 16);
+
+// 		int	   ib	  = 299792758;
+// 		double db	  = 3.141591999;
+// 		char   sb[16] = "Hello, world.";
+
+// 		int	   ic	  = 299792458;
+// 		double dc	  = 3.141592;
+// 		char   sc[16] = "Hello, world!";
+
+// 		uint64_t hia, hda, hsa;
+
+// 		hia = MurmurHash64A(&ia, sizeof(ia));
+// 		hda = MurmurHash64A(&da, sizeof(da));
+// 		hsa = MurmurHash64A(&sa, sizeof(sa));
+
+// 		WHEN("I hash the first set.")
+// 		{
+// 			THEN("I get different hashes ...")
+// 			{
+// 				REQUIRE(hia != hda);
+// 				REQUIRE(hia != hsa);
+// 				REQUIRE(hda != hsa);
+// 			}
+
+// 			THEN("... but identical if I repeat.")
+// 			{
+// 				REQUIRE(hia == MurmurHash64A(&ia, sizeof(ia)));
+// 				REQUIRE(hda == MurmurHash64A(&da, sizeof(da)));
+// 				REQUIRE(hsa == MurmurHash64A(&sa, sizeof(sa)));
+// 			}
+// 		}
+// 		WHEN("I hash the second set.")
+// 		{
+// 			uint64_t hib, hdb, hsb;
+
+// 			hib = MurmurHash64A(&ib, sizeof(ib));
+// 			hdb = MurmurHash64A(&db, sizeof(db));
+// 			hsb = MurmurHash64A(&sb, sizeof(sb));
+
+// 			THEN("I get different hashes.")
+// 			{
+// 				REQUIRE(hib != hdb);
+// 				REQUIRE(hib != hsb);
+// 				REQUIRE(hdb != hsb);
+// 			}
+
+// 			THEN("They are all different from those in A ...")
+// 			{
+// 				REQUIRE(hia != hib);
+// 				REQUIRE(hda != hdb);
+// 				REQUIRE(hda != hdb);
+// 			}
+
+// 			THEN("... but identical if I repeat.")
+// 			{
+// 				REQUIRE(hib == MurmurHash64A(&ib, sizeof(ib)));
+// 				REQUIRE(hdb == MurmurHash64A(&db, sizeof(db)));
+// 				REQUIRE(hsb == MurmurHash64A(&sb, sizeof(sb)));
+// 			}
+// 		}
+// 		WHEN("I hash the third set.")
+// 		{
+// 			uint64_t hic, hdc, hsc;
+
+// 			hic = MurmurHash64A(&ic, sizeof(ic));
+// 			hdc = MurmurHash64A(&dc, sizeof(dc));
+// 			hsc = MurmurHash64A(&sc, sizeof(sc));
+
+// 			THEN("I get different hashes.")
+// 			{
+// 				REQUIRE(hic != hdc);
+// 				REQUIRE(hic != hsc);
+// 				REQUIRE(hdc != hsc);
+// 			}
+
+// 			THEN("They are all identical to those in A ...")
+// 			{
+// 				REQUIRE(hia == hic);
+// 				REQUIRE(hda == hdc);
+// 				REQUIRE(hda == hdc);
+// 			}
+
+// 			THEN("... and identical if I repeat.")
+// 			{
+// 				REQUIRE(hic == MurmurHash64A(&ic, sizeof(ic)));
+// 				REQUIRE(hdc == MurmurHash64A(&dc, sizeof(dc)));
+// 				REQUIRE(hsc == MurmurHash64A(&sc, sizeof(sc)));
+// 			}
+// 		}
+// 	}
+// }
