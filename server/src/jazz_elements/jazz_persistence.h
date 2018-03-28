@@ -21,3 +21,32 @@
   limitations under the License.
 */
 
+
+/**< \brief Jazz class JazzPersistedSource
+
+	This module defines the class JazzPersistedSource to store the data in memory mapped node-local files called "sources".
+The persistence is a thread safe key-value store based on LMDB.
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_PERSISTENCE
+#define INCLUDED_JAZZ_ELEMENTS_PERSISTENCE
+
+#include "src/lmdb/lmdb.h"
+
+namespace jazz_persistence
+{
+
+}
+
+#endif
