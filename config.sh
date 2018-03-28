@@ -240,6 +240,8 @@ setup(name='pyjazz',
 printf "Ok.\n"
 
 
+mkdir -p py_package/html
+
 printf "Writing: py_package/html/index.md ... "
 
 echo "`cat _config_/pyjazz_index_head`
