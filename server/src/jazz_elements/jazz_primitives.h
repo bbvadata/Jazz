@@ -21,3 +21,31 @@
   limitations under the License.
 */
 
+
+/**< \brief Arithmetic, logic and type conversion primitives applicable to JazzDataBlock structures.
+
+	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
+structures or throw exceptions. These functions are called "primitives" for a reason, they are the simplest blocks
+approximately matching Bebop bytecode instructions.
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_PRIMITIVES
+#define INCLUDED_JAZZ_ELEMENTS_PRIMITIVES
+
+namespace jazz_primitives
+{
+
+}
+
+#endif

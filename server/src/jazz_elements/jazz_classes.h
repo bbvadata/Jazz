@@ -21,3 +21,29 @@
   limitations under the License.
 */
 
+/**< \brief Definitions of Jazz root classes
+
+	This module contains the top-level definitions of many classes. This includes utilities like JazzLogger,
+and the basic single block classes and multiblock or multinode abstractions.
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_CLASSES
+#define INCLUDED_JAZZ_ELEMENTS_CLASSES
+
+namespace jazz_classes
+{
+
+}
+
+#endif

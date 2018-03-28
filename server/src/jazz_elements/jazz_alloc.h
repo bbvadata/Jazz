@@ -21,3 +21,33 @@
   limitations under the License.
 */
 
+
+/**< \brief Allocation functions for Jazz.
+
+	This module defines functions to explicitely allocate RAM for JazzDataBlock structures. The module is
+functional and understands ownership of pointers between persisted, volatile or one-shot JazzDataBlock
+structures. JazzDataObject descendants are memory-wise just JazzDataBlock structures belonging to a class,
+so their allocation will also be handled by this module and not via "fancy" C++ object allocation. Unlike
+in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_ALLOC
+#define INCLUDED_JAZZ_ELEMENTS_ALLOC
+
+namespace jazz_alloc
+{
+
+}
+
+#endif

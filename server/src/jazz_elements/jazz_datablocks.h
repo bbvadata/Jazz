@@ -21,3 +21,29 @@
   limitations under the License.
 */
 
+
+/**< \brief Basic Jazz codeless data types and constants.
+
+	This module defines the constants and codeless structures to create JazzDataBlock structures.
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_DATABLOCKS
+#define INCLUDED_JAZZ_ELEMENTS_DATABLOCKS
+
+namespace jazz_datablocks
+{
+
+}
+
+#endif
