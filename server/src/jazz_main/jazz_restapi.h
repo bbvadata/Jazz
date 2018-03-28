@@ -21,3 +21,33 @@
   limitations under the License.
 */
 
+
+/**< \brief Jazz class JazzHtppServer
+
+	This module defines the class JazzHtppServer with the full logic to expose all the API available in
+jazz_api.h through a REST API.
+*/
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_MAIN_RESTAPI
+#define INCLUDED_JAZZ_MAIN_RESTAPI
+
+#define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
+#include "microhttpd.h"
+
+namespace jazz_restapi
+{
+
+}
+
+#endif
