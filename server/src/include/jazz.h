@@ -33,26 +33,12 @@
 #include "src/include/jazz_platform.h"
 
 
-using namespace std;
-
 /**< \brief Basic JAZZ types and definitions.
 
 	This file merges headers in src/jazz_elements/ to define all the higher level types and root classes. This is what you need to create
 your own descendent classes to extend Jazz en C++. If you need the core implementations, Bebop or extending in scripting languages, you
 need jazz_api.h
 */
-
-#define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
-#include "microhttpd.h"
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
 
 #ifndef INCLUDED_JAZZ_INCLUDE_JAZZ
 #define INCLUDED_JAZZ_INCLUDE_JAZZ
