@@ -56,7 +56,7 @@ fi
 
 cd server
 
-vpath=`echo src/*`
+vpath=`echo src/*/`
 jzpat=`echo $vpath | sed 's/\ /\n/g' | grep jazz | tr '\n' ' '`
 
 cpps=`find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' '`
