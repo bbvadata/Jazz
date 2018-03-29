@@ -404,3 +404,68 @@ SCENARIO("Testing TenBitsAtAddress().")
 	REQUIRE(TenBitsAtAddress("aazz")	 == 0x021);
 	REQUIRE(TenBitsAtAddress("00ttt") == 0x210);
 }
+
+
+SCENARIO("Testing RemoveSpaceOrTab().")
+{
+	std::string a("This Is\tIt");
+
+	std::string b = RemoveSpaceOrTab(a);
+
+	REQUIRE(b == "ThisIsIt");
+
+	REQUIRE(RemoveSpaceOrTab(" This Is It")  == b);
+	REQUIRE(RemoveSpaceOrTab("This Is It")   == b);
+	REQUIRE(RemoveSpaceOrTab("This Is It ")  == b);
+	REQUIRE(RemoveSpaceOrTab("This Is It\t") == b);
+	REQUIRE(RemoveSpaceOrTab("ThisIsIt")     == b);
+
+	REQUIRE(RemoveSpaceOrTab(" ")   == "");
+	REQUIRE(RemoveSpaceOrTab("\t")  == "");
+	REQUIRE(RemoveSpaceOrTab(" \t") == "");
+	REQUIRE(RemoveSpaceOrTab("")    == "");
+}
+
+
+SCENARIO("Testing class JazzConfigFile")
+{
+	// jCommons.debug_config_put("key01", "6.5.4.3");
+	// jCommons.debug_config_put("key02", "8.7");
+	// jCommons.debug_config_put("key03", "9");
+
+	// int	   tt_cfg_i = 54321;
+	// double tt_cfg_d = 123.456;
+	// string tt_cfg_s ("nothing");
+
+	// REQUIRE(!jCommons.get_config_key("key00", tt_cfg_i));
+	// REQUIRE(!jCommons.get_config_key("key00", tt_cfg_d));
+	// REQUIRE(!jCommons.get_config_key("key00", tt_cfg_s));
+
+	// REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 123.456 && tt_cfg_s.compare("nothing") == 0));
+
+	// REQUIRE(!jCommons.get_config_key("key01", tt_cfg_i));
+	// REQUIRE(!jCommons.get_config_key("key01", tt_cfg_d));
+	// REQUIRE( jCommons.get_config_key("key01", tt_cfg_s));
+
+	// REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 123.456 && tt_cfg_s.compare("6.5.4.3") == 0));
+
+	// REQUIRE(!jCommons.get_config_key("key02", tt_cfg_i));
+	// REQUIRE( jCommons.get_config_key("key02", tt_cfg_d));
+	// REQUIRE( jCommons.get_config_key("key02", tt_cfg_s));
+
+	// REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 8.7 && tt_cfg_s.compare("8.7") == 0));
+
+	// REQUIRE( jCommons.get_config_key("key03", tt_cfg_i));
+	// REQUIRE( jCommons.get_config_key("key03", tt_cfg_d));
+	// REQUIRE( jCommons.get_config_key("key03", tt_cfg_s));
+
+	// REQUIRE((tt_cfg_i == 9 && tt_cfg_d == 9.0 && tt_cfg_s.compare("9") == 0));
+
+	// jCommons.debug_config_put("key03", "");
+
+	// REQUIRE(!jCommons.get_config_key("key03", tt_cfg_i));
+	// REQUIRE(!jCommons.get_config_key("key03", tt_cfg_d));
+	// REQUIRE(!jCommons.get_config_key("key03", tt_cfg_s));
+
+	// REQUIRE((tt_cfg_i == 9 && tt_cfg_d == 9.0 && tt_cfg_s.compare("9") == 0));
+}
