@@ -317,14 +317,25 @@ uint64_t MurmurHash64A(const void *key, int len)
 }
 
 
-/** Remove space and tab for a string.
+/** Remove quotes and (space and tab) outside quotes from a string.
+
+	Removes space and tab characters except inside a string declared with a double quote '"'. After doing that,
+it removes the quotes. This is used by JazzConfigFile and has obvious limitations but is used for its simplicity
+and easily predictable results.
 
 	\param s Input string
 	\return String without space or tab.
 */
-std::string RemoveSpaceOrTab(std::string s)
+std::string CleanConfigArgument(std::string s)
 {
-	for(int i = s.length() - 1; i >= 0; i--) if(s[i] == ' ' || s[i] == '\t') s.erase(i, 1);
+	bool in_quote = false;
+
+	for (int i = s.length() - 1; i >= 0; i--) {
+		if (s[i] == '"') in_quote = !in_quote;
+		else if (!in_quote && (s[i] == ' ' || s[i] == '\t')) s.erase(i, 1);
+	}
+
+	for (int i = s.length() - 1; i >= 0; i--) if (s[i] == '"') s.erase(i, 1);
 
 	return s;
 }
@@ -359,8 +370,8 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 
 		if (p != std::string::npos)
 		{
-			key = RemoveSpaceOrTab(ln.substr(0, p - 1));
-			val = RemoveSpaceOrTab(ln.substr(p + 1, ln.length()));
+			key = CleanConfigArgument(ln.substr(0, p));
+			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
 
 			std::cout << "config_put(\"" << key << "\", \"" << val << "\");" << std::endl;
 			config[key] = val;
