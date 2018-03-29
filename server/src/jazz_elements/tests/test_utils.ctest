@@ -260,6 +260,13 @@ SCENARIO("Testing ExpandEscapeSequences().")
 }
 
 
+SCENARIO("Testing FindProcessIdByName().")
+{
+	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
+	REQUIRE(FindProcessIdByName("/usr/sbin/acpid") != 0);
+}
+
+
 // SCENARIO("Testing tenbits().")
 // {
 // 	REQUIRE(tenbits("7") == 0x17);
