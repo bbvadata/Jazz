@@ -22,6 +22,9 @@
 */
 
 
+#include <chrono>
+
+
 /**< \brief Miscelaneous utility functions for Jazz.
 
 	This module defines many unrelated functions needed by Jazz. The only rule is: functions, not classes and
@@ -61,6 +64,31 @@ inline int TenBitsAtAddress (const char* str)
 {
 	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
 }
+
+
+class JazzConfigFile {
+
+	public:
+
+		 JazzConfigFile(const char *input_file_name);
+		~JazzConfigFile();
+
+		bool get_config_key	 (const char *key, int &value);
+		bool get_config_key	 (const char *key, double &value);
+		bool get_config_key	 (const char *key, std::string &value);
+
+		void debug_config_put(const std::string key, const std::string val);
+
+	private:
+
+		/// The configuration
+		std::map<std::string, std::string> config;
+#ifdef DEBUG
+		std::map<std::string, int> config_used;
+#endif
+
+};
+
 
 }
 
