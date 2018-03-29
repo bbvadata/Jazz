@@ -24,14 +24,14 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-using namespace std;
-
 /**< \brief The lowest level of persisted data management: the blocks.
 
 	This module includes all the LMDB management in the server.
 */
 
 #include "src/jazz01_blocks/jazz_blocks.h"
+
+using namespace std;
 
 /*~ end of automatic header ~*/
 

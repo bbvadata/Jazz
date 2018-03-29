@@ -20,8 +20,6 @@
   limitations under the License.
 */
 
-using namespace std;
-
 /**< \brief The lowest level of persisted data management: the blocks.
 
 	This module includes all the LMDB management in the server.
@@ -31,6 +29,8 @@ using namespace std;
 #include "src/lmdb/lmdb.h"
 
 #include "src/include/jazz.h"
+
+using namespace std;
 
 /*~ end of automatic header ~*/
 
