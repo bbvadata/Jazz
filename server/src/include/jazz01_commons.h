@@ -610,18 +610,6 @@ extern int jazz_apc_callback (void *cls,
 							  const struct sockaddr *addr,
 							  socklen_t addrlen);
 
-// inline functions
-
-#define TEN_BITS_RANGE 1024	///< The output range of tenbits()
-
-/** Get ten bits taking the least significant 5 of the first two characters of a string.
-	Warning: No pointer validation or length check. Never use on NULL of "".
-*/
-inline int tenbits (const char* str)
-{
-	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
-}
-
 // R NA equivalence
 inline int R_IsNA(double x)
 {
@@ -636,13 +624,9 @@ inline int R_IsNA(double x)
 
 // From jzzMISCUTILS.cpp
 
-pid_t		 proc_find		 (const char* name);
 bool		 exists			 (const char* fnam);
 const char * okfail			 (bool		  b);
-uint64_t	 MurmurHash64A	 (const void* key,	int len);
 string		 remove_sptab	 (string	  s);
-char *		 expand_escaped	 (char *	  buff);
-int			 count_utf8_bytes(char *	  buff, int len);
 
 // From jzzALLOC.cpp
 
