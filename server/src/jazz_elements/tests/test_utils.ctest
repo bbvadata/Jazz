@@ -575,3 +575,28 @@ SCENARIO("Testing class JazzConfigFile")
 
 	REQUIRE((tt_cfg_i == 10 && tt_cfg_d == 10.0 && tt_cfg_s.compare("10") == 0));
 }
+
+
+SCENARIO("Testing class JazzLogger")
+{
+	JazzLogger log1("/tmp/b7fcecb99b2947db7a04ef3b8ff684df/906f2f7fabf6dda97410bb508aeb0d35");
+
+	char file_name [MAX_FILENAME_LENGTH];
+
+	REQUIRE(log1.get_output_file_name(file_name, MAX_FILENAME_LENGTH) == 0);
+
+	remove("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
+
+	JazzLogger log2("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
+
+	REQUIRE(log2.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
+
+	log2.log(LOG_MISS, "Missed it!");
+	log2.log_printf(LOG_INFO, "log_printf(2+2=%d, name=%s, hex=%08x, pi=%4.2f)", 4, "me", 0xbadf00d, 3.141592);
+
+	JazzLogger log3("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
+
+	REQUIRE(log3.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
+
+	log2.log(LOG_INFO, "Extended");
+}
