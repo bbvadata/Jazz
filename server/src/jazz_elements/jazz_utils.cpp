@@ -34,6 +34,9 @@
 #include "src/jazz_elements/jazz_utils.h"
 
 
+namespace jazz_utils {
+
+
 /** Count the number of bytes required by an utf-8 string of len characters.
 
 \param buff The string (not necessarily null-terminated)
@@ -309,6 +312,9 @@ uint64_t MurmurHash64A(const void *key, int len)
 
 	return h;
 }
+
+
+} // namespace jazz_utils
 
 
 #if defined CATCH_TEST
