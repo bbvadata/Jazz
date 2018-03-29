@@ -40,11 +40,22 @@ some elements of the logger that are just pure functions are here.
 #endif
 
 
+#define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
+
+
 #ifndef INCLUDED_JAZZ_ELEMENTS_UTILS
 #define INCLUDED_JAZZ_ELEMENTS_UTILS
 
 namespace jazz_utils
 {
+
+/** Get ten bits taking the least significant 5 of the first two characters of a string.
+	Warning: No pointer validation or length check. Never use on nullptr or "".
+*/
+inline int TenBitsAtAddress (const char* str)
+{
+	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
+}
 
 }
 
