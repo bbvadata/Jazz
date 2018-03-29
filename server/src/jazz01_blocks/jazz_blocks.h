@@ -30,6 +30,8 @@ using namespace std;
 #include "src/include/jazz01_commons.h"
 #include "src/lmdb/lmdb.h"
 
+#include "src/include/jazz.h"
+
 /*~ end of automatic header ~*/
 
 #ifndef jzz_IG_JZZBLOCKS
@@ -146,7 +148,7 @@ class jzzBLOCKS: public jazzService {
 
 		void update_source_idx	  (bool incremental);
 
-		int			  source_idx [TEN_BITS_RANGE];
+		int			  source_idx [TENBITS_LUT_SIZE];
 		int			  numsources, prot_SP;
 		sourceName	  source_nam [MAX_POSSIBLE_SOURCES];
 		bool		  source_open[MAX_POSSIBLE_SOURCES];
