@@ -267,6 +267,118 @@ SCENARIO("Testing FindProcessIdByName().")
 }
 
 
+SCENARIO("Testing MurmurHash64A().")
+{
+	REQUIRE(sizeof(uint64_t) == 8);
+	REQUIRE(MURMUR_SEED	== 76493);
+
+	int today = 02022017;
+
+	REQUIRE(MurmurHash64A(&today, 4) == 1361846023767824266);
+	//cout << "Origin of time's hash " << MurmurHash64A(&today, 4) << endl;
+
+	GIVEN("Three sets of vars of different types. A!=B, A==C")
+	{
+		int	   ia	  = 299792458;
+		double da	  = 3.141592;
+		char   sa[16] = "Hello, world!";
+
+		REQUIRE(sizeof(ia) == 4);
+		REQUIRE(sizeof(da) == 8);
+		REQUIRE(sizeof(sa) == 16);
+
+		int	   ib	  = 299792758;
+		double db	  = 3.141591999;
+		char   sb[16] = "Hello, world.";
+
+		int	   ic	  = 299792458;
+		double dc	  = 3.141592;
+		char   sc[16] = "Hello, world!";
+
+		uint64_t hia, hda, hsa;
+
+		hia = MurmurHash64A(&ia, sizeof(ia));
+		hda = MurmurHash64A(&da, sizeof(da));
+		hsa = MurmurHash64A(&sa, sizeof(sa));
+
+		WHEN("I hash the first set.")
+		{
+			THEN("I get different hashes ...")
+			{
+				REQUIRE(hia != hda);
+				REQUIRE(hia != hsa);
+				REQUIRE(hda != hsa);
+			}
+
+			THEN("... but identical if I repeat.")
+			{
+				REQUIRE(hia == MurmurHash64A(&ia, sizeof(ia)));
+				REQUIRE(hda == MurmurHash64A(&da, sizeof(da)));
+				REQUIRE(hsa == MurmurHash64A(&sa, sizeof(sa)));
+			}
+		}
+		WHEN("I hash the second set.")
+		{
+			uint64_t hib, hdb, hsb;
+
+			hib = MurmurHash64A(&ib, sizeof(ib));
+			hdb = MurmurHash64A(&db, sizeof(db));
+			hsb = MurmurHash64A(&sb, sizeof(sb));
+
+			THEN("I get different hashes.")
+			{
+				REQUIRE(hib != hdb);
+				REQUIRE(hib != hsb);
+				REQUIRE(hdb != hsb);
+			}
+
+			THEN("They are all different from those in A ...")
+			{
+				REQUIRE(hia != hib);
+				REQUIRE(hda != hdb);
+				REQUIRE(hda != hdb);
+			}
+
+			THEN("... but identical if I repeat.")
+			{
+				REQUIRE(hib == MurmurHash64A(&ib, sizeof(ib)));
+				REQUIRE(hdb == MurmurHash64A(&db, sizeof(db)));
+				REQUIRE(hsb == MurmurHash64A(&sb, sizeof(sb)));
+			}
+		}
+		WHEN("I hash the third set.")
+		{
+			uint64_t hic, hdc, hsc;
+
+			hic = MurmurHash64A(&ic, sizeof(ic));
+			hdc = MurmurHash64A(&dc, sizeof(dc));
+			hsc = MurmurHash64A(&sc, sizeof(sc));
+
+			THEN("I get different hashes.")
+			{
+				REQUIRE(hic != hdc);
+				REQUIRE(hic != hsc);
+				REQUIRE(hdc != hsc);
+			}
+
+			THEN("They are all identical to those in A ...")
+			{
+				REQUIRE(hia == hic);
+				REQUIRE(hda == hdc);
+				REQUIRE(hda == hdc);
+			}
+
+			THEN("... and identical if I repeat.")
+			{
+				REQUIRE(hic == MurmurHash64A(&ic, sizeof(ic)));
+				REQUIRE(hdc == MurmurHash64A(&dc, sizeof(dc)));
+				REQUIRE(hsc == MurmurHash64A(&sc, sizeof(sc)));
+			}
+		}
+	}
+}
+
+
 // SCENARIO("Testing tenbits().")
 // {
 // 	REQUIRE(tenbits("7") == 0x17);
@@ -291,113 +403,3 @@ SCENARIO("Testing FindProcessIdByName().")
 // }
 
 
-// SCENARIO("Elementary hashing.")
-// {
-// 	REQUIRE(sizeof(uint64_t) == 8);
-// 	REQUIRE(MURMUR_SEED	== 76493);
-
-// 	int today = 02022017;
-
-// 	REQUIRE(MurmurHash64A(&today, 4) == 1361846023767824266);
-// 	//cout << "Origin of time's hash " << MurmurHash64A(&today, 4) << endl;
-
-// 	GIVEN("Three sets of vars of different types. A!=B, A==C")
-// 	{
-// 		int	   ia	  = 299792458;
-// 		double da	  = 3.141592;
-// 		char   sa[16] = "Hello, world!";
-
-// 		REQUIRE(sizeof(ia) == 4);
-// 		REQUIRE(sizeof(da) == 8);
-// 		REQUIRE(sizeof(sa) == 16);
-
-// 		int	   ib	  = 299792758;
-// 		double db	  = 3.141591999;
-// 		char   sb[16] = "Hello, world.";
-
-// 		int	   ic	  = 299792458;
-// 		double dc	  = 3.141592;
-// 		char   sc[16] = "Hello, world!";
-
-// 		uint64_t hia, hda, hsa;
-
-// 		hia = MurmurHash64A(&ia, sizeof(ia));
-// 		hda = MurmurHash64A(&da, sizeof(da));
-// 		hsa = MurmurHash64A(&sa, sizeof(sa));
-
-// 		WHEN("I hash the first set.")
-// 		{
-// 			THEN("I get different hashes ...")
-// 			{
-// 				REQUIRE(hia != hda);
-// 				REQUIRE(hia != hsa);
-// 				REQUIRE(hda != hsa);
-// 			}
-
-// 			THEN("... but identical if I repeat.")
-// 			{
-// 				REQUIRE(hia == MurmurHash64A(&ia, sizeof(ia)));
-// 				REQUIRE(hda == MurmurHash64A(&da, sizeof(da)));
-// 				REQUIRE(hsa == MurmurHash64A(&sa, sizeof(sa)));
-// 			}
-// 		}
-// 		WHEN("I hash the second set.")
-// 		{
-// 			uint64_t hib, hdb, hsb;
-
-// 			hib = MurmurHash64A(&ib, sizeof(ib));
-// 			hdb = MurmurHash64A(&db, sizeof(db));
-// 			hsb = MurmurHash64A(&sb, sizeof(sb));
-
-// 			THEN("I get different hashes.")
-// 			{
-// 				REQUIRE(hib != hdb);
-// 				REQUIRE(hib != hsb);
-// 				REQUIRE(hdb != hsb);
-// 			}
-
-// 			THEN("They are all different from those in A ...")
-// 			{
-// 				REQUIRE(hia != hib);
-// 				REQUIRE(hda != hdb);
-// 				REQUIRE(hda != hdb);
-// 			}
-
-// 			THEN("... but identical if I repeat.")
-// 			{
-// 				REQUIRE(hib == MurmurHash64A(&ib, sizeof(ib)));
-// 				REQUIRE(hdb == MurmurHash64A(&db, sizeof(db)));
-// 				REQUIRE(hsb == MurmurHash64A(&sb, sizeof(sb)));
-// 			}
-// 		}
-// 		WHEN("I hash the third set.")
-// 		{
-// 			uint64_t hic, hdc, hsc;
-
-// 			hic = MurmurHash64A(&ic, sizeof(ic));
-// 			hdc = MurmurHash64A(&dc, sizeof(dc));
-// 			hsc = MurmurHash64A(&sc, sizeof(sc));
-
-// 			THEN("I get different hashes.")
-// 			{
-// 				REQUIRE(hic != hdc);
-// 				REQUIRE(hic != hsc);
-// 				REQUIRE(hdc != hsc);
-// 			}
-
-// 			THEN("They are all identical to those in A ...")
-// 			{
-// 				REQUIRE(hia == hic);
-// 				REQUIRE(hda == hdc);
-// 				REQUIRE(hda == hdc);
-// 			}
-
-// 			THEN("... and identical if I repeat.")
-// 			{
-// 				REQUIRE(hic == MurmurHash64A(&ic, sizeof(ic)));
-// 				REQUIRE(hdc == MurmurHash64A(&dc, sizeof(dc)));
-// 				REQUIRE(hsc == MurmurHash64A(&sc, sizeof(sc)));
-// 			}
-// 		}
-// 	}
-// }
