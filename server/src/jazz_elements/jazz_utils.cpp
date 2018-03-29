@@ -27,6 +27,10 @@
 #include <map>
 #include <string.h>
 
+#include <unistd.h>
+#include <dirent.h>
+
+
 #include "src/jazz_elements/jazz_utils.h"
 
 
@@ -99,7 +103,7 @@ April 17 tests built and compliant with:
 
 https://en.wikipedia.org/wiki/Escape_sequences_in_C
 */
-char *ExpandEscapeSequences(char * buff)
+char *ExpandEscapeSequences(char *buff)
 {
 	char        *pt	 = buff;
 	size_t		 len = strlen(buff);
@@ -194,6 +198,65 @@ char *ExpandEscapeSequences(char * buff)
 	}
 
 	return buff;
+}
+
+
+/** Find the pid of a process given its name.
+
+	It does NOT find itself as it is intended to find other processes of the same name.
+
+	\param name The name of the process as typed on the console. In case parameters were given to start the process,
+	it is just the left part before the first space.
+
+	\return the pid of the process if found, 0 if not.
+ */
+pid_t FindProcessIdByName(const char *name)
+{
+	DIR			  *dir;
+	struct dirent *ent;
+	char		  *endptr;
+	char		   buf[512];
+
+	if (!(dir = opendir("/proc"))) {
+		perror("can't open /proc");
+
+		return 0;
+	}
+
+	pid_t pid_self = getpid();
+
+	while((ent = readdir(dir)) != nullptr) {
+		// if endptr is not null, the directory is not entirely numeric, so ignore it
+		long lpid = strtol(ent->d_name, &endptr, 10);
+
+		if (*endptr != '\0') {
+			continue;
+		}
+
+		// try to open the cmdline file
+		snprintf(buf, sizeof(buf), "/proc/%ld/cmdline", lpid);
+		FILE* fp = fopen(buf, "r");
+
+		if (fp) {
+			if (fgets(buf, sizeof(buf), fp) != nullptr) {
+				// check the first token in the file, the program name
+				char* first = strtok(buf, " ");
+
+				// cout << first << endl;
+				if (!strcmp(first, name) && (pid_t) lpid != pid_self) {
+					fclose(fp);
+					closedir(dir);
+
+					return (pid_t) lpid;
+				}
+			}
+			fclose(fp);
+		}
+	}
+
+	closedir(dir);
+
+	return 0;
 }
 
 
