@@ -56,7 +56,8 @@ fi
 
 cd server
 
-vpath=`echo src/*/`
+testp=`echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' '`
+vpath=`echo src/*/ $testp`
 jzpat=`echo $vpath | sed 's/\ /\n/g' | grep jazz | tr '\n' ' '`
 
 cpps=`find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' '`
@@ -69,9 +70,9 @@ depends ( )
     hea=`echo $cpp | sed 's/cpp$/h/'`
 
     if [ -e $hea ]; then
-      dep=`grep -rnw $cpp $hea -e '^#include.*\(jazz.*h\)' | sed 's/.*\(jazz.*h\).*/\1/'`
+      dep=`grep -rnw $cpp $hea -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/'`
     else
-      dep=`grep -rnw $cpp -e '^#include.*\(jazz.*h\)' | sed 's/.*\(jazz.*h\).*/\1/'`
+      dep=`grep -rnw $cpp -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/'`
     fi
 
     echo $obj: $dep
