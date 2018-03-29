@@ -52,10 +52,12 @@ some elements of the logger that are just pure functions are here.
 namespace jazz_utils
 {
 
-int		  CountBytesFromUtf8	(char *buff, int len);
-char	 *ExpandEscapeSequences	(char *buff);
-pid_t 	  FindProcessIdByName	(const char *name);
-uint64_t  MurmurHash64A			(const void *key, int len);
+int			 CountBytesFromUtf8	   (char *buff, int len);
+char		*ExpandEscapeSequences (char *buff);
+pid_t		 FindProcessIdByName   (const char *name);
+uint64_t	 MurmurHash64A		   (const void *key, int len);
+std::string  RemoveSpaceOrTab	   (std::string s);
+
 
 /** Get ten bits taking the least significant 5 of the first two characters of a string.
 	Warning: No pointer validation or length check. Never use on nullptr or "".
@@ -71,22 +73,18 @@ class JazzConfigFile {
 	public:
 
 		 JazzConfigFile(const char *input_file_name);
-		~JazzConfigFile();
 
-		bool get_config_key	 (const char *key, int &value);
-		bool get_config_key	 (const char *key, double &value);
-		bool get_config_key	 (const char *key, std::string &value);
+		int  num_keys ();
 
-		void debug_config_put(const std::string key, const std::string val);
+		bool get_key  (const char *key, int &value);
+		bool get_key  (const char *key, double &value);
+		bool get_key  (const char *key, std::string &value);
+
+		void debug_put(const std::string key, const std::string val);
 
 	private:
 
-		/// The configuration
 		std::map<std::string, std::string> config;
-#ifdef DEBUG
-		std::map<std::string, int> config_used;
-#endif
-
 };
 
 
