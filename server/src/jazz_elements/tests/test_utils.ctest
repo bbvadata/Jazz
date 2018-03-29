@@ -22,6 +22,9 @@
 */
 
 
+using namespace jazz_utils;
+
+
 SCENARIO("Testing CountBytesFromUtf8().")
 {
 	char buf1[80] = {"abcdefghi"};
