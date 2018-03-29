@@ -33,6 +33,9 @@
 #include <iostream>
 #include <fstream>
 
+#include <sys/syscall.h>
+#include <stdarg.h>
+
 
 #include "src/jazz_elements/jazz_utils.h"
 
@@ -357,8 +360,7 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 
 	std::string ln, key, val;
 
-	while (!fh.eof())
-	{
+	while (!fh.eof()) {
 		getline(fh, ln);
 
 		size_t p;
@@ -368,8 +370,7 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 
 		p = ln.find("=");
 
-		if (p != std::string::npos)
-		{
+		if (p != std::string::npos) {
 			key = CleanConfigArgument(ln.substr(0, p));
 			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
 
@@ -477,6 +478,133 @@ bool JazzConfigFile::get_key(const char *key, std::string &value)
 void JazzConfigFile::debug_put(const std::string key, const std::string val)
 {
 	config[key] = val;
+}
+
+
+/** Initialize the JazzLogger.
+
+	Stores a copy of the file name,
+	Sets the stopwatch origin in big_bang.
+	Tries to open the file ..
+	.. if successful, logs out a new execution message with level LOG_INFO
+	.. if failed, clears the file_name (that can be queried via get_output_file_name())
+*/
+JazzLogger::JazzLogger (const char *output_file_name)
+{
+	strncpy(file_name, output_file_name, MAX_FILENAME_LENGTH - 1);
+
+	f_buff = f_stream.rdbuf();
+
+	f_buff->open (file_name, std::ios::out | std::ios::app);
+
+	big_bang = std::chrono::steady_clock::now();
+
+	if (f_buff->is_open()) {
+		log(LOG_INFO, "+-----------------------------------+");
+		log(LOG_INFO, "| --- N E W - E X E C U T I O N --- |");
+		log(LOG_INFO, "+-----------------------------------+");
+	} else {
+		file_name[0] = 0;
+	}
+}
+
+
+/** Close the output file in the JazzLogger.
+
+	.. and clears the file_name (that can be queried via get_output_file_name())
+*/
+JazzLogger::~JazzLogger ()
+{
+	if (file_name[0]) f_buff->close();
+
+	file_name[0] = 0;
+}
+
+
+/** Close the output file in the JazzLogger.
+
+	\param buff		 The configuration key to be searched.
+	\param buff_size Value to be returned only when the function returns true.
+	\return			 Zero if opening the file failed, the length of the name instead.
+*/
+int JazzLogger::get_output_file_name (char *buff, int buff_size)
+{
+	if (!file_name[0]) return 0;
+
+	strncpy(buff, file_name, buff_size);
+
+	return strlen(file_name);
+}
+
+
+/** Create a log event with a static message.
+
+\param loglevel The trace level. One of:
+
+  LOG_DEBUG 1  -  Just for checking, normally not logged, should not exist when NDEBUG. In that case, it becomes a LOG_WARN to force removing it.
+  LOG_INFO	2  -  A good, non trivial, non frequent event to discard trouble. E.g., "Jazz successfully installed host xxx", "backup completed ok."
+  LOG_MISS	3  -  A function returned an error status. This may still be normal. E.g., "configuration key xxx cannot be converted to integer."
+  LOG_WARN	4  -  A warning. More serious than the previous. Should not happen. It is desirable to treat the existence of a warning as a bug.
+  LOG_ERROR 5  -  Something known to be a requisite is failing. The program or task halts due to this.
+
+\param message A message that can be up to 256 - LEFTAUTO characters (see source for details).
+
+	If loglevel >= LOG_WARN, the output also goes to stderr.
+*/
+void JazzLogger::log (int loglevel, const char *message)
+{
+	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+
+	int64_t elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - big_bang).count();
+	double sec = elapsed/1000000.0;
+
+#ifdef NDEBUG
+	if (loglevel == LOG_DEBUG) loglevel == LOG_WARN;	// Should not exist in case of NDEBUG. It becomes a LOG_WARN to force removing it.
+#endif
+
+	char buffer [256];
+
+#define LEFTAUTO	28
+
+	sprintf (buffer, "%12.6f : %02d : %5zu : ", sec, loglevel, syscall(SYS_gettid));	// This fills LEFTAUTO char
+	while (strlen(buffer) > LEFTAUTO)
+	{
+		int j = strlen(buffer);
+		for (int i = 1; i < j; i++) buffer[i] = buffer[i + 1];
+		buffer[0] = '+';
+	}
+	strncpy(&buffer[LEFTAUTO], message, 256 - LEFTAUTO);					// This fills in the range [LEFTAUTO..254]
+	buffer[255] = '\0';														// Last pos gets the terminator
+
+	if (loglevel >= LOG_WARN) std::cerr << buffer << std::endl;
+
+	if (file_name[0]) {
+		f_buff->sputn(buffer, strlen(buffer));
+		f_buff->sputc('\n');
+	}
+}
+
+
+/** Create a log event with a printf style string including a variadic list of parameters.
+
+\param loglevel The trace level. (see jazzCommons::log())
+\param fmt		The printf-style format string.
+\param ...		The list of parameters.
+
+	It is a wrapper function calling jazzCommons::log(). (See jazzCommons::log() for details.)
+
+	NOTE: This does not check buffer allocation! Use it for short results.
+*/
+void JazzLogger::log_printf	(int loglevel, const char *fmt, ...)
+{
+	char buffer[256];
+
+	va_list argp;
+	va_start(argp, fmt);
+	vsnprintf(buffer, sizeof(buffer), fmt, argp);
+	va_end(argp);
+
+	return log(loglevel, buffer);
 }
 
 } // namespace jazz_utils

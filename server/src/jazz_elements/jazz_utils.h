@@ -55,19 +55,22 @@ some elements of the logger that are just pure functions are here.
 #define LOG__
 
 	/// Just for checking, normally not logged, should not exist in case of NDEBUG. In that case, it becomes a LOG_WARN to force removing it.
-#define LOG_DEBUG		1
+#define LOG_DEBUG			  1
 
 	/// A good, non trivial, non frequent event to discard trouble. E.g., "Jazz successfully installed on host xxx", "backup completed."
-#define LOG_INFO		2
+#define LOG_INFO			  2
 
 	/// A function returned an error status. This may still be normal. E.g., "configuration key xxx cannot be converted to integer."
-#define LOG_MISS		3
+#define LOG_MISS			  3
 
 	/// A warning. More serious than the previous. Should not happen. It is desirable to treat the existence of a warning as a bug.
-#define LOG_WARN		4
+#define LOG_WARN			  4
 
 	/// Something known to be a requisite is failing. The program or task halts due to this.
-#define LOG_ERROR		5
+#define LOG_ERROR			  5
+
+	/// Maximum length for file names in JazzConfigFile and JazzLogger.
+#define MAX_FILENAME_LENGTH	256
 
 
 namespace jazz_utils
@@ -93,7 +96,7 @@ class JazzConfigFile {
 
 	public:
 
-		 JazzConfigFile(const char *input_file_name);
+		JazzConfigFile(const char *input_file_name);
 
 		int  num_keys ();
 
@@ -118,12 +121,17 @@ class JazzLogger {
 		 JazzLogger(const char *output_file_name);
 		~JazzLogger();
 
+		int  get_output_file_name (char *buff, int buff_size);
+
 		void log		(int loglevel, const char *message);
 		void log_printf	(int loglevel, const char *fmt, ...);
 
 	private:
 
-		TimePoint big_bang = std::chrono::steady_clock::now();	/// Clock zero for the logger
+		char file_name [MAX_FILENAME_LENGTH];
+		std::ifstream f_stream;
+		std::filebuf *f_buff;
+		TimePoint big_bang;
 };
 
 
