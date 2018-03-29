@@ -61,22 +61,6 @@ in the appropriate source files in: jzzMISCUTILS, jzzALLOC, jzzCONFIG, jzzACCESS
 #define jzz_IG_JAZZCOMMONS
 
 
-/** The trace levels for log()
-*/
-#define LOG__
-
-	/// Just for checking, normally not logged, should not exist in case of NDEBUG. In that case, it becomes a LOG_WARN to force removing it.
-#define LOG_DEBUG				1
-	/// A good, non trivial, non frequent event to discard trouble. E.g., "Jazz successfully installed on host xxx", "backup completed."
-#define LOG_INFO				2
-	/// A function returned an error status. This may still be normal. E.g., "configuration key xxx cannot be converted to integer."
-#define LOG_MISS				3
-	/// A warning. More serious than the previous. Should not happen. It is desirable to treat the existence of a warning as a bug.
-#define LOG_WARN				4
-	/// Something known to be a requisite is failing. The program or task halts due to this.
-#define LOG_ERROR				5
-
-
 /** Perimetral security modes.
 
 In any case, writing requires a signed PUT if MHD_ENABLE_ROLE_CREATOR & (MHD_ENABLE_ROLE_DATAWRITER | MHD_ENABLE_ROLE_FUNCTIONWRITER) regardless

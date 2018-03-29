@@ -29,6 +29,7 @@ The utilities are implemented in the appropriate source files in: jzzMISCUTILS, 
 */
 
 #include "src/include/jazz01_commons.h"
+#include "src/include/jazz.h"
 
 /*~ end of automatic header ~*/
 
