@@ -21,14 +21,6 @@
   limitations under the License.
 */
 
-#include <chrono>
-#include <iostream>
-#include <map>
-#include <string.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <math.h>
 
 #include "src/include/jazz_platform.h"
 
@@ -40,9 +32,9 @@ your own descendent classes to extend Jazz en C++. If you need the core implemen
 need jazz_api.h
 */
 
+
 #ifndef INCLUDED_JAZZ_INCLUDE_JAZZ
 #define INCLUDED_JAZZ_INCLUDE_JAZZ
-
 
 #include "src/jazz_elements/jazz_datablocks.h"
 #include "src/jazz_elements/jazz_alloc.h"
