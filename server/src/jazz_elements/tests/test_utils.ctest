@@ -406,66 +406,172 @@ SCENARIO("Testing TenBitsAtAddress().")
 }
 
 
-SCENARIO("Testing RemoveSpaceOrTab().")
+SCENARIO("Testing CleanConfigArgument().")
 {
 	std::string a("This Is\tIt");
 
-	std::string b = RemoveSpaceOrTab(a);
+	std::string b = CleanConfigArgument(a);
 
 	REQUIRE(b == "ThisIsIt");
 
-	REQUIRE(RemoveSpaceOrTab(" This Is It")  == b);
-	REQUIRE(RemoveSpaceOrTab("This Is It")   == b);
-	REQUIRE(RemoveSpaceOrTab("This Is It ")  == b);
-	REQUIRE(RemoveSpaceOrTab("This Is It\t") == b);
-	REQUIRE(RemoveSpaceOrTab("ThisIsIt")     == b);
+	REQUIRE(CleanConfigArgument(" This Is It")  == b);
+	REQUIRE(CleanConfigArgument("This Is It")   == b);
+	REQUIRE(CleanConfigArgument("This Is It ")  == b);
+	REQUIRE(CleanConfigArgument("This Is It\t") == b);
+	REQUIRE(CleanConfigArgument("ThisIsIt")     == b);
 
-	REQUIRE(RemoveSpaceOrTab(" ")   == "");
-	REQUIRE(RemoveSpaceOrTab("\t")  == "");
-	REQUIRE(RemoveSpaceOrTab(" \t") == "");
-	REQUIRE(RemoveSpaceOrTab("")    == "");
+	REQUIRE(CleanConfigArgument(" ")   == "");
+	REQUIRE(CleanConfigArgument("\t")  == "");
+	REQUIRE(CleanConfigArgument(" \t") == "");
+	REQUIRE(CleanConfigArgument("")    == "");
+
+	REQUIRE(CleanConfigArgument("\"This is it\"")   == "This is it");
+	REQUIRE(CleanConfigArgument("\"This is it\" .") == "This is it.");
 }
 
 
 SCENARIO("Testing class JazzConfigFile")
 {
-	// jCommons.debug_config_put("key01", "6.5.4.3");
-	// jCommons.debug_config_put("key02", "8.7");
-	// jCommons.debug_config_put("key03", "9");
+	JazzConfigFile conf1("/tmp/f5d0fb3fbf831bfdb5273d22e8f73af1");
 
-	// int	   tt_cfg_i = 54321;
-	// double tt_cfg_d = 123.456;
-	// string tt_cfg_s ("nothing");
+	REQUIRE(conf1.num_keys() == 0);
 
-	// REQUIRE(!jCommons.get_config_key("key00", tt_cfg_i));
-	// REQUIRE(!jCommons.get_config_key("key00", tt_cfg_d));
-	// REQUIRE(!jCommons.get_config_key("key00", tt_cfg_s));
+	conf1.debug_put("key01", "6.5.4.3");
 
-	// REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 123.456 && tt_cfg_s.compare("nothing") == 0));
+	REQUIRE(conf1.num_keys() == 1);
 
-	// REQUIRE(!jCommons.get_config_key("key01", tt_cfg_i));
-	// REQUIRE(!jCommons.get_config_key("key01", tt_cfg_d));
-	// REQUIRE( jCommons.get_config_key("key01", tt_cfg_s));
+	conf1.debug_put("key02", "8.7");
+	conf1.debug_put("key03", "9");
 
-	// REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 123.456 && tt_cfg_s.compare("6.5.4.3") == 0));
+	REQUIRE(conf1.num_keys() == 3);
 
-	// REQUIRE(!jCommons.get_config_key("key02", tt_cfg_i));
-	// REQUIRE( jCommons.get_config_key("key02", tt_cfg_d));
-	// REQUIRE( jCommons.get_config_key("key02", tt_cfg_s));
+	int	   tt_cfg_i = 54321;
+	double tt_cfg_d = 123.456;
+	std::string tt_cfg_s ("nothing");
 
-	// REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 8.7 && tt_cfg_s.compare("8.7") == 0));
+	REQUIRE(!conf1.get_key("key00", tt_cfg_i));
+	REQUIRE(!conf1.get_key("key00", tt_cfg_d));
+	REQUIRE(!conf1.get_key("key00", tt_cfg_s));
 
-	// REQUIRE( jCommons.get_config_key("key03", tt_cfg_i));
-	// REQUIRE( jCommons.get_config_key("key03", tt_cfg_d));
-	// REQUIRE( jCommons.get_config_key("key03", tt_cfg_s));
+	REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 123.456 && tt_cfg_s.compare("nothing") == 0));
 
-	// REQUIRE((tt_cfg_i == 9 && tt_cfg_d == 9.0 && tt_cfg_s.compare("9") == 0));
+	REQUIRE(!conf1.get_key("key01", tt_cfg_i));
+	REQUIRE(!conf1.get_key("key01", tt_cfg_d));
+	REQUIRE( conf1.get_key("key01", tt_cfg_s));
 
-	// jCommons.debug_config_put("key03", "");
+	REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 123.456 && tt_cfg_s.compare("6.5.4.3") == 0));
 
-	// REQUIRE(!jCommons.get_config_key("key03", tt_cfg_i));
-	// REQUIRE(!jCommons.get_config_key("key03", tt_cfg_d));
-	// REQUIRE(!jCommons.get_config_key("key03", tt_cfg_s));
+	REQUIRE(!conf1.get_key("key02", tt_cfg_i));
+	REQUIRE( conf1.get_key("key02", tt_cfg_d));
+	REQUIRE( conf1.get_key("key02", tt_cfg_s));
 
-	// REQUIRE((tt_cfg_i == 9 && tt_cfg_d == 9.0 && tt_cfg_s.compare("9") == 0));
+	REQUIRE((tt_cfg_i == 54321 && tt_cfg_d == 8.7 && tt_cfg_s.compare("8.7") == 0));
+
+	REQUIRE( conf1.get_key("key03", tt_cfg_i));
+	REQUIRE( conf1.get_key("key03", tt_cfg_d));
+	REQUIRE( conf1.get_key("key03", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 9 && tt_cfg_d == 9.0 && tt_cfg_s.compare("9") == 0));
+
+	conf1.debug_put("key03", "");
+
+	REQUIRE(!conf1.get_key("key03", tt_cfg_i));
+	REQUIRE(!conf1.get_key("key03", tt_cfg_d));
+	REQUIRE(!conf1.get_key("key03", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 9 && tt_cfg_d == 9.0 && tt_cfg_s.compare("9") == 0));
+
+	std::ofstream fh;
+
+	fh.open ("/tmp/93fd8e49efe4b4b2a2623d1f22d4ea40");
+	fh << "// Test config file\n";
+ 	fh << "\n";
+	fh << "0=1\n";
+	fh << "0 = 0\n";
+	fh << "one=1\n";
+	fh << "two = 2\n";
+	fh << "three = 3// three = 4\n";
+	fh << "four = 44		// three = 4\n";
+	fh << "five\t = 5		// three = 4\n";
+ 	fh << "\n";
+	fh << "six\t = 3 + 3\n";
+	fh << "seven\t = \t3 + 4//\n";
+	fh << "eight\t = \t\"4 + 4\"//\n";
+	fh << " ni ne\t = \t\"5 + 4\"\n";
+	fh << " \"one zero\"\t = 10\n";
+	fh << "\n";
+	fh << "four = 4		// fixed!\n";
+	fh << "\n";
+	fh << "\\eof\n";
+	fh.close();
+
+	JazzConfigFile conf2("/tmp/93fd8e49efe4b4b2a2623d1f22d4ea40");
+
+	REQUIRE(conf2.num_keys() == 11);
+
+	REQUIRE(conf2.get_key("0", tt_cfg_i));
+	REQUIRE(conf2.get_key("0", tt_cfg_d));
+	REQUIRE(conf2.get_key("0", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 0 && tt_cfg_d == 0.0 && tt_cfg_s.compare("0") == 0));
+
+	REQUIRE(conf2.get_key("one", tt_cfg_i));
+	REQUIRE(conf2.get_key("one", tt_cfg_d));
+	REQUIRE(conf2.get_key("one", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 1 && tt_cfg_d == 1.0 && tt_cfg_s.compare("1") == 0));
+
+	REQUIRE(conf2.get_key("two", tt_cfg_i));
+	REQUIRE(conf2.get_key("two", tt_cfg_d));
+	REQUIRE(conf2.get_key("two", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 2 && tt_cfg_d == 2.0 && tt_cfg_s.compare("2") == 0));
+
+	REQUIRE(conf2.get_key("three", tt_cfg_i));
+	REQUIRE(conf2.get_key("three", tt_cfg_d));
+	REQUIRE(conf2.get_key("three", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 3 && tt_cfg_d == 3.0 && tt_cfg_s.compare("3") == 0));
+
+	REQUIRE(conf2.get_key("four", tt_cfg_i));
+	REQUIRE(conf2.get_key("four", tt_cfg_d));
+	REQUIRE(conf2.get_key("four", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 4 && tt_cfg_d == 4.0 && tt_cfg_s.compare("4") == 0));
+
+	REQUIRE(conf2.get_key("five", tt_cfg_i));
+	REQUIRE(conf2.get_key("five", tt_cfg_d));
+	REQUIRE(conf2.get_key("five", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 5 && tt_cfg_d == 5.0 && tt_cfg_s.compare("5") == 0));
+
+	REQUIRE(!conf2.get_key("six", tt_cfg_i));
+	REQUIRE(!conf2.get_key("six", tt_cfg_d));
+	REQUIRE( conf2.get_key("six", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 5 && tt_cfg_d == 5.0 && tt_cfg_s.compare("3+3") == 0));
+
+	REQUIRE(!conf2.get_key("seven", tt_cfg_i));
+	REQUIRE(!conf2.get_key("seven", tt_cfg_d));
+	REQUIRE( conf2.get_key("seven", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 5 && tt_cfg_d == 5.0 && tt_cfg_s.compare("3+4") == 0));
+
+	REQUIRE(!conf2.get_key("eight", tt_cfg_i));
+	REQUIRE(!conf2.get_key("eight", tt_cfg_d));
+	REQUIRE( conf2.get_key("eight", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 5 && tt_cfg_d == 5.0 && tt_cfg_s.compare("4 + 4") == 0));
+
+	REQUIRE(!conf2.get_key("nine", tt_cfg_i));
+	REQUIRE(!conf2.get_key("nine", tt_cfg_d));
+	REQUIRE( conf2.get_key("nine", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 5 && tt_cfg_d == 5.0 && tt_cfg_s.compare("5 + 4") == 0));
+
+	REQUIRE(conf2.get_key("one zero", tt_cfg_i));
+	REQUIRE(conf2.get_key("one zero", tt_cfg_d));
+	REQUIRE(conf2.get_key("one zero", tt_cfg_s));
+
+	REQUIRE((tt_cfg_i == 10 && tt_cfg_d == 10.0 && tt_cfg_s.compare("10") == 0));
 }
