@@ -52,6 +52,214 @@ SCENARIO("Testing CountBytesFromUtf8().")
 }
 
 
+SCENARIO("Testing ExpandEscapeSequences().")
+{
+	char buff[80];
+
+	buff[0] = 0;
+	REQUIRE(!strlen(ExpandEscapeSequences(buff)));
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "Hello, world!")), "Hello, world!"));
+
+	buff[5] = 4;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\abc")), "\abc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\ab")), "9\ab"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\a")), "89\a"));
+
+	REQUIRE(buff[5] == 4);
+	buff[3] = 2;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\a")), "\a"));
+
+	REQUIRE(buff[3] == 2);
+	buff[5] = 5;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\bbc")), "\bbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\bb")), "9\bb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\a")), "89\a"));
+
+	REQUIRE(buff[5] == 5);
+	buff[3] = 3;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\b")), "\b"));
+
+	REQUIRE(buff[3] == 3);
+	buff[5] = 6;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\fbc")), "\fbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\fb")), "9\fb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\f")), "89\f"));
+
+	REQUIRE(buff[5] == 6);
+	buff[3] = 4;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\f")), "\f"));
+
+	REQUIRE(buff[3] == 4);
+	buff[5] = 7;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\nbc")), "\nbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\nb")), "9\nb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\n")), "89\n"));
+
+	REQUIRE(buff[5] == 7);
+	buff[3] = 5;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\n")), "\n"));
+
+	REQUIRE(buff[3] == 5);
+	buff[5] = 8;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\rbc")), "\rbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\rb")), "9\rb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\r")), "89\r"));
+
+	REQUIRE(buff[5] == 8);
+	buff[3] = 6;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\r")), "\r"));
+
+	REQUIRE(buff[3] == 6);
+	buff[5] = 9;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\tbc")), "\tbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\tb")), "9\tb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\t")), "89\t"));
+
+	REQUIRE(buff[5] == 9);
+	buff[3] = 7;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\t")), "\t"));
+
+	REQUIRE(buff[3] == 7);
+	buff[5] = 8;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\vbc")), "\vbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\vb")), "9\vb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\v")), "89\v"));
+
+	REQUIRE(buff[5] == 8);
+	buff[3] = 8;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\v")), "\v"));
+
+	REQUIRE(buff[3] == 8);
+	buff[5] = 7;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\abc")), "\abc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\ab")), "9\ab"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\a")), "89\a"));
+
+	REQUIRE(buff[5] == 7);
+	buff[3] = 9;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\a")), "\a"));
+
+	REQUIRE(buff[3] == 9);
+	buff[5] = 6;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\\\bc")), "\\bc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\\\b")), "9\\b"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\\\")), "89\\"));
+
+	REQUIRE(buff[5] == 6);
+	buff[3] = 8;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\\\")), "\\"));
+
+	REQUIRE(buff[3] == 8);
+	buff[5] = 5;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\\'bc")), "\'bc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\\'b")), "9\'b"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\\'")), "89\'"));
+
+	REQUIRE(buff[5] == 5);
+	buff[3] = 7;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\\'")), "\'"));
+
+	REQUIRE(buff[3] == 7);
+	buff[5] = 4;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\\"bc")), "\"bc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\\"b")), "9\"b"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\\"")), "89\""));
+
+	REQUIRE(buff[5] == 4);
+	buff[3] = 6;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\a")), "\a"));
+
+	REQUIRE(buff[3] == 6);
+	buff[5] = 3;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\\?bc")), "\?bc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\\?b")), "9\?b"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\\?")), "89\?"));
+
+	REQUIRE(buff[5] == 3);
+	buff[3] = 5;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\a")), "\a"));
+
+	REQUIRE(buff[3] == 5);
+	buff[7] = 1;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\141bc")), "abc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "d\\145f")), "def"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "z\\040A")), "z A"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "z\\40A")),	 "z40A"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "78\\071")), "789"));
+
+	REQUIRE(buff[7] == 1);
+	buff[5] = 9;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\112")), "J"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\011")), "\t"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\11")),  "11"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\007")), "\a"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\07")),  "07"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\7")),   "7"));
+
+	REQUIRE(buff[5] == 9);
+	buff[5] = 8;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\cbc")), "cbc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "9\\cb")), "9cb"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "89\\c")), "89c"));
+
+	REQUIRE(buff[5] == 8);
+	buff[3] = 7;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\c")), "c"));
+
+	REQUIRE(buff[3] == 7);
+	buff[7] = 9;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x61bc")), "abc"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "d\\x65f")), "def"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "z\\x20A")), "z A"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "z\\x09A")), "z\tA"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "z\\x9G")),	 "zx9G"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "78\\x39")), "789"));
+
+	REQUIRE(buff[7] == 9);
+	buff[5] = 8;
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x4a")), "J"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x4A")), "J"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x09")), "\t"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x9")),  "x9"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x78")), "x"));
+
+	REQUIRE(buff[5] == 8);
+
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\x078")), "\a8"));
+}
+
+
 // SCENARIO("Testing tenbits().")
 // {
 // 	REQUIRE(tenbits("7") == 0x17);
@@ -73,214 +281,6 @@ SCENARIO("Testing CountBytesFromUtf8().")
 // 	REQUIRE(tenbits("a0yy")	 == 0x201);
 // 	REQUIRE(tenbits("aazz")	 == 0x021);
 // 	REQUIRE(tenbits("00ttt") == 0x210);
-// }
-
-
-// SCENARIO("Testing expand_escaped().")
-// {
-// 	char buff[80];
-
-// 	buff[0] = 0;
-// 	REQUIRE(!strlen(expand_escaped(buff)));
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "Hello, world!")), "Hello, world!"));
-
-// 	buff[5] = 4;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\abc")), "\abc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\ab")), "9\ab"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\a")), "89\a"));
-
-// 	REQUIRE(buff[5] == 4);
-// 	buff[3] = 2;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
-
-// 	REQUIRE(buff[3] == 2);
-// 	buff[5] = 5;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\bbc")), "\bbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\bb")), "9\bb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\a")), "89\a"));
-
-// 	REQUIRE(buff[5] == 5);
-// 	buff[3] = 3;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\b")), "\b"));
-
-// 	REQUIRE(buff[3] == 3);
-// 	buff[5] = 6;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\fbc")), "\fbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\fb")), "9\fb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\f")), "89\f"));
-
-// 	REQUIRE(buff[5] == 6);
-// 	buff[3] = 4;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\f")), "\f"));
-
-// 	REQUIRE(buff[3] == 4);
-// 	buff[5] = 7;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\nbc")), "\nbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\nb")), "9\nb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\n")), "89\n"));
-
-// 	REQUIRE(buff[5] == 7);
-// 	buff[3] = 5;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\n")), "\n"));
-
-// 	REQUIRE(buff[3] == 5);
-// 	buff[5] = 8;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\rbc")), "\rbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\rb")), "9\rb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\r")), "89\r"));
-
-// 	REQUIRE(buff[5] == 8);
-// 	buff[3] = 6;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\r")), "\r"));
-
-// 	REQUIRE(buff[3] == 6);
-// 	buff[5] = 9;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\tbc")), "\tbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\tb")), "9\tb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\t")), "89\t"));
-
-// 	REQUIRE(buff[5] == 9);
-// 	buff[3] = 7;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\t")), "\t"));
-
-// 	REQUIRE(buff[3] == 7);
-// 	buff[5] = 8;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\vbc")), "\vbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\vb")), "9\vb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\v")), "89\v"));
-
-// 	REQUIRE(buff[5] == 8);
-// 	buff[3] = 8;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\v")), "\v"));
-
-// 	REQUIRE(buff[3] == 8);
-// 	buff[5] = 7;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\abc")), "\abc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\ab")), "9\ab"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\a")), "89\a"));
-
-// 	REQUIRE(buff[5] == 7);
-// 	buff[3] = 9;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
-
-// 	REQUIRE(buff[3] == 9);
-// 	buff[5] = 6;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\\bc")), "\\bc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\\b")), "9\\b"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\\")), "89\\"));
-
-// 	REQUIRE(buff[5] == 6);
-// 	buff[3] = 8;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\\")), "\\"));
-
-// 	REQUIRE(buff[3] == 8);
-// 	buff[5] = 5;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\'bc")), "\'bc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\'b")), "9\'b"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\'")), "89\'"));
-
-// 	REQUIRE(buff[5] == 5);
-// 	buff[3] = 7;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\'")), "\'"));
-
-// 	REQUIRE(buff[3] == 7);
-// 	buff[5] = 4;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\"bc")), "\"bc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\"b")), "9\"b"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\"")), "89\""));
-
-// 	REQUIRE(buff[5] == 4);
-// 	buff[3] = 6;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
-
-// 	REQUIRE(buff[3] == 6);
-// 	buff[5] = 3;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\\?bc")), "\?bc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\\?b")), "9\?b"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\\?")), "89\?"));
-
-// 	REQUIRE(buff[5] == 3);
-// 	buff[3] = 5;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\a")), "\a"));
-
-// 	REQUIRE(buff[3] == 5);
-// 	buff[7] = 1;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\141bc")), "abc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "d\\145f")), "def"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\040A")), "z A"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\40A")),	 "z40A"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "78\\071")), "789"));
-
-// 	REQUIRE(buff[7] == 1);
-// 	buff[5] = 9;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\112")), "J"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\011")), "\t"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\11")),  "11"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\007")), "\a"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\07")),  "07"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\7")),   "7"));
-
-// 	REQUIRE(buff[5] == 9);
-// 	buff[5] = 8;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\cbc")), "cbc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "9\\cb")), "9cb"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "89\\c")), "89c"));
-
-// 	REQUIRE(buff[5] == 8);
-// 	buff[3] = 7;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\c")), "c"));
-
-// 	REQUIRE(buff[3] == 7);
-// 	buff[7] = 9;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x61bc")), "abc"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "d\\x65f")), "def"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\x20A")), "z A"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\x09A")), "z\tA"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "z\\x9G")),	 "zx9G"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "78\\x39")), "789"));
-
-// 	REQUIRE(buff[7] == 9);
-// 	buff[5] = 8;
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x4a")), "J"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x4A")), "J"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x09")), "\t"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x9")),  "x9"));
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x78")), "x"));
-
-// 	REQUIRE(buff[5] == 8);
-
-// 	REQUIRE(!strcmp(expand_escaped(strcpy(buff, "\\x078")), "\a8"));
 // }
 
 
