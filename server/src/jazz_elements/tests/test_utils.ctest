@@ -379,27 +379,25 @@ SCENARIO("Testing MurmurHash64A().")
 }
 
 
-// SCENARIO("Testing tenbits().")
-// {
-// 	REQUIRE(tenbits("7") == 0x17);
-// 	REQUIRE(tenbits("0") == 0x10);
-// 	REQUIRE(tenbits("a") == 0x01);
+SCENARIO("Testing TenBitsAtAddress().")
+{
+	REQUIRE(TenBitsAtAddress("7") == 0x17);
+	REQUIRE(TenBitsAtAddress("0") == 0x10);
+	REQUIRE(TenBitsAtAddress("a") == 0x01);
 
-// 	REQUIRE(tenbits("77") == 0x2f7);
-// 	REQUIRE(tenbits("70") == 0x217);
-// 	REQUIRE(tenbits("7a") == 0x037);
-// 	REQUIRE(tenbits("a7") == 0x2e1);
-// 	REQUIRE(tenbits("a0") == 0x201);
-// 	REQUIRE(tenbits("aa") == 0x021);
-// 	REQUIRE(tenbits("00") == 0x210);
+	REQUIRE(TenBitsAtAddress("77") == 0x2f7);
+	REQUIRE(TenBitsAtAddress("70") == 0x217);
+	REQUIRE(TenBitsAtAddress("7a") == 0x037);
+	REQUIRE(TenBitsAtAddress("a7") == 0x2e1);
+	REQUIRE(TenBitsAtAddress("a0") == 0x201);
+	REQUIRE(TenBitsAtAddress("aa") == 0x021);
+	REQUIRE(TenBitsAtAddress("00") == 0x210);
 
-// 	REQUIRE(tenbits("77x")	 == 0x2f7);
-// 	REQUIRE(tenbits("70y")	 == 0x217);
-// 	REQUIRE(tenbits("7az")	 == 0x037);
-// 	REQUIRE(tenbits("a7xx")	 == 0x2e1);
-// 	REQUIRE(tenbits("a0yy")	 == 0x201);
-// 	REQUIRE(tenbits("aazz")	 == 0x021);
-// 	REQUIRE(tenbits("00ttt") == 0x210);
-// }
-
-
+	REQUIRE(TenBitsAtAddress("77x")	 == 0x2f7);
+	REQUIRE(TenBitsAtAddress("70y")	 == 0x217);
+	REQUIRE(TenBitsAtAddress("7az")	 == 0x037);
+	REQUIRE(TenBitsAtAddress("a7xx")	 == 0x2e1);
+	REQUIRE(TenBitsAtAddress("a0yy")	 == 0x201);
+	REQUIRE(TenBitsAtAddress("aazz")	 == 0x021);
+	REQUIRE(TenBitsAtAddress("00ttt") == 0x210);
+}
