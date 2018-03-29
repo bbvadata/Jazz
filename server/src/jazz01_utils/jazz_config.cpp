@@ -75,15 +75,15 @@ bool jazzCommons::load_config_file (const char *conf)
 
 		p = ln.find("@SECTION");
 
-		if (p != string::npos) section = jazz_utils::RemoveSpaceOrTab(ln.substr(p + 8, ln.length()));
+		if (p != string::npos) section = jazz_utils::CleanConfigArgument(ln.substr(p + 8, ln.length()));
 		else
 		{
 			p = ln.find("=");
 
 			if (p != string::npos)
 			{
-				key = section + "." + jazz_utils::RemoveSpaceOrTab(ln.substr(0, p - 1));
-				val = jazz_utils::RemoveSpaceOrTab(ln.substr(p + 1, ln.length()));
+				key = section + "." + jazz_utils::CleanConfigArgument(ln.substr(0, p - 1));
+				val = jazz_utils::CleanConfigArgument(ln.substr(p + 1, ln.length()));
 
 				if (firstkey)
 				{

@@ -56,7 +56,7 @@ int			 CountBytesFromUtf8	   (char *buff, int len);
 char		*ExpandEscapeSequences (char *buff);
 pid_t		 FindProcessIdByName   (const char *name);
 uint64_t	 MurmurHash64A		   (const void *key, int len);
-std::string  RemoveSpaceOrTab	   (std::string s);
+std::string  CleanConfigArgument   (std::string s);
 
 
 /** Get ten bits taking the least significant 5 of the first two characters of a string.
