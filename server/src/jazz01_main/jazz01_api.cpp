@@ -114,7 +114,7 @@ int jazz_answer_to_connection(void *cls,
 	// Step 2 : Continue uploads in progress, checking all possible error conditions.
 
 	int imethod;
-	imethod = imethods[tenbits(method)];
+	imethod = imethods[jazz_utils::TenBitsAtAddress(method)];
 
 	parsedURL pars;
 
@@ -203,7 +203,7 @@ int jazz_answer_to_connection(void *cls,
 		case HTTP_OPTIONS:
 			{
 				string allow;
-				if (tenbits(url) != tenbitDS)
+				if (jazz_utils::TenBitsAtAddress(url) != tenbitDS)
 				{
 					if (no_webpages)
 						return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
@@ -238,7 +238,7 @@ int jazz_answer_to_connection(void *cls,
 
 		case HTTP_HEAD:
 		case HTTP_GET:
-			if (tenbits(url) != tenbitDS)
+			if (jazz_utils::TenBitsAtAddress(url) != tenbitDS)
 			{
 				if (no_webpages)
 					return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
@@ -272,7 +272,7 @@ int jazz_answer_to_connection(void *cls,
 
 
 		default:
-			if (tenbits(url) != tenbitDS)
+			if (jazz_utils::TenBitsAtAddress(url) != tenbitDS)
 			{
 				if (no_webpages)
 					return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
@@ -517,13 +517,13 @@ jzzAPI::jzzAPI()
 {
 	for (int i = 0; i < 1024; i++) imethods[i] = HTTP_NOTUSED;
 
-	imethods[tenbits("OPTIONS")] = HTTP_OPTIONS;
-	imethods[tenbits("HEAD")]	 = HTTP_HEAD;
-	imethods[tenbits("GET")]	 = HTTP_GET;
-	imethods[tenbits("PUT")]	 = HTTP_PUT;
-	imethods[tenbits("DELETE")]	 = HTTP_DELETE;
+	imethods[jazz_utils::TenBitsAtAddress("OPTIONS")] = HTTP_OPTIONS;
+	imethods[jazz_utils::TenBitsAtAddress("HEAD")]	  = HTTP_HEAD;
+	imethods[jazz_utils::TenBitsAtAddress("GET")]	  = HTTP_GET;
+	imethods[jazz_utils::TenBitsAtAddress("PUT")]	  = HTTP_PUT;
+	imethods[jazz_utils::TenBitsAtAddress("DELETE")]  = HTTP_DELETE;
 
-	tenbitDS = tenbits("//");
+	tenbitDS = jazz_utils::TenBitsAtAddress("//");
 };
 
 
@@ -1864,7 +1864,7 @@ bool jzzAPI::char_to_param_strict_end (const char * pch, apifunctionParam &param
 
 	*pd++ = 0;
 
-	expand_escaped(param.param);
+	jazz_utils::ExpandEscapeSequences(param.param);
 
 	return true;
 }

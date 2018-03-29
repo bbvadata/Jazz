@@ -446,9 +446,9 @@ int main(int argc, char* argv[])
 	string proc_name ("./jazz");
 #endif
 
-	pid_t jzzPID = proc_find(proc_name.c_str());
+	pid_t jzzPID = jazz_utils::FindProcessIdByName(proc_name.c_str());
 
-	if (!jzzPID) jzzPID = proc_find("/etc/jazz-server/jazz");
+	if (!jzzPID) jzzPID = jazz_utils::FindProcessIdByName("/etc/jazz-server/jazz");
 
 	if (!jzzPID)
 	{
@@ -493,7 +493,7 @@ int main(int argc, char* argv[])
 			for (int t = 0; t < 200; t++)
 			{
 				usleep (100000);
-				if (!proc_find(proc_name.c_str()))
+				if (!jazz_utils::FindProcessIdByName(proc_name.c_str()))
 				{
 					cout << "The process \"" << proc_name << "\" was stopped." << endl;
 
@@ -515,17 +515,4 @@ int main(int argc, char* argv[])
 	}
 };
 
-#endif
-
-/*	-----------------------------------------------
-	  U N I T	t e s t i n g
---------------------------------------------------- */
-
-#if defined CATCH_TEST
-TEST_CASE("Test for jzzMAIN")
-{
-	// No real tests here. This line is added to avoid a warning when running ./switch_tests.R
-
-	REQUIRE(sizeof(jzzdaemon) == 8);
-}
 #endif

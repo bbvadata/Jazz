@@ -1019,7 +1019,7 @@ bool jzzBLOCKS::source_name(int idx, sourceName &name)
 */
 int jzzBLOCKS::get_source_idx(const char * name)
 {
-	int imax = source_idx[tenbits(name)];
+	int imax = source_idx[jazz_utils::TenBitsAtAddress(name)];
 
 	for (int i = imax; i >= 0; i--)
 	{
@@ -1471,7 +1471,7 @@ release_txn_and_fail:
 */
 void jzzBLOCKS::hash_block (pJazzBlock pblock)
 {
-	pblock->hash64 = MurmurHash64A(&reinterpret_cast<pRawBlock>(pblock)->data, pblock->size);
+	pblock->hash64 = jazz_utils::MurmurHash64A(&reinterpret_cast<pRawBlock>(pblock)->data, pblock->size);
 }
 
 
@@ -1833,7 +1833,7 @@ void jzzBLOCKS::update_source_idx(bool incremental)
 
 	for (int i = 0; i < numsources; i++)
 	{
-		int j = tenbits(source_nam[i].key);
+		int j = jazz_utils::TenBitsAtAddress(source_nam[i].key);
 
 		source_idx[j] = max(i, source_idx[j]);
 	}
