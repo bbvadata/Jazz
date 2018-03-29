@@ -20,8 +20,6 @@
   limitations under the License.
 */
 
-using namespace std;
-
 /*! \brief API class implementing the non-security related functionality of the Jazz server.
 
 This module implements both the callback function (which can be a direct callback or called through jzzPERIMETRAL) and a class that parses API calls.
@@ -30,9 +28,13 @@ The callback function calls the appropriate instanced services and handles the h
 call with the url if not. If that call is successful it provides the resource, if not it delivers a 404 (with a possible 404 resource).
 */
 
+#include "src/include/jazz.h"
+
 #include "src/include/jazz01_commons.h"
 #include "src/jazz01_misc/jazz_websource.h"
 #include "src/jazz01_main/jazz01_instances.h"
+
+using namespace std;
 
 /*~ end of automatic header ~*/
 
