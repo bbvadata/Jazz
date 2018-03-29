@@ -23,6 +23,9 @@
 
 
 #include <chrono>
+#include <iostream>
+#include <fstream>
+#include <map>
 
 
 /**< \brief Miscelaneous utility functions for Jazz.

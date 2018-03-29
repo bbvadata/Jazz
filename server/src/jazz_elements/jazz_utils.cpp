@@ -24,14 +24,10 @@
 //TODO: Move all the utils and break the logger in functions.
 
 
-#include <map>
 #include <string.h>
 
 #include <unistd.h>
 #include <dirent.h>
-
-#include <iostream>
-#include <fstream>
 
 #include <sys/syscall.h>
 #include <stdarg.h>
