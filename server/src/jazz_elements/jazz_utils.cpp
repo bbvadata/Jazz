@@ -30,6 +30,9 @@
 #include <unistd.h>
 #include <dirent.h>
 
+#include <iostream>
+#include <fstream>
+
 
 #include "src/jazz_elements/jazz_utils.h"
 
@@ -313,6 +316,157 @@ uint64_t MurmurHash64A(const void *key, int len)
 	return h;
 }
 
+
+/** Remove space and tab for a string.
+
+	\param s Input string
+	\return String without space or tab.
+*/
+std::string RemoveSpaceOrTab(std::string s)
+{
+	for(int i = s.length() - 1; i >= 0; i--) if(s[i] == ' ' || s[i] == '\t') s.erase(i, 1);
+
+	return s;
+}
+
+
+/** Load a configuration from a file.
+
+	Configuration is stored in: map<string, string> config which is private and read using the function get_key().
+
+	\param input_file_name The input file name containing a configuration
+
+	\return check num_keys
+*/
+JazzConfigFile::JazzConfigFile(const char *input_file_name)
+{
+	std::ifstream fh (input_file_name);
+
+	if (!fh.is_open()) return;
+
+	std::string ln, key, val;
+
+	while (!fh.eof())
+	{
+		getline(fh, ln);
+
+		size_t p;
+		p = ln.find("//");
+
+		if (p != std::string::npos) ln.erase(p, ln.length());
+
+		p = ln.find("=");
+
+		if (p != std::string::npos)
+		{
+			key = RemoveSpaceOrTab(ln.substr(0, p - 1));
+			val = RemoveSpaceOrTab(ln.substr(p + 1, ln.length()));
+
+			std::cout << "config_put(\"" << key << "\", \"" << val << "\");" << std::endl;
+			config[key] = val;
+		}
+	}
+	fh.close();
+}
+
+
+/** Get the number of known configuration keys.
+
+	\return	 The number of configuration keys read from the file when constructing the object. Zero means some failure.
+*/
+int JazzConfigFile::num_keys ()
+{
+	return config.size();
+}
+
+
+/** Get the value for an existing configuration key.
+
+	\param key	 The configuration key to be searched.
+	\param value Value to be returned only when the function returns true.
+	\return		 True when the key exists and can be returned with the specific (overloaded) type.
+*/
+bool JazzConfigFile::get_key(const char *key, int &value)
+{
+	std::string keys (key);
+
+	try	{
+		std::string val = config[keys];
+		std::string::size_type extra;
+
+		int i = stoi(val, &extra);
+
+		if (extra != val.length()) return false;
+
+		value = i;
+
+		return true;
+	}
+
+	catch (...) {
+		return false;
+	}
+}
+
+
+/** Get the value for an existing configuration key.
+
+	\param key	 The configuration key to be searched.
+	\param value Value to be returned only when the function returns true.
+	\return		 True when the key exists and can be returned with the specific (overloaded) type.
+*/
+bool JazzConfigFile::get_key(const char *key, double &value)
+{
+	std::string keys (key);
+
+	try {
+		std::string val = config[keys];
+		std::string::size_type extra;
+
+		double d = stod(val, &extra);
+
+		if (extra != val.length()) return false;
+
+		value = d;
+
+		return true;
+	}
+
+	catch (...) {
+		return false;
+	}
+}
+
+
+/** Get the value for an existing configuration key.
+
+	\param key	 The configuration key to be searched.
+	\param value Value to be returned only when the function returns true.
+	\return		 True when the key exists and can be returned with the specific (overloaded) type.
+*/
+bool JazzConfigFile::get_key(const char *key, std::string &value)
+{
+	std::string keys (key);
+
+	std::string s = config[keys];
+
+	if (!s.length()) return false;
+
+	value = s;
+
+	return true;
+}
+
+
+/** DEBUG ONLY function: Set a config key manually.
+
+	\param key	The configuration key to be set.
+	\param val	New value of the key as a string (also valid for int and double if the string can be converted).
+*/
+void JazzConfigFile::debug_put(const std::string key, const std::string val)
+{
+	config[key] = val;
+}
 
 } // namespace jazz_utils
 
