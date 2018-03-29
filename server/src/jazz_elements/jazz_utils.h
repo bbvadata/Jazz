@@ -90,6 +90,24 @@ class JazzConfigFile {
 };
 
 
+typedef std::chrono::steady_clock::time_point TimePoint;
+
+class JazzLogger {
+
+	public:
+
+		 JazzLogger(const char *output_file_name);
+		~JazzLogger();
+
+		void log		(int loglevel, const char *message);
+		void log_printf	(int loglevel, const char *fmt, ...);
+
+	private:
+
+		TimePoint big_bang = std::chrono::steady_clock::now();	/// Clock zero for the logger
+};
+
+
 }
 
 #endif
