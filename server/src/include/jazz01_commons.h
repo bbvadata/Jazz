@@ -626,7 +626,6 @@ inline int R_IsNA(double x)
 
 bool		 exists			 (const char* fnam);
 const char * okfail			 (bool		  b);
-string		 remove_sptab	 (string	  s);
 
 // From jzzALLOC.cpp
 

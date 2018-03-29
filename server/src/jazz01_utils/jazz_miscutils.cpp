@@ -64,16 +64,3 @@ const char* okfail(bool b)
 
 	return("*FAILED*");
 }
-
-
-/** Remove space and tab for a string.
-
-	\param s Input string
-	\return String without space or tab.
-*/
-string remove_sptab(string s)
-{
-	for(int i = s.length() - 1; i >= 0; i--) if(s[i] == ' ' || s[i] == '\t') s.erase(i, 1);
-
-	return (s);
-}
