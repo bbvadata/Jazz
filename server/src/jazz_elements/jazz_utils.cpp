@@ -373,7 +373,7 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 			key = CleanConfigArgument(ln.substr(0, p));
 			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
 
-			std::cout << "config_put(\"" << key << "\", \"" << val << "\");" << std::endl;
+			// std::cout << "config_put(\"" << key << "\", \"" << val << "\");" << std::endl;
 			config[key] = val;
 		}
 	}
