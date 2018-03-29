@@ -33,6 +33,7 @@ using namespace std;
 */
 
 #include "src/include/jazz01_commons.h"
+#include "src/include/jazz.h"
 
 /*~ end of automatic header ~*/
 
@@ -74,15 +75,15 @@ bool jazzCommons::load_config_file (const char *conf)
 
 		p = ln.find("@SECTION");
 
-		if (p != string::npos) section = remove_sptab(ln.substr(p + 8, ln.length()));
+		if (p != string::npos) section = jazz_utils::RemoveSpaceOrTab(ln.substr(p + 8, ln.length()));
 		else
 		{
 			p = ln.find("=");
 
 			if (p != string::npos)
 			{
-				key = section + "." + remove_sptab(ln.substr(0, p - 1));
-				val = remove_sptab(ln.substr(p + 1, ln.length()));
+				key = section + "." + jazz_utils::RemoveSpaceOrTab(ln.substr(0, p - 1));
+				val = jazz_utils::RemoveSpaceOrTab(ln.substr(p + 1, ln.length()));
 
 				if (firstkey)
 				{
