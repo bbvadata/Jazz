@@ -27,6 +27,7 @@
 #include <fstream>
 #include <map>
 
+#include "src/jazz_elements/jazz_datablocks.h"
 
 /**< \brief Miscelaneous utility functions for Jazz.
 
@@ -115,8 +116,6 @@ class JazzConfigFile {
 };
 
 
-typedef std::chrono::steady_clock::time_point TimePoint;
-
 class JazzLogger {
 
 	public:
@@ -134,7 +133,7 @@ class JazzLogger {
 		char file_name [MAX_FILENAME_LENGTH];
 		std::ifstream f_stream;
 		std::filebuf *f_buff;
-		TimePoint big_bang;
+		jazz_datablocks::TimePoint big_bang;
 };
 
 
