@@ -21,4 +21,34 @@
   limitations under the License.
 */
 
+
+#include <math.h>
+
+
 #include "src/jazz_elements/jazz_datablocks.h"
+
+
+namespace jazz_datablocks
+{
+
+
+inline double R_ValueOfNA()
+{
+	union {double d; int i[2];} na;
+
+	na.i[1] = 0x7ff00000;
+	na.i[0] = 1954;
+
+	return na.d;
+}
+
+float  F_NA = nanf("");
+double R_NA = R_ValueOfNA();
+
+
+} // namespace jazz_datablocks
+
+
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_datablocks.ctest"
+#endif
