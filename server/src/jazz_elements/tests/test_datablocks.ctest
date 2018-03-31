@@ -1,0 +1,162 @@
+/* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+   BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+   Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+  This product includes software developed at
+
+   BBVA (https://www.bbva.com/)
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+
+using namespace jazz_datablocks;
+
+
+SCENARIO("Testing Block Sizes")
+{
+	JazzBlockHeader jh;
+
+	unsigned char bb = JAZZ_BYTE_BOOLEAN_NA;
+	int  ib = JAZZ_BOOLEAN_NA;
+	int  ia = JAZZ_INTEGER_NA;
+	float fa = JAZZ_SINGLE_NA;
+	int sa = JAZZ_STRING_NA;
+	int sb = JAZZ_STRING_EMPTY;
+	long long lla = JAZZ_LONG_INTEGER_NA;
+	long long llb = JAZZ_TIME_POINT_NA;
+	double da = JAZZ_DOUBLE_NA;
+
+	REQUIRE(bb == 0xff);
+	REQUIRE(ib == 0xff);
+	REQUIRE(ia == (int) 0x80000000);
+	REQUIRE((int)fa == (int)F_NA);
+	REQUIRE(sa == 0);
+	REQUIRE(sb == 1);
+	REQUIRE(lla == 0x8000000000000000);
+	REQUIRE(llb == 0);
+	REQUIRE((long long)da == (long long)R_NA);
+
+	REQUIRE(sizeof(jh.created) == 8);
+	REQUIRE(sizeof(jh.hash64)  == 8);
+	REQUIRE(sizeof(JazzBlockHeader) == 64);
+
+	// REQUIRE(MURMUR_SEED	== 76493);
+
+	// int today = 02022017;
+
+	// REQUIRE(MurmurHash64A(&today, 4) == 1361846023767824266);
+	// //cout << "Origin of time's hash " << MurmurHash64A(&today, 4) << endl;
+
+	// GIVEN("Three sets of vars of different types. A!=B, A==C")
+	// {
+	// 	int	   ia	  = 299792458;
+	// 	double da	  = 3.141592;
+	// 	char   sa[16] = "Hello, world!";
+
+	// 	REQUIRE(sizeof(ia) == 4);
+	// 	REQUIRE(sizeof(da) == 8);
+	// 	REQUIRE(sizeof(sa) == 16);
+
+	// 	int	   ib	  = 299792758;
+	// 	double db	  = 3.141591999;
+	// 	char   sb[16] = "Hello, world.";
+
+	// 	int	   ic	  = 299792458;
+	// 	double dc	  = 3.141592;
+	// 	char   sc[16] = "Hello, world!";
+
+	// 	uint64_t hia, hda, hsa;
+
+	// 	hia = MurmurHash64A(&ia, sizeof(ia));
+	// 	hda = MurmurHash64A(&da, sizeof(da));
+	// 	hsa = MurmurHash64A(&sa, sizeof(sa));
+
+	// 	WHEN("I hash the first set.")
+	// 	{
+	// 		THEN("I get different hashes ...")
+	// 		{
+	// 			REQUIRE(hia != hda);
+	// 			REQUIRE(hia != hsa);
+	// 			REQUIRE(hda != hsa);
+	// 		}
+
+	// 		THEN("... but identical if I repeat.")
+	// 		{
+	// 			REQUIRE(hia == MurmurHash64A(&ia, sizeof(ia)));
+	// 			REQUIRE(hda == MurmurHash64A(&da, sizeof(da)));
+	// 			REQUIRE(hsa == MurmurHash64A(&sa, sizeof(sa)));
+	// 		}
+	// 	}
+	// 	WHEN("I hash the second set.")
+	// 	{
+	// 		uint64_t hib, hdb, hsb;
+
+	// 		hib = MurmurHash64A(&ib, sizeof(ib));
+	// 		hdb = MurmurHash64A(&db, sizeof(db));
+	// 		hsb = MurmurHash64A(&sb, sizeof(sb));
+
+	// 		THEN("I get different hashes.")
+	// 		{
+	// 			REQUIRE(hib != hdb);
+	// 			REQUIRE(hib != hsb);
+	// 			REQUIRE(hdb != hsb);
+	// 		}
+
+	// 		THEN("They are all different from those in A ...")
+	// 		{
+	// 			REQUIRE(hia != hib);
+	// 			REQUIRE(hda != hdb);
+	// 			REQUIRE(hda != hdb);
+	// 		}
+
+	// 		THEN("... but identical if I repeat.")
+	// 		{
+	// 			REQUIRE(hib == MurmurHash64A(&ib, sizeof(ib)));
+	// 			REQUIRE(hdb == MurmurHash64A(&db, sizeof(db)));
+	// 			REQUIRE(hsb == MurmurHash64A(&sb, sizeof(sb)));
+	// 		}
+	// 	}
+	// 	WHEN("I hash the third set.")
+	// 	{
+	// 		uint64_t hic, hdc, hsc;
+
+	// 		hic = MurmurHash64A(&ic, sizeof(ic));
+	// 		hdc = MurmurHash64A(&dc, sizeof(dc));
+	// 		hsc = MurmurHash64A(&sc, sizeof(sc));
+
+	// 		THEN("I get different hashes.")
+	// 		{
+	// 			REQUIRE(hic != hdc);
+	// 			REQUIRE(hic != hsc);
+	// 			REQUIRE(hdc != hsc);
+	// 		}
+
+	// 		THEN("They are all identical to those in A ...")
+	// 		{
+	// 			REQUIRE(hia == hic);
+	// 			REQUIRE(hda == hdc);
+	// 			REQUIRE(hda == hdc);
+	// 		}
+
+	// 		THEN("... and identical if I repeat.")
+	// 		{
+	// 			REQUIRE(hic == MurmurHash64A(&ic, sizeof(ic)));
+	// 			REQUIRE(hdc == MurmurHash64A(&dc, sizeof(dc)));
+	// 			REQUIRE(hsc == MurmurHash64A(&sc, sizeof(sc)));
+	// 		}
+	// 	}
+	// }
+}
