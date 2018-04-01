@@ -27,31 +27,59 @@ using namespace jazz_datablocks;
 
 SCENARIO("Testing Block Sizes")
 {
-	JazzBlockHeader jh;
+	GIVEN("We want to check absolute sizes and offsets")
+	{
+		WHEN("We have a JazzBlock")
+		{
+			JazzBlock jb;
 
-	unsigned char bb = JAZZ_BYTE_BOOLEAN_NA;
-	int  ib = JAZZ_BOOLEAN_NA;
-	int  ia = JAZZ_INTEGER_NA;
-	float fa = JAZZ_SINGLE_NA;
-	int sa = JAZZ_STRING_NA;
-	int sb = JAZZ_STRING_EMPTY;
-	long long lla = JAZZ_LONG_INTEGER_NA;
-	long long llb = JAZZ_TIME_POINT_NA;
-	double da = JAZZ_DOUBLE_NA;
+			jb.cell_type = CELL_TYPE_JAZZ_STRING;
+			jb.dim[0] = 5;
+			jb.dim[1] = 0;
+			jb.jazz_class = 0xbadbabe;
+			jb.offset_stringbuff = sizeof(JazzBlockHeader) + 5*sizeof(int);
+			jb.offset_map = jb.offset_stringbuff + 64;
+			jb.total_bytes = jb.offset_map + 64;
 
-	REQUIRE(bb == 0xff);
-	REQUIRE(ib == 0xff);
-	REQUIRE(ia == (int) 0x80000000);
-	REQUIRE((int)fa == (int)F_NA);
-	REQUIRE(sa == 0);
-	REQUIRE(sb == 1);
-	REQUIRE(lla == 0x8000000000000000);
-	REQUIRE(llb == 0);
-	REQUIRE((long long)da == (long long)R_NA);
+			THEN("We can check sizes and offsets")
+			{
+				REQUIRE(sizeof(jb.created) == 8);
+				REQUIRE(sizeof(jb.hash64)  == 8);
+				REQUIRE(sizeof(JazzBlockHeader) == 64);
+				REQUIRE(jb.cell_size() == 4);
+				REQUIRE((uintptr_t) &jb == (uintptr_t) &jb.cell_type);
 
-	REQUIRE(sizeof(jh.created) == 8);
-	REQUIRE(sizeof(jh.hash64)  == 8);
-	REQUIRE(sizeof(JazzBlockHeader) == 64);
+			}
+		}
+	}
+	GIVEN("We want to check NA values")
+	{
+		WHEN("We instantiate the definitions with the appropriate sizes")
+		{
+			unsigned char bb = JAZZ_BYTE_BOOLEAN_NA;
+			int  ib = JAZZ_BOOLEAN_NA;
+			int  ia = JAZZ_INTEGER_NA;
+			float fa = JAZZ_SINGLE_NA;
+			int sa = JAZZ_STRING_NA;
+			int sb = JAZZ_STRING_EMPTY;
+			long long lla = JAZZ_LONG_INTEGER_NA;
+			long long llb = JAZZ_TIME_POINT_NA;
+			double da = JAZZ_DOUBLE_NA;
+
+			THEN("We get the expected values")
+			{
+				REQUIRE(bb == 0xff);
+				REQUIRE(ib == 0xff);
+				REQUIRE(ia == (int) 0x80000000);
+				REQUIRE((int)fa == (int)F_NA);
+				REQUIRE(sa == 0);
+				REQUIRE(sb == 1);
+				REQUIRE(lla == 0x8000000000000000);
+				REQUIRE(llb == 0);
+				REQUIRE((long long)da == (long long)R_NA);
+			}
+		}
+	}
 
 	// REQUIRE(MURMUR_SEED	== 76493);
 
