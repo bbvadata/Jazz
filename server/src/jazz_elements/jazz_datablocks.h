@@ -47,7 +47,8 @@
 
 namespace jazz_datablocks
 {
-typedef std::chrono::steady_clock::time_point TimePoint;
+
+#define JAZZ_MAX_TENSOR_RANK 	6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
 
 #define CELL_TYPE__
 
@@ -79,40 +80,60 @@ typedef std::chrono::steady_clock::time_point TimePoint;
 #define JAZZ_TIME_POINT_NA		0			///< NA for a CELL_TYPE_JAZZ_TIME is a 64-bit zero. Type does not exist in R.
 #define JAZZ_DOUBLE_NA			R_NA		///< NA for a double. This is R compatible.
 
+typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
-/** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then in case
-cell_type == CELL_TYPE_JAZZ_STRING followed by a JazzStringBuffer, and followed by a JazzAttributesMap.
-*/
+/// Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
+typedef int JazzTensorDim[JAZZ_MAX_TENSOR_RANK];
+
 struct JazzBlockHeader
 {
-	int jazz_class;				///< The class to which the block belongs. See jazz_classes.h for details.
 	int	cell_type;				///< The type for the cells in the tensor. See CELL_TYPE_*
-	int dim[7];					///< The dimensions of the tensor, all must be zero after the first zero. Size cannot exceed 2 Gb.
+	int	rank;					///< The number of dimensions
+	JazzTensorDim dim;			///< The dimensions of the tensor, all must be zero after the first zero. Size cannot exceed 2 Gb.
+	int jazz_class;				///< The class to which the block belongs. See jazz_classes.h for details.
+	int offset_stringbuff;		///< Offset to where the JazzStringBuffer starts. (When cell_type == CELL_TYPE_JAZZ_STRING)
+	int offset_map;				///< Offset to where the JazzAttributesMap starts.
 	int total_bytes;			///< Total size of the block everything included.
-	int map_offset;				///< Offset to where the JazzAttributesMap starts.
-	int map_num_elements;		///< Number of elements in the JazzAttributesMap.
 	TimePoint created;			///< Timestamp when the block was created.
 	long long hash64;			///< Hash of everything but the header.
 };
 
 struct JazzStringBuffer
 {
-	char NA, EMPTY;						///< A binary zero making a string with offset 0 (== JAZZC_NA_STRING) or 1 (== JAZZC_EMPTY_STRING) == ""
-	bool isBig;							///< Set by get_string_idx_C_OFFS_CHARS() when the number of strings > STR_SEARCH_BIG_ABOVE
-	int	 last_idx;						///< The index to the first free space after the last stored string
-	char buffer[];						///< The buffer where all the non-empty strings are stored
+	char NA, EMPTY;				///< A binary zero making a string with offset 0 (== JAZZC_NA_STRING) or 1 (== JAZZC_EMPTY_STRING) == ""
+	bool isBig;					///< Set by get_string_idx_C_OFFS_CHARS() when the number of strings > STR_SEARCH_BIG_ABOVE
+	int	 last_idx;				///< The index to the first free space after the last stored string
+	char buffer[];				///< The buffer where all the non-empty strings are stored
 };
-
 
 struct JazzAttributesMap
 {
+	int map_num_elements;		///< Number of elements in the JazzAttributesMap.
+	int attribute_id[];
+};
+
+typedef JazzBlockHeader   *pJazzBlockHeader;
+typedef JazzStringBuffer  *pJazzStringBuffer;
+typedef JazzAttributesMap *pJazzAttributesMap;
+
+/** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then in case
+cell_type == CELL_TYPE_JAZZ_STRING followed by a JazzStringBuffer, and followed by a JazzAttributesMap. Since
+*/
+class JazzBlock: public JazzBlockHeader {
+
+	public:
+
+		inline int cell_size() { return cell_type & 0xff; }
+
+		inline pJazzStringBuffer  pStringBuffer () { return reinterpret_cast<pJazzStringBuffer>(&cell_type + (uintptr_t) offset_stringbuff); }
+		inline pJazzAttributesMap pAttributesMap();
 
 };
 
+typedef JazzBlock *pJazzBlock;
 
 extern float  F_NA;
 extern double R_NA;
-
 
 }
 
