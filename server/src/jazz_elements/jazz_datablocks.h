@@ -100,8 +100,8 @@ struct JazzBlockHeader
 
 struct JazzStringBuffer
 {
-	char NA, EMPTY;				///< A binary zero making a string with offset 0 (== JAZZC_NA_STRING) or 1 (== JAZZC_EMPTY_STRING) == ""
-	bool isBig;					///< Set by get_string_idx_C_OFFS_CHARS() when the number of strings > STR_SEARCH_BIG_ABOVE
+	char NA, EMPTY;				///< A binary zero making a string with offset 0 (== JAZZ_STRING_NA) or 1 (== JAZZ_STRING_EMPTY) == ""
+	bool search_for_matches;	///< When the JazzStringBuffer is small try to match existing indices of the same string to save RAM.
 	int	 last_idx;				///< The index to the first free space after the last stored string
 	char buffer[];				///< The buffer where all the non-empty strings are stored
 };
