@@ -34,8 +34,8 @@ SCENARIO("Testing Block Sizes")
 			JazzBlock jb;
 
 			jb.cell_type = CELL_TYPE_JAZZ_STRING;
-			jb.dim[0] = 5;
-			jb.dim[1] = 0;
+			jb.dim_offs[0] = 5;
+			jb.dim_offs[1] = 0;
 			jb.jazz_class = 0xbadbabe;
 			jb.offset_stringbuff = sizeof(JazzBlockHeader) + 5*sizeof(int);
 			jb.offset_map = jb.offset_stringbuff + 64;
