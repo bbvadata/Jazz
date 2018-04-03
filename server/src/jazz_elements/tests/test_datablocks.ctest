@@ -33,22 +33,11 @@ SCENARIO("Testing Block Sizes")
 		{
 			JazzBlock jb;
 
-			jb.cell_type = CELL_TYPE_JAZZ_STRING;
-			jb.dim_offs[0] = 5;
-			jb.dim_offs[1] = 0;
-			jb.jazz_class = 0xbadbabe;
-			jb.offset_stringbuff = sizeof(JazzBlockHeader) + 5*sizeof(int);
-			jb.offset_map = jb.offset_stringbuff + 64;
-			jb.total_bytes = jb.offset_map + 64;
-
 			THEN("We can check sizes and offsets")
 			{
 				REQUIRE(sizeof(jb.created) == 8);
 				REQUIRE(sizeof(jb.hash64)  == 8);
 				REQUIRE(sizeof(JazzBlockHeader) == 64);
-				REQUIRE(jb.cell_size() == 4);
-				REQUIRE((uintptr_t) &jb == (uintptr_t) &jb.cell_type);
-
 			}
 		}
 	}
@@ -77,6 +66,64 @@ SCENARIO("Testing Block Sizes")
 				REQUIRE(lla == 0x8000000000000000);
 				REQUIRE(llb == 0);
 				REQUIRE((long long)da == (long long)R_NA);
+			}
+		}
+	}
+	GIVEN("We want to check the compiler's way to store arrays.")
+	{
+		THEN("We instantiate an array and check it.")
+		{
+			int video[5][12][8][3];
+
+			int *pvi;
+
+			pvi = reinterpret_cast<int *>(&video);
+
+			REQUIRE((uintptr_t) pvi == (uintptr_t) &video);
+			REQUIRE((uintptr_t) pvi == (uintptr_t) &video[0][0][0][0]);
+			REQUIRE(pvi[0] == video[0][0][0][0]);
+
+			for (int i = 0; i < 5*12*8*3; i++) pvi[i] = i;
+
+			int dc =  1;
+			int dy =  3*dc;
+			int dx =  8*dy;
+			int dt = 12*dx;
+
+			REQUIRE(video[0][0][0][0] == 0);
+			REQUIRE(video[0][0][0][1] == 1);
+			REQUIRE(video[0][0][0][2] == 2);
+			REQUIRE(video[0][0][1][0] == 3);
+			REQUIRE(video[0][1][0][0] == 24);
+			REQUIRE(video[1][0][0][0] == 12*24);
+
+			int rank = 4;
+			JazzTensorDim dim_offs = { 12*8*3, 8*3, 3, 1, 0, 0 };
+
+			for (int t = 0; t < 5; t++) {
+				for (int x = 0; x < 12; x++) {
+					for (int y = 0; y < 8; y++) {
+						for (int c = 0; c < 3; c++) {
+							JazzTensorDim index = {t, x, y, c, 0, 0};
+
+							int ix = 0;
+							for (int i = 0; i < rank; i++) ix += index[i]*dim_offs[i];
+
+							REQUIRE(video[t][x][y][c] == pvi[ix]);
+						}
+					}
+				}
+			}
+
+			for (int ix = 0; ix < 5*12*8*3; ix++) {
+				JazzTensorDim index;
+
+				int j = ix;
+				for (int i = 0; i < rank; i++) { index[i] = j/dim_offs[i]; j -= index[i]*dim_offs[i]; }
+
+
+				int t = index[0], x = index[1], y = index[2], c = index[3];
+				REQUIRE(video[t][x][y][c] == pvi[ix]);
 			}
 		}
 	}
