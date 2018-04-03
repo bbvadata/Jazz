@@ -135,8 +135,8 @@ SCENARIO("Testing Block Sizes")
 
 		pjb->cell_type = CELL_TYPE_JAZZ_STRING;
 
-		JazzTensorDim d1 = {3, 2, 4, 0, 0, 0}, d2 = {3, 2, 4, 1, 0, 0}, d3 = {3, 1, 0, 1, 0, 0},
-					  d4 = {1, 1, 0, 1, 0, 0}, d5 = {0, 0, 0, 0, 0, 0}, d6 = {7, 11, 13, 19, 23, 31};
+		JazzTensorDim d1 = {3, 2, 4, 0, 0, 0}, d2 = {3, 2, 4, 1, 0, 0}, d3 = {3, 1, 0, 1, 0, 0}, d4 = {8, 5, 1, 5, 3, 0},
+					  d5 = {1, 1, 0, 1, 0, 0}, d6 = {0, 0, 0, 0, 0, 0}, d7 = {1, 0, 0, 0, 0, 0}, d8 = {7, 11, 13, 19, 23, 31};
 
 		pjb->set_dimensions(d2);
 
@@ -153,17 +153,14 @@ SCENARIO("Testing Block Sizes")
 		REQUIRE(pjb->size == 3);
 		REQUIRE(pjb->dim_offs[0] == 1);
 		REQUIRE(pjb->dim_offs[1] == 0);
-		REQUIRE(pjb->dim_offs[2] == 0);
-		REQUIRE(pjb->dim_offs[3] == 0);
 
 		pjb->set_dimensions(d4);
 
-		REQUIRE(pjb->rank == 1);
-		REQUIRE(pjb->size == 1);
-		REQUIRE(pjb->dim_offs[0] == 1);
-		REQUIRE(pjb->dim_offs[1] == 0);
+		REQUIRE(pjb->rank == 2);
+		REQUIRE(pjb->size == 40);
+		REQUIRE(pjb->dim_offs[0] == 5);
+		REQUIRE(pjb->dim_offs[1] == 1);
 		REQUIRE(pjb->dim_offs[2] == 0);
-		REQUIRE(pjb->dim_offs[3] == 0);
 
 		pjb->set_dimensions(d5);
 
@@ -171,10 +168,22 @@ SCENARIO("Testing Block Sizes")
 		REQUIRE(pjb->size == 1);
 		REQUIRE(pjb->dim_offs[0] == 1);
 		REQUIRE(pjb->dim_offs[1] == 0);
-		REQUIRE(pjb->dim_offs[2] == 0);
-		REQUIRE(pjb->dim_offs[3] == 0);
 
 		pjb->set_dimensions(d6);
+
+		REQUIRE(pjb->rank == 1);
+		REQUIRE(pjb->size == 0);
+		REQUIRE(pjb->dim_offs[0] == 1);
+		REQUIRE(pjb->dim_offs[1] == 0);
+
+		pjb->set_dimensions(d7);
+
+		REQUIRE(pjb->rank == 1);
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->dim_offs[0] == 1);
+		REQUIRE(pjb->dim_offs[1] == 0);
+
+		pjb->set_dimensions(d8);
 
 		REQUIRE(pjb->rank == 6);
 		REQUIRE(pjb->size == 13560547);
