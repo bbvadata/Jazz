@@ -90,13 +90,14 @@ struct JazzBlockHeader
 {
 	int	cell_type;				///< The type for the cells in the tensor. See CELL_TYPE_*
 	int	rank;					///< The number of dimensions
-	JazzTensorDim dim_offs;		///< The dimensions of the tensor in terms of offsets (Max. size is 2 Gb).
+	JazzTensorDim dim_offs;		///< The dimensions of the tensor in terms of offsets (Max. size is 2 Gb.)
+	int size;					///< The total number of cells in the tensor
+	int num_attributes;			///< Number of elements in the JazzAttributesMap
+	int total_bytes;			///< Total size of the block everything included
 	int jazz_class;				///< The class to which the block belongs. See jazz_classes.h for details.
-	int offset_stringbuff;		///< Offset from tensor[] to where the JazzStringBuffer starts. (When cell_type == CELL_TYPE_JAZZ_STRING)
-	int offset_map;				///< Offset from tensor[] to where the JazzAttributesMap starts.
-	int total_bytes;			///< Total size of the block everything included.
 	TimePoint created;			///< Timestamp when the block was created.
 	long long hash64;			///< Hash of everything but the header.
+
 	int tensor[];
 };
 
@@ -108,23 +109,17 @@ struct JazzStringBuffer
 	char buffer[];				///< The buffer where all the non-empty strings are stored
 };
 
-struct JazzAttributesMap
-{
-	int map_num_elements;		///< Number of elements in the JazzAttributesMap.
-	int attribute_id[];
-};
-
 typedef std::map<int, std::string> AllAttributes;
 
-typedef JazzTensorDim     *pJazzTensorDim;
-typedef JazzBlockHeader   *pJazzBlockHeader;
-typedef JazzStringBuffer  *pJazzStringBuffer;
-typedef JazzAttributesMap *pJazzAttributesMap;
-typedef AllAttributes     *pAllAttributes;
+typedef JazzTensorDim    *pJazzTensorDim;
+typedef JazzBlockHeader  *pJazzBlockHeader;
+typedef JazzStringBuffer *pJazzStringBuffer;
+typedef AllAttributes    *pAllAttributes;
 
 
-/** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then, in case
-cell_type == CELL_TYPE_JAZZ_STRING followed by a JazzStringBuffer, and followed by a JazzAttributesMap.
+/** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then two arrays of int
+of length == num_attributes, then a JazzStringBuffer. Nothing in a JazzBlock is a pointer, JazzBlocks can be copied
+or stored 'as is', every RAM location in a block is defined by its JazzBlockHeader and computed by the methods in JazzBlock.
 
 At this level, you only have the fields JazzBlockHeader that you may read and probably only write through some methods.
 This is the lowest level, it does not even provide support for allocation, at this level you have support for maniputating
@@ -134,29 +129,35 @@ class JazzBlock: public JazzBlockHeader {
 
 	public:
 
-	// Methods about the block.
-
-		/** The size of the cells in the tensor (is the lowest byte of .cell_type).
-			\return		  The size in bytes (1, 4 or 8).
-		*/
-		inline int cell_size() { return cell_type & 0xff; }
-
-		inline pJazzStringBuffer  pStringBuffer () { return reinterpret_cast<pJazzStringBuffer>(&tensor[0]  + (uintptr_t) offset_stringbuff); }
-		inline pJazzAttributesMap pAttributesMap() { return reinterpret_cast<pJazzAttributesMap>(&tensor[0] + (uintptr_t) offset_map); }
-
 	// Methods on indices.
 
-		inline void set_dimensions(pJazzTensorDim pDim);
-		inline void get_dimensions(pJazzTensorDim pDim);
-		inline int  get_offset(pJazzTensorDim pIndex);
-		inline void get_index(int offset, pJazzTensorDim pIndex);
+		inline void set_dimensions(int *pDim) {
+			rank = JAZZ_MAX_TENSOR_RANK;
+			int j = 1;
+			for (int i = JAZZ_MAX_TENSOR_RANK -1; i >= 0; i--)
+				if (pDim[i]) { dim_offs[i] = j; j *= pDim[i]; } else dim_offs[i] = 0;
+			size = j;
+		}
+		inline void get_dimensions(int *pDim) {
+			int j = size;
+			for (int i = 0; i < JAZZ_MAX_TENSOR_RANK; i++)
+				if (i < rank) { pDim[i] = j/dim_offs[i]; j = dim_offs[i]; } else pDim[i] = 0;
+		}
+		inline int get_offset(int *pIndex) {
+			int j = 0;
+			for (int i = 0; i < rank; i++) j += pIndex[i]*dim_offs[i];
+			return j;
+		}
+		inline void get_index(int offset, int *pIndex) {
+			for (int i = 0; i < rank; i++) { pIndex[i] = offset/dim_offs[i]; offset -= pIndex[i]*dim_offs[i]; }
+		}
 
 	// Methods on strings.
 
 		inline char *get_string(pJazzTensorDim pIndex);
 		inline char *get_string(int offset);
-		inline int   set_string(pJazzTensorDim pIndex, char *pString);
-		inline int   set_string(int offset, char *pString);
+		inline int set_string(pJazzTensorDim pIndex, char *pString);
+		inline int set_string(int offset, char *pString);
 
 	// Methods on attributes.
 
@@ -167,6 +168,11 @@ class JazzBlock: public JazzBlockHeader {
 		pAllAttributes get_attributes();
 
 	private:
+
+		inline int cell_size() { return cell_type & 0xff; }
+
+//		inline pJazzStringBuffer  pStringBuffer () { return reinterpret_cast<pJazzStringBuffer> (&tensor[0] + (uintptr_t) offset_stringbuff); }
+//		inline pJazzAttributesMap pAttributesMap() { return reinterpret_cast<pJazzAttributesMap>(&tensor[0] + (uintptr_t) offset_map); }
 
 		inline int  get_string_id(pJazzStringBuffer pBuff, char *pString);
 		inline int *get_attrib_string_vector();
