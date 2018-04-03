@@ -73,7 +73,7 @@ SCENARIO("Testing Block Sizes")
 	{
 		THEN("We instantiate an array and check it.")
 		{
-			int video[5][12][8][3];
+			int video[3][5][4][3];
 
 			int *pvi;
 
@@ -83,7 +83,7 @@ SCENARIO("Testing Block Sizes")
 			REQUIRE((uintptr_t) pvi == (uintptr_t) &video[0][0][0][0]);
 			REQUIRE(pvi[0] == video[0][0][0][0]);
 
-			for (int i = 0; i < 5*12*8*3; i++) pvi[i] = i;
+			for (int i = 0; i < 3*5*4*3; i++) pvi[i] = i;
 
 			int dc =  1;
 			int dy =  3*dc;
@@ -94,15 +94,15 @@ SCENARIO("Testing Block Sizes")
 			REQUIRE(video[0][0][0][1] == 1);
 			REQUIRE(video[0][0][0][2] == 2);
 			REQUIRE(video[0][0][1][0] == 3);
-			REQUIRE(video[0][1][0][0] == 24);
-			REQUIRE(video[1][0][0][0] == 12*24);
+			REQUIRE(video[0][1][0][0] == 12);
+			REQUIRE(video[1][0][0][0] == 60);
 
 			int rank = 4;
-			JazzTensorDim dim_offs = { 12*8*3, 8*3, 3, 1, 0, 0 };
+			JazzTensorDim dim_offs = { 5*4*3, 4*3, 3, 1, 0, 0 };
 
-			for (int t = 0; t < 5; t++) {
-				for (int x = 0; x < 12; x++) {
-					for (int y = 0; y < 8; y++) {
+			for (int t = 0; t < 3; t++) {
+				for (int x = 0; x < 5; x++) {
+					for (int y = 0; y < 4; y++) {
 						for (int c = 0; c < 3; c++) {
 							JazzTensorDim index = {t, x, y, c, 0, 0};
 
@@ -115,7 +115,7 @@ SCENARIO("Testing Block Sizes")
 				}
 			}
 
-			for (int ix = 0; ix < 5*12*8*3; ix++) {
+			for (int ix = 0; ix < 3*5*4*3; ix++) {
 				JazzTensorDim index;
 
 				int j = ix;
@@ -124,6 +124,18 @@ SCENARIO("Testing Block Sizes")
 
 				int t = index[0], x = index[1], y = index[2], c = index[3];
 				REQUIRE(video[t][x][y][c] == pvi[ix]);
+			}
+		}
+	}
+
+	GIVEN("A 4K JazzBlock with strings and attributes")
+	{
+		char fourK[4096];
+		pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&fourK);
+		WHEN("...")
+		{
+			THEN("We instantiate an array and check it.")
+			{
 			}
 		}
 	}
