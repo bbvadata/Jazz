@@ -134,8 +134,9 @@ class JazzBlock: public JazzBlockHeader {
 		inline void set_dimensions(int *pDim) {
 			rank = JAZZ_MAX_TENSOR_RANK;
 			int j = 1;
-			for (int i = JAZZ_MAX_TENSOR_RANK -1; i >= 0; i--)
-				if (pDim[i]) { dim_offs[i] = j; j *= pDim[i]; } else dim_offs[i] = 0;
+			for (int i = JAZZ_MAX_TENSOR_RANK -1; i > 0; i--)
+				if (pDim[i] > 1) { dim_offs[i] = j; j *= pDim[i]; } else { dim_offs[i] = 0; rank = i; }
+			if (pDim[0] > 1) { dim_offs[0] = j; j *= pDim[0]; } else { dim_offs[0] = 1; rank = 1; }
 			size = j;
 		}
 		inline void get_dimensions(int *pDim) {
