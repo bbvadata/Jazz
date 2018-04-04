@@ -94,11 +94,11 @@ struct JazzBlockHeader
 	int size;					///< The total number of cells in the tensor
 	int num_attributes;			///< Number of elements in the JazzAttributesMap
 	int total_bytes;			///< Total size of the block everything included
-	int jazz_class;				///< The class to which the block belongs. See jazz_classes.h for details.
+	bool has_NA;				///< Any value in the tensor is a NA, block requires NA-aware arithmetic.
 	TimePoint created;			///< Timestamp when the block was created.
 	long long hash64;			///< Hash of everything but the header.
 
-	int tensor[];
+	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
 };
 
 struct JazzStringBuffer
@@ -109,12 +109,10 @@ struct JazzStringBuffer
 	char buffer[];				///< The buffer where all the non-empty strings are stored
 };
 
-typedef std::map<int, std::string> AllAttributes;
+typedef std::map<int, char *> AllAttributes;
 
-typedef JazzTensorDim    *pJazzTensorDim;
 typedef JazzBlockHeader  *pJazzBlockHeader;
 typedef JazzStringBuffer *pJazzStringBuffer;
-typedef AllAttributes    *pAllAttributes;
 
 
 /** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then two arrays of int
@@ -148,46 +146,125 @@ class JazzBlock: public JazzBlockHeader {
 			if (pDim[0] > 1) { dim_offs[0] = j; j *= pDim[0]; } else { j = pDim[0]; dim_offs[0] = 1; rank = 1; }
 			size = j;
 		}
+
+		/** Returns the tensor dimensions as a JazzTensorDim array.
+
+			\param pDim A pointer to the JazzTensorDim containing the dimensions.
+
+			NOTES: See notes on set_dimensions() to understand why in case of 0 and 1, it may return different values than those
+			passed when the block was created with a set_dimensions() call.
+		*/
 		inline void get_dimensions(int *pDim) {
 			int j = size;
 			for (int i = 0; i < JAZZ_MAX_TENSOR_RANK; i++)
 				if (i < rank) { pDim[i] = j/dim_offs[i]; j = dim_offs[i]; } else pDim[i] = 0;
 		}
+
+		/** Returns if an index (as a JazzTensorDim array) is valid for the tensor.
+
+			\param pIndex A pointer to the JazzTensorDim containing the index.
+
+			\return	True if the index is valid.
+		*/
+		inline bool validate_index(int *pIndex) {
+			int j = size;
+			for (int i = 0; i < rank; i++) {
+				if (pIndex[i] < 0 || pIndex[i]*dim_offs[i] >= j) return false;
+				j = dim_offs[i];
+			}
+			return true;
+		}
+
+		/** Returns if an offset (as an integer) is valid for the tensor.
+
+			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
+
+			\return	True if the offset is valid.
+		*/
+		inline int validate_offset(int offset) { return offset >=0 & offset < size; }
+
+		/** Convert an index (as a JazzTensorDim array) to the corresponding offset without checking its validity.
+
+			\param pIndex A pointer to the JazzTensorDim containing the index.
+
+			\return	The offset corresponding to the same cell if the index was in a valid range.
+		*/
 		inline int get_offset(int *pIndex) {
 			int j = 0;
 			for (int i = 0; i < rank; i++) j += pIndex[i]*dim_offs[i];
 			return j;
 		}
+
+		/** Convert an offset to a tensor cell into its corresponding index (as a JazzTensorDim array) without checking its validity.
+
+		 	\offset the input offset
+			\param pIndex A pointer to the JazzTensorDim to return the result.
+		*/
 		inline void get_index(int offset, int *pIndex) {
 			for (int i = 0; i < rank; i++) { pIndex[i] = offset/dim_offs[i]; offset -= pIndex[i]*dim_offs[i]; }
 		}
 
 	// Methods on strings.
 
-		inline char *get_string(pJazzTensorDim pIndex);
-		inline char *get_string(int offset);
-		inline int set_string(pJazzTensorDim pIndex, char *pString);
-		inline int set_string(int offset, char *pString);
+		inline char *get_string(int *pIndex) { return reinterpret_cast<char *>(&pStringBuffer()->buffer[get_offset(pIndex)]); }
+
+		inline char *get_string(int offset)  { return reinterpret_cast<char *>(&pStringBuffer()->buffer[offset]); }
+
+		inline void set_string(int *pIndex, char *pString) {
+			pJazzStringBuffer psb = pStringBuffer();
+			psb->buffer[get_offset(pIndex)] = get_string_offset(psb, pString);
+		}
+
+		inline void set_string(int offset, char *pString) {
+			pJazzStringBuffer psb = pStringBuffer();
+			psb->buffer[offset] = get_string_offset(psb, pString);
+		}
 
 	// Methods on attributes.
 
-		inline char *find_attribute(int attribute_id);
-		inline char *get_attribute (int idx);
+		inline char *find_attribute(int attribute_id) {
+			int * ptk = pAttribute_keys();
+			for (int i = 0; i < num_attributes; i++)
+				if (ptk[i] == attribute_id)
+					return reinterpret_cast<char *>(&pStringBuffer()->buffer[ptk[i + num_attributes]]);
+			return nullptr;
+		}
 
-		int set_attributes(pAllAttributes pAttr);
-		pAllAttributes get_attributes();
+		inline void set_attributes(AllAttributes &all_att) {
+			num_attributes = all_att.size();
+			int i = 0;
+			int *ptk = pAttribute_keys();
+			pJazzStringBuffer psb = pStringBuffer();
+			for(AllAttributes::iterator it = all_att.begin(); it != all_att.end(); ++it)
+			{
+				if (i < num_attributes) {
+					ptk[i] = it->first;
+					ptk[i + num_attributes] = get_string_offset(psb, it->second);
+				}
+				i++;
+			}
+		}
+
+		inline void get_attributes(AllAttributes &all_att) {
+			int *ptk = pAttribute_keys();
+			pJazzStringBuffer psb = pStringBuffer();
+			for (int i = 0; i < num_attributes; i++)
+				all_att[ptk[i]] = reinterpret_cast<char *>(&psb->buffer[ptk[i + num_attributes]]);
+		}
 
 	private:
 
-		inline int cell_size() { return cell_type & 0xff; }
+		inline int *align_128bit(uintptr_t ipt) {
+			return reinterpret_cast<int *>((ipt + 0xf) & 0xffffFFFFffffFFF0);
+		}
+		inline int *pAttribute_keys() {
+			return align_128bit((uintptr_t) &tensor[0] + (cell_type & 0xf)*size);
+		}
+		inline pJazzStringBuffer pStringBuffer() {
+			return reinterpret_cast<pJazzStringBuffer>((uintptr_t) pAttribute_keys() + 2*num_attributes*sizeof(int));
+		}
 
-//		inline pJazzStringBuffer  pStringBuffer () { return reinterpret_cast<pJazzStringBuffer> (&tensor[0] + (uintptr_t) offset_stringbuff); }
-//		inline pJazzAttributesMap pAttributesMap() { return reinterpret_cast<pJazzAttributesMap>(&tensor[0] + (uintptr_t) offset_map); }
-
-		inline int  get_string_id(pJazzStringBuffer pBuff, char *pString);
-		inline int *get_attrib_string_vector();
-		inline pJazzStringBuffer *get_attrib_string_buffer();
-
+		int get_string_offset(pJazzStringBuffer psb, char *pString);
 };
 
 typedef JazzBlock *pJazzBlock;
