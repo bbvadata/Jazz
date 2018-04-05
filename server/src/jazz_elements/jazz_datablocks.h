@@ -322,12 +322,24 @@ class JazzBlock: public JazzBlockHeader {
 
 	private:
 
+		/** Align a pointer (as uintptr_t) to the next 16 byte boundary.
+		*/
 		inline int *align_128bit(uintptr_t ipt) {
 			return reinterpret_cast<int *>((ipt + 0xf) & 0xffffFFFFffffFFF0);
 		}
+
+		/** Return the address of the vector containing both the attribute keys and the attribute ids in the JazzStringBuffer.
+
+			NOTE: The actual values (which are strings) are stored in the same JazzStringBuffer containing the strings of the tensor
+			(if any). This array has double the num_attributes size and stores the keys in the lower part and the offsets to the
+			vualues on the upper part.
+		*/
 		inline int *pAttribute_keys() {
 			return align_128bit((uintptr_t) &tensor[0] + (cell_type & 0xf)*size);
 		}
+
+		/** Return the address of the JazzStringBuffer containing the strings in the tensor and the attribute values.
+		*/
 		inline pJazzStringBuffer pStringBuffer() {
 			return reinterpret_cast<pJazzStringBuffer>((uintptr_t) pAttribute_keys() + 2*num_attributes*sizeof(int));
 		}
@@ -337,8 +349,8 @@ class JazzBlock: public JazzBlockHeader {
 
 typedef JazzBlock *pJazzBlock;
 
-extern float  F_NA;
-extern double R_NA;
+extern float  F_NA;		///< NaN in single
+extern double R_NA;		///< NaN in double
 
 }
 
