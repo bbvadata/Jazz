@@ -94,7 +94,7 @@ struct JazzBlockHeader
 	int size;					///< The total number of cells in the tensor
 	int num_attributes;			///< Number of elements in the JazzAttributesMap
 	int total_bytes;			///< Total size of the block everything included
-	bool has_NA;				///< Any value in the tensor is a NA, block requires NA-aware arithmetic.
+	bool has_NA;				///< At least one value in the tensor is a NA, block requires NA-aware arithmetic.
 	TimePoint created;			///< Timestamp when the block was created.
 	long long hash64;			///< Hash of everything but the header.
 
@@ -105,6 +105,7 @@ struct JazzStringBuffer
 {
 	char NA, EMPTY;				///< A binary zero making a string with offset 0 (== JAZZ_STRING_NA) or 1 (== JAZZ_STRING_EMPTY) == ""
 	bool search_for_matches;	///< When the JazzStringBuffer is small try to match existing indices of the same string to save RAM.
+	bool alloc_failed;			///< A call to set_string() or set_attributes(), internally get_string_offset() failed to alloc space for a string.
 	int	 last_idx;				///< The index to the first free space after the last stored string
 	char buffer[];				///< The buffer where all the non-empty strings are stored
 };
@@ -226,11 +227,33 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline char *get_string(int offset)  { return reinterpret_cast<char *>(&pStringBuffer()->buffer[offset]); }
 
+		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
+
+			\param pIndex A pointer to the JazzTensorDim containing the index.
+			\param pString A pointer to a (zero ended) string that will be allocated inside the JazzBlock.
+
+			NOTE: Allocation inside a JazzBlock is typically hard since they are created with "just enough space", a JazzBlock is
+			typically unmutable. jazz_alloc contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the unmutable one using jazz_alloc methods. Otherwise, use at your own
+			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
+			true, it doesn't even try to allocate.
+		*/
 		inline void set_string(int *pIndex, char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
 			psb->buffer[get_offset(pIndex)] = get_string_offset(psb, pString);
 		}
 
+		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
+
+			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
+			\param pString A pointer to a (zero ended) string that will be allocated inside the JazzBlock.
+
+			NOTE: Allocation inside a JazzBlock is typically hard since they are created with "just enough space", a JazzBlock is
+			typically unmutable. jazz_alloc contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the unmutable one using jazz_alloc methods. Otherwise, use at your own
+			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
+			true, it doesn't even try to allocate.
+		*/
 		inline void set_string(int offset, char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
 			psb->buffer[offset] = get_string_offset(psb, pString);
