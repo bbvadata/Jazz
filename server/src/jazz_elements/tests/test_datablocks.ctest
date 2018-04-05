@@ -25,7 +25,7 @@
 using namespace jazz_datablocks;
 
 
-SCENARIO("Testing Block Sizes")
+SCENARIO("Testing Block Sizes, NAs and indexing logic")
 {
 	GIVEN("We want to check absolute sizes and offsets")
 	{
@@ -38,7 +38,7 @@ SCENARIO("Testing Block Sizes")
 				REQUIRE(sizeof(jb.created) == 8);
 				REQUIRE(sizeof(jb.hash64)  == 8);
 				REQUIRE(sizeof(JazzBlockHeader)  == 64);
-				REQUIRE(sizeof(JazzStringBuffer) == 16);
+				REQUIRE(sizeof(JazzStringBuffer) == 12);				// Empty JazzStringBuffer == 16 bytes with min buffer size
 				REQUIRE((uintptr_t) &jb == (uintptr_t) &jb.cell_type);	// Assumed by init_string_buffer()
 			}
 		}
@@ -129,7 +129,6 @@ SCENARIO("Testing Block Sizes")
 			}
 		}
 	}
-
 	GIVEN("A 4K JazzBlock with strings and attributes")
 	{
 		char fourK[4096];
@@ -370,5 +369,45 @@ SCENARIO("Testing Block Sizes")
 		REQUIRE(d2[1] == 1);
 		REQUIRE(d2[2] == 3);
 		REQUIRE(pjb->get_offset(d2) == 23);
+	}
+}
+
+SCENARIO("Testing String and Attribute logic")
+{
+	GIVEN("We want to check absolute sizes and offsets")
+	{
+		char buff[16384];
+		pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&buff);
+
+		pjb->cell_type = CELL_TYPE_JAZZ_STRING;
+
+		JazzTensorDim dim = {7, 5, 4, 0, 0, 0};
+		pjb->set_dimensions(dim);
+		REQUIRE(pjb->size == 140);
+
+		pjb->num_attributes = 0;
+
+		pjb->total_bytes = 64 + 140*4 + 12 + 4096;
+		pjb->init_string_buffer();
+
+		pJazzStringBuffer psb = pjb->pStringBuffer();
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 2);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE((uint8_t) psb->buffer[2] == 0);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb + 64 + 140*4);
+
+
+
+		WHEN("We have a JazzBlock")
+		{
+			THEN("We can check sizes and offsets")
+			{
+			}
+		}
 	}
 }
