@@ -215,7 +215,9 @@ class JazzBlock: public JazzBlockHeader {
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline char *get_string(int *pIndex) { return reinterpret_cast<char *>(&pStringBuffer()->buffer[get_offset(pIndex)]); }
+		inline char *get_string(int *pIndex) {
+			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[get_offset(pIndex)]]);
+		}
 
 		/** Get a string from the tensor by offset without checking offset range.
 
@@ -225,7 +227,9 @@ class JazzBlock: public JazzBlockHeader {
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline char *get_string(int offset)  { return reinterpret_cast<char *>(&pStringBuffer()->buffer[offset]); }
+		inline char *get_string(int offset)  {
+			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[offset]]);
+		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
 
@@ -240,7 +244,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int *pIndex, char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			psb->buffer[get_offset(pIndex)] = get_string_offset(psb, pString);
+			psb->buffer[tensor[get_offset(pIndex)]] = get_string_offset(psb, pString);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
@@ -256,7 +260,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int offset, char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			psb->buffer[offset] = get_string_offset(psb, pString);
+			psb->buffer[tensor[offset]] = get_string_offset(psb, pString);
 		}
 
 	// Methods on attributes.
@@ -274,7 +278,7 @@ class JazzBlock: public JazzBlockHeader {
 			map with all the attributes.
 		*/
 		inline char *find_attribute(int attribute_id) {
-			int * ptk = pAttribute_keys();
+			int *ptk = pAttribute_keys();
 			for (int i = 0; i < num_attributes; i++)
 				if (ptk[i] == attribute_id)
 					return reinterpret_cast<char *>(&pStringBuffer()->buffer[ptk[i + num_attributes]]);
