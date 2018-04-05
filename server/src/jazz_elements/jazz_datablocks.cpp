@@ -50,15 +50,10 @@ double R_NA = R_ValueOfNA();
 
 	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling pStringBuffer repeatedly).
 	\param pString The string to find or allocate in the JazzStringBuffer.
-	\param len	  The length of "string". This in mandatory to simplify operation with systems where it is known (R and std::string)
 
-	\return		  The offset to the string if successfully allocated or -1 if allocation failed.
+	\return		   The offset to the (zero terminated) string inside psb->buffer[] or -1 if allocation failed.
 
-	See format_C_OFFS_CHARS() for an explanation on how block_C_OFFS_CHARS are filled.
-
-	The block_C_OFFS_CHARS is designed to be fast to read or operate when the blocks are already created. Filling blocks is not efficient because
-all the (possibly many) strings have to be compared with the new string each time. If that becomes a bottleneck, a more efficient structure like
-a map should be used.
+	NOTE: This function is private, called by set_attributes() and set_string(). Use these functions instead and read their NOTES.
 */
 int JazzBlock::get_string_offset(pJazzStringBuffer psb, char *pString)
 {
