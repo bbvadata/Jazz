@@ -25,6 +25,7 @@
 #include <chrono>
 #include <limits.h>
 #include <map>
+#include <string.h>
 
 
 /**< \brief Basic Jazz codeless data types and constants.
@@ -102,15 +103,14 @@ struct JazzBlockHeader
 	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
 };
 
-/// Structure at the end of a JazzBlock, it is initially filled with zero and .buffer_size is set to the appropriate value.
+/// Structure at the end of a JazzBlock, initially created with init_string_buffer()
 struct JazzStringBuffer
 {
-	char NA, EMPTY;				///< A binary zero making a string with offset 0 (== JAZZ_STRING_NA) or 1 (== JAZZ_STRING_EMPTY) == ""
 	bool stop_search_existing;	///< When the JazzStringBuffer is small, try to match existing indices of the same string to save RAM
 	bool alloc_failed;			///< A previous call to get_string_offset() failed to alloc space for a string
 	int	 last_idx;				///< The index to the first free space after the last stored string
 	int  buffer_size;			///< The size in bytes of buffer[]
-	char buffer[];				///< The buffer where all the non-empty strings are stored
+	char buffer[];				///< The buffer where strings are stored starting with two zeroes for JAZZ_STRING_NA & JAZZ_STRING_EMPTY
 };
 
 typedef std::map<int, char *> AllAttributes;
@@ -349,6 +349,21 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline pJazzStringBuffer pStringBuffer() {
 			return reinterpret_cast<pJazzStringBuffer>((uintptr_t) pAttribute_keys() + 2*num_attributes*sizeof(int));
+		}
+
+		inline void init_string_buffer() {
+			pJazzStringBuffer psb = pStringBuffer();
+			int buff_size = total_bytes - ((uintptr_t) psb - (uintptr_t) &cell_type) - sizeof(JazzStringBuffer);
+			if (psb->buffer_size < 4) {
+				psb->alloc_failed = true;
+				return;
+			}
+			psb->buffer_size = buff_size;
+			memset(psb, sizeof(JazzStringBuffer) + 4, 0);	// This also clears psb->buffer[0..3]
+			// psb->buffer[0] = 0;	// JAZZ_STRING_NA
+			// psb->buffer[1] = 0;	// JAZZ_STRING_EMPTY
+			// psb->buffer[2] = 0;	// The end of string for searching (will change once a string is inserted)
+			psb->last_idx  = 2;	// Where the first string will be inserted
 		}
 
 		int get_string_offset(pJazzStringBuffer psb, char *pString);
