@@ -233,8 +233,8 @@ class JazzBlock: public JazzBlockHeader {
 			\param pString A pointer to a (zero ended) string that will be allocated inside the JazzBlock.
 
 			NOTE: Allocation inside a JazzBlock is typically hard since they are created with "just enough space", a JazzBlock is
-			typically unmutable. jazz_alloc contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
-			The 100% safe way is creating a new block from the unmutable one using jazz_alloc methods. Otherwise, use at your own
+			typically unmutable. jazz_alloc.h contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the unmutable one using jazz_alloc.h methods. Otherwise, use at your own
 			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
@@ -249,8 +249,8 @@ class JazzBlock: public JazzBlockHeader {
 			\param pString A pointer to a (zero ended) string that will be allocated inside the JazzBlock.
 
 			NOTE: Allocation inside a JazzBlock is typically hard since they are created with "just enough space", a JazzBlock is
-			typically unmutable. jazz_alloc contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
-			The 100% safe way is creating a new block from the unmutable one using jazz_alloc methods. Otherwise, use at your own
+			typically unmutable. jazz_alloc.h contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the unmutable one using jazz_alloc.h methods. Otherwise, use at your own
 			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
@@ -261,6 +261,18 @@ class JazzBlock: public JazzBlockHeader {
 
 	// Methods on attributes.
 
+		/** Find an attribute by its attribute_id (key).
+
+			\param attribute_id A unique 32-bit id defining what the attribute is: e.g., a Jazz class, a url, a mime type, ...
+
+			\return A pointer to where the (zero ended) string (the attribute value) is stored in the JazzBlock. Or nullptr if
+					the key is not found.
+
+			NOTE: Search is linear since no assumptions can be made on how keys are ordered. Typically JazzBlocks have few (less
+			than 5) attributes and that is okay. There is no limit on the number of attributes, so if you want to use the block's
+			attributes as a dictionary containing, e.g., thousands of config keys, use get_attributes() instead which returns a
+			map with all the attributes.
+		*/
 		inline char *find_attribute(int attribute_id) {
 			int * ptk = pAttribute_keys();
 			for (int i = 0; i < num_attributes; i++)
@@ -269,7 +281,17 @@ class JazzBlock: public JazzBlockHeader {
 			return nullptr;
 		}
 
+		/** Set all attributes of a JazzBlock, only when creating it, using a map.
+
+			\param all_att A map containing all the attributes for the block.
+
+			NOTE: This function is public because it has to be called by jazz_alloc.h methods. set_attributes() can
+			only be called once, so it will do nothing if called after a JazzBlock is built. JazzBlocks are near-unmutable
+			objects, if you need to change a JazzBlock's attributes create a new object using jazz_alloc.h methods.
+		*/
 		inline void set_attributes(AllAttributes &all_att) {
+			if (num_attributes) return;
+
 			num_attributes = all_att.size();
 			int i = 0;
 			int *ptk = pAttribute_keys();
@@ -284,6 +306,13 @@ class JazzBlock: public JazzBlockHeader {
 			}
 		}
 
+		/** Get all attributes of a JazzBlock storing them inside a map.
+
+			\param all_att A (typically empty) map where all the attributes will be stored.
+
+			NOTE: You can use a non-empty map. This will keep existing key/values not found in the JazzBlock and create/override
+			those in the JazzBlock by using a normal 'map[key] = value' instruction.
+		*/
 		inline void get_attributes(AllAttributes &all_att) {
 			int *ptk = pAttribute_keys();
 			pJazzStringBuffer psb = pStringBuffer();
