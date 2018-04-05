@@ -197,7 +197,7 @@ class JazzBlock: public JazzBlockHeader {
 
 		/** Convert an offset to a tensor cell into its corresponding index (as a JazzTensorDim array) without checking its validity.
 
-		 	\offset the input offset
+		 	\param offset the input offset
 			\param pIndex A pointer to the JazzTensorDim to return the result.
 		*/
 		inline void get_index(int offset, int *pIndex) {
@@ -206,8 +206,24 @@ class JazzBlock: public JazzBlockHeader {
 
 	// Methods on strings.
 
+		/** Get a string from the tensor by index without checking index range.
+
+			\param pIndex A pointer to the JazzTensorDim containing the index.
+
+			\return A pointer to where the (zero ended) string is stored in the JazzBlock.
+
+			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
+		*/
 		inline char *get_string(int *pIndex) { return reinterpret_cast<char *>(&pStringBuffer()->buffer[get_offset(pIndex)]); }
 
+		/** Get a string from the tensor by offset without checking offset range.
+
+			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
+
+			\return A pointer to where the (zero ended) string is stored in the JazzBlock.
+
+			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
+		*/
 		inline char *get_string(int offset)  { return reinterpret_cast<char *>(&pStringBuffer()->buffer[offset]); }
 
 		inline void set_string(int *pIndex, char *pString) {
