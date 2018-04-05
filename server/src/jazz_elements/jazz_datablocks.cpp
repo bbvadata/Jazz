@@ -46,6 +46,25 @@ float  F_NA = nanf("");
 double R_NA = R_ValueOfNA();
 
 
+/** Find an existing string in a block, or allocate a new one and return its offset in the JazzStringBuffer.buffer.
+
+	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling pStringBuffer repeatedly).
+	\param pString The string to find or allocate in the JazzStringBuffer.
+	\param len	  The length of "string". This in mandatory to simplify operation with systems where it is known (R and std::string)
+
+	\return		  The offset to the string if successfully allocated or -1 if allocation failed.
+
+	See format_C_OFFS_CHARS() for an explanation on how block_C_OFFS_CHARS are filled.
+
+	The block_C_OFFS_CHARS is designed to be fast to read or operate when the blocks are already created. Filling blocks is not efficient because
+all the (possibly many) strings have to be compared with the new string each time. If that becomes a bottleneck, a more efficient structure like
+a map should be used.
+*/
+int JazzBlock::get_string_offset(pJazzStringBuffer psb, char *pString)
+{
+
+}
+
 /** Set the length of a block_C_OFFS_CHARS and initialize its string_buffer[] to contain strings.
 
 	\param pstr	  A just JAZZALLOC()ed block_C_OFFS_CHARS whose length has not been set yet.
@@ -66,7 +85,7 @@ double R_NA = R_ValueOfNA();
 				pt->data[i] = j;
 			else
 				realloc_C_OFFS_CHARS(pt, 4096);		// Add extra 4K each time get_string_idx_C_OFFS_CHARS() fails to allocate a string.
-*/
+
 bool jzzBLOCKS::format_C_OFFS_CHARS(pCharBlock pstr, int length)
 {
 	if (pstr->size < sizeof(int)*length + sizeof(string_buffer) + 1)	// One zero behind, but no possible allocation. The block is a block of NA.
@@ -104,7 +123,7 @@ bool jzzBLOCKS::format_C_OFFS_CHARS(pCharBlock pstr, int length)
 	The block_C_OFFS_CHARS is designed to be fast to read or operate when the blocks are already created. Filling blocks is not efficient because
 all the (possibly many) strings have to be compared with the new string each time. If that becomes a bottleneck, a more efficient structure like
 a map should be used.
-*/
+
 int jzzBLOCKS::get_string_idx_C_OFFS_CHARS(pCharBlock pstr, const char * string, int len)
 {
 	if (string == NULL)
@@ -170,7 +189,7 @@ int jzzBLOCKS::get_string_idx_C_OFFS_CHARS(pCharBlock pstr, const char * string,
 	See format_C_OFFS_CHARS() for an explanation on how block_C_OFFS_CHARS are filled.
 
 	The old object is freed and replaced by a new one where its content is copied first.
-*/
+
 bool jzzBLOCKS::realloc_C_OFFS_CHARS(pCharBlock &pstr, int extra_length)
 {
 	pCharBlock pnew;
@@ -195,7 +214,7 @@ bool jzzBLOCKS::realloc_C_OFFS_CHARS(pCharBlock &pstr, int extra_length)
 	return true;
 }
 
-
+*/
 
 
 } // namespace jazz_datablocks
