@@ -50,7 +50,8 @@
 namespace jazz_datablocks
 {
 
-#define JAZZ_MAX_TENSOR_RANK 	6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
+#define JAZZ_MAX_TENSOR_RANK 		6		///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
+#define JAZZ_MAX_CHECKS_4_MATCH    25		///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
 
 #define CELL_TYPE__
 
@@ -106,7 +107,7 @@ struct JazzBlockHeader
 /// Structure at the end of a JazzBlock, initially created with init_string_buffer()
 struct JazzStringBuffer
 {
-	bool stop_search_existing;	///< When the JazzStringBuffer is small, try to match existing indices of the same string to save RAM
+	bool stop_check_4_match;	///< When the JazzStringBuffer is small, try to match existing indices of the same string to save RAM
 	bool alloc_failed;			///< A previous call to get_string_offset() failed to alloc space for a string
 	int	 last_idx;				///< The index to the first free space after the last stored string
 	int  buffer_size;			///< The size in bytes of buffer[]
