@@ -247,7 +247,7 @@ class JazzBlock: public JazzBlockHeader {
 			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
-		inline void set_string(int *pIndex, char *pString) {
+		inline void set_string(int *pIndex, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
 			psb->buffer[tensor[get_offset(pIndex)]] = get_string_offset(psb, pString);
 		}
@@ -263,7 +263,7 @@ class JazzBlock: public JazzBlockHeader {
 			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
-		inline void set_string(int offset, char *pString) {
+		inline void set_string(int offset, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
 			psb->buffer[tensor[offset]] = get_string_offset(psb, pString);
 		}
@@ -377,7 +377,7 @@ class JazzBlock: public JazzBlockHeader {
 			return reinterpret_cast<pJazzStringBuffer>((uintptr_t) pAttribute_keys() + 2*num_attributes*sizeof(int));
 		}
 
-		int get_string_offset(pJazzStringBuffer psb, char *pString);
+		int get_string_offset(pJazzStringBuffer psb, const char *pString);
 };
 
 typedef JazzBlock *pJazzBlock;
