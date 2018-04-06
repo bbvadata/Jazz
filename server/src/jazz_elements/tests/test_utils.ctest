@@ -32,25 +32,25 @@ SCENARIO("Testing CountBytesFromUtf8().")
 	char buf3[80] = {"eñe"};
 	char buf4[80] = {"\xF0...\xE0..\xC0.Z"};
 
-	REQUIRE(CountBytesFromUtf8(buf1, 0) ==  0);
-	REQUIRE(CountBytesFromUtf8(buf1, 1) ==  1);
-	REQUIRE(CountBytesFromUtf8(buf1, 2) ==  2);
-	REQUIRE(CountBytesFromUtf8(buf1, 9) ==  9);
+	REQUIRE(CountBytesFromUtf8(buf1, 0) ==	0);
+	REQUIRE(CountBytesFromUtf8(buf1, 1) ==	1);
+	REQUIRE(CountBytesFromUtf8(buf1, 2) ==	2);
+	REQUIRE(CountBytesFromUtf8(buf1, 9) ==	9);
 
-	REQUIRE(CountBytesFromUtf8(buf2, 0) ==  0);
-	REQUIRE(CountBytesFromUtf8(buf2, 1) ==  2);
-	REQUIRE(CountBytesFromUtf8(buf2, 2) ==  3);
-	REQUIRE(CountBytesFromUtf8(buf2, 5) ==  6);
+	REQUIRE(CountBytesFromUtf8(buf2, 0) ==	0);
+	REQUIRE(CountBytesFromUtf8(buf2, 1) ==	2);
+	REQUIRE(CountBytesFromUtf8(buf2, 2) ==	3);
+	REQUIRE(CountBytesFromUtf8(buf2, 5) ==	6);
 
-	REQUIRE(CountBytesFromUtf8(buf3, 0) ==  0);
-	REQUIRE(CountBytesFromUtf8(buf3, 1) ==  1);
-	REQUIRE(CountBytesFromUtf8(buf3, 2) ==  3);
-	REQUIRE(CountBytesFromUtf8(buf3, 3) ==  4);
+	REQUIRE(CountBytesFromUtf8(buf3, 0) ==	0);
+	REQUIRE(CountBytesFromUtf8(buf3, 1) ==	1);
+	REQUIRE(CountBytesFromUtf8(buf3, 2) ==	3);
+	REQUIRE(CountBytesFromUtf8(buf3, 3) ==	4);
 
-	REQUIRE(CountBytesFromUtf8(buf4, 0) ==  0);
-	REQUIRE(CountBytesFromUtf8(buf4, 1) ==  4);
-	REQUIRE(CountBytesFromUtf8(buf4, 2) ==  7);
-	REQUIRE(CountBytesFromUtf8(buf4, 3) ==  9);
+	REQUIRE(CountBytesFromUtf8(buf4, 0) ==	0);
+	REQUIRE(CountBytesFromUtf8(buf4, 1) ==	4);
+	REQUIRE(CountBytesFromUtf8(buf4, 2) ==	7);
+	REQUIRE(CountBytesFromUtf8(buf4, 3) ==	9);
 	REQUIRE(CountBytesFromUtf8(buf4, 4) == 10);
 }
 
@@ -224,7 +224,7 @@ SCENARIO("Testing ExpandEscapeSequences().")
 	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\11")),  "11"));
 	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\007")), "\a"));
 	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\07")),  "07"));
-	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\7")),   "7"));
+	REQUIRE(!strcmp(ExpandEscapeSequences(strcpy(buff, "\\7")),	  "7"));
 
 	REQUIRE(buff[5] == 9);
 	buff[5] = 8;
@@ -414,18 +414,18 @@ SCENARIO("Testing CleanConfigArgument().")
 
 	REQUIRE(b == "ThisIsIt");
 
-	REQUIRE(CleanConfigArgument(" This Is It")  == b);
-	REQUIRE(CleanConfigArgument("This Is It")   == b);
-	REQUIRE(CleanConfigArgument("This Is It ")  == b);
+	REQUIRE(CleanConfigArgument(" This Is It")	== b);
+	REQUIRE(CleanConfigArgument("This Is It")	== b);
+	REQUIRE(CleanConfigArgument("This Is It ")	== b);
 	REQUIRE(CleanConfigArgument("This Is It\t") == b);
-	REQUIRE(CleanConfigArgument("ThisIsIt")     == b);
+	REQUIRE(CleanConfigArgument("ThisIsIt")		== b);
 
 	REQUIRE(CleanConfigArgument(" ")   == "");
 	REQUIRE(CleanConfigArgument("\t")  == "");
 	REQUIRE(CleanConfigArgument(" \t") == "");
-	REQUIRE(CleanConfigArgument("")    == "");
+	REQUIRE(CleanConfigArgument("")	   == "");
 
-	REQUIRE(CleanConfigArgument("\"This is it\"")   == "This is it");
+	REQUIRE(CleanConfigArgument("\"This is it\"")	== "This is it");
 	REQUIRE(CleanConfigArgument("\"This is it\" .") == "This is it.");
 }
 
@@ -485,7 +485,7 @@ SCENARIO("Testing class JazzConfigFile")
 
 	fh.open ("/tmp/93fd8e49efe4b4b2a2623d1f22d4ea40");
 	fh << "// Test config file\n";
- 	fh << "\n";
+	fh << "\n";
 	fh << "0=1\n";
 	fh << "0 = 0\n";
 	fh << "one=1\n";
@@ -493,7 +493,7 @@ SCENARIO("Testing class JazzConfigFile")
 	fh << "three = 3// three = 4\n";
 	fh << "four = 44		// three = 4\n";
 	fh << "five\t = 5		// three = 4\n";
- 	fh << "\n";
+	fh << "\n";
 	fh << "six\t = 3 + 3\n";
 	fh << "seven\t = \t3 + 4//\n";
 	fh << "eight\t = \t\"4 + 4\"//\n";

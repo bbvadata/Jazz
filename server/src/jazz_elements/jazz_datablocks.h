@@ -51,8 +51,8 @@
 namespace jazz_datablocks
 {
 
-#define JAZZ_MAX_TENSOR_RANK 		6		///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
-#define JAZZ_MAX_CHECKS_4_MATCH    25		///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
+#define JAZZ_MAX_TENSOR_RANK		6		///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
+#define JAZZ_MAX_CHECKS_4_MATCH	   25		///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
 
 #define CELL_TYPE__
 
@@ -111,13 +111,13 @@ struct JazzStringBuffer
 	bool stop_check_4_match;	///< When the JazzStringBuffer is small, try to match existing indices of the same string to save RAM
 	bool alloc_failed;			///< A previous call to get_string_offset() failed to alloc space for a string
 	int	 last_idx;				///< The index to the first free space after the last stored string
-	int  buffer_size;			///< The size in bytes of buffer[]
+	int	 buffer_size;			///< The size in bytes of buffer[]
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for JAZZ_STRING_NA & JAZZ_STRING_EMPTY
 };
 
 typedef std::map<int, const char *> AllAttributes;
 
-typedef JazzBlockHeader  *pJazzBlockHeader;
+typedef JazzBlockHeader	 *pJazzBlockHeader;
 typedef JazzStringBuffer *pJazzStringBuffer;
 
 
@@ -203,7 +203,7 @@ class JazzBlock: public JazzBlockHeader {
 
 		/** Convert an offset to a tensor cell into its corresponding index (as a JazzTensorDim array) without checking its validity.
 
-		 	\param offset the input offset
+			\param offset the input offset
 			\param pIndex A pointer to the JazzTensorDim to return the result.
 		*/
 		inline void get_index(int offset, int *pIndex) {
@@ -232,7 +232,7 @@ class JazzBlock: public JazzBlockHeader {
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline char *get_string(int offset)  {
+		inline char *get_string(int offset)	 {
 			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[offset]]);
 		}
 
@@ -348,7 +348,7 @@ class JazzBlock: public JazzBlockHeader {
 			// psb->buffer[1] = 0;	// JAZZ_STRING_EMPTY
 			// psb->buffer[2] = 0;	// The end of string for searching (will change once a string is inserted)
 			psb->buffer_size = buff_size;
-			psb->last_idx    = 2;	// Where the first string will be inserted
+			psb->last_idx	 = 2;	// Where the first string will be inserted
 		}
 
 #ifndef CATCH_TEST

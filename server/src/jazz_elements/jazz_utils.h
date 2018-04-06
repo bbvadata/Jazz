@@ -84,7 +84,7 @@ int			 CountBytesFromUtf8	   (char *buff, int len);
 char		*ExpandEscapeSequences (char *buff);
 pid_t		 FindProcessIdByName   (const char *name);
 uint64_t	 MurmurHash64A		   (const void *key, int len);
-std::string  CleanConfigArgument   (std::string s);
+std::string	 CleanConfigArgument   (std::string s);
 
 
 /** Get ten bits taking the least significant 5 of the first two characters of a string.
@@ -102,7 +102,7 @@ class JazzConfigFile {
 
 		JazzConfigFile(const char *input_file_name);
 
-		int  num_keys ();
+		int	 num_keys ();
 
 		bool get_key  (const char *key, int &value);
 		bool get_key  (const char *key, double &value);
@@ -123,7 +123,7 @@ class JazzLogger {
 		 JazzLogger(const char *output_file_name);
 		~JazzLogger();
 
-		int  get_output_file_name (char *buff, int buff_size);
+		int	 get_output_file_name (char *buff, int buff_size);
 
 		void log		(int loglevel, const char *message);
 		void log_printf	(int loglevel, const char *fmt, ...);

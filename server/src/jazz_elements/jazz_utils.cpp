@@ -110,7 +110,7 @@ https://en.wikipedia.org/wiki/Escape_sequences_in_C
 */
 char *ExpandEscapeSequences(char *buff)
 {
-	char        *pt	 = buff;
+	char		*pt	 = buff;
 	size_t		 len = strlen(buff);
 	unsigned int num, any;
 
@@ -281,7 +281,7 @@ uint64_t MurmurHash64A(const void *key, int len)
 	uint64_t h = MURMUR_SEED ^ (len*m);
 
 	const uint64_t *data = (const uint64_t *) key;
-	const uint64_t *end  = data + (len/8);
+	const uint64_t *end	 = data + (len/8);
 
 	while(data != end) {
 		uint64_t k = *data++;
