@@ -55,7 +55,7 @@ double R_NA = R_ValueOfNA();
 
 	NOTE: This function is private, called by set_attributes() and set_string(). Use these functions instead and read their NOTES.
 */
-int JazzBlock::get_string_offset(pJazzStringBuffer psb, char *pString)
+int JazzBlock::get_string_offset(pJazzStringBuffer psb, const char *pString)
 {
 	if (psb->alloc_failed)
 		return -1;
