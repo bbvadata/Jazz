@@ -401,7 +401,22 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE((uint8_t) psb->buffer[2] == 0);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb + 64 + 140*4);
 
+		static const char* const sstr[] = {"ABC", "January", "February", "March", "Monday", "Red", "Hello world!", "", "123"};
 
+		pjb->set_string(0, sstr[0]);
+
+		REQUIRE(pjb->tensor[0] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 6);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE(psb->buffer[2] == 'A');
+
+		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
 
 		WHEN("We have a JazzBlock")
 		{
