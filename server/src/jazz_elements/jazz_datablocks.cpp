@@ -58,7 +58,7 @@ double R_NA = R_ValueOfNA();
 int JazzBlock::get_string_offset(pJazzStringBuffer psb, const char *pString)
 {
 	if (psb->alloc_failed)
-		return -1;
+		return JAZZ_STRING_NA;
 
 	if (pString == nullptr)
 		return JAZZ_STRING_NA;
@@ -106,7 +106,9 @@ int JazzBlock::get_string_offset(pJazzStringBuffer psb, const char *pString)
 		return idx;
 	}
 
-	return -1;
+	psb->alloc_failed = true;
+
+	return JAZZ_STRING_NA;
 }
 
 
