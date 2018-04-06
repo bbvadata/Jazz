@@ -115,7 +115,7 @@ struct JazzStringBuffer
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for JAZZ_STRING_NA & JAZZ_STRING_EMPTY
 };
 
-typedef std::map<int, char *> AllAttributes;
+typedef std::map<int, const char *> AllAttributes;
 
 typedef JazzBlockHeader  *pJazzBlockHeader;
 typedef JazzStringBuffer *pJazzStringBuffer;
