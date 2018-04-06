@@ -249,7 +249,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int *pIndex, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			psb->buffer[tensor[get_offset(pIndex)]] = get_string_offset(psb, pString);
+			tensor[get_offset(pIndex)] = get_string_offset(psb, pString);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
@@ -265,7 +265,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int offset, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			psb->buffer[tensor[offset]] = get_string_offset(psb, pString);
+			tensor[offset] = get_string_offset(psb, pString);
 		}
 
 	// Methods on attributes.
