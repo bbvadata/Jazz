@@ -380,9 +380,11 @@ SCENARIO("Testing String and Attribute logic")
 	static const char* const sstr[] = {"ABC", "January", "February", "March", "Monday", "Red", "Hello world!", "", "123",
 									   "This is not Shakespeare", "Halaaa", "Wof", "Wof, wof, wof"};
 
-	int idx = pjb->get_string_offset(psb, sstr[0]);
+	int idx;
 
 	JazzTensorDim d1 = {0, 0, 1, 0, 0, 0}, d2 = {0, 1, 0, 0, 0, 0}, d3 = {6, 0, 3, 0, 0, 0}, d4 = {6, 4, 3, 0, 0, 0};
+
+	pJazzStringBuffer psb;
 
 	GIVEN("We want to check absolute sizes and offsets")
 	{
@@ -397,7 +399,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->total_bytes = 64 + 140*4 + 12 + 4096;
 		pjb->init_string_buffer();
 
-		pJazzStringBuffer psb = pjb->pStringBuffer();
+		psb = pjb->pStringBuffer();
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
@@ -407,6 +409,8 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE((uint8_t) psb->buffer[1] == 0);
 		REQUIRE((uint8_t) psb->buffer[2] == 0);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb + 64 + 140*4);
+
+		idx = pjb->get_string_offset(psb, sstr[0]);
 
 		REQUIRE(idx == 2);
 
@@ -515,23 +519,25 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->total_bytes = 64 + 140*4 + 12 + 105;
 		pjb->init_string_buffer();
 
-		pJazzStringBuffer psb = pjb->pStringBuffer();
+		psb = pjb->pStringBuffer();
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
 		REQUIRE(psb->last_idx == 2);
-		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer_size == 105);
 		REQUIRE((uint8_t) psb->buffer[0] == 0);
 		REQUIRE((uint8_t) psb->buffer[1] == 0);
 		REQUIRE((uint8_t) psb->buffer[2] == 0);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb + 64 + 140*4);
+
+		idx = pjb->get_string_offset(psb, sstr[0]);
 
 		REQUIRE(idx == 2);
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
 		REQUIRE(psb->last_idx == 6);
-		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer_size == 105);
 		REQUIRE((uint8_t) psb->buffer[0] == 0);
 		REQUIRE((uint8_t) psb->buffer[1] == 0);
 		REQUIRE(psb->buffer[2] == 'A');
@@ -567,7 +573,7 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
 		REQUIRE(psb->last_idx == 19);
-		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer_size == 105);
 		REQUIRE(psb->buffer[6] == 'H');
 
 		for (int i = 5; i < 140; i++)
@@ -576,7 +582,7 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
 		REQUIRE(psb->last_idx == 57);
-		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer_size == 105);
 		REQUIRE(psb->buffer[53] == '1');
 
 		REQUIRE(!strcmp(pjb->get_string( 1), ""));
@@ -624,55 +630,103 @@ SCENARIO("Testing String and Attribute logic")
 
 		idx = pjb->get_offset(d4);
 
-		REQUIRE(psb->tensor[idx] == JAZZ_STRING_NA);
+		REQUIRE(pjb->tensor[idx] == JAZZ_STRING_NA);
 
-		REQUIRE(psb->get_string_offset(sstr[0]) == JAZZ_STRING_NA);
-		REQUIRE(psb->get_string_offset(nullptr) == JAZZ_STRING_NA);
-		REQUIRE(psb->get_string_offset(sstr[7]) == JAZZ_STRING_NA);
+		REQUIRE(pjb->get_string_offset(psb, sstr[0]) == JAZZ_STRING_NA);
+		REQUIRE(pjb->get_string_offset(psb, nullptr) == JAZZ_STRING_NA);
+		REQUIRE(pjb->get_string_offset(psb, sstr[7]) == JAZZ_STRING_NA);
 	}
 
-/*
-		WHEN("I create a set of attributes")
-		{
-			AllAttributes att;
-			static const char* const att_val[] = {"http://www.google.com", "en_us", "This is a stupid sentence", "mp17/hologram"};
+	GIVEN("The big test again, with attributes")
+	{
+		pjb->cell_type = CELL_TYPE_JAZZ_STRING;
 
-			att[4420] = att_val[0];
+		JazzTensorDim dim = {7, 5, 4, 0, 0, 0};
+		pjb->set_dimensions(dim);
+		REQUIRE(pjb->size == 140);
 
-			att[2477] = att_val[0];
-			att[3185] = att_val[1];
-			att[4420] = att_val[2];
-			att[6217] = att_val[3];
+		pjb->num_attributes = 4;
 
-			REQUIRE(!psb->alloc_failed);
+		pjb->total_bytes = 64 + 140*4 + 32 + 12 + 4096;
+		pjb->init_string_buffer();
 
-			pjb->set_attributes(att);
+		psb = pjb->pStringBuffer();
 
-			REQUIRE(pjb->num_attributes == 4);
-			int *pti = pjb->pAttribute_keys();
+		REQUIRE(psb->buffer_size == 4096);
 
-			REQUIRE((pti[0] >= 2477 && pti[0] <= 6217));
-			REQUIRE((pti[1] >= 2477 && pti[1] <= 6217));
-			REQUIRE((pti[2] >= 2477 && pti[2] <= 6217));
-			REQUIRE((pti[3] >= 2477 && pti[3] <= 6217));
+		AllAttributes att;
+		static const char* const att_val[] = {"http://www.google.com", "en_us", "This is a stupid sentence", "mp17/hologram"};
 
-			REQUIRE(pti[4] == 106);
+		att[4420] = att_val[0];
 
-			REQUIRE(psb->last_idx == 150);
+		att[2477] = att_val[0];
+		att[3185] = att_val[1];
+		att[4420] = att_val[2];
+		att[6217] = att_val[3];
 
-			THEN("I can search then all")
-			{
-				REQUIRE(!strcmp(pjb->find_attribute(204),	   "http://www.google.com"));
-				REQUIRE(!strcmp(pjb->find_attribute(99003224), "en_us"));
-				REQUIRE(!strcmp(pjb->find_attribute(54321),	   "This is a stupid sentence"));
-				REQUIRE(!strcmp(pjb->find_attribute(982255),   "mp17/hologram"));
+		pjb->num_attributes = 0;
 
-				REQUIRE(pjb->find_attribute(123) == nullptr);
-			}
-		}
-*/
-//TODO: test get_attributes()
-//TODO: Repeat building with smaller allocation to force alloc_failed
+		pjb->set_attributes(att);
 
+		REQUIRE(pjb->num_attributes == 4);
+		int *pti = pjb->pAttribute_keys();
 
+		REQUIRE((pti[0] >= 2477 && pti[0] <= 6217));
+		REQUIRE((pti[1] >= 2477 && pti[1] <= 6217));
+		REQUIRE((pti[2] >= 2477 && pti[2] <= 6217));
+		REQUIRE((pti[3] >= 2477 && pti[3] <= 6217));
+
+		REQUIRE(pti[4] == 2);
+
+		for (int i = 5; i < 140; i++)
+			pjb->set_string(i, sstr[(i - 5) % 9]);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->buffer_size == 4096);
+
+		REQUIRE(!strcmp(pjb->get_string( 5), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string( 6), "January"));
+		REQUIRE(!strcmp(pjb->get_string( 7), "February"));
+		REQUIRE(!strcmp(pjb->get_string( 8), "March"));
+		REQUIRE(!strcmp(pjb->get_string( 9), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(10), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(11), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(12), ""));
+		REQUIRE(!strcmp(pjb->get_string(13), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(131), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string(132), "January"));
+		REQUIRE(!strcmp(pjb->get_string(133), "February"));
+		REQUIRE(!strcmp(pjb->get_string(134), "March"));
+		REQUIRE(!strcmp(pjb->get_string(135), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(136), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(137), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(138), ""));
+		REQUIRE(!strcmp(pjb->get_string(139), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(d3), "January"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "123"));
+
+		pjb->set_string(d1, sstr[ 9]);
+		pjb->set_string(d2, sstr[10]);
+		pjb->set_string(d3, sstr[11]);
+		pjb->set_string(d4, sstr[12]);
+
+		REQUIRE(!strcmp(pjb->get_string(d1), "This is not Shakespeare"));
+		REQUIRE(!strcmp(pjb->get_string(d2), "Halaaa"));
+		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
+
+		std::cout << pjb->find_attribute(204) << std::endl;
+
+		REQUIRE(!strcmp(pjb->find_attribute(204),	   "http://www.google.com"));
+		REQUIRE(!strcmp(pjb->find_attribute(99003224), "en_us"));
+		REQUIRE(!strcmp(pjb->find_attribute(54321),	   "This is a stupid sentence"));
+		REQUIRE(!strcmp(pjb->find_attribute(982255),   "mp17/hologram"));
+
+		REQUIRE(pjb->find_attribute(123) == nullptr);
+
+//TODO: get_attributes() test
+	}
 }
