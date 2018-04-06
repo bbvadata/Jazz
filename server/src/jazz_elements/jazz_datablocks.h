@@ -28,6 +28,7 @@
 #include <string.h>
 #include <iostream>
 
+//TODO: Initialization with attributes requires setting num_attributes first to allocate the string buffer, then zero to call set_attributes.
 
 /**< \brief Basic Jazz codeless data types and constants.
 
