@@ -403,10 +403,9 @@ SCENARIO("Testing String and Attribute logic")
 
 		static const char* const sstr[] = {"ABC", "January", "February", "March", "Monday", "Red", "Hello world!", "", "123"};
 
-		pjb->set_string(0, sstr[0]);
+		int idx = pjb->get_string_offset(psb, sstr[0]);
 
-		REQUIRE(pjb->tensor[0] == 2);
-		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+		REQUIRE(idx == 2);
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
@@ -416,7 +415,40 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE((uint8_t) psb->buffer[1] == 0);
 		REQUIRE(psb->buffer[2] == 'A');
 
+		pjb->set_string(0, sstr[0]);
+
+		REQUIRE(pjb->tensor[0] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+
 		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
+
+		pjb->set_string(1, nullptr);
+
+		REQUIRE(pjb->tensor[1] == JAZZ_STRING_NA);
+
+		pjb->set_string(2, sstr[7]);
+
+		REQUIRE(pjb->tensor[2] == JAZZ_STRING_EMPTY);
+
+		pjb->set_string(3, sstr[0]);
+
+		REQUIRE(pjb->tensor[3] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+
+		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
+
+		pjb->set_string(4, sstr[6]);
+
+		REQUIRE(pjb->tensor[4] == 6);
+
+		REQUIRE(!strcmp(pjb->get_string(4), "Hello world!"));
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 19);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer[6] == 'H');
+
 
 		WHEN("We have a JazzBlock")
 		{
