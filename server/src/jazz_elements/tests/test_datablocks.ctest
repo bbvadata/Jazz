@@ -449,6 +449,34 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(psb->buffer_size == 4096);
 		REQUIRE(psb->buffer[6] == 'H');
 
+		for (int i = 5; i < 140; i++)
+			pjb->set_string(i, sstr[(i - 5) % 9]);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 57);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer[53] == '1');
+
+		REQUIRE(!strcmp(pjb->get_string( 5), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string( 6), "January"));
+		REQUIRE(!strcmp(pjb->get_string( 7), "February"));
+		REQUIRE(!strcmp(pjb->get_string( 8), "March"));
+		REQUIRE(!strcmp(pjb->get_string( 9), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(10), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(11), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(12), ""));
+		REQUIRE(!strcmp(pjb->get_string(13), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(131), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string(132), "January"));
+		REQUIRE(!strcmp(pjb->get_string(133), "February"));
+		REQUIRE(!strcmp(pjb->get_string(134), "March"));
+		REQUIRE(!strcmp(pjb->get_string(135), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(136), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(137), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(138), ""));
+		REQUIRE(!strcmp(pjb->get_string(139), "123"));
 
 		WHEN("We have a JazzBlock")
 		{
