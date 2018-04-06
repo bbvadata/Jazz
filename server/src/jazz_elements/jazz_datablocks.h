@@ -337,7 +337,6 @@ class JazzBlock: public JazzBlockHeader {
 		inline void init_string_buffer() {
 			pJazzStringBuffer psb = pStringBuffer();
 
-			std::cout << total_bytes << ", " << (uintptr_t) psb << ", " << (uintptr_t) &cell_type << ", " << ((uintptr_t) psb - (uintptr_t) &cell_type) << std::endl;
 			int buff_size = total_bytes - ((uintptr_t) psb - (uintptr_t) &cell_type) - sizeof(JazzStringBuffer);
 			if (buff_size < 4) {
 				psb->alloc_failed = true;
