@@ -29,6 +29,233 @@
 
 using namespace jazz_alloc;
 
+/*
+
+void rec_TreeDump(int level, pgModel pT, ofstream& ofil)
+{
+	if (level < 20)
+	{
+		string s = " : ";
+		int i;
+		for (i = 0; i < level; i++) s = s + "  ";
+		ofil << s << pT->priority << "\n";
+
+		if (pT->pAllocNext)  rec_TreeDump(level + 1, pT->pAllocNext, ofil);
+		if (pT->pAllocPrev)  rec_TreeDump(level + 1, pT->pAllocPrev, ofil);
+	}
+};
+
+
+void TreeDump(pgModel pT)
+{
+	ofstream ofil("C:\\ETC\\ModelSel\\TreeDump.txt");
+
+	if (!ofil.is_open())
+	{
+		cout << " ** Output file error ** ";
+	};
+	rec_TreeDump(0, pT, ofil);
+	ofil.close();
+};
+
+
+bool TestLibFunctions()
+{
+	cout << "TestLibFunctions():";
+
+	pgModel pTBuffBase = new  (nothrow) Model_InGrQS [1000000];
+	if (!pTBuffBase)
+	{
+		cout << "\n**Alloc failed**";
+		return false;
+	};
+
+	int * pDrawInt = new  (nothrow) int [1000000];
+	if (!pDrawInt)
+	{
+		cout << "\n**Alloc failed**";
+		return false;
+	};
+
+	pgModel pN, pT;
+	int i, j, k, n;
+	double r;
+
+	for (j = 0; j < 7; j++)
+	{
+		n = 1;for (i = 1; i <= j; i++) n = 10*n;
+		cout << "\n\nTesting " << n << " elements";
+
+		memset(pTBuffBase, 0, sizeof(Model_InGrQS)*n);
+		pT = NULL;
+
+		cout << "\nSorted pushing . . . ";
+		for (i = 0; i < n; i++)
+		{
+			pN = &pTBuffBase[i];pN->priority = i;
+			pT = insert(pN, pT);
+		}
+		cout << "(tree level " << pT->level << ")";
+
+		cout << "\nSorted reading . . . ";
+		for (i = n - 1; i >= 0; i--)
+		{
+			pN = HighestPriority(pT);
+			if (!pN || pN->priority != i) return false;
+			pT = remove_hi(pN, pT);
+		}
+
+		if (pT) return false;
+		cout << "(100%)";
+
+		memset(pTBuffBase, 0, sizeof(Model_InGrQS)*n);
+		pT = NULL;
+
+		cout << "\nInverse sorted pushing . . . ";
+		for (i = 0; i < n; i++)
+		{
+			pN = &pTBuffBase[i];pN->priority = n - 1 - i;
+			pT = insert(pN, pT);
+		}
+		cout << "(tree level " << pT->level << ")";
+
+		cout << "\nSorted reading . . . ";
+		for (i = n - 1; i >= 0; i--)
+		{
+			pN = HighestPriority(pT);
+			if (!pN || pN->priority != i) return false;
+			pT = remove_hi(pN, pT);
+		}
+
+		if (pT) return false;
+		cout << "(100%)";
+
+		memset(pTBuffBase, 0, sizeof(Model_InGrQS)*n);
+		pT = NULL;
+
+		cout << "\nRandom pushing . . . ";
+		for (i = 0; i < n; i++) pDrawInt[i] = i;
+		for (i = 0; i < n; i++)
+		{
+			r = rand();
+			r = r/RAND_MAX;
+			k = int((n - 1 - i)*r);
+
+			pN = &pTBuffBase[i];pN->priority = pDrawInt[k];
+			pDrawInt[k] = pDrawInt[n - 1 - i];
+			pT = insert(pN, pT);
+		}
+		cout << "(tree level " << pT->level << ")";
+
+		cout << "\nSorted reading . . . ";
+		for (i = n - 1; i >= 0; i--)
+		{
+			pN = HighestPriority(pT);
+			if (!pN || pN->priority != i) return false;
+			pT = remove_hi(pN, pT);
+		}
+
+		if (pT) return false;
+		cout << "(100%)";
+
+		memset(pTBuffBase, 0, sizeof(Model_InGrQS)*n);
+		pT = NULL;
+
+		cout << "\nRepeated random pushing . . . ";
+		for (i = 0; i < n; i++) pDrawInt[i] = i;
+		for (i = 0; i < n; i++)
+		{
+			r = rand();
+			r = r/RAND_MAX;
+			k = int((n - 1 - i)*r);
+
+			pN = &pTBuffBase[i];pN->priority = pDrawInt[k] / 11;
+			pDrawInt[k] = pDrawInt[n - 1 - i];
+			pT = insert(pN, pT);
+		}
+		cout << "(tree level " << pT->level << ")";
+
+		cout << "\nSorted reading . . . ";
+		for (i = n - 1; i >= 0; i--)
+		{
+			pN = HighestPriority(pT);
+			if (!pN || pN->priority != i / 11) return false;
+			pT = remove_hi(pN, pT);
+		}
+
+		if (pT) return false;
+		cout << "(100%)";
+	}
+
+	delete [] pTBuffBase;
+	delete [] pDrawInt;
+
+	cout << "\n\nDone.\n";
+	return true;
+};
+
+
+bool TestLibClasses()
+{
+	cout << "TestLibClasses():";
+
+	ModelBuffer mb;
+
+	int i, j, k, n;
+	double r;
+	pgModel pM;
+
+	for (j = 3; j < 7; j++)
+	{
+		n = 1;for (i = 1; i <= j; i++) n = 10*n;
+		cout << "\n\nTesting buffer size " << 2*n << " elements, pushed " << 12*n << " read " << 2*n;
+
+		if (!mb.AllocModels(2*n)) return false;
+
+		cout << "\nCombined test . . . ";
+
+		for (i = 0; i < n/2; i++)
+		{
+			pM = mb.GetFreeModel();
+			pM->priority = 200000000 - i;	// Intermediate priority >= 100M
+			mb.PushModelToPriorityQueue(pM);
+			pM = mb.GetFreeModel();
+			pM->priority = 300000000 - i;	// High priority >= 200M
+			mb.PushModelToPriorityQueue(pM);
+			for (k = 0;k < 10; k++)
+			{
+				pM = mb.GetFreeModel();
+				r  = rand();
+				r  = r/RAND_MAX;
+				pM->priority = 100*r;		// Junk priority in U(0,100)
+				mb.PushModelToPriorityQueue(pM);
+			}
+			if (i >= 10)
+			{
+				pM = mb.GetHighestPriorityModel();
+				if (pM->priority != 300000000 - (i -10)) return false;
+			}
+		}
+		for (i = n/2; i < n/2 + 10; i++)
+		{
+			pM = mb.GetHighestPriorityModel();
+			if (pM->priority != 300000000 - (i -10)) return false;
+		}
+
+		for (i = 0; i < n/2; i++)
+		{
+			pM = mb.GetHighestPriorityModel();
+			if (pM->priority != 200000000 - i) return false;
+		}
+
+		cout << "(100%)";
+	}
+
+	cout << "\n\nDone.\n";
+	return true;
+};
+
+*/
 
 SCENARIO("Testing JazzBlock allocation")
 {
