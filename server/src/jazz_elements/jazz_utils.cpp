@@ -21,8 +21,6 @@
   limitations under the License.
 */
 
-//TODO: Move all the utils and break the logger in functions.
-
 
 #include <string.h>
 
