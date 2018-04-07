@@ -22,15 +22,6 @@
 */
 
 
-#include "src/jazz_elements/jazz_alloc.h"
+using namespace jazz_alloc;
 
 
-namespace jazz_alloc
-{
-
-} // namespace jazz_alloc
-
-
-#if defined CATCH_TEST
-#include "src/jazz_elements/tests/test_alloc.ctest"
-#endif
