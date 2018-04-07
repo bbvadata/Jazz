@@ -645,14 +645,9 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->set_dimensions(dim);
 		REQUIRE(pjb->size == 140);
 
-		pjb->num_attributes = 4;
+		pjb->num_attributes = 0;
 
 		pjb->total_bytes = 64 + 140*4 + 32 + 12 + 4096;
-		pjb->init_string_buffer();
-
-		psb = pjb->pStringBuffer();
-
-		REQUIRE(psb->buffer_size == 4096);
 
 		AllAttributes att;
 		static const char* const att_val[] = {"http://www.google.com", "en_us", "This is a stupid sentence", "mp17/hologram"};
@@ -664,19 +659,33 @@ SCENARIO("Testing String and Attribute logic")
 		att[4420] = att_val[2];
 		att[6217] = att_val[3];
 
-		pjb->num_attributes = 0;
+		pjb->set_attributes(att);	// This calls init_string_buffer()
 
-		pjb->set_attributes(att);
+		int *pti = pjb->pAttribute_keys();
+		psb = pjb->pStringBuffer();
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 70);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE(psb->buffer[2] == 'h');
+
+		REQUIRE((uintptr_t) pti == (uintptr_t) pjb + 64 + 140*4);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pti + 32);
 
 		REQUIRE(pjb->num_attributes == 4);
-		int *pti = pjb->pAttribute_keys();
 
-		REQUIRE((pti[0] >= 2477 && pti[0] <= 6217));
-		REQUIRE((pti[1] >= 2477 && pti[1] <= 6217));
-		REQUIRE((pti[2] >= 2477 && pti[2] <= 6217));
-		REQUIRE((pti[3] >= 2477 && pti[3] <= 6217));
-
-		REQUIRE(pti[4] == 2);
+// Removed, since it assumes map are sorted by key
+		// REQUIRE(pti[0] == 2477);
+		// REQUIRE(pti[1] == 3185);
+		// REQUIRE(pti[2] == 4420);
+		// REQUIRE(pti[3] == 6217);
+		// REQUIRE(pti[4] == 2);
+		// REQUIRE(pti[5] == 24);
+		// REQUIRE(pti[6] == 30);
+		// REQUIRE(pti[7] == 56);
 
 		for (int i = 5; i < 140; i++)
 			pjb->set_string(i, sstr[(i - 5) % 9]);
@@ -718,15 +727,100 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
 		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
 
-		std::cout << pjb->find_attribute(204) << std::endl;
+// Removed, since it assumes map are sorted by key
+		// REQUIRE(pti[0] == 2477);
+		// REQUIRE(pti[1] == 3185);
+		// REQUIRE(pti[2] == 4420);
+		// REQUIRE(pti[3] == 6217);
+		// REQUIRE(pti[4] == 2);
+		// REQUIRE(pti[5] == 24);
+		// REQUIRE(pti[6] == 30);
+		// REQUIRE(pti[7] == 56);
 
-		REQUIRE(!strcmp(pjb->find_attribute(204),	   "http://www.google.com"));
-		REQUIRE(!strcmp(pjb->find_attribute(99003224), "en_us"));
-		REQUIRE(!strcmp(pjb->find_attribute(54321),	   "This is a stupid sentence"));
-		REQUIRE(!strcmp(pjb->find_attribute(982255),   "mp17/hologram"));
+
+		char *pt = reinterpret_cast<char *>(&pjb->pStringBuffer()->buffer[2]);
+
+		REQUIRE((uintptr_t) pt == (uintptr_t) psb + 14);
+
+// Removed, since it assumes map are sorted by key
+		// REQUIRE(pt[ 0] == 'h');
+		// REQUIRE(pt[ 1] == 't');
+		// REQUIRE(pt[ 2] == 't');
+		// REQUIRE(pt[ 3] == 'p');
+		// REQUIRE(pt[ 4] == ':');
+		// REQUIRE(pt[ 5] == '/');
+		// REQUIRE(pt[ 6] == '/');
+		// REQUIRE(pt[ 7] == 'w');
+		// REQUIRE(pt[ 8] == 'w');
+		// REQUIRE(pt[ 9] == 'w');
+
+		// REQUIRE(pt[10] == '.');
+		// REQUIRE(pt[11] == 'g');
+		// REQUIRE(pt[12] == 'o');
+		// REQUIRE(pt[13] == 'o');
+		// REQUIRE(pt[14] == 'g');
+		// REQUIRE(pt[15] == 'l');
+		// REQUIRE(pt[16] == 'e');
+		// REQUIRE(pt[17] == '.');
+		// REQUIRE(pt[18] == 'c');
+		// REQUIRE(pt[19] == 'o');
+
+		// REQUIRE(pt[20] == 'm');
+		// REQUIRE(pt[21] == 0);
+		// REQUIRE(pt[22] == 'e');
+		// REQUIRE(pt[23] == 'n');
+		// REQUIRE(pt[24] == '_');
+		// REQUIRE(pt[25] == 'u');
+		// REQUIRE(pt[26] == 's');
+		// REQUIRE(pt[27] == 0);
+		// REQUIRE(pt[28] == 'T');
+		// REQUIRE(pt[29] == 'h');
+
+		REQUIRE(!strcmp(pjb->find_attribute(2477), "http://www.google.com"));
+		REQUIRE(!strcmp(pjb->find_attribute(3185), "en_us"));
+		REQUIRE(!strcmp(pjb->find_attribute(4420), "This is a stupid sentence"));
+		REQUIRE(!strcmp(pjb->find_attribute(6217), "mp17/hologram"));
 
 		REQUIRE(pjb->find_attribute(123) == nullptr);
 
-//TODO: get_attributes() test
+		AllAttributes read_att;
+
+		pjb->get_attributes(read_att);
+
+		REQUIRE(!strcmp(read_att[2477], "http://www.google.com"));
+		REQUIRE(!strcmp(read_att[3185], "en_us"));
+		REQUIRE(!strcmp(read_att[4420], "This is a stupid sentence"));
+		REQUIRE(!strcmp(read_att[6217], "mp17/hologram"));
+
+		read_att[8210] = pjb->get_string(d1);
+		read_att[8691] = pjb->get_string(d2);
+		read_att[0206] = pjb->get_string(d3);
+		read_att[3157] = pjb->get_string(d4);
+
+		REQUIRE(!strcmp(read_att[8210], "This is not Shakespeare"));
+		REQUIRE(!strcmp(read_att[8691], "Halaaa"));
+		REQUIRE(!strcmp(read_att[0206], "Wof"));
+		REQUIRE(!strcmp(read_att[3157], "Wof, wof, wof"));
+
+		read_att[2477] = pjb->get_string(d1);
+		read_att[3185] = pjb->get_string(d2);
+		read_att[4420] = pjb->get_string(d3);
+		read_att[6217] = pjb->get_string(d4);
+
+		REQUIRE(!strcmp(read_att[2477], "This is not Shakespeare"));
+		REQUIRE(!strcmp(read_att[3185], "Halaaa"));
+		REQUIRE(!strcmp(read_att[4420], "Wof"));
+		REQUIRE(!strcmp(read_att[6217], "Wof, wof, wof"));
+
+		pjb->get_attributes(read_att);
+
+		REQUIRE(!strcmp(read_att[2477], "http://www.google.com"));
+		REQUIRE(!strcmp(read_att[3185], "en_us"));
+		REQUIRE(!strcmp(read_att[4420], "This is a stupid sentence"));
+		REQUIRE(!strcmp(read_att[6217], "mp17/hologram"));
+		REQUIRE(!strcmp(read_att[8210], "This is not Shakespeare"));
+		REQUIRE(!strcmp(read_att[8691], "Halaaa"));
+		REQUIRE(!strcmp(read_att[0206], "Wof"));
+		REQUIRE(!strcmp(read_att[3157], "Wof, wof, wof"));
 	}
 }
