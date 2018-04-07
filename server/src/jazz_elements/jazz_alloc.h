@@ -53,6 +53,68 @@ in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
 namespace jazz_alloc
 {
 
+/* ----------------------------------------------------------------------------
+
+	GEM : MCTS vs GrQ experiments for my PhD thesis : AATree based priority queue
+
+	Author : Jacques Basaldúa (jacques@dybot.com)
+
+	Version       : 2.0
+	Date          : 2012/03/27	(Using Pre 2012 GEM and Pre 2012 ModelSel)
+	Last modified :
+
+	(c) Jacques Basaldúa, 2009-2012
+
+-------------------------------------------------------------------------------
+
+Revision history :
+
+	Version		  : 1.0
+	Date		  : 2010/01/21
+
+
+#pragma once
+
+#include "stdafx.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <xstring>
+#include <math.h>
+
+using namespace std;
+
+#include "GEMtypes.h"
+
+
+bool   TestLibFunctions	();
+bool   TestLibClasses	();
+
+
+class ModelBuffer
+{
+public:
+
+			ModelBuffer();
+		   ~ModelBuffer();
+
+	bool	AllocModels			   (int numModels);
+
+	pgModel GetFreeModel			   ();
+	void	PushModelToPriorityQueue(pgModel pM);
+	pgModel GetHighestPriorityModel ();
+
+	pgModel pQueueRoot;
+
+private:
+
+	pgModel pBuffBase, pFirstFree;
+	int		numAllocM;
+};
+
+*/
+
 } // namespace jazz_alloc
 
 #endif
