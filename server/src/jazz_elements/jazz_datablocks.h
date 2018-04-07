@@ -365,7 +365,7 @@ class JazzBlock: public JazzBlockHeader {
 
 			NOTE: The actual values (which are strings) are stored in the same JazzStringBuffer containing the strings of the tensor
 			(if any). This array has double the num_attributes size and stores the keys in the lower part and the offsets to the
-			vualues on the upper part.
+			values on the upper part.
 		*/
 		inline int *pAttribute_keys() {
 			return align_128bit((uintptr_t) &tensor[0] + (cell_type & 0xf)*size);
