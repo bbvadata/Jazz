@@ -48,6 +48,6 @@ in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
 namespace jazz_alloc
 {
 
-}
+} // namespace jazz_alloc
 
 #endif

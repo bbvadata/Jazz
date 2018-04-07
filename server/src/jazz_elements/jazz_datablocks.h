@@ -386,6 +386,6 @@ typedef JazzBlock *pJazzBlock;
 extern float  F_NA;		///< NaN in single
 extern double R_NA;		///< NaN in double
 
-}
+} // namespace jazz_datablocks
 
 #endif

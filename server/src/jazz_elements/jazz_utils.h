@@ -137,6 +137,6 @@ class JazzLogger {
 };
 
 
-}
+} // namespace jazz_utils
 
 #endif
