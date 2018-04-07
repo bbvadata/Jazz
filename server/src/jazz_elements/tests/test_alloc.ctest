@@ -25,3 +25,16 @@
 using namespace jazz_alloc;
 
 
+SCENARIO("Testing JazzBlock allocation")
+{
+	GIVEN("Something")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+				REQUIRE(2 + 2 == 4);
+			}
+		}
+	}
+}
