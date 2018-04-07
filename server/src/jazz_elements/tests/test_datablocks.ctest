@@ -677,7 +677,7 @@ SCENARIO("Testing String and Attribute logic")
 
 		REQUIRE(pjb->num_attributes == 4);
 
-// Removed, since it assumes map are sorted by key
+// Removed, since it assumes maps are sorted by key
 		// REQUIRE(pti[0] == 2477);
 		// REQUIRE(pti[1] == 3185);
 		// REQUIRE(pti[2] == 4420);
@@ -727,7 +727,7 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
 		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
 
-// Removed, since it assumes map are sorted by key
+// Removed, since it assumes maps are sorted by key
 		// REQUIRE(pti[0] == 2477);
 		// REQUIRE(pti[1] == 3185);
 		// REQUIRE(pti[2] == 4420);
@@ -742,7 +742,7 @@ SCENARIO("Testing String and Attribute logic")
 
 		REQUIRE((uintptr_t) pt == (uintptr_t) psb + 14);
 
-// Removed, since it assumes map are sorted by key
+// Removed, since it assumes maps are sorted by key
 		// REQUIRE(pt[ 0] == 'h');
 		// REQUIRE(pt[ 1] == 't');
 		// REQUIRE(pt[ 2] == 't');
