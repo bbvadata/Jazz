@@ -28,7 +28,6 @@
 #include <string.h>
 #include <iostream>
 
-//TODO: Initialization with attributes requires setting num_attributes first to allocate the string buffer, then zero to call set_attributes.
 
 /**< \brief Basic Jazz codeless data types and constants.
 
@@ -303,6 +302,8 @@ class JazzBlock: public JazzBlockHeader {
 			if (num_attributes) return;
 
 			num_attributes = all_att.size();
+			init_string_buffer();
+
 			int i = 0;
 			int *ptk = pAttribute_keys();
 			pJazzStringBuffer psb = pStringBuffer();
