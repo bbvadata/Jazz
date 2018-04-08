@@ -29,9 +29,9 @@
 #include <iostream>
 
 
-/**< \brief Basic Jazz codeless data types and constants.
+/**< \brief Basic Jazz codeless structures, constants and the class JazzBlock.
 
-	This module defines the constants and codeless structures to create JazzDataBlock structures.
+	This module defines the logic to get/set data from/to JazzBlock objects at the simplest level.
 */
 
 
@@ -100,7 +100,7 @@ struct JazzBlockHeader
 	int total_bytes;			///< Total size of the block everything included
 	bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
 	TimePoint created;			///< Timestamp when the block was created
-	long long hash64;			///< Hash of everything but the header
+	uint64_t hash64;			///< Hash of everything but the header
 
 	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
 };
