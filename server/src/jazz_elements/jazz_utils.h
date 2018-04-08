@@ -31,9 +31,8 @@
 
 /**< \brief Miscelaneous utility functions for Jazz.
 
-	This module defines many unrelated functions needed by Jazz. The only rule is: functions, not classes and
-without global variables. For example, the logger does not belong here, since it is a configurable object, but
-some elements of the logger that are just pure functions are here.
+	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
+without global variables.
 */
 
 
