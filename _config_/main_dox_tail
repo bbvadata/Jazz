@@ -22,7 +22,7 @@ This diagram shows the structure of a JazzBlock.\n
 
 By file location:\n
 \n
-A. jazz_elements/jazz_alloc.h\n
+A. jazz_elements/jazz_containers.h\n
 B. jazz_elements/jazz_persistence.h\n
 C. jazz_functional/jazz_column.h\n
 D. jazz_functional/jazz_archive.h\n
