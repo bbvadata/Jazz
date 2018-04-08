@@ -72,20 +72,20 @@ using namespace std;
 
 
 
-// pgModel skew(pgModel pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
+// pJazzQueueItem skew(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
 // ----------------------
 
 // input: T, a node representing an AA tree that needs to be rebalanced.
 // output: Another node representing the rebalanced AA tree.
 
-inline pgModel skew(pgModel pT)
+inline pJazzQueueItem skew(pJazzQueueItem pT)
 {
-	// rotate pAllocNext if pAllocPrev child has same level
-	if (pT->pAllocPrev && pT->level == pT->pAllocPrev->level)
+	// rotate p_alloc_next if p_alloc_prev child has same level
+	if (pT->p_alloc_prev && pT->level == pT->p_alloc_prev->level)
 	{
-		pgModel pL = pT->pAllocPrev;
-		pT->pAllocPrev = pL->pAllocNext;
-		pL->pAllocNext = pT;
+		pJazzQueueItem pL = pT->p_alloc_prev;
+		pT->p_alloc_prev = pL->p_alloc_next;
+		pL->p_alloc_next = pT;
 
 		return pL;
 	}
@@ -94,20 +94,20 @@ inline pgModel skew(pgModel pT)
 };
 
 
-// pgModel split(pgModel pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
+// pJazzQueueItem split(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
 // -----------------------
 
 // input: N, a node representing an AA tree that needs to be rebalanced.
 // output: Another node representing the rebalanced AA tree.
 
-inline pgModel split(pgModel pT)
+inline pJazzQueueItem split(pJazzQueueItem pT)
 {
-	// rotate pAllocPrev if there are two pAllocNext children on same level
-	if (pT->pAllocNext && pT->pAllocNext->pAllocNext && pT->level == pT->pAllocNext->pAllocNext->level)
+	// rotate p_alloc_prev if there are two p_alloc_next children on same level
+	if (pT->p_alloc_next && pT->p_alloc_next->p_alloc_next && pT->level == pT->p_alloc_next->p_alloc_next->level)
 	{
-		pgModel pR = pT->pAllocNext;
-		pT->pAllocNext = pR->pAllocPrev;
-		pR->pAllocPrev = pT;
+		pJazzQueueItem pR = pT->p_alloc_next;
+		pT->p_alloc_next = pR->p_alloc_prev;
+		pR->p_alloc_prev = pT;
 		pR->level++;
 
 		return pR;
@@ -117,13 +117,13 @@ inline pgModel split(pgModel pT)
 };
 
 
-// pgModel insert(pgModel pN, pgModel pT):
+// pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT):
 // -----------------------------------
 
 // input: N, the value to be inserted, and T, the root of the tree to insert it into.
 // output: A balanced version T including X.
 
-pgModel insert(pgModel pN, pgModel pT)
+pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT)
 {
 
 // Do the normal binary tree insertion procedure.  Set the result of the
@@ -133,15 +133,15 @@ pgModel insert(pgModel pN, pgModel pT)
     if (pT == NULL)
 	{
 		pN->level = 1;
-		pN->pAllocPrev = NULL;
-		pN->pAllocNext = NULL;
+		pN->p_alloc_prev = NULL;
+		pN->p_alloc_next = NULL;
 
 		return pN;
 	}
     else
 	{
-		if (pN->priority < pT->priority) pT->pAllocPrev = insert(pN, pT->pAllocPrev);
-		else							 pT->pAllocNext = insert(pN, pT->pAllocNext);
+		if (pN->priority < pT->priority) pT->p_alloc_prev = insert(pN, pT->p_alloc_prev);
+		else							 pT->p_alloc_next = insert(pN, pT->p_alloc_next);
 	}
 
 // Perform skew and then split.  The conditionals that determine whether or
@@ -154,48 +154,48 @@ pgModel insert(pgModel pN, pgModel pT)
 };
 
 
-// pgModel decrease_level(pgModel pT):
+// pJazzQueueItem decrease_level(pJazzQueueItem pT):
 // --------------------------------
 
 // input: T, a tree for which we want to remove links that skip levels.
 // output: T with its level decreased.
 
-inline void decrease_level(pgModel pT)
+inline void decrease_level(pJazzQueueItem pT)
 {
-	if (pT->pAllocPrev && pT->pAllocNext)
+	if (pT->p_alloc_prev && pT->p_alloc_next)
 	{
-		int should_be = min(pT->pAllocPrev->level, pT->pAllocNext->level + 1);
+		int should_be = min(pT->p_alloc_prev->level, pT->p_alloc_next->level + 1);
 
 		if (should_be < pT->level)
 		{
 			pT->level = should_be;
-			if (should_be < pT->pAllocNext->level) pT->pAllocNext->level = should_be;
+			if (should_be < pT->p_alloc_next->level) pT->p_alloc_next->level = should_be;
 		}
 	}
 };
 
 
-// pgModel remove(pgModel pN, pgModel pT):
+// pJazzQueueItem remove(pJazzQueueItem pN, pJazzQueueItem pT):
 // -----------------------------------
 
 // input: N, the node to remove, and T, the root of the tree from which it should be deleted.
 // output: T, balanced, without the node N.
 
-pgModel remove_hi(pgModel pN, pgModel pT)
+pJazzQueueItem remove_hi(pJazzQueueItem pN, pJazzQueueItem pT)
 {
 	if (pN == pT)
 	{
-		if (!pT->pAllocPrev)
+		if (!pT->p_alloc_prev)
 		{
-			pT = pT->pAllocNext;
+			pT = pT->p_alloc_next;
 			if (!pT) return NULL;
 		}
-		else pT = pT->pAllocPrev;
+		else pT = pT->p_alloc_prev;
 	}
 	else
 	{
-		if (pN->priority < pT->priority) pT->pAllocPrev = remove_hi(pN, pT->pAllocPrev);
-		else							 pT->pAllocNext = remove_hi(pN, pT->pAllocNext);
+		if (pN->priority < pT->priority) pT->p_alloc_prev = remove_hi(pN, pT->p_alloc_prev);
+		else							 pT->p_alloc_next = remove_hi(pN, pT->p_alloc_next);
 	};
 
 // Rebalance the tree.  Decrease the level of all nodes in this level if
@@ -203,33 +203,33 @@ pgModel remove_hi(pgModel pN, pgModel pT)
 
     decrease_level(pT);
     pT = skew(pT);
-	if (pT->pAllocNext)
+	if (pT->p_alloc_next)
 	{
-		pT->pAllocNext = skew(pT->pAllocNext);
-		if (pT->pAllocNext->pAllocNext) pT->pAllocNext->pAllocNext = skew(pT->pAllocNext->pAllocNext);
+		pT->p_alloc_next = skew(pT->p_alloc_next);
+		if (pT->p_alloc_next->p_alloc_next) pT->p_alloc_next->p_alloc_next = skew(pT->p_alloc_next->p_alloc_next);
 	};
 	pT = split(pT);
-	if (pT->pAllocNext) pT->pAllocNext = split(pT->pAllocNext);
+	if (pT->p_alloc_next) pT->p_alloc_next = split(pT->p_alloc_next);
 
     return pT;
 };
 
 
-pgModel remove_lo(pgModel pN, pgModel pT)
+pJazzQueueItem remove_lo(pJazzQueueItem pN, pJazzQueueItem pT)
 {
 	if (pN == pT)
 	{
-		if (!pT->pAllocPrev)
+		if (!pT->p_alloc_prev)
 		{
-			pT = pT->pAllocNext;
+			pT = pT->p_alloc_next;
 			if (!pT) return NULL;
 		}
-		else pT = pT->pAllocPrev;
+		else pT = pT->p_alloc_prev;
 	}
 	else
 	{
-		if (pN->priority <= pT->priority) pT->pAllocPrev = remove_lo(pN, pT->pAllocPrev);
-		else							  pT->pAllocNext = remove_lo(pN, pT->pAllocNext);
+		if (pN->priority <= pT->priority) pT->p_alloc_prev = remove_lo(pN, pT->p_alloc_prev);
+		else							  pT->p_alloc_next = remove_lo(pN, pT->p_alloc_next);
 	};
 
 // Rebalance the tree.  Decrease the level of all nodes in this level if
@@ -237,45 +237,45 @@ pgModel remove_lo(pgModel pN, pgModel pT)
 
     decrease_level(pT);
     pT = skew(pT);
-	if (pT->pAllocNext)
+	if (pT->p_alloc_next)
 	{
-		pT->pAllocNext = skew(pT->pAllocNext);
-		if (pT->pAllocNext->pAllocNext) pT->pAllocNext->pAllocNext = skew(pT->pAllocNext->pAllocNext);
+		pT->p_alloc_next = skew(pT->p_alloc_next);
+		if (pT->p_alloc_next->p_alloc_next) pT->p_alloc_next->p_alloc_next = skew(pT->p_alloc_next->p_alloc_next);
 	};
 	pT = split(pT);
-	if (pT->pAllocNext) pT->pAllocNext = split(pT->pAllocNext);
+	if (pT->p_alloc_next) pT->p_alloc_next = split(pT->p_alloc_next);
 
     return pT;
 };
 
 
-// pgModel HighestPriority(pgModel pT):
+// pJazzQueueItem HighestPriority(pJazzQueueItem pT):
 // -----------------------------------
 
 // input: T, the root of the tree from which we want the highest priority node.
 // output: The node N (Tree not modified.)
 
-inline pgModel HighestPriority(pgModel pT)
+inline pJazzQueueItem HighestPriority(pJazzQueueItem pT)
 {
 	if (pT)
 	{
-		while (pT->pAllocNext) pT = pT->pAllocNext;
+		while (pT->p_alloc_next) pT = pT->p_alloc_next;
 	};
 
 	return pT;
 };
 
-// pgModel LowestPriority(pgModel pT):
+// pJazzQueueItem LowestPriority(pJazzQueueItem pT):
 // -----------------------------------
 
 // input: T, the root of the tree from which we want the lowest priority node.
 // output: The node N (Tree not modified.)
 
-inline pgModel LowestPriority(pgModel pT)
+inline pJazzQueueItem LowestPriority(pJazzQueueItem pT)
 {
 	if (pT)
 	{
-		while (pT->pAllocPrev) pT = pT->pAllocPrev;
+		while (pT->p_alloc_prev) pT = pT->p_alloc_prev;
 	};
 
 	return pT;
@@ -321,22 +321,22 @@ bool ModelBuffer::AllocModels(int numModels)
 
 	int i;
 
-	for (i = 0; i < numAllocM - 1; i++) pBuffBase[i].pAllocNext = &pBuffBase[i + 1];
+	for (i = 0; i < numAllocM - 1; i++) pBuffBase[i].p_alloc_next = &pBuffBase[i + 1];
 
 	return true;
 };
 
 
-pgModel ModelBuffer::GetFreeModel()
+pJazzQueueItem ModelBuffer::GetFreeModel()
 {
 	if (pFirstFree)
 	{
-		pgModel pM = pFirstFree;
-		pFirstFree = pM->pAllocNext;
+		pJazzQueueItem pM = pFirstFree;
+		pFirstFree = pM->p_alloc_next;
 		return pM;
 	};
 
-	pgModel pLP = LowestPriority(pQueueRoot);
+	pJazzQueueItem pLP = LowestPriority(pQueueRoot);
 
 	pQueueRoot = remove_lo(pLP, pQueueRoot);
 
@@ -344,22 +344,22 @@ pgModel ModelBuffer::GetFreeModel()
 };
 
 
-void ModelBuffer::PushModelToPriorityQueue(pgModel pM)
+void ModelBuffer::PushModelToPriorityQueue(pJazzQueueItem pM)
 {
 	pQueueRoot = insert(pM, pQueueRoot);
 };
 
 
-pgModel ModelBuffer::GetHighestPriorityModel()
+pJazzQueueItem ModelBuffer::GetHighestPriorityModel()
 {
-	pgModel pHP = HighestPriority(pQueueRoot);
+	pJazzQueueItem pHP = HighestPriority(pQueueRoot);
 
 	if (pHP)
 	{
 		pQueueRoot = remove_hi(pHP, pQueueRoot);
 
-		pHP->pAllocPrev = NULL;
-		pHP->pAllocNext = pFirstFree;
+		pHP->p_alloc_prev = NULL;
+		pHP->p_alloc_next = pFirstFree;
 		pFirstFree = pHP;
 	};
 

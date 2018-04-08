@@ -31,7 +31,7 @@ using namespace jazz_containers;
 
 /*
 
-void rec_TreeDump(int level, pgModel pT, ofstream& ofil)
+void rec_TreeDump(int level, pJazzQueueItem pT, ofstream& ofil)
 {
 	if (level < 20)
 	{
@@ -40,13 +40,13 @@ void rec_TreeDump(int level, pgModel pT, ofstream& ofil)
 		for (i = 0; i < level; i++) s = s + "  ";
 		ofil << s << pT->priority << "\n";
 
-		if (pT->pAllocNext)  rec_TreeDump(level + 1, pT->pAllocNext, ofil);
-		if (pT->pAllocPrev)  rec_TreeDump(level + 1, pT->pAllocPrev, ofil);
+		if (pT->p_alloc_next)  rec_TreeDump(level + 1, pT->p_alloc_next, ofil);
+		if (pT->p_alloc_prev)  rec_TreeDump(level + 1, pT->p_alloc_prev, ofil);
 	}
 };
 
 
-void TreeDump(pgModel pT)
+void TreeDump(pJazzQueueItem pT)
 {
 	ofstream ofil("C:\\ETC\\ModelSel\\TreeDump.txt");
 
@@ -63,7 +63,7 @@ bool TestLibFunctions()
 {
 	cout << "TestLibFunctions():";
 
-	pgModel pTBuffBase = new  (nothrow) Model_InGrQS [1000000];
+	pJazzQueueItem pTBuffBase = new  (nothrow) Model_InGrQS [1000000];
 	if (!pTBuffBase)
 	{
 		cout << "\n**Alloc failed**";
@@ -77,7 +77,7 @@ bool TestLibFunctions()
 		return false;
 	};
 
-	pgModel pN, pT;
+	pJazzQueueItem pN, pT;
 	int i, j, k, n;
 	double r;
 
@@ -203,7 +203,7 @@ bool TestLibClasses()
 
 	int i, j, k, n;
 	double r;
-	pgModel pM;
+	pJazzQueueItem pM;
 
 	for (j = 3; j < 7; j++)
 	{
