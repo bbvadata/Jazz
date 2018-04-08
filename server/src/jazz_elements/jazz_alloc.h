@@ -27,13 +27,24 @@
 */
 
 
-/**< \brief Allocation functions for Jazz.
+#include <map>
 
-	This module defines functions to explicitely allocate RAM for JazzDataBlock structures. The module is
+
+/**< \brief Container classes for JazzBlock objects.
+
+  JazzBlock objects can be:\n
+
+1. One-shot - Owned by the caller of new_jazz_block()\n
+2. Volatile - Owned by some JazzBlockKeepr descendant that is not a JazzPersistence (or descendant)\n
+3. Persisted - Owned by a JazzPersistence (or descendant), typically a JazzSource
+
+This module defines functions to explicitely allocate RAM for JazzDataBlock structures. The module is
 functional and understands ownership of pointers between persisted, volatile or one-shot JazzDataBlock
 structures. JazzDataObject descendants are memory-wise just JazzDataBlock structures belonging to a class,
 so their allocation will also be handled by this module and not via "fancy" C++ object allocation. Unlike
 in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
+
+
 */
 
 
@@ -50,8 +61,63 @@ in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
 #ifndef INCLUDED_JAZZ_ELEMENTS_ALLOC
 #define INCLUDED_JAZZ_ELEMENTS_ALLOC
 
+
 namespace jazz_alloc
 {
+
+#define JAZZ_MAX_BLOCK_ID_LENGTH	   24		///< AAA
+
+struct JazzBlockIdentifier {
+	char key[JAZZ_MAX_BLOCK_ID_LENGTH];
+};
+
+typedef uint64_t JazzBlockId64;
+
+struct JazzBlockKeeprItem {
+
+};
+
+struct JazzTreeItem: JazzBlockKeeprItem {
+
+};
+
+struct JazzQueueItem: JazzBlockKeeprItem {
+
+};
+
+typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
+
+class JazzBlockKeepr {
+
+};
+
+class JazzTree: public JazzBlockKeepr {
+
+};
+
+class AATBlockQueue {
+
+};
+
+class JazzCache: public JazzBlockKeepr {
+
+};
+
+
+// {
+// 	int	cell_type;				///< The type for the cells in the tensor. See CELL_TYPE_*
+// 	int	rank;					///< The number of dimensions
+// 	JazzTensorDim dim_offs;		///< The dimensions of the tensor in terms of offsets (Max. size is 2 Gb.)
+// 	int size;					///< The total number of cells in the tensor
+// 	int num_attributes;			///< Number of elements in the JazzAttributesMap
+// 	int total_bytes;			///< Total size of the block everything included
+// 	bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
+// 	TimePoint created;			///< Timestamp when the block was created
+// 	long long hash64;			///< Hash of everything but the header
+
+// 	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
+// };
+
 
 /* ----------------------------------------------------------------------------
 
