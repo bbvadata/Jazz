@@ -63,12 +63,21 @@ in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
 namespace jazz_containers
 {
 
-#define JAZZ_MAX_BLOCK_ID_LENGTH	   24		///< AAA
+#define JAZZ_MAX_BLOCK_ID_LENGTH	   									24		///< Maximum length for a block name
+#define JAZZ_REGEX_VALIDATE_BLOCK_ID	"^(/|\\.)[[:alnum:]_]{1,22}\\x00$"		///< Regex validating a JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   									'.'		///< First char of a LOCAL JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   									'/'		///< First char of a DITRIBUTED JazzBlockIdentifier
 
+
+/** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
+the JazzBlock in a JazzPersistence, JazzSource or via the API source.block (local) source/block (distributed).
+*/
 struct JazzBlockIdentifier {
 	char key[JAZZ_MAX_BLOCK_ID_LENGTH];
 };
 
+/** A binary block identifier. It is a MurmurHash64A of the JazzBlockIdentifier computed with JazzBlockKeepr.hash_block_id
+*/
 typedef uint64_t JazzBlockId64;
 
 struct JazzBlockKeeprItem {
@@ -86,6 +95,8 @@ struct JazzQueueItem: JazzBlockKeeprItem {
 typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 
 class JazzBlockKeepr {
+
+	inline JazzBlockId64 hash_block_id(const JazzBlockIdentifier pBI);
 
 };
 
