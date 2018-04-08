@@ -1,6 +1,11 @@
 ## Jazz
 
-Jazz a lightweight modular data processing framework, including a web server. It provides data persistence and computation capabilities accessible from R and Python and also through a REST API. 
+Jazz is a lightweight modular data processing framework, including a web server. It provides data persistence and computation capabilities accessible from R and Python and also through a REST API. 
+
+
+## Jazz modules diagram
+
+![Jazz modules](https://kaalam.github.io/develop_jazz02/diagrams/jazz_modules.png)
 
 
 ## History and Objectives
@@ -17,7 +22,7 @@ Special thanks to Roberto Maestre and Israel Herraiz who have been discussing th
 
 ## Next Steps
 
-  - Jazz version 0.2.1 is expected for april 2018.
+  - Jazz version 0.3.1 is expected for the end of april 2018.
   - This repository is where it will happen. Stay Tuned.
   
 ## Version 0.1.7 (The released sources)
