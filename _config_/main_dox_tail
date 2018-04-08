@@ -4,7 +4,7 @@ Programming Documentation of the Jazz Server
 You can start with the class <a href="hierarchy.html">hierarchy</a>.
 
 \n
-\section jazz_blocks JazzBlock
+\section jazz_blocks JazzBlock 101
 
 ![Jazz modules](diagrams/jazz_block.png)
 
@@ -16,7 +16,7 @@ This diagram shows the structure of a JazzBlock.\n
 4. See jazz_elements/jazz_datablocks.h JazzStringBuffer - Address returned by JazzBlock.pStringBuffer()\n
 
 \n
-\section jazz_keepr JazzBlockKeepr
+\section jazz_keepr JazzBlockKeepr 101
 
 ![Jazz modules](diagrams/jazz_block_keeper.png)
 
@@ -36,7 +36,7 @@ JazzBlocks can be:\n
 3. **Persisted** - Owned by a JazzPersistence (or descendant), typically a JazzSource\n
 
 \n
-\section jazz_mods Jazz Modules
+\section jazz_mods Jazz Modules 101
 
 ![Jazz modules](diagrams/jazz_modules.png)
 
