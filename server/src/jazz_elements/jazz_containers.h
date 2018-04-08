@@ -38,10 +38,8 @@
 2. Volatile - Owned by some JazzBlockKeepr descendant that is not a JazzPersistence (or descendant)\n
 3. Persisted - Owned by a JazzPersistence (or descendant), typically a JazzSource
 
-This module defines functions to explicitely allocate RAM for JazzDataBlock structures. The module is
-functional and understands ownership of pointers between persisted, volatile or one-shot JazzDataBlock
-structures. JazzDataObject descendants are memory-wise just JazzDataBlock structures belonging to a class,
-so their allocation will also be handled by this module and not via "fancy" C++ object allocation. Unlike
+
+Unlike
 in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
 
 
@@ -58,11 +56,11 @@ in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
 #endif
 
 
-#ifndef INCLUDED_JAZZ_ELEMENTS_ALLOC
-#define INCLUDED_JAZZ_ELEMENTS_ALLOC
+#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
 
 
-namespace jazz_alloc
+namespace jazz_containers
 {
 
 #define JAZZ_MAX_BLOCK_ID_LENGTH	   24		///< AAA
@@ -181,6 +179,6 @@ private:
 
 */
 
-} // namespace jazz_alloc
+} // namespace jazz_containers
 
 #endif

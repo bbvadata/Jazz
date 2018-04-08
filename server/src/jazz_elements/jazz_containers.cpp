@@ -1,12 +1,17 @@
 /* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
 
-   BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+   1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+      exclusively for the use in the Jazz server software.
 
-   Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+	  Copyright 2009-2012 Jacques Basaldúa
 
-  This product includes software developed at
+   2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
-   BBVA (https://www.bbva.com/)
+   		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+	  This product includes software developed at
+
+	   BBVA (https://www.bbva.com/)
 
    Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -22,10 +27,10 @@
 */
 
 
-#include "src/jazz_elements/jazz_alloc.h"
+#include "src/jazz_elements/jazz_containers.h"
 
 
-namespace jazz_alloc
+namespace jazz_containers
 {
 
 
@@ -363,9 +368,9 @@ pgModel ModelBuffer::GetHighestPriorityModel()
 
 */
 
-} // namespace jazz_alloc
+} // namespace jazz_containers
 
 
 #if defined CATCH_TEST
-#include "src/jazz_elements/tests/test_alloc.ctest"
+#include "src/jazz_elements/tests/test_containers.ctest"
 #endif
