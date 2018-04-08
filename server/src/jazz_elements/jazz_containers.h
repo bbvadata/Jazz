@@ -30,6 +30,9 @@
 #include <map>
 
 
+#include "src/jazz_elements/jazz_datablocks.h"
+#include "src/jazz_elements/jazz_utils.h"
+
 /**< \brief Container classes for JazzBlock objects.
 
   JazzBlock objects can be:\n
@@ -76,16 +79,32 @@ struct JazzBlockIdentifier {
 	char key[JAZZ_MAX_BLOCK_ID_LENGTH];
 };
 
+
 /** A binary block identifier. It is a MurmurHash64A of the JazzBlockIdentifier computed with JazzBlockKeepr.hash_block_id
 */
 typedef uint64_t JazzBlockId64;
 
-struct JazzBlockKeeprItem {
 
+typedef struct JazzBlockKeeprItem *pJazzBlockKeeprItem;			///< A pointer to a JazzBlockKeeprItem
+typedef struct JazzTreeItem 	  *pJazzTreeItem;				///< A pointer to a JazzTreeItem
+typedef struct JazzQueueItem 	  *pJazzQueueItem;				///< A pointer to a JazzQueueItem
+
+
+/** All volatile JazzBlock objects are tracked in a double linked list of JazzBlockKeeprItem descendants.
+The JazzBlockKeeprItem structure is the minimum to allocate the objects in the list
+*/
+struct JazzBlockKeeprItem {
+	jazz_datablocks::pJazzBlock	p_jazz_block;					///< A pointer to the JazzBlock
+	int		   					size;							///< The size of the JazzBlockKeeprItem descendent
+	pJazzBlockKeeprItem			p_alloc_prev, p_alloc_next;		///< A pair of pointers to keep this (the descendant) in a double linked list
+	JazzBlockId64				block_id64;						///< Hash of block_id (or zero, if not set)
+	JazzBlockIdentifier			block_id;						///< The block ID ((!block_id[0]), if not set)
 };
+
 
 struct JazzTreeItem: JazzBlockKeeprItem {
 
+	pJazzTreeItem	p_parent, p_first_child, p_next_sibling;
 };
 
 struct JazzQueueItem: JazzBlockKeeprItem {
@@ -96,7 +115,7 @@ typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 
 class JazzBlockKeepr {
 
-	inline JazzBlockId64 hash_block_id(const JazzBlockIdentifier pBI);
+	inline void hash_block_id();
 
 };
 
@@ -112,67 +131,13 @@ class JazzCache: public JazzBlockKeepr {
 
 };
 
-
-// {
-// 	int	cell_type;				///< The type for the cells in the tensor. See CELL_TYPE_*
-// 	int	rank;					///< The number of dimensions
-// 	JazzTensorDim dim_offs;		///< The dimensions of the tensor in terms of offsets (Max. size is 2 Gb.)
-// 	int size;					///< The total number of cells in the tensor
-// 	int num_attributes;			///< Number of elements in the JazzAttributesMap
-// 	int total_bytes;			///< Total size of the block everything included
-// 	bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
-// 	TimePoint created;			///< Timestamp when the block was created
-// 	long long hash64;			///< Hash of everything but the header
-
-// 	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
-// };
-
-
-/* ----------------------------------------------------------------------------
-
-	GEM : MCTS vs GrQ experiments for my PhD thesis : AATree based priority queue
-
-	Author : Jacques Basaldúa (jacques@dybot.com)
-
-	Version       : 2.0
-	Date          : 2012/03/27	(Using Pre 2012 GEM and Pre 2012 ModelSel)
-	Last modified :
-
-	(c) Jacques Basaldúa, 2009-2012
-
--------------------------------------------------------------------------------
-
-Revision history :
-
-	Version		  : 1.0
-	Date		  : 2010/01/21
-
-
-#pragma once
-
-#include "stdafx.h"
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <xstring>
-#include <math.h>
-
-using namespace std;
-
-#include "GEMtypes.h"
-
-
-bool   TestLibFunctions	();
-bool   TestLibClasses	();
-
-
-class ModelBuffer
+/*
+class AATBlockQueue
 {
 public:
 
-			ModelBuffer();
-		   ~ModelBuffer();
+			AATBlockQueue();
+		   ~AATBlockQueue();
 
 	bool	AllocModels			   (int numModels);
 
