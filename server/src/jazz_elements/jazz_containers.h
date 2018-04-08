@@ -102,16 +102,24 @@ struct JazzBlockKeeprItem {
 };
 
 
+/** The root class for different JazzTree descendants
+*/
 struct JazzTreeItem: JazzBlockKeeprItem {
 
-	pJazzTreeItem	p_parent, p_first_child, p_next_sibling;
+	pJazzTreeItem	p_parent, p_first_child, p_next_sibling;	///< Pointers to navigate the tree
+	int				_nul_;										///< For alignment to 16 bytes
 };
 
+
+/** The root class for different AATBlockQueue descendants
+*/
 struct JazzQueueItem: JazzBlockKeeprItem {
-
+	double	priority;											///< A priority value to implement a priority queue
 };
+
 
 typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
+typedef std::map<void *, int> 								Jazz;
 
 class JazzBlockKeepr {
 
@@ -141,15 +149,15 @@ public:
 
 	bool	AllocModels			   (int numModels);
 
-	pgModel GetFreeModel			   ();
-	void	PushModelToPriorityQueue(pgModel pM);
-	pgModel GetHighestPriorityModel ();
+	pJazzQueueItem GetFreeModel			   ();
+	void	PushModelToPriorityQueue(pJazzQueueItem pM);
+	pJazzQueueItem GetHighestPriorityModel ();
 
-	pgModel pQueueRoot;
+	pJazzQueueItem pQueueRoot;
 
 private:
 
-	pgModel pBuffBase, pFirstFree;
+	pJazzQueueItem pBuffBase, pFirstFree;
 	int		numAllocM;
 };
 
