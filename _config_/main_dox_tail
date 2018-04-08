@@ -1,19 +1,20 @@
 Programming Documentation of the Jazz Server
 
 
-You can start with the object <a href="hierarchy.html">hierarchy</a>.
+You can start with the class <a href="hierarchy.html">hierarchy</a>.
 
 \n
 \section jazz_mods Jazz Modules
 
 ![Jazz modules](diagrams/jazz_modules.png)
 
-This diagram shows how the different Jazz module fit. Everything except the dotted nodes
+This diagram shows how the different Jazz modules fit. Everything except the dotted nodes
 is in the repository.\n
 \n
-A. Is the folder jazz_elemets (all the pieces that work on blocks)\n
+A. Is the folder jazz_elements (all the pieces that work on blocks)\n
 B. Is the folder jazz_functional (all the pieces that support higher level abstractions)\n
 C. Is the folder jazz_main (for the http server only)\n
+F. (not in this repo) Is where front-end developpers build, see the [REST API reference](http://kaalam.github.io/jazz_reference/rest_reference.html)\n
 \n
 You will typically use (5) for extending the backend in C++. (noted as (x))\n
 You will typically use (4) for connect to other languages, other than R & Python.\n
