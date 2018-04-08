@@ -56,22 +56,23 @@ fi
 
 cd server
 
-vpath=`echo src/*`
+testp=`echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' '`
+vpath=`echo src/*/ $testp`
 jzpat=`echo $vpath | sed 's/\ /\n/g' | grep jazz | tr '\n' ' '`
 
-cpps=`find src/ | grep '.*jazz_.*cpp$' | tr '\n' ' '`
-objs=`echo $cpps | sed 's/\ /\n/g' | sed 's/.*\(jazz_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' '`
+cpps=`find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' '`
+objs=`echo $cpps | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' '`
 
 depends ( )
 {
   for cpp in $cpps; do
-    obj=`echo $cpp | sed 's/.*\(jazz_.*cpp\)$/\1/' | sed 's/cpp/o/'`
+    obj=`echo $cpp | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/'`
     hea=`echo $cpp | sed 's/cpp$/h/'`
 
     if [ -e $hea ]; then
-      dep=`grep -rnw $cpp $hea -e '^#include.*\(jazz.*h\)' | sed 's/.*\(jazz.*h\).*/\1/'`
+      dep=`grep -rnw $cpp $hea -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/'`
     else
-      dep=`grep -rnw $cpp -e '^#include.*\(jazz.*h\)' | sed 's/.*\(jazz.*h\).*/\1/'`
+      dep=`grep -rnw $cpp -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/'`
     fi
 
     echo $obj: $dep
@@ -239,6 +240,8 @@ setup(name='pyjazz',
 
 printf "Ok.\n"
 
+
+mkdir -p py_package/html
 
 printf "Writing: py_package/html/index.md ... "
 

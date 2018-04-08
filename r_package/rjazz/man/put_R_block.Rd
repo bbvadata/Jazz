@@ -6,7 +6,9 @@ Write an R object as a data block
 }
 
 \description{
-Writes an R object as a data block of type BLOCKTYPE_C_BOOL, BLOCKTYPE_C_OFFS_CHARS, BLOCKTYPE_C_R_INTEGER or BLOCKTYPE_C_R_REAL for R objects of type logical, character, integer or numeric.
+Writes an R object as a data block of type BLOCKTYPE_C_BOOL, BLOCKTYPE_C_OFFS_CHARS,
+BLOCKTYPE_C_R_INTEGER or BLOCKTYPE_C_R_REAL for R objects of type logical, character,
+integer or numeric.
 }
 
 \usage{
@@ -15,16 +17,19 @@ put_R_block(source, block_key, sexp, host = .host.)
 
 \arguments{
   \item{source}{
-The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www' are user defined. Sources are 15 char long alphanumeric or underscore.
+The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www'
+are user defined. Sources are 15 char long alphanumeric or underscore.
 }
   \item{block_key}{
-The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can be user defined or created by new_key(). Also, meshes use block keys internally.
+The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can
+be user defined or created by new_key(). Also, meshes use block keys internally.
 }
   \item{sexp}{
 The R object written into the block. Must be logical, character, integer or numeric.
 }
   \item{host}{
-(Optional) the name of the jazz server host (including the port). Usually set just once via set_jazz_host().
+(Optional) the name of the jazz server host (including the port). Usually set just once via
+set_jazz_host().
 }
 }
 
@@ -63,7 +68,8 @@ create_block_seq('demo_types', 'blk_2', 3L, 6)
 
 get_block_attributes('demo_types', 'blk_2')
 
-# The block is interpreted as data by the server, it is an integer and can be converted to any integer type.
+# The block is interpreted as data by the server, it is an integer and can be converted to
+any integer type.
 set_compatible_data_type('demo_types', 'blk_2', type_const[['BLOCKTYPE_C_R_GRADE']])
 
 get_block_attributes('demo_types', 'blk_2')

@@ -6,7 +6,8 @@ Read a data block as an R object
 }
 
 \description{
-Reads a data block as an R object. The server automatically converts the appropriate data type into logical, integer, numeric or character.
+Reads a data block as an R object. The server automatically converts the appropriate data
+type into logical, integer, numeric or character.
 }
 
 \usage{
@@ -15,16 +16,20 @@ get_R_block(source, block_key, host = .host., buffsize = 1048576)
 
 \arguments{
   \item{source}{
-The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www' are user defined. Sources are 15 char long alphanumeric or underscore.
+The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www'
+are user defined. Sources are 15 char long alphanumeric or underscore.
 }
   \item{block_key}{
-The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can be user defined or created by new_key(). Also, meshes use block keys internally.
+The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can
+be user defined or created by new_key(). Also, meshes use block keys internally.
 }
   \item{host}{
-(Optional) the name of the jazz server host (including the port). Usually set just once via set_jazz_host().
+(Optional) the name of the jazz server host (including the port). Usually set just once via
+set_jazz_host().
 }
   \item{buffsize}{
-(Default = 1 Mb) the size of the buffer to download binary objects. Must be bigger or equal to the size of the block downloaded.
+(Default = 1 Mb) the size of the buffer to download binary objects. Must be bigger or equal
+to the size of the block downloaded.
 }
 }
 

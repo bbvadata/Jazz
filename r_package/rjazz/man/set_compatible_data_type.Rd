@@ -6,7 +6,8 @@ Change the type of a data block to a binary compatible type
 }
 
 \description{
-Changes the type of a data block to a binary compatible type without changing its contents. This is only valid between integer types (integer, sorted
+Changes the type of a data block to a binary compatible type without changing its contents.
+This is only valid between integer types (integer, sorted
 and categorical) and real types (double and time). This can also be used to change within raw types.
 }
 
@@ -16,16 +17,20 @@ set_compatible_data_type(source, block_key, type, host = .host.)
 
 \arguments{
   \item{source}{
-The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www' are user defined. Sources are 15 char long alphanumeric or underscore.
+The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www'
+are user defined. Sources are 15 char long alphanumeric or underscore.
 }
   \item{block_key}{
-The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can be user defined or created by new_key(). Also, meshes use block keys internally.
+The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can
+be user defined or created by new_key(). Also, meshes use block keys internally.
 }
   \item{type}{
-The new type of the block. Must be binary compatible with the exiting type. BLOCKTYPE_C_INTEGER to BLOCKTYPE_C_FACTOR or BLOCKTYPE_C_GRADE and BLOCKTYPE_C_REAL to BLOCKTYPE_C_TIMESEC.
+The new type of the block. Must be binary compatible with the exiting type. BLOCKTYPE_C_INTEGER
+to BLOCKTYPE_C_FACTOR or BLOCKTYPE_C_GRADE and BLOCKTYPE_C_REAL to BLOCKTYPE_C_TIMESEC.
 }
   \item{host}{
-(Optional) the name of the jazz server host (including the port). Usually set just once via set_jazz_host().
+(Optional) the name of the jazz server host (including the port). Usually set just once via
+set_jazz_host().
 }
 }
 
@@ -64,7 +69,8 @@ create_block_seq('demo_types', 'blk_2', 3L, 6)
 
 get_block_attributes('demo_types', 'blk_2')
 
-# The block is interpreted as data by the server, it is an integer and can be converted to any integer type.
+# The block is interpreted as data by the server, it is an integer and can be converted to
+any integer type.
 set_compatible_data_type('demo_types', 'blk_2', type_const[['BLOCKTYPE_C_R_GRADE']])
 
 get_block_attributes('demo_types', 'blk_2')

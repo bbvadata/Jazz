@@ -15,23 +15,30 @@ put_strings_as_block(source, block_key, txt, type, fmt = NA, host = .host.)
 
 \arguments{
   \item{source}{
-The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www' are user defined. Sources are 15 char long alphanumeric or underscore.
+The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www'
+are user defined. Sources are 15 char long alphanumeric or underscore.
 }
   \item{block_key}{
-The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can be user defined or created by new_key(). Also, meshes use block keys internally.
+The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can
+be user defined or created by new_key(). Also, meshes use block keys internally.
 }
   \item{txt}{
-A single string with the rows separated by \\n or a vector of strings. The latter will be converted into the former automatically. The block will initially be a block of strings and then be converted into a binary block.
+A single string with the rows separated by \\n or a vector of strings. The latter will be
+converted into the former automatically. The block will initially be a block of strings and
+then be converted into a binary block.
 }
   \item{type}{
 The destination type. Possible formats are: BLOCKTYPE_C_BOOL..BLOCKTYPE_C_R_REAL.
 }
   \item{fmt}{
-(Optional) The (sscanf() compatible) format to convert the strings to binary data. Note: Each input line produces one data element row by row. Newline is not part of fmt. By default,
-this is set automatically to the simplest format for the type assuming strings do not contain any other characters than the decimal representation of the numbers.
+(Optional) The (sscanf() compatible) format to convert the strings to binary data. Note: Each
+input line produces one data element row by row. Newline is not part of fmt. By default,
+this is set automatically to the simplest format for the type assuming strings do not contain
+any other characters than the decimal representation of the numbers.
 }
   \item{host}{
-(Optional) the name of the jazz server host (including the port). Usually set just once via set_jazz_host().
+(Optional) the name of the jazz server host (including the port). Usually set just once via
+set_jazz_host().
 }
 }
 
@@ -70,7 +77,8 @@ create_block_seq('demo_types', 'blk_2', 3L, 6)
 
 get_block_attributes('demo_types', 'blk_2')
 
-# The block is interpreted as data by the server, it is an integer and can be converted to any integer type.
+# The block is interpreted as data by the server, it is an integer and can be converted to
+any integer type.
 set_compatible_data_type('demo_types', 'blk_2', type_const[['BLOCKTYPE_C_R_GRADE']])
 
 get_block_attributes('demo_types', 'blk_2')

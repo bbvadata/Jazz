@@ -54,7 +54,7 @@ help:
 # -------------
 
 mdb.o:
-	gcc -Isrc/lmdb -pthread -O2 -g -W -Wimplicit-fallthrough=0 -c src/lmdb/mdb.c
+	gcc -Isrc/lmdb -pthread -O2 -g -W -c src/lmdb/mdb.c
 
 midl.o:
 	gcc -Isrc/lmdb -pthread -O2 -g -W -c src/lmdb/midl.c

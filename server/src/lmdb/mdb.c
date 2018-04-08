@@ -7587,6 +7587,12 @@ more:
 				/* Data is on sub-page */
 				fp = olddata.mv_data;
 				switch (flags) {
+				case MDB_CURRENT:
+					fp->mp_flags |= P_DIRTY;
+					COPY_PGNO(fp->mp_pgno, mp->mp_pgno);
+					mc->mc_xcursor->mx_cursor.mc_pg[0] = fp;
+					flags |= F_DUPDATA;
+					goto put_sub;
 				default:
 					if (!(mc->mc_db->md_flags & MDB_DUPFIXED)) {
 						offset = EVEN(NODESIZE + sizeof(indx_t) +
@@ -7599,12 +7605,6 @@ more:
 						break;
 					}
 					/* FALLTHRU: Big enough MDB_DUPFIXED sub-page */
-				case MDB_CURRENT:
-					fp->mp_flags |= P_DIRTY;
-					COPY_PGNO(fp->mp_pgno, mp->mp_pgno);
-					mc->mc_xcursor->mx_cursor.mc_pg[0] = fp;
-					flags |= F_DUPDATA;
-					goto put_sub;
 				}
 				xdata.mv_size = olddata.mv_size + offset;
 			}

@@ -1,6 +1,10 @@
 Depends: R (>= 3.1.0)
 Imports: stats, RCurl
-Authors@R: person('kaalam', 'ai', role = c('aut', 'cre'), email = 'kaalam@kaalam.ai')
-Description: This is the official R Jazz client.
+Authors@R: c(person('Santiago', 'Basaldua', role = c('aut', 'cre'), email = 'kaalam@kaalam.ai'),
+    person(given = 'Banco Bilbao Vizcaya Argentaria, S.A.', role = "cph"))
+Description: This is the official 'Jazz' client. 'Jazz' is a lightweight modular data processing
+    framework, including a web server. It provides data persistence and computation capabilities
+    accessible from 'R' and 'Python' and also through a REST API. <https://github.com/bbvadata/Jazz>
+    See ?rjazz::rjazz to get a 'Jazz' server.
 License: Apache License (== 2.0)
 NeedsCompilation: no

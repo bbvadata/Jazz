@@ -1,5 +1,6 @@
-/* BBVA - Jazz: A lightweight analytical web server for data-driven applications.
-   ------------
+/* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+   BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
    Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
 
@@ -20,28 +21,3 @@
   limitations under the License.
 */
 
-using namespace std;
-
-/*! \brief Instances of all jazzService descendants.
-
-	All the descendants (via jazzWebSource, jzzBLOCKS or jzzFUNCTIONAL) except jzzAPI are instantiated in jzzINSTANCES when the application runs
-normally DEBUG or NDEBUG) except under CATCH_TEST. jzzAPI is instantiated in jzzAPI.cpp since jzzAPI needs all other descendants.
-
-	See the RFC instantiation.html for details on instantiation.
-*/
-
-#include "src/include/jazz_commons.h"
-#include "src/jazz_blocks/jazz_blockconv.h"
-
-/*~ end of automatic header ~*/
-
-#ifndef jzz_IG_JZZINSTANCES
-#define jzz_IG_JZZINSTANCES
-
-/*	-----------------------------
-	  I n s t a n t i a t i n g
---------------------------------- */
-
-extern jzzBLOCKCONV	  jBLOCKC;
-
-#endif

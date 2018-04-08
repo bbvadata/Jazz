@@ -15,13 +15,16 @@ get_block_attributes(source, block_key, host = .host.)
 
 \arguments{
   \item{source}{
-The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www' are user defined. Sources are 15 char long alphanumeric or underscore.
+The Jazz source. Jazz persistence is organized in sources. All sources except 'sys' and 'www'
+are user defined. Sources are 15 char long alphanumeric or underscore.
 }
   \item{block_key}{
-The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can be user defined or created by new_key(). Also, meshes use block keys internally.
+The key identifying the block. Keys are 15 alphanumeric or underscore characters. They can
+be user defined or created by new_key(). Also, meshes use block keys internally.
 }
   \item{host}{
-(Optional) the name of the jazz server host (including the port). Usually set just once via set_jazz_host().
+(Optional) the name of the jazz server host (including the port). Usually set just once via
+set_jazz_host().
 }
 }
 
@@ -60,7 +63,8 @@ create_block_seq('demo_types', 'blk_2', 3L, 6)
 
 get_block_attributes('demo_types', 'blk_2')
 
-# The block is interpreted as data by the server, it is an integer and can be converted to any integer type.
+# The block is interpreted as data by the server, it is an integer and can be converted to
+any integer type.
 set_compatible_data_type('demo_types', 'blk_2', type_const[['BLOCKTYPE_C_R_GRADE']])
 
 get_block_attributes('demo_types', 'blk_2')
