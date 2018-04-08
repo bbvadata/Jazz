@@ -4,6 +4,18 @@ Programming Documentation of the Jazz Server
 You can start with the class <a href="hierarchy.html">hierarchy</a>.
 
 \n
+\section jazz_blocks JazzBlock
+
+![Jazz modules](diagrams/jazz_block.png)
+
+This diagram shows the structure of a JazzBlock.\n
+
+1. See jazz_elements/jazz_datablocks.h JazzBlockHeader\n
+2. See jazz_elements/jazz_datablocks.h JazzBlockHeader.tensor[]\n
+3. See jazz_elements/jazz_datablocks.h int * - Address returned by JazzBlock.pAttribute_keys()\n
+4. See jazz_elements/jazz_datablocks.h JazzStringBuffer - Address returned by JazzBlock.pStringBuffer()\n
+
+\n
 \section jazz_mods Jazz Modules
 
 ![Jazz modules](diagrams/jazz_modules.png)
