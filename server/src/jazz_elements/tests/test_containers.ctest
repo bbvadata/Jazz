@@ -27,7 +27,7 @@
 */
 
 
-using namespace jazz_alloc;
+using namespace jazz_containers;
 
 /*
 
@@ -257,7 +257,7 @@ bool TestLibClasses()
 
 */
 
-SCENARIO("Testing JazzBlock allocation")
+SCENARIO("Testing JazzBlock containers")
 {
 	GIVEN("Something")
 	{
