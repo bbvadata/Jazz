@@ -36,6 +36,8 @@ in a way that a whole websource can be queried, created, deleted. websources are
 queried via find_websource(). websources do no exist for the API, they are just a clean way to manage sets of urls that are created/removed together.
 */
 
+#include "src/include/jazz.h"
+
 #include "src/jazz01_misc/jazz_websource.h"
 
 /*~ end of automatic header ~*/
