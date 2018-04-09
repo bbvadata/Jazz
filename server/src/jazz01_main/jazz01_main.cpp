@@ -40,8 +40,9 @@ using namespace std;
 	For the server starting details, see the description of main_server_start()
 */
 
+#include "src/include/jazz.h"
+
 #include "src/include/jazz01_commons.h"
-#include "src/jazz01_main/jazz01_instances.h"
 #include "src/jazz01_main/jazz01_api.h"
 
 /*~ end of automatic header ~*/
