@@ -141,7 +141,20 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   const char	 *p_text,
 						   char			  separator = '\n');
 
-void close_jazz_block(pJazzBlock p_block);
+
+/** Set the creation time and the hash64 of a JazzBlock
+
+	Despite its name, this function does not actually "close" anything. JazzBlock manipulation is based on "good will",
+after calling close_jazz_block() the owner should not change the content or should close_jazz_block() again after doing so.
+
+	close_jazz_block() can be called any number of times on the same block.
+
+	\param p_block The block to be "closed".
+*/
+inline void close_jazz_block(pJazzBlock p_block) {
+	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor[0], p_block->total_bytes - sizeof(JazzBlockHeader));
+	p_block->created = std::chrono::steady_clock::now();
+}
 
 void free_jazz_block(pJazzBlock &p_block);
 
