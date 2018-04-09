@@ -28,8 +28,9 @@ using namespace std;
 The utilities are implemented in the appropriate source files in: jzzMISCUTILS, jzzALLOC, jzzCONFIG, jzzACCESS, jzzTHREADS, jzzLOGGER and jzzHTTP.
 */
 
-#include "src/include/jazz01_commons.h"
 #include "src/include/jazz.h"
+
+#include "src/include/jazz01_commons.h"
 
 /*~ end of automatic header ~*/
 

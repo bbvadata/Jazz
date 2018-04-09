@@ -32,8 +32,9 @@ using namespace std;
 	Low level functions to provide an interface for the configuration. This does not define a class, but defines methods declared in jazzCommons.
 */
 
-#include "src/include/jazz01_commons.h"
 #include "src/include/jazz.h"
+
+#include "src/include/jazz01_commons.h"
 
 /*~ end of automatic header ~*/
 
