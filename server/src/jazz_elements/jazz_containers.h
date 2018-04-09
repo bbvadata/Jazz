@@ -141,6 +141,9 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   const char	 *p_text,
 						   char			  separator = '\n');
 
+void close_jazz_block(pJazzBlock p_block);
+
+void free_jazz_block(pJazzBlock &p_block);
 
 
 class JazzBlockKeepr {
