@@ -41,11 +41,6 @@
 2. Volatile - Owned by some JazzBlockKeepr descendant that is not a JazzPersistence (or descendant)\n
 3. Persisted - Owned by a JazzPersistence (or descendant), typically a JazzSource
 
-
-Unlike
-in Jazz 0.1.+, there is no support for embedded R (or any other interpreters).
-
-
 */
 
 
@@ -69,7 +64,7 @@ namespace jazz_containers
 #define JAZZ_MAX_BLOCK_ID_LENGTH	   									24		///< Maximum length for a block name
 #define JAZZ_REGEX_VALIDATE_BLOCK_ID	"^(/|\\.)[[:alnum:]_]{1,22}\\x00$"		///< Regex validating a JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL	   									'.'		///< First char of a LOCAL JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   									'/'		///< First char of a DITRIBUTED JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   									'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
 
 
 /** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
@@ -118,8 +113,18 @@ struct JazzQueueItem: JazzBlockKeeprItem {
 };
 
 
+/** A map to search a JazzBlockKeeprItem by the block_id64 of its corresponding JazzBlock. This is the essential element
+that converts a queue into a cache. A cache is a queue where elements can be searched by id and lower priority items
+can be removed to allocate space for LRU (or higher priority items where "priority" is a real value assigned arbitrarily).
+*/
 typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
-typedef std::map<void *, int> 								Jazz;
+
+
+/** A map to track usage of pointers assigned to JazzBlock objects while they are one_shot or volatile.
+(For debugging purposes only.)
+*/
+typedef std::map<void *, int> JazzOneShotAlloc;
+
 
 class JazzBlockKeepr {
 
@@ -127,15 +132,18 @@ class JazzBlockKeepr {
 
 };
 
+
 class JazzTree: public JazzBlockKeepr {
 
 };
 
-class AATBlockQueue {
+
+class AATBlockQueue: public JazzBlockKeepr {
 
 };
 
-class JazzCache: public JazzBlockKeepr {
+
+class JazzCache: public AATBlockQueue {
 
 };
 
