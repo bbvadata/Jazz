@@ -61,6 +61,8 @@
 namespace jazz_containers
 {
 
+using namespace jazz_datablocks;
+
 #define JAZZ_MAX_BLOCK_ID_LENGTH	   									24		///< Maximum length for a block name
 #define JAZZ_REGEX_VALIDATE_BLOCK_ID	"^(/|\\.)[[:alnum:]_]{1,22}\\x00$"		///< Regex validating a JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL	   									'.'		///< First char of a LOCAL JazzBlockIdentifier
@@ -86,21 +88,20 @@ typedef struct JazzQueueItem 	  *pJazzQueueItem;				///< A pointer to a JazzQueu
 
 
 /** All volatile JazzBlock objects are tracked in a double linked list of JazzBlockKeeprItem descendants.
-The JazzBlockKeeprItem structure is the minimum to allocate the objects in the list
+The JazzBlockKeeprItem structure is the minimum to allocate the objects in the list.
 */
 struct JazzBlockKeeprItem {
-	jazz_datablocks::pJazzBlock	p_jazz_block;					///< A pointer to the JazzBlock
-	int		   					size;							///< The size of the JazzBlockKeeprItem descendent
-	pJazzBlockKeeprItem			p_alloc_prev, p_alloc_next;		///< A pair of pointers to keep this (the descendant) in a double linked list
-	JazzBlockId64				block_id64;						///< Hash of block_id (or zero, if not set)
-	JazzBlockIdentifier			block_id;						///< The block ID ((!block_id[0]), if not set)
+	pJazzBlock			p_jazz_block;							///< A pointer to the JazzBlock
+	int		   			size;									///< The size of the JazzBlockKeeprItem descendent
+	pJazzBlockKeeprItem	p_alloc_prev, p_alloc_next;				///< A pair of pointers to keep this (the descendant) in a double linked list
+	JazzBlockId64		block_id64;								///< Hash of block_id (or zero, if not set)
+	JazzBlockIdentifier	block_id;								///< The block ID ((!block_id[0]), if not set)
 };
 
 
 /** The root class for different JazzTree descendants
 */
 struct JazzTreeItem: JazzBlockKeeprItem {
-
 	pJazzTreeItem	p_parent, p_first_child, p_next_sibling;	///< Pointers to navigate the tree
 	int				_nul_;										///< For alignment to 16 bytes
 };
@@ -124,6 +125,22 @@ typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 (For debugging purposes only.)
 */
 typedef std::map<void *, int> JazzOneShotAlloc;
+
+
+pJazzBlock new_jazz_block (pJazzBlock p_as_block,
+						   pJazzBlock p_row_filter);
+
+pJazzBlock new_jazz_block (int			  cell_type,
+						   JazzTensorDim *dim,
+						   AllAttributes *att,
+						   int			  stringbuff_size);
+
+pJazzBlock new_jazz_block (int			  cell_type,
+						   JazzTensorDim *dim,
+						   AllAttributes *att,
+						   const char	 *p_text,
+						   char			  separator = '\n');
+
 
 
 class JazzBlockKeepr {
