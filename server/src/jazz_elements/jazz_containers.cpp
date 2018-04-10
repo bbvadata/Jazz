@@ -33,10 +33,16 @@
 namespace jazz_containers
 {
 
-/**
+/** Create a new (one_shot) JazzBlock as a selection (of possibly all) of an existing JazzBlock
+
+	\param p_as_block   An existing block from which rows can be selected.
+	\param p_row_filter A filter .
+
+	\return	The new JazzBlock or nullptr if failed. Also logs errors to jazz_containers::log
+
 */
-pJazzBlock new_jazz_block (pJazzBlock p_as_block,
-						   pJazzBlock p_row_filter)
+pJazzBlock new_jazz_block (pJazzBlock  p_as_block,
+						   pJazzFilter p_row_filter)
 {
 
 }
