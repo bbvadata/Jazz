@@ -112,6 +112,48 @@ int JazzBlock::get_string_offset(pJazzStringBuffer psb, const char *pString)
 }
 
 
+/** Check (in depth) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
+
+	This checks both the values in the header and the validity of the data in .tensor[]
+
+	\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
+*/
+int JazzFilter::filter_audit()
+{
+	switch (filter_type()) {
+
+	case JAZZ_FILTER_TYPE_INTEGER: {
+		int len = dim_offs[1];
+
+		if (len == 0 || len == size)
+			return JAZZ_FILTER_TYPE_INTEGER;
+
+		if (len < 0 || len > size)
+			return JAZZ_FILTER_TYPE_NOTAFILTER;
+
+		int lo = -1;
+
+		for (int i = 0; i < len; i++) {
+			if (tensor[i] <= lo || tensor[i] >= size)
+				return JAZZ_FILTER_TYPE_NOTAFILTER;
+			lo <- tensor[i];
+		}
+		return JAZZ_FILTER_TYPE_INTEGER; }
+
+	case JAZZ_FILTER_TYPE_BOOLEAN: {
+		u_char *pt = reinterpret_cast<u_char *>(&tensor[0]);
+
+		for (int i = 0; i < size; i++) {
+			if (pt[0] & 0xfe != 0)
+				return JAZZ_FILTER_TYPE_NOTAFILTER;
+			pt++;
+		}
+		return JAZZ_FILTER_TYPE_BOOLEAN; }
+	}
+
+	return JAZZ_FILTER_TYPE_NOTAFILTER;
+}
+
 } // namespace jazz_datablocks
 
 

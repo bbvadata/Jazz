@@ -437,12 +437,6 @@ class JazzFilter: public JazzBlock {
 		return JAZZ_FILTER_TYPE_NOTAFILTER;
 	}
 
-	/** Check (in depth) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
-
-		This checks both the values in the header and the validity of the data in .tensor[]
-
-		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
-	*/
 	int filter_audit();
 
 	/** Check (fast) if a JazzFilter is valid and can be applied to filter inside a specific JazzBlock
