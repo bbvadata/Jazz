@@ -68,6 +68,10 @@ using namespace jazz_datablocks;
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL	   									'.'		///< First char of a LOCAL JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_DISTRIB   									'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
 
+#define JAZZ_FILL_NEW_DONT_FILL		0	///< When creating with new_jazz_block() argument fill_tensor: Don't initialize at all.
+#define JAZZ_FILL_NEW_WITH_ZERO		1	///< When creating with new_jazz_block() argument fill_tensor: Initialize with binary zero.
+#define JAZZ_FILL_NEW_WITH_NA		2	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+
 
 /** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
 the JazzBlock in a JazzPersistence, JazzSource or via the API source.block (local) source/block (distributed).
@@ -141,16 +145,10 @@ pJazzBlock new_jazz_block (pJazzBlock p_as_block,
 pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
 						   AllAttributes *att,
-						   int			  stringbuff_size);
-
-
-/**
-*/
-pJazzBlock new_jazz_block (int			  cell_type,
-						   JazzTensorDim *dim,
-						   AllAttributes *att,
-						   const char	 *p_text,
-						   char			  separator = '\n');
+						   int			  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
+						   int			  stringbuff_size = 0,
+						   const char	 *p_text		  = nullptr,
+						   char			  separator		  = '\n');
 
 
 /** Set the creation time and the hash64 of a JazzBlock
