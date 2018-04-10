@@ -381,7 +381,16 @@ class JazzBlock: public JazzBlockHeader {
 		int get_string_offset(pJazzStringBuffer psb, const char *pString);
 };
 
-typedef JazzBlock *pJazzBlock;
+
+/** A filter.
+*/
+class JazzFilter: public JazzBlock {
+
+};
+
+
+typedef JazzBlock  *pJazzBlock;
+typedef JazzFilter *pJazzFilter;
 
 extern float  F_NA;		///< NaN in single
 extern double R_NA;		///< NaN in double
