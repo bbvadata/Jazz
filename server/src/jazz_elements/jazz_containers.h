@@ -68,9 +68,14 @@ using namespace jazz_datablocks;
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL	   									'.'		///< First char of a LOCAL JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_DISTRIB   									'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
 
-#define JAZZ_FILL_NEW_DONT_FILL		0	///< When creating with new_jazz_block() argument fill_tensor: Don't initialize at all.
+/// Values for argument fill_tensor of new_jazz_block()
+#define JAZZ_FILL_
+
+#define JAZZ_FILL_NEW_DONT_FILL		0	///< Don't initialize at all.
 #define JAZZ_FILL_NEW_WITH_ZERO		1	///< When creating with new_jazz_block() argument fill_tensor: Initialize with binary zero.
 #define JAZZ_FILL_NEW_WITH_NA		2	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+#define JAZZ_FILL_BOOLEAN_FILTER	3	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+#define JAZZ_FILL_INTEGER_FILTER	4	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
 
 
 /** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
@@ -134,18 +139,15 @@ typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 typedef std::map<void *, int> JazzOneShotAlloc;
 
 
-/**
-*/
 pJazzBlock new_jazz_block (pJazzBlock p_as_block,
 						   pJazzBlock p_row_filter);
 
 
-/**
-*/
 pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
 						   AllAttributes *att,
 						   int			  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
+						   void			 *p_data		  = nullptr,
 						   int			  stringbuff_size = 0,
 						   const char	 *p_text		  = nullptr,
 						   char			  separator		  = '\n');
