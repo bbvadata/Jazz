@@ -418,6 +418,8 @@ typedef JazzBlock  *pJazzBlock;
 */
 class JazzFilter: public JazzBlock {
 
+public:
+
 	/** Check (fast) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
 
 		This checks the values in the header, but not the validity of the data in .tensor[]
@@ -446,7 +448,7 @@ class JazzFilter: public JazzBlock {
 		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
 	*/
 	inline int can_filter(pJazzBlock p_block) {
-		if (p_block->rank < 1 || p_block->dim_offs[0] <= 0 || size != p_block->size/dim_offs[0])
+		if (p_block->rank < 1 || p_block->dim_offs[0] <= 0 || size != p_block->size/p_block->dim_offs[0])
 			return JAZZ_FILTER_TYPE_NOTAFILTER;
 
 		return filter_type();
