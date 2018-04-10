@@ -82,41 +82,44 @@ struct JazzBlockIdentifier {
 typedef uint64_t JazzBlockId64;
 
 
-typedef struct JazzBlockKeeprItem *pJazzBlockKeeprItem;			///< A pointer to a JazzBlockKeeprItem
-typedef struct JazzTreeItem 	  *pJazzTreeItem;				///< A pointer to a JazzTreeItem
-typedef struct JazzQueueItem 	  *pJazzQueueItem;				///< A pointer to a JazzQueueItem
+typedef struct JazzBlockKeeprItem *pJazzBlockKeeprItem;		///< A pointer to a JazzBlockKeeprItem
+typedef struct JazzTreeItem 	  *pJazzTreeItem;			///< A pointer to a JazzTreeItem
+typedef struct JazzQueueItem 	  *pJazzQueueItem;			///< A pointer to a JazzQueueItem
 
 
 /** All volatile JazzBlock objects are tracked in a double linked list of JazzBlockKeeprItem descendants.
 The JazzBlockKeeprItem structure is the minimum to allocate the objects in the list.
 */
 struct JazzBlockKeeprItem {
-	pJazzBlock			p_jazz_block;							///< A pointer to the JazzBlock
-	int		   			size;									///< The size of the JazzBlockKeeprItem descendent
-	pJazzBlockKeeprItem	p_alloc_prev, p_alloc_next;				///< A pair of pointers to keep this (the descendant) in a double linked list
-	JazzBlockId64		block_id64;								///< Hash of block_id (or zero, if not set)
-	JazzBlockIdentifier	block_id;								///< The block ID ((!block_id[0]), if not set)
+	pJazzBlock			p_jazz_block;						///< A pointer to the JazzBlock
+	int		   			size;								///< The size of the JazzBlockKeeprItem descendent
+	int		   			keepr_state;						///< A state defining the priority between p_jazz_block, block_id64 and block_id
+	pJazzBlockKeeprItem	p_alloc_prev, p_alloc_next;			///< A pair of pointers to keep this (the descendant) in a double linked list
+	JazzBlockId64		block_id64;							///< Hash of block_id (or zero, if not set)
+	JazzBlockIdentifier	block_id;							///< The block ID ((!block_id[0]), if not set)
 };
 
 
 /** The root class for different JazzTree descendants
 */
 struct JazzTreeItem: JazzBlockKeeprItem {
-	pJazzTreeItem	p_parent, p_first_child, p_next_sibling;	///< Pointers to navigate the tree
-	int				_nul_;										///< For alignment to 16 bytes
+	pJazzTreeItem p_parent, p_first_child, p_next_sibling;	///< Pointers to navigate the tree
+	int			  num_visits, num_wins;						///< For simplest case MCTS exploration
 };
 
 
 /** The root class for different AATBlockQueue descendants
 */
 struct JazzQueueItem: JazzBlockKeeprItem {
-	double	priority;											///< A priority value to implement a priority queue
+	float	  priority;										///< A priority value to implement a priority queue
+	float	  time_to_build;								///< The time required to compute the block (real or estimated)
+	TimePoint last_used;									///< Timestamp of last use
 };
 
 
 /** A map to search a JazzBlockKeeprItem by the block_id64 of its corresponding JazzBlock. This is the essential element
 that converts a queue into a cache. A cache is a queue where elements can be searched by id and lower priority items
-can be removed to allocate space for LRU (or higher priority items where "priority" is a real value assigned arbitrarily).
+can be removed to allocate space. priority() is a function, typically over (now - last_used, time_to_build, p_jazz_block->total_bytes).
 */
 typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 
@@ -127,14 +130,22 @@ typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 typedef std::map<void *, int> JazzOneShotAlloc;
 
 
+/**
+*/
 pJazzBlock new_jazz_block (pJazzBlock p_as_block,
 						   pJazzBlock p_row_filter);
 
+
+/**
+*/
 pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
 						   AllAttributes *att,
 						   int			  stringbuff_size);
 
+
+/**
+*/
 pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
 						   AllAttributes *att,
