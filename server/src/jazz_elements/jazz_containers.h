@@ -72,10 +72,10 @@ using namespace jazz_datablocks;
 #define JAZZ_FILL_
 
 #define JAZZ_FILL_NEW_DONT_FILL		0	///< Don't initialize at all.
-#define JAZZ_FILL_NEW_WITH_ZERO		1	///< When creating with new_jazz_block() argument fill_tensor: Initialize with binary zero.
-#define JAZZ_FILL_NEW_WITH_NA		2	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
-#define JAZZ_FILL_BOOLEAN_FILTER	3	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
-#define JAZZ_FILL_INTEGER_FILTER	4	///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+#define JAZZ_FILL_NEW_WITH_ZERO		1	///< Initialize with binary zero.
+#define JAZZ_FILL_NEW_WITH_NA		2	///< Initialize with the appropriate NA for the cell_type.
+#define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
+#define JAZZ_FILL_INTEGER_FILTER	4	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
 
 
 /** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
