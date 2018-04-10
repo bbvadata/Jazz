@@ -54,6 +54,7 @@ namespace jazz_datablocks
 #define JAZZ_MAX_TENSOR_RANK		6		///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
 #define JAZZ_MAX_CHECKS_4_MATCH	   25		///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
 
+/// Different values for JazzBlock.cell_type
 #define CELL_TYPE__
 
 // 8 bit cell types
@@ -84,10 +85,13 @@ namespace jazz_datablocks
 #define JAZZ_TIME_POINT_NA		0			///< NA for a CELL_TYPE_JAZZ_TIME is a 64-bit zero. Type does not exist in R.
 #define JAZZ_DOUBLE_NA			R_NA		///< NA for a double. This is R compatible.
 
-//
-#define JAZZ_FILTER_TYPE_NOTAFLITER	 0		///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
-#define JAZZ_FILTER_TYPE_BOOLEAN	 1		///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
-#define JAZZ_FILTER_TYPE_BOOLEAN	 2		///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+/// Possible return values of JazzFilter.filter_type()
+
+#define JAZZ_FILTER_TYPE_
+
+#define JAZZ_FILTER_TYPE_NOTAFLITER	 0		///< This JazzBlock cannot be used as a filter. A try to use it in new_jazz_block() will fail.
+#define JAZZ_FILTER_TYPE_BOOLEAN	 1		///< This JazzBlock is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
+#define JAZZ_FILTER_TYPE_INTEGER	 2		///< This JazzBlock is a vector of CELL_TYPE_INTEGER containing the selected rows.
 
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
