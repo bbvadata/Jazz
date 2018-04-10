@@ -84,6 +84,12 @@ namespace jazz_datablocks
 #define JAZZ_TIME_POINT_NA		0			///< NA for a CELL_TYPE_JAZZ_TIME is a 64-bit zero. Type does not exist in R.
 #define JAZZ_DOUBLE_NA			R_NA		///< NA for a double. This is R compatible.
 
+//
+#define JAZZ_FILTER_TYPE_NOTAFLITER	 0		///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+#define JAZZ_FILTER_TYPE_BOOLEAN	 1		///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+#define JAZZ_FILTER_TYPE_BOOLEAN	 2		///< When creating with new_jazz_block() argument fill_tensor: Initialize with NA for the cell_type.
+
+
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
 /// Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
@@ -387,8 +393,11 @@ typedef JazzBlock  *pJazzBlock;
 /** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods
 */
 class JazzFilter: public JazzBlock {
+
+	/** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods
+	*/
 	inline int filter_type();
-	inline int filter_audit();
+	int filter_audit();
 	inline int can_filter(pJazzBlock p_block);
 };
 
