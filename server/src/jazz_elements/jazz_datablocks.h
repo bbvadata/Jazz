@@ -381,16 +381,19 @@ class JazzBlock: public JazzBlockHeader {
 		int get_string_offset(pJazzStringBuffer psb, const char *pString);
 };
 
+typedef JazzBlock  *pJazzBlock;
 
-/** A filter.
+
+/** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods
 */
 class JazzFilter: public JazzBlock {
-
+	inline int filter_type();
+	inline int filter_audit();
+	inline int can_filter(pJazzBlock p_block);
 };
 
-
-typedef JazzBlock  *pJazzBlock;
 typedef JazzFilter *pJazzFilter;
+
 
 extern float  F_NA;		///< NaN in single
 extern double R_NA;		///< NaN in double
