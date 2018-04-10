@@ -824,3 +824,139 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(!strcmp(read_att[3157], "Wof, wof, wof"));
 	}
 }
+
+SCENARIO("Testing Filters")
+{
+	char buf1[4096], buf2[4096];
+	pJazzBlock  pjb = reinterpret_cast<pJazzBlock>(&buf1);
+	pJazzFilter pjf = reinterpret_cast<pJazzFilter>(&buf2);
+
+	GIVEN("A block pjb")
+	{
+		JazzTensorDim d1 = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 255);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 255*8 + 12 + 20;
+
+		AllAttributes att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
+		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
+		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+	}
+
+	GIVEN("A valid boolean filter pjf for pjb")
+	{
+		JazzTensorDim d2 = {17};
+
+		pjf->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+
+		pjf->set_dimensions(d2);
+		REQUIRE(pjf->rank ==  1);
+		REQUIRE(pjf->size == 17);
+
+		pjf->num_attributes = 0;
+		pjf->total_bytes = 64 + 17 + 12 + 27;
+
+		AllAttributes att;
+		att[666] = nullptr;
+
+		pjf->set_attributes(att);	// This calls init_string_buffer()
+
+		REQUIRE(pjf->num_attributes == 1);
+
+		REQUIRE(!pjf->pStringBuffer()->stop_check_4_match);
+		REQUIRE(!pjf->pStringBuffer()->alloc_failed);
+		REQUIRE( pjf->pStringBuffer()->buffer_size == 4);
+
+		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor[0]);
+
+		for (int i = 0; i < 17; i++)
+			pt[i] = 0;
+
+		pjf->has_NA	= false;
+
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->dim_offs[0] == 1);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(!pjf->has_NA);
+		REQUIRE(pjf->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+
+		int size = pjb->size/pjb->dim_offs[0];
+
+		REQUIRE(size == pjf->size);
+
+		REQUIRE(pjf->filter_type()   == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_BOOLEAN);
+
+		pt[17] = 17;
+
+		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
+
+		pt[16] = 16;
+
+		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_NOTAFILTER);
+	}
+
+	GIVEN("A valid integer filter pjf for pjb")
+	{
+		JazzTensorDim d2 = {17};
+
+		pjf->cell_type = CELL_TYPE_INTEGER;
+
+		pjf->set_dimensions(d2);
+		REQUIRE(pjf->rank ==  1);
+		REQUIRE(pjf->size == 17);
+
+		pjf->num_attributes = 0;
+		pjf->total_bytes = 64 + 17*4 + 12 + 24;
+
+		AllAttributes att;
+		att[666] = nullptr;
+
+		pjf->set_attributes(att);	// This calls init_string_buffer()
+
+		REQUIRE(pjf->num_attributes == 1);
+
+		REQUIRE(!pjf->pStringBuffer()->stop_check_4_match);
+		REQUIRE(!pjf->pStringBuffer()->alloc_failed);
+		REQUIRE( pjf->pStringBuffer()->buffer_size == 4);
+
+		for (int i = 0; i < 4; i++)
+			pjf->tensor[i] = 2*i;
+
+		pjf->dim_offs[1] = 4;
+
+		pjf->has_NA	= false;
+
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->dim_offs[0] == 1);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(!pjf->has_NA);
+		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
+
+		int size = pjb->size/pjb->dim_offs[0];
+
+		REQUIRE(size == pjf->size);
+
+		REQUIRE(pjf->filter_type()   == JAZZ_FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->dim_offs[1] = -1;
+
+		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_NOTAFILTER);
+	}
+}
