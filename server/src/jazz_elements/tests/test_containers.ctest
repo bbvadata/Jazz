@@ -259,7 +259,13 @@ bool TestLibClasses()
 
 SCENARIO("Testing JazzBlock containers")
 {
-	GIVEN("Something")
+	REQUIRE(sizeof(JazzBlockIdentifier) == 24);
+	REQUIRE(sizeof(JazzBlockId64) 		==  8);
+	REQUIRE(sizeof(JazzBlockKeeprItem)  == 64);
+	REQUIRE(sizeof(JazzTreeItem)		== 96);
+	REQUIRE(sizeof(JazzQueueItem)		== 80);
+
+	GIVEN("We want to test the regex")
 	{
 		WHEN("Something")
 		{
