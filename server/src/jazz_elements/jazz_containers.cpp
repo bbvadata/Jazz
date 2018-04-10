@@ -33,6 +33,28 @@
 namespace jazz_containers
 {
 
+/**
+*/
+pJazzBlock new_jazz_block (pJazzBlock p_as_block,
+						   pJazzBlock p_row_filter)
+{
+
+}
+
+
+/**
+*/
+pJazzBlock new_jazz_block (int			  cell_type,
+						   JazzTensorDim *dim,
+						   AllAttributes *att,
+						   int			  fill_tensor,
+						   int			  stringbuff_size,
+						   const char	 *p_text,
+						   char			  separator)
+{
+
+}
+
 
 /* ----------------------------------------------------------------------------
 
