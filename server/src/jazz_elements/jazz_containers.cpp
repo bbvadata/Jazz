@@ -54,6 +54,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
 						   AllAttributes *att,
 						   int			  fill_tensor,
+						   void			 *p_data,
 						   int			  stringbuff_size,
 						   const char	 *p_text,
 						   char			  separator)
