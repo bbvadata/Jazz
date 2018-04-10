@@ -89,7 +89,7 @@ namespace jazz_datablocks
 
 #define JAZZ_FILTER_TYPE_
 
-#define JAZZ_FILTER_TYPE_NOTAFLITER	 0		///< This JazzBlock cannot be used as a filter. A try to use it in new_jazz_block() will fail.
+#define JAZZ_FILTER_TYPE_NOTAFILTER	 0		///< This JazzBlock cannot be used as a filter. A try to use it in new_jazz_block() will fail.
 #define JAZZ_FILTER_TYPE_BOOLEAN	 1		///< This JazzBlock is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
 #define JAZZ_FILTER_TYPE_INTEGER	 2		///< This JazzBlock is a vector of CELL_TYPE_INTEGER containing the selected rows.
 
@@ -394,15 +394,69 @@ class JazzBlock: public JazzBlockHeader {
 typedef JazzBlock  *pJazzBlock;
 
 
-/** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods
+/** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods.
+
+	The structure of a JazzFilter is strictly:
+
+	.cell_type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER
+	.rank == 1
+	.dim_offs[0] == 1, .dim_offs[1] == number of elements in the tensor when cell_type == CELL_TYPE_INTEGER
+	.size == length of the selector
+	.num_attributes == 1	// To prevent set_attributes() being applied to it
+	.total_bytes == as expected
+	.has_NA == false;
+	.created == as expected
+	.hash64 == as expected
+
+	Details:
+
+1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
+2. A JAZZ_FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN meaning the each row is selected (if true).
+3. A JAZZ_FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .dim_offs[1]. As expected,
+.dim_offs[1] == 0 means nothing is selected, .dim_offs[1] == .size means everything is selected regardless of .tensor[]
+
 */
 class JazzFilter: public JazzBlock {
 
-	/** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods
+	/** Check (fast) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
+
+		This checks the values in the header but not the validity of the data in .tensor[]
+
+		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of some type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
 	*/
-	inline int filter_type();
+	inline int filter_type() {
+		if (rank != 1 || dim_offs[0] != 1 || num_attributes != 1 || has_NA)
+			return JAZZ_FILTER_TYPE_NOTAFILTER;
+
+		if (cell_type == CELL_TYPE_INTEGER)
+			return JAZZ_FILTER_TYPE_INTEGER;
+
+		if (cell_type == CELL_TYPE_BYTE_BOOLEAN)
+			return JAZZ_FILTER_TYPE_BOOLEAN;
+
+		return JAZZ_FILTER_TYPE_NOTAFILTER;
+	}
+
+	/** Check (in depth) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
+
+		This checks both the values in the header and the validity of the data in .tensor[]
+
+		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of some type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
+	*/
 	int filter_audit();
-	inline int can_filter(pJazzBlock p_block);
+
+	/** Check (fast) if a JazzFilter is valid and can be applied to filter inside a specific JazzBlock
+
+		This is a filter_type() with an previous size == number of rows verification
+
+		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of some type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
+	*/
+	inline int can_filter(pJazzBlock p_block) {
+		if (p_block->rank < 1 || p_block->dim_offs[0] <= 0 || size != p_block->size/dim_offs[0])
+			return JAZZ_FILTER_TYPE_NOTAFILTER;
+
+		return filter_type();
+	}
 };
 
 typedef JazzFilter *pJazzFilter;
