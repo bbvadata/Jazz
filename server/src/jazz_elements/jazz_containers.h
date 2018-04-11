@@ -77,6 +77,13 @@ using namespace jazz_datablocks;
 #define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
 #define JAZZ_FILL_INTEGER_FILTER	4	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
 
+/// Values for argument set_has_NA of close_jazz_block()
+#define JAZZ_SET_HAS_NA_
+
+#define JAZZ_SET_HAS_NA_FALSE		0	///< Set to false without checking (unsafe in case there are and not-NA-aware arithmetic is used)
+#define JAZZ_SET_HAS_NA_TRUE		1	///< Set to true without checking (safe even if there are, NA-aware arithemtic is always safe)
+#define JAZZ_SET_HAS_NA_AUTO		2	///< Check if there are and set accordinly (slowest option when closing, best later)
+
 
 /** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
 the JazzBlock in a JazzPersistence, JazzSource or via the API source.block (local) source/block (distributed).
@@ -153,16 +160,21 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   char			  separator		  = '\n');
 
 
-/** Set the creation time and the hash64 of a JazzBlock
+/** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor
 
 	Despite its name, this function does not actually "close" anything. JazzBlock manipulation is based on "good will",
-after calling close_jazz_block() the owner should not change the content or should close_jazz_block() again after doing so.
+after calling close_jazz_block() the owner should not change the content. If you do, you should close_jazz_block() again after.
+
+	bool ;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
+	TimePoint created;			///< Timestamp when the block was created
+	uint64_t hash64;			///< Hash of everything but the header
+
 
 	close_jazz_block() can be called any number of times on the same block.
 
 	\param p_block The block to be "closed".
 */
-inline void close_jazz_block(pJazzBlock p_block) {
+inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_NA_AUTO) {
 	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor[0], p_block->total_bytes - sizeof(JazzBlockHeader));
 	p_block->created = std::chrono::steady_clock::now();
 }
