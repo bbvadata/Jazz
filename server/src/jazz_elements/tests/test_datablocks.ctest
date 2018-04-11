@@ -1025,3 +1025,9 @@ SCENARIO("Testing Filters")
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 	}
 }
+
+
+SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying allocation at boundaries")
+{
+//TODO: Write unit tests for find_NAs_in_tensor
+}
