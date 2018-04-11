@@ -99,6 +99,7 @@ typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point store
 /// Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
 typedef int JazzTensorDim[JAZZ_MAX_TENSOR_RANK];
 
+
 /// Header for a JazzBlock
 struct JazzBlockHeader
 {
@@ -115,6 +116,7 @@ struct JazzBlockHeader
 	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
 };
 
+
 /// Structure at the end of a JazzBlock, initially created with init_string_buffer()
 struct JazzStringBuffer
 {
@@ -125,10 +127,15 @@ struct JazzStringBuffer
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for JAZZ_STRING_NA & JAZZ_STRING_EMPTY
 };
 
+
+// Forward declarations
 typedef std::map<int, const char *> AllAttributes;
 
-typedef JazzBlockHeader	 *pJazzBlockHeader;
-typedef JazzStringBuffer *pJazzStringBuffer;
+typedef struct JazzBlockHeader	 *pJazzBlockHeader;
+typedef struct JazzStringBuffer *pJazzStringBuffer;
+
+typedef class JazzBlock  *pJazzBlock;
+typedef class JazzFilter *pJazzFilter;
 
 
 /** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then two arrays of int
@@ -391,8 +398,6 @@ class JazzBlock: public JazzBlockHeader {
 		int get_string_offset(pJazzStringBuffer psb, const char *pString);
 };
 
-typedef JazzBlock  *pJazzBlock;
-
 
 /** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods.
 
@@ -454,8 +459,6 @@ public:
 		return filter_type();
 	}
 };
-
-typedef JazzFilter *pJazzFilter;
 
 
 extern float  F_NA;		///< NaN in single
