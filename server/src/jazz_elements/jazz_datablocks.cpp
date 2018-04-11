@@ -136,7 +136,7 @@ int JazzFilter::filter_audit()
 		for (int i = 0; i < len; i++) {
 			if (tensor[i] <= lo || tensor[i] >= size)
 				return JAZZ_FILTER_TYPE_NOTAFILTER;
-			lo <- tensor[i];
+			lo = tensor[i];
 		}
 		return JAZZ_FILTER_TYPE_INTEGER; }
 
@@ -144,7 +144,7 @@ int JazzFilter::filter_audit()
 		u_char *pt = reinterpret_cast<u_char *>(&tensor[0]);
 
 		for (int i = 0; i < size; i++) {
-			if (pt[0] & 0xfe != 0)
+			if ((pt[0] & 0xfe) != 0)
 				return JAZZ_FILTER_TYPE_NOTAFILTER;
 			pt++;
 		}
