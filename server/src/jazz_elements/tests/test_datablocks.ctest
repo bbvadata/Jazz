@@ -908,6 +908,14 @@ SCENARIO("Testing Filters")
 		pt[16] = 16;
 
 		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pt[16] = 1;
+
+		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
+
+		pt[0] = 2;
+
+		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_NOTAFILTER);
 	}
 
 	GIVEN("A valid integer filter pjf for pjb")
@@ -957,6 +965,63 @@ SCENARIO("Testing Filters")
 
 		pjf->dim_offs[1] = -1;
 
-		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_NOTAFILTER);
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pjf->dim_offs[1] = 18;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pjf->dim_offs[1] = 0;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->dim_offs[1] = 17;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->dim_offs[1] = 5;
+		pjf->tensor[4]   = 6;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pjf->tensor[4] = 7;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->tensor[4] = 17;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pjf->dim_offs[1] = 0;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->dim_offs[1] = 17;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->dim_offs[1] = 5;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pjf->dim_offs[1] = 1;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->tensor[0] = -1;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
+
+		pjf->tensor[0] = 0;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->tensor[0] = 16;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		pjf->tensor[0] = 17;
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 	}
 }
