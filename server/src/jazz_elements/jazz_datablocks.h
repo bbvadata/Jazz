@@ -369,6 +369,8 @@ class JazzBlock: public JazzBlockHeader {
 			psb->last_idx	 = 2;	// Where the first string will be inserted
 		}
 
+		bool find_NAs_in_tensor();
+
 #ifndef CATCH_TEST
 	private:
 #endif
