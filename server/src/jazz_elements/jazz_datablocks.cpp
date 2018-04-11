@@ -46,6 +46,100 @@ float  F_NA = nanf("");
 double R_NA = R_ValueOfNA();
 
 
+/** Scan a tensor object to see if it conaions any NA valued of the type specified in cell_type.
+
+	\return		True if NA values of the give type were found.
+
+	Note: For boolean types everything other than true (1) or false (0) is considered NA
+	Note: For floating point types, only binary identity with F_NA or R_NA counts as NA
+
+*/
+bool JazzBlock::find_NAs_in_tensor(){
+	switch (cell_type) {
+	case CELL_TYPE_BYTE_BOOLEAN: {
+		u_char *pt = reinterpret_cast<u_char *>(&tensor[0]);
+
+		for (int i = 0; i < size; i++) {
+			if ((pt[0] & 0xfe) != 0)
+				return true;
+			pt++;
+		}
+		return false; }
+
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE: {
+		for (int i = 0; i < size; i++) {
+			if (tensor[i] == JAZZ_INTEGER_NA)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_BOOLEAN: {
+		u_int *pt = reinterpret_cast<u_int *>(&tensor[0]);
+
+		for (int i = 0; i < size; i++) {
+			if ((pt[0] & 0xfffffffe) != 0)
+				return true;
+			pt++;
+		}
+		return false; }
+
+	case CELL_TYPE_SINGLE: {
+		u_int *pt = reinterpret_cast<u_int *>(&tensor[0]);
+		u_int una = (u_int) JAZZ_SINGLE_NA;
+
+		for (int i = 0; i < size; i++) {
+			if (pt[0] == una)
+				return true;
+			pt++;
+		}
+		return false; }
+
+	case CELL_TYPE_JAZZ_STRING: {
+		for (int i = 0; i < size; i++) {
+			if (tensor[i] == JAZZ_STRING_NA)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_LONG_INTEGER: {
+		uint64_t *pt = reinterpret_cast<uint64_t *>(&tensor[0]);
+
+		for (int i = 0; i < size; i++) {
+			if (pt[0] == JAZZ_LONG_INTEGER_NA)
+				return true;
+			pt++;
+		}
+		return false; }
+
+	case CELL_TYPE_JAZZ_TIME: {
+		uint64_t *pt = reinterpret_cast<uint64_t *>(&tensor[0]);
+
+		for (int i = 0; i < size; i++) {
+			if (pt[0] == JAZZ_TIME_POINT_NA)
+				return true;
+			pt++;
+		}
+		return false; }
+
+	case CELL_TYPE_DOUBLE: {
+		uint64_t *pt = reinterpret_cast<uint64_t *>(&tensor[0]);
+		uint64_t una = (uint64_t) JAZZ_DOUBLE_NA;
+
+		for (int i = 0; i < size; i++) {
+			if (pt[0] == una)
+				return true;
+			pt++;
+		}
+		return false; }
+
+	default:
+		return false;
+	}
+}
+
+
 /** Find an existing string in a block, or allocate a new one and return its offset in the JazzStringBuffer.buffer.
 
 	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling pStringBuffer repeatedly).
