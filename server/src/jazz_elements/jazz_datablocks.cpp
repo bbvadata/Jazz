@@ -57,12 +57,9 @@ double R_NA = R_ValueOfNA();
 bool JazzBlock::find_NAs_in_tensor(){
 	switch (cell_type) {
 	case CELL_TYPE_BYTE_BOOLEAN: {
-		u_char *pt = reinterpret_cast<u_char *>(&tensor[0]);
-
 		for (int i = 0; i < size; i++) {
-			if ((pt[0] & 0xfe) != 0)
+			if ((tensor.cell_byte[i] & 0xfe) != 0)
 				return true;
-			pt++;
 		}
 		return false; }
 
@@ -70,67 +67,54 @@ bool JazzBlock::find_NAs_in_tensor(){
 	case CELL_TYPE_FACTOR:
 	case CELL_TYPE_GRADE: {
 		for (int i = 0; i < size; i++) {
-			if (tensor[i] == JAZZ_INTEGER_NA)
+			if (tensor.cell_int[i] == JAZZ_INTEGER_NA)
 				return true;
 		}
 		return false; }
 
 	case CELL_TYPE_BOOLEAN: {
-		u_int *pt = reinterpret_cast<u_int *>(&tensor[0]);
-
 		for (int i = 0; i < size; i++) {
-			if ((pt[0] & 0xfffffffe) != 0)
+			if ((tensor.cell_uint[i] & 0xfffffffe) != 0)
 				return true;
-			pt++;
 		}
 		return false; }
 
 	case CELL_TYPE_SINGLE: {
-		u_int *pt = reinterpret_cast<u_int *>(&tensor[0]);
 		u_int una = (u_int) JAZZ_SINGLE_NA;
 
 		for (int i = 0; i < size; i++) {
-			if (pt[0] == una)
+			if (tensor.cell_uint[i] == una)
 				return true;
-			pt++;
 		}
 		return false; }
 
 	case CELL_TYPE_JAZZ_STRING: {
 		for (int i = 0; i < size; i++) {
-			if (tensor[i] == JAZZ_STRING_NA)
+			if (tensor.cell_int[i] == JAZZ_STRING_NA)
 				return true;
 		}
 		return false; }
 
 	case CELL_TYPE_LONG_INTEGER: {
-		uint64_t *pt = reinterpret_cast<uint64_t *>(&tensor[0]);
-
 		for (int i = 0; i < size; i++) {
-			if (pt[0] == JAZZ_LONG_INTEGER_NA)
+			if (tensor.cell_longint[i] == JAZZ_LONG_INTEGER_NA)
 				return true;
-			pt++;
 		}
 		return false; }
 
 	case CELL_TYPE_JAZZ_TIME: {
-		uint64_t *pt = reinterpret_cast<uint64_t *>(&tensor[0]);
-
 		for (int i = 0; i < size; i++) {
-			if (pt[0] == JAZZ_TIME_POINT_NA)
+			if (tensor.cell_longint[i] == JAZZ_TIME_POINT_NA)
 				return true;
-			pt++;
 		}
 		return false; }
 
 	case CELL_TYPE_DOUBLE: {
-		uint64_t *pt = reinterpret_cast<uint64_t *>(&tensor[0]);
 		uint64_t una = (uint64_t) JAZZ_DOUBLE_NA;
 
 		for (int i = 0; i < size; i++) {
-			if (pt[0] == una)
+			if (tensor.cell_ulongint[i] == una)
 				return true;
-			pt++;
 		}
 		return false; }
 
@@ -228,19 +212,16 @@ int JazzFilter::filter_audit()
 		int lo = -1;
 
 		for (int i = 0; i < len; i++) {
-			if (tensor[i] <= lo || tensor[i] >= size)
+			if (tensor.cell_int[i] <= lo || tensor.cell_int[i] >= size)
 				return JAZZ_FILTER_TYPE_NOTAFILTER;
-			lo = tensor[i];
+			lo = tensor.cell_int[i];
 		}
 		return JAZZ_FILTER_TYPE_INTEGER; }
 
 	case JAZZ_FILTER_TYPE_BOOLEAN: {
-		u_char *pt = reinterpret_cast<u_char *>(&tensor[0]);
-
 		for (int i = 0; i < size; i++) {
-			if ((pt[0] & 0xfe) != 0)
+			if ((tensor.cell_byte[i] & 0xfe) != 0)
 				return JAZZ_FILTER_TYPE_NOTAFILTER;
-			pt++;
 		}
 		return JAZZ_FILTER_TYPE_BOOLEAN; }
 	}
