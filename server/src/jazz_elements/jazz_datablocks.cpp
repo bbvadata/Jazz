@@ -80,7 +80,7 @@ bool JazzBlock::find_NAs_in_tensor(){
 		return false; }
 
 	case CELL_TYPE_SINGLE: {
-		u_int una = (u_int) JAZZ_SINGLE_NA;
+		u_int una = reinterpret_cast<u_int*>(&JAZZ_SINGLE_NA)[0];
 
 		for (int i = 0; i < size; i++) {
 			if (tensor.cell_uint[i] == una)
@@ -110,7 +110,7 @@ bool JazzBlock::find_NAs_in_tensor(){
 		return false; }
 
 	case CELL_TYPE_DOUBLE: {
-		uint64_t una = (uint64_t) JAZZ_DOUBLE_NA;
+		uint64_t una = reinterpret_cast<uint64_t*>(&JAZZ_DOUBLE_NA)[0];
 
 		for (int i = 0; i < size; i++) {
 			if (tensor.cell_ulongint[i] == una)
