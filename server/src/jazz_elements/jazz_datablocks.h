@@ -100,6 +100,20 @@ typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point store
 typedef int JazzTensorDim[JAZZ_MAX_TENSOR_RANK];
 
 
+/// A tensor of cell size 1, 4 or 8
+union JazzTensor
+{
+	u_char	  cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
+	bool	  cell_bool[0];		///< Cell size for CELL_TYPE_BYTE_BOOLEAN
+	int	   	  cell_int[0];		///< Cell size for CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_JAZZ_STRING
+	u_int  	  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	float  	  cell_single[0];	///< Cell size for CELL_TYPE_SINGLE
+	long long cell_longint[0];	///< Cell size for CELL_TYPE_LONG_INTEGER and CELL_TYPE_JAZZ_TIME
+	uint64_t  cell_ulongint[0];	///< Cell size for matching CELL_TYPE_DOUBLE or CELL_TYPE_JAZZ_TIME as 64 bit unsigned
+	double    cell_double[0];	///< Cell size for CELL_TYPE_DOUBLE
+};
+
+
 /// Header for a JazzBlock
 struct JazzBlockHeader
 {
@@ -113,7 +127,7 @@ struct JazzBlockHeader
 	TimePoint created;			///< Timestamp when the block was created
 	uint64_t hash64;			///< Hash of everything but the header
 
-	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
+	JazzTensor tensor;			///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
 };
 
 
@@ -238,7 +252,7 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *get_string(int *pIndex) {
-			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[get_offset(pIndex)]]);
+			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor.cell_int[get_offset(pIndex)]]);
 		}
 
 		/** Get a string from the tensor by offset without checking offset range.
@@ -250,7 +264,7 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *get_string(int offset)	 {
-			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[offset]]);
+			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor.cell_int[offset]]);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
@@ -266,7 +280,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int *pIndex, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			tensor[get_offset(pIndex)] = get_string_offset(psb, pString);
+			tensor.cell_int[get_offset(pIndex)] = get_string_offset(psb, pString);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
@@ -282,7 +296,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int offset, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			tensor[offset] = get_string_offset(psb, pString);
+			tensor.cell_int[offset] = get_string_offset(psb, pString);
 		}
 
 	// Methods on attributes.
@@ -388,7 +402,7 @@ class JazzBlock: public JazzBlockHeader {
 			values on the upper part.
 		*/
 		inline int *pAttribute_keys() {
-			return align_128bit((uintptr_t) &tensor[0] + (cell_type & 0xf)*size);
+			return align_128bit((uintptr_t) &tensor + (cell_type & 0xf)*size);
 		}
 
 		/** Return the address of the JazzStringBuffer containing the strings in the tensor and the attribute values.
