@@ -1029,20 +1029,19 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 {
 	char buf1[4096], buf2[4096];
 	pJazzBlock  pjb = reinterpret_cast<pJazzBlock>(&buf1);
-	pJazzFilter pjf = reinterpret_cast<pJazzFilter>(&buf2);
 
-	GIVEN("A block pjb")
+	GIVEN("A block pjb with 1 byte cells")
 	{
-		JazzTensorDim d1 = {17, 5, 3, 0, 0, 0};
+		JazzTensorDim d1 = {3, 15, 7, 0, 0, 0};
 
-		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+		pjb->cell_type = CELL_TYPE_BYTE;
 
 		pjb->set_dimensions(d1);
 		REQUIRE(pjb->rank ==   3);
-		REQUIRE(pjb->size == 255);
+		REQUIRE(pjb->size == 315);
 
 		pjb->num_attributes = 0;
-		pjb->total_bytes = 64 + 255*8 + 12 + 20;
+		pjb->total_bytes = 64 + 315*1 + 12 + 17;
 
 		AllAttributes att;
 		att[666] = nullptr;
@@ -1055,4 +1054,425 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
 		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
 	}
+
+	u_char *pt8 = reinterpret_cast<u_char *>(&pjb->tensor);
+
+	pjb->cell_type = CELL_TYPE_BYTE;
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_byte[i] = i % 0x10;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());	// No such thing as NA for CELL_TYPE_BYTE
+
+	pjb->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_byte[i] = i % 7 == 0;
+
+	REQUIRE(pjb->tensor.cell_byte[21] == true);
+	REQUIRE(pjb->tensor.cell_byte[22] == false);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[22] = JAZZ_BYTE_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[22] = true;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[0] = JAZZ_BYTE_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[0] = false;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[315] = JAZZ_BYTE_BOOLEAN_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[314] = JAZZ_BYTE_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[314] = 2;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[314] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	GIVEN("A block pjb with 4 byte cells")
+	{
+		JazzTensorDim d1 = {3, 15, 7, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_INTEGER;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 315);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 315*4 + 12 + 16;
+
+		AllAttributes att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
+		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
+		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+	}
+
+	int *pt32 = reinterpret_cast<int *>(&pjb->tensor);
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_int[i] = 321*i;
+
+	pjb->cell_type = CELL_TYPE_INTEGER;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = 654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = JAZZ_INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pjb->cell_type = CELL_TYPE_FACTOR;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = 654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = JAZZ_INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pjb->cell_type = CELL_TYPE_GRADE;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = 654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = JAZZ_INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = JAZZ_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pjb->cell_type = CELL_TYPE_BOOLEAN;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_uint[i] = i % 7 == 0;
+
+	REQUIRE(pjb->tensor.cell_uint[21] == true);
+	REQUIRE(pjb->tensor.cell_uint[22] == false);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = JAZZ_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = true;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = JAZZ_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = false;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = JAZZ_BOOLEAN_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = JAZZ_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 2;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_int[i] = 321*i;
+
+	pjb->cell_type = CELL_TYPE_JAZZ_STRING;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = JAZZ_STRING_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = JAZZ_STRING_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = JAZZ_STRING_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_single[i] = 32.1*i;
+
+	pjb->cell_type = CELL_TYPE_SINGLE;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	float *ptf32 = reinterpret_cast<float *>(&pjb->tensor);
+
+	ptf32[22] = JAZZ_SINGLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptf32[22] = 654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptf32[0] = JAZZ_SINGLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptf32[0] = 987654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptf32[315] = JAZZ_SINGLE_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptf32[314] = JAZZ_SINGLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptf32[314] = 5.55;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	GIVEN("A block pjb with 8 byte cells")
+	{
+		JazzTensorDim d1 = {3, 15, 7, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_LONG_INTEGER;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 315);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 315*8 + 12 + 20;
+
+		AllAttributes att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
+		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
+		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+	}
+
+	uint64_t *pt64 = reinterpret_cast<uint64_t *>(&pjb->tensor);
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_longint[i] = 987654321*i;
+
+	pjb->cell_type = CELL_TYPE_LONG_INTEGER;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[22] = JAZZ_LONG_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[22] = 65432123456789;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[0] = JAZZ_LONG_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[315] = JAZZ_LONG_INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[314] = JAZZ_LONG_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_longint[i] = 987654321*i;
+
+	pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[0] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[0] = JAZZ_TIME_POINT_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[315] = JAZZ_TIME_POINT_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[314] = JAZZ_TIME_POINT_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_double[i] = 987654321.23456789*i;
+
+	pjb->cell_type = CELL_TYPE_DOUBLE;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	double *ptd64 = reinterpret_cast<double *>(&pjb->tensor);
+
+	ptd64[22] = JAZZ_DOUBLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptd64[22] = 654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptd64[0] = JAZZ_DOUBLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptd64[0] = 987654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptd64[315] = JAZZ_DOUBLE_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptd64[314] = JAZZ_DOUBLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptd64[314] = 5.55;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
 }
