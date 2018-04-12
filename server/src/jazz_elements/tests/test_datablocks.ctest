@@ -424,29 +424,29 @@ SCENARIO("Testing String and Attribute logic")
 
 		pjb->set_string(0, sstr[0]);
 
-		REQUIRE(pjb->tensor[0] == 2);
+		REQUIRE(pjb->tensor.cell_int[0] == 2);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
 
 		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
 
 		pjb->set_string(1, nullptr);
 
-		REQUIRE(pjb->tensor[1] == JAZZ_STRING_NA);
+		REQUIRE(pjb->tensor.cell_int[1] == JAZZ_STRING_NA);
 
 		pjb->set_string(2, sstr[7]);
 
-		REQUIRE(pjb->tensor[2] == JAZZ_STRING_EMPTY);
+		REQUIRE(pjb->tensor.cell_int[2] == JAZZ_STRING_EMPTY);
 
 		pjb->set_string(3, sstr[0]);
 
-		REQUIRE(pjb->tensor[3] == 2);
+		REQUIRE(pjb->tensor.cell_int[3] == 2);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
 
 		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
 
 		pjb->set_string(4, sstr[6]);
 
-		REQUIRE(pjb->tensor[4] == 6);
+		REQUIRE(pjb->tensor.cell_int[4] == 6);
 
 		REQUIRE(!strcmp(pjb->get_string(4), "Hello world!"));
 
@@ -544,29 +544,29 @@ SCENARIO("Testing String and Attribute logic")
 
 		pjb->set_string(0, sstr[0]);
 
-		REQUIRE(pjb->tensor[0] == 2);
+		REQUIRE(pjb->tensor.cell_int[0] == 2);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
 
 		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
 
 		pjb->set_string(1, nullptr);
 
-		REQUIRE(pjb->tensor[1] == JAZZ_STRING_NA);
+		REQUIRE(pjb->tensor.cell_int[1] == JAZZ_STRING_NA);
 
 		pjb->set_string(2, sstr[7]);
 
-		REQUIRE(pjb->tensor[2] == JAZZ_STRING_EMPTY);
+		REQUIRE(pjb->tensor.cell_int[2] == JAZZ_STRING_EMPTY);
 
 		pjb->set_string(3, sstr[0]);
 
-		REQUIRE(pjb->tensor[3] == 2);
+		REQUIRE(pjb->tensor.cell_int[3] == 2);
 		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
 
 		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
 
 		pjb->set_string(4, sstr[6]);
 
-		REQUIRE(pjb->tensor[4] == 6);
+		REQUIRE(pjb->tensor.cell_int[4] == 6);
 
 		REQUIRE(!strcmp(pjb->get_string(4), "Hello world!"));
 
@@ -630,7 +630,7 @@ SCENARIO("Testing String and Attribute logic")
 
 		idx = pjb->get_offset(d4);
 
-		REQUIRE(pjb->tensor[idx] == JAZZ_STRING_NA);
+		REQUIRE(pjb->tensor.cell_int[idx] == JAZZ_STRING_NA);
 
 		REQUIRE(pjb->get_string_offset(psb, sstr[0]) == JAZZ_STRING_NA);
 		REQUIRE(pjb->get_string_offset(psb, nullptr) == JAZZ_STRING_NA);
@@ -880,10 +880,8 @@ SCENARIO("Testing Filters")
 		REQUIRE(!pjf->pStringBuffer()->alloc_failed);
 		REQUIRE( pjf->pStringBuffer()->buffer_size == 4);
 
-		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor[0]);
-
 		for (int i = 0; i < 17; i++)
-			pt[i] = 0;
+			pjf->tensor.cell_byte[i] = 0;
 
 		pjf->has_NA	= false;
 
@@ -901,6 +899,7 @@ SCENARIO("Testing Filters")
 		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
 		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_BOOLEAN);
 
+		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor);
 		pt[17] = 17;
 
 		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
@@ -943,7 +942,7 @@ SCENARIO("Testing Filters")
 		REQUIRE( pjf->pStringBuffer()->buffer_size == 4);
 
 		for (int i = 0; i < 4; i++)
-			pjf->tensor[i] = 2*i;
+			pjf->tensor.cell_int[i] = 2*i;
 
 		pjf->dim_offs[1] = 4;
 
@@ -980,15 +979,15 @@ SCENARIO("Testing Filters")
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
 
 		pjf->dim_offs[1] = 5;
-		pjf->tensor[4]   = 6;
+		pjf->tensor.cell_int[4]   = 6;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 
-		pjf->tensor[4] = 7;
+		pjf->tensor.cell_int[4] = 7;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
 
-		pjf->tensor[4] = 17;
+		pjf->tensor.cell_int[4] = 17;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 
@@ -1008,26 +1007,52 @@ SCENARIO("Testing Filters")
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
 
-		pjf->tensor[0] = -1;
+		pjf->tensor.cell_int[0] = -1;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 
-		pjf->tensor[0] = 0;
+		pjf->tensor.cell_int[0] = 0;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
 
-		pjf->tensor[0] = 16;
+		pjf->tensor.cell_int[0] = 16;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
 
-		pjf->tensor[0] = 17;
+		pjf->tensor.cell_int[0] = 17;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 	}
 }
 
-
 SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying allocation at boundaries")
 {
-//TODO: Write unit tests for find_NAs_in_tensor
+	char buf1[4096], buf2[4096];
+	pJazzBlock  pjb = reinterpret_cast<pJazzBlock>(&buf1);
+	pJazzFilter pjf = reinterpret_cast<pJazzFilter>(&buf2);
+
+	GIVEN("A block pjb")
+	{
+		JazzTensorDim d1 = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 255);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 255*8 + 12 + 20;
+
+		AllAttributes att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
+		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
+		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+	}
 }

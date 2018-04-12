@@ -185,7 +185,7 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 	default:
 		p_block->has_NA = p_block->find_NAs_in_tensor();
 	}
-	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor[0], p_block->total_bytes - sizeof(JazzBlockHeader));
+	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(JazzBlockHeader));
 	p_block->created = std::chrono::steady_clock::now();
 }
 
