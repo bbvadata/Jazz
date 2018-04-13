@@ -166,7 +166,7 @@ typedef std::map<void *, int> JazzOneShotAlloc;
 
 
 pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
-						   pJazzBlock 	  p_row_filter,
+						   pJazzBlock 	  p_row_filter	= nullptr,
 						   AllAttributes *att			= nullptr);
 
 
@@ -177,18 +177,13 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   bool			 *p_bool_filter	  = nullptr,
 						   int			  stringbuff_size = 0,
 						   const char	 *p_text		  = nullptr,
-						   char			  separator		  = '\n');
+						   char			  eoln			  = '\n');
 
 
 /** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor
 
 	Despite its name, this function does not actually "close" anything. JazzBlock manipulation is based on "good will",
 after calling close_jazz_block() the owner should not change the content. If you do, you should close_jazz_block() again after.
-
-	bool ;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
-	TimePoint created;			///< Timestamp when the block was created
-	uint64_t hash64;			///< Hash of everything but the header
-
 
 	close_jazz_block() can be called any number of times on the same block.
 
