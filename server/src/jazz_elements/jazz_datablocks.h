@@ -464,15 +464,15 @@ public:
 
 	/** Check (fast) if a JazzFilter is valid and can be applied to filter inside a specific JazzBlock
 
-		This is a filter_type() with an previous (size == number of rows) verification.
+		This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
 
-		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
+		\return true if it is a valid filter of that type.
 	*/
-	inline int can_filter(pJazzBlock p_block) {
+	inline bool can_filter(pJazzBlock p_block) {
 		if (p_block->rank < 1 || p_block->dim_offs[0] <= 0 || size != p_block->size/p_block->dim_offs[0])
-			return JAZZ_FILTER_TYPE_NOTAFILTER;
+			return false;
 
-		return filter_type();
+		return filter_type() != JAZZ_FILTER_TYPE_NOTAFILTER;
 	}
 };
 
