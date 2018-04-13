@@ -171,17 +171,19 @@ class JazzBlock: public JazzBlockHeader {
 			\param pDim A pointer to the JazzTensorDim containing the dimensions.
 
 			NOTES: 1. This writes: rank, dim_offs[] and size.
-				   2. A dimension 0 is the same as 1, only dimensions >1 count for the rank.
-				   3. All >1 dimensions must be in the beginning. 3,2,1,4 == 3,2,0,0 has rank == 2
+				   2. Except in the first position, a dimension 0 is the same as 1, only dimensions >1 count for the rank.
+				   3. Except in the first position, all >1 dimensions must be in the beginning. 3,2,1,4 == 3,2,0,0 has rank == 2
 				   4. All dimensions == 0 (or 1) has rank == 1 and size == 0 or 1 depending on the first dimension being 0 or 1.
+				   5. First dimension == 0 (or 1) and 2nd+ > 1 produce rank > 1 with 0 (or 1) rows.
 		*/
 		inline void set_dimensions(int *pDim) {
 			rank = JAZZ_MAX_TENSOR_RANK;
 			int j = 1;
 			for (int i = JAZZ_MAX_TENSOR_RANK -1; i > 0; i--)
 				if (pDim[i] > 1) { dim_offs[i] = j; j *= pDim[i]; } else { j = 1; dim_offs[i] = 0; rank = i; }
-			if (pDim[0] > 1) { dim_offs[0] = j; j *= pDim[0]; } else { j = pDim[0]; dim_offs[0] = 1; rank = 1; }
-			size = j;
+			dim_offs[0]  = j;
+			j 			*= pDim[0];
+			size		 = j;
 		}
 
 		/** Returns the tensor dimensions as a JazzTensorDim array.
