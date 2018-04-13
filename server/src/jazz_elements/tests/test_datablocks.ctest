@@ -897,7 +897,7 @@ SCENARIO("Testing Filters")
 
 		REQUIRE(pjf->filter_type()   == JAZZ_FILTER_TYPE_BOOLEAN);
 		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
-		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->can_filter(pjb));
 
 		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor);
 		pt[17] = 17;
@@ -960,7 +960,7 @@ SCENARIO("Testing Filters")
 
 		REQUIRE(pjf->filter_type()   == JAZZ_FILTER_TYPE_INTEGER);
 		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_INTEGER);
-		REQUIRE(pjf->can_filter(pjb) == JAZZ_FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->can_filter(pjb));
 
 		pjf->dim_offs[1] = -1;
 
