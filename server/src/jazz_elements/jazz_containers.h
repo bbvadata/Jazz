@@ -74,8 +74,8 @@ using namespace jazz_datablocks;
 #define JAZZ_FILL_NEW_DONT_FILL		0	///< Don't initialize at all.
 #define JAZZ_FILL_NEW_WITH_ZERO		1	///< Initialize with binary zero.
 #define JAZZ_FILL_NEW_WITH_NA		2	///< Initialize with the appropriate NA for the cell_type.
-#define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
-#define JAZZ_FILL_INTEGER_FILTER	4	///< Create an integer filter with the values in p_data bytes matching CELL_TYPE_INTEGER.
+#define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
+#define JAZZ_FILL_INTEGER_FILTER	4	///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
 
 /// Values for argument set_has_NA of close_jazz_block()
 #define JAZZ_SET_HAS_NA_
@@ -165,15 +165,16 @@ typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 typedef std::map<void *, int> JazzOneShotAlloc;
 
 
-pJazzBlock new_jazz_block (pJazzBlock p_as_block,
-						   pJazzBlock p_row_filter);
+pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
+						   pJazzBlock 	  p_row_filter,
+						   AllAttributes *att			= nullptr);
 
 
 pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
 						   AllAttributes *att,
 						   int			  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
-						   void			 *p_data		  = nullptr,
+						   bool			 *p_bool_filter	  = nullptr,
 						   int			  stringbuff_size = 0,
 						   const char	 *p_text		  = nullptr,
 						   char			  separator		  = '\n');
