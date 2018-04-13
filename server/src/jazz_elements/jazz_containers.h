@@ -75,7 +75,7 @@ using namespace jazz_datablocks;
 #define JAZZ_FILL_NEW_WITH_ZERO		1	///< Initialize with binary zero.
 #define JAZZ_FILL_NEW_WITH_NA		2	///< Initialize with the appropriate NA for the cell_type.
 #define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
-#define JAZZ_FILL_INTEGER_FILTER	4	///< Create a boolean filter with the values in p_data bytes matching CELL_TYPE_BYTE_BOOLEAN.
+#define JAZZ_FILL_INTEGER_FILTER	4	///< Create an integer filter with the values in p_data bytes matching CELL_TYPE_INTEGER.
 
 /// Values for argument set_has_NA of close_jazz_block()
 #define JAZZ_SET_HAS_NA_
@@ -83,6 +83,25 @@ using namespace jazz_datablocks;
 #define JAZZ_SET_HAS_NA_FALSE		0	///< Set to false without checking (unsafe in case there are and not-NA-aware arithmetic is used)
 #define JAZZ_SET_HAS_NA_TRUE		1	///< Set to true without checking (safe even if there are, NA-aware arithemtic is always safe)
 #define JAZZ_SET_HAS_NA_AUTO		2	///< Check if there are and set accordinly (slowest option when closing, best later)
+
+/// Values for the keys of the attributes in JazzBlock
+
+#define BLOCK_ATTR_SECTION_SIZE									   10000	///< Maximum number of keys per section
+#define BLOCK_ATTR_BASEOF_CONTAINERS							       0	///< Base of attribute keys in this module
+#define BLOCK_ATTR_CONTAINERS_EMPTY		BLOCK_ATTR_BASEOF_CONTAINERS + 1	///< No attributes defined, creates a <this:empty string>
+#define BLOCK_ATTR_CONTAINERS_FILTER	BLOCK_ATTR_BASEOF_CONTAINERS + 2	///< A new filter: creates a <this:empty string>
+
+#define BLOCK_ATTR_BASEOF_PERSISTENCE	BLOCK_ATTR_BASEOF_CONTAINERS  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_persistence.h
+#define BLOCK_ATTR_BASEOF_CLASSES		BLOCK_ATTR_BASEOF_PERSISTENCE + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_classes.h
+#define BLOCK_ATTR_BASEOF_PRIMITIVES	BLOCK_ATTR_BASEOF_CLASSES 	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_primitives.h
+#define BLOCK_ATTR_BASEOF_PROCESSCALL	BLOCK_ATTR_BASEOF_PRIMITIVES  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_processcall.h
+#define BLOCK_ATTR_BASEOF_CLUSTER		BLOCK_ATTR_BASEOF_PROCESSCALL + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_cluster.h
+#define BLOCK_ATTR_BASEOF_COLUMN		BLOCK_ATTR_BASEOF_CLUSTER	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_column.h
+#define BLOCK_ATTR_BASEOF_ARCHIVE		BLOCK_ATTR_BASEOF_COLUMN	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_archive.h
+#define BLOCK_ATTR_BASEOF_DATAFRAME		BLOCK_ATTR_BASEOF_ARCHIVE	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_dataframe.h
+#define BLOCK_ATTR_BASEOF_BEBOP			BLOCK_ATTR_BASEOF_DATAFRAME	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_bebop.h
+#define BLOCK_ATTR_BASEOF_RESTAPI		BLOCK_ATTR_BASEOF_BEBOP		  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_restapi.h
+#define BLOCK_ATTR_BASEOF_EXTENSIONS	BLOCK_ATTR_BASEOF_RESTAPI	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys from C++ extensions
 
 
 /** A readable block identifier. It must be a string matching JAZZ_REGEX_VALIDATE_BLOCK_ID. This name is the key identifying
