@@ -173,51 +173,6 @@ using namespace std;
 
 
 
-// pJazzQueueItem skew(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
-// ----------------------
-
-// input: T, a node representing an AA tree that needs to be rebalanced.
-// output: Another node representing the rebalanced AA tree.
-
-inline pJazzQueueItem skew(pJazzQueueItem pT)
-{
-	// rotate p_alloc_next if p_alloc_prev child has same level
-	if (pT->p_alloc_prev && pT->level == pT->p_alloc_prev->level)
-	{
-		pJazzQueueItem pL = pT->p_alloc_prev;
-		pT->p_alloc_prev = pL->p_alloc_next;
-		pL->p_alloc_next = pT;
-
-		return pL;
-	}
-
-	return pT;
-};
-
-
-// pJazzQueueItem split(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
-// -----------------------
-
-// input: N, a node representing an AA tree that needs to be rebalanced.
-// output: Another node representing the rebalanced AA tree.
-
-inline pJazzQueueItem split(pJazzQueueItem pT)
-{
-	// rotate p_alloc_prev if there are two p_alloc_next children on same level
-	if (pT->p_alloc_next && pT->p_alloc_next->p_alloc_next && pT->level == pT->p_alloc_next->p_alloc_next->level)
-	{
-		pJazzQueueItem pR = pT->p_alloc_next;
-		pT->p_alloc_next = pR->p_alloc_prev;
-		pR->p_alloc_prev = pT;
-		pR->level++;
-
-		return pR;
-	}
-
-	return pT;
-};
-
-
 // pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT):
 // -----------------------------------
 
@@ -252,27 +207,6 @@ pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT)
 	pT = split(pT);
 
 	return pT;
-};
-
-
-// pJazzQueueItem decrease_level(pJazzQueueItem pT):
-// --------------------------------
-
-// input: T, a tree for which we want to remove links that skip levels.
-// output: T with its level decreased.
-
-inline void decrease_level(pJazzQueueItem pT)
-{
-	if (pT->p_alloc_prev && pT->p_alloc_next)
-	{
-		int should_be = min(pT->p_alloc_prev->level, pT->p_alloc_next->level + 1);
-
-		if (should_be < pT->level)
-		{
-			pT->level = should_be;
-			if (should_be < pT->p_alloc_next->level) pT->p_alloc_next->level = should_be;
-		}
-	}
 };
 
 
@@ -350,39 +284,6 @@ pJazzQueueItem remove_lo(pJazzQueueItem pN, pJazzQueueItem pT)
 };
 
 
-// pJazzQueueItem HighestPriority(pJazzQueueItem pT):
-// -----------------------------------
-
-// input: T, the root of the tree from which we want the highest priority node.
-// output: The node N (Tree not modified.)
-
-inline pJazzQueueItem HighestPriority(pJazzQueueItem pT)
-{
-	if (pT)
-	{
-		while (pT->p_alloc_next) pT = pT->p_alloc_next;
-	};
-
-	return pT;
-};
-
-// pJazzQueueItem LowestPriority(pJazzQueueItem pT):
-// -----------------------------------
-
-// input: T, the root of the tree from which we want the lowest priority node.
-// output: The node N (Tree not modified.)
-
-inline pJazzQueueItem LowestPriority(pJazzQueueItem pT)
-{
-	if (pT)
-	{
-		while (pT->p_alloc_prev) pT = pT->p_alloc_prev;
-	};
-
-	return pT;
-};
-
-
 ModelBuffer::ModelBuffer()
 {
 	p_buffer_base  = NULL;
@@ -437,7 +338,7 @@ pJazzQueueItem ModelBuffer::GetFreeModel()
 		return pM;
 	};
 
-	pJazzQueueItem pLP = LowestPriority(p_queue_root);
+	pJazzQueueItem pLP = lowest_priority(p_queue_root);
 
 	p_queue_root = remove_lo(pLP, p_queue_root);
 
@@ -453,7 +354,7 @@ void ModelBuffer::PushModelToPriorityQueue(pJazzQueueItem pM)
 
 pJazzQueueItem ModelBuffer::highest_priority_item()
 {
-	pJazzQueueItem pHP = HighestPriority(p_queue_root);
+	pJazzQueueItem pHP = highest_priority(p_queue_root);
 
 	if (pHP)
 	{

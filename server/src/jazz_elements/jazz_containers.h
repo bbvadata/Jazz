@@ -144,15 +144,17 @@ struct JazzTreeItem: JazzBlockKeeprItem {
 /** The root class for different AATBlockQueue descendants
 */
 struct JazzQueueItem: JazzBlockKeeprItem {
-	float	  priority;										///< A priority value to implement a priority queue
-	float	  time_to_build;								///< The time required to compute the block (real or estimated)
+	int		  level;										///< Level in the AA tree (used for autobalancing)
+	int		  times_used;									///< Times the block has been reassigned in the queue
+	double	  priority;										///< A priority value to implement a priority queue
+	TimePoint time_to_build;								///< The time required to compute the block (real or estimated)
 	TimePoint last_used;									///< Timestamp of last use
 };
 
 
 /** A map to search a JazzBlockKeeprItem by the block_id64 of its corresponding JazzBlock. This is the essential element
 that converts a queue into a cache. A cache is a queue where elements can be searched by id and lower priority items
-can be removed to allocate space. priority() is a function, typically over (now - last_used, time_to_build, p_jazz_block->total_bytes).
+can be removed to allocate space.
 */
 typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 
@@ -289,6 +291,110 @@ class AATBlockQueue: public JazzBlockKeepr {
 		virtual void set_item_priority(pJazzQueueItem p_item);
 
 	private:
+
+		/** Return the highest priority node in the AA subtree without modifying the tree.
+
+			\param p_item, the root of the AA subtree from which we want the highest priority node.
+
+			\return	the highest priority node in the AA subtree.
+
+			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
+		*/
+		inline pJazzQueueItem highest_priority(pJazzQueueItem p_item)
+		{
+			if (p_item != nullptr) {
+				while (p_item->p_alloc_next != nullptr) p_item = (pJazzQueueItem) p_item->p_alloc_next;
+			};
+
+			return p_item;
+		};
+
+		/** Return the lowest priority node in the AA subtree without modifying the tree.
+
+			\param p_item, the root of the AA subtree from which we want the lowest priority node.
+
+			\return	the lowest priority node in the AA subtree.
+
+			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
+		*/
+		inline pJazzQueueItem lowest_priority(pJazzQueueItem p_item)
+		{
+			if (p_item != nullptr) {
+				while (p_item->p_alloc_prev != nullptr) p_item = (pJazzQueueItem) p_item->p_alloc_prev;
+			};
+
+			return p_item;
+		};
+
+
+		// pJazzQueueItem decrease_level(pJazzQueueItem p_item):
+		// --------------------------------
+
+		// input: T, a tree for which we want to remove links that skip levels.
+		// output: T with its level decreased.
+
+		inline void decrease_level(pJazzQueueItem p_item)
+		{
+			if ((p_item->p_alloc_prev != nullptr) & (p_item->p_alloc_next != nullptr)) {
+				int should_be = std::min(reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level,
+										 reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level + 1);
+
+				if (should_be < p_item->level) {
+					p_item->level = should_be;
+					if (should_be < reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level) {
+						reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level = should_be;
+					}
+				}
+			}
+		};
+
+
+		// pJazzQueueItem skew(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
+		// ----------------------
+
+		// input: T, a node representing an AA tree that needs to be rebalanced.
+		// output: Another node representing the rebalanced AA tree.
+
+		inline pJazzQueueItem skew(pJazzQueueItem p_item)
+		{
+			// rotate p_alloc_next if p_alloc_prev child has same level
+			if ((p_item->p_alloc_prev != nullptr) & (p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level)) {
+				pJazzQueueItem p_left = (pJazzQueueItem) p_item->p_alloc_prev;
+
+				p_item->p_alloc_prev = p_left->p_alloc_next;
+				p_left->p_alloc_next = p_item;
+
+				return p_left;
+			}
+
+			return p_item;
+		};
+
+
+		// pJazzQueueItem split(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
+		// -----------------------
+
+		// input: N, a node representing an AA tree that needs to be rebalanced.
+		// output: Another node representing the rebalanced AA tree.
+
+		inline pJazzQueueItem split(pJazzQueueItem p_item)
+		{
+			// rotate p_alloc_prev if there are two p_alloc_next children on same level
+			if (  (p_item->p_alloc_next != nullptr)
+				& (p_item->p_alloc_next->p_alloc_next != nullptr)
+				& (p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next->p_alloc_next)->level)) {
+
+				pJazzQueueItem p_right = (pJazzQueueItem) p_item->p_alloc_next;
+
+				p_item->p_alloc_next  = p_right->p_alloc_prev;
+				p_right->p_alloc_prev = p_item;
+				p_right->level++;
+
+				return p_right;
+			}
+
+			return p_item;
+		};
 
 		pJazzQueueItem p_queue_root = nullptr;
 };
