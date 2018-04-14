@@ -219,12 +219,12 @@ class JazzBlockKeepr {
 
 		// Methods for JazzBlock allocation
 
-		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *pID,
+		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
 												  pJazzBlock 	  	   p_as_block,
 								   				  pJazzBlock 	  	   p_row_filter	= nullptr,
 								   				  AllAttributes 	  *att			= nullptr);
 
-		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *pID,
+		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
 												  int			  	   cell_type,
 												  JazzTensorDim		  *dim,
 												  AllAttributes		  *att,
@@ -241,13 +241,12 @@ class JazzBlockKeepr {
 
 	private:
 
-		int keepr_item_size;
-
+		int 		   keepr_item_size, num_allocd_items;
+		pJazzQueueItem p_buffer_base, p_first_free;
 };
 
 
 class JazzTree: public JazzBlockKeepr {
-
 
 	public:
 
@@ -261,17 +260,22 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 	public:
 
+
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
+
+	private:
+
+		pJazzQueueItem p_queue_root;
 
 };
 
 
 class JazzCache: public AATBlockQueue {
 
-	pJazzBlockKeeprItem find_jazz_block(const JazzBlockIdentifier *pID);
+	pJazzBlockKeeprItem find_jazz_block(const JazzBlockIdentifier *p_id);
 	pJazzBlockKeeprItem find_jazz_block(JazzBlockId64 id64);
-	void remove_jazz_block(const JazzBlockIdentifier *pID);
+	void remove_jazz_block(const JazzBlockIdentifier *p_id);
 
 };
 
@@ -289,12 +293,6 @@ public:
 	void	PushModelToPriorityQueue(pJazzQueueItem pM);
 	pJazzQueueItem GetHighestPriorityModel ();
 
-	pJazzQueueItem pQueueRoot;
-
-private:
-
-	pJazzQueueItem pBuffBase, pFirstFree;
-	int		numAllocM;
 };
 
 */

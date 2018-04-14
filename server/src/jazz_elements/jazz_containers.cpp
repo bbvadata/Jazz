@@ -385,44 +385,44 @@ inline pJazzQueueItem LowestPriority(pJazzQueueItem pT)
 
 ModelBuffer::ModelBuffer()
 {
-	pBuffBase  = NULL;
-	pQueueRoot = NULL;
-	pFirstFree = NULL;
-	numAllocM  = 0;
+	p_buffer_base  = NULL;
+	p_queue_root = NULL;
+	p_first_free = NULL;
+	num_allocd_items  = 0;
 };
 
 
 ModelBuffer::~ModelBuffer()
 {
-	if (pBuffBase) delete [] pBuffBase;
+	if (p_buffer_base) delete [] p_buffer_base;
 };
 
 
 bool ModelBuffer::AllocModels(int numModels)
 {
-	if (pBuffBase) delete [] pBuffBase;
+	if (p_buffer_base) delete [] p_buffer_base;
 
-	pBuffBase  = NULL;
-	pQueueRoot = NULL;
-	pFirstFree = NULL;
-	numAllocM  = 0;
+	p_buffer_base  = NULL;
+	p_queue_root = NULL;
+	p_first_free = NULL;
+	num_allocd_items  = 0;
 
 	if (!numModels) return true;
 
-	pBuffBase = new  (nothrow) Model_InGrQS [numModels];
+	p_buffer_base = new  (nothrow) Model_InGrQS [numModels];
 
-	if (!pBuffBase) return false;
+	if (!p_buffer_base) return false;
 
-	numAllocM = numModels;
+	num_allocd_items = numModels;
 
-	memset(pBuffBase, 0, sizeof(Model_InGrQS)*numAllocM);
+	memset(p_buffer_base, 0, sizeof(Model_InGrQS)*num_allocd_items);
 
-	pQueueRoot = NULL;
-	pFirstFree = pBuffBase;
+	p_queue_root = NULL;
+	p_first_free = p_buffer_base;
 
 	int i;
 
-	for (i = 0; i < numAllocM - 1; i++) pBuffBase[i].p_alloc_next = &pBuffBase[i + 1];
+	for (i = 0; i < num_allocd_items - 1; i++) p_buffer_base[i].p_alloc_next = &p_buffer_base[i + 1];
 
 	return true;
 };
@@ -430,16 +430,16 @@ bool ModelBuffer::AllocModels(int numModels)
 
 pJazzQueueItem ModelBuffer::GetFreeModel()
 {
-	if (pFirstFree)
+	if (p_first_free)
 	{
-		pJazzQueueItem pM = pFirstFree;
-		pFirstFree = pM->p_alloc_next;
+		pJazzQueueItem pM = p_first_free;
+		p_first_free = pM->p_alloc_next;
 		return pM;
 	};
 
-	pJazzQueueItem pLP = LowestPriority(pQueueRoot);
+	pJazzQueueItem pLP = LowestPriority(p_queue_root);
 
-	pQueueRoot = remove_lo(pLP, pQueueRoot);
+	p_queue_root = remove_lo(pLP, p_queue_root);
 
 	return pLP;
 };
@@ -447,21 +447,21 @@ pJazzQueueItem ModelBuffer::GetFreeModel()
 
 void ModelBuffer::PushModelToPriorityQueue(pJazzQueueItem pM)
 {
-	pQueueRoot = insert(pM, pQueueRoot);
+	p_queue_root = insert(pM, p_queue_root);
 };
 
 
 pJazzQueueItem ModelBuffer::GetHighestPriorityModel()
 {
-	pJazzQueueItem pHP = HighestPriority(pQueueRoot);
+	pJazzQueueItem pHP = HighestPriority(p_queue_root);
 
 	if (pHP)
 	{
-		pQueueRoot = remove_hi(pHP, pQueueRoot);
+		p_queue_root = remove_hi(pHP, p_queue_root);
 
 		pHP->p_alloc_prev = NULL;
-		pHP->p_alloc_next = pFirstFree;
-		pFirstFree = pHP;
+		pHP->p_alloc_next = p_first_free;
+		p_first_free = pHP;
 	};
 
 	return pHP;
