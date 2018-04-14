@@ -123,6 +123,18 @@ void free_jazz_block(pJazzBlock &p_block)
 
 }
 
+
+JazzBlockKeepr::JazzBlockKeepr()
+{
+	keepr_item_size = item_size();
+
+}
+
+JazzBlockKeepr::~JazzBlockKeepr()
+{
+
+}
+
 /* ----------------------------------------------------------------------------
 
 	GEM : MCTS vs GrQ experiments for my PhD thesis : AATree based priority queue
