@@ -147,7 +147,7 @@ struct JazzQueueItem: JazzBlockKeeprItem {
 	int		  level;										///< Level in the AA tree (used for autobalancing)
 	int		  times_used;									///< Times the block has been reassigned in the queue
 	double	  priority;										///< A priority value to implement a priority queue
-	TimePoint time_to_build;								///< The time required to compute the block (real or estimated)
+	uint64_t  time_to_build;								///< The time required to compute the block (real or estimated) in microseconds
 	TimePoint last_used;									///< Timestamp of last use
 };
 
@@ -222,6 +222,12 @@ JazzBlocks are not controlled by a JazzBlockKeeprItem. Difference between JazzPe
 JazzBlockKeepr interface that can be used from c++ to do things like select information from blocks without assigning or copying them, the
 latter has a much simpler interface that is exported to Python and R and provides what a script language programmer would expect at the price
 of not always benefitting from the memory-mapped file allocation in lmdb that underlies JazzPersistence.
+
+When an JazzBlockKeepr fills, blocks fail to allocate but never get automatically destroyed.
+
+THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
+is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzBlockKeepr {
 
@@ -239,8 +245,8 @@ class JazzBlockKeepr {
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
 												  pJazzBlock 	  	   p_as_block,
-								   				  pJazzBlock 	  	   p_row_filter	= nullptr,
-								   				  AllAttributes 	  *att			= nullptr);
+								   				  pJazzBlock 	  	   p_row_filter	 = nullptr,
+								   				  AllAttributes 	  *att			 = nullptr);
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
 												  int			  	   cell_type,
@@ -275,6 +281,12 @@ systems (archives and archive descendats) both local and distibuted. This class 
 
 To create descandants, just create a container that inherits JazzTreeItem, declare item_size() with the appropritae size and implement
 the methods. The inherited ::new_jazz_block() and alloc_keeprs()/realloc_keeprs()/destroy_keeprs() will work as expected.
+
+When an JazzTree fills, blocks fail to allocate but never get automatically destroyed.
+
+THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
+is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzTree: public JazzBlockKeepr {
 
@@ -287,8 +299,15 @@ class JazzTree: public JazzBlockKeepr {
 };
 
 
-/**
-//TODO: Write doc for class  AATBlockQueue
+/** A JazzBlockKeepr descendant implementing a priority queue using auto balancing AA trees. The priority of a block is set by calling
+a virtual function set_item_priority() when the block is created or moved. This function computes the priority based on recency number of
+times used, time to build, size, etc.
+
+When an AATBlockQueue fills, blocks get automatically destroyed (the lowest priority blocks, obviously).
+
+THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
+is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class AATBlockQueue: public JazzBlockKeepr {
 
@@ -299,7 +318,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
 											 pJazzBlock 	  	  p_as_block,
 								   			 pJazzBlock 	  	  p_row_filter	= nullptr,
-								   			 AllAttributes		 *att			= nullptr);
+								   			 AllAttributes		 *att			= nullptr,
+											 uint64_t	 		  time_to_build = 0);
 
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
 											 int			  	  cell_type,
@@ -309,12 +329,13 @@ class AATBlockQueue: public JazzBlockKeepr {
 											 bool				 *p_bool_filter   = nullptr,
 											 int				  stringbuff_size = 0,
 											 const char			 *p_text		  = nullptr,
-											 char				  eoln			  = '\n');
+											 char				  eoln			  = '\n',
+											 uint64_t	 		  time_to_build	  = 0);
 
 		void remove_jazz_block(pJazzQueueItem p_item);
 
-		pJazzQueueItem highest_priority_item ();
-		pJazzQueueItem lowest_priority_item  ();
+		pJazzQueueItem highest_priority_item (bool remove_it = false);
+		pJazzQueueItem lowest_priority_item  (bool remove_it = false);
 
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
@@ -432,6 +453,10 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 /** This class is an AATBlockQueue with a JazzBlockMap cache that allows searching blocks by JazzBlockIdentifier and JazzBlockId64.
 Blocks found can also be reprioritized to make their automatic destruction less probable when they are used frequently.
+
+THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
+is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzCache: public AATBlockQueue {
 
