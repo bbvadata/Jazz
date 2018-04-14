@@ -33,6 +33,8 @@
 namespace jazz_containers
 {
 
+//TODO: Set a log object for the jazz_containers namespace
+
 /** Create a new (one_shot) JazzBlock as a selection (of possibly all) of an existing JazzBlock
 
 	\param p_as_block   An existing block from which everything is copied, possibly with a selection over its rows.

@@ -206,7 +206,9 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 
 void free_jazz_block(pJazzBlock &p_block);
 
-
+/**
+//TODO: Write doc for class  JazzBlockKeepr
+*/
 class JazzBlockKeepr {
 
 	public:
@@ -245,9 +247,15 @@ class JazzBlockKeepr {
 
 		int 		   keepr_item_size, num_allocd_items;
 		pJazzQueueItem p_buffer_base, p_first_free;
+
+//TODO: Thread control mechanism
+
 };
 
 
+/**
+//TODO: Write doc for class  JazzTree
+*/
 class JazzTree: public JazzBlockKeepr {
 
 	public:
@@ -259,6 +267,9 @@ class JazzTree: public JazzBlockKeepr {
 };
 
 
+/**
+//TODO: Write doc for class  AATBlockQueue
+*/
 class AATBlockQueue: public JazzBlockKeepr {
 
 	public:
@@ -292,11 +303,11 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 	private:
 
-		/** Return the highest priority node in the AA subtree without modifying the tree.
+		/** Return the highest priority node in the AA subtree without modifying the tree
 
-			\param p_item, the root of the AA subtree from which we want the highest priority node.
+			\param p_item The root of the AA subtree from which we want the highest priority node.
 
-			\return	the highest priority node in the AA subtree.
+			\return		  The highest priority node in the AA subtree.
 
 			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
 		*/
@@ -309,11 +320,11 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
-		/** Return the lowest priority node in the AA subtree without modifying the tree.
+		/** Return the lowest priority node in the AA subtree without modifying the tree
 
-			\param p_item, the root of the AA subtree from which we want the lowest priority node.
+			\param p_item The root of the AA subtree from which we want the lowest priority node.
 
-			\return	the lowest priority node in the AA subtree.
+			\return		  The lowest priority node in the AA subtree.
 
 			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
 		*/
@@ -326,13 +337,12 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
+		/** Remove links tha skip level in an AA subtree
 
-		// pJazzQueueItem decrease_level(pJazzQueueItem p_item):
-		// --------------------------------
+			\param p_item A tree for which we want to remove links that skip levels.
 
-		// input: T, a tree for which we want to remove links that skip levels.
-		// output: T with its level decreased.
-
+			Note: This does alter the tree and requires exclusive access to the AA.
+		*/
 		inline void decrease_level(pJazzQueueItem p_item)
 		{
 			if ((p_item->p_alloc_prev != nullptr) & (p_item->p_alloc_next != nullptr)) {
@@ -348,13 +358,13 @@ class AATBlockQueue: public JazzBlockKeepr {
 			}
 		};
 
+		/** Try to rebalance an AA subtree on its left (prev) side
 
-		// pJazzQueueItem skew(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
-		// ----------------------
+			\param p_item a node representing an AA tree that needs to be rebalanced.
+			\return		  Another node representing the rebalanced AA tree.
 
-		// input: T, a node representing an AA tree that needs to be rebalanced.
-		// output: Another node representing the rebalanced AA tree.
-
+			Note: This does alter the tree and requires exclusive access to the AA.
+		*/
 		inline pJazzQueueItem skew(pJazzQueueItem p_item)
 		{
 			// rotate p_alloc_next if p_alloc_prev child has same level
@@ -370,13 +380,13 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
+		/** Try to rebalance an AA subtree on its right (next) side
 
-		// pJazzQueueItem split(pJazzQueueItem pN):	(As in http://en.wikipedia.org/wiki/AA_tree)
-		// -----------------------
+			\param p_item A node representing an AA tree that needs to be rebalanced.
+			\return		  Another node representing the rebalanced AA tree.
 
-		// input: N, a node representing an AA tree that needs to be rebalanced.
-		// output: Another node representing the rebalanced AA tree.
-
+			Note: This does alter the tree and requires exclusive access to the AA.
+		*/
 		inline pJazzQueueItem split(pJazzQueueItem p_item)
 		{
 			// rotate p_alloc_prev if there are two p_alloc_next children on same level
@@ -400,6 +410,9 @@ class AATBlockQueue: public JazzBlockKeepr {
 };
 
 
+/**
+//TODO: Write doc for class  JazzCache
+*/
 class JazzCache: public AATBlockQueue {
 
 	public:
