@@ -267,8 +267,14 @@ class JazzBlockKeepr {
 };
 
 
-/**
-//TODO: Write doc for class  JazzTree
+/** Root class for all JazzBlock containers implementing trees.
+
+Trees are the base for many descendants, including searches (MCTS, minimax with alpha-beta pruning, loss minimization, etc.) and file
+systems (archives and archive descendats) both local and distibuted. This class simply implements a JazzTreeItem with tree navigation
+(p_parent, p_first_child, p_next_sibling) and basic stats that could be used in MCTS and other trees (num_visits, num_wins).
+
+To create descandants, just create a container that inherits JazzTreeItem, declare item_size() with the appropritae size and implement
+the methods. The inherited ::new_jazz_block() and alloc_keeprs()/realloc_keeprs()/destroy_keeprs() will work as expected.
 */
 class JazzTree: public JazzBlockKeepr {
 
