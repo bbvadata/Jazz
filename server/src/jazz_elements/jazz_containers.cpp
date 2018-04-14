@@ -451,7 +451,7 @@ void ModelBuffer::PushModelToPriorityQueue(pJazzQueueItem pM)
 };
 
 
-pJazzQueueItem ModelBuffer::GetHighestPriorityModel()
+pJazzQueueItem ModelBuffer::highest_priority_item()
 {
 	pJazzQueueItem pHP = HighestPriority(p_queue_root);
 

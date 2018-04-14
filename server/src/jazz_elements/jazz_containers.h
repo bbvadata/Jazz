@@ -234,7 +234,7 @@ class JazzBlockKeepr {
 												  const char		  *p_text		   = nullptr,
 												  char				   eoln			   = '\n');
 
-		void remove_jazz_block(pJazzBlockKeeprItem);
+		void remove_jazz_block(pJazzBlockKeeprItem p_item);
 
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
@@ -253,6 +253,7 @@ class JazzTree: public JazzBlockKeepr {
 		/// A virtual method returning the size of JazzTreeItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzTreeItem); }
 
+		pJazzTreeItem p_tree_root = nullptr;
 };
 
 
@@ -260,42 +261,51 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 	public:
 
+		// Methods for JazzBlock allocation
+
+		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 pJazzBlock 	  	  p_as_block,
+								   			 pJazzBlock 	  	  p_row_filter	= nullptr,
+								   			 AllAttributes		 *att			= nullptr);
+
+		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 int			  	  cell_type,
+											 JazzTensorDim		 *dim,
+											 AllAttributes		 *att,
+											 int				  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
+											 bool				 *p_bool_filter   = nullptr,
+											 int				  stringbuff_size = 0,
+											 const char			 *p_text		  = nullptr,
+											 char				  eoln			  = '\n');
+
+		void remove_jazz_block(pJazzQueueItem p_item);
+
+		pJazzQueueItem highest_priority_item ();
+		pJazzQueueItem lowest_priority_item  ();
 
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
 
+		virtual void set_item_priority(pJazzQueueItem p_item);
+
 	private:
 
-		pJazzQueueItem p_queue_root;
-
+		pJazzQueueItem p_queue_root = nullptr;
 };
 
 
 class JazzCache: public AATBlockQueue {
 
-	pJazzBlockKeeprItem find_jazz_block(const JazzBlockIdentifier *p_id);
-	pJazzBlockKeeprItem find_jazz_block(JazzBlockId64 id64);
-	void remove_jazz_block(const JazzBlockIdentifier *p_id);
+	public:
 
+		pJazzBlockKeeprItem find_jazz_block	  (const JazzBlockIdentifier *p_id);
+		pJazzBlockKeeprItem find_jazz_block	  (		 JazzBlockId64		  id64);
+		void 				remove_jazz_block (const JazzBlockIdentifier *p_id);
+
+	private:
+
+		JazzBlockMap cache;
 };
-
-/*
-class AATBlockQueue
-{
-public:
-
-			AATBlockQueue();
-		   ~AATBlockQueue();
-
-	bool	AllocModels			   (int numModels);
-
-	pJazzQueueItem GetFreeModel			   ();
-	void	PushModelToPriorityQueue(pJazzQueueItem pM);
-	pJazzQueueItem GetHighestPriorityModel ();
-
-};
-
-*/
 
 } // namespace jazz_containers
 
