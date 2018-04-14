@@ -209,22 +209,71 @@ void free_jazz_block(pJazzBlock &p_block);
 
 class JazzBlockKeepr {
 
-	inline void hash_block_id();
+	public:
+		 JazzBlockKeepr();
+		~JazzBlockKeepr();
+
+		// Methods for buffer allocation
+
+		bool alloc_keeprs  (int num_items);
+		bool realloc_keeprs(int num_items);
+		void destroy_keeprs();
+
+		// Methods for JazzBlock allocation
+
+		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *pID,
+												  pJazzBlock 	  	   p_as_block,
+								   				  pJazzBlock 	  	   p_row_filter	= nullptr,
+								   				  AllAttributes 	  *att			= nullptr);
+
+		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *pID,
+												  int			  	   cell_type,
+												  JazzTensorDim		  *dim,
+												  AllAttributes		  *att,
+												  int				   fill_tensor	   = JAZZ_FILL_NEW_WITH_NA,
+												  bool				  *p_bool_filter   = nullptr,
+												  int				   stringbuff_size = 0,
+												  const char		  *p_text		   = nullptr,
+												  char				   eoln			   = '\n');
+
+		void remove_jazz_block(pJazzBlockKeeprItem);
+
+		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
+		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
+
+	private:
+
+		int keepr_item_size;
 
 };
 
 
 class JazzTree: public JazzBlockKeepr {
 
+
+	public:
+
+		/// A virtual method returning the size of JazzTreeItem that JazzBlockKeepr needs for allocation
+		virtual int item_size() { return sizeof(JazzTreeItem); }
+
 };
 
 
 class AATBlockQueue: public JazzBlockKeepr {
 
+	public:
+
+		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
+		virtual int item_size() { return sizeof(JazzQueueItem); }
+
 };
 
 
 class JazzCache: public AATBlockQueue {
+
+	pJazzBlockKeeprItem find_jazz_block(const JazzBlockIdentifier *pID);
+	pJazzBlockKeeprItem find_jazz_block(JazzBlockId64 id64);
+	void remove_jazz_block(const JazzBlockIdentifier *pID);
 
 };
 
