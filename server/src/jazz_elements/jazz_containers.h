@@ -127,11 +127,9 @@ The JazzBlockKeeprItem structure is the minimum to allocate the objects in the l
 */
 struct JazzBlockKeeprItem {
 	pJazzBlock			p_jazz_block;						///< A pointer to the JazzBlock
-	int		   			size;								///< The size of the JazzBlockKeeprItem descendent
-	int		   			keepr_state;						///< A state defining the priority between p_jazz_block, block_id64 and block_id
 	pJazzBlockKeeprItem	p_alloc_prev, p_alloc_next;			///< A pair of pointers to keep this (the descendant) in a double linked list
-	JazzBlockId64		block_id64;							///< Hash of block_id (or zero, if not set)
-	JazzBlockIdentifier	block_id;							///< The block ID ((!block_id[0]), if not set)
+	JazzBlockId64		block_id64;							///< Hash of block_id
+	JazzBlockIdentifier	block_id;							///< The block ID is a zero-ended C string with strlen() < JAZZ_MAX_BLOCK_ID_LENGTH
 };
 
 
