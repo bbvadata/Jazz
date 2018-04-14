@@ -63,6 +63,10 @@ Difference between JazzPersistence and JazzSource is the former implements a str
 things like select information from blocks without assigning or copying them, the latter has a much simpler interface that is exported to
 Python and R and provides what a script language programmer would expect at the price of not always benefitting from the memory-mapped
 file allocation in lmdb that underlies JazzPersistence.
+
+THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
+is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzPersistence: public JazzBlockKeepr {
 
@@ -95,6 +99,10 @@ class JazzPersistence: public JazzBlockKeepr {
 /**
 A much simpler interface to create/read/update/delete JazzBlocks in source using and underlying JazzPersistence that can be exported
 to R, Python and the REST API directly.
+
+THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
+is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzSource: public JazzPersistence {
 
