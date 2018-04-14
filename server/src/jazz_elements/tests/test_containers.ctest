@@ -259,7 +259,7 @@ bool TestLibClasses()
 
 SCENARIO("Testing JazzBlock containers")
 {
-	REQUIRE(sizeof(JazzBlockIdentifier) == 24);
+	REQUIRE(sizeof(JazzBlockIdentifier) == 32);
 	REQUIRE(sizeof(JazzBlockId64) 		==  8);
 	REQUIRE(sizeof(JazzBlockKeeprItem)  == 64);
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
