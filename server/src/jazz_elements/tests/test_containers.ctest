@@ -263,7 +263,7 @@ SCENARIO("Testing JazzBlock containers")
 	REQUIRE(sizeof(JazzBlockId64) 		==  8);
 	REQUIRE(sizeof(JazzBlockKeeprItem)  == 64);
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
-	REQUIRE(sizeof(JazzQueueItem)		== 80);
+	REQUIRE(sizeof(JazzQueueItem)		== 96);
 
 	GIVEN("We want to test the regex")
 	{
