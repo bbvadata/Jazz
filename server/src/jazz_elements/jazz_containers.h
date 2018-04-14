@@ -430,8 +430,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 };
 
 
-/**
-//TODO: Write doc for class  JazzCache
+/** This class is an AATBlockQueue with a JazzBlockMap cache that allows searching blocks by JazzBlockIdentifier and JazzBlockId64.
+Blocks found can also be reprioritized to make their automatic destruction less probable when they are used frequently.
 */
 class JazzCache: public AATBlockQueue {
 
@@ -440,6 +440,7 @@ class JazzCache: public AATBlockQueue {
 		pJazzBlockKeeprItem find_jazz_block	  (const JazzBlockIdentifier *p_id);
 		pJazzBlockKeeprItem find_jazz_block	  (		 JazzBlockId64		  id64);
 		void 				remove_jazz_block (const JazzBlockIdentifier *p_id);
+		void 				remove_jazz_block (		 JazzBlockId64		  id64);
 
 	private:
 
