@@ -243,6 +243,106 @@ void JazzBlockKeepr::remove_jazz_block(pJazzBlockKeeprItem p_item)
 
 
 
+/** Aaa
+
+	\param p_id Aaa
+	\param p_as_block Aaa
+	\param p_row_filter Aaa
+	\param att Aaa
+	\param time_to_build Aaa
+
+//TODO: Document AATBlockQueue::new_jazz_block (1)
+*/
+pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
+													pJazzBlock	 	  	 p_as_block,
+										   			pJazzBlock 		  	 p_row_filter,
+										   			AllAttributes		*att,
+													uint64_t	 		 time_to_build)
+{
+//TODO: Implement AATBlockQueue::new_jazz_block (1)
+}
+
+
+/** Aaa
+
+	\param p_id Aaa
+	\param cell_type Aaa
+	\param dim Aaa
+	\param att Aaa
+	\param fill_tensor Aaa
+	\param p_bool_filter Aaa
+	\param stringbuff_size Aaa
+	\param p_text Aaa
+	\param eoln Aaa
+	\param time_to_build Aaa
+
+//TODO: Document AATBlockQueue::new_jazz_block (2)
+*/
+pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
+													int				  	 cell_type,
+													JazzTensorDim		*dim,
+													AllAttributes		*att,
+													int					 fill_tensor,
+													bool				*p_bool_filter,
+													int					 stringbuff_size,
+													const char			*p_text,
+													char				 eoln,
+													uint64_t	 		 time_to_build)
+{
+//TODO: Implement AATBlockQueue::new_jazz_block (2)
+}
+
+
+/** Aaa
+
+	\param p_item Aaa
+
+//TODO: Document AATBlockQueue::remove_jazz_block
+*/
+void AATBlockQueue::remove_jazz_block(pJazzQueueItem p_item)
+{
+//TODO: Implement AATBlockQueue::remove_jazz_block
+}
+
+
+/** Aaa
+
+	\param remove_it Aaa
+
+//TODO: Document AATBlockQueue::highest_priority_item
+*/
+pJazzQueueItem AATBlockQueue::highest_priority_item (bool remove_it)
+{
+//TODO: Implement AATBlockQueue::highest_priority_item
+}
+
+
+/** Aaa
+
+	\param remove_it Aaa
+
+//TODO: Document AATBlockQueue::lowest_priority_item
+*/
+pJazzQueueItem AATBlockQueue::lowest_priority_item (bool remove_it)
+{
+//TODO: Implement AATBlockQueue::lowest_priority_item
+}
+
+
+/** Aaa
+
+	\param p_item Aaa
+
+//TODO: Document AATBlockQueue::set_item_priority
+*/
+void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
+{
+//TODO: Implement AATBlockQueue::set_item_priority
+}
+
+
+
+
 /* ----------------------------------------------------------------------------
 
 	GEM : MCTS vs GrQ experiments for my PhD thesis : AATree based priority queue
