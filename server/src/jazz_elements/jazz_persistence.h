@@ -57,8 +57,8 @@ using namespace jazz_containers;
 
 /**
 This is the root class for storing persisted JazzBlocks. JazzBlocks are created with jazz_persistence::JazzPersistence::new_jazz_block()
-or (JazzPersistence descendant)::new_jazz_block() and not required to be removed, but can be removed using
-(JazzPersistence descendant)::remove_jazz_block(). Unlike volatile JazzBlocks, persisted JazzBlocks are not controlled by a JazzBlockKeeprItem.
+or (JazzPersistence descendant::)new_jazz_block() and not required to be removed, but can be removed using
+(JazzPersistence descendant::)remove_jazz_block(). Unlike volatile JazzBlocks, persisted JazzBlocks are not controlled by a JazzBlockKeeprItem.
 Difference between JazzPersistence and JazzSource is the former implements a strict JazzBlockKeepr interface that can be used from c++ to do
 things like select information from blocks without assigning or copying them, the latter has a much simpler interface that is exported to
 Python and R and provides what a script language programmer would expect at the price of not always benefitting from the memory-mapped

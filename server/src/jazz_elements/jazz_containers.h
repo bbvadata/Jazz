@@ -221,12 +221,12 @@ JazzBlocks can be allocated in three ways:
 
 1. One-shot - Created with jazz_containers::new_jazz_block(), destroyed with jazz_containers::new_jazz_block(), owned by the caller.
 2. Volatile - Created with jazz_containers::JazzBlockKeepr::new_jazz_block() or (JazzBlockKeepr descendant)::new_jazz_block() and not
-required to be removed, but can be removed using (JazzBlockKeepr descendant)::remove_jazz_block(). Some objects (like cache and priority queues)
+required to be removed, but can be removed using (JazzBlockKeepr descendant::)remove_jazz_block(). Some objects (like cache and priority queues)
 may remove JazzBlocks from the container to free the space for higher prioritized JazzBlocks. Volatile containers (those not descending from
 JazzPersistence) keep the JazzBlockKeeprItem block containers in local RAM, but they may point to blocks physically stored across a cluster.
 In volatile containers alloc_keeprs()/realloc_keeprs()/destroy_keeprs() control local allocation of the JazzBlockKeeprItem buffer.
-3. Persisted - Created with jazz_persistence::JazzPersistence::new_jazz_block() or (JazzPersistence descendant)::new_jazz_block() and not
-required to be removed, but can be removed using (JazzPersistence descendant)::remove_jazz_block(). Unlike volatile JazzBlocks, persisted
+3. Persisted - Created with jazz_persistence::JazzPersistence::new_jazz_block() or (JazzPersistence descendant::)new_jazz_block() and not
+required to be removed, but can be removed using (JazzPersistence descendant::)remove_jazz_block(). Unlike volatile JazzBlocks, persisted
 JazzBlocks are not controlled by a JazzBlockKeeprItem. Difference between JazzPersistence and JazzSource is the former implements a strict
 JazzBlockKeepr interface that can be used from c++ to do things like select information from blocks without assigning or copying them, the
 latter has a much simpler interface that is exported to Python and R and provides what a script language programmer would expect at the price
