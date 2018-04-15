@@ -28,6 +28,8 @@
 
 
 #include <map>
+#include <atomic>
+#include <thread>
 
 
 #include "src/jazz_elements/jazz_datablocks.h"
@@ -63,10 +65,11 @@ namespace jazz_containers
 
 using namespace jazz_datablocks;
 
-#define JAZZ_MAX_BLOCK_ID_LENGTH	   									32		///< Maximum length for a block name
-#define JAZZ_REGEX_VALIDATE_BLOCK_ID	"^(/|\\.)[[:alnum:]_]{1,22}\\x00$"		///< Regex validating a JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   									'.'		///< First char of a LOCAL JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   									'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_MAX_BLOCK_ID_LENGTH	   								  32	///< Maximum length for a block name
+#define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,22}\\x00$"	///< Regex validating a JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   								 '.'	///< First char of a LOCAL JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   								 '/'	///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_LOCK_RETRY_NUMTIMES									 100	///< # immediate retries if lock fails before this_thread::yield();
 
 /// Values for argument fill_tensor of new_jazz_block()
 #define JAZZ_FILL_
@@ -265,11 +268,40 @@ class JazzBlockKeepr {
 
 	private:
 
-		int 		   keepr_item_size, num_allocd_items;
-		pJazzQueueItem p_buffer_base, p_first_free;
+		int 		   		  keepr_item_size, num_allocd_items;
+		pJazzQueueItem 		  p_buffer_base, p_first_free;
+		std::atomic<uint32_t> _lock_32_;
 
-//TODO: Thread control mechanism
+		inline void enter_reading() {
+		    int retry = 0;
+    		while (true) {
+				uint32_t lock = _lock_32_.fetch_add(1, std::memory_order_relaxed);
+				if (lock >= 0)
+					return;
+				_lock_32_.fetch_sub(1, std::memory_order_relaxed);
 
+		        if (++retry > JAZZ_LOCK_RETRY_NUMTIMES) {
+		            retry = 0;
+		            std::this_thread::yield();
+		        }
+    		}
+		}
+		inline void leave_reading() { _lock_32_.fetch_sub(1, std::memory_order_relaxed); }
+		inline void enter_writing() {
+		    int retry = 0;
+    		while (true) {
+				uint32_t lock = _lock_32_.fetch_sub(10000, std::memory_order_relaxed);
+				if (lock == 0)
+					return;
+				_lock_32_.fetch_add(10000, std::memory_order_relaxed);
+
+		        if (++retry > JAZZ_LOCK_RETRY_NUMTIMES) {
+		            retry = 0;
+		            std::this_thread::yield();
+		        }
+    		}
+		}
+		inline void leave_writing() { _lock_32_.fetch_add(10000, std::memory_order_relaxed); }
 };
 
 
