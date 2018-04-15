@@ -141,6 +141,7 @@ class JazzLogger {
 
 		void log		(int loglevel, const char *message);
 		void log_printf	(int loglevel, const char *fmt, ...);
+		void log_printf	(int loglevel, const char *fmt, va_list args);
 
 	private:
 
