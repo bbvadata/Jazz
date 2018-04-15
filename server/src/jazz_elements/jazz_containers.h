@@ -30,6 +30,7 @@
 #include <map>
 #include <atomic>
 #include <thread>
+#include <stdarg.h>
 
 
 #include "src/jazz_elements/jazz_datablocks.h"
@@ -340,15 +341,23 @@ class JazzBlockKeepr {
 		*/
 		inline void leave_writing(JazzLock &_lock_) { _lock_.fetch_add(10000, std::memory_order_relaxed); }
 
-		void log		(int loglevel, const char *message);
-		void log_printf	(int loglevel, const char *fmt, ...);
+		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
+		inline void log_printf (int loglevel, const char *fmt, ...) {
+			if (p_log != nullptr) {
+				va_list args;
+				va_start(args, fmt);
+				p_log->log_printf(loglevel, fmt, args);
+				va_end(args);
+			}
+		}
 
 
 	private:
 
-		int 		   	keepr_item_size, num_allocd_items;
-		pJazzQueueItem 	p_buffer_base, p_first_free;
-		JazzLock		_buffer_lock_;
+		int 		   			keepr_item_size, num_allocd_items;
+		pJazzQueueItem 			p_buffer_base, p_first_free;
+		JazzLock				_buffer_lock_;
+		jazz_utils::pJazzLogger	p_log;
 };
 
 
