@@ -241,7 +241,7 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class JazzBlockKeepr {
 
 	public:
-		 JazzBlockKeepr();
+		 JazzBlockKeepr(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzBlockKeepr();
 
 		// Methods for buffer allocation
@@ -341,7 +341,23 @@ class JazzBlockKeepr {
 		*/
 		inline void leave_writing(JazzLock &_lock_) { _lock_.fetch_add(10000, std::memory_order_relaxed); }
 
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the contructor of this class.
+
+			\param loglevel The trace level.
+			\param message  A message.
+
+			See JazzLogger for details.
+		*/
 		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
+
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the contructor of this class.
+
+			\param loglevel The trace level.
+			\param fmt		The printf-style format string.
+			\param ...		The list of parameters as a variadic list of parameters.
+
+			See JazzLogger for details.
+		*/
 		inline void log_printf (int loglevel, const char *fmt, ...) {
 			if (p_log != nullptr) {
 				va_list args;
@@ -350,7 +366,6 @@ class JazzBlockKeepr {
 				va_end(args);
 			}
 		}
-
 
 	private:
 
