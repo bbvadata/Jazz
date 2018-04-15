@@ -38,6 +38,8 @@ using namespace std;
 	See help of method log() for details.
 */
 
+#include "src/include/jazz.h"
+
 #include "src/include/jazz01_commons.h"
 #include "src/jazz01_blocks/jazz_blocks.h"
 

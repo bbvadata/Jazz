@@ -54,6 +54,7 @@ namespace jazz_datablocks
 #define JAZZ_MAX_TENSOR_RANK		6		///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
 #define JAZZ_MAX_CHECKS_4_MATCH	   25		///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
 
+/// Different values for JazzBlock.cell_type
 #define CELL_TYPE__
 
 // 8 bit cell types
@@ -84,10 +85,34 @@ namespace jazz_datablocks
 #define JAZZ_TIME_POINT_NA		0			///< NA for a CELL_TYPE_JAZZ_TIME is a 64-bit zero. Type does not exist in R.
 #define JAZZ_DOUBLE_NA			R_NA		///< NA for a double. This is R compatible.
 
+/// Possible return values of JazzFilter.filter_type()
+
+#define JAZZ_FILTER_TYPE_
+
+#define JAZZ_FILTER_TYPE_NOTAFILTER	 0		///< This JazzBlock cannot be used as a filter. A try to use it in new_jazz_block() will fail.
+#define JAZZ_FILTER_TYPE_BOOLEAN	 1		///< This JazzBlock is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
+#define JAZZ_FILTER_TYPE_INTEGER	 2		///< This JazzBlock is a vector of CELL_TYPE_INTEGER containing the selected rows.
+
+
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
 /// Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
 typedef int JazzTensorDim[JAZZ_MAX_TENSOR_RANK];
+
+
+/// A tensor of cell size 1, 4 or 8
+union JazzTensor
+{
+	u_char	  cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
+	bool	  cell_bool[0];		///< Cell size for CELL_TYPE_BYTE_BOOLEAN
+	int	   	  cell_int[0];		///< Cell size for CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_JAZZ_STRING
+	u_int  	  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	float  	  cell_single[0];	///< Cell size for CELL_TYPE_SINGLE
+	long long cell_longint[0];	///< Cell size for CELL_TYPE_LONG_INTEGER and CELL_TYPE_JAZZ_TIME
+	uint64_t  cell_ulongint[0];	///< Cell size for matching CELL_TYPE_DOUBLE or CELL_TYPE_JAZZ_TIME as 64 bit unsigned
+	double    cell_double[0];	///< Cell size for CELL_TYPE_DOUBLE
+};
+
 
 /// Header for a JazzBlock
 struct JazzBlockHeader
@@ -102,8 +127,9 @@ struct JazzBlockHeader
 	TimePoint created;			///< Timestamp when the block was created
 	uint64_t hash64;			///< Hash of everything but the header
 
-	int tensor[];				///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
+	JazzTensor tensor;			///< A tensor for type cell_type and dimensions set by JazzBlock.set_dimensions()
 };
+
 
 /// Structure at the end of a JazzBlock, initially created with init_string_buffer()
 struct JazzStringBuffer
@@ -115,10 +141,15 @@ struct JazzStringBuffer
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for JAZZ_STRING_NA & JAZZ_STRING_EMPTY
 };
 
+
+// Forward declarations
 typedef std::map<int, const char *> AllAttributes;
 
-typedef JazzBlockHeader	 *pJazzBlockHeader;
-typedef JazzStringBuffer *pJazzStringBuffer;
+typedef struct JazzBlockHeader	 *pJazzBlockHeader;
+typedef struct JazzStringBuffer *pJazzStringBuffer;
+
+typedef class JazzBlock  *pJazzBlock;
+typedef class JazzFilter *pJazzFilter;
 
 
 /** A block. Anything in Jazz is a block. A block is a JazzBlockHeader, followed by a tensor, then two arrays of int
@@ -140,17 +171,19 @@ class JazzBlock: public JazzBlockHeader {
 			\param pDim A pointer to the JazzTensorDim containing the dimensions.
 
 			NOTES: 1. This writes: rank, dim_offs[] and size.
-				   2. A dimension 0 is the same as 1, only dimensions >1 count for the rank.
-				   3. All >1 dimensions must be in the beginning. 3,2,1,4 == 3,2,0,0 has rank == 2
+				   2. Except in the first position, a dimension 0 is the same as 1, only dimensions >1 count for the rank.
+				   3. Except in the first position, all >1 dimensions must be in the beginning. 3,2,1,4 == 3,2,0,0 has rank == 2
 				   4. All dimensions == 0 (or 1) has rank == 1 and size == 0 or 1 depending on the first dimension being 0 or 1.
+				   5. First dimension == 0 (or 1) and 2nd+ > 1 produce rank > 1 with 0 (or 1) rows.
 		*/
 		inline void set_dimensions(int *pDim) {
 			rank = JAZZ_MAX_TENSOR_RANK;
 			int j = 1;
 			for (int i = JAZZ_MAX_TENSOR_RANK -1; i > 0; i--)
 				if (pDim[i] > 1) { dim_offs[i] = j; j *= pDim[i]; } else { j = 1; dim_offs[i] = 0; rank = i; }
-			if (pDim[0] > 1) { dim_offs[0] = j; j *= pDim[0]; } else { j = pDim[0]; dim_offs[0] = 1; rank = 1; }
-			size = j;
+			dim_offs[0]  = j;
+			j 			*= pDim[0];
+			size		 = j;
 		}
 
 		/** Returns the tensor dimensions as a JazzTensorDim array.
@@ -221,7 +254,7 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *get_string(int *pIndex) {
-			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[get_offset(pIndex)]]);
+			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor.cell_int[get_offset(pIndex)]]);
 		}
 
 		/** Get a string from the tensor by offset without checking offset range.
@@ -233,7 +266,7 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *get_string(int offset)	 {
-			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor[offset]]);
+			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor.cell_int[offset]]);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
@@ -249,7 +282,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int *pIndex, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			tensor[get_offset(pIndex)] = get_string_offset(psb, pString);
+			tensor.cell_int[get_offset(pIndex)] = get_string_offset(psb, pString);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
@@ -265,7 +298,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline void set_string(int offset, const char *pString) {
 			pJazzStringBuffer psb = pStringBuffer();
-			tensor[offset] = get_string_offset(psb, pString);
+			tensor.cell_int[offset] = get_string_offset(psb, pString);
 		}
 
 	// Methods on attributes.
@@ -352,6 +385,8 @@ class JazzBlock: public JazzBlockHeader {
 			psb->last_idx	 = 2;	// Where the first string will be inserted
 		}
 
+		bool find_NAs_in_tensor();
+
 #ifndef CATCH_TEST
 	private:
 #endif
@@ -369,7 +404,7 @@ class JazzBlock: public JazzBlockHeader {
 			values on the upper part.
 		*/
 		inline int *pAttribute_keys() {
-			return align_128bit((uintptr_t) &tensor[0] + (cell_type & 0xf)*size);
+			return align_128bit((uintptr_t) &tensor + (cell_type & 0xf)*size);
 		}
 
 		/** Return the address of the JazzStringBuffer containing the strings in the tensor and the attribute values.
@@ -381,7 +416,68 @@ class JazzBlock: public JazzBlockHeader {
 		int get_string_offset(pJazzStringBuffer psb, const char *pString);
 };
 
-typedef JazzBlock *pJazzBlock;
+
+/** A filter. First: a filter is just a JazzBlock with a strict structure and extra methods.
+
+	The structure of a JazzFilter is strictly:
+
+	.cell_type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER
+	.rank == 1
+	.dim_offs[0] == 1, .dim_offs[1] == number of elements in the tensor when cell_type == CELL_TYPE_INTEGER
+	.size == length of the selector
+	.num_attributes == 1	// To prevent set_attributes() being applied to it
+	.total_bytes == as expected
+	.has_NA == false;
+	.created == as expected
+	.hash64 == as expected
+
+	Details:
+
+1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
+2. A JAZZ_FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN specifying which rows are selected (cell == true).
+3. A JAZZ_FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .dim_offs[1]. As expected,
+.dim_offs[1] == 0 means nothing is selected, .dim_offs[1] == .size means everything is selected regardless of .tensor[]
+
+*/
+class JazzFilter: public JazzBlock {
+
+public:
+
+	/** Check (fast) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
+
+		This checks the values in the header, but not the validity of the data in .tensor[]
+
+		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
+	*/
+	inline int filter_type() {
+		if (rank != 1 || dim_offs[0] != 1 || num_attributes != 1 || has_NA)
+			return JAZZ_FILTER_TYPE_NOTAFILTER;
+
+		if (cell_type == CELL_TYPE_INTEGER)
+			return JAZZ_FILTER_TYPE_INTEGER;
+
+		if (cell_type == CELL_TYPE_BYTE_BOOLEAN)
+			return JAZZ_FILTER_TYPE_BOOLEAN;
+
+		return JAZZ_FILTER_TYPE_NOTAFILTER;
+	}
+
+	int filter_audit();
+
+	/** Check (fast) if a JazzFilter is valid and can be applied to filter inside a specific JazzBlock
+
+		This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
+
+		\return true if it is a valid filter of that type.
+	*/
+	inline bool can_filter(pJazzBlock p_block) {
+		if (p_block->rank < 1 || p_block->dim_offs[0] <= 0 || size != p_block->size/p_block->dim_offs[0])
+			return false;
+
+		return filter_type() != JAZZ_FILTER_TYPE_NOTAFILTER;
+	}
+};
+
 
 extern float  F_NA;		///< NaN in single
 extern double R_NA;		///< NaN in double

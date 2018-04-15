@@ -46,6 +46,84 @@ float  F_NA = nanf("");
 double R_NA = R_ValueOfNA();
 
 
+/** Scan a tensor object to see if it conaions any NA valued of the type specified in cell_type.
+
+	\return		True if NA values of the give type were found.
+
+	Note: For boolean types everything other than true (1) or false (0) is considered NA
+	Note: For floating point types, only binary identity with F_NA or R_NA counts as NA
+
+*/
+bool JazzBlock::find_NAs_in_tensor(){
+	switch (cell_type) {
+	case CELL_TYPE_BYTE_BOOLEAN: {
+		for (int i = 0; i < size; i++) {
+			if ((tensor.cell_byte[i] & 0xfe) != 0)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE: {
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_int[i] == JAZZ_INTEGER_NA)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_BOOLEAN: {
+		for (int i = 0; i < size; i++) {
+			if ((tensor.cell_uint[i] & 0xfffffffe) != 0)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_SINGLE: {
+		u_int una = reinterpret_cast<u_int*>(&JAZZ_SINGLE_NA)[0];
+
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_uint[i] == una)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_JAZZ_STRING: {
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_int[i] == JAZZ_STRING_NA)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_LONG_INTEGER: {
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_longint[i] == JAZZ_LONG_INTEGER_NA)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_JAZZ_TIME: {
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_longint[i] == JAZZ_TIME_POINT_NA)
+				return true;
+		}
+		return false; }
+
+	case CELL_TYPE_DOUBLE: {
+		uint64_t una = reinterpret_cast<uint64_t*>(&JAZZ_DOUBLE_NA)[0];
+
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_ulongint[i] == una)
+				return true;
+		}
+		return false; }
+
+	default:
+		return false;
+	}
+}
+
+
 /** Find an existing string in a block, or allocate a new one and return its offset in the JazzStringBuffer.buffer.
 
 	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling pStringBuffer repeatedly).
@@ -111,6 +189,45 @@ int JazzBlock::get_string_offset(pJazzStringBuffer psb, const char *pString)
 	return JAZZ_STRING_NA;
 }
 
+
+/** Check (in depth) the validity of a JazzFilter and return its type or JAZZ_FILTER_TYPE_NOTAFILTER if invalid
+
+	This checks both the values in the header and the validity of the data in .tensor[]
+
+	\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
+*/
+int JazzFilter::filter_audit()
+{
+	switch (filter_type()) {
+
+	case JAZZ_FILTER_TYPE_INTEGER: {
+		int len = dim_offs[1];
+
+		if (len == 0 || len == size)
+			return JAZZ_FILTER_TYPE_INTEGER;
+
+		if (len < 0 || len > size)
+			return JAZZ_FILTER_TYPE_NOTAFILTER;
+
+		int lo = -1;
+
+		for (int i = 0; i < len; i++) {
+			if (tensor.cell_int[i] <= lo || tensor.cell_int[i] >= size)
+				return JAZZ_FILTER_TYPE_NOTAFILTER;
+			lo = tensor.cell_int[i];
+		}
+		return JAZZ_FILTER_TYPE_INTEGER; }
+
+	case JAZZ_FILTER_TYPE_BOOLEAN: {
+		for (int i = 0; i < size; i++) {
+			if ((tensor.cell_byte[i] & 0xfe) != 0)
+				return JAZZ_FILTER_TYPE_NOTAFILTER;
+		}
+		return JAZZ_FILTER_TYPE_BOOLEAN; }
+	}
+
+	return JAZZ_FILTER_TYPE_NOTAFILTER;
+}
 
 } // namespace jazz_datablocks
 

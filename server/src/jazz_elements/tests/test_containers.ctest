@@ -259,13 +259,169 @@ bool TestLibClasses()
 
 SCENARIO("Testing JazzBlock containers")
 {
-	GIVEN("Something")
+	REQUIRE(sizeof(JazzBlockIdentifier) == 32);
+	REQUIRE(sizeof(JazzBlockId64) 		==  8);
+	REQUIRE(sizeof(JazzBlockKeeprItem)  == 64);
+	REQUIRE(sizeof(JazzTreeItem)		== 96);
+	REQUIRE(sizeof(JazzQueueItem)		== 96);
+
+	GIVEN("We want to test the regex")
 	{
 		WHEN("Something")
 		{
 			THEN("Something")
 			{
-				REQUIRE(2 + 2 == 4);
+//TODO: Write unit tests for block id regex validation
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing JazzBlock creation from scratch")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for JazzBlock creation from scratch
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing JazzBlock creation by copying/filtering")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for JazzBlock creation by copying/filtering
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing threading functions")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for threading functions
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing JazzBlock creation inside a JazzBlockKeepr")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for JazzBlock creation inside a JazzBlockKeepr
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing JazzBlock creation inside a JazzTree")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for JazzBlock creation inside a JazzTree
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing internal AA tree functionality")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for internal AA tree functionality
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing JazzBlock creation inside a AATBlockQueue")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for JazzBlock creation inside a AATBlockQueue
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing public AATBlockQueue methods")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for public AATBlockQueue methods
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing JazzBlock creation inside a JazzCache")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for JazzBlock creation inside a JazzCache
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing public JazzCache methods")
+{
+	GIVEN("We want to test the xyz")
+	{
+		WHEN("Something")
+		{
+			THEN("Something")
+			{
+//TODO: Write unit tests for public JazzCache methods
 			}
 		}
 	}

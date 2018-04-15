@@ -25,10 +25,10 @@
 	This module includes all the LMDB management in the server.
 */
 
+#include "src/include/jazz.h"
+
 #include "src/include/jazz01_commons.h"
 #include "src/lmdb/lmdb.h"
-
-#include "src/include/jazz.h"
 
 using namespace std;
 

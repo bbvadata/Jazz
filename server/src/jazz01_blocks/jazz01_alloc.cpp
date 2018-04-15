@@ -34,8 +34,9 @@ This implements all the RAM allocation parts declared in jzzH/jazzCommons.h. The
 functionalities available through jzzSTEERING.
 */
 
-#include "src/include/jazz01_commons.h"
 #include "src/include/jazz.h"
+
+#include "src/include/jazz01_commons.h"
 
 /*~ end of automatic header ~*/
 

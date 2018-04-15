@@ -94,7 +94,17 @@ inline int TenBitsAtAddress (const char* str)
 	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
 }
 
+typedef class JazzConfigFile *pJazzConfigFile;
+typedef class JazzLogger 	 *pJazzLogger;
 
+
+/** A configuration file as a key/value store.
+
+	The configuration is loaded when constructing the object and available for reading as int, double or string via get_key().
+
+	The input file format removes anything to the right of a // as a remark. It uses a single equal (=) character to separate the key
+	from the value. It also performs a very simple form of quote replacement using CleanConfigArgument().
+*/
 class JazzConfigFile {
 
 	public:
@@ -115,6 +125,11 @@ class JazzConfigFile {
 };
 
 
+/** A simple logger.
+
+	This objects logs events one line per event. It prefixes the time since the logger was created, the trace level and the thread id as
+in "   0.224036 : 02 :  2872 : jzzAPI started.".  A printf style version supports printing variables using variadic arguments.
+*/
 class JazzLogger {
 
 	public:
@@ -126,6 +141,7 @@ class JazzLogger {
 
 		void log		(int loglevel, const char *message);
 		void log_printf	(int loglevel, const char *fmt, ...);
+		void log_printf	(int loglevel, const char *fmt, va_list args);
 
 	private:
 
