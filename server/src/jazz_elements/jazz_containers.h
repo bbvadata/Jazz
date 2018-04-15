@@ -273,6 +273,16 @@ class JazzBlockKeepr {
 
 	protected:
 
+		/** Enter a thread exclusion code area for reading
+		This function must be called by all the readers that enter a thread exclusion area. In this context, a reader means a thread that
+		is incompatible with threads modifying data (writers) but any number of readers can enter the code area at the same time.
+
+		It is mandatory that all paths exiting the area call leave_reading() as soon as the exclusion no longer applies.
+
+		This method never returns on failure! The simplest failure is a writer not releasing the lock.
+
+			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
+		*/
 		inline void enter_reading(JazzLock &_lock_) {
 		    int retry = 0;
     		while (true) {
@@ -287,7 +297,26 @@ class JazzBlockKeepr {
 		        }
     		}
 		}
+
+		/** Leave a thread exclusion code area for reading
+		This function must be called exactly once by all the readers that previously called enter_reading() to enter a thread exclusion area.
+		In this context, a reader means a thread that is incompatible with threads modifying data (writers) but any number of readers can
+		enter the code area at the same time.
+
+			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
+		*/
 		inline void leave_reading(JazzLock &_lock_) { _lock_.fetch_sub(1, std::memory_order_relaxed); }
+
+		/** Enter a thread exclusion code area for writing
+		This function must be called by all the writers that enter a thread exclusion area. In this context, a writer means a thread that
+		is incompatible with any other threads (readers or other writers).
+
+		It is mandatory that all paths exiting the area call leave_writing() as soon as the exclusion no longer applies.
+
+		This method never returns on failure! The simplest failure is any other thread not releasing the lock.
+
+			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
+		*/
 		inline void enter_writing(JazzLock &_lock_) {
 		    int retry = 0;
     		while (true) {
@@ -302,6 +331,13 @@ class JazzBlockKeepr {
 		        }
     		}
 		}
+
+		/** Leave a thread exclusion code area for writing
+		This function must be called exactly once by all the writers that previously called enter_writing() to enter a thread exclusion area.
+		In this context, a writer means a thread that is incompatible with any other threads (readers or other writers).
+
+			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
+		*/
 		inline void leave_writing(JazzLock &_lock_) { _lock_.fetch_add(10000, std::memory_order_relaxed); }
 
 	private:
