@@ -33,8 +33,6 @@
 namespace jazz_containers
 {
 
-//TODO: Set a log object for the jazz_containers namespace
-
 /** Create a new (one_shot) JazzBlock as a selection (of possibly all) of an existing JazzBlock
 
 	\param p_as_block   An existing block from which everything is copied, possibly with a selection over its rows.
@@ -126,8 +124,10 @@ void free_jazz_block(pJazzBlock &p_block)
 }
 
 
-JazzBlockKeepr::JazzBlockKeepr()
+JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 {
+	p_log = a_logger;
+
 	_buffer_lock_	= 0;
 	keepr_item_size = item_size();
 
