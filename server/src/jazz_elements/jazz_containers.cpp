@@ -128,6 +128,7 @@ void free_jazz_block(pJazzBlock &p_block)
 
 JazzBlockKeepr::JazzBlockKeepr()
 {
+	_buffer_lock_	= 0;
 	keepr_item_size = item_size();
 
 }

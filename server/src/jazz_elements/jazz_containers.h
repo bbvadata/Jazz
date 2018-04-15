@@ -168,6 +168,11 @@ typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 typedef std::map<void *, int> JazzOneShotAlloc;
 
 
+/** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
+*/
+typedef std::atomic<int32_t> JazzLock;
+
+
 pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
 						   pJazzBlock 	  p_row_filter	= nullptr,
 						   AllAttributes *att			= nullptr);
@@ -266,19 +271,15 @@ class JazzBlockKeepr {
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
 
-	private:
+	protected:
 
-		int 		   		  keepr_item_size, num_allocd_items;
-		pJazzQueueItem 		  p_buffer_base, p_first_free;
-		std::atomic<uint32_t> _lock_32_;
-
-		inline void enter_reading() {
+		inline void enter_reading(JazzLock &_lock_) {
 		    int retry = 0;
     		while (true) {
-				uint32_t lock = _lock_32_.fetch_add(1, std::memory_order_relaxed);
+				int32_t lock = _lock_.fetch_add(1, std::memory_order_relaxed);
 				if (lock >= 0)
 					return;
-				_lock_32_.fetch_sub(1, std::memory_order_relaxed);
+				_lock_.fetch_sub(1, std::memory_order_relaxed);
 
 		        if (++retry > JAZZ_LOCK_RETRY_NUMTIMES) {
 		            retry = 0;
@@ -286,14 +287,14 @@ class JazzBlockKeepr {
 		        }
     		}
 		}
-		inline void leave_reading() { _lock_32_.fetch_sub(1, std::memory_order_relaxed); }
-		inline void enter_writing() {
+		inline void leave_reading(JazzLock &_lock_) { _lock_.fetch_sub(1, std::memory_order_relaxed); }
+		inline void enter_writing(JazzLock &_lock_) {
 		    int retry = 0;
     		while (true) {
-				uint32_t lock = _lock_32_.fetch_sub(10000, std::memory_order_relaxed);
+				int32_t lock = _lock_.fetch_sub(10000, std::memory_order_relaxed);
 				if (lock == 0)
 					return;
-				_lock_32_.fetch_add(10000, std::memory_order_relaxed);
+				_lock_.fetch_add(10000, std::memory_order_relaxed);
 
 		        if (++retry > JAZZ_LOCK_RETRY_NUMTIMES) {
 		            retry = 0;
@@ -301,7 +302,13 @@ class JazzBlockKeepr {
 		        }
     		}
 		}
-		inline void leave_writing() { _lock_32_.fetch_add(10000, std::memory_order_relaxed); }
+		inline void leave_writing(JazzLock &_lock_) { _lock_.fetch_add(10000, std::memory_order_relaxed); }
+
+	private:
+
+		int 		   	keepr_item_size, num_allocd_items;
+		pJazzQueueItem 	p_buffer_base, p_first_free;
+		JazzLock		_buffer_lock_;
 };
 
 
