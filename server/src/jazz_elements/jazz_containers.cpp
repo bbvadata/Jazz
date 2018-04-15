@@ -47,13 +47,13 @@ namespace jazz_containers
 	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
 	automatically.
 
-	\return	The new JazzBlock or nullptr if failed. Also logs errors to jazz_containers::log
+	\return	The new JazzBlock or nullptr if failed.
 */
 pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 						   pJazzFilter 	  p_row_filter,
 						   AllAttributes *att)
 {
-
+//TODO: Implement new_jazz_block (1)
 }
 
 
@@ -95,7 +95,7 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
 	automatically.
 
-	\return	The new JazzBlock or nullptr if failed. Also logs errors to jazz_containers::log
+	\return	The new JazzBlock or nullptr if failed.
 */
 pJazzBlock new_jazz_block (int			  cell_type,
 						   JazzTensorDim *dim,
@@ -106,7 +106,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   const char	 *p_text,
 						   char			  eoln)
 {
-
+//TODO: Implement new_jazz_block (2)
 }
 
 
@@ -120,23 +120,128 @@ pJazzBlock new_jazz_block (int			  cell_type,
 */
 void free_jazz_block(pJazzBlock &p_block)
 {
-
+//TODO: Implement free_jazz_block
 }
 
 
+/** Aaa
+
+	\param a_logger Aaa
+
+//TODO: Document JazzBlockKeepr::JazzBlockKeepr
+*/
 JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 {
 	p_log = a_logger;
 
-	_buffer_lock_	= 0;
-	keepr_item_size = item_size();
-
+	_buffer_lock_	 = 0;
+	keepr_item_size	 = item_size();
+	num_allocd_items = 0;
+	p_buffer_base	 = nullptr;
+	p_first_free	 = nullptr;
 }
 
+
+/** Aaa
+//TODO: Document JazzBlockKeepr::~JazzBlockKeepr
+*/
 JazzBlockKeepr::~JazzBlockKeepr()
 {
-
+	destroy_keeprs();
 }
+
+
+/** Aaa
+
+	\param num_items Aaa
+
+//TODO: Document JazzBlockKeepr::alloc_keeprs
+*/
+bool JazzBlockKeepr::alloc_keeprs  (int num_items)
+{
+//TODO: Implement JazzBlockKeepr::alloc_keeprs
+}
+
+
+/** Aaa
+
+	\param num_items Aaa
+
+//TODO: Document JazzBlockKeepr::realloc_keeprs
+*/
+bool JazzBlockKeepr::realloc_keeprs(int num_items)
+{
+//TODO: Implement JazzBlockKeepr::realloc_keeprs
+}
+
+
+/** Aaa
+//TODO: Document JazzBlockKeepr::destroy_keeprs
+*/
+void JazzBlockKeepr::destroy_keeprs()
+{
+//TODO: Implement JazzBlockKeepr::destroy_keeprs
+}
+
+
+/** Aaa
+
+	\param p_id Aaa
+	\param p_as_block Aaa
+	\param p_row_filter Aaa
+	\param att Aaa
+
+//TODO: Document JazzBlockKeepr::new_jazz_block (1)
+*/
+pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
+												  		  pJazzBlock 	  	   p_as_block,
+										   				  pJazzBlock 	  	   p_row_filter,
+										   				  AllAttributes 	  *att)
+{
+//TODO: Implement JazzBlockKeepr::new_jazz_block (1)
+}
+
+
+/** Aaa
+
+	\param p_id Aaa
+	\param cell_type Aaa
+	\param dim Aaa
+	\param att Aaa
+	\param fill_tensor Aaa
+	\param p_bool_filter Aaa
+	\param stringbuff_size Aaa
+	\param p_text Aaa
+	\param eoln Aaa
+
+//TODO: Document JazzBlockKeepr::new_jazz_block (2)
+*/
+pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
+														  int			  	   cell_type,
+														  JazzTensorDim		  *dim,
+														  AllAttributes		  *att,
+														  int				   fill_tensor,
+														  bool				  *p_bool_filter,
+														  int				   stringbuff_size,
+														  const char		  *p_text,
+														  char				   eoln)
+{
+//TODO: Implement JazzBlockKeepr::new_jazz_block (2)
+}
+
+
+/** Aaa
+
+	\param p_item Aaa
+
+//TODO: Document JazzBlockKeepr::remove_jazz_block
+*/
+void JazzBlockKeepr::remove_jazz_block(pJazzBlockKeeprItem p_item)
+{
+//TODO: Implement JazzBlockKeepr::remove_jazz_block
+}
+
+
 
 /* ----------------------------------------------------------------------------
 
