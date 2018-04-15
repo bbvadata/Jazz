@@ -340,6 +340,10 @@ class JazzBlockKeepr {
 		*/
 		inline void leave_writing(JazzLock &_lock_) { _lock_.fetch_add(10000, std::memory_order_relaxed); }
 
+		void log		(int loglevel, const char *message);
+		void log_printf	(int loglevel, const char *fmt, ...);
+
+
 	private:
 
 		int 		   	keepr_item_size, num_allocd_items;
