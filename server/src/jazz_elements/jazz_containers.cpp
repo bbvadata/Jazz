@@ -340,46 +340,7 @@ void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
 //TODO: Implement AATBlockQueue::set_item_priority
 }
 
-
-
-
-/* ----------------------------------------------------------------------------
-
-	GEM : MCTS vs GrQ experiments for my PhD thesis : AATree based priority queue
-
-	Author : Jacques Basaldúa (jacques@dybot.com)
-
-	Version       : 2.0
-	Date          : 2012/03/27	(Using Pre 2012 GEM and Pre 2012 ModelSel)
-	Last modified :
-
-	(c) Jacques Basaldúa, 2009-2012
-
--------------------------------------------------------------------------------
-
-Revision history :
-
-	Version		  : 1.0
-	Date		  : 2010/01/21
-
-
-#include "stdafx.h"
-
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <xstring>
-#include <math.h>
-
-using namespace std;
-
-#include "AATBlockQueue.h"
-
-/*	-------------------------------------------------------------------------------------------------
-
-		B a s e   p r o c e d u r a l   A A - t r e e   u t i l s
-
-
+/*
 
 // pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT):
 // -----------------------------------
@@ -577,6 +538,55 @@ pJazzQueueItem ModelBuffer::highest_priority_item()
 };
 
 */
+
+
+/** Aaa
+
+	\param p_id Aaa
+
+//TODO: Document JazzCache::find_jazz_block (1)
+*/
+pJazzBlockKeeprItem JazzCache::find_jazz_block (const JazzBlockIdentifier *p_id)
+{
+//TODO: Implement JazzCache::find_jazz_block (1)
+}
+
+
+/** Aaa
+
+	\param id64 Aaa
+
+//TODO: Document JazzCache::find_jazz_block (2)
+*/
+pJazzBlockKeeprItem JazzCache::find_jazz_block (JazzBlockId64 id64)
+{
+//TODO: Implement JazzCache::find_jazz_block (2)
+}
+
+
+/** Aaa
+
+	\param p_id Aaa
+
+//TODO: Document JazzCache::remove_jazz_block (1)
+*/
+void JazzCache::remove_jazz_block (const JazzBlockIdentifier *p_id)
+{
+//TODO: Implement JazzCache::remove_jazz_block (1)
+}
+
+
+/** Aaa
+
+	\param id64 Aaa
+
+//TODO: Document JazzCache::remove_jazz_block (2)
+*/
+void JazzCache::remove_jazz_block (JazzBlockId64 id64)
+{
+//TODO: Implement JazzCache::remove_jazz_block (2)
+}
+
 
 } // namespace jazz_containers
 
