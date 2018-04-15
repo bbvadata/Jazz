@@ -581,22 +581,38 @@ void JazzLogger::log (int loglevel, const char *message)
 
 /** Create a log event with a printf style string including a variadic list of parameters.
 
-\param loglevel The trace level. (see jazzCommons::log())
+\param loglevel The trace level. (see JazzLogger::log())
 \param fmt		The printf-style format string.
-\param ...		The list of parameters.
+\param ...		The list of parameters as a variadic list of parameters.
 
-	It is a wrapper function calling jazzCommons::log(). (See jazzCommons::log() for details.)
+	It is a wrapper function calling JazzLogger::log_printf(). (See JazzLogger::log() for details.)
 
 	NOTE: This does not check buffer allocation! Use it for short results.
 */
 void JazzLogger::log_printf	(int loglevel, const char *fmt, ...)
 {
+	va_list args;
+	va_start(args, fmt);
+	log_printf(loglevel, fmt, args);
+	va_end(args);
+}
+
+
+/** Create a log event with a printf style string including a variadic list of parameters.
+
+\param loglevel The trace level. (see JazzLogger::log())
+\param fmt		The printf-style format string.
+\param args		The list of parameters as a va_list.
+
+	It is a wrapper function calling JazzLogger::log(). (See JazzLogger::log() for details.)
+
+	NOTE: This does not check buffer allocation! Use it for short results.
+*/
+void JazzLogger::log_printf	(int loglevel, const char *fmt, va_list args)
+{
 	char buffer[256];
 
-	va_list argp;
-	va_start(argp, fmt);
-	vsnprintf(buffer, sizeof(buffer), fmt, argp);
-	va_end(argp);
+	vsnprintf(buffer, sizeof(buffer), fmt, args);
 
 	return log(loglevel, buffer);
 }
