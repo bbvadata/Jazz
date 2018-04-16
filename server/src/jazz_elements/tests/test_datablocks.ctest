@@ -734,7 +734,7 @@ SCENARIO("Testing String and Attribute logic")
 		att[4420] = att_val[2];
 		att[6217] = att_val[3];
 
-		pjb->set_attributes(att);	// This calls init_string_buffer()
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
 
 		int *pti = pjb->p_attribute_keys();
 		psb = pjb->p_string_buffer();
@@ -860,7 +860,7 @@ SCENARIO("Testing String and Attribute logic")
 
 		AllAttributes read_att;
 
-		pjb->get_attributes(read_att);
+		pjb->get_attributes(&read_att);
 
 		REQUIRE(!strcmp(read_att[2477], "http://www.google.com"));
 		REQUIRE(!strcmp(read_att[3185], "en_us"));
@@ -887,7 +887,7 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(!strcmp(read_att[4420], "Wof"));
 		REQUIRE(!strcmp(read_att[6217], "Wof, wof, wof"));
 
-		pjb->get_attributes(read_att);
+		pjb->get_attributes(&read_att);
 
 		REQUIRE(!strcmp(read_att[2477], "http://www.google.com"));
 		REQUIRE(!strcmp(read_att[3185], "en_us"));
@@ -922,7 +922,7 @@ SCENARIO("Testing Filters")
 		AllAttributes att;
 		att[666] = nullptr;
 
-		pjb->set_attributes(att);	// This calls init_string_buffer()
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
 
 		REQUIRE(pjb->num_attributes == 1);
 
@@ -947,7 +947,7 @@ SCENARIO("Testing Filters")
 		AllAttributes att;
 		att[666] = nullptr;
 
-		pjf->set_attributes(att);	// This calls init_string_buffer()
+		pjf->set_attributes(&att);	// This calls init_string_buffer()
 
 		REQUIRE(pjf->num_attributes == 1);
 
@@ -1008,7 +1008,7 @@ SCENARIO("Testing Filters")
 		AllAttributes att;
 		att[666] = nullptr;
 
-		pjf->set_attributes(att);	// This calls init_string_buffer()
+		pjf->set_attributes(&att);	// This calls init_string_buffer()
 
 		REQUIRE(pjf->num_attributes == 1);
 
@@ -1121,7 +1121,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		AllAttributes att;
 		att[666] = nullptr;
 
-		pjb->set_attributes(att);	// This calls init_string_buffer()
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
 
 		REQUIRE(pjb->num_attributes == 1);
 
@@ -1199,7 +1199,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		AllAttributes att;
 		att[666] = nullptr;
 
-		pjb->set_attributes(att);	// This calls init_string_buffer()
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
 
 		REQUIRE(pjb->num_attributes == 1);
 
@@ -1437,7 +1437,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		AllAttributes att;
 		att[666] = nullptr;
 
-		pjb->set_attributes(att);	// This calls init_string_buffer()
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
 
 		REQUIRE(pjb->num_attributes == 1);
 
