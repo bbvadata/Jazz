@@ -180,7 +180,7 @@ pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
 
 
 pJazzBlock new_jazz_block (int			  cell_type,
-						   JazzTensorDim *dim,
+						   int			 *dim,
 						   AllAttributes *att,
 						   int			  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
 						   bool			 *p_bool_filter	  = nullptr,
