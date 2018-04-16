@@ -98,7 +98,7 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 	\return	The new JazzBlock or nullptr if failed.
 */
 pJazzBlock new_jazz_block (int			  cell_type,
-						   JazzTensorDim *dim,
+						   int 			 *dim,
 						   AllAttributes *att,
 						   int			  fill_tensor,
 						   bool			 *p_bool_filter,
@@ -106,6 +106,25 @@ pJazzBlock new_jazz_block (int			  cell_type,
 						   const char	 *p_text,
 						   char			  eoln)
 {
+	JazzBlockHeader hea;
+
+	hea.cell_type = cell_type;
+
+	reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(dim);
+
+	hea.num_attributes = 0;
+
+	// int total_bytes = (uintptr_t) reinterpret_cast<pJazzBlock>(&hea)->pStringBuffer() - (&hea) + sizeof(JazzStringBuffer) + 4;
+	// pJazzStringBuffer
+
+	// int num_attributes;			///< Number of elements in the JazzAttributesMap
+	// ;			///< Total size of the block everything included
+	// bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
+	// TimePoint created;			///< Timestamp when the block was created
+	// uint64_t hash64;			///< Hash of everything but the header
+
+
+
 //TODO: Implement new_jazz_block (2)
 }
 
