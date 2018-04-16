@@ -128,6 +128,27 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		hea.total_bytes += 2*hea.num_attributes*sizeof(int);
 	}
 
+	if (p_text != nullptr)
+		hea.total_bytes += strlen(p_text) + hea.size;
+
+	hea.total_bytes += stringbuff_size;
+
+	pJazzBlock pjb = (pJazzBlock) malloc(hea.total_bytes);
+
+	if (pjb == nullptr)
+		return nullptr;
+
+	memcpy(pjb, &hea, sizeof(JazzBlockHeader));
+
+	pjb->num_attributes = 0;
+
+	if (att	== nullptr) {
+		AllAttributes void_att;
+		void_att [BLOCK_ATTR_CONTAINERS_EMPTY] = nullptr;
+		pjb->set_attributes(&void_att);
+	} else {
+		pjb->set_attributes(att);
+	}
 
 	// int num_attributes;			///< Number of elements in the JazzAttributesMap
 	// ;			///< Total size of the block everything included
