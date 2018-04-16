@@ -175,13 +175,13 @@ typedef std::atomic<int32_t> JazzLock;
 
 
 pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
-						   pJazzBlock 	  p_row_filter	= nullptr,
-						   AllAttributes *att			= nullptr);
+						   pJazzBlock 	  p_row_filter = nullptr,
+						   AllAttributes *att		   = nullptr);
 
 
 pJazzBlock new_jazz_block (int			  cell_type,
 						   int			 *dim,
-						   AllAttributes *att,
+						   AllAttributes *att			  = nullptr,
 						   int			  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
 						   bool			 *p_bool_filter	  = nullptr,
 						   int			  stringbuff_size = 0,
