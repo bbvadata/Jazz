@@ -114,8 +114,20 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 	hea.num_attributes = 0;
 
-	// int total_bytes = (uintptr_t) reinterpret_cast<pJazzBlock>(&hea)->pStringBuffer() - (&hea) + sizeof(JazzStringBuffer) + 4;
-	// pJazzStringBuffer
+	hea.total_bytes = (uintptr_t) reinterpret_cast<pJazzBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(JazzStringBuffer) + 4;
+
+	if (att	== nullptr) {
+		hea.total_bytes += 2*sizeof(int);
+		hea.num_attributes++;
+	} else {
+		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
+			int len = strlen(it->second);
+			if (len) hea.total_bytes += len + 1;
+			hea.num_attributes++;
+		}
+		hea.total_bytes += 2*hea.num_attributes*sizeof(int);
+	}
+
 
 	// int num_attributes;			///< Number of elements in the JazzAttributesMap
 	// ;			///< Total size of the block everything included
