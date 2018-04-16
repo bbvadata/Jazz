@@ -331,16 +331,16 @@ class JazzBlock: public JazzBlockHeader {
 			only be called once, so it will do nothing if called after a JazzBlock is built. JazzBlocks are near-unmutable
 			objects, if you need to change a JazzBlock's attributes create a new object using jazz_alloc.h methods.
 		*/
-		inline void set_attributes(AllAttributes &all_att) {
+		inline void set_attributes(AllAttributes *all_att) {
 			if (num_attributes) return;
 
-			num_attributes = all_att.size();
+			num_attributes = all_att->size();
 			init_string_buffer();
 
 			int i = 0;
 			int *ptk = p_attribute_keys();
 			pJazzStringBuffer psb = p_string_buffer();
-			for (AllAttributes::iterator it = all_att.begin(); it != all_att.end(); ++it) {
+			for (AllAttributes::iterator it = all_att->begin(); it != all_att->end(); ++it) {
 				if (i < num_attributes) {
 					ptk[i] = it->first;
 					ptk[i + num_attributes] = get_string_offset(psb, it->second);
@@ -356,11 +356,11 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: You can use a non-empty map. This will keep existing key/values not found in the JazzBlock and create/override
 			those in the JazzBlock by using a normal 'map[key] = value' instruction.
 		*/
-		inline void get_attributes(AllAttributes &all_att) {
+		inline void get_attributes(AllAttributes *all_att) {
 			int *ptk = p_attribute_keys();
 			pJazzStringBuffer psb = p_string_buffer();
 			for (int i = 0; i < num_attributes; i++)
-				all_att[ptk[i]] = reinterpret_cast<char *>(&psb->buffer[ptk[i + num_attributes]]);
+				(*all_att)[ptk[i]] = reinterpret_cast<char *>(&psb->buffer[ptk[i + num_attributes]]);
 		}
 
 		/** Initialize the JazzStringBuffer of a JazzBlock, only when creating it.
