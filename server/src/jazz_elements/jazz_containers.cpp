@@ -33,6 +33,12 @@
 namespace jazz_containers
 {
 
+#ifdef DEBUG
+JazzOneShotAlloc alloc_map;
+#endif
+
+
+
 /** Create a new (one_shot) JazzBlock as a selection (of possibly all) of an existing JazzBlock
 
 	\param p_as_block   An existing block from which everything is copied, possibly with a selection over its rows.
@@ -81,7 +87,7 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 							only allocate the space and do nothing with it. The caller should assign strings to cells with JazzBlock.set_string().
 	\param p_text			The other possible way to allocate space for strings is by declaring p_text. Imagine the content of p_text
 							as a text file with n = size rows that will be pushed into the tensor and the string buffer. The eoln character
-							separates the cells.
+							separates the cells. (cell_type == CELL_TYPE_JAZZ_STRING & p_text != nullptr) overrides any setting in fill_tensor.
 	\param eoln		       	A single character that separates the cells in p_text and will not be pushed to the string buffer.
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are inmutable and should be changed
@@ -138,6 +144,10 @@ pJazzBlock new_jazz_block (int			  cell_type,
 	if (pjb == nullptr)
 		return nullptr;
 
+#ifdef DEBUG
+	alloc_map[pjb] = 1;
+#endif
+
 	memcpy(pjb, &hea, sizeof(JazzBlockHeader));
 
 	pjb->num_attributes = 0;
@@ -150,15 +160,19 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		pjb->set_attributes(att);
 	}
 
-	// int num_attributes;			///< Number of elements in the JazzAttributesMap
-	// ;			///< Total size of the block everything included
-	// bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
-	// TimePoint created;			///< Timestamp when the block was created
-	// uint64_t hash64;			///< Hash of everything but the header
+	if (cell_type == CELL_TYPE_JAZZ_STRING & p_text != nullptr) {
 
+	} else {
+		switch (fill_tensor) {
+		case JAZZ_FILL_NEW_WITH_ZERO:
+		case JAZZ_FILL_NEW_WITH_NA:
+		case JAZZ_FILL_BOOLEAN_FILTER:
+		case JAZZ_FILL_INTEGER_FILTER:
 
-
-//TODO: Implement new_jazz_block (2)
+			break;
+		}
+	}
+//TODO: Finish new_jazz_block (2)
 }
 
 
