@@ -126,7 +126,7 @@ bool JazzBlock::find_NAs_in_tensor(){
 
 /** Find an existing string in a block, or allocate a new one and return its offset in the JazzStringBuffer.buffer.
 
-	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling pStringBuffer repeatedly).
+	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling p_string_buffer repeatedly).
 	\param pString The string to find or allocate in the JazzStringBuffer.
 
 	\return		   The offset to the (zero terminated) string inside psb->buffer[] or -1 if allocation failed.

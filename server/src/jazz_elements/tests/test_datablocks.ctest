@@ -474,7 +474,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->total_bytes = 64 + 140*4 + 12 + 4096;
 		pjb->init_string_buffer();
 
-		psb = pjb->pStringBuffer();
+		psb = pjb->p_string_buffer();
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
@@ -500,7 +500,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->set_string(0, sstr[0]);
 
 		REQUIRE(pjb->tensor.cell_int[0] == 2);
-		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
 
 		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
 
@@ -515,7 +515,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->set_string(3, sstr[0]);
 
 		REQUIRE(pjb->tensor.cell_int[3] == 2);
-		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
 
 		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
 
@@ -594,7 +594,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->total_bytes = 64 + 140*4 + 12 + 105;
 		pjb->init_string_buffer();
 
-		psb = pjb->pStringBuffer();
+		psb = pjb->p_string_buffer();
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
@@ -620,7 +620,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->set_string(0, sstr[0]);
 
 		REQUIRE(pjb->tensor.cell_int[0] == 2);
-		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
 
 		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
 
@@ -635,7 +635,7 @@ SCENARIO("Testing String and Attribute logic")
 		pjb->set_string(3, sstr[0]);
 
 		REQUIRE(pjb->tensor.cell_int[3] == 2);
-		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->pStringBuffer());
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
 
 		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
 
@@ -736,8 +736,8 @@ SCENARIO("Testing String and Attribute logic")
 
 		pjb->set_attributes(att);	// This calls init_string_buffer()
 
-		int *pti = pjb->pAttribute_keys();
-		psb = pjb->pStringBuffer();
+		int *pti = pjb->p_attribute_keys();
+		psb = pjb->p_string_buffer();
 
 		REQUIRE(!psb->stop_check_4_match);
 		REQUIRE(!psb->alloc_failed);
@@ -813,7 +813,7 @@ SCENARIO("Testing String and Attribute logic")
 		// REQUIRE(pti[7] == 56);
 
 
-		char *pt = reinterpret_cast<char *>(&pjb->pStringBuffer()->buffer[2]);
+		char *pt = reinterpret_cast<char *>(&pjb->p_string_buffer()->buffer[2]);
 
 		REQUIRE((uintptr_t) pt == (uintptr_t) psb + 14);
 
@@ -926,9 +926,9 @@ SCENARIO("Testing Filters")
 
 		REQUIRE(pjb->num_attributes == 1);
 
-		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
-		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
-		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
 	}
 
 	GIVEN("A valid boolean filter pjf for pjb")
@@ -951,9 +951,9 @@ SCENARIO("Testing Filters")
 
 		REQUIRE(pjf->num_attributes == 1);
 
-		REQUIRE(!pjf->pStringBuffer()->stop_check_4_match);
-		REQUIRE(!pjf->pStringBuffer()->alloc_failed);
-		REQUIRE( pjf->pStringBuffer()->buffer_size == 4);
+		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 4);
 
 		for (int i = 0; i < 17; i++)
 			pjf->tensor.cell_byte[i] = 0;
@@ -1012,9 +1012,9 @@ SCENARIO("Testing Filters")
 
 		REQUIRE(pjf->num_attributes == 1);
 
-		REQUIRE(!pjf->pStringBuffer()->stop_check_4_match);
-		REQUIRE(!pjf->pStringBuffer()->alloc_failed);
-		REQUIRE( pjf->pStringBuffer()->buffer_size == 4);
+		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 4);
 
 		for (int i = 0; i < 4; i++)
 			pjf->tensor.cell_int[i] = 2*i;
@@ -1125,9 +1125,9 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 		REQUIRE(pjb->num_attributes == 1);
 
-		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
-		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
-		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
 	}
 
 	u_char *pt8 = reinterpret_cast<u_char *>(&pjb->tensor);
@@ -1203,9 +1203,9 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 		REQUIRE(pjb->num_attributes == 1);
 
-		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
-		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
-		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
 	}
 
 	int *pt32 = reinterpret_cast<int *>(&pjb->tensor);
@@ -1441,9 +1441,9 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 		REQUIRE(pjb->num_attributes == 1);
 
-		REQUIRE(!pjb->pStringBuffer()->stop_check_4_match);
-		REQUIRE(!pjb->pStringBuffer()->alloc_failed);
-		REQUIRE( pjb->pStringBuffer()->buffer_size == 4);
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
 	}
 
 	uint64_t *pt64 = reinterpret_cast<uint64_t *>(&pjb->tensor);
