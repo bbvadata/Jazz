@@ -254,7 +254,7 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *get_string(int *pIndex) {
-			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor.cell_int[get_offset(pIndex)]]);
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[get_offset(pIndex)]]);
 		}
 
 		/** Get a string from the tensor by offset without checking offset range.
@@ -266,7 +266,7 @@ class JazzBlock: public JazzBlockHeader {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *get_string(int offset)	 {
-			return reinterpret_cast<char *>(&pStringBuffer()->buffer[tensor.cell_int[offset]]);
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[offset]]);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
@@ -281,7 +281,7 @@ class JazzBlock: public JazzBlockHeader {
 			true, it doesn't even try to allocate.
 		*/
 		inline void set_string(int *pIndex, const char *pString) {
-			pJazzStringBuffer psb = pStringBuffer();
+			pJazzStringBuffer psb = p_string_buffer();
 			tensor.cell_int[get_offset(pIndex)] = get_string_offset(psb, pString);
 		}
 
@@ -297,7 +297,7 @@ class JazzBlock: public JazzBlockHeader {
 			true, it doesn't even try to allocate.
 		*/
 		inline void set_string(int offset, const char *pString) {
-			pJazzStringBuffer psb = pStringBuffer();
+			pJazzStringBuffer psb = p_string_buffer();
 			tensor.cell_int[offset] = get_string_offset(psb, pString);
 		}
 
@@ -316,10 +316,10 @@ class JazzBlock: public JazzBlockHeader {
 			map with all the attributes.
 		*/
 		inline char *find_attribute(int attribute_id) {
-			int *ptk = pAttribute_keys();
+			int *ptk = p_attribute_keys();
 			for (int i = 0; i < num_attributes; i++)
 				if (ptk[i] == attribute_id)
-					return reinterpret_cast<char *>(&pStringBuffer()->buffer[ptk[i + num_attributes]]);
+					return reinterpret_cast<char *>(&p_string_buffer()->buffer[ptk[i + num_attributes]]);
 			return nullptr;
 		}
 
@@ -338,10 +338,9 @@ class JazzBlock: public JazzBlockHeader {
 			init_string_buffer();
 
 			int i = 0;
-			int *ptk = pAttribute_keys();
-			pJazzStringBuffer psb = pStringBuffer();
-			for(AllAttributes::iterator it = all_att.begin(); it != all_att.end(); ++it)
-			{
+			int *ptk = p_attribute_keys();
+			pJazzStringBuffer psb = p_string_buffer();
+			for (AllAttributes::iterator it = all_att.begin(); it != all_att.end(); ++it) {
 				if (i < num_attributes) {
 					ptk[i] = it->first;
 					ptk[i + num_attributes] = get_string_offset(psb, it->second);
@@ -358,8 +357,8 @@ class JazzBlock: public JazzBlockHeader {
 			those in the JazzBlock by using a normal 'map[key] = value' instruction.
 		*/
 		inline void get_attributes(AllAttributes &all_att) {
-			int *ptk = pAttribute_keys();
-			pJazzStringBuffer psb = pStringBuffer();
+			int *ptk = p_attribute_keys();
+			pJazzStringBuffer psb = p_string_buffer();
 			for (int i = 0; i < num_attributes; i++)
 				all_att[ptk[i]] = reinterpret_cast<char *>(&psb->buffer[ptk[i + num_attributes]]);
 		}
@@ -370,7 +369,7 @@ class JazzBlock: public JazzBlockHeader {
 			you own JazzBlocks except for test cases or in jazz_alloc.h methods. Use those to build JazzBlocks instead.
 		*/
 		inline void init_string_buffer() {
-			pJazzStringBuffer psb = pStringBuffer();
+			pJazzStringBuffer psb = p_string_buffer();
 
 			int buff_size = total_bytes - ((uintptr_t) psb - (uintptr_t) &cell_type) - sizeof(JazzStringBuffer);
 			if (buff_size < 4) {
@@ -387,10 +386,6 @@ class JazzBlock: public JazzBlockHeader {
 
 		bool find_NAs_in_tensor();
 
-#ifndef CATCH_TEST
-	private:
-#endif
-
 		/** Align a pointer (as uintptr_t) to the next 16 byte boundary.
 		*/
 		inline int *align_128bit(uintptr_t ipt) {
@@ -403,14 +398,14 @@ class JazzBlock: public JazzBlockHeader {
 			(if any). This array has double the num_attributes size and stores the keys in the lower part and the offsets to the
 			values on the upper part.
 		*/
-		inline int *pAttribute_keys() {
+		inline int *p_attribute_keys() {
 			return align_128bit((uintptr_t) &tensor + (cell_type & 0xf)*size);
 		}
 
 		/** Return the address of the JazzStringBuffer containing the strings in the tensor and the attribute values.
 		*/
-		inline pJazzStringBuffer pStringBuffer() {
-			return reinterpret_cast<pJazzStringBuffer>((uintptr_t) pAttribute_keys() + 2*num_attributes*sizeof(int));
+		inline pJazzStringBuffer p_string_buffer() {
+			return reinterpret_cast<pJazzStringBuffer>((uintptr_t) p_attribute_keys() + 2*num_attributes*sizeof(int));
 		}
 
 		int get_string_offset(pJazzStringBuffer psb, const char *pString);
