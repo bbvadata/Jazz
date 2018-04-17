@@ -125,7 +125,7 @@ struct JazzBlockHeader
 {
 	int	cell_type;				///< The type for the cells in the tensor. See CELL_TYPE_*
 	int	rank;					///< The number of dimensions
-	JazzTensorDim dim_offs;		///< The dimensions of the tensor in terms of offsets (Max. size is 2 Gb.)
+	JazzTensorDim range;		///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
 	int size;					///< The total number of cells in the tensor
 	int num_attributes;			///< Number of elements in the JazzAttributesMap
 	int total_bytes;			///< Total size of the block everything included
@@ -176,7 +176,7 @@ class JazzBlock: public JazzBlockHeader {
 
 			\param pDim A pointer to the JazzTensorDim containing the dimensions.
 
-			NOTES: 1. This writes: rank, dim_offs[] and size.
+			NOTES: 1. This writes: rank, range[] and size.
 				   2. Except in the first position, a dimension 0 is the same as 1, only dimensions >1 count for the rank.
 				   3. Except in the first position, all >1 dimensions must be in the beginning. 3,2,1,4 == 3,2,0,0 has rank == 2
 				   4. All dimensions == 0 (or 1) has rank == 1 and size == 0 or 1 depending on the first dimension being 0 or 1.
@@ -186,8 +186,8 @@ class JazzBlock: public JazzBlockHeader {
 			rank = JAZZ_MAX_TENSOR_RANK;
 			int j = 1;
 			for (int i = JAZZ_MAX_TENSOR_RANK -1; i > 0; i--)
-				if (pDim[i] > 1) { dim_offs[i] = j; j *= pDim[i]; } else { j = 1; dim_offs[i] = 0; rank = i; }
-			dim_offs[0]  = j;
+				if (pDim[i] > 1) { range.dim[i] = j; j *= pDim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
+			range.dim[0]  = j;
 			j 			*= pDim[0];
 			size		 = j;
 		}
@@ -202,7 +202,7 @@ class JazzBlock: public JazzBlockHeader {
 		inline void get_dimensions(int *pDim) {
 			int j = size;
 			for (int i = 0; i < JAZZ_MAX_TENSOR_RANK; i++)
-				if (i < rank) { pDim[i] = j/dim_offs[i]; j = dim_offs[i]; } else pDim[i] = 0;
+				if (i < rank) { pDim[i] = j/range.dim[i]; j = range.dim[i]; } else pDim[i] = 0;
 		}
 
 		/** Returns if an index (as a JazzTensorDim array) is valid for the tensor.
@@ -214,8 +214,8 @@ class JazzBlock: public JazzBlockHeader {
 		inline bool validate_index(int *pIndex) {
 			int j = size;
 			for (int i = 0; i < rank; i++) {
-				if (pIndex[i] < 0 || pIndex[i]*dim_offs[i] >= j) return false;
-				j = dim_offs[i];
+				if (pIndex[i] < 0 || pIndex[i]*range.dim[i] >= j) return false;
+				j = range.dim[i];
 			}
 			return true;
 		}
@@ -236,7 +236,7 @@ class JazzBlock: public JazzBlockHeader {
 		*/
 		inline int get_offset(int *pIndex) {
 			int j = 0;
-			for (int i = 0; i < rank; i++) j += pIndex[i]*dim_offs[i];
+			for (int i = 0; i < rank; i++) j += pIndex[i]*range.dim[i];
 			return j;
 		}
 
@@ -246,7 +246,7 @@ class JazzBlock: public JazzBlockHeader {
 			\param pIndex A pointer to the JazzTensorDim to return the result.
 		*/
 		inline void get_index(int offset, int *pIndex) {
-			for (int i = 0; i < rank; i++) { pIndex[i] = offset/dim_offs[i]; offset -= pIndex[i]*dim_offs[i]; }
+			for (int i = 0; i < rank; i++) { pIndex[i] = offset/range.dim[i]; offset -= pIndex[i]*range.dim[i]; }
 		}
 
 	// Methods on strings.
@@ -424,7 +424,7 @@ class JazzBlock: public JazzBlockHeader {
 
 	.cell_type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER
 	.rank == 1
-	.dim_offs[0] == 1, .dim_offs[1] == number of elements in the tensor when cell_type == CELL_TYPE_INTEGER
+	.range.filter.one == 1, .range.filter.length == number of elements in the tensor when cell_type == CELL_TYPE_INTEGER
 	.size == length of the selector
 	.num_attributes == 1	// To prevent set_attributes() being applied to it
 	.total_bytes == as expected
@@ -436,8 +436,9 @@ class JazzBlock: public JazzBlockHeader {
 
 1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
 2. A JAZZ_FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN specifying which rows are selected (cell == true).
-3. A JAZZ_FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .dim_offs[1]. As expected,
-.dim_offs[1] == 0 means nothing is selected, .dim_offs[1] == .size means everything is selected regardless of .tensor[]
+3. A JAZZ_FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .range.filter.length.
+As expected, .range.filter.length == 0 means nothing is selected, .range.filter.length == .size means everything is selected regardless
+of .tensor[]
 
 */
 class JazzFilter: public JazzBlock {
@@ -451,7 +452,7 @@ public:
 		\return JAZZ_FILTER_TYPE_BOOLEAN or JAZZ_FILTER_TYPE_INTEGER if it is a valid filter of that type, JAZZ_FILTER_TYPE_NOTAFILTER if not.
 	*/
 	inline int filter_type() {
-		if (rank != 1 || dim_offs[0] != 1 || num_attributes != 1 || has_NA)
+		if (rank != 1 || range.filter.one != 1 || num_attributes != 1 || has_NA)
 			return JAZZ_FILTER_TYPE_NOTAFILTER;
 
 		if (cell_type == CELL_TYPE_INTEGER)
@@ -472,7 +473,7 @@ public:
 		\return true if it is a valid filter of that type.
 	*/
 	inline bool can_filter(pJazzBlock p_block) {
-		if (p_block->rank < 1 || p_block->dim_offs[0] <= 0 || size != p_block->size/p_block->dim_offs[0])
+		if (p_block->rank < 1 || p_block->range.dim[0] <= 0 || size != p_block->size/p_block->range.dim[0])
 			return false;
 
 		return filter_type() != JAZZ_FILTER_TYPE_NOTAFILTER;
