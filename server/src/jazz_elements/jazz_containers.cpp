@@ -242,14 +242,14 @@ pJazzBlock new_jazz_block (int			  cell_type,
 				break; }
 
 			default:
-				free(pjb);
+				free_jazz_block(pjb);
 				return nullptr;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
 
 		case JAZZ_FILL_BOOLEAN_FILTER:
 			pjb->has_NA = false;
 			if (p_bool_filter == nullptr || reinterpret_cast<pJazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_BOOLEAN) {
-				free(pjb);
+				free_jazz_block(pjb);
 				return nullptr;		// No silent fail, cell_type and rank must match
 			}
 			memcpy(&pjb->tensor, p_bool_filter, pjb->size);
@@ -257,7 +257,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		case JAZZ_FILL_INTEGER_FILTER:
 			pjb->has_NA = false;
 			if (p_bool_filter == nullptr || reinterpret_cast<pJazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_INTEGER) {
-				free(pjb);
+				free_jazz_block(pjb);
 				return nullptr;		// No silent fail, cell_type and rank must match
 			}
 //TODO: bool to int here
