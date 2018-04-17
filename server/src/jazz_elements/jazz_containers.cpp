@@ -140,10 +140,10 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			return nullptr;
 
 		JazzTensorDim idim;
-		idim[0] = num_lines;
-		idim[1] = 0;
+		idim.dim[0] = num_lines;
+		idim.dim[1] = 0;
 
-		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(idim);
+		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(idim.dim);
 	} else {
 		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(dim);
 
