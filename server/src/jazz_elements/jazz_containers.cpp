@@ -186,7 +186,12 @@ pJazzBlock new_jazz_block (int			  cell_type,
 */
 void free_jazz_block(pJazzBlock &p_block)
 {
-//TODO: Implement free_jazz_block
+#ifdef DEBUG
+	alloc_map.erase[p_block];
+#endif
+	free(p_block);
+
+	p_block = nullptr;
 }
 
 
