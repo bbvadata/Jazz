@@ -161,18 +161,79 @@ pJazzBlock new_jazz_block (int			  cell_type,
 	}
 
 	if (cell_type == CELL_TYPE_JAZZ_STRING & p_text != nullptr) {
-
+//TODO: text to vector here
 	} else {
 		switch (fill_tensor) {
 		case JAZZ_FILL_NEW_WITH_ZERO:
-		case JAZZ_FILL_NEW_WITH_NA:
-		case JAZZ_FILL_BOOLEAN_FILTER:
-		case JAZZ_FILL_INTEGER_FILTER:
+			memset(&pjb->tensor, 0, (pjb->cell_type & 0xf)*pjb->size);
+			pjb->has_NA = (pjb->cell_type == CELL_TYPE_JAZZ_STRING) || (pjb->cell_type == CELL_TYPE_JAZZ_TIME);
+			break;
 
+		case JAZZ_FILL_NEW_WITH_NA:
+			pjb->has_NA = false;
+
+			switch (cell_type) {
+			case CELL_TYPE_BYTE_BOOLEAN:
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_byte[i] = JAZZ_BOOLEAN_NA;
+				break;
+
+			case CELL_TYPE_INTEGER:
+			case CELL_TYPE_FACTOR:
+			case CELL_TYPE_GRADE:
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_int[i] = JAZZ_INTEGER_NA;
+				break;
+
+			case CELL_TYPE_BOOLEAN:
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_uint[i] = JAZZ_BOOLEAN_NA;
+				break;
+
+			case CELL_TYPE_SINGLE: {
+				u_int una = reinterpret_cast<u_int*>(&JAZZ_SINGLE_NA)[0];
+
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_uint[i] = una;
+				break; }
+
+			case CELL_TYPE_JAZZ_STRING:
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_int[i] = JAZZ_STRING_NA;
+				break;
+
+			case CELL_TYPE_LONG_INTEGER:
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_longint[i] = JAZZ_LONG_INTEGER_NA;
+				break;
+
+			case CELL_TYPE_JAZZ_TIME:
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_longint[i] = JAZZ_TIME_POINT_NA;
+				break;
+
+			case CELL_TYPE_DOUBLE: {
+				uint64_t una = reinterpret_cast<uint64_t*>(&JAZZ_DOUBLE_NA)[0];
+
+				for (int i = 0; i < pjb->size; i++) pjb->tensor.cell_ulongint[i] = una;
+				break; }
+
+			default:
+				free(pjb);
+				return nullptr;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
+			}
+
+		case JAZZ_FILL_BOOLEAN_FILTER:
+			pjb->has_NA = false;
+			if (p_bool_filter == nullptr || reinterpret_cast<JazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_BOOLEAN) {
+				free(pjb);
+				return nullptr;		// No silent fail, cell_type and rank must match
+			}
+			memcpy(&pjb->tensor, p_bool_filter, pjb->size);
+			break;
+		case JAZZ_FILL_INTEGER_FILTER:
+			pjb->has_NA = false;
+			if (p_bool_filter == nullptr || reinterpret_cast<JazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_INTEGER) {
+				free(pjb);
+				return nullptr;		// No silent fail, cell_type and rank must match
+			}
+//TODO: bool to int here
 			break;
 		}
 	}
-//TODO: Finish new_jazz_block (2)
 }
 
 
