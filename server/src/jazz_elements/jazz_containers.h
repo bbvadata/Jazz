@@ -163,12 +163,6 @@ can be removed to allocate space.
 typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
 
 
-/** A map to track usage of pointers assigned to JazzBlock objects while they are one_shot or volatile.
-(For debugging purposes only.)
-*/
-typedef std::map<void *, int> JazzOneShotAlloc;
-
-
 /** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
 */
 typedef std::atomic<int32_t> JazzLock;
