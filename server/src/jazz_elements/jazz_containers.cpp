@@ -260,7 +260,14 @@ pJazzBlock new_jazz_block (int			  cell_type,
 				free_jazz_block(pjb);
 				return nullptr;		// No silent fail, cell_type and rank must match
 			}
-//TODO: bool to int here
+			int j = 0;
+			for (int i = 0; i < pjb->size; i ++) {
+				if (p_bool_filter[i]) {
+					pjb->tensor.cell_int[j] = i;
+					j++;
+				}
+			}
+			pjb->range.filter.length = j;
 			break;
 		}
 	}
