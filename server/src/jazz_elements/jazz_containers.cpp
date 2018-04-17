@@ -34,7 +34,7 @@ namespace jazz_containers
 {
 
 #ifdef DEBUG
-JazzOneShotAlloc alloc_map;
+long long num_alloc_ok = 0, num_alloc_failed = 0, num_free = 0, num_realloc_ok = 0, num_realloc_failed = 0;
 #endif
 
 
@@ -171,11 +171,15 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 	pJazzBlock pjb = (pJazzBlock) malloc(hea.total_bytes);
 
-	if (pjb == nullptr)
+	if (pjb == nullptr) {
+#ifdef DEBUG
+		num_alloc_failed++;
+#endif
 		return nullptr;
+	}
 
 #ifdef DEBUG
-	alloc_map[pjb] = 1;
+	num_alloc_ok++;
 #endif
 
 	memcpy(pjb, &hea, sizeof(JazzBlockHeader));
@@ -285,7 +289,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 void free_jazz_block(pJazzBlock &p_block)
 {
 #ifdef DEBUG
-	alloc_map.erase[p_block];
+	num_free++;
 #endif
 	free(p_block);
 
