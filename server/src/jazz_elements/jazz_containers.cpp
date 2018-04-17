@@ -116,7 +116,36 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 	hea.cell_type = cell_type;
 
-	reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(dim);
+	int text_length = 0, num_lines = 0;
+
+	if (p_text != nullptr) {
+		if (cell_type != CELL_TYPE_JAZZ_STRING)
+			return nullptr;
+
+		const char *pt = p_text;
+		while (pt[0]) {
+			if (pt[0] == eoln) num_lines++;
+			pt++;
+		}
+		text_length = (uintptr_t) pt - (uintptr_t) p_text - num_lines;
+		num_lines++;
+	}
+
+	if (dim == nullptr) {
+		if (p_text == nullptr)
+			return nullptr;
+
+		JazzTensorDim idim;
+		idim[0] = num_lines;
+		idim[1] = 0;
+
+		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(idim);
+	} else {
+		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(dim);
+
+		if (num_lines && (num_lines != hea.size))
+			return nullptr;
+	}
 
 	hea.num_attributes = 0;
 
@@ -134,10 +163,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		hea.total_bytes += 2*hea.num_attributes*sizeof(int);
 	}
 
-	if (p_text != nullptr)
-		hea.total_bytes += strlen(p_text) + hea.size;
-
-	hea.total_bytes += stringbuff_size;
+	hea.total_bytes += stringbuff_size + text_length + num_lines;
 
 	pJazzBlock pjb = (pJazzBlock) malloc(hea.total_bytes);
 
