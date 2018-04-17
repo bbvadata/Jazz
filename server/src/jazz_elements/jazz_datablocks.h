@@ -96,8 +96,14 @@ namespace jazz_datablocks
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
-/// Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
-typedef int JazzTensorDim[JAZZ_MAX_TENSOR_RANK];
+struct filter_size { int one;int length; };
+
+
+union JazzTensorDim
+{
+	int 		dim[JAZZ_MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
+	filter_size filter;						///< When object is a JazzFilter the second element is named filter.length rather than range.dim[1]
+};
 
 
 /// A tensor of cell size 1, 4 or 8
