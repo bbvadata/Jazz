@@ -96,13 +96,19 @@ namespace jazz_datablocks
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
-struct filter_size { int one;int length; };
+struct FilterSize { int one; int length; };	///< Two names for the first two elements in a JazzTensorDim
 
 
+/** The dimension of a tensor.
+
+	The structure is declared as a union to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
+	but has an extra parameter, its length. Since dim[1] is not used (as rank is 1), it is a good place to store the length but remembering
+	that dim[1] is the length is ugly. Therefore, the more elegant filter.length is an alias for dim[1].
+*/
 union JazzTensorDim
 {
-	int 		dim[JAZZ_MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
-	filter_size filter;						///< When object is a JazzFilter the second element is named filter.length rather than range.dim[1]
+	int 	   dim[JAZZ_MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
+	FilterSize filter;						///< When object is a JazzFilter the second element is named filter.length rather than dim[1]
 };
 
 
