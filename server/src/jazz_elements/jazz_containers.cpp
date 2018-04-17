@@ -218,7 +218,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 		case JAZZ_FILL_BOOLEAN_FILTER:
 			pjb->has_NA = false;
-			if (p_bool_filter == nullptr || reinterpret_cast<JazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_BOOLEAN) {
+			if (p_bool_filter == nullptr || reinterpret_cast<pJazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_BOOLEAN) {
 				free(pjb);
 				return nullptr;		// No silent fail, cell_type and rank must match
 			}
@@ -226,7 +226,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			break;
 		case JAZZ_FILL_INTEGER_FILTER:
 			pjb->has_NA = false;
-			if (p_bool_filter == nullptr || reinterpret_cast<JazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_INTEGER) {
+			if (p_bool_filter == nullptr || reinterpret_cast<pJazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_INTEGER) {
 				free(pjb);
 				return nullptr;		// No silent fail, cell_type and rank must match
 			}
