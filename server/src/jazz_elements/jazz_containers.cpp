@@ -324,11 +324,12 @@ void free_jazz_block(pJazzBlock &p_block)
 }
 
 
-/** Aaa
+/** Constructor for class JazzBlockKeepr
 
-	\param a_logger Aaa
+	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
+It is safe to ignore this parameter, in that case the events will not be logged.
 
-//TODO: Document JazzBlockKeepr::JazzBlockKeepr
+	This does not allocate any items, you must call alloc_keeprs () before using the object.
 */
 JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 {
