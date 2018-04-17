@@ -38,7 +38,6 @@ long long num_alloc_ok = 0, num_alloc_failed = 0, num_free = 0, num_realloc_ok =
 #endif
 
 
-
 /** Create a new (one_shot) JazzBlock as a selection (of possibly all) of an existing JazzBlock
 
 	\param p_as_block   An existing block from which everything is copied, possibly with a selection over its rows.
@@ -194,8 +193,36 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		pjb->set_attributes(att);
 	}
 
-	if (cell_type == CELL_TYPE_JAZZ_STRING & p_text != nullptr) {
-//TODO: text to vector here
+	if (p_text != nullptr) {
+		pJazzStringBuffer psb = pjb->p_string_buffer();
+
+		int offset = psb->last_idx;
+
+		char *pt_out = &psb->buffer[offset];
+
+		pjb->tensor.cell_int[0] = offset;
+
+		int row = 1, len = 0;
+		const char *pt_in = p_text;
+
+		while (pt_in[0]) {
+			offset++;
+			if (pt_in[0] != eoln) {
+				pt_out[0] = pt_in[0];
+				len++;
+			} else {
+				pt_out[0] = 0;
+
+				if (len) pjb->tensor.cell_int[row] = offset;
+				else     pjb->tensor.cell_int[row] = JAZZ_STRING_EMPTY;
+
+				len = 0;
+				row++;
+			}
+			pt_out++;
+			pt_in++;
+		}
+		pt_out[0] = 0;
 	} else {
 		switch (fill_tensor) {
 		case JAZZ_FILL_NEW_WITH_ZERO:
