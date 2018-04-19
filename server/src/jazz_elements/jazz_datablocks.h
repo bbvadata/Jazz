@@ -193,7 +193,7 @@ class JazzBlock: public JazzBlockHeader {
 			int j = 1;
 			for (int i = JAZZ_MAX_TENSOR_RANK -1; i > 0; i--)
 				if (pDim[i] > 1) { range.dim[i] = j; j *= pDim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
-			range.dim[0]  = j;
+			range.dim[0] = j;
 			j 			*= pDim[0];
 			size		 = j;
 		}
