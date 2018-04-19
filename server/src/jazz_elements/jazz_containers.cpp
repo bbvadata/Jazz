@@ -302,6 +302,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			break;
 		}
 	}
+	return pjb;
 }
 
 
