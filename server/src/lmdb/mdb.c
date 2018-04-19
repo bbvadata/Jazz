@@ -232,11 +232,11 @@ union semun {
 #include "lmdb.h"
 #include "midl.h"
 
-#if (BYTE_ORDER == LITTLE_ENDIAN) == (BYTE_ORDER == BIG_ENDIAN)
-# error "Unknown or unsupported endianness (BYTE_ORDER)"
-#elif (-6 & 5) || CHAR_BIT!=8 || UINT_MAX!=0xffffffff || MDB_SIZE_MAX%UINT_MAX
-# error "Two's complement, reasonably sized integer types, please"
-#endif
+// #if (BYTE_ORDER == LITTLE_ENDIAN) == (BYTE_ORDER == BIG_ENDIAN)
+// # error "Unknown or unsupported endianness (BYTE_ORDER)"
+// #elif (-6 & 5) || CHAR_BIT!=8 || UINT_MAX!=0xffffffff || MDB_SIZE_MAX%UINT_MAX
+// # error "Two's complement, reasonably sized integer types, please"
+// #endif
 
 #ifdef __GNUC__
 /** Put infrequently used env functions in separate section */
@@ -1694,15 +1694,15 @@ static char *const mdb_errstr[] = {
 char *
 mdb_strerror(int err)
 {
-#ifdef _WIN32
-	/** HACK: pad 4KB on stack over the buf. Return system msgs in buf.
-	 *	This works as long as no function between the call to mdb_strerror
-	 *	and the actual use of the message uses more than 4K of stack.
-	 */
-#define MSGSIZE	1024
-#define PADSIZE	4096
-	char buf[MSGSIZE+PADSIZE], *ptr = buf;
-#endif
+// #ifdef _WIN32
+// 	/** HACK: pad 4KB on stack over the buf. Return system msgs in buf.
+// 	 *	This works as long as no function between the call to mdb_strerror
+// 	 *	and the actual use of the message uses more than 4K of stack.
+// 	 */
+// #define MSGSIZE	1024
+// #define PADSIZE	4096
+// 	char buf[MSGSIZE+PADSIZE], *ptr = buf;
+// #endif
 	int i;
 	if (!err)
 		return ("Successful return: 0");
@@ -1730,11 +1730,13 @@ mdb_strerror(int err)
 	default:
 		;
 	}
-	buf[0] = 0;
-	FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL, err, 0, ptr, MSGSIZE, (va_list *)buf+MSGSIZE);
-	return ptr;
+	// buf[0] = 0;
+	// FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
+	// 	FORMAT_MESSAGE_IGNORE_INSERTS,
+	// 	NULL, err, 0, ptr, MSGSIZE, (va_list *)buf+MSGSIZE);
+	// return ptr;
+
+	return strerror(err);
 #else
 	return strerror(err);
 #endif
