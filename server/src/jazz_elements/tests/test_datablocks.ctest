@@ -90,11 +90,6 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic")
 
 			for (int i = 0; i < 3*5*4*3; i++) pvi[i] = i;
 
-			int dc =  1;
-			int dy =  3*dc;
-			int dx =  8*dy;
-			int dt = 12*dx;
-
 			REQUIRE(video[0][0][0][0] == 0);
 			REQUIRE(video[0][0][0][1] == 1);
 			REQUIRE(video[0][0][0][2] == 2);
