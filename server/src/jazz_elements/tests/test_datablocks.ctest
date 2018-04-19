@@ -936,6 +936,12 @@ SCENARIO("Testing Filters")
 
 	GIVEN("A valid boolean filter pjf for pjb")
 	{
+		int6 dimblk = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+
+		pjb->set_dimensions(dimblk);
+
 		int6 d2 = {17};
 
 		pjf->cell_type = CELL_TYPE_BYTE_BOOLEAN;
@@ -969,7 +975,7 @@ SCENARIO("Testing Filters")
 		REQUIRE(!pjf->has_NA);
 		REQUIRE(pjf->cell_type == CELL_TYPE_BYTE_BOOLEAN);
 
-		int size = pjb->size/pjb->range.filter.one;
+		int size = pjb->size/pjb->range.dim[0];
 
 		REQUIRE(size == pjf->size);
 
@@ -997,6 +1003,12 @@ SCENARIO("Testing Filters")
 
 	GIVEN("A valid integer filter pjf for pjb")
 	{
+		int6 dimblk = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+
+		pjb->set_dimensions(dimblk);
+
 		int6 d2 = {17};
 
 		pjf->cell_type = CELL_TYPE_INTEGER;
@@ -1032,7 +1044,7 @@ SCENARIO("Testing Filters")
 		REQUIRE(!pjf->has_NA);
 		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
 
-		int size = pjb->size/pjb->range.filter.one;
+		int size = pjb->size/pjb->range.dim[0];
 
 		REQUIRE(size == pjf->size);
 
@@ -1108,10 +1120,10 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 	char buf1[4096], buf2[4096];
 	pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&buf1);
 
+	int6 d1 = {3, 15, 7, 0, 0, 0};
+
 	GIVEN("A block pjb with 1 byte cells")
 	{
-		int6 d1 = {3, 15, 7, 0, 0, 0};
-
 		pjb->cell_type = CELL_TYPE_BYTE;
 
 		pjb->set_dimensions(d1);
@@ -1136,6 +1148,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 	u_char *pt8 = reinterpret_cast<u_char *>(&pjb->tensor);
 
 	pjb->cell_type = CELL_TYPE_BYTE;
+	pjb->set_dimensions(d1);
 
 	for (int i = 0; i < pjb->size; i++)
 		pjb->tensor.cell_byte[i] = i % 0x10;
@@ -1143,6 +1156,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 	REQUIRE(!pjb->find_NAs_in_tensor());	// No such thing as NA for CELL_TYPE_BYTE
 
 	pjb->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(pjb->find_NAs_in_tensor());
 
@@ -1188,8 +1202,6 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 	GIVEN("A block pjb with 4 byte cells")
 	{
-		int6 d1 = {3, 15, 7, 0, 0, 0};
-
 		pjb->cell_type = CELL_TYPE_INTEGER;
 
 		pjb->set_dimensions(d1);
@@ -1217,6 +1229,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		pjb->tensor.cell_int[i] = 321*i;
 
 	pjb->cell_type = CELL_TYPE_INTEGER;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
@@ -1249,6 +1262,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
 	pjb->cell_type = CELL_TYPE_FACTOR;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
@@ -1281,6 +1295,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
 	pjb->cell_type = CELL_TYPE_GRADE;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
@@ -1313,6 +1328,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
 	pjb->cell_type = CELL_TYPE_BOOLEAN;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(pjb->find_NAs_in_tensor());
 
@@ -1360,6 +1376,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		pjb->tensor.cell_int[i] = 321*i;
 
 	pjb->cell_type = CELL_TYPE_JAZZ_STRING;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(pjb->find_NAs_in_tensor());
 
@@ -1391,6 +1408,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		pjb->tensor.cell_single[i] = 32.1*i;
 
 	pjb->cell_type = CELL_TYPE_SINGLE;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
@@ -1426,8 +1444,6 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 	GIVEN("A block pjb with 8 byte cells")
 	{
-		int6 d1 = {3, 15, 7, 0, 0, 0};
-
 		pjb->cell_type = CELL_TYPE_LONG_INTEGER;
 
 		pjb->set_dimensions(d1);
@@ -1455,6 +1471,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		pjb->tensor.cell_longint[i] = 987654321*i;
 
 	pjb->cell_type = CELL_TYPE_LONG_INTEGER;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
@@ -1490,6 +1507,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		pjb->tensor.cell_longint[i] = 987654321*i;
 
 	pjb->cell_type = CELL_TYPE_JAZZ_TIME;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(pjb->find_NAs_in_tensor());
 
@@ -1521,6 +1539,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 		pjb->tensor.cell_double[i] = 987654321.23456789*i;
 
 	pjb->cell_type = CELL_TYPE_DOUBLE;
+	pjb->set_dimensions(d1);
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
