@@ -431,8 +431,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		void remove_jazz_block(pJazzQueueItem p_item);
 
-		pJazzQueueItem highest_priority_item (bool remove_it = false);
-		pJazzQueueItem lowest_priority_item  (bool remove_it = false);
+		pJazzQueueItem highest_priority_item (bool lock_it);
+		pJazzQueueItem lowest_priority_item  (bool lock_it);
 
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
