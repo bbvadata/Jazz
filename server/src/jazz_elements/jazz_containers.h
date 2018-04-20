@@ -244,6 +244,15 @@ class JazzBlockKeepr {
 		bool realloc_keeprs(int num_items);
 		void destroy_keeprs();
 
+		// Method for block ID validation
+
+		/** Validate a JazzBlockIdentifier
+			\param p_id A JazzBlockIdentifier
+			\return     True if p_id matches the regex JAZZ_REGEX_VALIDATE_BLOCK_ID
+		*/
+		inline bool valid_block_identifier(const char *p_id) {
+			return std::regex_match(p_id, block_id_rex);
+		}
 		// Methods for JazzBlock allocation
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
