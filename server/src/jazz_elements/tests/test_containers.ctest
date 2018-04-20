@@ -267,29 +267,83 @@ SCENARIO("Testing JazzBlock containers")
 
 	GIVEN("We want to test the regex")
 	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
-//TODO: Write unit tests for block id regex validation
-			}
-		}
+		JazzBlockKeepr jbk;
+
+		REQUIRE( jbk.valid_block_identifier("/abc"));
+		REQUIRE( jbk.valid_block_identifier(".abc"));
+		REQUIRE(!jbk.valid_block_identifier("@abc"));
+		REQUIRE(!jbk.valid_block_identifier("abc"));
+
+		REQUIRE(!jbk.valid_block_identifier("/"));
+		REQUIRE( jbk.valid_block_identifier("/a"));
+		REQUIRE(!jbk.valid_block_identifier("."));
+		REQUIRE( jbk.valid_block_identifier(".a"));
+
+		REQUIRE( jbk.valid_block_identifier("/abcdefghijklmnopqrstuvwxyz"));
+		REQUIRE( jbk.valid_block_identifier("/ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+		REQUIRE( jbk.valid_block_identifier("/1234567890_"));
+		REQUIRE(!jbk.valid_block_identifier("/Á"));
+		REQUIRE(!jbk.valid_block_identifier("/ñ"));
+		REQUIRE(!jbk.valid_block_identifier("/$"));
+		REQUIRE(!jbk.valid_block_identifier("/ç"));
+		REQUIRE(!jbk.valid_block_identifier("/á"));
+		REQUIRE(!jbk.valid_block_identifier("/à"));
+		REQUIRE(!jbk.valid_block_identifier("/ä"));
+		REQUIRE(!jbk.valid_block_identifier("/ä"));
+
+		REQUIRE(!jbk.valid_block_identifier("."));
+		REQUIRE( jbk.valid_block_identifier(".AaBc55_cKrrfe96_"));
+		REQUIRE( jbk.valid_block_identifier("._"));
+		REQUIRE( jbk.valid_block_identifier("._wow_"));
+		REQUIRE(!jbk.valid_block_identifier(".AaBc55.cKrrfe96_"));
+		REQUIRE(!jbk.valid_block_identifier(".AaBc55/cKrrfe96_"));
+
+		REQUIRE(!jbk.valid_block_identifier(".hello world"));
+		REQUIRE( jbk.valid_block_identifier(".hello_world"));
+		REQUIRE(!jbk.valid_block_identifier("=hello_world"));
+		REQUIRE(!jbk.valid_block_identifier(". hello_world"));
+		REQUIRE( jbk.valid_block_identifier("._hello_world"));
+		REQUIRE(!jbk.valid_block_identifier("&_hello_world"));
+		REQUIRE(!jbk.valid_block_identifier(".hello_world "));
+		REQUIRE( jbk.valid_block_identifier(".hello_world_"));
+		REQUIRE(!jbk.valid_block_identifier("a.hello_world_"));
+
+		REQUIRE( jbk.valid_block_identifier("/123456789012345678901234567890"));
+		REQUIRE(!jbk.valid_block_identifier("/1234567890123456789012345678901"));
 	}
 }
 
 
 SCENARIO("Testing JazzBlock creation from scratch")
 {
-	GIVEN("We want to test the xyz")
+	JazzTensorDim dim {{7, 3, 5, 0}};
+
+	REQUIRE(dim.dim[0] == 7);
+	REQUIRE(dim.dim[1] == 3);
+	REQUIRE(dim.dim[2] == 5);
+	REQUIRE(dim.dim[3] == 0);
+
+	GIVEN("A block of CELL_TYPE_BYTE")
 	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
-//TODO: Write unit tests for JazzBlock creation from scratch
-			}
-		}
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim);
+
+		REQUIRE(pjb == nullptr);	// CELL_TYPE_BYTE cannot accept fill_tensor	= JAZZ_FILL_NEW_WITH_NA!
+
+		pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim);
+
+		REQUIRE(pjb == nullptr);	// CELL_TYPE_BYTE cannot accept fill_tensor	= JAZZ_FILL_NEW_WITH_NA!
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+
 	}
+
+//TODO: Write unit tests for JazzBlock creation from scratch
 }
 
 
