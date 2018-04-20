@@ -31,6 +31,7 @@
 #include <atomic>
 #include <thread>
 #include <stdarg.h>
+#include <regex>
 
 
 #include "src/jazz_elements/jazz_datablocks.h"
@@ -372,6 +373,7 @@ class JazzBlockKeepr {
 
 	private:
 
+		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
 		int 		   			keepr_item_size, num_allocd_items;
 		pJazzQueueItem 			p_buffer_base, p_first_free;
 		JazzLock				_buffer_lock_;
