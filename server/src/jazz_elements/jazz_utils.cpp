@@ -547,10 +547,7 @@ int JazzLogger::get_output_file_name (char *buff, int buff_size)
 */
 void JazzLogger::log (int loglevel, const char *message)
 {
-	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-
-	int64_t elapsed = std::chrono::duration_cast<std::chrono::microseconds>(now - big_bang).count();
-	double sec = elapsed/1000000.0;
+	double sec = elapsed_us(big_bang)/1000000.0;
 
 #ifdef NDEBUG
 	if (loglevel == LOG_DEBUG) loglevel == LOG_WARN;	// Should not exist in case of NDEBUG. It becomes a LOG_WARN to force removing it.
