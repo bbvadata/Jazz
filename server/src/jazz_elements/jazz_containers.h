@@ -67,11 +67,11 @@ namespace jazz_containers
 
 using namespace jazz_datablocks;
 
-#define JAZZ_MAX_BLOCK_ID_LENGTH	   								  32	///< Maximum length for a block name
-#define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,30}\\x00$"	///< Regex validating a JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   								 '.'	///< First char of a LOCAL JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   								 '/'	///< First char of a DISTRIBUTED JazzBlockIdentifier
-#define JAZZ_LOCK_RETRY_NUMTIMES									 100	///< # immediate retries if lock fails before this_thread::yield();
+#define JAZZ_MAX_BLOCK_ID_LENGTH	   							 32		///< Maximum length for a block name
+#define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,30}$"		///< Regex validating a JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   							'.'		///< First char of a LOCAL JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   							'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_LOCK_RETRY_NUMTIMES								100		///< # immediate retries if lock fails before this_thread::yield();
 
 /// Values for argument fill_tensor of new_jazz_block()
 #define JAZZ_FILL_
