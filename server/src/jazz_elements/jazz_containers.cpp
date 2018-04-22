@@ -231,7 +231,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			break;
 
 		case JAZZ_FILL_NEW_WITH_NA:
-			pjb->has_NA = false;
+			pjb->has_NA = true;
 
 			switch (cell_type) {
 			case CELL_TYPE_BYTE_BOOLEAN:
