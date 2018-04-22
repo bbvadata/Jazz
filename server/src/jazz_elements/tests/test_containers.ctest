@@ -1640,6 +1640,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(0), ""));
 		REQUIRE(pjb->tensor.cell_int[0] == JAZZ_STRING_EMPTY);
 
+		REQUIRE(pjb->p_string_buffer()->last_idx == 3);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "Q") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
+
 		free_jazz_block(pjb);
 
 		REQUIRE(pjb == nullptr);
@@ -1663,6 +1668,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		REQUIRE(!strcmp(pjb->get_string(0), ""));
 		REQUIRE(pjb->tensor.cell_int[0] == JAZZ_STRING_EMPTY);
+
+		REQUIRE(pjb->p_string_buffer()->last_idx == 3);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "#") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
 
 		free_jazz_block(pjb);
 
@@ -1692,6 +1702,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(2), ""));
 		REQUIRE(pjb->tensor.cell_int[2] == JAZZ_STRING_EMPTY);
 
+		REQUIRE(pjb->p_string_buffer()->last_idx == 5);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "A") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
+
 		free_jazz_block(pjb);
 
 		REQUIRE(pjb == nullptr);
@@ -1718,6 +1733,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(1), "def"));
 		REQUIRE(pjb->tensor.cell_int[1] == 6);
 
+		REQUIRE(pjb->p_string_buffer()->last_idx == 10);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "A") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
+
 		free_jazz_block(pjb);
 
 		REQUIRE(pjb == nullptr);
@@ -1743,6 +1763,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_int[0] == 2);
 		REQUIRE(!strcmp(pjb->get_string(1), "def"));
 		REQUIRE(pjb->tensor.cell_int[1] == 6);
+
+		REQUIRE(pjb->p_string_buffer()->last_idx == 10);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "A") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
 
 		free_jazz_block(pjb);
 
@@ -1772,6 +1797,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(2), ""));
 		REQUIRE(pjb->tensor.cell_int[2] == JAZZ_STRING_EMPTY);
 
+		REQUIRE(pjb->p_string_buffer()->last_idx == 11);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "A") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
+
 		free_jazz_block(pjb);
 
 		REQUIRE(pjb == nullptr);
@@ -1797,6 +1827,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_int[0] == 2);
 		REQUIRE(!strcmp(pjb->get_string(1), "text file"));
 		REQUIRE(pjb->tensor.cell_int[1] == 19);
+
+		REQUIRE(pjb->p_string_buffer()->last_idx == 29);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "A") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
 
 		free_jazz_block(pjb);
 
@@ -1829,6 +1864,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_int[3] == 20);
 		REQUIRE(!strcmp(pjb->get_string(4), "text file."));
 		REQUIRE(pjb->tensor.cell_int[4] == 27);
+
+		REQUIRE(pjb->p_string_buffer()->last_idx == 38);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "S") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
 
 		free_jazz_block(pjb);
 
@@ -1889,6 +1929,10 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(10), "November"));
 		REQUIRE(!strcmp(pjb->get_string(11), "December"));
 
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "-") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
+
 		free_jazz_block(pjb);
 
 		REQUIRE(pjb == nullptr);
@@ -1929,6 +1973,10 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(10), "November"));
 		REQUIRE(!strcmp(pjb->get_string(11), "December"));
 
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "@") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
+
 		free_jazz_block(pjb);
 
 		REQUIRE(pjb == nullptr);
@@ -1962,6 +2010,10 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(!strcmp(pjb->get_string(9),  "October"));
 		REQUIRE(!strcmp(pjb->get_string(10), "November"));
 		REQUIRE(!strcmp(pjb->get_string(11), "December"));
+
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "T") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
 
 		free_jazz_block(pjb);
 
@@ -2002,6 +2054,11 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_int[7] == JAZZ_STRING_EMPTY);
 		REQUIRE(!strcmp(pjb->get_string(8), ""));
 		REQUIRE(pjb->tensor.cell_int[8] == JAZZ_STRING_EMPTY);
+
+		REQUIRE(pjb->p_string_buffer()->last_idx == 20);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE(pjb->get_string_offset(pjb->p_string_buffer(), "p") == JAZZ_STRING_NA);
+		REQUIRE(pjb->p_string_buffer()->alloc_failed);
 
 		free_jazz_block(pjb);
 
