@@ -122,7 +122,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 	int text_length = 0, num_lines = 0;
 
 	if (p_text != nullptr) {
-		if (cell_type != CELL_TYPE_JAZZ_STRING)
+		if (cell_type != CELL_TYPE_JAZZ_STRING || fill_tensor != JAZZ_FILL_WITH_TEXTFILE)
 			return nullptr;
 
 		const char *pt = p_text;
