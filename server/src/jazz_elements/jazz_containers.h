@@ -81,6 +81,7 @@ using namespace jazz_datablocks;
 #define JAZZ_FILL_NEW_WITH_NA		2	///< Initialize with the appropriate NA for the cell_type.
 #define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
 #define JAZZ_FILL_INTEGER_FILTER	4	///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
+#define JAZZ_FILL_WITH_TEXTFILE		5	///< Initialize a tensor with the content of argument p_text in new_jazz_block().
 
 /// Values for argument set_has_NA of close_jazz_block()
 #define JAZZ_SET_HAS_NA_
