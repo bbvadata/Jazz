@@ -377,7 +377,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		REQUIRE(pjb != nullptr);
 
-		REQUIRE(pjb->cell_type == CELL_TYPE_BYTE);
+		REQUIRE(pjb->cell_type == CELL_TYPE_BYTE_BOOLEAN);
 		REQUIRE(pjb->rank == 3);
 
 		memset(&dim_in, 1, sizeof(dim_in));
@@ -394,15 +394,15 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->size == 105);
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*7 + 8 + 16);
-		REQUIRE(pjb->has_NA == false);
-		REQUIRE(pjb->tensor.cell_byte[0] == 0);
-		REQUIRE(pjb->tensor.cell_byte[104] == 0);
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(pjb->tensor.cell_byte[0] == JAZZ_BOOLEAN_NA);
+		REQUIRE(pjb->tensor.cell_byte[104] == JAZZ_BOOLEAN_NA);
 
 		close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
-		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->has_NA == true);
 		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
 		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*7 + 8 + 16));
 
