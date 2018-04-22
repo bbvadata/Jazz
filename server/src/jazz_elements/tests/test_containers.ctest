@@ -395,6 +395,99 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*7 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
+		REQUIRE(pjb->tensor.cell_byte[0] == JAZZ_BYTE_BOOLEAN_NA);
+		REQUIRE(pjb->tensor.cell_byte[104] == JAZZ_BYTE_BOOLEAN_NA);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*7 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE")
+	{
+		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
+
+		for (int i = 0; i < 3; i ++) {
+			pJazzBlock pjb = new_jazz_block(cell_types[i], dim.dim);
+
+			REQUIRE(pjb != nullptr);
+
+			REQUIRE(pjb->cell_type == cell_types[i]);
+			REQUIRE(pjb->rank == 3);
+
+			memset(&dim_in, 1, sizeof(dim_in));
+
+			pjb->get_dimensions(dim_in.dim);
+
+			REQUIRE(dim_in.dim[0] == 7);
+			REQUIRE(dim_in.dim[1] == 3);
+			REQUIRE(dim_in.dim[2] == 5);
+			REQUIRE(dim_in.dim[3] == 0);
+			REQUIRE(dim_in.dim[4] == 0);
+			REQUIRE(dim_in.dim[5] == 0);
+
+			REQUIRE(pjb->size == 105);
+			REQUIRE(pjb->num_attributes == 1);
+			REQUIRE(pjb->total_bytes == 64 + 16*27 + 8 + 16);
+			REQUIRE(pjb->has_NA == true);
+			REQUIRE(pjb->tensor.cell_int[0] == JAZZ_INTEGER_NA);
+			REQUIRE(pjb->tensor.cell_int[104] == JAZZ_INTEGER_NA);
+
+			close_jazz_block(pjb);
+
+			REQUIRE(pjb != nullptr);
+
+			REQUIRE(pjb->has_NA == true);
+			REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+			REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*27 + 8 + 16));
+
+			REQUIRE(pjb->find_attribute(976555311) == nullptr);
+			REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+			REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+			free_jazz_block(pjb);
+
+			REQUIRE(pjb == nullptr);
+
+		}
+	}
+
+	GIVEN("A block of CELL_TYPE_BOOLEAN")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim.dim);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_BOOLEAN);
+		REQUIRE(pjb->rank == 3);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 3);
+		REQUIRE(dim_in.dim[2] == 5);
+		REQUIRE(dim_in.dim[3] == 0);
+		REQUIRE(dim_in.dim[4] == 0);
+		REQUIRE(dim_in.dim[5] == 0);
+
+		REQUIRE(pjb->size == 105);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*27 + 8 + 16);
+		REQUIRE(pjb->has_NA == true);
 		REQUIRE(pjb->tensor.cell_byte[0] == JAZZ_BOOLEAN_NA);
 		REQUIRE(pjb->tensor.cell_byte[104] == JAZZ_BOOLEAN_NA);
 
@@ -404,7 +497,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		REQUIRE(pjb->has_NA == true);
 		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
-		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*7 + 8 + 16));
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*27 + 8 + 16));
 
 		REQUIRE(pjb->find_attribute(976555311) == nullptr);
 		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
