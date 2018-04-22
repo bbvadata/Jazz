@@ -236,6 +236,9 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			pjb->tensor.cell_int[row - 1] = JAZZ_STRING_EMPTY;
 
 		pt_out[0] = 0;
+
+		psb->last_idx			= offset + (pt_in[0] == 0);
+		psb->stop_check_4_match = true;						// JazzBlock::get_string_offset() does not support match with (possibly) empty strings.
 	} else {
 		switch (fill_tensor) {
 		case JAZZ_FILL_NEW_DONT_FILL:
