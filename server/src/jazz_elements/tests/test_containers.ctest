@@ -1834,6 +1834,105 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		REQUIRE(pjb == nullptr);
 
+		dim.dim[0] = 11;
+		dim.dim[1] = 0;
+		dim.dim[2] = 0;
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ');
+
+		REQUIRE(pjb == nullptr);
+
+		dim.dim[0] = 13;
+		dim.dim[1] = 0;
+		dim.dim[2] = 0;
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ');
+
+		REQUIRE(pjb == nullptr);
+
+		dim.dim[0] = 5;
+		dim.dim[1] = 2;
+		dim.dim[2] = 0;
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ');
+
+		REQUIRE(pjb == nullptr);
+
+		dim.dim[0] = 6;
+		dim.dim[1] = 2;
+		dim.dim[2] = 0;
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ');
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 2);
+
+		REQUIRE(pjb->size == 12);
+		REQUIRE(pjb->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string(0),  "January"));
+		REQUIRE(!strcmp(pjb->get_string(1),  "February"));
+		REQUIRE(!strcmp(pjb->get_string(2),  "March"));
+		REQUIRE(!strcmp(pjb->get_string(3),  "April"));
+		REQUIRE(!strcmp(pjb->get_string(4),  "May"));
+		REQUIRE(!strcmp(pjb->get_string(5),  "June"));
+		REQUIRE(!strcmp(pjb->get_string(6),  "July"));
+		REQUIRE(!strcmp(pjb->get_string(7),  "August"));
+		REQUIRE(!strcmp(pjb->get_string(8),  "September"));
+		REQUIRE(!strcmp(pjb->get_string(9),  "October"));
+		REQUIRE(!strcmp(pjb->get_string(10), "November"));
+		REQUIRE(!strcmp(pjb->get_string(11), "December"));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+
+		dim.dim[0] = 3;
+		dim.dim[1] = 2;
+		dim.dim[2] = 2;
+		dim.dim[3] = 1;
+		dim.dim[4] = 9;
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ');
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 3);
+
+		REQUIRE(pjb->size == 12);
+		REQUIRE(pjb->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string(0),  "January"));
+		REQUIRE(!strcmp(pjb->get_string(1),  "February"));
+		REQUIRE(!strcmp(pjb->get_string(2),  "March"));
+		REQUIRE(!strcmp(pjb->get_string(3),  "April"));
+		REQUIRE(!strcmp(pjb->get_string(4),  "May"));
+		REQUIRE(!strcmp(pjb->get_string(5),  "June"));
+		REQUIRE(!strcmp(pjb->get_string(6),  "July"));
+		REQUIRE(!strcmp(pjb->get_string(7),  "August"));
+		REQUIRE(!strcmp(pjb->get_string(8),  "September"));
+		REQUIRE(!strcmp(pjb->get_string(9),  "October"));
+		REQUIRE(!strcmp(pjb->get_string(10), "November"));
+		REQUIRE(!strcmp(pjb->get_string(11), "December"));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+
 		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ');
 
 		REQUIRE(pjb != nullptr);
@@ -1868,7 +1967,6 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		REQUIRE(pjb == nullptr);
 
-//			   *text_file_9 = "\n\n\nMon\n\nTue\nWed\n\n\n";
 		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_9);
 
 		REQUIRE(pjb != nullptr);
