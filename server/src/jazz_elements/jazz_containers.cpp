@@ -276,6 +276,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 				free_jazz_block(pjb);
 				return nullptr;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
+			break;
 
 		case JAZZ_FILL_BOOLEAN_FILTER:
 			pjb->has_NA = false;
@@ -285,7 +286,8 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			}
 			memcpy(&pjb->tensor, p_bool_filter, pjb->size);
 			break;
-		case JAZZ_FILL_INTEGER_FILTER:
+
+		case JAZZ_FILL_INTEGER_FILTER: {
 			pjb->has_NA = false;
 			if (p_bool_filter == nullptr || reinterpret_cast<pJazzFilter>(pjb)->filter_type() != JAZZ_FILTER_TYPE_INTEGER) {
 				free_jazz_block(pjb);
@@ -299,7 +301,11 @@ pJazzBlock new_jazz_block (int			  cell_type,
 				}
 			}
 			pjb->range.filter.length = j;
-			break;
+			break; }
+
+		default:
+			free_jazz_block(pjb);
+			return nullptr;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 		}
 	}
 	return pjb;
