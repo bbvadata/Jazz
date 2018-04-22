@@ -395,7 +395,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*7 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
-		REQUIRE(pjb->tensor.cell_byte[0] == JAZZ_BYTE_BOOLEAN_NA);
+		REQUIRE(pjb->tensor.cell_byte[0]   == JAZZ_BYTE_BOOLEAN_NA);
 		REQUIRE(pjb->tensor.cell_byte[104] == JAZZ_BYTE_BOOLEAN_NA);
 
 		close_jazz_block(pjb);
@@ -442,7 +442,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 			REQUIRE(pjb->num_attributes == 1);
 			REQUIRE(pjb->total_bytes == 64 + 16*27 + 8 + 16);
 			REQUIRE(pjb->has_NA == true);
-			REQUIRE(pjb->tensor.cell_int[0] == JAZZ_INTEGER_NA);
+			REQUIRE(pjb->tensor.cell_int[0]   == JAZZ_INTEGER_NA);
 			REQUIRE(pjb->tensor.cell_int[104] == JAZZ_INTEGER_NA);
 
 			close_jazz_block(pjb);
@@ -488,8 +488,8 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*27 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
-		REQUIRE(pjb->tensor.cell_byte[0] == JAZZ_BOOLEAN_NA);
-		REQUIRE(pjb->tensor.cell_byte[104] == JAZZ_BOOLEAN_NA);
+		REQUIRE(pjb->tensor.cell_int[0]   == JAZZ_BOOLEAN_NA);
+		REQUIRE(pjb->tensor.cell_int[104] == JAZZ_BOOLEAN_NA);
 
 		close_jazz_block(pjb);
 
