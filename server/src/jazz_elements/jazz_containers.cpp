@@ -58,30 +58,76 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 						   pJazzFilter 	  p_row_filter,
 						   AllAttributes *att)
 {
-	if (p_as_block == nullptr)
+	if (p_as_block == nullptr || p_as_block->size < 0 || p_as_block->range.dim[0] < 1)
 		return nullptr;
 
-	if (p_row_filter != nullptr && p_row_filter->can_filter(p_as_block) == JAZZ_FILTER_TYPE_NOTAFILTER)
-		return nullptr;
+	int tensor_diff   = 0,
+		tensor_bytes  = p_as_block->size,
+		tensor_rows   = tensor_bytes/p_as_block->range.dim[0],
+		selected_rows = tensor_rows;
 
-	int num_attributes = 1, attr_bytes = 2*sizeof(int);
-
-	if (att	!= nullptr) {
-		num_attributes = 0;
-		attr_bytes 	   = 0;
-		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
-			int len = strlen(it->second);
-			if (len) attr_bytes += len + 1;
-			num_attributes++;
-		}
-		attr_bytes += 2*num_attributes*sizeof(int);
+	switch(p_as_block->cell_type & 0xff) {
+		case 1:
+			break;
+		case 4:
+			tensor_bytes *= 4;
+			break;
+		case 8:
+			tensor_bytes *= 8;
+			break;
+		default:
+			return nullptr;
 	}
 
-	JazzBlockHeader hea;
-	memcpy(&hea, p_as_block, sizeof(JazzBlockHeader));
+	if (p_row_filter != nullptr) {
+		if (!p_row_filter->can_filter(p_as_block))
+			return nullptr;
+
+		if (!p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
+			for (int i = 0; i < p_row_filter->size; i++)
+				if (!p_row_filter->tensor.cell_bool[i])
+					selected_rows--;
+		} else {
+			selected_rows = p_row_filter->range.filter.length;
+		}
+		if (p_as_block->size)
+			tensor_diff = (tensor_bytes/tensor_rows)*selected_rows - tensor_bytes;
+	}
+
+	int attrib_diff = 0;
+
+	if (att	!= nullptr) {
+		int num_attributes = 0,
+			attrib_bytes   = 0;
+
+		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
+			int len = strlen(it->second);
+			if (len) attrib_bytes += len + 1;
+			num_attributes++;
+		}
+		attrib_bytes += 2*num_attributes*sizeof(int);
+
+		attrib_diff = 2*(num_attributes - p_as_block->num_attributes)*sizeof(int) + attrib_bytes;
+	}
+
+	pJazzBlock pjb = (pJazzBlock) malloc(p_as_block->total_bytes + tensor_diff + attrib_diff);
+
+	if (pjb == nullptr) {
+#ifdef DEBUG
+		num_alloc_failed++;
+#endif
+		return nullptr;
+	}
+
+#ifdef DEBUG
+	num_alloc_ok++;
+#endif
+
+	memcpy(pjb, p_as_block, sizeof(JazzBlockHeader));
 
 
 
+	return pjb;
 }
 
 
