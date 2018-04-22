@@ -225,6 +225,9 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		pt_out[0] = 0;
 	} else {
 		switch (fill_tensor) {
+		case JAZZ_FILL_NEW_DONT_FILL:
+			break;
+
 		case JAZZ_FILL_NEW_WITH_ZERO:
 			memset(&pjb->tensor, 0, (pjb->cell_type & 0xf)*pjb->size);
 			pjb->has_NA = (pjb->cell_type == CELL_TYPE_JAZZ_STRING) || (pjb->cell_type == CELL_TYPE_JAZZ_TIME);
