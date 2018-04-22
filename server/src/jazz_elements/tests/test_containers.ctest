@@ -2008,8 +2008,67 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
+	bool filter_vecz[120], filter_vec1[120], filter_vecn[120];
 
-//TODO: Write unit tests for JazzBlock creation from scratch
+	for (int i = 0; i < 120; i ++) {
+		filter_vecz[i] = 0;
+		filter_vec1[i] = true;
+		filter_vecn[i] = (i % 7) == 2;
+	}
+
+	dim.dim[0] = 120;
+	dim.dim[1] = 5;
+	dim.dim[2] = 4;
+	dim.dim[3] = 1;
+	dim.dim[4] = 9;
+	dim.dim[5] = 9;
+
+	pJazzBlock pjbd = new_jazz_block(CELL_TYPE_DOUBLE, dim.dim);
+
+	REQUIRE(pjbd != nullptr);
+
+	REQUIRE(pjbd->cell_type == CELL_TYPE_DOUBLE);
+	REQUIRE(pjbd->rank == 3);
+	REQUIRE(pjbd->size == 2400);
+
+	GIVEN("A filter of boolean")
+	{
+		dim.dim[0] = 120;
+		dim.dim[1] = 0;
+
+		pJazzFilter pjf = (pJazzFilter) new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER);
+
+		REQUIRE(pjf == nullptr);
+
+		pjf = (pJazzFilter) new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &filter_vecn);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->size == 120);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(pjf->total_bytes == 64 + 16*8 + 8 + 16);
+		REQUIRE(pjf->has_NA == false);
+		for (int j = 0; j < 120; j++)
+			REQUIRE(pjf->tensor.cell_byte[j] == filter_vecn[j]);
+
+		close_jazz_block(pjf);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->has_NA == false);
+
+		REQUIRE(pjf->can_filter(pjbd));
+
+		free_jazz_block((pJazzBlock &) pjf);
+
+		REQUIRE(pjf == nullptr);
+	}
+
+	free_jazz_block(pjbd);
+
+	REQUIRE(pjbd == nullptr);
 }
 
 
