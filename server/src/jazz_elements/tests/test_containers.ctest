@@ -1136,6 +1136,419 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
+	dim.dim[0] = 97;
+	dim.dim[1] = 1;
+	dim.dim[2] = 2;
+	dim.dim[3] = 3;
+	dim.dim[4] = 4;
+	dim.dim[5] = 5;
+
+	AllAttributes block_att;
+	block_att [1357] = "Hello world!";
+	block_att [468]  = "Hi!";
+	block_att [222]  = "123.";
+
+	GIVEN("A block of CELL_TYPE_BYTE")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_BYTE);
+		REQUIRE(pjb->rank == 1);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 97);
+		REQUIRE(dim_in.dim[1] == 0);
+		REQUIRE(dim_in.dim[2] == 0);
+		REQUIRE(dim_in.dim[3] == 0);
+		REQUIRE(dim_in.dim[4] == 0);
+		REQUIRE(dim_in.dim[5] == 0);
+
+		REQUIRE(pjb->size == 97);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*21 + 8 + 16);
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->tensor.cell_byte[0]   == 0);
+		REQUIRE(pjb->tensor.cell_byte[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*21 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*21 + 8 + 16);
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->tensor.cell_byte[0]   == 0);
+		REQUIRE(pjb->tensor.cell_byte[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*21 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE")
+	{
+		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
+
+		for (int i = 0; i < 3; i ++) {
+			pJazzBlock pjb = new_jazz_block(cell_types[i], dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+			REQUIRE(pjb != nullptr);
+
+			REQUIRE(pjb->cell_type == cell_types[i]);
+			REQUIRE(pjb->rank == 6);
+
+			memset(&dim_in, 1, sizeof(dim_in));
+
+			pjb->get_dimensions(dim_in.dim);
+
+			REQUIRE(dim_in.dim[0] == 7);
+			REQUIRE(dim_in.dim[1] == 2);
+			REQUIRE(dim_in.dim[2] == 2);
+			REQUIRE(dim_in.dim[3] == 2);
+			REQUIRE(dim_in.dim[4] == 3);
+			REQUIRE(dim_in.dim[5] == 2);
+
+			REQUIRE(pjb->size == 336);
+			REQUIRE(pjb->num_attributes == 1);
+			REQUIRE(pjb->total_bytes == 64 + 16*84 + 8 + 16);
+			REQUIRE(pjb->has_NA == false);
+			REQUIRE(pjb->tensor.cell_int[0]   == 0);
+			REQUIRE(pjb->tensor.cell_int[335] == 0);
+
+			close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+			REQUIRE(pjb != nullptr);
+
+			REQUIRE(pjb->has_NA == true);
+			REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+			REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*84 + 8 + 16));
+
+			REQUIRE(pjb->find_attribute(976555311) == nullptr);
+			REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+			REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+			free_jazz_block(pjb);
+
+			REQUIRE(pjb == nullptr);
+
+		}
+	}
+
+	GIVEN("A block of CELL_TYPE_BOOLEAN")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_BOOLEAN);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*84 + 8 + 16);
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->tensor.cell_int[0]   == 0);
+		REQUIRE(pjb->tensor.cell_int[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*84 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_SINGLE")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_SINGLE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_SINGLE);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*84 + 8 + 16);
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->tensor.cell_uint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_uint[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*84 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_JAZZ_STRING")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*84 + 8 + 16);
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(pjb->tensor.cell_uint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_uint[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*84 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_LONG_INTEGER")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_LONG_INTEGER, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_LONG_INTEGER);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*168 + 8 + 16);
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->tensor.cell_longint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_longint[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*168 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_JAZZ_TIME")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_TIME, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_TIME);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*168 + 8 + 16);
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(pjb->tensor.cell_longint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_longint[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*168 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
+	GIVEN("A block of CELL_TYPE_DOUBLE")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_DOUBLE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(pjb->rank == 6);
+
+		memset(&dim_in, 1, sizeof(dim_in));
+
+		pjb->get_dimensions(dim_in.dim);
+
+		REQUIRE(dim_in.dim[0] == 7);
+		REQUIRE(dim_in.dim[1] == 2);
+		REQUIRE(dim_in.dim[2] == 2);
+		REQUIRE(dim_in.dim[3] == 2);
+		REQUIRE(dim_in.dim[4] == 3);
+		REQUIRE(dim_in.dim[5] == 2);
+
+		REQUIRE(pjb->size == 336);
+		REQUIRE(pjb->num_attributes == 1);
+		REQUIRE(pjb->total_bytes == 64 + 16*168 + 8 + 16);
+		REQUIRE(pjb->has_NA == false);
+		REQUIRE(pjb->tensor.cell_ulongint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_ulongint[335] == 0);
+
+		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == true);
+		REQUIRE(jazz_utils::elapsed_us(pjb->created) < 3e6);
+		REQUIRE(pjb->hash64 == jazz_utils::MurmurHash64A(&pjb->tensor, 16*168 + 8 + 16));
+
+		REQUIRE(pjb->find_attribute(976555311) == nullptr);
+		REQUIRE(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY) != nullptr);
+		REQUIRE(strlen(pjb->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)) == 0);
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
 
 //TODO: Write unit tests for JazzBlock creation from scratch
 }
