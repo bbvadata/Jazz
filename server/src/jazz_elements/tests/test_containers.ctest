@@ -1595,6 +1595,145 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
+	char const *text_file_1 = "",
+			   *text_file_2 = "\n\n\n",
+			   *text_file_3 = "This is a common\ntext file\n",
+			   *text_file_4 = "\nThis is another\ncommon\ntext file.",
+			   *text_file_5 = "January February March April May June July August September October November December",
+			   *text_file_6 = "Monday\nTuesday\n";
+
+	GIVEN("A block of CELL_TYPE_JAZZ_STRING")
+	{
+		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_1);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 1);
+
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string( 0), ""));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_2);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 1);
+
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string( 0), ""));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_3);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 1);
+
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string( 0), ""));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_4);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 1);
+
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string( 0), ""));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_5);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 1);
+
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string( 0), ""));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, text_file_6);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->cell_type == CELL_TYPE_JAZZ_STRING);
+		REQUIRE(pjb->rank == 1);
+
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->has_NA == false);
+
+		close_jazz_block(pjb);
+
+		REQUIRE(pjb != nullptr);
+
+		REQUIRE(pjb->has_NA == false);
+
+		REQUIRE(!strcmp(pjb->get_string( 0), ""));
+
+		free_jazz_block(pjb);
+
+		REQUIRE(pjb == nullptr);
+	}
+
 
 //TODO: Write unit tests for JazzBlock creation from scratch
 }
