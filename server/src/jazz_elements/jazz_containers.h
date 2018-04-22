@@ -199,7 +199,7 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 		p_block->has_NA = false;
 		break;
 	case JAZZ_SET_HAS_NA_TRUE:
-		p_block->has_NA = true;
+		p_block->has_NA = p_block->cell_type != CELL_TYPE_BYTE;	// CELL_TYPE_BYTE must always be has_NA == FALSE
 		break;
 	default:
 		p_block->has_NA = p_block->find_NAs_in_tensor();
