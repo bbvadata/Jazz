@@ -58,7 +58,30 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 						   pJazzFilter 	  p_row_filter,
 						   AllAttributes *att)
 {
-//TODO: Implement new_jazz_block (1)
+	if (p_as_block == nullptr)
+		return nullptr;
+
+	if (p_row_filter != nullptr && p_row_filter->can_filter(p_as_block) == JAZZ_FILTER_TYPE_NOTAFILTER)
+		return nullptr;
+
+	int num_attributes = 1, attr_bytes = 2*sizeof(int);
+
+	if (att	!= nullptr) {
+		num_attributes = 0;
+		attr_bytes 	   = 0;
+		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
+			int len = strlen(it->second);
+			if (len) attr_bytes += len + 1;
+			num_attributes++;
+		}
+		attr_bytes += 2*num_attributes*sizeof(int);
+	}
+
+	JazzBlockHeader hea;
+	memcpy(&hea, p_as_block, sizeof(JazzBlockHeader));
+
+
+
 }
 
 
