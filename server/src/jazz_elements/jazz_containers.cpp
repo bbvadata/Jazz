@@ -226,6 +226,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 	} else {
 		switch (fill_tensor) {
 		case JAZZ_FILL_NEW_DONT_FILL:
+			pjb->has_NA = pjb->cell_type != CELL_TYPE_BYTE;
 			break;
 
 		case JAZZ_FILL_NEW_WITH_ZERO:
