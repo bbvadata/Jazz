@@ -127,7 +127,11 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 		const char *pt = p_text;
 		while (pt[0]) {
-			if (pt[0] == eoln) num_lines++;
+			if (pt[0] == eoln) {
+				if (!pt[1])
+					break;
+				num_lines++;
+			}
 			pt++;
 		}
 		text_length = (uintptr_t) pt - (uintptr_t) p_text - num_lines;
@@ -194,6 +198,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 	}
 
 	if (p_text != nullptr) {
+		pjb->has_NA = false;
 		pJazzStringBuffer psb = pjb->p_string_buffer();
 
 		int offset = psb->last_idx;
@@ -208,6 +213,8 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		while (pt_in[0]) {
 			offset++;
 			if (pt_in[0] != eoln) {
+				if (!pt_in[1])
+					break;
 				pt_out[0] = pt_in[0];
 				len++;
 			} else {
