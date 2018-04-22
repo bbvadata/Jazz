@@ -205,20 +205,27 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 		char *pt_out = &psb->buffer[offset];
 
-		pjb->tensor.cell_int[0] = offset;
-
 		int row = 1, len = 0;
 		const char *pt_in = p_text;
+
+		if (pt_in[0] && (pt_in[0] != eoln)) {
+			pjb->tensor.cell_int[0] = offset;
+		} else  {
+			pjb->tensor.cell_int[0] = JAZZ_STRING_EMPTY;
+		}
 
 		while (pt_in[0]) {
 			offset++;
 			if (pt_in[0] != eoln) {
-				if (!pt_in[1])
-					break;
 				pt_out[0] = pt_in[0];
 				len++;
 			} else {
+				if (!pt_in[1])
+					break;
+
 				pt_out[0] = 0;
+				offset++;
+				pt_out++;
 
 				if (len) pjb->tensor.cell_int[row] = offset;
 				else     pjb->tensor.cell_int[row] = JAZZ_STRING_EMPTY;
@@ -229,6 +236,14 @@ pJazzBlock new_jazz_block (int			  cell_type,
 			pt_out++;
 			pt_in++;
 		}
+		// if (row < num_lines - 1) {
+		// 	pt_out[0] = 0;
+		// 	offset++;
+		// 	pt_out++;
+
+		// 	if (len) pjb->tensor.cell_int[row] = offset;
+		// 	else     pjb->tensor.cell_int[row] = JAZZ_STRING_EMPTY;
+		// }
 		pt_out[0] = 0;
 	} else {
 		switch (fill_tensor) {
