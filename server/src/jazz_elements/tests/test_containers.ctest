@@ -2059,6 +2059,103 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		REQUIRE(pjf->has_NA == false);
 
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_BOOLEAN);
+
+		REQUIRE(pjf->can_filter(pjbd));
+
+		free_jazz_block((pJazzBlock &) pjf);
+
+		REQUIRE(pjf == nullptr);
+	}
+
+	GIVEN("Three filters of integer")
+	{
+		dim.dim[0] = 120;
+		dim.dim[1] = 0;
+
+		pJazzFilter pjf = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_INTEGER_FILTER);
+
+		REQUIRE(pjf == nullptr);
+
+		pjf = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter_vecn);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->size == 120);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(pjf->total_bytes == 64 + 16*30 + 8 + 16);
+		REQUIRE(pjf->has_NA == false);
+		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->range.filter.length == 17);
+		for (int j = 0; j < pjf->range.filter.length; j++)
+			REQUIRE(pjf->tensor.cell_int[j] == 7*j + 2);
+
+		close_jazz_block(pjf);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->has_NA == false);
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		REQUIRE(pjf->can_filter(pjbd));
+
+		free_jazz_block((pJazzBlock &) pjf);
+
+		REQUIRE(pjf == nullptr);
+
+		pjf = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter_vecz);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->size == 120);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(pjf->total_bytes == 64 + 16*30 + 8 + 16);
+		REQUIRE(pjf->has_NA == false);
+		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->range.filter.length == 0);
+
+		close_jazz_block(pjf);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->has_NA == false);
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
+		REQUIRE(pjf->can_filter(pjbd));
+
+		free_jazz_block((pJazzBlock &) pjf);
+
+		REQUIRE(pjf == nullptr);
+
+		pjf = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter_vec1);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->size == 120);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(pjf->total_bytes == 64 + 16*30 + 8 + 16);
+		REQUIRE(pjf->has_NA == false);
+		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->range.filter.length == 120);
+		for (int j = 0; j < pjf->range.filter.length; j++)
+			REQUIRE(pjf->tensor.cell_int[j] == j);
+
+		close_jazz_block(pjf);
+
+		REQUIRE(pjf != nullptr);
+
+		REQUIRE(pjf->has_NA == false);
+
+		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
+
 		REQUIRE(pjf->can_filter(pjbd));
 
 		free_jazz_block((pJazzBlock &) pjf);
