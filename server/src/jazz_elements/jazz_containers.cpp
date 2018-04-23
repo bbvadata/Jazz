@@ -214,7 +214,12 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		JazzTensorDim idim;
 		idim.dim[0] = num_lines;
 		idim.dim[1] = 0;
-
+#ifdef DEBUG				// Initialize idim for Valgrind.
+		idim.dim[2] = 0;
+		idim.dim[3] = 0;
+		idim.dim[4] = 0;
+		idim.dim[5] = 0;
+#endif
 		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(idim.dim);
 	} else {
 		reinterpret_cast<pJazzBlock>(&hea)->set_dimensions(dim);
