@@ -61,53 +61,63 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 	if (p_as_block == nullptr || p_as_block->size < 0 || p_as_block->range.dim[0] < 1)
 		return nullptr;
 
-	int tensor_diff   = 0,
-		tensor_bytes  = p_as_block->size,
-		tensor_rows   = tensor_bytes/p_as_block->range.dim[0],
-		selected_rows = tensor_rows;
-
-	switch(p_as_block->cell_type & 0xff) {
-		case 1:
-			break;
-		case 4:
-			tensor_bytes *= 4;
-			break;
-		case 8:
-			tensor_bytes *= 8;
-			break;
-		default:
-			return nullptr;
-	}
+	int tensor_diff 	= 0,
+		old_tensor_size = p_as_block->size*(p_as_block->cell_type & 0xff),
+		new_tensor_size,
+		bytes_per_row,
+		selected_rows;
 
 	if (p_row_filter != nullptr) {
+		int	tensor_rows = p_as_block->size/p_as_block->range.dim[0];
+
 		if (!p_row_filter->can_filter(p_as_block))
 			return nullptr;
 
-		if (!p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
+		if (p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
+			selected_rows = 0;
 			for (int i = 0; i < p_row_filter->size; i++)
-				if (!p_row_filter->tensor.cell_bool[i])
-					selected_rows--;
+				if (p_row_filter->tensor.cell_bool[i])
+					selected_rows++;
 		} else {
 			selected_rows = p_row_filter->range.filter.length;
 		}
-		if (p_as_block->size)
-			tensor_diff = (tensor_bytes/tensor_rows)*selected_rows - tensor_bytes;
+		if (p_as_block->size) {
+			bytes_per_row   = old_tensor_size/tensor_rows;
+			new_tensor_size = selected_rows*bytes_per_row;
+
+			old_tensor_size = (uintptr_t) p_as_block->align_128bit(old_tensor_size);
+			new_tensor_size = (uintptr_t) p_as_block->align_128bit(new_tensor_size);
+
+			tensor_diff = new_tensor_size - old_tensor_size;
+		}
 	}
 
-	int attrib_diff = 0;
+	int attrib_diff		   = 0,
+		new_num_attributes = 0;
 
 	if (att	!= nullptr) {
-		int num_attributes = 0,
-			attrib_bytes   = 0;
+		int new_attrib_bytes = 0;
 
 		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = strlen(it->second);
-			if (len) attrib_bytes += len + 1;
-			num_attributes++;
+			if (len)
+				new_attrib_bytes += len + 1;
+			new_num_attributes++;
 		}
-		attrib_bytes += 2*num_attributes*sizeof(int);
 
-		attrib_diff = 2*(num_attributes - p_as_block->num_attributes)*sizeof(int) + attrib_bytes;
+		if (!new_num_attributes)
+			return nullptr;
+
+		new_attrib_bytes += new_num_attributes*2*sizeof(int);
+
+		int old_attrib_bytes = p_as_block->num_attributes*2*sizeof(int);
+
+		if (p_as_block->cell_type != CELL_TYPE_JAZZ_STRING) {
+			pJazzStringBuffer psb = p_as_block->p_string_buffer();
+			old_attrib_bytes += std::max(0, psb->buffer_size - 4);
+		}
+
+		attrib_diff = new_attrib_bytes - old_attrib_bytes;
 	}
 
 	pJazzBlock pjb = (pJazzBlock) malloc(p_as_block->total_bytes + tensor_diff + attrib_diff);
