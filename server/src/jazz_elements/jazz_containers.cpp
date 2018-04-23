@@ -27,6 +27,9 @@
 */
 
 
+#include <math.h>
+
+
 #include "src/jazz_elements/jazz_containers.h"
 
 
@@ -802,15 +805,21 @@ pJazzQueueItem AATBlockQueue::lowest_priority_item (bool lock_it)
 }
 
 
-/** Aaa
+/** Evaluate the priority of a JazzQueueItem
 
-	\param p_item Aaa
+	\param p_item A pointer to the JazzQueueItem whose priority is to be set.
 
-//TODO: Document AATBlockQueue::set_item_priority
+	Each time a new JazzQueueItem is added to the AATBlockQueue this virtual method will be called. The method does not
+return anything, so it should set p_item->priority = some_computation(). Typically, the computation will involve the recency,
+the size, times_used and time_to_build, etc.
 */
 void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
 {
-//TODO: Implement AATBlockQueue::set_item_priority
+	double prio = fmin(fmax(1.0, p_item->time_to_build/1000), 50) + discrete_recency;	// Number of ms in {1..50}
+
+	discrete_recency = discrete_recency + 0.0001;										// Increasing 1 every 10000 blocks
+
+	p_item->priority = prio*(p_item->times_used + 1);
 }
 
 /*
