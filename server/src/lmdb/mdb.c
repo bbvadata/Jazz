@@ -6840,6 +6840,175 @@ mdb_cursor_prev(MDB_cursor *mc, MDB_val *key, MDB_val *data, MDB_cursor_op op)
 	return MDB_SUCCESS;
 }
 
+
+static int
+mdb_cursor_set_range(MDB_cursor *mc, MDB_val *key, MDB_val *data, int *exactp)
+{
+	int		 rc;
+	MDB_page	*mp;
+	MDB_node	*leaf = NULL;
+	DKBUF;
+
+	if (key->mv_size == 0)
+		return MDB_BAD_VALSIZE;
+
+	if (mc->mc_xcursor) {
+		MDB_CURSOR_UNREF(&mc->mc_xcursor->mx_cursor, 0);
+		mc->mc_xcursor->mx_cursor.mc_flags &= ~(C_INITIALIZED|C_EOF);
+	}
+
+	/* See if we're already on the right page */
+	if (mc->mc_flags & C_INITIALIZED) {
+		MDB_val nodekey;
+
+		mp = mc->mc_pg[mc->mc_top];
+		if (!NUMKEYS(mp)) {
+			mc->mc_ki[mc->mc_top] = 0;
+			return MDB_NOTFOUND;
+		}
+		if (mp->mp_flags & P_LEAF2) {
+			nodekey.mv_size = mc->mc_db->md_pad;
+			nodekey.mv_data = LEAF2KEY(mp, 0, nodekey.mv_size);
+		} else {
+			leaf = NODEPTR(mp, 0);
+			MDB_GET_KEY2(leaf, nodekey);
+		}
+		rc = mc->mc_dbx->md_cmp(key, &nodekey);
+		if (rc == 0) {
+			/* Probably happens rarely, but first node on the page
+			 * was the one we wanted.
+			 */
+			mc->mc_ki[mc->mc_top] = 0;
+			if (exactp)
+				*exactp = 1;
+			goto set1;
+		}
+		if (rc > 0) {
+			unsigned int i;
+			unsigned int nkeys = NUMKEYS(mp);
+			if (nkeys > 1) {
+				if (mp->mp_flags & P_LEAF2) {
+					nodekey.mv_data = LEAF2KEY(mp,
+						 nkeys-1, nodekey.mv_size);
+				} else {
+					leaf = NODEPTR(mp, nkeys-1);
+					MDB_GET_KEY2(leaf, nodekey);
+				}
+				rc = mc->mc_dbx->md_cmp(key, &nodekey);
+				if (rc == 0) {
+					/* last node was the one we wanted */
+					mc->mc_ki[mc->mc_top] = nkeys-1;
+					if (exactp)
+						*exactp = 1;
+					goto set1;
+				}
+				if (rc < 0) {
+					if (mc->mc_ki[mc->mc_top] < NUMKEYS(mp)) {
+						/* This is definitely the right page, skip search_page */
+						if (mp->mp_flags & P_LEAF2) {
+							nodekey.mv_data = LEAF2KEY(mp,
+								 mc->mc_ki[mc->mc_top], nodekey.mv_size);
+						} else {
+							leaf = NODEPTR(mp, mc->mc_ki[mc->mc_top]);
+							MDB_GET_KEY2(leaf, nodekey);
+						}
+						rc = mc->mc_dbx->md_cmp(key, &nodekey);
+						if (rc == 0) {
+							/* current node was the one we wanted */
+							if (exactp)
+								*exactp = 1;
+							goto set1;
+						}
+					}
+					rc = 0;
+					mc->mc_flags &= ~C_EOF;
+					goto set2;
+				}
+			}
+			/* If any parents have right-sibs, search.
+			 * Otherwise, there's nothing further.
+			 */
+			for (i=0; i<mc->mc_top; i++)
+				if (mc->mc_ki[i] <
+					NUMKEYS(mc->mc_pg[i])-1)
+					break;
+			if (i == mc->mc_top) {
+				/* There are no other pages */
+				mc->mc_ki[mc->mc_top] = nkeys;
+				return MDB_NOTFOUND;
+			}
+		}
+		if (!mc->mc_top) {
+			/* There are no other pages */
+			mc->mc_ki[mc->mc_top] = 0;
+			if (!exactp) {
+				rc = 0;
+				goto set1;
+			} else
+				return MDB_NOTFOUND;
+		}
+	} else {
+		mc->mc_pg[0] = 0;
+	}
+
+	rc = mdb_page_search(mc, key, 0);
+	if (rc != MDB_SUCCESS)
+		return rc;
+
+	mp = mc->mc_pg[mc->mc_top];
+	mdb_cassert(mc, IS_LEAF(mp));
+
+set2:
+	leaf = mdb_node_search(mc, key, exactp);
+	if (exactp != NULL && !*exactp) {
+		/* MDB_SET specified and not an exact match. */
+		return MDB_NOTFOUND;
+	}
+
+	if (leaf == NULL) {
+		DPUTS("===> inexact leaf not found, goto sibling");
+		if ((rc = mdb_cursor_sibling(mc, 1)) != MDB_SUCCESS) {
+			mc->mc_flags |= C_EOF;
+			return rc;		/* no entries matched */
+		}
+		mp = mc->mc_pg[mc->mc_top];
+		mdb_cassert(mc, IS_LEAF(mp));
+		leaf = NODEPTR(mp, 0);
+	}
+
+set1:
+	mc->mc_flags |= C_INITIALIZED;
+	mc->mc_flags &= ~C_EOF;
+
+	if (IS_LEAF2(mp)) {
+		key->mv_size = mc->mc_db->md_pad;
+		key->mv_data = LEAF2KEY(mp, mc->mc_ki[mc->mc_top], key->mv_size);
+
+		return MDB_SUCCESS;
+	}
+
+	if (F_ISSET(leaf->mn_flags, F_DUPDATA)) {
+		mdb_xcursor_init1(mc, leaf);
+	}
+	if (data) {
+		if (F_ISSET(leaf->mn_flags, F_DUPDATA)) {
+			rc = mdb_cursor_first(&mc->mc_xcursor->mx_cursor, data, NULL);
+		} else {
+			if (mc->mc_xcursor)
+				mc->mc_xcursor->mx_cursor.mc_flags &= ~(C_INITIALIZED|C_EOF);
+			if ((rc = mdb_node_read(mc, leaf, data)) != MDB_SUCCESS)
+				return rc;
+		}
+	}
+
+	/* The key already matches in all other cases */
+	MDB_GET_KEY(leaf, key);
+	DPRINTF(("==> cursor placed on key [%s]", DKEY(key)));
+
+	return rc;
+}
+
+
 /** Set the cursor on a specific data item. */
 static int
 mdb_cursor_set(MDB_cursor *mc, MDB_val *key, MDB_val *data,
@@ -7004,7 +7173,7 @@ set1:
 				} else {
 					ex2p = NULL;
 				}
-				rc = mdb_cursor_set(&mc->mc_xcursor->mx_cursor, data, NULL, MDB_SET_RANGE, ex2p);
+				rc = mdb_cursor_set_range(&mc->mc_xcursor->mx_cursor, data, NULL, ex2p);
 				if (rc != MDB_SUCCESS)
 					return rc;
 			}
