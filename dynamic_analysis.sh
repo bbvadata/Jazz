@@ -15,13 +15,16 @@ cd server
 
 make tjazz
 
-valgrind --leak-check=yes ./tjazz
+mkdir dynamic_analysis_reports
+
+valgrind --leak-check=yes --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
+#valgrind --tool=callgrind --log-file=dynamic_analysis_reports/callgrind.txt ./tjazz
 
 make clean
 
 cd ..
 
-reports=`find server/dynamic_analysis_reports/ | grep "index.html"`
+reports=`find server/dynamic_analysis_reports/ | grep ".txt"`
 
 printf "\nDone.\n"
 printf "\n** See the reports in: **"
