@@ -390,6 +390,11 @@ pJazzBlock new_jazz_block (int			  cell_type,
 				}
 			}
 			pjb->range.filter.length = j;
+
+#ifdef DEBUG						// Initialize the RAM on top of the filter for Valgrind.
+			for (int i = pjb->range.filter.length; i < pjb->size; i ++)
+				pjb->tensor.cell_int[i] = 0;
+#endif
 			break; }
 
 		default:
