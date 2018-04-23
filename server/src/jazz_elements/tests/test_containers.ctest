@@ -29,6 +29,18 @@
 
 using namespace jazz_containers;
 
+
+void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_NA_AUTO)
+{
+	pJazzStringBuffer psb = p_block->p_string_buffer();
+
+	char *pt1 = (char *) &psb->buffer[psb->last_idx],
+		 *pt2 = (char *) p_block + p_block->total_bytes;
+
+	REQUIRE(pt2 > pt1);
+
+	close_jazz_block(p_block, set_has_NA);
+}
 /*
 
 void rec_TreeDump(int level, pJazzQueueItem pT, ofstream& ofil)
