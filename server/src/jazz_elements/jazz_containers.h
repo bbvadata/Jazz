@@ -502,7 +502,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
-		/** Remove links tha skip level in an AA subtree
+		/** Remove links that skip level in an AA subtree
 
 			\param p_item A tree for which we want to remove links that skip levels.
 
@@ -570,6 +570,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			return p_item;
 		};
+
+		double discrete_recency = 0;
 
 		pJazzQueueItem p_queue_root = nullptr;
 };
