@@ -266,6 +266,18 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		pjb->set_attributes(att);
 	}
 
+#ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
+	{
+		char *pt1 = (char *) &pjb->tensor + (pjb->cell_type & 0xf)*pjb->size,
+			 *pt2 = (char *) pjb->align_128bit((uintptr_t) pt1);
+
+		while (pt1 < pt2) {
+			pt1[0] = 0;
+			pt1++;
+		}
+	}
+#endif
+
 	if (p_text != nullptr) {
 		pjb->has_NA = false;
 		pJazzStringBuffer psb = pjb->p_string_buffer();
