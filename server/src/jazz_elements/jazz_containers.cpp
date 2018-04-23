@@ -135,7 +135,61 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 
 	memcpy(pjb, p_as_block, sizeof(JazzBlockHeader));
 
+	if (tensor_diff) {
+		pjb->size = selected_rows*p_as_block->range.dim[0];
 
+		u_char *p_dest = &pjb->tensor.cell_byte[0],
+			   *p_src  = &p_as_block->tensor.cell_byte[0];
+
+		if (p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
+			for (int i = 0; i < p_row_filter->size; i++) {
+				if (p_row_filter->tensor.cell_bool[i]) {
+					memcpy(p_dest, p_src, bytes_per_row);
+					p_dest = p_dest + bytes_per_row;
+				}
+				p_src = p_src + bytes_per_row;
+			}
+		} else {
+			for (int i = 0; i < p_row_filter->range.filter.length; i++) {
+				memcpy(p_dest, p_src + p_row_filter->tensor.cell_int[i]*bytes_per_row, bytes_per_row);
+				p_dest = p_dest + bytes_per_row;
+			}
+		}
+	} else {
+		memcpy(&pjb->tensor, &p_as_block->tensor, old_tensor_size);
+	}
+	pjb->total_bytes += tensor_diff + attrib_diff;
+
+	if (att	!= nullptr)	{
+		if (p_as_block->cell_type != CELL_TYPE_JAZZ_STRING) {
+			pjb->num_attributes = 0;
+			pjb->set_attributes(att);
+		} else {
+			pjb->num_attributes = new_num_attributes;
+
+			pJazzStringBuffer psb = pjb->p_string_buffer();
+
+			memcpy(psb, p_as_block->p_string_buffer(), psb->buffer_size + sizeof(JazzStringBuffer));
+
+			psb->buffer_size += attrib_diff;
+
+			int i = 0;
+			int *ptk = pjb->p_attribute_keys();
+
+			for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
+				ptk[i] = it->first;
+				ptk[i + new_num_attributes] = pjb->get_string_offset(psb, it->second);
+
+				i++;
+			}
+		}
+	} else {
+		memcpy(pjb->p_attribute_keys(), p_as_block->p_attribute_keys(), p_as_block->num_attributes*2*sizeof(int));
+
+		pJazzStringBuffer psb = pjb->p_string_buffer();
+
+		memcpy(psb, p_as_block->p_string_buffer(), psb->buffer_size + sizeof(JazzStringBuffer));
+	}
 
 	return pjb;
 }
