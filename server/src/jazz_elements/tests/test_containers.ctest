@@ -366,7 +366,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_byte[0] == 0);
 		REQUIRE(pjb->tensor.cell_byte[104] == 0);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -410,7 +410,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_byte[0]   == JAZZ_BYTE_BOOLEAN_NA);
 		REQUIRE(pjb->tensor.cell_byte[104] == JAZZ_BYTE_BOOLEAN_NA);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -457,7 +457,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 			REQUIRE(pjb->tensor.cell_int[0]   == JAZZ_INTEGER_NA);
 			REQUIRE(pjb->tensor.cell_int[104] == JAZZ_INTEGER_NA);
 
-			close_jazz_block(pjb);
+			check_and_close_jazz_block(pjb);
 
 			REQUIRE(pjb != nullptr);
 
@@ -502,7 +502,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_int[0]   == JAZZ_BOOLEAN_NA);
 		REQUIRE(pjb->tensor.cell_int[104] == JAZZ_BOOLEAN_NA);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -546,7 +546,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_uint[0]   == reinterpret_cast<u_int*>(&JAZZ_SINGLE_NA)[0]);
 		REQUIRE(pjb->tensor.cell_uint[104] == reinterpret_cast<u_int*>(&JAZZ_SINGLE_NA)[0]);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -590,7 +590,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_uint[0]   == JAZZ_STRING_NA);
 		REQUIRE(pjb->tensor.cell_uint[104] == JAZZ_STRING_NA);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -634,7 +634,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_longint[0]   == JAZZ_LONG_INTEGER_NA);
 		REQUIRE(pjb->tensor.cell_longint[104] == JAZZ_LONG_INTEGER_NA);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -678,7 +678,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_longint[0]   == JAZZ_TIME_POINT_NA);
 		REQUIRE(pjb->tensor.cell_longint[104] == JAZZ_TIME_POINT_NA);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -722,7 +722,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_ulongint[0]   == reinterpret_cast<uint64_t*>(&JAZZ_DOUBLE_NA)[0]);
 		REQUIRE(pjb->tensor.cell_ulongint[104] == reinterpret_cast<uint64_t*>(&JAZZ_DOUBLE_NA)[0]);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -773,7 +773,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_byte[0]   == 0);
 		REQUIRE(pjb->tensor.cell_byte[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -817,7 +817,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_byte[0]   == 0);
 		REQUIRE(pjb->tensor.cell_byte[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -864,7 +864,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 			REQUIRE(pjb->tensor.cell_int[0]   == 0);
 			REQUIRE(pjb->tensor.cell_int[335] == 0);
 
-			close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+			check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 			REQUIRE(pjb != nullptr);
 
@@ -909,7 +909,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_int[0]   == 0);
 		REQUIRE(pjb->tensor.cell_int[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -953,7 +953,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_uint[0]   == 0);
 		REQUIRE(pjb->tensor.cell_uint[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -997,7 +997,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_uint[0]   == 0);
 		REQUIRE(pjb->tensor.cell_uint[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1041,7 +1041,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_longint[0]   == 0);
 		REQUIRE(pjb->tensor.cell_longint[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1085,7 +1085,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_longint[0]   == 0);
 		REQUIRE(pjb->tensor.cell_longint[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1129,7 +1129,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->tensor.cell_ulongint[0]   == 0);
 		REQUIRE(pjb->tensor.cell_ulongint[335] == 0);
 
-		close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
+		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1185,7 +1185,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_byte[j] = j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1232,7 +1232,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->has_NA == true);
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_byte[j] = j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1282,7 +1282,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 			REQUIRE(pjb->has_NA == true);
 			for (int j = 0; j < 97; j++) pjb->tensor.cell_int[j] = j;
 
-			close_jazz_block(pjb);
+			check_and_close_jazz_block(pjb);
 
 			REQUIRE(pjb != nullptr);
 
@@ -1330,7 +1330,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->has_NA == true);
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_int[j] = j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1377,7 +1377,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->has_NA == true);
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_single[j] = 0.123*j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1438,7 +1438,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 			}
 		}
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1492,7 +1492,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->has_NA == true);
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_longint[j] = j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1539,7 +1539,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->has_NA == true);
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_longint[j] = j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1586,7 +1586,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->has_NA == true);
 		for (int j = 0; j < 97; j++) pjb->tensor.cell_double[j] = -0.1234567890123*j;
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1643,7 +1643,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 1);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1672,7 +1672,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 1);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1701,7 +1701,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 3);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1734,7 +1734,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 6 + 2);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1765,7 +1765,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 6 + 2);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1796,7 +1796,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 6 + 3);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1829,7 +1829,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16 + 8 + 16 + 25 + 2);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1860,7 +1860,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16*2 + 8 + 16 + 31 + 5);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1922,7 +1922,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -1966,7 +1966,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -2004,7 +2004,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -2042,7 +2042,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb->total_bytes == 64 + 16*3 + 8 + 16 + 9 + 9);
 		REQUIRE(pjb->has_NA == false);
 
-		close_jazz_block(pjb);
+		check_and_close_jazz_block(pjb);
 
 		REQUIRE(pjb != nullptr);
 
@@ -2122,7 +2122,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		for (int j = 0; j < 120; j++)
 			REQUIRE(pjf->tensor.cell_byte[j] == filter_vecn[j]);
 
-		close_jazz_block(pjf);
+		check_and_close_jazz_block(pjf);
 
 		REQUIRE(pjf != nullptr);
 
@@ -2161,7 +2161,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		for (int j = 0; j < pjf->range.filter.length; j++)
 			REQUIRE(pjf->tensor.cell_int[j] == 7*j + 2);
 
-		close_jazz_block(pjf);
+		check_and_close_jazz_block(pjf);
 
 		REQUIRE(pjf != nullptr);
 
@@ -2188,7 +2188,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjf->range.filter.one == 1);
 		REQUIRE(pjf->range.filter.length == 0);
 
-		close_jazz_block(pjf);
+		check_and_close_jazz_block(pjf);
 
 		REQUIRE(pjf != nullptr);
 
@@ -2217,7 +2217,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		for (int j = 0; j < pjf->range.filter.length; j++)
 			REQUIRE(pjf->tensor.cell_int[j] == j);
 
-		close_jazz_block(pjf);
+		check_and_close_jazz_block(pjf);
 
 		REQUIRE(pjf != nullptr);
 
