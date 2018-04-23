@@ -205,6 +205,21 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 	default:
 		p_block->has_NA = p_block->find_NAs_in_tensor();
 	}
+
+#ifdef DEBUG	// Initialize the RAM between the end of the string buffer and last allocated byte for Valgrind.
+	{
+		pJazzStringBuffer psb = p_block->p_string_buffer();
+
+		char *pt1 = (char *) &psb->buffer[psb->last_idx],
+			 *pt2 = (char *) p_block + p_block->total_bytes;
+
+		while (pt1 < pt2) {
+			pt1[0] = 0;
+			pt1++;
+		}
+	}
+#endif
+
 	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(JazzBlockHeader));
 	p_block->created = std::chrono::steady_clock::now();
 }
