@@ -1054,6 +1054,15 @@ pJazzQueueItem JazzCache::find_jazz_block (JazzBlockId64 id64)
 */
 void JazzCache::remove_jazz_block (const JazzBlockIdentifier *p_id)
 {
+	pJazzQueueItem p_item = find_jazz_block (p_id);
+
+	if (p_item == nullptr) {
+		log_printf(LOG_MISS, "Block %s not found in JazzCache::remove_jazz_block()", p_id);
+
+		return;
+	}
+
+	AATBlockQueue::remove_jazz_block(p_item);
 }
 
 
