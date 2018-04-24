@@ -611,7 +611,12 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (const JazzBlockIdentifier *p_id)
 		{
-		//TODO: Implement JazzCache::find_jazz_block (1)
+			JazzBlockId64 id64 = hash_block_id((char *) p_id);
+
+			if (!id64)
+				return nullptr;
+
+			return cache[id64];
 		}
 
 		/** Find a JazzBlock in a JazzCache by JazzBlockId64 (block name hash)
