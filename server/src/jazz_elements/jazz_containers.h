@@ -226,6 +226,21 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 
 void free_jazz_block(pJazzBlock &p_block);
 
+
+/** Convert JazzBlockIdentifier into its corresponding JazzBlockId64.
+
+	\param p_id The JazzBlockIdentifier to be hashed. Note that a nullptr or a string of length 0, are both considered invalid and return
+the special JazzBlockId64 0.
+	\return The JazzBlockId64 or 0 if invalid.
+
+	Note: Invalid JazzBlockId64 can be normal when a block has not been persisted and only the hash is known (cached results of functions).
+*/
+inline JazzBlockId64 hash_block_id(const char *p_id) {
+	if (p_id == nullptr || p_id[0] == 0)
+		return 0;
+	return jazz_utils::MurmurHash64A(p_id, strlen(p_id));
+}
+
 /** Root class for all JazzBlock containers, including JazzPersistence containers.
 
 JazzBlocks can be allocated in three ways:
