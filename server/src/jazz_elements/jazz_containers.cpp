@@ -1042,7 +1042,7 @@ pJazzQueueItem JazzCache::find_jazz_block (const JazzBlockIdentifier *p_id)
 */
 pJazzQueueItem JazzCache::find_jazz_block (JazzBlockId64 id64)
 {
-//TODO: Implement JazzCache::find_jazz_block (2)
+	return cache[id64];
 }
 
 
