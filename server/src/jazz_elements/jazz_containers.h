@@ -588,10 +588,10 @@ class JazzCache: public AATBlockQueue {
 
 	public:
 
-		pJazzBlockKeeprItem find_jazz_block	  (const JazzBlockIdentifier *p_id);
-		pJazzBlockKeeprItem find_jazz_block	  (		 JazzBlockId64		  id64);
-		void 				remove_jazz_block (const JazzBlockIdentifier *p_id);
-		void 				remove_jazz_block (		 JazzBlockId64		  id64);
+		pJazzQueueItem find_jazz_block	 (const JazzBlockIdentifier *p_id);
+		pJazzQueueItem find_jazz_block	 (		JazzBlockId64		 id64);
+		void 		   remove_jazz_block (const JazzBlockIdentifier *p_id);
+		void 		   remove_jazz_block (		JazzBlockId64		 id64);
 
 	private:
 
