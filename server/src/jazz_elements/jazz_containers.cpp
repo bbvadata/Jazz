@@ -1022,47 +1022,46 @@ pJazzQueueItem ModelBuffer::highest_priority_item()
 */
 
 
-/** Aaa
+/** Find a JazzBlock in a JazzCache by JazzBlockIdentifier (block name)
 
-	\param p_id Aaa
+	\param p_id The JazzBlockIdentifier of the block to be found
 
-//TODO: Document JazzCache::find_jazz_block (1)
+	\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
 */
-pJazzBlockKeeprItem JazzCache::find_jazz_block (const JazzBlockIdentifier *p_id)
+pJazzQueueItem JazzCache::find_jazz_block (const JazzBlockIdentifier *p_id)
 {
 //TODO: Implement JazzCache::find_jazz_block (1)
 }
 
 
-/** Aaa
+/** Find a JazzBlock in a JazzCache by JazzBlockId64 (block name hash)
 
-	\param id64 Aaa
+	\param id64 The JazzBlockId64 of the block to be found
 
-//TODO: Document JazzCache::find_jazz_block (2)
+	\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
 */
-pJazzBlockKeeprItem JazzCache::find_jazz_block (JazzBlockId64 id64)
+pJazzQueueItem JazzCache::find_jazz_block (JazzBlockId64 id64)
 {
 //TODO: Implement JazzCache::find_jazz_block (2)
 }
 
 
-/** Aaa
+/** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
-	\param p_id Aaa
+	\param p_id The JazzBlockIdentifier of the block to be searched for deletion
 
-//TODO: Document JazzCache::remove_jazz_block (1)
+	Logs with level LOG_MISS if the block is not found.
 */
 void JazzCache::remove_jazz_block (const JazzBlockIdentifier *p_id)
 {
-//TODO: Implement JazzCache::remove_jazz_block (1)
 }
 
 
-/** Aaa
+/** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockId64 (block name)
 
-	\param id64 Aaa
+	\param id64 The JazzBlockId64 of the block to be searched for deletion
 
-//TODO: Document JazzCache::remove_jazz_block (2)
+	Logs with level LOG_MISS if the block is not found.
 */
 void JazzCache::remove_jazz_block (JazzBlockId64 id64)
 {
