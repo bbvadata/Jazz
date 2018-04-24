@@ -379,6 +379,51 @@ SCENARIO("Testing MurmurHash64A().")
 			}
 		}
 	}
+	char buffer[100];
+	THEN("I can hash all lengths from 0 to 64 without boundary issues.")
+	{
+		for (int i = 0; i < 65; i++) {
+			for (int j = 0; j < i; j++) buffer[10 + j] = 2*j;
+
+			uint64_t hok;
+
+			hok = MurmurHash64A(&buffer[10], i);
+
+			buffer[9] = 2*i;
+
+			REQUIRE(MurmurHash64A(&buffer[10], i) == hok);
+
+			buffer[9] = 93;
+
+			REQUIRE(MurmurHash64A(&buffer[10], i) == hok);
+
+			buffer[10 + i] = 2*i;
+
+			REQUIRE(MurmurHash64A(&buffer[10], i) == hok);
+
+			buffer[10 + i] = 11;
+
+			REQUIRE(MurmurHash64A(&buffer[10], i) == hok);
+
+			buffer[10] += 3;
+
+			if (i) {
+				REQUIRE(MurmurHash64A(&buffer[10], i) != hok);
+			} else {
+				REQUIRE(MurmurHash64A(&buffer[10], i) == hok);
+			}
+
+			hok = MurmurHash64A(&buffer[10], i);
+
+			buffer[9 + i] += 7;
+
+			if (i) {
+				REQUIRE(MurmurHash64A(&buffer[10], i) != hok);
+			} else {
+				REQUIRE(MurmurHash64A(&buffer[10], i) == hok);
+			}
+		}
+	}
 }
 
 
