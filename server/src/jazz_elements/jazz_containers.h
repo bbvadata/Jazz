@@ -162,7 +162,7 @@ struct JazzQueueItem: JazzBlockKeeprItem {
 that converts a queue into a cache. A cache is a queue where elements can be searched by id and lower priority items
 can be removed to allocate space.
 */
-typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
+typedef std::map<JazzBlockId64, pJazzQueueItem> JazzBlockMap;
 
 
 /** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
