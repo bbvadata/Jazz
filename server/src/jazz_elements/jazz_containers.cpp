@@ -1022,30 +1022,6 @@ pJazzQueueItem ModelBuffer::highest_priority_item()
 */
 
 
-/** Find a JazzBlock in a JazzCache by JazzBlockIdentifier (block name)
-
-	\param p_id The JazzBlockIdentifier of the block to be found
-
-	\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
-*/
-pJazzQueueItem JazzCache::find_jazz_block (const JazzBlockIdentifier *p_id)
-{
-//TODO: Implement JazzCache::find_jazz_block (1)
-}
-
-
-/** Find a JazzBlock in a JazzCache by JazzBlockId64 (block name hash)
-
-	\param id64 The JazzBlockId64 of the block to be found
-
-	\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
-*/
-pJazzQueueItem JazzCache::find_jazz_block (JazzBlockId64 id64)
-{
-	return cache[id64];
-}
-
-
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
 	\param p_id The JazzBlockIdentifier of the block to be searched for deletion

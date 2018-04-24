@@ -588,8 +588,25 @@ class JazzCache: public AATBlockQueue {
 
 	public:
 
-		pJazzQueueItem find_jazz_block	 (const JazzBlockIdentifier *p_id);
-		pJazzQueueItem find_jazz_block	 (		JazzBlockId64		 id64);
+		/** Find a JazzBlock in a JazzCache by JazzBlockIdentifier (block name)
+
+			\param p_id The JazzBlockIdentifier of the block to be found
+
+			\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
+		*/
+		inline pJazzQueueItem find_jazz_block (const JazzBlockIdentifier *p_id)
+		{
+		//TODO: Implement JazzCache::find_jazz_block (1)
+		}
+
+		/** Find a JazzBlock in a JazzCache by JazzBlockId64 (block name hash)
+
+			\param id64 The JazzBlockId64 of the block to be found
+
+			\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
+		*/
+		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
+
 		void 		   remove_jazz_block (const JazzBlockIdentifier *p_id);
 		void 		   remove_jazz_block (		JazzBlockId64		 id64);
 
