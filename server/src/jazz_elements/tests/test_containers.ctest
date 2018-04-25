@@ -2246,7 +2246,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 	JazzTensorDim dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
 
-	pJazzFilter p_f_r1, p_f_r2, p_f_r3;
+	pJazzFilter p_if_r1, p_if_r3, p_if_r6, p_bf_r1, p_bf_r3, p_bf_r6;
 
 	AllAttributes old_str, new_str, no_str;
 
@@ -2268,6 +2268,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 	const char *month[12] = {"January", "February", "March", "April", "May", "June", "July", "August",
 							 "September", "October", "November", "December"};
+
+	bool buff_1k[1024] = {false};
 
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks")
 	{
@@ -2332,6 +2334,10 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(!strcmp(p_st_r1->get_string(15), "April"));
 		REQUIRE(!p_st_r1->p_string_buffer()->alloc_failed);
 
+		check_and_close_jazz_block(p_db_r1);
+		check_and_close_jazz_block(p_st_r1);
+		check_and_close_jazz_block(p_by_r1);
+
 		for (int i = 0; i < 17; i++) {
 			for (int j = 0; j < 9; j++) {
 				for (int k = 0; k < 3; k++) {
@@ -2351,6 +2357,10 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(p_by_r3->tensor.cell_byte  [334] == 102);
 		REQUIRE(!strcmp(p_st_r3->get_string(334), "July"));
 		REQUIRE(!p_st_r3->p_string_buffer()->alloc_failed);
+
+		check_and_close_jazz_block(p_db_r3);
+		check_and_close_jazz_block(p_st_r3);
+		check_and_close_jazz_block(p_by_r3);
 
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -2381,6 +2391,56 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(!strcmp(p_st_r6->get_string(753), "December"));
 		REQUIRE(!p_st_r6->p_string_buffer()->alloc_failed);
 
+		check_and_close_jazz_block(p_db_r6);
+		check_and_close_jazz_block(p_st_r6);
+		check_and_close_jazz_block(p_by_r6);
+
+		dim_r1.dim[1] = 0;
+		dim_r3.dim[1] = 0;
+		dim_r6.dim[1] = 0;
+
+		p_if_r1 = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim_r1.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &buff_1k);
+
+		REQUIRE(p_if_r1 != nullptr);
+		REQUIRE(p_if_r1->can_filter(p_db_r1));
+		REQUIRE(p_if_r1->can_filter(p_st_r1));
+		REQUIRE(p_if_r1->can_filter(p_by_r1));
+
+		p_if_r3 = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim_r3.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &buff_1k);
+
+		REQUIRE(p_if_r3 != nullptr);
+		REQUIRE(p_if_r3->can_filter(p_db_r3));
+		REQUIRE(p_if_r3->can_filter(p_st_r3));
+		REQUIRE(p_if_r3->can_filter(p_by_r3));
+
+		p_if_r6 = (pJazzFilter) new_jazz_block(CELL_TYPE_INTEGER, dim_r6.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &buff_1k);
+
+		REQUIRE(p_if_r6 != nullptr);
+		REQUIRE(p_if_r6->can_filter(p_db_r6));
+		REQUIRE(p_if_r6->can_filter(p_st_r6));
+		REQUIRE(p_if_r6->can_filter(p_by_r6));
+
+		p_bf_r1 = (pJazzFilter) new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim_r1.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &buff_1k);
+
+		REQUIRE(p_bf_r1 != nullptr);
+		REQUIRE(p_bf_r1->can_filter(p_db_r1));
+		REQUIRE(p_bf_r1->can_filter(p_st_r1));
+		REQUIRE(p_bf_r1->can_filter(p_by_r1));
+
+		p_bf_r3 = (pJazzFilter) new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim_r3.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &buff_1k);
+
+		REQUIRE(p_bf_r3 != nullptr);
+		REQUIRE(p_bf_r3->can_filter(p_db_r3));
+		REQUIRE(p_bf_r3->can_filter(p_st_r3));
+		REQUIRE(p_bf_r3->can_filter(p_by_r3));
+
+		p_bf_r6 = (pJazzFilter) new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim_r6.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &buff_1k);
+
+		REQUIRE(p_bf_r6 != nullptr);
+		REQUIRE(p_bf_r6->can_filter(p_db_r6));
+		REQUIRE(p_bf_r6->can_filter(p_st_r6));
+		REQUIRE(p_bf_r6->can_filter(p_by_r6));
+
 		WHEN("Something")
 		{
 			THEN("Something")
@@ -2388,6 +2448,24 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 //TODO: Write unit tests for JazzBlock creation by copying/filtering
 			}
 		}
+
+		free_jazz_block((pJazzBlock &) p_if_r1);
+		REQUIRE(p_if_r1 == nullptr);
+
+		free_jazz_block((pJazzBlock &) p_if_r3);
+		REQUIRE(p_if_r3 == nullptr);
+
+		free_jazz_block((pJazzBlock &) p_if_r6);
+		REQUIRE(p_if_r6 == nullptr);
+
+		free_jazz_block((pJazzBlock &) p_bf_r1);
+		REQUIRE(p_bf_r1 == nullptr);
+
+		free_jazz_block((pJazzBlock &) p_bf_r3);
+		REQUIRE(p_bf_r3 == nullptr);
+
+		free_jazz_block((pJazzBlock &) p_bf_r6);
+		REQUIRE(p_bf_r6 == nullptr);
 
 		free_jazz_block(p_db_r1);
 		REQUIRE(p_db_r1 == nullptr);
