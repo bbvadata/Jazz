@@ -2266,6 +2266,9 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 	no_str[123] = (char *) nullptr;
 	no_str[456] = "";
 
+	const char *month[12] = {"January", "February", "March", "April", "May", "June", "July", "August",
+							 "September", "October", "November", "December"};
+
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks")
 	{
 		p_db_r1 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r1.dim, &old_str);
@@ -2283,17 +2286,17 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(p_db_r6 != nullptr);
 		REQUIRE(p_db_r6->size == 840);
 
-		p_st_r1 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r1.dim, &no_str);
+		p_st_r1 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r1.dim, &no_str, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
 
 		REQUIRE(p_st_r1 != nullptr);
 		REQUIRE(p_st_r1->size == 107);
 
-		p_st_r3 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r3.dim, nullptr);
+		p_st_r3 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r3.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
 
 		REQUIRE(p_st_r3 != nullptr);
 		REQUIRE(p_st_r3->size == 459);
 
-		p_st_r6 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r6.dim, &old_str);
+		p_st_r6 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r6.dim, &old_str, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
 
 		REQUIRE(p_st_r6 != nullptr);
 		REQUIRE(p_st_r6->size == 840);
@@ -2312,6 +2315,71 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 		REQUIRE(p_by_r6 != nullptr);
 		REQUIRE(p_by_r6->size == 840);
+
+		int index[6];
+
+		for (int i = 0; i < 107; i++) {
+			index[0] = i;
+
+			p_db_r1->tensor.cell_double[p_db_r1->get_offset((int *) &index)] = i/10.0;
+			p_by_r1->tensor.cell_byte  [p_by_r1->get_offset((int *) &index)] = 7 + 2*i;
+
+			p_st_r1->set_string((int *) &index, month[i % 12]);
+		}
+
+		REQUIRE(p_db_r1->tensor.cell_double[33] == 3.3);
+		REQUIRE(p_by_r1->tensor.cell_byte  [33] == 73);
+		REQUIRE(!strcmp(p_st_r1->get_string(15), "April"));
+		REQUIRE(!p_st_r1->p_string_buffer()->alloc_failed);
+
+		for (int i = 0; i < 17; i++) {
+			for (int j = 0; j < 9; j++) {
+				for (int k = 0; k < 3; k++) {
+					index[0] = i;
+					index[1] = j;
+					index[2] = k;
+
+					p_db_r3->tensor.cell_double[p_db_r3->get_offset((int *) &index)] = 1e6*i + 1e3*j + k;
+					p_by_r3->tensor.cell_byte  [p_by_r3->get_offset((int *) &index)] = 7*i + 5*j + 3*k;
+
+					p_st_r3->set_string((int *) &index, month[(7*i + 5*j + 3*k) % 12]);
+				}
+			}
+		}
+
+		REQUIRE(p_db_r3->tensor.cell_double[334] == 12003001.0);
+		REQUIRE(p_by_r3->tensor.cell_byte  [334] == 102);
+		REQUIRE(!strcmp(p_st_r3->get_string(334), "July"));
+		REQUIRE(!p_st_r3->p_string_buffer()->alloc_failed);
+
+		for (int i = 0; i < 2; i++) {
+			for (int j = 0; j < 3; j++) {
+				for (int k = 0; k < 2; k++) {
+					for (int u = 0; u < 5; u++) {
+						for (int v = 0; v < 2; v++) {
+							for (int w = 0; w < 7; w++) {
+								index[0] = i;
+								index[1] = j;
+								index[2] = k;
+								index[3] = u;
+								index[4] = v;
+								index[5] = w;
+
+								p_db_r6->tensor.cell_double[p_db_r6->get_offset((int *) &index)] = 1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w;
+								p_by_r6->tensor.cell_byte  [p_by_r6->get_offset((int *) &index)] = 45*i + 34*j + 23*k + 12*u + 6*v + 3*w;
+
+								p_st_r6->set_string((int *) &index, month[(45*i + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		REQUIRE(p_db_r6->tensor.cell_double[753] == 120000307.0);
+		REQUIRE(p_by_r6->tensor.cell_byte  [753] == 167);
+		REQUIRE(!strcmp(p_st_r6->get_string(753), "December"));
+		REQUIRE(!p_st_r6->p_string_buffer()->alloc_failed);
 
 		WHEN("Something")
 		{
