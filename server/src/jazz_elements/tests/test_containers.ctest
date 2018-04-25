@@ -2268,6 +2268,51 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks")
 	{
+		p_db_r1 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r1.dim, &old_str);
+
+		REQUIRE(p_db_r1 != nullptr);
+		REQUIRE(p_db_r1->size == 107);
+
+		p_db_r3 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r3.dim, &no_str);
+
+		REQUIRE(p_db_r3 != nullptr);
+		REQUIRE(p_db_r3->size == 459);
+
+		p_db_r6 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r6.dim, nullptr);
+
+		REQUIRE(p_db_r6 != nullptr);
+		REQUIRE(p_db_r6->size == 840);
+
+		p_st_r1 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r1.dim, &no_str);
+
+		REQUIRE(p_st_r1 != nullptr);
+		REQUIRE(p_st_r1->size == 107);
+
+		p_st_r3 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r3.dim, nullptr);
+
+		REQUIRE(p_st_r3 != nullptr);
+		REQUIRE(p_st_r3->size == 459);
+
+		p_st_r6 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r6.dim, &old_str);
+
+		REQUIRE(p_st_r6 != nullptr);
+		REQUIRE(p_st_r6->size == 840);
+
+		p_by_r1 = new_jazz_block(CELL_TYPE_BYTE, dim_r1.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(p_by_r1 != nullptr);
+		REQUIRE(p_by_r1->size == 107);
+
+		p_by_r3 = new_jazz_block(CELL_TYPE_BYTE, dim_r3.dim, &old_str, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(p_by_r3 != nullptr);
+		REQUIRE(p_by_r3->size == 459);
+
+		p_by_r6 = new_jazz_block(CELL_TYPE_BYTE, dim_r6.dim, &no_str, JAZZ_FILL_NEW_DONT_FILL);
+
+		REQUIRE(p_by_r6 != nullptr);
+		REQUIRE(p_by_r6->size == 840);
+
 		WHEN("Something")
 		{
 			THEN("Something")
@@ -2275,6 +2320,33 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 //TODO: Write unit tests for JazzBlock creation by copying/filtering
 			}
 		}
+
+		free_jazz_block(p_db_r1);
+		REQUIRE(p_db_r1 == nullptr);
+
+		free_jazz_block(p_db_r3);
+		REQUIRE(p_db_r3 == nullptr);
+
+		free_jazz_block(p_db_r6);
+		REQUIRE(p_db_r6 == nullptr);
+
+		free_jazz_block(p_st_r1);
+		REQUIRE(p_st_r1 == nullptr);
+
+		free_jazz_block(p_st_r3);
+		REQUIRE(p_st_r3 == nullptr);
+
+		free_jazz_block(p_st_r6);
+		REQUIRE(p_st_r6 == nullptr);
+
+		free_jazz_block(p_by_r1);
+		REQUIRE(p_by_r1 == nullptr);
+
+		free_jazz_block(p_by_r3);
+		REQUIRE(p_by_r3 == nullptr);
+
+		free_jazz_block(p_by_r6);
+		REQUIRE(p_by_r6 == nullptr);
 	}
 }
 
