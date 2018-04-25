@@ -2240,7 +2240,33 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 SCENARIO("Testing JazzBlock creation by copying/filtering")
 {
-	GIVEN("We want to test the xyz")
+	pJazzBlock p_db_r1, p_db_r3, p_db_r6,
+			   p_st_r1, p_st_r3, p_st_r6,
+			   p_by_r1, p_by_r3, p_by_r6;
+
+	JazzTensorDim dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
+
+	pJazzFilter p_f_r1, p_f_r2, p_f_r3;
+
+	AllAttributes old_str, new_str, no_str;
+
+	old_str [256] = "Life's but a walking shadow";
+	old_str [313] = "... a poor player";
+	old_str [921] = "that struts and frets his hour";
+	old_str [222] = "upon the stage and";
+	old_str [321] = "then ...";
+
+	new_str [921] = "is heard nomore ...";
+	new_str [313] = "It's a tale";
+	new_str [358] = "told by an idiot";
+	new_str [222] = "full of sound and fury";
+	new_str [676] = "signifying ...";
+	new_str [321] = "NULL";
+
+	no_str[123] = (char *) nullptr;
+	no_str[456] = "";
+
+	GIVEN("A set of 9 blocks of 3 types x 3 ranks")
 	{
 		WHEN("Something")
 		{
