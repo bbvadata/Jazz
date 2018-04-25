@@ -304,7 +304,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 		hea.num_attributes++;
 	} else {
 		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
-			int len = strlen(it->second);
+			int len = it->second == nullptr ? 0 : strlen(it->second);
 			if (len) hea.total_bytes += len + 1;
 			hea.num_attributes++;
 		}
