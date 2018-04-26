@@ -123,7 +123,9 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 		attrib_diff = new_attrib_bytes - old_attrib_bytes;
 	}
 
-	pJazzBlock pjb = (pJazzBlock) malloc(p_as_block->total_bytes + tensor_diff + attrib_diff);
+	int total_bytes = p_as_block->total_bytes + tensor_diff + attrib_diff;
+
+	pJazzBlock pjb = (pJazzBlock) malloc(total_bytes);
 
 	if (pjb == nullptr) {
 #ifdef DEBUG
@@ -137,6 +139,8 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 #endif
 
 	memcpy(pjb, p_as_block, sizeof(JazzBlockHeader));
+
+	pjb->total_bytes = total_bytes;
 
 	if (tensor_diff) {
 		pjb->size = selected_rows*p_as_block->range.dim[0];
