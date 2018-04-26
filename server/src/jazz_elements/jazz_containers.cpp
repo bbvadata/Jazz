@@ -165,7 +165,6 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 	} else {
 		memcpy(&pjb->tensor, &p_as_block->tensor, old_tensor_size);
 	}
-	pjb->total_bytes += tensor_diff + attrib_diff;
 
 	if (att	!= nullptr)	{
 		if (p_as_block->cell_type != CELL_TYPE_JAZZ_STRING) {
