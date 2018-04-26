@@ -2250,17 +2250,17 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 	AllAttributes old_str, new_str, no_str;
 
-	old_str [256] = "Life's but a walking shadow";
+	old_str [256] = "Life's but a walking shadow";		// Both old_str and new_str have the same number of chars
 	old_str [313] = "... a poor player";
 	old_str [921] = "that struts and frets his hour";
 	old_str [222] = "upon the stage and";
 	old_str [321] = "then ...";
 
 	new_str [921] = "is heard nomore ...";
-	new_str [313] = "It's a tale";
-	new_str [358] = "told by an idiot";
-	new_str [222] = "full of sound and fury";
-	new_str [676] = "signifying ...";
+	new_str [313] = "It's a tale..";
+	new_str [358] = "told by an idiot..";
+	new_str [222] = "full of sound and fury..";
+	new_str [676] = "signifying ..";
 	new_str [321] = "NULL";
 
 	no_str[123] = (char *) nullptr;
