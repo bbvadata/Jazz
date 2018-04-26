@@ -189,9 +189,9 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 	} else {
 		memcpy(pjb->p_attribute_keys(), p_as_block->p_attribute_keys(), p_as_block->num_attributes*2*sizeof(int));
 
-		pJazzStringBuffer psb = pjb->p_string_buffer();
+		pJazzStringBuffer p_nsb = pjb->p_string_buffer(), p_osb = p_as_block->p_string_buffer();
 
-		memcpy(psb, p_as_block->p_string_buffer(), psb->buffer_size + sizeof(JazzStringBuffer));
+		memcpy(p_nsb, p_osb, p_osb->buffer_size + sizeof(JazzStringBuffer));
 	}
 
 	return pjb;
