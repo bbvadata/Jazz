@@ -174,18 +174,18 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 		} else {
 			pjb->num_attributes = new_num_attributes;
 
-			pJazzStringBuffer psb = pjb->p_string_buffer();
+			pJazzStringBuffer p_nsb = pjb->p_string_buffer(), p_osb = p_as_block->p_string_buffer();
 
-			memcpy(psb, p_as_block->p_string_buffer(), psb->buffer_size + sizeof(JazzStringBuffer));
+			memcpy(p_nsb, p_osb, p_osb->buffer_size + sizeof(JazzStringBuffer));
 
-			psb->buffer_size += attrib_diff;
+			p_nsb->buffer_size += attrib_diff;
 
 			int i = 0;
 			int *ptk = pjb->p_attribute_keys();
 
 			for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
 				ptk[i] = it->first;
-				ptk[i + new_num_attributes] = pjb->get_string_offset(psb, it->second);
+				ptk[i + new_num_attributes] = pjb->get_string_offset(p_nsb, it->second);
 
 				i++;
 			}
