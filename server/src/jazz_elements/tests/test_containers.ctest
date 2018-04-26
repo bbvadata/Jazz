@@ -2676,11 +2676,11 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 				REQUIRE(pcp_db_r1->range.dim[3]							 == p_db_r1->range.dim[3]);
 				REQUIRE(pcp_st_r6->size									 == p_st_r6->size);
 				REQUIRE(pcp_by_r3->size									 == p_by_r3->size);
-				REQUIRE(pcp_db_r1->num_attributes						 == p_db_r1->num_attributes);
+				REQUIRE(pcp_db_r1->num_attributes						 == 6);
 
-				REQUIRE(pcp_st_r6->num_attributes						 == p_st_r6->num_attributes);
+				REQUIRE(pcp_st_r6->num_attributes						 == 2);
 				REQUIRE(pcp_by_r3->total_bytes							 == p_by_r3->total_bytes);
-				REQUIRE(pcp_db_r1->total_bytes							 == p_db_r1->total_bytes);
+				REQUIRE(pcp_db_r1->total_bytes							 == p_db_r1->total_bytes);	// Same number of chars in old and new
 				REQUIRE(pcp_st_r6->has_NA								 == p_st_r6->has_NA);
 				REQUIRE(pcp_by_r3->has_NA								 == p_by_r3->has_NA);
 
@@ -2690,44 +2690,24 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 				REQUIRE(pcp_db_r1->tensor.cell_double[33]				 == p_db_r1->tensor.cell_double[33]);
 				REQUIRE(pcp_st_r6->tensor.cell_int[27]					 == p_st_r6->tensor.cell_int[27]);
 
-				REQUIRE(pcp_by_r3->p_attribute_keys()[0]				 == p_by_r3->p_attribute_keys()[0]);
 				REQUIRE(pcp_db_r1->p_string_buffer()->stop_check_4_match == p_db_r1->p_string_buffer()->stop_check_4_match);
-				REQUIRE(pcp_st_r6->p_attribute_keys()[0]                 == p_st_r6->p_attribute_keys()[0]);
 				REQUIRE(pcp_by_r3->p_string_buffer()->alloc_failed		 == p_by_r3->p_string_buffer()->alloc_failed);
-				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx			 == p_db_r1->p_string_buffer()->last_idx);
 
-				REQUIRE(pcp_st_r6->p_string_buffer()->last_idx			 == p_st_r6->p_string_buffer()->last_idx);
-				REQUIRE(pcp_by_r3->p_string_buffer()->last_idx			 == p_by_r3->p_string_buffer()->last_idx);
-				REQUIRE(pcp_db_r1->p_string_buffer()->buffer_size		 == p_db_r1->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_st_r6->p_string_buffer()->buffer_size		 == p_st_r6->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_by_r3->p_string_buffer()->buffer[3]			 == p_by_r3->p_string_buffer()->buffer[3]);
-
-				REQUIRE(pcp_db_r1->p_string_buffer()->buffer[4]			 == p_db_r1->p_string_buffer()->buffer[4]);
-				REQUIRE(pcp_st_r6->p_string_buffer()->buffer[20]		 == p_st_r6->p_string_buffer()->buffer[20]);
-
-				REQUIRE(!strcmp(pcp_db_r1->find_attribute(256), "Life's but a walking shadow"));
-				REQUIRE(!strcmp(pcp_st_r6->find_attribute(313), "... a poor player"));
-				REQUIRE(!strcmp(pcp_by_r3->find_attribute(921), "that struts and frets his hour"));
-				REQUIRE(!strcmp(pcp_db_r1->find_attribute(222), "upon the stage and"));
-				REQUIRE(!strcmp(pcp_st_r6->find_attribute(321), "then ..."));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(921), "is heard nomore ..."));
+				REQUIRE(!strcmp(pcp_st_r1->find_attribute(313), "It's a tale.."));
+				REQUIRE(!strcmp(pcp_by_r1->find_attribute(358), "told by an idiot.."));
+				REQUIRE(!strcmp(pcp_db_r3->find_attribute(222), "full of sound and fury.."));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(676), "signifying .."));
 				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
 				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r6->find_attribute(486)						    == nullptr);
-				REQUIRE(pcp_by_r3->find_attribute(487)						    == nullptr);
-
-				REQUIRE(!strcmp(pcp_db_r3->find_attribute(123), ""));
-				REQUIRE(!strcmp(pcp_st_r1->find_attribute(456), ""));
-				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
-				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
-				REQUIRE(pcp_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r6->find_attribute(487)						    == nullptr);
-
-				REQUIRE(!strcmp(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(!strcmp(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(!strcmp(pcp_by_r1->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(pcp_st_r1->find_attribute(486)						    == nullptr);
 				REQUIRE(pcp_by_r1->find_attribute(487)						    == nullptr);
+				REQUIRE(!strcmp(pcp_db_r3->find_attribute(321), "NULL"));
+
+				REQUIRE(!strcmp(pcp_st_r6->find_attribute(456), ""));
+				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
+				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_st_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 
 				REQUIRE(pcp_db_r1->tensor.cell_double[33] == 3.3);
 				REQUIRE(pcp_by_r1->tensor.cell_byte  [33] == 73);
