@@ -2494,6 +2494,45 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 			THEN("Their structure is as expected.")
 			{
+				REQUIRE(pcp_db_r1->cell_type							 == p_db_r1->cell_type);
+				REQUIRE(pcp_st_r6->cell_type							 == p_st_r6->cell_type);
+				REQUIRE(pcp_by_r3->rank									 == p_by_r3->rank);
+				REQUIRE(pcp_db_r1->rank									 == p_db_r1->rank);
+				REQUIRE(pcp_st_r6->range.dim[0]							 == p_st_r6->range.dim[0]);
+
+				REQUIRE(pcp_by_r3->range.dim[2]							 == p_by_r3->range.dim[2]);
+				REQUIRE(pcp_db_r1->range.dim[3]							 == p_db_r1->range.dim[3]);
+				REQUIRE(pcp_st_r6->size									 == p_st_r6->size);
+				REQUIRE(pcp_by_r3->size									 == p_by_r3->size);
+				REQUIRE(pcp_db_r1->num_attributes						 == p_db_r1->num_attributes);
+
+				REQUIRE(pcp_st_r6->num_attributes						 == p_st_r6->num_attributes);
+				REQUIRE(pcp_by_r3->total_bytes							 == p_by_r3->total_bytes);
+				REQUIRE(pcp_db_r1->total_bytes							 == p_db_r1->total_bytes);
+				REQUIRE(pcp_st_r6->has_NA								 == p_st_r6->has_NA);
+				REQUIRE(pcp_by_r3->has_NA								 == p_by_r3->has_NA);
+
+				REQUIRE(pcp_db_r1->has_NA								 == p_db_r1->has_NA);
+				REQUIRE(pcp_st_r6->tensor.cell_int [67]					 == p_st_r6->tensor.cell_int [67]);
+				REQUIRE(pcp_by_r3->tensor.cell_byte[13]					 == p_by_r3->tensor.cell_byte[13]);
+				REQUIRE(pcp_db_r1->tensor.cell_double[33]				 == p_db_r1->tensor.cell_double[33]);
+				REQUIRE(pcp_st_r6->tensor.cell_int[27]					 == p_st_r6->tensor.cell_int[27]);
+
+				REQUIRE(pcp_by_r3->p_attribute_keys()[0]				 == p_by_r3->p_attribute_keys()[0]);
+				REQUIRE(pcp_db_r1->p_string_buffer()->stop_check_4_match == p_db_r1->p_string_buffer()->stop_check_4_match);
+				REQUIRE(pcp_st_r6->p_attribute_keys()[0]                 == p_st_r6->p_attribute_keys()[0]);
+				REQUIRE(pcp_by_r3->p_string_buffer()->alloc_failed		 == p_by_r3->p_string_buffer()->alloc_failed);
+				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx			 == p_db_r1->p_string_buffer()->last_idx);
+
+				REQUIRE(pcp_st_r6->p_string_buffer()->last_idx			 == p_st_r6->p_string_buffer()->last_idx);
+				REQUIRE(pcp_by_r3->p_string_buffer()->last_idx			 == p_by_r3->p_string_buffer()->last_idx);
+				REQUIRE(pcp_db_r1->p_string_buffer()->buffer_size		 == p_db_r1->p_string_buffer()->buffer_size);
+				REQUIRE(pcp_st_r6->p_string_buffer()->buffer_size		 == p_st_r6->p_string_buffer()->buffer_size);
+				REQUIRE(pcp_by_r3->p_string_buffer()->buffer[3]			 == p_by_r3->p_string_buffer()->buffer[3]);
+
+				REQUIRE(pcp_db_r1->p_string_buffer()->buffer[4]			 == p_db_r1->p_string_buffer()->buffer[4]);
+				REQUIRE(pcp_st_r6->p_string_buffer()->buffer[20]		 == p_st_r6->p_string_buffer()->buffer[20]);
+
 				REQUIRE(!strcmp(pcp_db_r1->find_attribute(256), "Life's but a walking shadow"));
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(313), "... a poor player"));
 				REQUIRE(!strcmp(pcp_by_r3->find_attribute(921), "that struts and frets his hour"));
