@@ -102,7 +102,7 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 		int new_attrib_bytes = 0;
 
 		for (AllAttributes::iterator it = att->begin(); it != att->end(); ++it) {
-			int len = strlen(it->second);
+			int len = it->second == nullptr ? 0 : strlen(it->second);
 			if (len)
 				new_attrib_bytes += len + 1;
 			new_num_attributes++;
