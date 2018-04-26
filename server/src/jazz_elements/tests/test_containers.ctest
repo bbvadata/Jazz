@@ -2494,6 +2494,56 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 			THEN("Their structure is as expected.")
 			{
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(256), "Life's but a walking shadow"));
+				REQUIRE(!strcmp(pcp_st_r6->find_attribute(313), "... a poor player"));
+				REQUIRE(!strcmp(pcp_by_r3->find_attribute(921), "that struts and frets his hour"));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(222), "upon the stage and"));
+				REQUIRE(!strcmp(pcp_st_r6->find_attribute(321), "then ..."));
+				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(pcp_st_r6->find_attribute(486)						    == nullptr);
+				REQUIRE(pcp_by_r3->find_attribute(487)						    == nullptr);
+
+				REQUIRE(!strcmp(pcp_db_r3->find_attribute(123), ""));
+				REQUIRE(!strcmp(pcp_st_r1->find_attribute(456), ""));
+				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
+				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(pcp_by_r6->find_attribute(487)						    == nullptr);
+
+				REQUIRE(!strcmp(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
+				REQUIRE(!strcmp(pcp_by_r1->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
+				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(pcp_by_r1->find_attribute(487)						    == nullptr);
+
+				REQUIRE(pcp_db_r1->tensor.cell_double[33] == 3.3);
+				REQUIRE(pcp_by_r1->tensor.cell_byte  [33] == 73);
+				REQUIRE(!strcmp(pcp_st_r1->get_string(15), "April"));
+				REQUIRE(!pcp_st_r1->p_string_buffer()->alloc_failed);
+
+				check_and_close_jazz_block(pcp_db_r1);
+				check_and_close_jazz_block(pcp_st_r1);
+				check_and_close_jazz_block(pcp_by_r1);
+
+				REQUIRE(pcp_db_r3->tensor.cell_double[334] == 12003001.0);
+				REQUIRE(pcp_by_r3->tensor.cell_byte  [334] == 102);
+				REQUIRE(!strcmp(pcp_st_r3->get_string(334), "July"));
+				REQUIRE(!pcp_st_r3->p_string_buffer()->alloc_failed);
+
+				check_and_close_jazz_block(pcp_db_r3);
+				check_and_close_jazz_block(pcp_st_r3);
+				check_and_close_jazz_block(pcp_by_r3);
+
+				REQUIRE(pcp_db_r6->tensor.cell_double[753] == 120000307.0);
+				REQUIRE(pcp_by_r6->tensor.cell_byte  [753] == 167);
+				REQUIRE(!strcmp(pcp_st_r6->get_string(753), "December"));
+				REQUIRE(!pcp_st_r6->p_string_buffer()->alloc_failed);
+
+				check_and_close_jazz_block(pcp_db_r6);
+				check_and_close_jazz_block(pcp_st_r6);
+				check_and_close_jazz_block(pcp_by_r6);
 			}
 
 			free_jazz_block(pcp_db_r1);
