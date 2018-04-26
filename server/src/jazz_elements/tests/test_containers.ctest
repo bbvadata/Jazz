@@ -2441,11 +2441,100 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(p_bf_r6->can_filter(p_st_r6));
 		REQUIRE(p_bf_r6->can_filter(p_by_r6));
 
-		WHEN("Something")
+		WHEN("I create identical blocks")
 		{
-			THEN("Something")
+			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
+					   pcp_st_r1, pcp_st_r3, pcp_st_r6,
+			   		   pcp_by_r1, pcp_by_r3, pcp_by_r6;
+
+			pcp_db_r1 = new_jazz_block(p_db_r1);
+
+			REQUIRE(pcp_db_r1 != nullptr);
+			REQUIRE(pcp_db_r1->size == 107);
+
+			pcp_db_r3 = new_jazz_block(p_db_r3);
+
+			REQUIRE(pcp_db_r3 != nullptr);
+			REQUIRE(pcp_db_r3->size == 459);
+
+			pcp_db_r6 = new_jazz_block(p_db_r6);
+
+			REQUIRE(pcp_db_r6 != nullptr);
+			REQUIRE(pcp_db_r6->size == 840);
+
+			pcp_st_r1 = new_jazz_block(p_st_r1);
+
+			REQUIRE(pcp_st_r1 != nullptr);
+			REQUIRE(pcp_st_r1->size == 107);
+
+			pcp_st_r3 = new_jazz_block(p_st_r3);
+
+			REQUIRE(pcp_st_r3 != nullptr);
+			REQUIRE(pcp_st_r3->size == 459);
+
+			pcp_st_r6 = new_jazz_block(p_st_r6);
+
+			REQUIRE(pcp_st_r6 != nullptr);
+			REQUIRE(pcp_st_r6->size == 840);
+
+			pcp_by_r1 = new_jazz_block(p_by_r1);
+
+			REQUIRE(pcp_by_r1 != nullptr);
+			REQUIRE(pcp_by_r1->size == 107);
+
+			pcp_by_r3 = new_jazz_block(p_by_r3);
+
+			REQUIRE(pcp_by_r3 != nullptr);
+			REQUIRE(pcp_by_r3->size == 459);
+
+			pcp_by_r6 = new_jazz_block(p_by_r6);
+
+			REQUIRE(pcp_by_r6 != nullptr);
+			REQUIRE(pcp_by_r6->size == 840);
+
+			THEN("Their structure is as expected.")
 			{
-//TODO: Write unit tests for JazzBlock creation by copying/filtering
+			}
+
+			free_jazz_block(pcp_db_r1);
+			REQUIRE(pcp_db_r1 == nullptr);
+
+			free_jazz_block(pcp_db_r3);
+			REQUIRE(pcp_db_r3 == nullptr);
+
+			free_jazz_block(pcp_db_r6);
+			REQUIRE(pcp_db_r6 == nullptr);
+
+			free_jazz_block(pcp_st_r1);
+			REQUIRE(pcp_st_r1 == nullptr);
+
+			free_jazz_block(pcp_st_r3);
+			REQUIRE(pcp_st_r3 == nullptr);
+
+			free_jazz_block(pcp_st_r6);
+			REQUIRE(pcp_st_r6 == nullptr);
+
+			free_jazz_block(pcp_by_r1);
+			REQUIRE(pcp_by_r1 == nullptr);
+
+			free_jazz_block(pcp_by_r3);
+			REQUIRE(pcp_by_r3 == nullptr);
+
+			free_jazz_block(pcp_by_r6);
+			REQUIRE(pcp_by_r6 == nullptr);
+		}
+
+		WHEN("I create identical blocks with different attributes")
+		{
+			THEN("Their structure is as expected.")
+			{
+			}
+		}
+
+		WHEN("I filter with all combinations of blocks an filters")
+		{
+			THEN("Their structure is as expected.")
+			{
 			}
 		}
 
