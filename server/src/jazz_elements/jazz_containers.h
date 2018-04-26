@@ -171,7 +171,7 @@ typedef std::atomic<int32_t> JazzLock;
 
 
 pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
-						   pJazzBlock 	  p_row_filter = nullptr,
+						   pJazzFilter 	  p_row_filter = nullptr,
 						   AllAttributes *att		   = nullptr);
 
 
