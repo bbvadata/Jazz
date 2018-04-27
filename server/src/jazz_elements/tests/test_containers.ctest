@@ -2719,6 +2719,71 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 				REQUIRE(!strcmp(pcp_st_r1->get_string(15), "April"));
 				REQUIRE(!pcp_st_r1->p_string_buffer()->alloc_failed);
 
+		// p_db_r1 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r1.dim, &old_str);
+		// p_db_r3 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r3.dim, &no_str);
+		// p_db_r6 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r6.dim, nullptr);
+		// p_st_r1 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r1.dim, &no_str, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
+		// p_st_r3 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r3.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
+		// p_st_r6 = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim_r6.dim, &old_str, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
+		// p_by_r1 = new_jazz_block(CELL_TYPE_BYTE, dim_r1.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL);
+		// p_by_r3 = new_jazz_block(CELL_TYPE_BYTE, dim_r3.dim, &old_str, JAZZ_FILL_NEW_DONT_FILL);
+		// p_by_r6 = new_jazz_block(CELL_TYPE_BYTE, dim_r6.dim, &no_str, JAZZ_FILL_NEW_DONT_FILL);
+
+		// pcp_db_r1 = new_jazz_block(p_db_r1, nullptr, &new_str);
+		// pcp_db_r3 = new_jazz_block(p_db_r3, nullptr, &new_str);
+		// pcp_db_r6 = new_jazz_block(p_db_r6, nullptr, &no_str);
+		// pcp_st_r1 = new_jazz_block(p_st_r1, nullptr, &new_str);
+		// pcp_st_r3 = new_jazz_block(p_st_r3, nullptr, &new_str);
+		// pcp_st_r6 = new_jazz_block(p_st_r6, nullptr, &no_str);
+		// pcp_by_r1 = new_jazz_block(p_by_r1, nullptr, &new_str);
+		// pcp_by_r3 = new_jazz_block(p_by_r3, nullptr, &new_str);
+		// pcp_by_r6 = new_jazz_block(p_by_r6, nullptr, &no_str);
+
+				// Not a string, from old_str to new_str:
+				REQUIRE(pcp_db_r1->total_bytes 				      == p_db_r1->total_bytes);
+				REQUIRE(pcp_db_r1->p_string_buffer()->buffer_size == p_db_r1->p_string_buffer()->buffer_size - 8);	// 8 bytes == keys 1+ attr
+				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx    == p_db_r1->p_string_buffer()->last_idx - 8);
+
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(921), "is heard nomore ..."));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(313), "It's a tale.."));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(358), "told by an idiot.."));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(222), "full of sound and fury.."));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(676), "signifying .."));
+				REQUIRE(!strcmp(pcp_db_r1->find_attribute(321), "NULL"));
+
+				// Not a string, from nullptr to new_str:
+				REQUIRE(pcp_by_r1->total_bytes 				      == p_by_r1->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_by_r1->p_string_buffer()->buffer_size == pcp_db_r1->p_string_buffer()->buffer_size);
+				REQUIRE(pcp_by_r1->p_string_buffer()->last_idx    == pcp_db_r1->p_string_buffer()->last_idx);
+
+				// String, from no_str to new_str:
+ 				REQUIRE(pcp_st_r1->total_bytes 				      == p_st_r1->total_bytes + 8*4 + 97);
+ 				REQUIRE(pcp_st_r1->num_attributes			      == p_st_r1->num_attributes + 4);
+
+				REQUIRE(pcp_st_r1->p_string_buffer()->buffer_size == p_st_r1->p_string_buffer()->buffer_size + 97);
+
+				// String, from nullptr to new_str:
+ 				REQUIRE(pcp_st_r3->total_bytes 				      == p_st_r3->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_st_r3->p_string_buffer()->buffer_size == p_st_r3->p_string_buffer()->buffer_size + 97);
+
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(921), "is heard nomore ..."));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(313), "It's a tale.."));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(358), "told by an idiot.."));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(222), "full of sound and fury.."));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(676), "signifying .."));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(321), "NULL"));
+
+				// String, from old_str to no_str:
+				REQUIRE(pcp_db_r6->total_bytes 				      == p_st_r6->total_bytes + 8 + 97);
+				REQUIRE(pcp_db_r6->p_string_buffer()->buffer_size == p_st_r6->p_string_buffer()->buffer_size + 97);
+				REQUIRE(pcp_db_r6->p_string_buffer()->last_idx    == p_st_r6->p_string_buffer()->last_idx + 97);
+
+				for (int i = 0; i < 10; i++) {
+					REQUIRE(pcp_st_r1->tensor.cell_int[i] == p_st_r1->tensor.cell_int[i]);
+					REQUIRE(pcp_st_r3->tensor.cell_int[i] == p_st_r3->tensor.cell_int[i]);
+					REQUIRE(pcp_st_r6->tensor.cell_int[i] == p_st_r6->tensor.cell_int[i]);
+				}
+
 				check_and_close_jazz_block(pcp_db_r1);
 				check_and_close_jazz_block(pcp_st_r1);
 				check_and_close_jazz_block(pcp_by_r1);
