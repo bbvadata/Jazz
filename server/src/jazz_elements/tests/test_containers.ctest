@@ -2774,9 +2774,12 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 				REQUIRE(!strcmp(pcp_st_r3->find_attribute(321), "NULL"));
 
 				// String, from old_str to no_str:
-				REQUIRE(pcp_db_r6->total_bytes 				      == p_st_r6->total_bytes + 8 + 97);
-				REQUIRE(pcp_db_r6->p_string_buffer()->buffer_size == p_st_r6->p_string_buffer()->buffer_size + 97);
-				REQUIRE(pcp_db_r6->p_string_buffer()->last_idx    == p_st_r6->p_string_buffer()->last_idx + 97);
+				REQUIRE(pcp_st_r6->total_bytes 				      == p_st_r6->total_bytes - 8*3);
+				REQUIRE(pcp_st_r6->p_string_buffer()->buffer_size == p_st_r6->p_string_buffer()->buffer_size);
+				REQUIRE(pcp_st_r6->p_string_buffer()->last_idx    == p_st_r6->p_string_buffer()->last_idx);
+				REQUIRE(!strcmp(pcp_st_r6->find_attribute(456), ""));
+				REQUIRE(!strcmp(pcp_st_r6->find_attribute(123), ""));
+				REQUIRE(pcp_st_r6->find_attribute(654) == nullptr);
 
 				for (int i = 0; i < 10; i++) {
 					REQUIRE(pcp_st_r1->tensor.cell_int[i] == p_st_r1->tensor.cell_int[i]);
