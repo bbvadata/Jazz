@@ -175,9 +175,9 @@ pJazzBlock new_jazz_block (pJazzBlock  	  p_as_block,
 
 			pJazzStringBuffer p_nsb = pjb->p_string_buffer(), p_osb = p_as_block->p_string_buffer();
 
-			memcpy(p_nsb, p_osb, p_osb->buffer_size + sizeof(JazzStringBuffer));
+			pjb->init_string_buffer();
 
-			p_nsb->buffer_size += attrib_diff;
+			memcpy(&p_nsb->buffer, &p_osb->buffer, p_osb->buffer_size);
 
 			int i = 0;
 			int *ptk = pjb->p_attribute_keys();
