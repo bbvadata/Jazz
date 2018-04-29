@@ -12,7 +12,11 @@ Jazz is a lightweight modular data processing framework, including a web server.
 
 Jazz started as a research project on fast data processing servers led by Santiago Basaldúa at [BBVA Data & Analytics](https://www.bbvadata.com/) that evolved into an analytical web server. In December 2017 the source code of the server and the R client was released under an Apache 2.0 license.
 
-Today, the aim of the project is to pivot the original design into a lightweight server-independent framework.
+
+## Current development
+
+Jazz version 0.1.7 is the project released by BBVA, Jazz 0.2.x is the transition to a new architecture while keeping the server functionally equivalent to
+the original. The switch to the new architecture comes with Jazz 0.3.1, the first complete product that will be released for evaluation.
 
 
 ## Acknowledgments
@@ -22,7 +26,7 @@ Special thanks to Roberto Maestre and Israel Herraiz who have been discussing th
 
 ## Next Steps
 
-  - Jazz version 0.3.1 is expected for the end of april 2018.
+  - Jazz version 0.3.1 is expected for June 2018.
   - This repository is where it will happen. Stay Tuned.
   
 ## Version 0.1.7 (The released sources)

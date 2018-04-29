@@ -126,7 +126,7 @@ bool JazzBlock::find_NAs_in_tensor(){
 
 /** Find an existing string in a block, or allocate a new one and return its offset in the JazzStringBuffer.buffer.
 
-	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling pStringBuffer repeatedly).
+	\param psb	   The address of the pJazzStringBuffer (passed to avoid calling p_string_buffer repeatedly).
 	\param pString The string to find or allocate in the JazzStringBuffer.
 
 	\return		   The offset to the (zero terminated) string inside psb->buffer[] or -1 if allocation failed.
@@ -201,17 +201,15 @@ int JazzFilter::filter_audit()
 	switch (filter_type()) {
 
 	case JAZZ_FILTER_TYPE_INTEGER: {
-		int len = dim_offs[1];
-
-		if (len == 0 || len == size)
+		if (range.filter.length == 0 || range.filter.length == size)
 			return JAZZ_FILTER_TYPE_INTEGER;
 
-		if (len < 0 || len > size)
+		if (range.filter.length < 0 || range.filter.length > size)
 			return JAZZ_FILTER_TYPE_NOTAFILTER;
 
 		int lo = -1;
 
-		for (int i = 0; i < len; i++) {
+		for (int i = 0; i < range.filter.length; i++) {
 			if (tensor.cell_int[i] <= lo || tensor.cell_int[i] >= size)
 				return JAZZ_FILTER_TYPE_NOTAFILTER;
 			lo = tensor.cell_int[i];

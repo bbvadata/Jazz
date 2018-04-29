@@ -27,6 +27,14 @@
 #include <fstream>
 #include <map>
 
+#include <string.h>
+
+#include <unistd.h>
+#include <dirent.h>
+
+#include <sys/syscall.h>
+#include <stdarg.h>
+
 #include "src/jazz_elements/jazz_datablocks.h"
 
 /**< \brief Miscelaneous utility functions for Jazz.
@@ -93,6 +101,19 @@ inline int TenBitsAtAddress (const char* str)
 {
 	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
 }
+
+
+/** Return the time elapsed in microseconds as a 64 bit integer since a primordial event.
+
+	\param big_bang The primordial event
+	\return         The time elapsed in microseconds
+*/
+inline int64_t elapsed_us(jazz_datablocks::TimePoint big_bang) {
+	jazz_datablocks::TimePoint now = std::chrono::steady_clock::now();
+
+	return std::chrono::duration_cast<std::chrono::microseconds>(now - big_bang).count();
+}
+
 
 typedef class JazzConfigFile *pJazzConfigFile;
 typedef class JazzLogger 	 *pJazzLogger;

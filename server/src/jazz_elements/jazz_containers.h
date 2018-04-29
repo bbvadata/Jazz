@@ -31,6 +31,7 @@
 #include <atomic>
 #include <thread>
 #include <stdarg.h>
+#include <regex>
 
 
 #include "src/jazz_elements/jazz_datablocks.h"
@@ -66,11 +67,11 @@ namespace jazz_containers
 
 using namespace jazz_datablocks;
 
-#define JAZZ_MAX_BLOCK_ID_LENGTH	   								  32	///< Maximum length for a block name
-#define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,22}\\x00$"	///< Regex validating a JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   								 '.'	///< First char of a LOCAL JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   								 '/'	///< First char of a DISTRIBUTED JazzBlockIdentifier
-#define JAZZ_LOCK_RETRY_NUMTIMES									 100	///< # immediate retries if lock fails before this_thread::yield();
+#define JAZZ_MAX_BLOCK_ID_LENGTH	   							 32		///< Maximum length for a block name
+#define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,30}$"		///< Regex validating a JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   							'.'		///< First char of a LOCAL JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   							'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_LOCK_RETRY_NUMTIMES								100		///< # immediate retries if lock fails before this_thread::yield();
 
 /// Values for argument fill_tensor of new_jazz_block()
 #define JAZZ_FILL_
@@ -80,6 +81,7 @@ using namespace jazz_datablocks;
 #define JAZZ_FILL_NEW_WITH_NA		2	///< Initialize with the appropriate NA for the cell_type.
 #define JAZZ_FILL_BOOLEAN_FILTER	3	///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
 #define JAZZ_FILL_INTEGER_FILTER	4	///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
+#define JAZZ_FILL_WITH_TEXTFILE		5	///< Initialize a tensor with the content of argument p_text in new_jazz_block().
 
 /// Values for argument set_has_NA of close_jazz_block()
 #define JAZZ_SET_HAS_NA_
@@ -160,13 +162,7 @@ struct JazzQueueItem: JazzBlockKeeprItem {
 that converts a queue into a cache. A cache is a queue where elements can be searched by id and lower priority items
 can be removed to allocate space.
 */
-typedef std::map<JazzBlockId64, const JazzBlockKeeprItem *> JazzBlockMap;
-
-
-/** A map to track usage of pointers assigned to JazzBlock objects while they are one_shot or volatile.
-(For debugging purposes only.)
-*/
-typedef std::map<void *, int> JazzOneShotAlloc;
+typedef std::map<JazzBlockId64, pJazzQueueItem> JazzBlockMap;
 
 
 /** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
@@ -175,13 +171,13 @@ typedef std::atomic<int32_t> JazzLock;
 
 
 pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
-						   pJazzBlock 	  p_row_filter	= nullptr,
-						   AllAttributes *att			= nullptr);
+						   pJazzFilter 	  p_row_filter = nullptr,
+						   AllAttributes *att		   = nullptr);
 
 
 pJazzBlock new_jazz_block (int			  cell_type,
-						   JazzTensorDim *dim,
-						   AllAttributes *att,
+						   int			 *dim,
+						   AllAttributes *att			  = nullptr,
 						   int			  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
 						   bool			 *p_bool_filter	  = nullptr,
 						   int			  stringbuff_size = 0,
@@ -204,16 +200,46 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 		p_block->has_NA = false;
 		break;
 	case JAZZ_SET_HAS_NA_TRUE:
-		p_block->has_NA = true;
+		p_block->has_NA = p_block->cell_type != CELL_TYPE_BYTE;	// CELL_TYPE_BYTE must always be has_NA == FALSE
 		break;
 	default:
 		p_block->has_NA = p_block->find_NAs_in_tensor();
 	}
+
+#ifdef DEBUG	// Initialize the RAM between the end of the string buffer and last allocated byte for Valgrind.
+	{
+		pJazzStringBuffer psb = p_block->p_string_buffer();
+
+		char *pt1 = (char *) &psb->buffer[psb->last_idx],
+			 *pt2 = (char *) p_block + p_block->total_bytes;
+
+		while (pt1 < pt2) {
+			pt1[0] = 0;
+			pt1++;
+		}
+	}
+#endif
+
 	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(JazzBlockHeader));
 	p_block->created = std::chrono::steady_clock::now();
 }
 
 void free_jazz_block(pJazzBlock &p_block);
+
+
+/** Convert JazzBlockIdentifier into its corresponding JazzBlockId64.
+
+	\param p_id The JazzBlockIdentifier to be hashed. Note that a nullptr or a string of length 0, are both considered invalid and return
+the special JazzBlockId64 0.
+	\return The JazzBlockId64 or 0 if invalid.
+
+	Note: Invalid JazzBlockId64 can be normal when a block has not been persisted and only the hash is known (cached results of functions).
+*/
+inline JazzBlockId64 hash_block_id(const char *p_id) {
+	if (p_id == nullptr || p_id[0] == 0)
+		return 0;
+	return jazz_utils::MurmurHash64A(p_id, strlen(p_id));
+}
 
 /** Root class for all JazzBlock containers, including JazzPersistence containers.
 
@@ -250,6 +276,15 @@ class JazzBlockKeepr {
 		bool realloc_keeprs(int num_items);
 		void destroy_keeprs();
 
+		// Method for block ID validation
+
+		/** Validate a JazzBlockIdentifier
+			\param p_id A JazzBlockIdentifier
+			\return     True if p_id matches the regex JAZZ_REGEX_VALIDATE_BLOCK_ID
+		*/
+		inline bool valid_block_identifier(const char *p_id) {
+			return std::regex_match(p_id, block_id_rex);
+		}
 		// Methods for JazzBlock allocation
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
@@ -369,6 +404,7 @@ class JazzBlockKeepr {
 
 	private:
 
+		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
 		int 		   			keepr_item_size, num_allocd_items;
 		pJazzQueueItem 			p_buffer_base, p_first_free;
 		JazzLock				_buffer_lock_;
@@ -437,8 +473,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		void remove_jazz_block(pJazzQueueItem p_item);
 
-		pJazzQueueItem highest_priority_item (bool remove_it = false);
-		pJazzQueueItem lowest_priority_item  (bool remove_it = false);
+		pJazzQueueItem highest_priority_item (bool lock_it);
+		pJazzQueueItem lowest_priority_item  (bool lock_it);
 
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
@@ -481,7 +517,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
-		/** Remove links tha skip level in an AA subtree
+		/** Remove links that skip level in an AA subtree
 
 			\param p_item A tree for which we want to remove links that skip levels.
 
@@ -550,6 +586,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
+		double discrete_recency = 0;
+
 		pJazzQueueItem p_queue_root = nullptr;
 };
 
@@ -565,10 +603,32 @@ class JazzCache: public AATBlockQueue {
 
 	public:
 
-		pJazzBlockKeeprItem find_jazz_block	  (const JazzBlockIdentifier *p_id);
-		pJazzBlockKeeprItem find_jazz_block	  (		 JazzBlockId64		  id64);
-		void 				remove_jazz_block (const JazzBlockIdentifier *p_id);
-		void 				remove_jazz_block (		 JazzBlockId64		  id64);
+		/** Find a JazzBlock in a JazzCache by JazzBlockIdentifier (block name)
+
+			\param p_id The JazzBlockIdentifier of the block to be found
+
+			\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
+		*/
+		inline pJazzQueueItem find_jazz_block (const JazzBlockIdentifier *p_id)
+		{
+			JazzBlockId64 id64 = hash_block_id((char *) p_id);
+
+			if (!id64)
+				return nullptr;
+
+			return cache[id64];
+		}
+
+		/** Find a JazzBlock in a JazzCache by JazzBlockId64 (block name hash)
+
+			\param id64 The JazzBlockId64 of the block to be found
+
+			\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
+		*/
+		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
+
+		void 		   remove_jazz_block (const JazzBlockIdentifier *p_id);
+		void 		   remove_jazz_block (		JazzBlockId64		 id64);
 
 	private:
 
