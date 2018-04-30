@@ -2979,96 +2979,164 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 			THEN("Their structure is as expected.")
 			{
-/*
-				REQUIRE(pcp_db_r1->cell_type							 == p_db_r1->cell_type);
-				REQUIRE(pcp_st_r6->cell_type							 == p_st_r6->cell_type);
-				REQUIRE(pcp_by_r3->rank									 == p_by_r3->rank);
-				REQUIRE(pcp_db_r1->rank									 == p_db_r1->rank);
-				REQUIRE(pcp_st_r6->range.dim[0]							 == p_st_r6->range.dim[0]);
+/* Fully selected.
+			pcpa_db_r1 = new_jazz_block(p_db_r1, p_if_r1);
+			pcpa_db_r3 = new_jazz_block(p_db_r3, p_if_r3);
+			pcpa_db_r6 = new_jazz_block(p_db_r6, p_if_r6, &no_str);
+			pcpa_st_r1 = new_jazz_block(p_st_r1, p_bf_r1);
+			pcpa_st_r3 = new_jazz_block(p_st_r3, p_bf_r3);
+			pcpa_st_r6 = new_jazz_block(p_st_r6, p_bf_r6, &new_str); */
+				REQUIRE(pcpa_db_r1->cell_type							  == p_db_r1->cell_type);
+				REQUIRE(pcpa_st_r6->cell_type							  == p_st_r6->cell_type);
+				REQUIRE(pcpa_db_r3->rank								  == p_db_r3->rank);
+				REQUIRE(pcpa_db_r1->rank								  == p_db_r1->rank);
+				REQUIRE(pcpa_st_r6->range.dim[0]						  == p_st_r6->range.dim[0]);
 
-				REQUIRE(pcp_by_r3->range.dim[2]							 == p_by_r3->range.dim[2]);
-				REQUIRE(pcp_db_r1->range.dim[3]							 == p_db_r1->range.dim[3]);
-				REQUIRE(pcp_st_r6->size									 == p_st_r6->size);
-				REQUIRE(pcp_by_r3->size									 == p_by_r3->size);
-				REQUIRE(pcp_db_r1->num_attributes						 == p_db_r1->num_attributes);
+				REQUIRE(pcpa_db_r3->range.dim[2]						  == p_db_r3->range.dim[2]);
+				REQUIRE(pcpa_st_r1->range.dim[3]						  == p_st_r1->range.dim[3]);
+				REQUIRE(pcpa_st_r6->size								  == p_st_r6->size);
+				REQUIRE(pcpa_db_r3->size								  == p_db_r3->size);
+				REQUIRE(pcpa_db_r1->num_attributes						  == p_db_r1->num_attributes);
 
-				REQUIRE(pcp_st_r6->num_attributes						 == p_st_r6->num_attributes);
-				REQUIRE(pcp_by_r3->total_bytes							 == p_by_r3->total_bytes);
-				REQUIRE(pcp_db_r1->total_bytes							 == p_db_r1->total_bytes);
-				REQUIRE(pcp_st_r6->has_NA								 == p_st_r6->has_NA);
-				REQUIRE(pcp_by_r3->has_NA								 == p_by_r3->has_NA);
+				REQUIRE(pcpa_st_r6->num_attributes						  == 6);
+				REQUIRE(pcpa_st_r3->total_bytes							  == p_st_r3->total_bytes);
+				REQUIRE(pcpa_db_r1->total_bytes							  == p_db_r1->total_bytes);
+				REQUIRE(pcpa_st_r6->has_NA								  == p_st_r6->has_NA);
+				REQUIRE(pcpa_db_r3->has_NA								  == p_db_r3->has_NA);
 
-				REQUIRE(pcp_db_r1->has_NA								 == p_db_r1->has_NA);
-				REQUIRE(pcp_st_r6->tensor.cell_int [67]					 == p_st_r6->tensor.cell_int [67]);
-				REQUIRE(pcp_by_r3->tensor.cell_byte[13]					 == p_by_r3->tensor.cell_byte[13]);
-				REQUIRE(pcp_db_r1->tensor.cell_double[33]				 == p_db_r1->tensor.cell_double[33]);
-				REQUIRE(pcp_st_r6->tensor.cell_int[27]					 == p_st_r6->tensor.cell_int[27]);
+				REQUIRE(pcpa_db_r1->has_NA								  == p_db_r1->has_NA);
+				REQUIRE(pcpa_st_r6->tensor.cell_int [67]				  == p_st_r6->tensor.cell_int [67]);
+				REQUIRE(pcpa_db_r3->tensor.cell_byte[13]				  == p_db_r3->tensor.cell_byte[13]);
+				REQUIRE(pcpa_db_r1->tensor.cell_double[33]				  == p_db_r1->tensor.cell_double[33]);
+				REQUIRE(pcpa_st_r6->tensor.cell_int[27]					  == p_st_r6->tensor.cell_int[27]);
 
-				REQUIRE(pcp_by_r3->p_attribute_keys()[0]				 == p_by_r3->p_attribute_keys()[0]);
-				REQUIRE(pcp_db_r1->p_string_buffer()->stop_check_4_match == p_db_r1->p_string_buffer()->stop_check_4_match);
-				REQUIRE(pcp_st_r6->p_attribute_keys()[0]                 == p_st_r6->p_attribute_keys()[0]);
-				REQUIRE(pcp_by_r3->p_string_buffer()->alloc_failed		 == p_by_r3->p_string_buffer()->alloc_failed);
-				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx			 == p_db_r1->p_string_buffer()->last_idx);
+				REQUIRE(pcpa_db_r3->p_attribute_keys()[0]				  == p_db_r3->p_attribute_keys()[0]);
+				REQUIRE(pcpa_db_r1->p_string_buffer()->stop_check_4_match == p_db_r1->p_string_buffer()->stop_check_4_match);
+				REQUIRE(pcpa_db_r1->p_string_buffer()->last_idx			  == p_db_r1->p_string_buffer()->last_idx);
+				REQUIRE(pcpa_db_r3->p_string_buffer()->last_idx			  == p_db_r3->p_string_buffer()->last_idx);
+				REQUIRE(pcpa_db_r1->p_string_buffer()->buffer_size		  == p_db_r1->p_string_buffer()->buffer_size);
+				REQUIRE(pcpa_db_r3->p_string_buffer()->buffer[3]		  == p_db_r3->p_string_buffer()->buffer[3]);
 
-				REQUIRE(pcp_st_r6->p_string_buffer()->last_idx			 == p_st_r6->p_string_buffer()->last_idx);
-				REQUIRE(pcp_by_r3->p_string_buffer()->last_idx			 == p_by_r3->p_string_buffer()->last_idx);
-				REQUIRE(pcp_db_r1->p_string_buffer()->buffer_size		 == p_db_r1->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_st_r6->p_string_buffer()->buffer_size		 == p_st_r6->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_by_r3->p_string_buffer()->buffer[3]			 == p_by_r3->p_string_buffer()->buffer[3]);
+				REQUIRE(pcpa_db_r1->p_string_buffer()->buffer[4]		  == p_db_r1->p_string_buffer()->buffer[4]);
 
-				REQUIRE(pcp_db_r1->p_string_buffer()->buffer[4]			 == p_db_r1->p_string_buffer()->buffer[4]);
-				REQUIRE(pcp_st_r6->p_string_buffer()->buffer[20]		 == p_st_r6->p_string_buffer()->buffer[20]);
+				REQUIRE(!strcmp(pcpa_db_r1->find_attribute(256), "Life's but a walking shadow"));
+				REQUIRE(!strcmp(pcpa_db_r3->find_attribute(123), ""));
+				REQUIRE(!strcmp(pcpa_db_r6->find_attribute(456), ""));
 
-				REQUIRE(!strcmp(pcp_db_r1->find_attribute(256), "Life's but a walking shadow"));
-				REQUIRE(!strcmp(pcp_st_r6->find_attribute(313), "... a poor player"));
-				REQUIRE(!strcmp(pcp_by_r3->find_attribute(921), "that struts and frets his hour"));
-				REQUIRE(!strcmp(pcp_db_r1->find_attribute(222), "upon the stage and"));
-				REQUIRE(!strcmp(pcp_st_r6->find_attribute(321), "then ..."));
-				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
-				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r6->find_attribute(486)						    == nullptr);
-				REQUIRE(pcp_by_r3->find_attribute(487)						    == nullptr);
+				REQUIRE(pcpa_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(!strcmp(pcpa_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
 
-				REQUIRE(!strcmp(pcp_db_r3->find_attribute(123), ""));
-				REQUIRE(!strcmp(pcp_st_r1->find_attribute(456), ""));
-				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
-				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
-				REQUIRE(pcp_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r6->find_attribute(487)						    == nullptr);
+				REQUIRE(!strcmp(pcpa_st_r6->find_attribute(921), "is heard nomore ..."));
+				REQUIRE(!strcmp(pcpa_st_r6->find_attribute(313), "It's a tale.."));
+				REQUIRE(!strcmp(pcpa_st_r6->find_attribute(358), "told by an idiot.."));
 
-				REQUIRE(!strcmp(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(!strcmp(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(!strcmp(pcp_by_r1->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r1->find_attribute(487)						    == nullptr);
+				REQUIRE(pcpa_db_r1->tensor.cell_double[33] == 3.3);
+				REQUIRE(!strcmp(pcpa_st_r1->get_string(15), "April"));
+				REQUIRE(!pcpa_st_r1->p_string_buffer()->alloc_failed);
 
-				REQUIRE(pcp_db_r1->tensor.cell_double[33] == 3.3);
-				REQUIRE(pcp_by_r1->tensor.cell_byte  [33] == 73);
-				REQUIRE(!strcmp(pcp_st_r1->get_string(15), "April"));
-				REQUIRE(!pcp_st_r1->p_string_buffer()->alloc_failed);
+				check_and_close_jazz_block(pcpa_db_r1);
+				check_and_close_jazz_block(pcpa_st_r1);
 
-				check_and_close_jazz_block(pcp_db_r1);
-				check_and_close_jazz_block(pcp_st_r1);
-				check_and_close_jazz_block(pcp_by_r1);
+				REQUIRE(pcpa_db_r3->tensor.cell_double[334] == 12003001.0);
+				REQUIRE(!strcmp(pcpa_st_r3->get_string(334), "July"));
+				REQUIRE(!pcpa_st_r3->p_string_buffer()->alloc_failed);
 
-				REQUIRE(pcp_db_r3->tensor.cell_double[334] == 12003001.0);
-				REQUIRE(pcp_by_r3->tensor.cell_byte  [334] == 102);
-				REQUIRE(!strcmp(pcp_st_r3->get_string(334), "July"));
-				REQUIRE(!pcp_st_r3->p_string_buffer()->alloc_failed);
+				check_and_close_jazz_block(pcpa_db_r3);
+				check_and_close_jazz_block(pcpa_st_r3);
 
-				check_and_close_jazz_block(pcp_db_r3);
-				check_and_close_jazz_block(pcp_st_r3);
-				check_and_close_jazz_block(pcp_by_r3);
+				REQUIRE(pcpa_db_r6->tensor.cell_double[753] == 120000307.0);
+				REQUIRE(!strcmp(pcpa_st_r6->get_string(753), "December"));
+				REQUIRE(!pcpa_st_r6->p_string_buffer()->alloc_failed);
 
-				REQUIRE(pcp_db_r6->tensor.cell_double[753] == 120000307.0);
-				REQUIRE(pcp_by_r6->tensor.cell_byte  [753] == 167);
-				REQUIRE(!strcmp(pcp_st_r6->get_string(753), "December"));
-				REQUIRE(!pcp_st_r6->p_string_buffer()->alloc_failed);
+				check_and_close_jazz_block(pcpa_db_r6);
+				check_and_close_jazz_block(pcpa_st_r6);
 
-				check_and_close_jazz_block(pcp_db_r6);
-				check_and_close_jazz_block(pcp_st_r6);
-				check_and_close_jazz_block(pcp_by_r6);
+				int index[6];
+
+				for (int i = 0; i < 107; i++) {
+					index[0] = i;
+
+					REQUIRE(pcpa_db_r1->tensor.cell_double[pcpa_db_r1->get_offset((int *) &index)] == i/10.0);
+
+					REQUIRE(!strcmp(pcpa_st_r1->get_string((int *) &index), month[i % 12]));
+					REQUIRE(pcpa_st_r1->tensor.cell_int[pcpa_st_r1->get_offset((int *) &index)] ==
+							p_st_r1->tensor.cell_int[p_st_r1->get_offset((int *) &index)]);
+				}
+
+				for (int i = 0; i < 17; i++) {
+					for (int j = 0; j < 9; j++) {
+						for (int k = 0; k < 3; k++) {
+							index[0] = i;
+							index[1] = j;
+							index[2] = k;
+
+							REQUIRE(pcpa_db_r3->tensor.cell_double[pcpa_db_r3->get_offset((int *) &index)] == 1e6*i + 1e3*j + k);
+
+							REQUIRE(!strcmp(pcpa_st_r3->get_string((int *) &index), month[(7*i + 5*j + 3*k) % 12]));
+							REQUIRE(pcpa_st_r3->tensor.cell_int[pcpa_st_r3->get_offset((int *) &index)] ==
+									p_st_r3->tensor.cell_int[p_st_r3->get_offset((int *) &index)]);
+						}
+					}
+				}
+
+				for (int i = 0; i < 2; i++) {
+					for (int j = 0; j < 3; j++) {
+						for (int k = 0; k < 2; k++) {
+							for (int u = 0; u < 5; u++) {
+								for (int v = 0; v < 2; v++) {
+									for (int w = 0; w < 7; w++) {
+										index[0] = i;
+										index[1] = j;
+										index[2] = k;
+										index[3] = u;
+										index[4] = v;
+										index[5] = w;
+
+										REQUIRE(pcpa_db_r6->tensor.cell_double[pcpa_db_r6->get_offset((int *) &index)] ==
+												1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w);
+
+										REQUIRE(!strcmp(pcpa_st_r6->get_string((int *) &index),
+												 		month[(45*i + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
+										REQUIRE(pcpa_st_r6->tensor.cell_int[pcpa_st_r6->get_offset((int *) &index)] ==
+												p_st_r6->tensor.cell_int[p_st_r6->get_offset((int *) &index)]);
+									}
+								}
+							}
+						}
+					}
+				}
+
+/* Nothing selected
+			pcpa_by_r1 = new_jazz_block(p_by_r1, p_if_r1);
+			pcpa_by_r3 = new_jazz_block(p_by_r3, p_if_r3, &new_str);
+			pcpa_by_r6 = new_jazz_block(p_by_r6, p_if_r6);
+			pcpb_db_r1 = new_jazz_block(p_db_r1, p_bf_r1);
+			pcpb_db_r3 = new_jazz_block(p_db_r3, p_bf_r3, &no_str);
+			pcpb_db_r6 = new_jazz_block(p_db_r6, p_bf_r6);
+// Select some elements with binary and integer	 - dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
+for (int i = 0; i < p_if_r1->size; i++) {
+	p_if_r1->tensor.cell_int[i]  = 3*i + 4;
+	p_bf_r1->tensor.cell_bool[i] = i % 3 == 2;
+}
+p_if_r1->range.filter.length = 17;
+
+for (int i = 0; i < p_if_r3->size; i++) {
+	p_if_r3->tensor.cell_int[i]  = i;
+	p_bf_r3->tensor.cell_bool[i] = i % 4 == 2;
+}
+p_if_r3->range.filter.length = 7;
+
+for (int i = 0; i < p_if_r6->size; i++) {
+	p_if_r6->tensor.cell_int[i]  = 1;
+	p_bf_r6->tensor.cell_bool[i] = i == 0;
+}
+p_if_r6->range.filter.length = 1;
+			pcpb_st_r1 = new_jazz_block(p_st_r1, p_if_r1, &no_str);
+			pcpb_st_r3 = new_jazz_block(p_st_r3, p_if_r3);
+			pcpb_st_r6 = new_jazz_block(p_st_r6, p_if_r6);
+			pcpb_by_r1 = new_jazz_block(p_by_r1, p_bf_r1, &new_str);
+			pcpb_by_r3 = new_jazz_block(p_by_r3, p_bf_r3);
+			pcpb_by_r6 = new_jazz_block(p_by_r6, p_bf_r6);
 */
 			}
 
