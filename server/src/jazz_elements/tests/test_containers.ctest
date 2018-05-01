@@ -2446,6 +2446,88 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(p_bf_r6->can_filter(p_st_r6));
 		REQUIRE(p_bf_r6->can_filter(p_by_r6));
 
+		WHEN("I give wrong arguments, I get nullptr.")
+		{
+			pJazzBlock pcp;
+
+			pcp = new_jazz_block(nullptr);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, p_bf_r3);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, p_bf_r6);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, p_if_r3);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, p_if_r6);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, p_bf_r1);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, p_bf_r6);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, p_if_r1);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, p_if_r6);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, p_bf_r1);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, p_bf_r3);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, p_if_r1);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, p_if_r3);
+			REQUIRE(pcp == nullptr);
+
+			AllAttributes kwap {};
+
+			pcp = new_jazz_block(p_db_r1, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_db_r1, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_by_r3, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+
+			pcp = new_jazz_block(p_st_r6, nullptr, &kwap);
+			REQUIRE(pcp == nullptr);
+		}
+
 		WHEN("I create identical blocks")
 		{
 			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
