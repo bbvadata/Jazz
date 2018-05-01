@@ -335,10 +335,99 @@ SCENARIO("Testing JazzBlock creation from scratch")
 {
 	JazzTensorDim dim {{7, 3, 5, 0}}, dim_in;
 
-	REQUIRE(dim.dim[0] == 7);
-	REQUIRE(dim.dim[1] == 3);
-	REQUIRE(dim.dim[2] == 5);
-	REQUIRE(dim.dim[3] == 0);
+	WHEN("I force all the possible error conditions, I get nullptr.")
+	{
+		JazzTensorDim dim7 {{7, 0}}, dim_in;
+		pJazzBlock pjb;
+		char const *buffer  = "One Two Three Four Five Six Seven";
+		char const *buffer6 = "One Two Three Four Five Six";
+		bool filter[7];
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_NA, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_DOUBLE, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 0, buffer);
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_DOUBLE, nullptr);
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ');
+		REQUIRE(pjb != nullptr);
+		free_jazz_block(pjb);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim7.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ');
+		REQUIRE(pjb != nullptr);
+		free_jazz_block(pjb);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim7.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ');
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_NA);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(0x201, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_NA);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(0x604, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_NA);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(0x308, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_NA);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(2, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_NA);
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim7.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &filter);
+		REQUIRE(pjb != nullptr);
+		free_jazz_block(pjb);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BYTE, dim7.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim7.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim7.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim7.dim, nullptr, JAZZ_FILL_BOOLEAN_FILTER);
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim7.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter);
+		REQUIRE(pjb != nullptr);
+		free_jazz_block(pjb);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BYTE, dim7.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim7.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim7.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_INTEGER_FILTER, (bool *) &filter);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim7.dim, nullptr, JAZZ_FILL_INTEGER_FILTER);
+		REQUIRE(pjb == nullptr);
+
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL);
+		REQUIRE(pjb != nullptr);
+		free_jazz_block(pjb);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_NEW_DONT_FILL - 1);
+		REQUIRE(pjb == nullptr);
+		pjb = new_jazz_block(CELL_TYPE_INTEGER, dim.dim, nullptr, JAZZ_FILL_WITH_TEXTFILE + 1);
+		REQUIRE(pjb == nullptr);
+	}
 
 	GIVEN("A block of CELL_TYPE_BYTE")
 	{
