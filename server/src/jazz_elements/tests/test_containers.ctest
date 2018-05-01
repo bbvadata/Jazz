@@ -3228,67 +3228,90 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 				i_i = 0, i_b = 0;
 				for (int i_o = 0; i_o < 17; i_o++) {
-					for (int j = 0; j < 9; j++) {
-						for (int k = 0; k < 3; k++) {
+					index_o[0] = i_o;
+					if (p_bf_r3->tensor.cell_bool[i_o]) {
+						index[0] = i_b;
+
+						for (int j = 0; j < 9; j++) {
 							index[1] = index_o[1] = j;
-							index[2] = index_o[2] = k;
-							if (p_bf_r3->tensor.cell_bool[i_o]) {
-								index[0] = i_b;
+							for (int k = 0; k < 3; k++) {
+								index[2] = index_o[2] = k;
 
 								REQUIRE(pcpb_by_r3->tensor.cell_byte[pcpb_by_r3->get_offset((int *) &index)] == 7*i_o + 5*j + 3*k);
-
-								i_b++;
 							}
-							if (i_i < p_if_r3->range.filter.length && p_if_r3->tensor.cell_int[i_i] == i_o) {
-								index[0]   = i_i;
-								index_o[0] = i_o;
+						}
+
+						i_b++;
+					}
+					if (i_i < p_if_r3->range.filter.length && p_if_r3->tensor.cell_int[i_i] == i_o) {
+						index[0] = i_i;
+
+						for (int j = 0; j < 9; j++) {
+							index[1] = index_o[1] = j;
+							for (int k = 0; k < 3; k++) {
+								index[2] = index_o[2] = k;
 
 								REQUIRE(!strcmp(pcpb_st_r3->get_string((int *) &index), month[(7*i_o + 5*j + 3*k) % 12]));
 								REQUIRE(pcpb_st_r3->tensor.cell_int[pcpb_st_r3->get_offset((int *) &index)] ==
 										p_st_r3->tensor.cell_int[p_st_r3->get_offset((int *) &index_o)]);
-
-								i_i++;
 							}
 						}
+
+						i_i++;
 					}
 				}
 
 				i_i = 0, i_b = 0;
 				for (int i_o = 0; i_o < 2; i_o++) {
-					for (int j = 0; j < 3; j++) {
-						for (int k = 0; k < 2; k++) {
-							for (int u = 0; u < 5; u++) {
-								for (int v = 0; v < 2; v++) {
-									for (int w = 0; w < 7; w++) {
-										index[1] = index_o[1] = j;
-										index[2] = index_o[2] = k;
-										index[3] = index_o[3] = u;
-										index[4] = index_o[4] = v;
-										index[5] = index_o[5] = w;
+					index_o[0] = i_o;
+					if (p_bf_r6->tensor.cell_bool[i_o]) {
+						index[0] = i_b;
 
-										if (p_bf_r6->tensor.cell_bool[i_o]) {
-											index[0] = i_b;
+						for (int j = 0; j < 3; j++) {
+							index[1] = index_o[1] = j;
+							for (int k = 0; k < 2; k++) {
+								index[2] = index_o[2] = k;
+								for (int u = 0; u < 5; u++) {
+									index[3] = index_o[3] = u;
+									for (int v = 0; v < 2; v++) {
+										index[4] = index_o[4] = v;
+										for (int w = 0; w < 7; w++) {
+											index[5] = index_o[5] = w;
 
 											REQUIRE(pcpb_by_r6->tensor.cell_byte[pcpb_by_r6->get_offset((int *) &index)] ==
 													45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w);
-
-											i_b++;
-										}
-										if (i_i < p_if_r6->range.filter.length && p_if_r6->tensor.cell_int[i_i] == i_o) {
-											index[0]   = i_i;
-											index_o[0] = i_o;
-
-											REQUIRE(!strcmp(pcpb_st_r6->get_string((int *) &index),
-													 		month[(45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
-											REQUIRE(pcpb_st_r6->tensor.cell_int[pcpb_st_r6->get_offset((int *) &index)] ==
-													p_st_r6->tensor.cell_int[p_st_r6->get_offset((int *) &index)]);
-
-											i_i++;
 										}
 									}
 								}
 							}
 						}
+
+						i_b++;
+					}
+					if (i_i < p_if_r6->range.filter.length && p_if_r6->tensor.cell_int[i_i] == i_o) {
+						index[0] = i_i;
+
+						for (int j = 0; j < 3; j++) {
+							index[1] = index_o[1] = j;
+							for (int k = 0; k < 2; k++) {
+								index[2] = index_o[2] = k;
+								for (int u = 0; u < 5; u++) {
+									index[3] = index_o[3] = u;
+									for (int v = 0; v < 2; v++) {
+										index[4] = index_o[4] = v;
+										for (int w = 0; w < 7; w++) {
+											index[5] = index_o[5] = w;
+
+											REQUIRE(!strcmp(pcpb_st_r6->get_string((int *) &index),
+													 		month[(45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
+											REQUIRE(pcpb_st_r6->tensor.cell_int[pcpb_st_r6->get_offset((int *) &index)] ==
+													p_st_r6->tensor.cell_int[p_st_r6->get_offset((int *) &index_o)]);
+										}
+									}
+								}
+							}
+						}
+						i_i++;
 					}
 				}
 			}
