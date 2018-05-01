@@ -488,7 +488,7 @@ pJazzBlock new_jazz_block (int			  cell_type,
 
 		default:
 			free_jazz_block(pjb);
-			return nullptr;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
+			return nullptr;		// No silent fail, fill_tensor is invalid
 		}
 	}
 	return pjb;
