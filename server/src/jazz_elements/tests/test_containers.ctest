@@ -2979,13 +2979,6 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 			THEN("Their structure is as expected.")
 			{
-/* Fully selected.
-			pcpa_db_r1 = new_jazz_block(p_db_r1, p_if_r1);
-			pcpa_db_r3 = new_jazz_block(p_db_r3, p_if_r3);
-			pcpa_db_r6 = new_jazz_block(p_db_r6, p_if_r6, &no_str);
-			pcpa_st_r1 = new_jazz_block(p_st_r1, p_bf_r1);
-			pcpa_st_r3 = new_jazz_block(p_st_r3, p_bf_r3);
-			pcpa_st_r6 = new_jazz_block(p_st_r6, p_bf_r6, &new_str); */
 				REQUIRE(pcpa_db_r1->cell_type							  == p_db_r1->cell_type);
 				REQUIRE(pcpa_st_r6->cell_type							  == p_st_r6->cell_type);
 				REQUIRE(pcpa_db_r3->rank								  == p_db_r3->rank);
@@ -3113,7 +3106,50 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			pcpb_db_r1 = new_jazz_block(p_db_r1, p_bf_r1);
 			pcpb_db_r3 = new_jazz_block(p_db_r3, p_bf_r3, &no_str);
 			pcpb_db_r6 = new_jazz_block(p_db_r6, p_bf_r6);
-// Select some elements with binary and integer	 - dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
+*/
+				REQUIRE(pcpa_by_r1->cell_type	   == p_by_r1->cell_type);
+				REQUIRE(pcpb_db_r6->cell_type	   == p_db_r6->cell_type);
+				REQUIRE(pcpa_by_r3->rank		   == p_by_r3->rank);
+				REQUIRE(pcpb_db_r1->rank		   == p_db_r1->rank);
+				REQUIRE(pcpa_by_r6->range.dim[0]   == p_by_r6->range.dim[0]);
+				REQUIRE(pcpa_by_r3->range.dim[2]   == p_by_r3->range.dim[2]);
+				REQUIRE(pcpb_db_r1->range.dim[3]   == p_db_r1->range.dim[3]);
+				REQUIRE(pcpb_db_r6->size		   == 0);
+				REQUIRE(pcpa_by_r3->size		   == 0);
+				REQUIRE(pcpb_db_r1->num_attributes == p_db_r1->num_attributes);
+				REQUIRE(pcpa_by_r6->num_attributes == p_by_r6->num_attributes);
+
+				REQUIRE(pcpa_by_r1->total_bytes	   == p_by_r1->total_bytes - (uintptr_t) pcpa_by_r1->align_128bit(p_by_r1->size));
+				REQUIRE(pcpa_by_r3->total_bytes	   == p_by_r3->total_bytes - (uintptr_t) pcpa_by_r3->align_128bit(p_by_r3->size));
+				REQUIRE(pcpa_by_r6->total_bytes	   == p_by_r6->total_bytes - (uintptr_t) pcpa_by_r6->align_128bit(p_by_r6->size));
+				REQUIRE(pcpb_db_r1->total_bytes	   == p_db_r1->total_bytes - (uintptr_t) pcpb_db_r1->align_128bit(8*p_db_r1->size));
+				REQUIRE(pcpb_db_r3->total_bytes	   == p_db_r3->total_bytes - (uintptr_t) pcpb_db_r3->align_128bit(8*p_db_r3->size));
+				REQUIRE(pcpb_db_r6->total_bytes	   == p_db_r6->total_bytes - (uintptr_t) pcpb_db_r6->align_128bit(8*p_db_r6->size));
+
+				REQUIRE(!pcpa_by_r1->p_string_buffer()->alloc_failed);
+				REQUIRE(!pcpa_by_r3->p_string_buffer()->alloc_failed);
+				REQUIRE(!pcpa_by_r6->p_string_buffer()->alloc_failed);
+				REQUIRE(!pcpb_db_r1->p_string_buffer()->alloc_failed);
+				REQUIRE(!pcpb_db_r3->p_string_buffer()->alloc_failed);
+				REQUIRE(!pcpb_db_r6->p_string_buffer()->alloc_failed);
+
+				REQUIRE(!strcmp(pcpb_db_r3->find_attribute(123), ""));
+				REQUIRE(!strcmp(pcpb_db_r3->find_attribute(456), ""));
+
+				REQUIRE(!strcmp(pcpa_by_r3->find_attribute(921), "is heard nomore ..."));
+				REQUIRE(!strcmp(pcpa_by_r3->find_attribute(313), "It's a tale.."));
+				REQUIRE(!strcmp(pcpa_by_r3->find_attribute(358), "told by an idiot.."));
+
+				check_and_close_jazz_block(pcpb_db_r1);
+				check_and_close_jazz_block(pcpa_by_r1);
+
+				check_and_close_jazz_block(pcpb_db_r3);
+				check_and_close_jazz_block(pcpa_by_r3);
+
+				check_and_close_jazz_block(pcpb_db_r6);
+				check_and_close_jazz_block(pcpa_by_r6);
+
+/* Select some elements with binary and integer	 - dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
 for (int i = 0; i < p_if_r1->size; i++) {
 	p_if_r1->tensor.cell_int[i]  = 3*i + 4;
 	p_bf_r1->tensor.cell_bool[i] = i % 3 == 2;
