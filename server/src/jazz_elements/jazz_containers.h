@@ -71,7 +71,11 @@ using namespace jazz_datablocks;
 #define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,30}$"		///< Regex validating a JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL	   							'.'		///< First char of a LOCAL JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_DISTRIB   							'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
-#define JAZZ_LOCK_RETRY_NUMTIMES								100		///< # immediate retries if lock fails before this_thread::yield();
+#define JAZZ_LOCK_READING_RETRY_NUMTIMES						100		///< # retries when lock fails (reading) before this_thread::yield();
+#define JAZZ_LOCK_WRITING_RETRY_NUMTIMES					    100		///< # retries when lock fails (writing) before this_thread::yield();
+#define JAZZ_LOCK_KICKING_RETRY_NUMTIMES					   1000		///< # retries when writing ok but with readers before this_thread::yield();
+/// (Approx) sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
+#define JAZZ_LOCK_WEIGHT_OF_WRITE							  46341
 
 /// Values for argument fill_tensor of new_jazz_block()
 #define JAZZ_FILL_
