@@ -46,7 +46,7 @@ float  F_NA = nanf("");
 double R_NA = R_ValueOfNA();
 
 
-/** Scan a tensor object to see if it conaions any NA valued of the type specified in cell_type.
+/** Scan a tensor object to see if it contains any NA valued of the type specified in cell_type.
 
 	\return		True if NA values of the give type were found.
 
