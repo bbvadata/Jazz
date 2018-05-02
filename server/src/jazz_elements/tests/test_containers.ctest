@@ -82,8 +82,37 @@ static void *unsafe_writer(void *null) {
 
 	for (int k = 0; k < 16; k++){
 		PSB.writer();
-		// printf("a = %d, %d .. %d\nb = %d, %d .. %d\nc = %d, %d .. %d\n",
-		// 	   PSB.a[0], PSB.a[1], PSB.a[63], PSB.b[0], PSB.b[1], PSB.b[63], PSB.c[0], PSB.c[1], PSB.c[63]);
+	}
+
+	return (void *) 0;
+}
+
+static void *safe_reader(void *null) {
+	PSB.readers.fetch_add(1, std::memory_order_relaxed);
+
+	for (int k = 0; k < 240000; k++){
+		JBK.enter_reading(_LOCK_);
+
+		if (PSB.reader(k) == 0)
+			PSB.reads_ok.fetch_add(1, std::memory_order_relaxed);
+		else
+			PSB.thread_errors.fetch_add(1, std::memory_order_relaxed);
+
+		JBK.leave_reading(_LOCK_);
+	}
+
+	return (void *) 0;
+}
+
+static void *safe_writer(void *null) {
+	PSB.writers.fetch_add(1, std::memory_order_relaxed);
+
+	for (int k = 0; k < 16000; k++){
+		JBK.enter_writing(_LOCK_);
+
+		PSB.writer();
+
+		JBK.leave_writing(_LOCK_);
 	}
 
 	return (void *) 0;
