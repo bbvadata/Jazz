@@ -3660,6 +3660,13 @@ SCENARIO("Testing threading functions")
 		jbk.leave_writing(_lock_);
 		REQUIRE(_lock_ == 0);
 	}
+
+	psb.writer();
+
+	for (int i = 0; i < 64; i++) {
+		REQUIRE(psb.reader(i) == 0);
+	}
+
 }
 
 
