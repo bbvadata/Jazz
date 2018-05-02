@@ -374,49 +374,47 @@ SCENARIO("Testing JazzBlock containers")
 
 	GIVEN("We want to test the regex")
 	{
-		JazzBlockKeepr jbk;
+		REQUIRE( JBK.valid_block_identifier("/abc"));
+		REQUIRE( JBK.valid_block_identifier(".abc"));
+		REQUIRE(!JBK.valid_block_identifier("@abc"));
+		REQUIRE(!JBK.valid_block_identifier("abc"));
 
-		REQUIRE( jbk.valid_block_identifier("/abc"));
-		REQUIRE( jbk.valid_block_identifier(".abc"));
-		REQUIRE(!jbk.valid_block_identifier("@abc"));
-		REQUIRE(!jbk.valid_block_identifier("abc"));
+		REQUIRE(!JBK.valid_block_identifier("/"));
+		REQUIRE( JBK.valid_block_identifier("/a"));
+		REQUIRE(!JBK.valid_block_identifier("."));
+		REQUIRE( JBK.valid_block_identifier(".a"));
 
-		REQUIRE(!jbk.valid_block_identifier("/"));
-		REQUIRE( jbk.valid_block_identifier("/a"));
-		REQUIRE(!jbk.valid_block_identifier("."));
-		REQUIRE( jbk.valid_block_identifier(".a"));
+		REQUIRE( JBK.valid_block_identifier("/abcdefghijklmnopqrstuvwxyz"));
+		REQUIRE( JBK.valid_block_identifier("/ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+		REQUIRE( JBK.valid_block_identifier("/1234567890_"));
+		REQUIRE(!JBK.valid_block_identifier("/Á"));
+		REQUIRE(!JBK.valid_block_identifier("/ñ"));
+		REQUIRE(!JBK.valid_block_identifier("/$"));
+		REQUIRE(!JBK.valid_block_identifier("/ç"));
+		REQUIRE(!JBK.valid_block_identifier("/á"));
+		REQUIRE(!JBK.valid_block_identifier("/à"));
+		REQUIRE(!JBK.valid_block_identifier("/ä"));
+		REQUIRE(!JBK.valid_block_identifier("/ä"));
 
-		REQUIRE( jbk.valid_block_identifier("/abcdefghijklmnopqrstuvwxyz"));
-		REQUIRE( jbk.valid_block_identifier("/ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-		REQUIRE( jbk.valid_block_identifier("/1234567890_"));
-		REQUIRE(!jbk.valid_block_identifier("/Á"));
-		REQUIRE(!jbk.valid_block_identifier("/ñ"));
-		REQUIRE(!jbk.valid_block_identifier("/$"));
-		REQUIRE(!jbk.valid_block_identifier("/ç"));
-		REQUIRE(!jbk.valid_block_identifier("/á"));
-		REQUIRE(!jbk.valid_block_identifier("/à"));
-		REQUIRE(!jbk.valid_block_identifier("/ä"));
-		REQUIRE(!jbk.valid_block_identifier("/ä"));
+		REQUIRE(!JBK.valid_block_identifier("."));
+		REQUIRE( JBK.valid_block_identifier(".AaBc55_cKrrfe96_"));
+		REQUIRE( JBK.valid_block_identifier("._"));
+		REQUIRE( JBK.valid_block_identifier("._wow_"));
+		REQUIRE(!JBK.valid_block_identifier(".AaBc55.cKrrfe96_"));
+		REQUIRE(!JBK.valid_block_identifier(".AaBc55/cKrrfe96_"));
 
-		REQUIRE(!jbk.valid_block_identifier("."));
-		REQUIRE( jbk.valid_block_identifier(".AaBc55_cKrrfe96_"));
-		REQUIRE( jbk.valid_block_identifier("._"));
-		REQUIRE( jbk.valid_block_identifier("._wow_"));
-		REQUIRE(!jbk.valid_block_identifier(".AaBc55.cKrrfe96_"));
-		REQUIRE(!jbk.valid_block_identifier(".AaBc55/cKrrfe96_"));
+		REQUIRE(!JBK.valid_block_identifier(".hello world"));
+		REQUIRE( JBK.valid_block_identifier(".hello_world"));
+		REQUIRE(!JBK.valid_block_identifier("=hello_world"));
+		REQUIRE(!JBK.valid_block_identifier(". hello_world"));
+		REQUIRE( JBK.valid_block_identifier("._hello_world"));
+		REQUIRE(!JBK.valid_block_identifier("&_hello_world"));
+		REQUIRE(!JBK.valid_block_identifier(".hello_world "));
+		REQUIRE( JBK.valid_block_identifier(".hello_world_"));
+		REQUIRE(!JBK.valid_block_identifier("a.hello_world_"));
 
-		REQUIRE(!jbk.valid_block_identifier(".hello world"));
-		REQUIRE( jbk.valid_block_identifier(".hello_world"));
-		REQUIRE(!jbk.valid_block_identifier("=hello_world"));
-		REQUIRE(!jbk.valid_block_identifier(". hello_world"));
-		REQUIRE( jbk.valid_block_identifier("._hello_world"));
-		REQUIRE(!jbk.valid_block_identifier("&_hello_world"));
-		REQUIRE(!jbk.valid_block_identifier(".hello_world "));
-		REQUIRE( jbk.valid_block_identifier(".hello_world_"));
-		REQUIRE(!jbk.valid_block_identifier("a.hello_world_"));
-
-		REQUIRE( jbk.valid_block_identifier("/123456789012345678901234567890"));
-		REQUIRE(!jbk.valid_block_identifier("/1234567890123456789012345678901"));
+		REQUIRE( JBK.valid_block_identifier("/123456789012345678901234567890"));
+		REQUIRE(!JBK.valid_block_identifier("/1234567890123456789012345678901"));
 	}
 }
 
@@ -3682,43 +3680,40 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 SCENARIO("Testing threading functions")
 {
-	JazzBlockKeepr jbk;
-	JazzLock	   _lock_ {0};
-
 	WHEN("We check basic assumptions, we get expected results")
 	{
-		REQUIRE(_lock_ == 0);
+		REQUIRE(_LOCK_ == 0);
 
-		int lock = _lock_.fetch_add(1, std::memory_order_relaxed);
+		int lock = _LOCK_.fetch_add(1, std::memory_order_relaxed);
 
 		REQUIRE(lock == 0);
-		REQUIRE(_lock_ == 1);
+		REQUIRE(_LOCK_ == 1);
 
-		_lock_ = 0;
+		_LOCK_ = 0;
 
-		jbk.enter_reading(_lock_);
-		REQUIRE(_lock_ == 1);
+		JBK.enter_reading(_LOCK_);
+		REQUIRE(_LOCK_ == 1);
 
-		jbk.enter_reading(_lock_);
-		REQUIRE(_lock_ == 2);
+		JBK.enter_reading(_LOCK_);
+		REQUIRE(_LOCK_ == 2);
 
-		jbk.enter_reading(_lock_);
-		REQUIRE(_lock_ == 3);
+		JBK.enter_reading(_LOCK_);
+		REQUIRE(_LOCK_ == 3);
 
-		jbk.leave_reading(_lock_);
-		REQUIRE(_lock_ == 2);
+		JBK.leave_reading(_LOCK_);
+		REQUIRE(_LOCK_ == 2);
 
-		jbk.leave_reading(_lock_);
-		REQUIRE(_lock_ == 1);
+		JBK.leave_reading(_LOCK_);
+		REQUIRE(_LOCK_ == 1);
 
-		jbk.leave_reading(_lock_);
-		REQUIRE(_lock_ == 0);
+		JBK.leave_reading(_LOCK_);
+		REQUIRE(_LOCK_ == 0);
 
-		jbk.enter_writing(_lock_);
-		REQUIRE(_lock_ == -JAZZ_LOCK_WEIGHT_OF_WRITE);
+		JBK.enter_writing(_LOCK_);
+		REQUIRE(_LOCK_ == -JAZZ_LOCK_WEIGHT_OF_WRITE);
 
-		jbk.leave_writing(_lock_);
-		REQUIRE(_lock_ == 0);
+		JBK.leave_writing(_LOCK_);
+		REQUIRE(_LOCK_ == 0);
 	}
 
 	PSB.writer();
