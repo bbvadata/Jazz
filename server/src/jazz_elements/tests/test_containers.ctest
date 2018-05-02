@@ -59,7 +59,10 @@ class PseudoBuffer {
 
 };
 
-PseudoBuffer PSB;
+PseudoBuffer   PSB;
+JazzBlockKeepr JBK;
+JazzLock	   _LOCK_ {0};
+
 
 static void *unsafe_reader(void *null) {
 	PSB.readers.fetch_add(1, std::memory_order_relaxed);
