@@ -30,6 +30,34 @@
 using namespace jazz_containers;
 
 
+class PseudoBuffer {
+	public:
+
+		inline void writer() {
+			a[0] = (a[63]*16381 + 1) % 32749;
+			for (int i = 1; i < 64; i++)
+				a[i] = (a[i - 1]*16381 + 1) % 32749;
+
+			b[0] = ((a[0] + b[63])*16381 + 3) % 32749;
+			for (int i = 1; i < 64; i++)
+				b[i] = (b[i - 1]*16381 + 1) % 32749;
+
+			for (int i = 0; i < 64; i++)
+				c[i] = a[i]*b[i];
+		}
+
+		inline int reader(int pid) {
+			int i = pid % 64;
+
+			return a[i]*b[i] - c[i];
+		}
+
+	private:
+
+		int a[64] = {}, b[64] = {}, c[64] = {};
+};
+
+
 void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_NA_AUTO)
 {
 	pJazzStringBuffer psb = p_block->p_string_buffer();
@@ -46,6 +74,7 @@ void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HA
 
 	close_jazz_block(p_block, set_has_NA);
 }
+
 /*
 
 void rec_TreeDump(int level, pJazzQueueItem pT, ofstream& ofil)
