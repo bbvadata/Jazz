@@ -3652,7 +3652,6 @@ SCENARIO("Testing threading functions")
 {
 	JazzBlockKeepr jbk;
 	JazzLock	   _lock_ {0};
-	PseudoBuffer   psb;
 
 	WHEN("We check basic assumptions, we get expected results")
 	{
@@ -3690,12 +3689,50 @@ SCENARIO("Testing threading functions")
 		REQUIRE(_lock_ == 0);
 	}
 
-	psb.writer();
+	PSB.writer();
 
 	for (int i = 0; i < 64; i++) {
-		REQUIRE(psb.reader(i) == 0);
+		REQUIRE(PSB.reader(i) == 0);
 	}
 
+	WHEN("We run a 240x240 readers and 16x16 writers sequentially and no errors happen.")
+	{
+		for (int i = 0; i < 256; i++) {
+			if ((i % 16) == 0)
+				unsafe_writer(nullptr);
+			else
+				unsafe_reader(nullptr);
+		}
+		REQUIRE(PSB.writers == 16);
+		REQUIRE(PSB.readers == 240);
+		REQUIRE(PSB.reads_ok == 57600);
+		REQUIRE(PSB.thread_errors == 0);
+	}
+
+	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
+
+#define	NUM_THREADS 256
+
+	WHEN("We run a 240x240 readers 16x16 writers in parallel without control, errors happen.")
+	{
+		pthread_t th_id[NUM_THREADS];
+		for (int i = 0; i < NUM_THREADS; i++) {
+			if ((i % 16) == 0)
+				REQUIRE(pthread_create(&th_id[i], nullptr, unsafe_writer, nullptr) == 0);
+			else
+				REQUIRE(pthread_create(&th_id[i], nullptr, unsafe_reader, nullptr) == 0);
+		}
+		std::this_thread::yield();
+
+		for (int i = 0; i < NUM_THREADS; i++) {
+			REQUIRE(pthread_join(th_id[i], nullptr) == 0);
+		}
+
+		REQUIRE(PSB.writers == 16);
+		REQUIRE(PSB.readers == 240);
+		REQUIRE(PSB.reads_ok < 57600);
+		REQUIRE(PSB.thread_errors > 0);
+	}
 }
 
 
