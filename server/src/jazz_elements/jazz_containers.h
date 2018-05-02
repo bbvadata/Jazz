@@ -311,8 +311,6 @@ class JazzBlockKeepr {
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
 
-	protected:
-
 		/** Enter a thread exclusion code area for reading
 		This function must be called by all the readers that enter a thread exclusion area. In this context, a reader means a thread that
 		is incompatible with threads modifying data (writers) but any number of readers can enter the code area at the same time.
