@@ -26,6 +26,7 @@
   limitations under the License.
 */
 
+#include <pthread.h>
 
 using namespace jazz_containers;
 
@@ -52,10 +53,38 @@ class PseudoBuffer {
 			return a[i]*b[i] - c[i];
 		}
 
-	private:
+		JazzLock readers {0}, writers {0}, thread_errors {0}, reads_ok {0};
 
 		int a[64] = {}, b[64] = {}, c[64] = {};
+
 };
+
+PseudoBuffer PSB;
+
+static void *unsafe_reader(void *null) {
+	PSB.readers.fetch_add(1, std::memory_order_relaxed);
+
+	for (int k = 0; k < 240; k++){
+		if (PSB.reader(k) == 0)
+			PSB.reads_ok.fetch_add(1, std::memory_order_relaxed);
+		else
+			PSB.thread_errors.fetch_add(1, std::memory_order_relaxed);
+	}
+
+	return (void *) 0;
+}
+
+static void *unsafe_writer(void *null) {
+	PSB.writers.fetch_add(1, std::memory_order_relaxed);
+
+	for (int k = 0; k < 16; k++){
+		PSB.writer();
+		// printf("a = %d, %d .. %d\nb = %d, %d .. %d\nc = %d, %d .. %d\n",
+		// 	   PSB.a[0], PSB.a[1], PSB.a[63], PSB.b[0], PSB.b[1], PSB.b[63], PSB.c[0], PSB.c[1], PSB.c[63]);
+	}
+
+	return (void *) 0;
+}
 
 
 void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_NA_AUTO)
