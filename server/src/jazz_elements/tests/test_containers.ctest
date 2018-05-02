@@ -3592,15 +3592,44 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 SCENARIO("Testing threading functions")
 {
-	GIVEN("We want to test the xyz")
+	JazzBlockKeepr jbk;
+	JazzLock	   _lock_ {0};
+	PseudoBuffer   psb;
+
+	WHEN("We check basic assumptions, we get expected results")
 	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
-//TODO: Write unit tests for threading functions
-			}
-		}
+		REQUIRE(_lock_ == 0);
+
+		int lock = _lock_.fetch_add(1, std::memory_order_relaxed);
+
+		REQUIRE(lock == 0);
+		REQUIRE(_lock_ == 1);
+
+		_lock_ = 0;
+
+		jbk.enter_reading(_lock_);
+		REQUIRE(_lock_ == 1);
+
+		jbk.enter_reading(_lock_);
+		REQUIRE(_lock_ == 2);
+
+		jbk.enter_reading(_lock_);
+		REQUIRE(_lock_ == 3);
+
+		jbk.leave_reading(_lock_);
+		REQUIRE(_lock_ == 2);
+
+		jbk.leave_reading(_lock_);
+		REQUIRE(_lock_ == 1);
+
+		jbk.leave_reading(_lock_);
+		REQUIRE(_lock_ == 0);
+
+		jbk.enter_writing(_lock_);
+		REQUIRE(_lock_ == -JAZZ_LOCK_WEIGHT_OF_WRITE);
+
+		jbk.leave_writing(_lock_);
+		REQUIRE(_lock_ == 0);
 	}
 }
 
