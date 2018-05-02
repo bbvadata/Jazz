@@ -3760,6 +3760,27 @@ SCENARIO("Testing threading functions")
 		REQUIRE(PSB.reads_ok < 57600);
 		REQUIRE(PSB.thread_errors > 0);
 	}
+
+	WHEN("We run a 240x240000 readers 16x16000 writers in parallel with control and no errors happen.")
+	{
+		pthread_t th_id[NUM_THREADS];
+		for (int i = 0; i < NUM_THREADS; i++) {
+			if ((i % 16) == 0)
+				REQUIRE(pthread_create(&th_id[i], nullptr, safe_writer, nullptr) == 0);
+			else
+				REQUIRE(pthread_create(&th_id[i], nullptr, safe_reader, nullptr) == 0);
+		}
+		std::this_thread::yield();
+
+		for (int i = 0; i < NUM_THREADS; i++) {
+			REQUIRE(pthread_join(th_id[i], nullptr) == 0);
+		}
+
+		REQUIRE(PSB.writers == 16);
+		REQUIRE(PSB.readers == 240);
+		REQUIRE(PSB.reads_ok == 57600000);
+		REQUIRE(PSB.thread_errors == 0);
+	}
 }
 
 
