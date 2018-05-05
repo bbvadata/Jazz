@@ -29,7 +29,7 @@
 #include <iostream>
 
 
-/**< \brief Basic Jazz codeless structures, constants and the class JazzBlock.
+/**< \brief Basic Jazz code-less structures, constants and the class JazzBlock.
 
 	This module defines the logic to get/set data from/to JazzBlock objects at the simplest level.
 */
@@ -63,18 +63,18 @@ namespace jazz_datablocks
 
 // 32 bit cell types
 #define CELL_TYPE_INTEGER		0x004		///< A tensor of 32-bit signed integers. NA is JAZZ_INTEGER_NA
-#define CELL_TYPE_FACTOR		0x104		///< A tensor of 32-bit unsorted categoricals. NA is JAZZ_INTEGER_NA
-#define CELL_TYPE_GRADE			0x204		///< A tensor of 32-bit sorted categoricals. NA is JAZZ_INTEGER_NA
+#define CELL_TYPE_FACTOR		0x104		///< A tensor of 32-bit unsorted categorical. NA is JAZZ_INTEGER_NA
+#define CELL_TYPE_GRADE			0x204		///< A tensor of 32-bit sorted categorical. NA is JAZZ_INTEGER_NA
 #define CELL_TYPE_BOOLEAN		0x304		///< A tensor of 32-bit booleans: 0, 1, JAZZ_BOOLEAN_NA = NA
 #define CELL_TYPE_SINGLE		0x404		///< A tensor of IEEE 754 32-bit float (aka single). NA is JAZZ_SINGLE_NA
-#define CELL_TYPE_JAZZ_STRING	0x504		///< A tensor or 32-bit offsets to unmutable strings or JAZZ_STRING_NA or JAZZ_STRING_EMPTY
+#define CELL_TYPE_JAZZ_STRING	0x504		///< A tensor or 32-bit offsets to immutable strings or JAZZ_STRING_NA or JAZZ_STRING_EMPTY
 
 // 64 bit cell types
 #define CELL_TYPE_LONG_INTEGER	0x008		///< A tensor of 64-bit signed integers. NA is JAZZ_LONG_INTEGER_NA
 #define CELL_TYPE_JAZZ_TIME		0x108		///< A tensor of 64-bit TimePoint. NA is JAZZ_TIME_POINT_NA
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
 
-// NA values or empty string valuies for all cell_type values
+// NA values or empty string values for all cell_type values
 #define JAZZ_BYTE_BOOLEAN_NA	0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
 #define JAZZ_BOOLEAN_NA			0x0ff		///< NA for a 32-bit boolean is binary 0xff. This is R compatible.
 #define JAZZ_INTEGER_NA			INT_MIN		///< NA for a 32-bit integer. This is R compatible.
@@ -107,7 +107,7 @@ struct FilterSize { int one; int length; };	///< Two names for the first two ele
 */
 union JazzTensorDim
 {
-	int 	   dim[JAZZ_MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2Gb
+	int		   dim[JAZZ_MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2 Gb
 	FilterSize filter;						///< When object is a JazzFilter the second element is named filter.length rather than dim[1]
 };
 
@@ -117,12 +117,12 @@ union JazzTensor
 {
 	u_char	  cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
 	bool	  cell_bool[0];		///< Cell size for CELL_TYPE_BYTE_BOOLEAN
-	int	   	  cell_int[0];		///< Cell size for CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_JAZZ_STRING
-	u_int  	  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
-	float  	  cell_single[0];	///< Cell size for CELL_TYPE_SINGLE
+	int		  cell_int[0];		///< Cell size for CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_JAZZ_STRING
+	u_int	  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	float	  cell_single[0];	///< Cell size for CELL_TYPE_SINGLE
 	long long cell_longint[0];	///< Cell size for CELL_TYPE_LONG_INTEGER and CELL_TYPE_JAZZ_TIME
 	uint64_t  cell_ulongint[0];	///< Cell size for matching CELL_TYPE_DOUBLE or CELL_TYPE_JAZZ_TIME as 64 bit unsigned
-	double    cell_double[0];	///< Cell size for CELL_TYPE_DOUBLE
+	double	  cell_double[0];	///< Cell size for CELL_TYPE_DOUBLE
 };
 
 
@@ -160,7 +160,7 @@ typedef std::map<int, const char *> AllAttributes;
 typedef struct JazzBlockHeader	 *pJazzBlockHeader;
 typedef struct JazzStringBuffer *pJazzStringBuffer;
 
-typedef class JazzBlock  *pJazzBlock;
+typedef class JazzBlock	 *pJazzBlock;
 typedef class JazzFilter *pJazzFilter;
 
 
@@ -169,7 +169,7 @@ of length == num_attributes, then a JazzStringBuffer. Nothing in a JazzBlock is 
 or stored 'as is', every RAM location in a block is defined by its JazzBlockHeader and computed by the methods in JazzBlock.
 
 At this level, you only have the fields JazzBlockHeader that you may read and probably only write through some methods.
-This is the lowest level, it does not even provide support for allocation, at this level you have support for maniputating
+This is the lowest level, it does not even provide support for allocation, at this level you have support for manipulating
 the JazzStringBuffer to read and write strings and the JazzAttributesMap to read and write attributes.
 */
 class JazzBlock: public JazzBlockHeader {
@@ -194,7 +194,7 @@ class JazzBlock: public JazzBlockHeader {
 			for (int i = JAZZ_MAX_TENSOR_RANK -1; i > 0; i--)
 				if (pDim[i] > 1) { range.dim[i] = j; j *= pDim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
 			range.dim[0] = j;
-			j 			*= pDim[0];
+			j			*= pDim[0];
 			size		 = j;
 		}
 
@@ -287,8 +287,8 @@ class JazzBlock: public JazzBlockHeader {
 			\param pString A pointer to a (zero ended) string that will be allocated inside the JazzBlock.
 
 			NOTE: Allocation inside a JazzBlock is typically hard since they are created with "just enough space", a JazzBlock is
-			typically unmutable. jazz_alloc.h contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
-			The 100% safe way is creating a new block from the unmutable one using jazz_alloc.h methods. Otherwise, use at your own
+			typically immutable. jazz_alloc.h contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the immutable one using jazz_alloc.h methods. Otherwise, use at your own
 			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
@@ -303,8 +303,8 @@ class JazzBlock: public JazzBlockHeader {
 			\param pString A pointer to a (zero ended) string that will be allocated inside the JazzBlock.
 
 			NOTE: Allocation inside a JazzBlock is typically hard since they are created with "just enough space", a JazzBlock is
-			typically unmutable. jazz_alloc.h contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
-			The 100% safe way is creating a new block from the unmutable one using jazz_alloc.h methods. Otherwise, use at your own
+			typically immutable. jazz_alloc.h contains methods that make a JazzBlock bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the immutable one using jazz_alloc.h methods. Otherwise, use at your own
 			risk or not at all. When this fails, it sets the variable alloc_failed in the JazzStringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
@@ -340,7 +340,7 @@ class JazzBlock: public JazzBlockHeader {
 			\param all_att A map containing all the attributes for the block.
 
 			NOTE: This function is public because it has to be called by jazz_alloc.h methods. set_attributes() can
-			only be called once, so it will do nothing if called after a JazzBlock is built. JazzBlocks are near-unmutable
+			only be called once, so it will do nothing if called after a JazzBlock is built. JazzBlocks are near-immutable
 			objects, if you need to change a JazzBlock's attributes create a new object using jazz_alloc.h methods.
 		*/
 		inline void set_attributes(AllAttributes *all_att) {
