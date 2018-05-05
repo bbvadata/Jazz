@@ -3722,7 +3722,7 @@ SCENARIO("Testing threading functions")
 		REQUIRE(PSB.reader(i) == 0);
 	}
 
-	WHEN("We run a 240x240 readers and 16x16 writers sequentially and no errors happen.")
+	WHEN("We run a 240x100 readers and 16x10 writers sequentially and no errors happen.")
 	{
 		for (int i = 0; i < 256; i++) {
 			if ((i % 16) == 0)
@@ -3732,53 +3732,89 @@ SCENARIO("Testing threading functions")
 		}
 		REQUIRE(PSB.writers == 16);
 		REQUIRE(PSB.readers == 240);
-		REQUIRE(PSB.reads_ok == 57600);
+		REQUIRE(PSB.reads_ok == 24000);
 		REQUIRE(PSB.thread_errors == 0);
 	}
 
 	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
 
-#define	NUM_THREADS 256
+	const int num_threads = 256,
+			  num_times   = 4;
 
-	WHEN("We run a 240x240 readers 16x16 writers in parallel without control, errors happen.")
+	WHEN("We run a 240x100 readers 16x10 writers in parallel num_times times without control, errors happen.")
 	{
-		pthread_t th_id[NUM_THREADS];
-		for (int i = 0; i < NUM_THREADS; i++) {
-			if ((i % 16) == 0)
-				REQUIRE(pthread_create(&th_id[i], nullptr, unsafe_writer, nullptr) == 0);
-			else
-				REQUIRE(pthread_create(&th_id[i], nullptr, unsafe_reader, nullptr) == 0);
-		}
-		std::this_thread::yield();
+		bool failed = false;
 
-		for (int i = 0; i < NUM_THREADS; i++) {
-			REQUIRE(pthread_join(th_id[i], nullptr) == 0);
+		for (int times = 0; times < num_times; times++) {
+			pthread_t th_id[num_threads];
+			for (int i = 0; i < num_threads; i++) {
+				if ((i % 16) == 0) {
+					if (pthread_create(&th_id[i], nullptr, unsafe_writer, nullptr) != 0) {
+						failed = true;
+						break;
+					}
+				} else {
+					if (pthread_create(&th_id[i], nullptr, unsafe_reader, nullptr) != 0) {
+						failed = true;
+						break;
+					}
+				}
+			}
+			std::this_thread::yield();
+
+			for (int i = 0; i < num_threads; i++) {
+				if (pthread_join(th_id[i], nullptr) != 0) {
+					failed = true;
+					break;
+				}
+			}
 		}
 
-		REQUIRE(PSB.writers == 16);
-		REQUIRE(PSB.readers == 240);
-		REQUIRE(PSB.reads_ok < 57600);
+		REQUIRE(!failed);
+
+		REQUIRE(PSB.writers == 16*num_times);
+		REQUIRE(PSB.readers == 240*num_times);
+		REQUIRE(PSB.reads_ok < 24000*num_times);
 		REQUIRE(PSB.thread_errors > 0);
 	}
 
-	WHEN("We run a 240x240000 readers 16x16000 writers in parallel with control and no errors happen.")
+	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
+
+	WHEN("We run a 240x1000 readers 16x10 writers in parallel num_times times with control and no errors happen.")
 	{
-		pthread_t th_id[NUM_THREADS];
-		for (int i = 0; i < NUM_THREADS; i++) {
-			if ((i % 16) == 0)
-				REQUIRE(pthread_create(&th_id[i], nullptr, safe_writer, nullptr) == 0);
-			else
-				REQUIRE(pthread_create(&th_id[i], nullptr, safe_reader, nullptr) == 0);
-		}
-		std::this_thread::yield();
+		bool failed = false;
 
-		for (int i = 0; i < NUM_THREADS; i++) {
-			REQUIRE(pthread_join(th_id[i], nullptr) == 0);
+		for (int times = 0; times < num_times; times++) {
+			pthread_t th_id[num_threads];
+			for (int i = 0; i < num_threads; i++) {
+				if ((i % 16) == 0) {
+					if (pthread_create(&th_id[i], nullptr, safe_writer, nullptr) != 0) {
+						failed = true;
+						break;
+					}
+				} else {
+					if (pthread_create(&th_id[i], nullptr, safe_reader, nullptr) != 0) {
+						failed = true;
+						break;
+					}
+				}
+
+			}
+			std::this_thread::yield();
+
+			for (int i = 0; i < num_threads; i++) {
+				if (pthread_join(th_id[i], nullptr) != 0){
+					failed = true;
+					break;
+				}
+			}
 		}
 
-		REQUIRE(PSB.writers == 16);
-		REQUIRE(PSB.readers == 240);
-		REQUIRE(PSB.reads_ok == 57600000);
+		REQUIRE(!failed);
+
+		REQUIRE(PSB.writers == 16*num_times);
+		REQUIRE(PSB.readers == 240*num_times);
+		REQUIRE(PSB.reads_ok == 240000*num_times);
 		REQUIRE(PSB.thread_errors == 0);
 	}
 }
