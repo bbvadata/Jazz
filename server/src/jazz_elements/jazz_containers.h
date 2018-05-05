@@ -443,7 +443,7 @@ class JazzBlockKeepr {
 
 		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
 		int						keepr_item_size, num_allocd_items;
-		pJazzQueueItem			p_buffer_base, p_first_free;
+		pJazzQueueItem			p_buffer_base, p_first_item, p_first_free;
 		JazzLock				_buffer_lock_;
 		jazz_utils::pJazzLogger	p_log;
 };
