@@ -595,6 +595,37 @@ void JazzBlockKeepr::destroy_keeprs()
 }
 
 
+/** Aaa
+
+//TODO: Document JazzBlockKeepr::new_jazz_block (1)
+*/
+pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
+													pJazzBlock			p_as_block,
+													pJazzBlock			p_row_filter,
+													AllAttributes	   *att)
+{
+//TODO: Implement JazzBlockKeepr::new_jazz_block (1)
+}
+
+
+/** Aaa
+
+//TODO: Document JazzBlockKeepr::new_jazz_block (2)
+*/
+pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
+													int					cell_type,
+													JazzTensorDim	   *dim,
+													AllAttributes	   *att,
+													int					fill_tensor,
+													bool			   *p_bool_filter,
+													int					stringbuff_size,
+													const char		   *p_text,
+													char				eoln)
+{
+//TODO: Implement JazzBlockKeepr::new_jazz_block (2)
+}
+
+
 /** Create a new JazzBlock as a selection (of possibly all) of an existing JazzBlock owned by a JazzBlockKeeprItem
 
 	\param p_id			A block ID. A string matching JAZZ_REGEX_VALIDATE_BLOCK_ID to identify the block globally and locally.
@@ -614,15 +645,15 @@ void JazzBlockKeepr::destroy_keeprs()
 	if allocating the JazzBlock fails.
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
-														  pJazzBlock		   p_as_block,
-														  pJazzBlock		   p_row_filter,
-														  AllAttributes		  *att)
+													pJazzBlock			  	   p_as_block,
+													pJazzBlock			  	   p_row_filter,
+													AllAttributes			  *att)
 {
-//TODO: Implement JazzBlockKeepr::new_jazz_block (1)
+//TODO: Implement JazzBlockKeepr::new_jazz_block (3)
 }
 
 
-/** Create a new (one_shot) JazzBlock (including a JazzFilter) from scratch owned by a JazzBlockKeeprItem
+/** Create a new JazzBlock (including a JazzFilter) from scratch owned by a JazzBlockKeeprItem
 
 	\param p_id				A block ID. A string matching JAZZ_REGEX_VALIDATE_BLOCK_ID to identify the block globally and locally.
 	\param cell_type		The type for the tensor's cell types in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
@@ -669,16 +700,26 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 	if allocating the JazzBlock fails.
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
-														  int				   cell_type,
-														  JazzTensorDim		  *dim,
-														  AllAttributes		  *att,
-														  int				   fill_tensor,
-														  bool				  *p_bool_filter,
-														  int				   stringbuff_size,
-														  const char		  *p_text,
-														  char				   eoln)
+													int						   cell_type,
+													JazzTensorDim			  *dim,
+													AllAttributes			  *att,
+													int						   fill_tensor,
+													bool					  *p_bool_filter,
+													int						   stringbuff_size,
+													const char				  *p_text,
+													char					   eoln)
 {
-//TODO: Implement JazzBlockKeepr::new_jazz_block (2)
+//TODO: Implement JazzBlockKeepr::new_jazz_block (4)
+}
+
+
+/** Aaa
+
+//TODO: Document JazzBlockKeepr::new_keepr_item
+*/
+pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item ()
+{
+//TODO: Implement JazzBlockKeepr::new_keepr_item
 }
 
 
@@ -686,11 +727,83 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 
 	\param p_item The JazzBlockKeeprItem owning the JazzBlock that will be destroyed.
 */
-void JazzBlockKeepr::remove_jazz_block(pJazzBlockKeeprItem p_item)
+void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 {
-//TODO: Implement JazzBlockKeepr::remove_jazz_block
+//TODO: Implement JazzBlockKeepr::free_jazz_block
 }
 
+
+/** Aaa
+
+//TODO: Document AATBlockQueue::AATBlockQueue
+*/
+AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement AATBlockQueue::AATBlockQueue
+}
+
+
+/** Aaa
+
+//TODO: Document AATBlockQueue::~AATBlockQueue
+*/
+AATBlockQueue::~AATBlockQueue()
+{
+//TODO: Implement AATBlockQueue::~AATBlockQueue
+}
+
+
+/** Aaa
+
+//TODO: Document AATBlockQueue::alloc_keeprs
+*/
+bool AATBlockQueue::alloc_keeprs  (int num_items)
+{
+//TODO: Implement AATBlockQueue::alloc_keeprs
+}
+
+
+/** Aaa
+
+//TODO: Document AATBlockQueue::destroy_keeprs
+*/
+void AATBlockQueue::destroy_keeprs()
+{
+//TODO: Implement AATBlockQueue::destroy_keeprs
+}
+
+
+/** Aaa
+
+//TODO: Document AATBlockQueue::new_jazz_block (1)
+*/
+pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
+											  pJazzBlock		  p_as_block,
+											  pJazzBlock		  p_row_filter,
+											  AllAttributes	   	 *att,
+											  uint64_t			  time_to_build)
+{
+//TODO: Implement AATBlockQueue::new_jazz_block (1)
+}
+
+
+/** Aaa
+
+//TODO: Document AATBlockQueue::new_jazz_block (2)
+*/
+pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
+											  int				  cell_type,
+											  JazzTensorDim	   	 *dim,
+											  AllAttributes	   	 *att,
+											  int				  fill_tensor,
+											  bool				 *p_bool_filter,
+											  int				  stringbuff_size,
+											  const char		 *p_text,
+											  char				  eoln,
+											  uint64_t			  time_to_build)
+{
+//TODO: Implement AATBlockQueue::new_jazz_block (2)
+}
 
 
 /** Create a new JazzBlock as a selection (of possibly all) of an existing JazzBlock owned by a JazzQueueItem
@@ -714,16 +827,16 @@ void JazzBlockKeepr::remove_jazz_block(pJazzBlockKeeprItem p_item)
 	if allocating the JazzBlock fails.
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
-													pJazzBlock			 p_as_block,
-													pJazzBlock			 p_row_filter,
-													AllAttributes		*att,
-													uint64_t			 time_to_build)
+											  pJazzBlock			  	 p_as_block,
+											  pJazzBlock			  	 p_row_filter,
+											  AllAttributes				*att,
+											  uint64_t					 time_to_build)
 {
-//TODO: Implement AATBlockQueue::new_jazz_block (1)
+//TODO: Implement AATBlockQueue::new_jazz_block (3)
 }
 
 
-/** Create a new (one_shot) JazzBlock (including a JazzFilter) from scratch owned by a JazzQueueItem
+/** Create a new JazzBlock (including a JazzFilter) from scratch owned by a JazzQueueItem
 
 	\param p_id				A block ID. A string matching JAZZ_REGEX_VALIDATE_BLOCK_ID to identify the block globally and locally.
 	\param cell_type		The type for the tensor's cell types in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
@@ -772,17 +885,27 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 	if allocating the JazzBlock fails.
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
-													int					 cell_type,
-													JazzTensorDim		*dim,
-													AllAttributes		*att,
-													int					 fill_tensor,
-													bool				*p_bool_filter,
-													int					 stringbuff_size,
-													const char			*p_text,
-													char				 eoln,
-													uint64_t			 time_to_build)
+											  int						 cell_type,
+											  JazzTensorDim				*dim,
+											  AllAttributes				*att,
+											  int						 fill_tensor,
+											  bool						*p_bool_filter,
+											  int						 stringbuff_size,
+											  const char				*p_text,
+											  char						 eoln,
+											  uint64_t					 time_to_build)
 {
-//TODO: Implement AATBlockQueue::new_jazz_block (2)
+//TODO: Implement AATBlockQueue::new_jazz_block (4)
+}
+
+
+/** Aaa
+
+//TODO: Document JazzBlockKeepr::new_keepr_item
+*/
+pJazzQueueItem AATBlockQueue::new_keepr_item()
+{
+//TODO: Implement JazzBlockKeepr::new_keepr_item
 }
 
 
@@ -790,9 +913,9 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	\param p_item The JazzQueueItem owning the JazzBlock that will be destroyed.
 */
-void AATBlockQueue::remove_jazz_block(pJazzQueueItem p_item)
+void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item)
 {
-//TODO: Implement AATBlockQueue::remove_jazz_block
+//TODO: Implement AATBlockQueue::free_jazz_block
 }
 
 
@@ -802,7 +925,7 @@ void AATBlockQueue::remove_jazz_block(pJazzQueueItem p_item)
 	\return		   A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
 
 This public method is thread safe, unlike the corresponding private method highest_priority(). The JazzQueueItem
-has to be explicitly removed with remove_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
+has to be explicitly removed with free_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
 again in case it is not removed.
 */
 pJazzQueueItem AATBlockQueue::highest_priority_item (bool lock_it)
@@ -817,7 +940,7 @@ pJazzQueueItem AATBlockQueue::highest_priority_item (bool lock_it)
 	\return		   A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
 
 This public method is thread safe, unlike the corresponding private method lowest_priority(). The JazzQueueItem
-has to be explicitly removed with remove_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
+has to be explicitly removed with free_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
 again in case it is not removed.
 */
 pJazzQueueItem AATBlockQueue::lowest_priority_item (bool lock_it)
@@ -1049,17 +1172,17 @@ pJazzQueueItem ModelBuffer::highest_priority_item()
 
 	Logs with level LOG_MISS if the block is not found.
 */
-void JazzCache::remove_jazz_block (const JazzBlockIdentifier *p_id)
+void JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
 {
 	pJazzQueueItem p_item = find_jazz_block (p_id);
 
 	if (p_item == nullptr) {
-		log_printf(LOG_MISS, "Block %s not found in JazzCache::remove_jazz_block()", p_id);
+		log_printf(LOG_MISS, "Block %s not found in JazzCache::free_jazz_block()", p_id);
 
 		return;
 	}
 
-	AATBlockQueue::remove_jazz_block(p_item);
+	AATBlockQueue::free_jazz_block(p_item);
 }
 
 
@@ -1069,17 +1192,17 @@ void JazzCache::remove_jazz_block (const JazzBlockIdentifier *p_id)
 
 	Logs with level LOG_MISS if the block is not found.
 */
-void JazzCache::remove_jazz_block (JazzBlockId64 id64)
+void JazzCache::free_jazz_block (JazzBlockId64 id64)
 {
 	pJazzQueueItem p_item = find_jazz_block (id64);
 
 	if (p_item == nullptr) {
-		log_printf(LOG_MISS, "Block with hash %16x not found in JazzCache::remove_jazz_block()", id64);
+		log_printf(LOG_MISS, "Block with hash %16x not found in JazzCache::free_jazz_block()", id64);
 
 		return;
 	}
 
-	AATBlockQueue::remove_jazz_block(p_item);
+	AATBlockQueue::free_jazz_block(p_item);
 }
 
 
