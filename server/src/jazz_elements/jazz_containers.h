@@ -277,7 +277,6 @@ class JazzBlockKeepr {
 		// Methods for buffer allocation
 
 		bool alloc_keeprs  (int num_items);
-		bool realloc_keeprs(int num_items);
 		void destroy_keeprs();
 
 		// Method for block ID validation
