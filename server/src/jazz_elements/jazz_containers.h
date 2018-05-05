@@ -322,18 +322,19 @@ class JazzBlockKeepr {
 			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
 		inline void enter_reading(JazzLock &_lock_) {
-		    int retry = 0;
-    		while (true) {
-				int lock = _lock_.fetch_add(1, std::memory_order_relaxed);
-				if (lock >= 0)
-					return;
-				_lock_.fetch_sub(1, std::memory_order_relaxed);
-
-		        if (++retry > JAZZ_LOCK_READING_RETRY_NUMTIMES) {
-		            std::this_thread::yield();
-		            retry = 0;
-		        }
-    		}
+			int retry = 0;
+			while (true) {
+				int32_t lock = _lock_;
+				if (lock >= 0) {
+					int32_t next = lock + 1;
+					if (_lock_.compare_exchange_weak(lock, next))
+						return;
+				}
+				if (++retry > JAZZ_LOCK_READING_RETRY_NUMTIMES) {
+					std::this_thread::yield();
+					retry = 0;
+				}
+			}
 		}
 
 		/** Leave a thread exclusion code area for reading
@@ -343,7 +344,20 @@ class JazzBlockKeepr {
 
 			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
-		inline void leave_reading(JazzLock &_lock_) { _lock_.fetch_sub(1, std::memory_order_relaxed); }
+		inline void leave_reading(JazzLock &_lock_) {
+			int retry = 0;
+			while (true) {
+				int32_t lock = _lock_;
+				int32_t next = lock - 1;
+				if (_lock_.compare_exchange_weak(lock, next))
+					return;
+
+				if (++retry > JAZZ_LOCK_READING_RETRY_NUMTIMES) {
+					std::this_thread::yield();
+					retry = 0;
+				}
+			}
+		}
 
 		/** Enter a thread exclusion code area for writing
 		This function must be called by all the writers that enter a thread exclusion area. In this context, a writer means a thread that
@@ -356,29 +370,27 @@ class JazzBlockKeepr {
 			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
 		inline void enter_writing(JazzLock &_lock_) {
-		    int retry = 0;
-    		while (true) {
-				int lock = _lock_.fetch_sub(JAZZ_LOCK_WEIGHT_OF_WRITE, std::memory_order_relaxed);
-				if (lock == 0)
-					return;
-				if (lock > 0) {
-					retry = 0;
-					while (true) {
-						if (_lock_ == 0)
-							return;
-				        if (++retry > JAZZ_LOCK_KICKING_RETRY_NUMTIMES) {
-		        		    std::this_thread::yield();
-				            retry = 0;
-		        		}
+			int retry = 0;
+			while (true) {
+				int32_t lock = _lock_;
+				if (lock >= 0) {
+					int32_t next = lock - JAZZ_LOCK_WEIGHT_OF_WRITE;
+					if (_lock_.compare_exchange_weak(lock, next)) {
+						while (true) {
+							if (_lock_ == -JAZZ_LOCK_WEIGHT_OF_WRITE)
+								return;
+							if (++retry > JAZZ_LOCK_KICKING_RETRY_NUMTIMES) {
+								std::this_thread::yield();
+								retry = 0;
+							}
+						}
 					}
 				}
-				_lock_.fetch_add(JAZZ_LOCK_WEIGHT_OF_WRITE, std::memory_order_relaxed);
-
-		        if (++retry > JAZZ_LOCK_WRITING_RETRY_NUMTIMES) {
-		            std::this_thread::yield();
-		            retry = 0;
-		        }
-    		}
+				if (++retry > JAZZ_LOCK_WRITING_RETRY_NUMTIMES) {
+					std::this_thread::yield();
+					retry = 0;
+				}
+			}
 		}
 
 		/** Leave a thread exclusion code area for writing
@@ -387,18 +399,31 @@ class JazzBlockKeepr {
 
 			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
-		inline void leave_writing(JazzLock &_lock_) { _lock_.fetch_add(JAZZ_LOCK_WEIGHT_OF_WRITE, std::memory_order_relaxed); }
+		inline void leave_writing(JazzLock &_lock_) {
+			int retry = 0;
+			while (true) {
+				int32_t lock = _lock_;
+				int32_t next = lock + JAZZ_LOCK_WEIGHT_OF_WRITE;
+				if (_lock_.compare_exchange_weak(lock, next))
+					return;
 
-		/** Wrapper method logging events through a JazzLogger when the logger was passed to the contructor of this class.
+				if (++retry > JAZZ_LOCK_WRITING_RETRY_NUMTIMES) {
+					std::this_thread::yield();
+					retry = 0;
+				}
+			}
+		}
+
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 
 			\param loglevel The trace level.
-			\param message  A message.
+			\param message	A message.
 
 			See JazzLogger for details.
 		*/
 		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
 
-		/** Wrapper method logging events through a JazzLogger when the logger was passed to the contructor of this class.
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 
 			\param loglevel The trace level.
 			\param fmt		The printf-style format string.
