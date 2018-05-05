@@ -164,7 +164,7 @@ struct JazzQueueItem: JazzBlockKeeprItem {
 
 /** A map to search a JazzBlockKeeprItem by the block_id64 of its corresponding JazzBlock. This is the essential element
 that converts a queue into a cache. A cache is a queue where elements can be searched by id and lower priority items
-can be removed to allocate space.
+can be freed to allocate space.
 */
 typedef std::map<JazzBlockId64, pJazzQueueItem> JazzBlockMap;
 
@@ -251,12 +251,12 @@ JazzBlocks can be allocated in three ways:
 
 1. One-shot - Created with jazz_containers::new_jazz_block(), destroyed with jazz_containers::new_jazz_block(), owned by the caller.
 2. Volatile - Created with jazz_containers::JazzBlockKeepr::new_jazz_block() or (JazzBlockKeepr descendant)::new_jazz_block() and not
-required to be removed, but can be removed using (JazzBlockKeepr descendant::)remove_jazz_block(). Some objects (like cache and priority queues)
+required to be freed, but can be freed using (JazzBlockKeepr descendant::)free_jazz_block(). Some objects (like cache and priority queues)
 may remove JazzBlocks from the container to free the space for higher prioritized JazzBlocks. Volatile containers (those not descending from
 JazzPersistence) keep the JazzBlockKeeprItem block containers in local RAM, but they may point to blocks physically stored across a cluster.
 In volatile containers alloc_keeprs()/realloc_keeprs()/destroy_keeprs() control local allocation of the JazzBlockKeeprItem buffer.
 3. Persisted - Created with jazz_persistence::JazzPersistence::new_jazz_block() or (JazzPersistence descendant::)new_jazz_block() and not
-required to be removed, but can be removed using (JazzPersistence descendant::)remove_jazz_block(). Unlike volatile JazzBlocks, persisted
+required to be freed, but can be freed using (JazzPersistence descendant::)free_jazz_block(). Unlike volatile JazzBlocks, persisted
 JazzBlocks are not controlled by a JazzBlockKeeprItem. Difference between JazzPersistence and JazzSource is the former implements a strict
 JazzBlockKeepr interface that can be used from c++ to do things like select information from blocks without assigning or copying them, the
 latter has a much simpler interface that is exported to Python and R and provides what a script language programmer would expect at the price
@@ -665,8 +665,8 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
 
-		void		   remove_jazz_block (const JazzBlockIdentifier *p_id);
-		void		   remove_jazz_block (		JazzBlockId64		 id64);
+		void		   free_jazz_block (const JazzBlockIdentifier *p_id);
+		void		   free_jazz_block (		JazzBlockId64		 id64);
 
 	private:
 
