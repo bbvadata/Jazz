@@ -1,13 +1,13 @@
 /* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
 
    1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
-      exclusively for the use in the Jazz server software.
+	  exclusively for the use in the Jazz server software.
 
 	  Copyright 2009-2012 Jacques Basaldúa
 
    2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
-   		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
 
 	  This product includes software developed at
 
@@ -67,12 +67,12 @@ namespace jazz_containers
 
 using namespace jazz_datablocks;
 
-#define JAZZ_MAX_BLOCK_ID_LENGTH	   							 32		///< Maximum length for a block name
+#define JAZZ_MAX_BLOCK_ID_LENGTH								 32		///< Maximum length for a block name
 #define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,30}$"		///< Regex validating a JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_LOCAL	   							'.'		///< First char of a LOCAL JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_DISTRIB   							'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_LOCAL								'.'		///< First char of a LOCAL JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB							'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
 #define JAZZ_LOCK_READING_RETRY_NUMTIMES						100		///< # retries when lock fails (reading) before this_thread::yield();
-#define JAZZ_LOCK_WRITING_RETRY_NUMTIMES					    100		///< # retries when lock fails (writing) before this_thread::yield();
+#define JAZZ_LOCK_WRITING_RETRY_NUMTIMES						100		///< # retries when lock fails (writing) before this_thread::yield();
 #define JAZZ_LOCK_KICKING_RETRY_NUMTIMES					   1000		///< # retries when writing ok but with readers before this_thread::yield();
 /// (Approx) sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
 #define JAZZ_LOCK_WEIGHT_OF_WRITE							  46341
@@ -91,19 +91,19 @@ using namespace jazz_datablocks;
 #define JAZZ_SET_HAS_NA_
 
 #define JAZZ_SET_HAS_NA_FALSE		0	///< Set to false without checking (unsafe in case there are and not-NA-aware arithmetic is used)
-#define JAZZ_SET_HAS_NA_TRUE		1	///< Set to true without checking (safe even if there are, NA-aware arithemtic is always safe)
-#define JAZZ_SET_HAS_NA_AUTO		2	///< Check if there are and set accordinly (slowest option when closing, best later)
+#define JAZZ_SET_HAS_NA_TRUE		1	///< Set to true without checking (safe even if there are, NA-aware arithmetic is always safe)
+#define JAZZ_SET_HAS_NA_AUTO		2	///< Check if there are and set accordingly (slowest option when closing, best later)
 
 /// Values for the keys of the attributes in JazzBlock
 
 #define BLOCK_ATTR_SECTION_SIZE									   10000	///< Maximum number of keys per section
-#define BLOCK_ATTR_BASEOF_CONTAINERS							       0	///< Base of attribute keys in this module
+#define BLOCK_ATTR_BASEOF_CONTAINERS								   0	///< Base of attribute keys in this module
 #define BLOCK_ATTR_CONTAINERS_EMPTY		BLOCK_ATTR_BASEOF_CONTAINERS + 1	///< No attributes defined, creates a <this:empty string>
 #define BLOCK_ATTR_CONTAINERS_FILTER	BLOCK_ATTR_BASEOF_CONTAINERS + 2	///< A new filter: creates a <this:empty string>
 
 #define BLOCK_ATTR_BASEOF_PERSISTENCE	BLOCK_ATTR_BASEOF_CONTAINERS  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_persistence.h
 #define BLOCK_ATTR_BASEOF_CLASSES		BLOCK_ATTR_BASEOF_PERSISTENCE + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_classes.h
-#define BLOCK_ATTR_BASEOF_PRIMITIVES	BLOCK_ATTR_BASEOF_CLASSES 	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_primitives.h
+#define BLOCK_ATTR_BASEOF_PRIMITIVES	BLOCK_ATTR_BASEOF_CLASSES	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_primitives.h
 #define BLOCK_ATTR_BASEOF_PROCESSCALL	BLOCK_ATTR_BASEOF_PRIMITIVES  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_processcall.h
 #define BLOCK_ATTR_BASEOF_CLUSTER		BLOCK_ATTR_BASEOF_PROCESSCALL + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_cluster.h
 #define BLOCK_ATTR_BASEOF_COLUMN		BLOCK_ATTR_BASEOF_CLUSTER	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_column.h
@@ -128,8 +128,8 @@ typedef uint64_t JazzBlockId64;
 
 
 typedef struct JazzBlockKeeprItem *pJazzBlockKeeprItem;		///< A pointer to a JazzBlockKeeprItem
-typedef struct JazzTreeItem 	  *pJazzTreeItem;			///< A pointer to a JazzTreeItem
-typedef struct JazzQueueItem 	  *pJazzQueueItem;			///< A pointer to a JazzQueueItem
+typedef struct JazzTreeItem		  *pJazzTreeItem;			///< A pointer to a JazzTreeItem
+typedef struct JazzQueueItem	  *pJazzQueueItem;			///< A pointer to a JazzQueueItem
 
 
 /** All volatile JazzBlock objects are tracked in a double linked list of JazzBlockKeeprItem descendants.
@@ -154,7 +154,7 @@ struct JazzTreeItem: JazzBlockKeeprItem {
 /** The root class for different AATBlockQueue descendants
 */
 struct JazzQueueItem: JazzBlockKeeprItem {
-	int		  level;										///< Level in the AA tree (used for autobalancing)
+	int		  level;										///< Level in the AA tree (used for auto-balancing)
 	int		  times_used;									///< Times the block has been reassigned in the queue
 	double	  priority;										///< A priority value to implement a priority queue
 	uint64_t  time_to_build;								///< The time required to compute the block (real or estimated) in microseconds
@@ -174,8 +174,8 @@ typedef std::map<JazzBlockId64, pJazzQueueItem> JazzBlockMap;
 typedef std::atomic<int32_t> JazzLock;
 
 
-pJazzBlock new_jazz_block (pJazzBlock 	  p_as_block,
-						   pJazzFilter 	  p_row_filter = nullptr,
+pJazzBlock new_jazz_block (pJazzBlock	  p_as_block,
+						   pJazzFilter	  p_row_filter = nullptr,
 						   AllAttributes *att		   = nullptr);
 
 
@@ -224,7 +224,7 @@ inline void close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HAS_N
 	}
 #endif
 
-	p_block->hash64  = jazz_utils::MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(JazzBlockHeader));
+	p_block->hash64	 = jazz_utils::MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(JazzBlockHeader));
 	p_block->created = std::chrono::steady_clock::now();
 }
 
@@ -260,12 +260,12 @@ required to be removed, but can be removed using (JazzPersistence descendant::)r
 JazzBlocks are not controlled by a JazzBlockKeeprItem. Difference between JazzPersistence and JazzSource is the former implements a strict
 JazzBlockKeepr interface that can be used from c++ to do things like select information from blocks without assigning or copying them, the
 latter has a much simpler interface that is exported to Python and R and provides what a script language programmer would expect at the price
-of not always benefitting from the memory-mapped file allocation in lmdb that underlies JazzPersistence.
+of not always benefiting from the memory-mapped file allocation in LMDB that underlies JazzPersistence.
 
 When an JazzBlockKeepr fills, blocks fail to allocate but never get automatically destroyed.
 
 THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzBlockKeepr {
@@ -284,7 +284,7 @@ class JazzBlockKeepr {
 
 		/** Validate a JazzBlockIdentifier
 			\param p_id A JazzBlockIdentifier
-			\return     True if p_id matches the regex JAZZ_REGEX_VALIDATE_BLOCK_ID
+			\return		True if p_id matches the regex JAZZ_REGEX_VALIDATE_BLOCK_ID
 		*/
 		inline bool valid_block_identifier(const char *p_id) {
 			return std::regex_match(p_id, block_id_rex);
@@ -292,12 +292,12 @@ class JazzBlockKeepr {
 		// Methods for JazzBlock allocation
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
-												  pJazzBlock 	  	   p_as_block,
-								   				  pJazzBlock 	  	   p_row_filter	 = nullptr,
-								   				  AllAttributes 	  *att			 = nullptr);
+												  pJazzBlock		   p_as_block,
+												  pJazzBlock		   p_row_filter	 = nullptr,
+												  AllAttributes		  *att			 = nullptr);
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
-												  int			  	   cell_type,
+												  int				   cell_type,
 												  JazzTensorDim		  *dim,
 												  AllAttributes		  *att,
 												  int				   fill_tensor	   = JAZZ_FILL_NEW_WITH_NA,
@@ -418,8 +418,8 @@ class JazzBlockKeepr {
 	private:
 
 		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
-		int 		   			keepr_item_size, num_allocd_items;
-		pJazzQueueItem 			p_buffer_base, p_first_free;
+		int						keepr_item_size, num_allocd_items;
+		pJazzQueueItem			p_buffer_base, p_first_free;
 		JazzLock				_buffer_lock_;
 		jazz_utils::pJazzLogger	p_log;
 };
@@ -428,16 +428,16 @@ class JazzBlockKeepr {
 /** Root class for all JazzBlock containers implementing trees.
 
 Trees are the base for many descendants, including searches (MCTS, minimax with alpha-beta pruning, loss minimization, etc.) and file
-systems (archives and archive descendats) both local and distibuted. This class simply implements a JazzTreeItem with tree navigation
+systems (archives and archive descendants) both local and distributed. This class simply implements a JazzTreeItem with tree navigation
 (p_parent, p_first_child, p_next_sibling) and basic stats that could be used in MCTS and other trees (num_visits, num_wins).
 
-To create descandants, just create a container that inherits JazzTreeItem, declare item_size() with the appropritae size and implement
+To create descendants, just create a container that inherits JazzTreeItem, declare item_size() with the appropriate size and implement
 the methods. The inherited ::new_jazz_block() and alloc_keeprs()/realloc_keeprs()/destroy_keeprs() will work as expected.
 
 When an JazzTree fills, blocks fail to allocate but never get automatically destroyed.
 
 THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzTree: public JazzBlockKeepr {
@@ -458,7 +458,7 @@ times used, time to build, size, etc.
 When an AATBlockQueue fills, blocks get automatically destroyed (the lowest priority blocks, obviously).
 
 THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class AATBlockQueue: public JazzBlockKeepr {
@@ -468,26 +468,26 @@ class AATBlockQueue: public JazzBlockKeepr {
 		// Methods for JazzBlock allocation
 
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
-											 pJazzBlock 	  	  p_as_block,
-								   			 pJazzBlock 	  	  p_row_filter	= nullptr,
-								   			 AllAttributes		 *att			= nullptr,
-											 uint64_t	 		  time_to_build = 0);
+											 pJazzBlock			  p_as_block,
+											 pJazzBlock			  p_row_filter	= nullptr,
+											 AllAttributes		 *att			= nullptr,
+											 uint64_t			  time_to_build = 0);
 
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
-											 int			  	  cell_type,
+											 int				  cell_type,
 											 JazzTensorDim		 *dim,
 											 AllAttributes		 *att,
 											 int				  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
-											 bool				 *p_bool_filter   = nullptr,
+											 bool				 *p_bool_filter	  = nullptr,
 											 int				  stringbuff_size = 0,
 											 const char			 *p_text		  = nullptr,
 											 char				  eoln			  = '\n',
-											 uint64_t	 		  time_to_build	  = 0);
+											 uint64_t			  time_to_build	  = 0);
 
 		void remove_jazz_block(pJazzQueueItem p_item);
 
 		pJazzQueueItem highest_priority_item (bool lock_it);
-		pJazzQueueItem lowest_priority_item  (bool lock_it);
+		pJazzQueueItem lowest_priority_item	 (bool lock_it);
 
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
@@ -606,10 +606,10 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 
 /** This class is an AATBlockQueue with a JazzBlockMap cache that allows searching blocks by JazzBlockIdentifier and JazzBlockId64.
-Blocks found can also be reprioritized to make their automatic destruction less probable when they are used frequently.
+Blocks found can also be re-prioritized to make their automatic destruction less probable when they are used frequently.
 
 THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzCache: public AATBlockQueue {
@@ -640,8 +640,8 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
 
-		void 		   remove_jazz_block (const JazzBlockIdentifier *p_id);
-		void 		   remove_jazz_block (		JazzBlockId64		 id64);
+		void		   remove_jazz_block (const JazzBlockIdentifier *p_id);
+		void		   remove_jazz_block (		JazzBlockId64		 id64);
 
 	private:
 
