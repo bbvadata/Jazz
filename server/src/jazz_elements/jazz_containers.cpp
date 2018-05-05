@@ -529,6 +529,7 @@ JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 	keepr_item_size	 = item_size();
 	num_allocd_items = 0;
 	p_buffer_base	 = nullptr;
+	p_first_item	 = nullptr;
 	p_first_free	 = nullptr;
 }
 
@@ -549,22 +550,37 @@ JazzBlockKeepr::~JazzBlockKeepr()
 	\return True if successful. Logs errors if failed and a valid JazzLogger was given when constructing this object.
 	Fails is called when the buffer is already allocated.
 */
-bool JazzBlockKeepr::alloc_keeprs  (int num_items)
+bool JazzBlockKeepr::alloc_keeprs(int num_items)
 {
-//TODO: Implement JazzBlockKeepr::alloc_keeprs
-}
+	if (num_allocd_items != 0 || num_items < 1) {
+		log(LOG_ERROR, "JazzBlockKeepr::alloc_keeprs(): Wrong call.");
 
+		return false;
+	}
 
-/** Reallocate the buffer of JazzBlockKeeprItem descendant objects
+	p_buffer_base = (pJazzQueueItem) malloc(keepr_item_size*num_items);
 
-	\param num_items The new number of JazzBlockKeeprItem descendant objects
-	\return True if successful. Logs errors if failed and a valid JazzLogger was given when constructing this object.
+	if (p_buffer_base == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::alloc_keeprs(): malloc() failed.");
 
-	This keeps all previously existing JazzBlocks and assigns them inside the item of the previous buffer.
-*/
-bool JazzBlockKeepr::realloc_keeprs(int num_items)
-{
-//TODO: Implement JazzBlockKeepr::realloc_keeprs
+		return false;
+	}
+
+	memset(p_buffer_base, 0, keepr_item_size*num_items);
+
+	pJazzQueueItem p_item = p_first_free = p_buffer_base;
+
+	for (int i = 0; i < num_items - 1; i++) {
+		void *pt = p_item + keepr_item_size;
+
+		p_item->p_alloc_next = (pJazzQueueItem) pt;
+
+		p_item = (pJazzQueueItem) pt;
+	}
+
+	num_allocd_items = num_items;
+
+	return true;
 }
 
 
