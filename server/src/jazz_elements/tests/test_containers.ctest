@@ -67,7 +67,7 @@ JazzLock	   _LOCK_ {0};
 static void *unsafe_reader(void *null) {
 	PSB.readers.fetch_add(1, std::memory_order_relaxed);
 
-	for (int k = 0; k < 240; k++){
+	for (int k = 0; k < 100; k++){
 		if (PSB.reader(k) == 0)
 			PSB.reads_ok.fetch_add(1, std::memory_order_relaxed);
 		else
@@ -80,7 +80,7 @@ static void *unsafe_reader(void *null) {
 static void *unsafe_writer(void *null) {
 	PSB.writers.fetch_add(1, std::memory_order_relaxed);
 
-	for (int k = 0; k < 16; k++){
+	for (int k = 0; k < 10; k++){
 		PSB.writer();
 	}
 
@@ -90,7 +90,7 @@ static void *unsafe_writer(void *null) {
 static void *safe_reader(void *null) {
 	PSB.readers.fetch_add(1, std::memory_order_relaxed);
 
-	for (int k = 0; k < 240000; k++){
+	for (int k = 0; k < 1000; k++){
 		JBK.enter_reading(_LOCK_);
 
 		if (PSB.reader(k) == 0)
@@ -107,7 +107,7 @@ static void *safe_reader(void *null) {
 static void *safe_writer(void *null) {
 	PSB.writers.fetch_add(1, std::memory_order_relaxed);
 
-	for (int k = 0; k < 16000; k++){
+	for (int k = 0; k < 10; k++){
 		JBK.enter_writing(_LOCK_);
 
 		PSB.writer();
