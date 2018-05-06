@@ -938,7 +938,35 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 */
 void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 {
-//TODO: Implement JazzBlockKeepr::free_jazz_block
+	while (p_item == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Wrong call.");
+
+		return;
+	}
+
+	if (p_item->p_jazz_block == nullptr) {
+		log_printf(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Item %p has no block.", p_item);
+
+		return;
+	}
+
+	jazz_containers::free_jazz_block(p_item->p_jazz_block);
+
+	enter_writing(_buffer_lock_);
+
+	if (p_item->p_alloc_prev == nullptr)
+		p_first_item = p_item->p_alloc_next;
+	else
+		p_item->p_alloc_prev->p_alloc_next = p_item->p_alloc_next;
+
+	if (p_item->p_alloc_next != nullptr)
+		p_item->p_alloc_next->p_alloc_prev = p_item->p_alloc_prev;
+
+	p_item->p_alloc_next = p_first_free;
+
+	p_first_free = p_item;
+
+	leave_writing(_buffer_lock_);
 }
 
 
