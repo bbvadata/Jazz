@@ -297,7 +297,7 @@ class JazzBlockKeepr {
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockId64	id64,
 											int					cell_type,
-											JazzTensorDim	   *dim,
+											int				   *dim,
 											AllAttributes	   *att,
 											int					fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
 											bool			   *p_bool_filter	= nullptr,
@@ -312,7 +312,7 @@ class JazzBlockKeepr {
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
 											int						   cell_type,
-											JazzTensorDim			  *dim,
+											int						  *dim,
 											AllAttributes			  *att,
 											int						   fill_tensor	   = JAZZ_FILL_NEW_WITH_NA,
 											bool					  *p_bool_filter   = nullptr,
@@ -523,7 +523,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		pJazzQueueItem new_jazz_block (const JazzBlockId64	id64,
 									   int					cell_type,
-									   JazzTensorDim	   *dim,
+									   int				   *dim,
 									   AllAttributes	   *att,
 									   int					fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
 									   bool				   *p_bool_filter	= nullptr,
@@ -540,7 +540,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
 									   int						  cell_type,
-									   JazzTensorDim			 *dim,
+									   int						 *dim,
 									   AllAttributes			 *att,
 									   int						  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
 									   bool						 *p_bool_filter	  = nullptr,
