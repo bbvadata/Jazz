@@ -651,6 +651,27 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 													pJazzFilter			p_row_filter,
 													AllAttributes	   *att)
 {
+	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): jazz_containers::new_jazz_block() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlockKeeprItem p_keepr = new_keepr_item ();
+
+	if (p_keepr == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	p_keepr->p_jazz_block	 = p_block;
+	p_keepr->block_id64		 = id64;
+	p_keepr->block_id.key[0] = 0;
+
+	return p_keepr;
 }
 
 
