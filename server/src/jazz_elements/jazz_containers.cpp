@@ -730,7 +730,7 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 													int					cell_type,
-													JazzTensorDim	   *dim,
+													int				   *dim,
 													AllAttributes	   *att,
 													int					fill_tensor,
 													bool			   *p_bool_filter,
@@ -738,7 +738,27 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 													const char		   *p_text,
 													char				eoln)
 {
-//TODO: Implement JazzBlockKeepr::new_jazz_block (2)
+	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): jazz_containers::new_jazz_block() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlockKeeprItem p_keepr = new_keepr_item ();
+
+	if (p_keepr == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	p_keepr->p_jazz_block	 = p_block;
+	p_keepr->block_id64		 = id64;
+	p_keepr->block_id.key[0] = 0;
+
+	return p_keepr;
 }
 
 
