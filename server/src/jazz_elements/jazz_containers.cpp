@@ -779,7 +779,7 @@ void AATBlockQueue::destroy_keeprs()
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 											  pJazzBlock		  p_as_block,
-											  pJazzBlock		  p_row_filter,
+											  pJazzFilter		  p_row_filter,
 											  AllAttributes	   	 *att,
 											  uint64_t			  time_to_build)
 {
@@ -828,7 +828,7 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 											  pJazzBlock			  	 p_as_block,
-											  pJazzBlock			  	 p_row_filter,
+											  pJazzFilter			  	 p_row_filter,
 											  AllAttributes				*att,
 											  uint64_t					 time_to_build)
 {
