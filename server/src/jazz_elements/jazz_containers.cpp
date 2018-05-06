@@ -659,7 +659,7 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 		return nullptr;
 	}
 
-	pJazzBlockKeeprItem p_keepr = new_keepr_item ();
+	pJazzBlockKeeprItem p_keepr = new_keepr_item();
 
 	if (p_keepr == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): new_keepr_item() returned a nullptr.");
@@ -746,7 +746,7 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 		return nullptr;
 	}
 
-	pJazzBlockKeeprItem p_keepr = new_keepr_item ();
+	pJazzBlockKeeprItem p_keepr = new_keepr_item();
 
 	if (p_keepr == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): new_keepr_item() returned a nullptr.");
@@ -787,7 +787,29 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 													pJazzFilter			  	   p_row_filter,
 													AllAttributes			  *att)
 {
-//TODO: Implement JazzBlockKeepr::new_jazz_block (3)
+	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(3): jazz_containers::new_jazz_block() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlockKeeprItem p_keepr = new_keepr_item();
+
+	if (p_keepr == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(3): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	p_keepr->p_jazz_block = p_block;
+
+	memcpy(&p_keepr->block_id, p_id, sizeof(JazzBlockIdentifier));
+
+	p_keepr->block_id64 = hash_block_id((const char *) p_id);
+
+	return p_keepr;
 }
 
 
