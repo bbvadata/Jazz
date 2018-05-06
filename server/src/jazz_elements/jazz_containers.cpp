@@ -547,8 +547,8 @@ JazzBlockKeepr::~JazzBlockKeepr()
 /** Allocate the buffer of JazzBlockKeeprItem descendant objects
 
 	\param num_items The number of JazzBlockKeeprItem descendant objects
-	\return True if successful. Logs errors if failed and a valid JazzLogger was given when constructing this object.
-	Fails is called when the buffer is already allocated.
+	\return True if successful. Logs with level LOG_ERROR if failed or called on an already allocated object.
+	Fails if called when the buffer is already allocated.
 */
 bool JazzBlockKeepr::alloc_keeprs(int num_items)
 {
@@ -558,7 +558,7 @@ bool JazzBlockKeepr::alloc_keeprs(int num_items)
 		return false;
 	}
 
-	p_buffer_base = (pJazzQueueItem) malloc(keepr_item_size*num_items);
+	p_buffer_base = (pJazzBlockKeeprItem) malloc(keepr_item_size*num_items);
 
 	if (p_buffer_base == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::alloc_keeprs(): malloc() failed.");
@@ -568,14 +568,14 @@ bool JazzBlockKeepr::alloc_keeprs(int num_items)
 
 	memset(p_buffer_base, 0, keepr_item_size*num_items);
 
-	pJazzQueueItem p_item = p_first_free = p_buffer_base;
+	pJazzBlockKeeprItem p_item = p_first_free = p_buffer_base;
 
 	for (int i = 0; i < num_items - 1; i++) {
 		void *pt = p_item + keepr_item_size;
 
-		p_item->p_alloc_next = (pJazzQueueItem) pt;
+		p_item->p_alloc_next = (pJazzBlockKeeprItem) pt;
 
-		p_item = (pJazzQueueItem) pt;
+		p_item = (pJazzBlockKeeprItem) pt;
 	}
 
 	num_allocd_items = num_items;
