@@ -897,9 +897,13 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 }
 
 
-/** Aaa
+/** Returns an empty pJazzBlockKeeprItem by moving it from the empty list into the used double linked list.
 
-//TODO: Document JazzBlockKeepr::new_keepr_item
+	This function is protected and should only be used internally. Callers should call appropriate new_jazz_block() methods.
+
+	\return	The address of the JazzBlockKeeprItem taken from the empty list.
+
+	Logs with level LOG_ERROR on error (No free items).
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 {
