@@ -643,10 +643,12 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 
 	\return	The address of the JazzBlockKeeprItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzBlockKeeprItem
 	if allocating the JazzBlock fails.
+
+	Logs with level LOG_ERROR on any error condition.
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
 													pJazzBlock			  	   p_as_block,
-													pJazzBlock			  	   p_row_filter,
+													pJazzFilter			  	   p_row_filter,
 													AllAttributes			  *att)
 {
 //TODO: Implement JazzBlockKeepr::new_jazz_block (3)
