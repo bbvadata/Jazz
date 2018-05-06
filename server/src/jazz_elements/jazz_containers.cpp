@@ -698,6 +698,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 
 	\return	The address of the JazzBlockKeeprItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzBlockKeeprItem
 	if allocating the JazzBlock fails.
+
+	Logs with level LOG_ERROR on any error condition.
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
 													int						   cell_type,
