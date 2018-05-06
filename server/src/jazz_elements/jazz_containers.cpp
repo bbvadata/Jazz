@@ -593,6 +593,31 @@ to create a new buffer.
 */
 void JazzBlockKeepr::destroy_keeprs()
 {
+	if (num_allocd_items <= 0 || p_buffer_base == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::destroy_keeprs(): Wrong call.");
+
+		return;
+	}
+
+	enter_writing(_buffer_lock_);
+
+	while (p_first_item != nullptr) {
+		if (p_first_item->p_jazz_block == nullptr)
+			log_printf(LOG_ERROR, "JazzBlockKeepr::destroy_keeprs(): Item %p has no block.", p_first_item);
+		else
+			jazz_containers::free_jazz_block(p_first_item->p_jazz_block);
+
+		p_first_item = p_first_item->p_alloc_next;
+	}
+
+	free(p_buffer_base);
+
+	num_allocd_items = 0;
+	p_buffer_base	 = nullptr;
+	p_first_item	 = nullptr;
+	p_first_free	 = nullptr;
+
+	leave_writing(_buffer_lock_);
 }
 
 
