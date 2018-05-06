@@ -292,7 +292,7 @@ class JazzBlockKeepr {
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockId64	id64,
 											pJazzBlock			p_as_block,
-											pJazzBlock			p_row_filter  = nullptr,
+											pJazzFilter			p_row_filter  = nullptr,
 											AllAttributes	   *att			  = nullptr);
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockId64	id64,
@@ -307,7 +307,7 @@ class JazzBlockKeepr {
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
 											pJazzBlock			  	   p_as_block,
-											pJazzBlock			  	   p_row_filter	= nullptr,
+											pJazzFilter			  	   p_row_filter	= nullptr,
 											AllAttributes			  *att			= nullptr);
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
@@ -517,7 +517,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		pJazzQueueItem new_jazz_block (const JazzBlockId64	id64,
 									   pJazzBlock			p_as_block,
-									   pJazzBlock			p_row_filter  = nullptr,
+									   pJazzFilter			p_row_filter  = nullptr,
 									   AllAttributes	   *att			  = nullptr,
 									   uint64_t				time_to_build = 0);
 
@@ -534,7 +534,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
 									   pJazzBlock			  	  p_as_block,
-									   pJazzBlock			  	  p_row_filter	= nullptr,
+									   pJazzFilter			  	  p_row_filter	= nullptr,
 									   AllAttributes			 *att			= nullptr,
 									   uint64_t					  time_to_build = 0);
 
