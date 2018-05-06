@@ -320,12 +320,16 @@ class JazzBlockKeepr {
 											const char				  *p_text		   = nullptr,
 											char					   eoln			   = '\n');
 
-		pJazzBlockKeeprItem new_keepr_item ();
-
 		void free_jazz_block(pJazzBlockKeeprItem p_item);
 
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+
+		pJazzBlockKeeprItem new_keepr_item();
 
 		/** Enter a thread exclusion code area for reading
 		This function must be called by all the readers that enter a thread exclusion area. In this context, a reader means a thread that
