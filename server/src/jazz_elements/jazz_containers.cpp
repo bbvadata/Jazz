@@ -903,6 +903,26 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 {
+	if (p_first_free == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_keepr_item(): No free items.");
+
+		return nullptr;
+	}
+	enter_writing(_buffer_lock_);
+
+	pJazzBlockKeeprItem p_item = p_first_free;
+
+	p_first_free = p_item->p_alloc_next;
+
+	p_item->p_alloc_next       = p_first_item;
+	p_first_item->p_alloc_prev = p_item;
+	p_item->p_alloc_prev       = nullptr;
+
+	p_first_item = p_item;
+
+	leave_writing(_buffer_lock_);
+
+	return p_item;
 }
 
 
