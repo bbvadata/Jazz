@@ -1010,9 +1010,30 @@ void AATBlockQueue::destroy_keeprs()
 }
 
 
-/** Aaa
+/** Create a new JazzBlock as a selection (of possibly all) of an existing JazzBlock owned by a JazzQueueItem
 
-//TODO: Document AATBlockQueue::new_jazz_block (1)
+	\param id64			 A binary block ID. When blocks are created by giving a JazzBlockIdentifier, their binary ID is built automatically
+						 as the hash of their JazzBlockIdentifier (NOT the content of the block). That is the normal way of creating blocks
+						 and the only way that supports persisted blocks. Volatile blocks may have a "forced" binary id computed as the
+						 result of the function that creates them and the hashes of its dependencies. To support creating blocks (typically
+						 cached results of functions) with a give binary id, this form of new_jazz_block() comes in hand. Block items using
+						 this always have their JazzBlockIdentifier defined as a null string.
+	\param p_as_block	 An existing block from which everything is copied, possibly with a selection over its rows.
+	\param p_row_filter	 A filter that is applicable to p_as_block. I.e., p_row_filter->can_filter(p_as_block) == true
+						 If p_row_filter == nullptr then p_as_block is copied into a newly allocated pointer.
+						 See parameter dim in the new_jazz_block() version that uses dim to understand how selection is applied.
+	\param att			 An alternative source of attributes. When this parameter in != nullptr, the new block will get its
+						 attributes from att instead of copying those in p_as_block->.
+	\param time_to_build The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
+						 If that value is known, it may be used to optimize the priority of the block in the queue.
+
+	OWNERSHIP: If you create a one shot block using new_jazz_block(), you earn the responsibility to free it with free_jazz_block().
+	This is not the normal way to create JazzBlocks, when you use a JazzBlockKeepr descendant, that object will allocate and free
+	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
+	automatically.
+
+	\return	The address of the JazzQueueItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzQueueItem
+	if allocating the JazzBlock fails.
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 											  pJazzBlock		  p_as_block,
