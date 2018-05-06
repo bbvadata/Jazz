@@ -933,6 +933,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 /** Destroy a JazzBlock and free its owning JazzBlockKeeprItem
 
 	\param p_item The JazzBlockKeeprItem owning the JazzBlock that will be destroyed.
+
+	Logs with level LOG_ERROR on errors.
 */
 void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 {
