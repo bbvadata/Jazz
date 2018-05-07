@@ -61,8 +61,6 @@ class PseudoBuffer {
 
 PseudoBuffer   PSB;
 JazzBlockKeepr JBK;
-JazzLock	   _LOCK_ {0};
-
 
 static void *unsafe_reader(void *null) {
 	PSB.readers.fetch_add(1, std::memory_order_relaxed);
@@ -91,14 +89,14 @@ static void *safe_reader(void *null) {
 	PSB.readers.fetch_add(1, std::memory_order_relaxed);
 
 	for (int k = 0; k < 1000; k++){
-		JBK.enter_reading(_LOCK_);
+		JBK.enter_reading();
 
 		if (PSB.reader(k) == 0)
 			PSB.reads_ok.fetch_add(1, std::memory_order_relaxed);
 		else
 			PSB.thread_errors.fetch_add(1, std::memory_order_relaxed);
 
-		JBK.leave_reading(_LOCK_);
+		JBK.leave_reading();
 	}
 
 	return (void *) 0;
@@ -108,11 +106,11 @@ static void *safe_writer(void *null) {
 	PSB.writers.fetch_add(1, std::memory_order_relaxed);
 
 	for (int k = 0; k < 10; k++){
-		JBK.enter_writing(_LOCK_);
+		JBK.enter_writing();
 
 		PSB.writer();
 
-		JBK.leave_writing(_LOCK_);
+		JBK.leave_writing();
 	}
 
 	return (void *) 0;
@@ -3682,38 +3680,38 @@ SCENARIO("Testing threading functions")
 {
 	WHEN("We check basic assumptions, we get expected results")
 	{
-		REQUIRE(_LOCK_ == 0);
+		REQUIRE(JBK._keepr_lock_ == 0);
 
-		int lock = _LOCK_.fetch_add(1, std::memory_order_relaxed);
+		int lock = JBK._keepr_lock_.fetch_add(1, std::memory_order_relaxed);
 
 		REQUIRE(lock == 0);
-		REQUIRE(_LOCK_ == 1);
+		REQUIRE(JBK._keepr_lock_ == 1);
 
-		_LOCK_ = 0;
+		JBK._keepr_lock_ = 0;
 
-		JBK.enter_reading(_LOCK_);
-		REQUIRE(_LOCK_ == 1);
+		JBK.enter_reading();
+		REQUIRE(JBK._keepr_lock_ == 1);
 
-		JBK.enter_reading(_LOCK_);
-		REQUIRE(_LOCK_ == 2);
+		JBK.enter_reading();
+		REQUIRE(JBK._keepr_lock_ == 2);
 
-		JBK.enter_reading(_LOCK_);
-		REQUIRE(_LOCK_ == 3);
+		JBK.enter_reading();
+		REQUIRE(JBK._keepr_lock_ == 3);
 
-		JBK.leave_reading(_LOCK_);
-		REQUIRE(_LOCK_ == 2);
+		JBK.leave_reading();
+		REQUIRE(JBK._keepr_lock_ == 2);
 
-		JBK.leave_reading(_LOCK_);
-		REQUIRE(_LOCK_ == 1);
+		JBK.leave_reading();
+		REQUIRE(JBK._keepr_lock_ == 1);
 
-		JBK.leave_reading(_LOCK_);
-		REQUIRE(_LOCK_ == 0);
+		JBK.leave_reading();
+		REQUIRE(JBK._keepr_lock_ == 0);
 
-		JBK.enter_writing(_LOCK_);
-		REQUIRE(_LOCK_ == -JAZZ_LOCK_WEIGHT_OF_WRITE);
+		JBK.enter_writing();
+		REQUIRE(JBK._keepr_lock_ == -JAZZ_LOCK_WEIGHT_OF_WRITE);
 
-		JBK.leave_writing(_LOCK_);
-		REQUIRE(_LOCK_ == 0);
+		JBK.leave_writing();
+		REQUIRE(JBK._keepr_lock_ == 0);
 	}
 
 	PSB.writer();
