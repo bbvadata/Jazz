@@ -994,9 +994,12 @@ AATBlockQueue::~AATBlockQueue()
 }
 
 
-/** Aaa
+/** Destroys all the JazzBocks and all the corresponding JazzQueueItem keeping them.
 
-//TODO: Document AATBlockQueue::destroy_keeprs
+	This releases all the memory allocated by the AATBlockQueue object and leaves it in a state where alloc_keeprs() can be called
+to create a new buffer.
+
+	Logs with level LOG_ERROR on any error condition such as items holding nonexistent blocks.
 */
 void AATBlockQueue::destroy_keeprs()
 {
