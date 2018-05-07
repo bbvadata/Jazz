@@ -1289,43 +1289,6 @@ void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
 
 /*
 
-// pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT):
-// -----------------------------------
-
-// input: N, the value to be inserted, and T, the root of the tree to insert it into.
-// output: A balanced version T including X.
-
-pJazzQueueItem insert(pJazzQueueItem pN, pJazzQueueItem pT)
-{
-
-// Do the normal binary tree insertion procedure.  Set the result of the
-// recursive call to the correct child in case a new node was created or the
-// root of the subtree changes.
-
-	if (pT == NULL)
-	{
-		pN->level = 1;
-		pN->p_alloc_prev = NULL;
-		pN->p_alloc_next = NULL;
-
-		return pN;
-	}
-	else
-	{
-		if (pN->priority < pT->priority) pT->p_alloc_prev = insert(pN, pT->p_alloc_prev);
-		else							 pT->p_alloc_next = insert(pN, pT->p_alloc_next);
-	}
-
-// Perform skew and then split.	 The conditionals that determine whether or
-// not a rotation will occur or not are inside of the procedures, as given above.
-
-	pT = skew(pT);
-	pT = split(pT);
-
-	return pT;
-};
-
-
 // pJazzQueueItem remove(pJazzQueueItem pN, pJazzQueueItem pT):
 // -----------------------------------
 
