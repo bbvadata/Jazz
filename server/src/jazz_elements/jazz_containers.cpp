@@ -1003,7 +1003,24 @@ to create a new buffer.
 */
 void AATBlockQueue::destroy_keeprs()
 {
-//TODO: Implement AATBlockQueue::destroy_keeprs
+	if (num_allocd_items <= 0 || p_buffer_base == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::destroy_keeprs(): Wrong call.");
+
+		return;
+	}
+
+	enter_writing();
+
+	recursive_destroy_keeprs(p_queue_root);
+
+	free(p_buffer_base);
+
+	num_allocd_items = 0;
+	p_buffer_base	 = nullptr;
+	p_first_item	 = nullptr;
+	p_first_free	 = nullptr;
+
+	leave_writing();
 }
 
 
