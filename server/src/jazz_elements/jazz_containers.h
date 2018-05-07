@@ -548,6 +548,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 	private:
 
+		pJazzQueueItem new_keepr_item ();
+
 		/** Return the highest priority node in the AA subtree without modifying the tree
 
 			\param p_item The root of the AA subtree from which we want the highest priority node.
