@@ -463,9 +463,12 @@ class JazzBlockKeepr {
 		int					keepr_item_size, num_allocd_items;
 		pJazzBlockKeeprItem	p_buffer_base, p_first_item, p_first_free;
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
+		JazzLock				_keepr_lock_;
 		jazz_utils::pJazzLogger	p_log;
 };
 
