@@ -338,16 +338,14 @@ class JazzBlockKeepr {
 		It is mandatory that all paths exiting the area call leave_reading() as soon as the exclusion no longer applies.
 
 		<b>This method never returns on failure!!</b> The most probable failure is a writer not releasing the lock.
-
-			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
-		inline void enter_reading(JazzLock &_lock_) {
+		inline void enter_reading() {
 			int retry = 0;
 			while (true) {
-				int32_t lock = _lock_;
+				int32_t lock = _keepr_lock_;
 				if (lock >= 0) {
 					int32_t next = lock + 1;
-					if (_lock_.compare_exchange_weak(lock, next))
+					if (_keepr_lock_.compare_exchange_weak(lock, next))
 						return;
 				}
 				if (++retry > JAZZ_LOCK_READING_RETRY_NUMTIMES) {
