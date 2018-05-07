@@ -1383,7 +1383,24 @@ again in case it is not removed.
 */
 pJazzQueueItem AATBlockQueue::get_highest_priority_item (bool remove_it)
 {
-//TODO: Implement AATBlockQueue::highest_priority_item
+	pJazzQueueItem p_item;
+
+	if (remove_it) {
+		enter_writing();
+
+		p_item 		 = highest_priority(p_queue_root);
+		p_queue_root = remove_hi	   (p_item, p_queue_root);
+
+		leave_writing();
+	} else {
+		enter_reading();
+
+		p_item = highest_priority(p_queue_root);
+
+		leave_reading();
+	}
+
+	return p_item;
 }
 
 
