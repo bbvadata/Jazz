@@ -497,7 +497,6 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		// Methods for buffer allocation
 
-		virtual bool alloc_keeprs  (int num_items);
 		virtual void destroy_keeprs();
 
 		// Methods for JazzBlock allocation

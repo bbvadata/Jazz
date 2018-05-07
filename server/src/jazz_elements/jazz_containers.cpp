@@ -984,23 +984,13 @@ AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger a_logger) : JazzBlockKeepr(
 }
 
 
-/** Aaa
+/** Destructor for class JazzBlockKeepr
 
-//TODO: Document AATBlockQueue::~AATBlockQueue
+	This automatically destoys all the JazzBocks and the corresponding JazzBlockKeeprItem descendants.
 */
 AATBlockQueue::~AATBlockQueue()
 {
-//TODO: Implement AATBlockQueue::~AATBlockQueue
-}
-
-
-/** Aaa
-
-//TODO: Document AATBlockQueue::alloc_keeprs
-*/
-bool AATBlockQueue::alloc_keeprs  (int num_items)
-{
-//TODO: Implement AATBlockQueue::alloc_keeprs
+	destroy_keeprs();
 }
 
 
