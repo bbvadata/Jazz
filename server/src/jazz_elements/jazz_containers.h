@@ -497,8 +497,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		// Methods for buffer allocation
 
-		bool alloc_keeprs  (int num_items);
-		void destroy_keeprs();
+		virtual bool alloc_keeprs  (int num_items);
+		virtual void destroy_keeprs();
 
 		// Methods for JazzBlock allocation
 
@@ -536,9 +536,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 									   char						  eoln			  = '\n',
 									   uint64_t					  time_to_build	  = 0);
 
-		pJazzQueueItem new_keepr_item ();
-
-		void free_jazz_block(pJazzQueueItem p_item);
+		virtual void free_jazz_block(pJazzQueueItem p_item);
 
 		pJazzQueueItem highest_priority_item (bool lock_it);
 		pJazzQueueItem lowest_priority_item	 (bool lock_it);
