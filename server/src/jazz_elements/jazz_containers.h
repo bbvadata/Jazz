@@ -547,7 +547,19 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 	private:
 
-		pJazzQueueItem new_keepr_item ();
+		pJazzQueueItem new_keepr_item();
+
+		inline void recursive_destroy_keeprs(pJazzBlockKeeprItem p_item) {
+			if (p_item != nullptr) {
+				if (p_item->p_jazz_block == nullptr)
+					log_printf(LOG_ERROR, "AATBlockQueue::recursive_destroy_keeprs(): Item %p has no block.", p_item);
+				else
+					jazz_containers::free_jazz_block(p_item->p_jazz_block);
+
+				recursive_destroy_keeprs(p_item->p_alloc_prev);
+				recursive_destroy_keeprs(p_item->p_alloc_next);
+			}
+		};
 
 		/** Return the highest priority node in the AA subtree without modifying the tree
 
