@@ -1348,9 +1348,13 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 }
 
 
-/** Aaa
+/** Returns an empty pJazzQueueItem by moving it from the empty list or freeing the least priority item.
 
-//TODO: Document AATBlockQueue::new_keepr_item
+	This function is protected and should only be used internally. Callers should call appropriate new_jazz_block() methods.
+
+	\return	The address of the pJazzQueueItem assigned.
+
+	Logs with level LOG_ERROR on error.
 */
 pJazzQueueItem AATBlockQueue::new_keepr_item()
 {
