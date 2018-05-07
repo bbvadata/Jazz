@@ -670,6 +670,40 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
+		/** Insert a node in its correct place according to priority in an AA subtree
+
+			\param p_new  The node to be inserted
+			\param p_tree The root of the subtree where p_new will be inserted
+			\return		  A balanced version of p_tree including p_new
+		*/
+		inline pJazzQueueItem insert(pJazzQueueItem p_new, pJazzQueueItem p_tree)
+		{
+			// Do the normal binary tree insertion procedure. Set the result of the
+			// recursive call to the correct child in case a new node was created or the
+			// root of the subtree changes.
+
+			if (p_tree == NULL) {
+				p_new->level = 1;
+				p_new->p_alloc_prev = NULL;
+				p_new->p_alloc_next = NULL;
+
+				return p_new;
+			} else {
+				if (p_new->priority < p_tree->priority)
+					p_tree->p_alloc_prev = insert(p_new, (pJazzQueueItem) p_tree->p_alloc_prev);
+				else
+					p_tree->p_alloc_next = insert(p_new, (pJazzQueueItem) p_tree->p_alloc_next);
+			}
+
+			// Perform skew and then split.	The conditionals that determine whether or
+			// not a rotation will occur or not are inside of the procedures, as given above.
+
+			p_tree = skew(p_tree);
+			p_tree = split(p_tree);
+
+			return p_tree;
+		};
+
 		double discrete_recency;
 
 		pJazzQueueItem p_queue_root;
