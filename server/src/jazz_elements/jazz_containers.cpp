@@ -1372,98 +1372,22 @@ void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item)
 }
 
 
-/** Evaluate the priority of a JazzQueueItem
+/** Return the JazzQueueItem with the highest priority value in the AATBlockQueue
 
-	\param p_item A pointer to the JazzQueueItem whose priority is to be set.
+	\param remove_it Removes the item from the queue if true, otherwise only return the pointer to it.
+	\return		   A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
 
-	Each time a new JazzQueueItem is added to the AATBlockQueue this virtual method will be called. The method does not
-return anything, so it should set p_item->priority = some_computation(). Typically, the computation will involve the recency,
-the size, times_used and time_to_build, etc.
+This public method is thread safe, unlike the corresponding private method highest_priority(). The JazzQueueItem
+has to be explicitly removed with free_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
+again in case it is not removed.
 */
-void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
+pJazzQueueItem AATBlockQueue::get_highest_priority_item (bool remove_it)
 {
-	double prio = fmin(fmax(1.0, p_item->time_to_build/1000), 50) + discrete_recency;	// Number of ms in {1..50}
-
-	discrete_recency = discrete_recency + 0.0001;										// Increasing 1 every 10000 blocks
-
-	p_item->priority = prio*(p_item->times_used + 1);
+//TODO: Implement AATBlockQueue::highest_priority_item
 }
 
+
 /*
-
-// pJazzQueueItem remove(pJazzQueueItem pN, pJazzQueueItem pT):
-// -----------------------------------
-
-// input: N, the node to remove, and T, the root of the tree from which it should be deleted.
-// output: T, balanced, without the node N.
-
-pJazzQueueItem remove_hi(pJazzQueueItem pN, pJazzQueueItem pT)
-{
-	if (pN == pT)
-	{
-		if (!pT->p_alloc_prev)
-		{
-			pT = pT->p_alloc_next;
-			if (!pT) return NULL;
-		}
-		else pT = pT->p_alloc_prev;
-	}
-	else
-	{
-		if (pN->priority < pT->priority) pT->p_alloc_prev = remove_hi(pN, pT->p_alloc_prev);
-		else							 pT->p_alloc_next = remove_hi(pN, pT->p_alloc_next);
-	};
-
-// Rebalance the tree.	Decrease the level of all nodes in this level if
-// necessary, and then skew and split all nodes in the new level.
-
-	decrease_level(pT);
-	pT = skew(pT);
-	if (pT->p_alloc_next)
-	{
-		pT->p_alloc_next = skew(pT->p_alloc_next);
-		if (pT->p_alloc_next->p_alloc_next) pT->p_alloc_next->p_alloc_next = skew(pT->p_alloc_next->p_alloc_next);
-	};
-	pT = split(pT);
-	if (pT->p_alloc_next) pT->p_alloc_next = split(pT->p_alloc_next);
-
-	return pT;
-};
-
-
-pJazzQueueItem remove_lo(pJazzQueueItem pN, pJazzQueueItem pT)
-{
-	if (pN == pT)
-	{
-		if (!pT->p_alloc_prev)
-		{
-			pT = pT->p_alloc_next;
-			if (!pT) return NULL;
-		}
-		else pT = pT->p_alloc_prev;
-	}
-	else
-	{
-		if (pN->priority <= pT->priority) pT->p_alloc_prev = remove_lo(pN, pT->p_alloc_prev);
-		else							  pT->p_alloc_next = remove_lo(pN, pT->p_alloc_next);
-	};
-
-// Rebalance the tree.	Decrease the level of all nodes in this level if
-// necessary, and then skew and split all nodes in the new level.
-
-	decrease_level(pT);
-	pT = skew(pT);
-	if (pT->p_alloc_next)
-	{
-		pT->p_alloc_next = skew(pT->p_alloc_next);
-		if (pT->p_alloc_next->p_alloc_next) pT->p_alloc_next->p_alloc_next = skew(pT->p_alloc_next->p_alloc_next);
-	};
-	pT = split(pT);
-	if (pT->p_alloc_next) pT->p_alloc_next = split(pT->p_alloc_next);
-
-	return pT;
-};
-
 
 ModelBuffer::ModelBuffer()
 {
