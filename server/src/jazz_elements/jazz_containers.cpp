@@ -525,7 +525,7 @@ JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 {
 	p_log = a_logger;
 
-	_buffer_lock_	 = 0;
+	_keepr_lock_	 = 0;
 	keepr_item_size	 = item_size();
 	num_allocd_items = 0;
 	p_buffer_base	 = nullptr;
@@ -599,7 +599,7 @@ void JazzBlockKeepr::destroy_keeprs()
 		return;
 	}
 
-	enter_writing(_buffer_lock_);
+	enter_writing();
 
 	while (p_first_item != nullptr) {
 		if (p_first_item->p_jazz_block == nullptr)
@@ -617,7 +617,7 @@ void JazzBlockKeepr::destroy_keeprs()
 	p_first_item	 = nullptr;
 	p_first_free	 = nullptr;
 
-	leave_writing(_buffer_lock_);
+	leave_writing();
 }
 
 
@@ -912,7 +912,7 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 
 		return nullptr;
 	}
-	enter_writing(_buffer_lock_);
+	enter_writing();
 
 	pJazzBlockKeeprItem p_item = p_first_free;
 
@@ -924,7 +924,7 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 
 	p_first_item = p_item;
 
-	leave_writing(_buffer_lock_);
+	leave_writing();
 
 	return p_item;
 }
@@ -952,7 +952,7 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 
 	jazz_containers::free_jazz_block(p_item->p_jazz_block);
 
-	enter_writing(_buffer_lock_);
+	enter_writing();
 
 	if (p_item->p_alloc_prev == nullptr)
 		p_first_item = p_item->p_alloc_next;
@@ -966,7 +966,7 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 
 	p_first_free = p_item;
 
-	leave_writing(_buffer_lock_);
+	leave_writing();
 }
 
 
@@ -979,7 +979,6 @@ It is safe to ignore this parameter, in that case the events will not be logged.
 */
 AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger a_logger)
 {
-//TODO: Implement AATBlockQueue::AATBlockQueue
 }
 
 
