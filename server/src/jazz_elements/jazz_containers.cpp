@@ -1127,7 +1127,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 							lines in p_text.
 	\param eoln				A single character that separates the cells in p_text and will not be pushed to the string buffer.
 	\param time_to_build	The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
-							If that value is known, it may be used to optimize the priority of the block in the queue.
+							If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+							jazz_utils::elapsed_us().
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be changed
 	only creating a new block with new = new_jazz_block(p_as_block = old, att = new_att).
@@ -1168,7 +1169,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 	\param att			 An alternative source of attributes. When this parameter in != nullptr, the new block will get its
 						 attributes from att instead of copying those in p_as_block->.
 	\param time_to_build The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
-						 If that value is known, it may be used to optimize the priority of the block in the queue.
+						 If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+						 jazz_utils::elapsed_us().
 
 	OWNERSHIP: If you create a one shot block using new_jazz_block(), you earn the responsibility to free it with free_jazz_block().
 	This is not the normal way to create JazzBlocks, when you use a JazzBlockKeepr descendant, that object will allocate and free
@@ -1220,7 +1222,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 							lines in p_text.
 	\param eoln				A single character that separates the cells in p_text and will not be pushed to the string buffer.
 	\param time_to_build	The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
-							If that value is known, it may be used to optimize the priority of the block in the queue.
+							If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+							jazz_utils::elapsed_us().
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be changed
 	only creating a new block with new = new_jazz_block(p_as_block = old, att = new_att).
