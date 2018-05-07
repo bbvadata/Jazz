@@ -542,6 +542,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		virtual void set_item_priority(pJazzQueueItem p_item);
 
+		pJazzQueueItem get_highest_priority_item (bool remove_it);
+
 	private:
 
 		pJazzQueueItem new_keepr_item();
@@ -550,7 +552,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			\param p_item The root of the AA subtree from which we the free all the JazzBlock blocks.
 
-			Note: This does not dealloc the tree and should only be used inside destroy_keeprs().
+			Note: This does not dealloc the tree and should only be used inside destroy_keeprs(). It is NOT thread safe.
 		*/
 		inline void recursive_destroy_keeprs(pJazzBlockKeeprItem p_item) {
 			if (p_item != nullptr) {
@@ -596,6 +598,96 @@ class AATBlockQueue: public JazzBlockKeepr {
 			};
 
 			return p_item;
+		};
+
+		/** Remove the highest priority node in the AA subtree
+
+			\param p_hi_item The highest priority node (as returned by highest_priority(p_tree))
+			\param p_tree    The tree from which it should be deleted
+			\return			 The balanced p_tree without the node p_hi_item.
+
+			Note: This is NOT thread safe and should only be used inside get_highest_priority_item().
+		*/
+		inline pJazzQueueItem remove_hi(pJazzQueueItem p_hi_item, pJazzQueueItem p_tree)
+		{
+			if (p_hi_item == p_tree) {
+				if (!p_tree->p_alloc_prev) {
+					p_tree = (pJazzQueueItem) p_tree->p_alloc_next;
+
+					if (!p_tree)
+						return nullptr;
+				} else {
+					p_tree = (pJazzQueueItem) p_tree->p_alloc_prev;
+				}
+			} else {
+				if (p_hi_item->priority < p_tree->priority)
+					p_tree->p_alloc_prev = remove_hi(p_hi_item, (pJazzQueueItem) p_tree->p_alloc_prev);
+				else
+					p_tree->p_alloc_next = remove_hi(p_hi_item, (pJazzQueueItem) p_tree->p_alloc_next);
+			};
+
+			// Rebalance the tree. Decrease the level of all nodes in this level if
+			// necessary, and then skew and split all nodes in the new level.
+			decrease_level(p_tree);
+			p_tree = skew(p_tree);
+			if (p_tree->p_alloc_next != nullptr) {
+				p_tree->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next);
+
+				if (p_tree->p_alloc_next->p_alloc_next != nullptr)
+					p_tree->p_alloc_next->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next->p_alloc_next);
+			};
+			p_tree = split(p_tree);
+
+			if (p_tree->p_alloc_next != nullptr)
+				p_tree->p_alloc_next = split((pJazzQueueItem) p_tree->p_alloc_next);
+
+			return p_tree;
+		};
+
+		/** Remove the lowest priority node in the AA subtree
+
+			\param p_lo_item The lowest priority node (as returned by lowest_priority(p_tree))
+			\param p_tree    The tree from which it should be deleted
+			\return			 The balanced p_tree without the node p_lo_item.
+
+			Note: This is NOT thread safe and should only be used inside new_keepr_item().
+		*/
+		inline pJazzQueueItem remove_lo(pJazzQueueItem p_lo_item, pJazzQueueItem p_tree)
+		{
+			if (p_lo_item == p_tree) {
+				if (!p_tree->p_alloc_prev) {
+					p_tree = (pJazzQueueItem) p_tree->p_alloc_next;
+
+					if (!p_tree)
+						return nullptr;
+				}
+				else {
+					p_tree = (pJazzQueueItem) p_tree->p_alloc_prev;
+				}
+			} else {
+				if (p_lo_item->priority <= p_tree->priority)
+					p_tree->p_alloc_prev = remove_lo(p_lo_item, (pJazzQueueItem) p_tree->p_alloc_prev);
+				else
+					p_tree->p_alloc_next = remove_lo(p_lo_item, (pJazzQueueItem) p_tree->p_alloc_next);
+			};
+
+			// Rebalance the tree.	Decrease the level of all nodes in this level if
+			// necessary, and then skew and split all nodes in the new level.
+
+			decrease_level(p_tree);
+			p_tree = skew(p_tree);
+			if (p_tree->p_alloc_next != nullptr) {
+				p_tree->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next);
+
+				if (p_tree->p_alloc_next->p_alloc_next != nullptr)
+					p_tree->p_alloc_next->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next->p_alloc_next);
+			};
+			p_tree = split(p_tree);
+
+			if (p_tree->p_alloc_next != nullptr)
+				p_tree->p_alloc_next = split((pJazzQueueItem) p_tree->p_alloc_next);
+
+			return p_tree;
 		};
 
 		/** Remove links that skip level in an AA subtree
