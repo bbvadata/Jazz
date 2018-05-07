@@ -679,10 +679,10 @@ class AATBlockQueue: public JazzBlockKeepr {
 			// recursive call to the correct child in case a new node was created or the
 			// root of the subtree changes.
 
-			if (p_tree == NULL) {
+			if (p_tree == nullptr) {
 				p_new->level = 1;
-				p_new->p_alloc_prev = NULL;
-				p_new->p_alloc_next = NULL;
+				p_new->p_alloc_prev = nullptr;
+				p_new->p_alloc_next = nullptr;
 
 				return p_new;
 			} else {
