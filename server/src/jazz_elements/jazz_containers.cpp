@@ -1312,17 +1312,49 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 											  char						 eoln,
 											  uint64_t					 time_to_build)
 {
-//TODO: Implement AATBlockQueue::new_jazz_block (4)
+	TimePoint time_o = std::chrono::steady_clock::now();
+
+	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::new_jazz_block(4): jazz_containers::new_jazz_block() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzQueueItem p_item = new_keepr_item();
+
+	if (p_item == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::new_jazz_block(4): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	p_item->p_jazz_block = p_block;
+
+	memcpy(&p_item->block_id, p_id, sizeof(JazzBlockIdentifier));
+
+	p_item->block_id64 = hash_block_id((const char *) p_id);
+
+	p_item->times_used    = 1;
+	p_item->last_used     = time_o;
+	p_item->time_to_build = time_to_build + jazz_utils::elapsed_us(time_o);
+
+	set_item_priority(p_item);
+
+	p_queue_root = insert(p_item, p_queue_root);
+
+	return p_item;
 }
 
 
 /** Aaa
 
-//TODO: Document JazzBlockKeepr::new_keepr_item
+//TODO: Document AATBlockQueue::new_keepr_item
 */
 pJazzQueueItem AATBlockQueue::new_keepr_item()
 {
-//TODO: Implement JazzBlockKeepr::new_keepr_item
+//TODO: Implement AATBlockQueue::new_keepr_item
 }
 
 
