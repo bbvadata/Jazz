@@ -276,8 +276,8 @@ class JazzBlockKeepr {
 
 		// Methods for buffer allocation
 
-		bool alloc_keeprs  (int num_items);
-		void destroy_keeprs();
+		virtual bool alloc_keeprs  (int num_items);
+		virtual void destroy_keeprs();
 
 		// Method for block ID validation
 
@@ -320,7 +320,7 @@ class JazzBlockKeepr {
 											const char				  *p_text		   = nullptr,
 											char					   eoln			   = '\n');
 
-		void free_jazz_block(pJazzBlockKeeprItem p_item);
+		virtual void free_jazz_block(pJazzBlockKeeprItem p_item);
 
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
