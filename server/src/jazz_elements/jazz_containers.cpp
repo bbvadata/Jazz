@@ -1056,7 +1056,37 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 											  AllAttributes	   	 *att,
 											  uint64_t			  time_to_build)
 {
-//TODO: Implement AATBlockQueue::new_jazz_block (1)
+	TimePoint time_o = std::chrono::steady_clock::now();
+
+	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::new_jazz_block(1): jazz_containers::new_jazz_block() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzQueueItem p_item = new_keepr_item();
+
+	if (p_item == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::new_jazz_block(1): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	p_item->p_jazz_block	= p_block;
+	p_item->block_id64		= id64;
+	p_item->block_id.key[0] = 0;
+
+	p_item->times_used    = 1;
+	p_item->last_used     = time_o;
+	p_item->time_to_build = time_to_build + jazz_utils::elapsed_us(time_o);
+
+	set_item_priority(p_item);
+
+	p_queue_root = insert(p_item, p_queue_root);
+
+	return p_item;
 }
 
 
