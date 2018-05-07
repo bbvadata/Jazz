@@ -549,6 +549,12 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		pJazzQueueItem new_keepr_item();
 
+		/** Free all the JazzBlock blocks in the sub-tree calling free_jazz_block() recursively.
+
+			\param p_item The root of the AA subtree from which we the free all the JazzBlock blocks.
+
+			Note: This does not dealloc the tree and should only be used inside destroy_keeprs().
+		*/
 		inline void recursive_destroy_keeprs(pJazzBlockKeeprItem p_item) {
 			if (p_item != nullptr) {
 				if (p_item->p_jazz_block == nullptr)
