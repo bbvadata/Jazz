@@ -644,6 +644,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_tree;
 		};
 
+//TODO: Combine remove_lo() and remove_hi() into just one remove() function.
+
 		/** Remove the lowest priority node in the AA subtree
 
 			\param p_lo_item The lowest priority node (as returned by lowest_priority(p_tree))
@@ -673,7 +675,6 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			// Rebalance the tree.	Decrease the level of all nodes in this level if
 			// necessary, and then skew and split all nodes in the new level.
-
 			decrease_level(p_tree);
 			p_tree = skew(p_tree);
 			if (p_tree->p_alloc_next != nullptr) {
