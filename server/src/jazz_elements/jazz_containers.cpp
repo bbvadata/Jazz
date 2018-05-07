@@ -1372,36 +1372,6 @@ void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item)
 }
 
 
-/** Return the JazzQueueItem with the highest priority value in the AATBlockQueue
-
-	\param lock_it Locks the JazzQueueItem to avoid it being selected by another (possibly racing) highest_priority_item() call.
-	\return		   A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
-
-This public method is thread safe, unlike the corresponding private method highest_priority(). The JazzQueueItem
-has to be explicitly removed with free_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
-again in case it is not removed.
-*/
-pJazzQueueItem AATBlockQueue::highest_priority_item (bool lock_it)
-{
-//TODO: Implement AATBlockQueue::highest_priority_item
-}
-
-
-/** Return the JazzQueueItem with the lowest priority value in the AATBlockQueue
-
-	\param lock_it Locks the JazzQueueItem to avoid it being selected by another (possibly racing) lowest_priority_item() call.
-	\return		   A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
-
-This public method is thread safe, unlike the corresponding private method lowest_priority(). The JazzQueueItem
-has to be explicitly removed with free_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
-again in case it is not removed.
-*/
-pJazzQueueItem AATBlockQueue::lowest_priority_item (bool lock_it)
-{
-//TODO: Implement AATBlockQueue::lowest_priority_item
-}
-
-
 /** Evaluate the priority of a JazzQueueItem
 
 	\param p_item A pointer to the JazzQueueItem whose priority is to be set.
