@@ -653,9 +653,9 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
-		double discrete_recency = 0;
+		double discrete_recency;
 
-		pJazzQueueItem p_queue_root = nullptr;
+		pJazzQueueItem p_queue_root;
 };
 
 
@@ -694,8 +694,8 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
 
-		void		   free_jazz_block (const JazzBlockIdentifier *p_id);
-		void		   free_jazz_block (		JazzBlockId64		 id64);
+		void free_jazz_block (const JazzBlockIdentifier *p_id);
+		void free_jazz_block (		JazzBlockId64		 id64);
 
 	private:
 
