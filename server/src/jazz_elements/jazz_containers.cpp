@@ -1404,6 +1404,24 @@ pJazzQueueItem AATBlockQueue::get_highest_priority_item (bool remove_it)
 }
 
 
+/** Evaluate the priority of a JazzQueueItem
+
+	\param p_item A pointer to the JazzQueueItem whose priority is to be set.
+
+	Each time a new JazzQueueItem is added to the AATBlockQueue this virtual method will be called. The method does not
+return anything, so it should set p_item->priority = some_computation(). Typically, the computation will involve the recency,
+the size, times_used and time_to_build, etc.
+*/
+void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
+{
+	double prio = fmin(fmax(1.0, p_item->time_to_build/1000), 50) + discrete_recency;	// Number of ms in {1..50}
+
+	discrete_recency = discrete_recency + 0.0001;										// Increasing 1 every 10000 blocks
+
+	p_item->priority = prio*(p_item->times_used + 1);
+}
+
+
 /*
 
 ModelBuffer::ModelBuffer()
