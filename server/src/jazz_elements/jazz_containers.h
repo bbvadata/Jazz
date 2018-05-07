@@ -361,21 +361,13 @@ class JazzBlockKeepr {
 		This function must be called exactly once by all the readers that previously called enter_reading() to enter a thread exclusion area.
 		In this context, a reader means a thread that is incompatible with threads modifying data (writers) but any number of readers can
 		enter the code area at the same time.
-
-			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
-		inline void leave_reading(JazzLock &_lock_) {
-			int retry = 0;
+		inline void leave_reading() {
 			while (true) {
-				int32_t lock = _lock_;
+				int32_t lock = _keepr_lock_;
 				int32_t next = lock - 1;
-				if (_lock_.compare_exchange_weak(lock, next))
+				if (_keepr_lock_.compare_exchange_weak(lock, next))
 					return;
-
-				if (++retry > JAZZ_LOCK_READING_RETRY_NUMTIMES) {
-					std::this_thread::yield();
-					retry = 0;
-				}
 			}
 		}
 
@@ -386,18 +378,16 @@ class JazzBlockKeepr {
 		It is mandatory that all paths exiting the area call leave_writing() as soon as the exclusion no longer applies.
 
 		<b>This method never returns on failure!!</b> The most probable failure is any other thread not releasing the lock.
-
-			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
-		inline void enter_writing(JazzLock &_lock_) {
+		inline void enter_writing() {
 			int retry = 0;
 			while (true) {
-				int32_t lock = _lock_;
+				int32_t lock = _keepr_lock_;
 				if (lock >= 0) {
 					int32_t next = lock - JAZZ_LOCK_WEIGHT_OF_WRITE;
-					if (_lock_.compare_exchange_weak(lock, next)) {
+					if (_keepr_lock_.compare_exchange_weak(lock, next)) {
 						while (true) {
-							if (_lock_ == -JAZZ_LOCK_WEIGHT_OF_WRITE)
+							if (_keepr_lock_ == -JAZZ_LOCK_WEIGHT_OF_WRITE)
 								return;
 							if (++retry > JAZZ_LOCK_KICKING_RETRY_NUMTIMES) {
 								std::this_thread::yield();
@@ -416,21 +406,13 @@ class JazzBlockKeepr {
 		/** Leave a thread exclusion code area for writing
 		This function must be called exactly once by all the writers that previously called enter_writing() to enter a thread exclusion area.
 		In this context, a writer means a thread that is incompatible with any other threads (readers or other writers).
-
-			\param _lock_ The lock controlling the exclusion area. (Must be initialized as 0 before using.)
 		*/
-		inline void leave_writing(JazzLock &_lock_) {
-			int retry = 0;
+		inline void leave_writing() {
 			while (true) {
-				int32_t lock = _lock_;
+				int32_t lock = _keepr_lock_;
 				int32_t next = lock + JAZZ_LOCK_WEIGHT_OF_WRITE;
-				if (_lock_.compare_exchange_weak(lock, next))
+				if (_keepr_lock_.compare_exchange_weak(lock, next))
 					return;
-
-				if (++retry > JAZZ_LOCK_WRITING_RETRY_NUMTIMES) {
-					std::this_thread::yield();
-					retry = 0;
-				}
 			}
 		}
 
