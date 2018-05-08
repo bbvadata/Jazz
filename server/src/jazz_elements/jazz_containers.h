@@ -320,6 +320,18 @@ class JazzBlockKeepr {
 											const char				  *p_text		   = nullptr,
 											char					   eoln			   = '\n');
 
+		/** Return the last JazzBlockKeeprItem created by JazzBlockKeepr::new_jazz_block()
+			\return	The value of the protected pointer p_first_item returned through a thread-safe mechanism
+
+			Note: This allows using JazzBlockKeepr as a LIFO stack. If necessary, the item should be removed after use with free_jazz_block().
+		*/
+		inline pJazzBlockKeeprItem last_item_in() {
+			enter_reading();
+			pJazzBlockKeeprItem p_item = p_first_item;
+			leave_reading();
+			return p_item;
+		}
+
 		virtual void free_jazz_block(pJazzBlockKeeprItem p_item);
 
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
