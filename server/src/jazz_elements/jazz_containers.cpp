@@ -1418,38 +1418,6 @@ void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item)
 }
 
 
-/** Return the JazzQueueItem with the highest priority value in the AATBlockQueue
-
-	\param remove_it Removes the item from the queue if true, otherwise only return the pointer to it.
-	\return		   A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
-
-This public method is thread safe, unlike the corresponding private method highest_priority(). The JazzQueueItem
-has to be explicitly removed with free_jazz_block() or unlocked with "JazzQueueItem.is_locked = false;" to make it findable
-again in case it is not removed.
-*/
-pJazzQueueItem AATBlockQueue::get_highest_priority_item (bool remove_it)
-{
-	pJazzQueueItem p_item;
-
-	if (remove_it) {
-		enter_writing();
-
-		p_item 		 = highest_priority(p_queue_root);
-		p_queue_root = remove		   (p_item, p_queue_root);
-
-		leave_writing();
-	} else {
-		enter_reading();
-
-		p_item = highest_priority(p_queue_root);
-
-		leave_reading();
-	}
-
-	return p_item;
-}
-
-
 /** Evaluate the priority of a JazzQueueItem
 
 	\param p_item A pointer to the JazzQueueItem whose priority is to be set.
