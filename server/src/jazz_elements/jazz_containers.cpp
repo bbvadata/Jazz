@@ -1399,7 +1399,22 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 */
 void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item)
 {
-//TODO: Implement AATBlockQueue::free_jazz_block
+	if (p_item == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::free_jazz_block: Wrong call.");
+
+		return;
+	}
+
+	if (p_item->p_jazz_block == nullptr)
+		log_printf(LOG_ERROR, "AATBlockQueue::free_jazz_block(): Item %p has no block.", p_item);
+	else
+		jazz_containers::free_jazz_block(p_item->p_jazz_block);
+
+	enter_writing();
+
+	p_queue_root = remove(p_item, p_queue_root);
+
+	leave_writing();
 }
 
 
