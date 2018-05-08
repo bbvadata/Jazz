@@ -329,6 +329,7 @@ class JazzBlockKeepr {
 			enter_reading();
 			pJazzBlockKeeprItem p_item = p_first_item;
 			leave_reading();
+
 			return p_item;
 		}
 
@@ -554,7 +555,23 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		virtual void set_item_priority(pJazzQueueItem p_item);
 
-		pJazzQueueItem get_highest_priority_item (bool remove_it);
+		/** Return the JazzQueueItem with the highest priority value in the AATBlockQueue
+
+			\return A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
+
+		Note: This allows using JazzBlockKeepr as a FIFO queue by implementing a virtual function set_item_priority() that gives the maximum
+		priority to the oldest item.
+
+		This public method is thread safe, unlike the corresponding private method highest_priority().
+		*/
+		inline pJazzQueueItem get_highest_priority_item() {
+			enter_reading();
+			pJazzQueueItem p_item = highest_priority(p_queue_root);
+			leave_reading();
+
+			return p_item;
+		}
+
 
 	private:
 
