@@ -3734,10 +3734,52 @@ SCENARIO("Testing threading functions")
 		REQUIRE(PSB.thread_errors == 0);
 	}
 
+//#define LONG_THREAD_TEST
+
+#ifndef LONG_THREAD_TEST
+	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
+
+	WHEN("We run a short thread test. Define LONG_THREAD_TEST for the long test.")
+	{
+		bool failed = false;
+
+		pthread_t th_id[32];
+		for (int i = 0; i < 32; i++) {
+			if ((i % 16) == 0) {
+				if (pthread_create(&th_id[i], nullptr, safe_writer, nullptr) != 0) {
+					failed = true;
+					break;
+				}
+			} else {
+				if (pthread_create(&th_id[i], nullptr, safe_reader, nullptr) != 0) {
+					failed = true;
+					break;
+				}
+			}
+		}
+		std::this_thread::yield();
+
+		for (int i = 0; i < 32; i++) {
+			if (pthread_join(th_id[i], nullptr) != 0){
+				failed = true;
+				break;
+			}
+		}
+
+		REQUIRE(!failed);
+
+		REQUIRE(PSB.writers == 2);
+		REQUIRE(PSB.readers == 30);
+		REQUIRE(PSB.reads_ok == 30000);
+		REQUIRE(PSB.thread_errors == 0);
+	}
+#endif
+
+#ifdef LONG_THREAD_TEST
 	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
 
 	const int num_threads = 256,
-			  num_times   = 4;
+			  num_times   = 64;
 
 	WHEN("We run a 240x100 readers 16x10 writers in parallel num_times times without control, errors happen.")
 	{
@@ -3815,6 +3857,7 @@ SCENARIO("Testing threading functions")
 		REQUIRE(PSB.reads_ok == 240000*num_times);
 		REQUIRE(PSB.thread_errors == 0);
 	}
+#endif
 }
 
 
