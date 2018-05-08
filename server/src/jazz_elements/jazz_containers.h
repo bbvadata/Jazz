@@ -572,6 +572,22 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		}
 
+		/** Return the JazzQueueItem with the lowest priority value in the AATBlockQueue
+
+			\return A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
+
+		Note: This allows using JazzBlockKeepr as a FIFO queue by implementing a virtual function set_item_priority() that gives the maximum
+		priority to the newest item.
+
+		This public method is thread safe, unlike the corresponding private method lowest_priority().
+		*/
+		inline pJazzQueueItem get_lowest_priority_item() {
+			enter_reading();
+			pJazzQueueItem p_item = lowest_priority(p_queue_root);
+			leave_reading();
+
+			return p_item;
+		}
 
 	private:
 
