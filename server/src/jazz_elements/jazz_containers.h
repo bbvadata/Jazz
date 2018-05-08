@@ -600,13 +600,13 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
-		/** Remove the lowest priority node in the AA subtree
+		/** Remove a node in an AA subtree
 
-			\param p_item The lowest priority node (as returned by lowest_priority(p_tree))
-			\param p_tree    The tree from which it should be deleted
-			\return			 The balanced p_tree without the node p_item.
+			\param p_item The node to be removed
+			\param p_tree The tree from which it should be removed
+			\return		  The balanced p_tree without the node p_item
 
-			Note: This is NOT thread safe and should only be used inside new_keepr_item().
+			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
 		*/
 		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree)
 		{
