@@ -1385,7 +1385,7 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 	else
 		jazz_containers::free_jazz_block(p_item->p_jazz_block);
 
-	p_queue_root = remove_lo(p_item, p_queue_root);
+	p_queue_root = remove(p_item, p_queue_root);
 
 	leave_writing();
 
@@ -1420,7 +1420,7 @@ pJazzQueueItem AATBlockQueue::get_highest_priority_item (bool remove_it)
 		enter_writing();
 
 		p_item 		 = highest_priority(p_queue_root);
-		p_queue_root = remove_hi	   (p_item, p_queue_root);
+		p_queue_root = remove		   (p_item, p_queue_root);
 
 		leave_writing();
 	} else {
