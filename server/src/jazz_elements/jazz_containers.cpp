@@ -919,9 +919,11 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 
 	p_first_free = p_item->p_alloc_next;
 
-	p_item->p_alloc_next       = p_first_item;
-	p_first_item->p_alloc_prev = p_item;
-	p_item->p_alloc_prev       = nullptr;
+	p_item->p_alloc_next = p_first_item;
+	p_item->p_alloc_prev = nullptr;
+
+	if (p_first_item != nullptr)
+		p_first_item->p_alloc_prev = p_item;
 
 	p_first_item = p_item;
 
