@@ -484,11 +484,12 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class JazzTree: public JazzBlockKeepr {
 
 	public:
+		 JazzTree(jazz_utils::pJazzLogger a_logger = nullptr);
 
 		/// A virtual method returning the size of JazzTreeItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzTreeItem); }
 
-		pJazzTreeItem p_tree_root = nullptr;
+		pJazzTreeItem p_tree_root;
 };
 
 
