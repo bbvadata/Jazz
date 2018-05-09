@@ -3592,6 +3592,7 @@ SCENARIO("Testing threading functions") {
 
 
 SCENARIO("Unit Tests for JazzBlockKeepr") {
+
 	const char *log_file   {"/tmp/jazz_test_containers.log"};
 	struct stat stat_struc {0};
 
@@ -3608,10 +3609,44 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 	JazzTensorDim dim {{3, 0}};
 
 
-	WHEN("I try to allocate blocks in an empty JazzBlockKeepr") {
+	WHEN("I try to allocate blocks in an empty JazzBlockKeepr and fail.") {
 		pJazzBlockKeeprItem p_item = jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
-		REQUIRE(p_item == nullptr);
+		REQUIRE(p_item == nullptr);	// Test passes but Valgrind detects is the internal JazzBlock was not freed.
+	}
+
+	WHEN("I do simple JazzBlock allocation.") {
+		pJazzBlockKeeprItem p_base;
+
+		REQUIRE(jbk.alloc_keeprs(3));
+
+		p_base = jbk.p_buffer_base;
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 3);
+		REQUIRE(jbk.p_buffer_base    != nullptr);
+		REQUIRE(jbk.p_first_item     == nullptr);
+		REQUIRE(jbk.p_first_free     == p_base);
+
+		REQUIRE(!jbk.alloc_keeprs(10));
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 3);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     == nullptr);
+		REQUIRE(jbk.p_first_free     == p_base);
+
+		pJazzBlockKeeprItem p_item = jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == p_base);
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 3);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     == p_base);
+		REQUIRE(jbk.p_first_free     != nullptr);
+
+
 	}
 
 
