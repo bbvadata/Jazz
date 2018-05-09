@@ -3861,7 +3861,7 @@ SCENARIO("Testing threading functions")
 }
 
 
-SCENARIO("Testing JazzBlock creation inside a JazzBlockKeepr")
+SCENARIO("Unit Tests for JazzBlockKeepr")
 {
 	GIVEN("We want to test the xyz")
 	{
@@ -3869,14 +3869,14 @@ SCENARIO("Testing JazzBlock creation inside a JazzBlockKeepr")
 		{
 			THEN("Something")
 			{
-//TODO: Write unit tests for JazzBlock creation inside a JazzBlockKeepr
+//TODO: Write Unit Tests for JazzBlockKeepr
 			}
 		}
 	}
 }
 
 
-SCENARIO("Testing JazzBlock creation inside a JazzTree")
+SCENARIO("Unit Tests for JazzTree")
 {
 	GIVEN("We want to test the xyz")
 	{
@@ -3884,7 +3884,7 @@ SCENARIO("Testing JazzBlock creation inside a JazzTree")
 		{
 			THEN("Something")
 			{
-//TODO: Write unit tests for JazzBlock creation inside a JazzTree
+//TODO: Write Unit Tests for JazzTree
 			}
 		}
 	}
@@ -3899,14 +3899,14 @@ SCENARIO("Testing internal AA tree functionality")
 		{
 			THEN("Something")
 			{
-//TODO: Write unit tests for internal AA tree functionality
+//TODO: Write Testing internal AA tree functionality
 			}
 		}
 	}
 }
 
 
-SCENARIO("Testing JazzBlock creation inside a AATBlockQueue")
+SCENARIO("Unit Tests for AATBlockQueue")
 {
 	GIVEN("We want to test the xyz")
 	{
@@ -3914,14 +3914,14 @@ SCENARIO("Testing JazzBlock creation inside a AATBlockQueue")
 		{
 			THEN("Something")
 			{
-//TODO: Write unit tests for JazzBlock creation inside a AATBlockQueue
+//TODO: Write Unit Tests for AATBlockQueue
 			}
 		}
 	}
 }
 
 
-SCENARIO("Testing public AATBlockQueue methods")
+SCENARIO("Unit Tests for JazzCache")
 {
 	GIVEN("We want to test the xyz")
 	{
@@ -3929,37 +3929,7 @@ SCENARIO("Testing public AATBlockQueue methods")
 		{
 			THEN("Something")
 			{
-//TODO: Write unit tests for public AATBlockQueue methods
-			}
-		}
-	}
-}
-
-
-SCENARIO("Testing JazzBlock creation inside a JazzCache")
-{
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
-//TODO: Write unit tests for JazzBlock creation inside a JazzCache
-			}
-		}
-	}
-}
-
-
-SCENARIO("Testing public JazzCache methods")
-{
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
-//TODO: Write unit tests for public JazzCache methods
+//TODO: Write Unit Tests for JazzCache
 			}
 		}
 	}
