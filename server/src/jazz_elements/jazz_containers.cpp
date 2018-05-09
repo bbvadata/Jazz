@@ -973,6 +973,19 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 }
 
 
+/** Constructor for class JazzTree
+
+	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
+It is safe to ignore this parameter, in that case the events will not be logged.
+
+	This does not allocate any items, you must call alloc_keeprs () before using the object.
+*/
+JazzTree::JazzTree(jazz_utils::pJazzLogger a_logger) : JazzBlockKeepr(a_logger)
+{
+	p_tree_root = nullptr;
+}
+
+
 /** Constructor for class AATBlockQueue
 
 	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
