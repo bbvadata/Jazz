@@ -526,7 +526,6 @@ JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 	p_log = a_logger;
 
 	_keepr_lock_	 = 0;
-	keepr_item_size	 = item_size();
 	num_allocd_items = 0;
 	p_buffer_base	 = nullptr;
 	p_first_item	 = nullptr;
@@ -558,6 +557,8 @@ bool JazzBlockKeepr::alloc_keeprs(int num_items)
 
 		return false;
 	}
+
+	keepr_item_size = item_size();
 
 	p_buffer_base = (pJazzBlockKeeprItem) malloc(keepr_item_size*num_items);
 
