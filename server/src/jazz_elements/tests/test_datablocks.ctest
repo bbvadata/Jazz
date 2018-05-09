@@ -26,16 +26,12 @@ using namespace jazz_datablocks;
 
 typedef int int6[JAZZ_MAX_TENSOR_RANK];
 
-SCENARIO("Testing Block Sizes, NAs and indexing logic")
-{
-	GIVEN("We want to check absolute sizes and offsets")
-	{
-		WHEN("We have a JazzBlock")
-		{
+SCENARIO("Testing Block Sizes, NAs and indexing logic") {
+	GIVEN("We want to check absolute sizes and offsets") {
+		WHEN("We have a JazzBlock") {
 			JazzBlock jb;
 
-			THEN("We can check sizes and offsets")
-			{
+			THEN("We can check sizes and offsets") {
 				REQUIRE(sizeof(jb.created) == 8);
 				REQUIRE(sizeof(jb.hash64)  == 8);
 				REQUIRE(sizeof(JazzBlockHeader)	 == 64);
@@ -46,10 +42,8 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic")
 			}
 		}
 	}
-	GIVEN("We want to check NA values")
-	{
-		WHEN("We instantiate the definitions with the appropriate sizes")
-		{
+	GIVEN("We want to check NA values") {
+		WHEN("We instantiate the definitions with the appropriate sizes") {
 			unsigned char bb = JAZZ_BYTE_BOOLEAN_NA;
 			int	 ib = JAZZ_BOOLEAN_NA;
 			int	 ia = JAZZ_INTEGER_NA;
@@ -60,8 +54,7 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic")
 			long long llb = JAZZ_TIME_POINT_NA;
 			double da = JAZZ_DOUBLE_NA;
 
-			THEN("We get the expected values")
-			{
+			THEN("We get the expected values") {
 				REQUIRE(bb == 0xff);
 				REQUIRE(ib == 0xff);
 				REQUIRE(ia == (int) 0x80000000);
@@ -74,10 +67,8 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic")
 			}
 		}
 	}
-	GIVEN("We want to check the compiler's way to store arrays.")
-	{
-		THEN("We instantiate an array and check it.")
-		{
+	GIVEN("We want to check the compiler's way to store arrays.") {
+		THEN("We instantiate an array and check it.") {
 			int video[3][5][4][3];
 
 			int *pvi;
@@ -127,8 +118,7 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic")
 			}
 		}
 	}
-	GIVEN("A 4K JazzBlock with strings and attributes")
-	{
+	GIVEN("A 4K JazzBlock with strings and attributes") {
 		char fourK[4096];
 		pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&fourK);
 
@@ -445,8 +435,7 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic")
 	}
 }
 
-SCENARIO("Testing String and Attribute logic")
-{
+SCENARIO("Testing String and Attribute logic") {
 	char buff[16384];
 	pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&buff);
 
@@ -459,8 +448,7 @@ SCENARIO("Testing String and Attribute logic")
 
 	pJazzStringBuffer psb;
 
-	GIVEN("We want to check absolute sizes and offsets")
-	{
+	GIVEN("We want to check absolute sizes and offsets") {
 		pjb->cell_type = CELL_TYPE_JAZZ_STRING;
 
 		int6 dim = {7, 5, 4, 0, 0, 0};
@@ -579,8 +567,7 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(psb->last_idx == 106);
 	}
 
-	GIVEN("Same thing failing on a smaller allocation size")
-	{
+	GIVEN("Same thing failing on a smaller allocation size") {
 		pjb->cell_type = CELL_TYPE_JAZZ_STRING;
 
 		int6 dim = {7, 5, 4, 0, 0, 0};
@@ -710,8 +697,7 @@ SCENARIO("Testing String and Attribute logic")
 		REQUIRE(pjb->get_string_offset(psb, sstr[7]) == JAZZ_STRING_NA);
 	}
 
-	GIVEN("The big test again, with attributes")
-	{
+	GIVEN("The big test again, with attributes") {
 		pjb->cell_type = CELL_TYPE_JAZZ_STRING;
 
 		int6 dim = {7, 5, 4, 0, 0, 0};
@@ -898,14 +884,12 @@ SCENARIO("Testing String and Attribute logic")
 	}
 }
 
-SCENARIO("Testing Filters")
-{
+SCENARIO("Testing Filters") {
 	char buf1[4096], buf2[4096];
 	pJazzBlock  pjb = reinterpret_cast<pJazzBlock>(&buf1);
 	pJazzFilter pjf = reinterpret_cast<pJazzFilter>(&buf2);
 
-	GIVEN("A block pjb")
-	{
+	GIVEN("A block pjb") {
 		int6 d1 = {17, 5, 3, 0, 0, 0};
 
 		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
@@ -929,8 +913,7 @@ SCENARIO("Testing Filters")
 		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
 	}
 
-	GIVEN("A valid boolean filter pjf for pjb")
-	{
+	GIVEN("A valid boolean filter pjf for pjb") {
 		int6 dimblk = {17, 5, 3, 0, 0, 0};
 
 		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
@@ -996,8 +979,7 @@ SCENARIO("Testing Filters")
 		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_NOTAFILTER);
 	}
 
-	GIVEN("A valid integer filter pjf for pjb")
-	{
+	GIVEN("A valid integer filter pjf for pjb") {
 		int6 dimblk = {17, 5, 3, 0, 0, 0};
 
 		pjb->cell_type = CELL_TYPE_JAZZ_TIME;
@@ -1110,15 +1092,13 @@ SCENARIO("Testing Filters")
 	}
 }
 
-SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying allocation at boundaries")
-{
+SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying allocation at boundaries") {
 	char buf1[4096], buf2[4096];
 	pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&buf1);
 
 	int6 d1 = {3, 15, 7, 0, 0, 0};
 
-	GIVEN("A block pjb with 1 byte cells")
-	{
+	GIVEN("A block pjb with 1 byte cells") {
 		pjb->cell_type = CELL_TYPE_BYTE;
 
 		pjb->set_dimensions(d1);
@@ -1195,8 +1175,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
-	GIVEN("A block pjb with 4 byte cells")
-	{
+	GIVEN("A block pjb with 4 byte cells") {
 		pjb->cell_type = CELL_TYPE_INTEGER;
 
 		pjb->set_dimensions(d1);
@@ -1437,8 +1416,7 @@ SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying alloca
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 
-	GIVEN("A block pjb with 8 byte cells")
-	{
+	GIVEN("A block pjb with 8 byte cells") {
 		pjb->cell_type = CELL_TYPE_LONG_INTEGER;
 
 		pjb->set_dimensions(d1);

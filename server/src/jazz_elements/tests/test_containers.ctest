@@ -141,16 +141,14 @@ void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HA
 // Tests
 // -----
 
-SCENARIO("Testing JazzBlock containers")
-{
+SCENARIO("Testing JazzBlock containers") {
 	REQUIRE(sizeof(JazzBlockIdentifier) == 32);
 	REQUIRE(sizeof(JazzBlockId64) 		==  8);
 	REQUIRE(sizeof(JazzBlockKeeprItem)  == 64);
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
 	REQUIRE(sizeof(JazzQueueItem)		== 96);
 
-	GIVEN("We want to test the regex")
-	{
+	GIVEN("We want to test the regex") {
 		REQUIRE( JBK.valid_block_identifier("/abc"));
 		REQUIRE( JBK.valid_block_identifier(".abc"));
 		REQUIRE(!JBK.valid_block_identifier("@abc"));
@@ -196,12 +194,10 @@ SCENARIO("Testing JazzBlock containers")
 }
 
 
-SCENARIO("Testing JazzBlock creation from scratch")
-{
+SCENARIO("Testing JazzBlock creation from scratch") {
 	JazzTensorDim dim {{7, 3, 5, 0}}, dim_in;
 
-	WHEN("I force all the possible error conditions, I get nullptr.")
-	{
+	WHEN("I force all the possible error conditions, I get nullptr.") {
 		JazzTensorDim dim7 {{7, 0}}, dim_in;
 		pJazzBlock pjb;
 		char const *buffer  = "One Two Three Four Five Six Seven";
@@ -294,8 +290,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_BYTE")
-	{
+	GIVEN("A block of CELL_TYPE_BYTE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim);
 
 		REQUIRE(pjb == nullptr);	// CELL_TYPE_BYTE cannot accept fill_tensor	= JAZZ_FILL_NEW_WITH_NA!
@@ -342,8 +337,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN")
-	{
+	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -386,8 +380,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE")
-	{
+	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
@@ -434,8 +427,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		}
 	}
 
-	GIVEN("A block of CELL_TYPE_BOOLEAN")
-	{
+	GIVEN("A block of CELL_TYPE_BOOLEAN") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -478,8 +470,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_SINGLE")
-	{
+	GIVEN("A block of CELL_TYPE_SINGLE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_SINGLE, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -522,8 +513,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_JAZZ_STRING")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_STRING") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -566,8 +556,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_LONG_INTEGER")
-	{
+	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_LONG_INTEGER, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -610,8 +599,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_JAZZ_TIME")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_TIME") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_TIME, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -654,8 +642,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_DOUBLE")
-	{
+	GIVEN("A block of CELL_TYPE_DOUBLE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_DOUBLE, dim.dim);
 
 		REQUIRE(pjb != nullptr);
@@ -705,8 +692,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 	dim.dim[4] = 3;
 	dim.dim[5] = 2;
 
-	GIVEN("A block of CELL_TYPE_BYTE")
-	{
+	GIVEN("A block of CELL_TYPE_BYTE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -749,8 +735,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN")
-	{
+	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -793,8 +778,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE")
-	{
+	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
@@ -841,8 +825,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		}
 	}
 
-	GIVEN("A block of CELL_TYPE_BOOLEAN")
-	{
+	GIVEN("A block of CELL_TYPE_BOOLEAN") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -885,8 +868,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_SINGLE")
-	{
+	GIVEN("A block of CELL_TYPE_SINGLE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_SINGLE, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -929,8 +911,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_JAZZ_STRING")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_STRING") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -973,8 +954,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_LONG_INTEGER")
-	{
+	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_LONG_INTEGER, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -1017,8 +997,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_JAZZ_TIME")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_TIME") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_TIME, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -1061,8 +1040,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_DOUBLE")
-	{
+	GIVEN("A block of CELL_TYPE_DOUBLE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_DOUBLE, dim.dim, nullptr, JAZZ_FILL_NEW_WITH_ZERO);
 
 		REQUIRE(pjb != nullptr);
@@ -1117,8 +1095,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 	block_att [468]  = "Hi!";
 	block_att [222]  = "123.";
 
-	GIVEN("A block of CELL_TYPE_BYTE")
-	{
+	GIVEN("A block of CELL_TYPE_BYTE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1165,8 +1142,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN")
-	{
+	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE_BOOLEAN, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1212,8 +1188,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE")
-	{
+	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
@@ -1263,8 +1238,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		}
 	}
 
-	GIVEN("A block of CELL_TYPE_BOOLEAN")
-	{
+	GIVEN("A block of CELL_TYPE_BOOLEAN") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BOOLEAN, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1310,8 +1284,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_SINGLE")
-	{
+	GIVEN("A block of CELL_TYPE_SINGLE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_SINGLE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1359,8 +1332,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 
 	char const *monday = "Monday", *tuesday = "Tuesday", *nope = "";
 
-	GIVEN("A block of CELL_TYPE_JAZZ_STRING")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_STRING") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL, nullptr, 256);
 
 		REQUIRE(pjb != nullptr);
@@ -1425,8 +1397,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_LONG_INTEGER")
-	{
+	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_LONG_INTEGER, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1472,8 +1443,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_JAZZ_TIME")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_TIME") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_TIME, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1519,8 +1489,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjb == nullptr);
 	}
 
-	GIVEN("A block of CELL_TYPE_DOUBLE")
-	{
+	GIVEN("A block of CELL_TYPE_DOUBLE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_DOUBLE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
 
 		REQUIRE(pjb != nullptr);
@@ -1577,8 +1546,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 			   *text_file_8 = "January February March April May June July August September October November December",
 			   *text_file_9 = "\n\n\nMon\n\nTue\nWed\n\n\n";
 
-	GIVEN("A block of CELL_TYPE_JAZZ_STRING")
-	{
+	GIVEN("A block of CELL_TYPE_JAZZ_STRING") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_JAZZ_STRING, nullptr, nullptr, JAZZ_FILL_NEW_DONT_FILL, nullptr, 0, text_file_0);
 
 		REQUIRE(pjb == nullptr);
@@ -2059,8 +2027,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 	REQUIRE(pjbd->rank == 3);
 	REQUIRE(pjbd->size == 2400);
 
-	GIVEN("A filter of boolean")
-	{
+	GIVEN("A filter of boolean") {
 		dim.dim[0] = 120;
 		dim.dim[1] = 0;
 
@@ -2096,8 +2063,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 		REQUIRE(pjf == nullptr);
 	}
 
-	GIVEN("Three filters of integer")
-	{
+	GIVEN("Three filters of integer") {
 		dim.dim[0] = 120;
 		dim.dim[1] = 0;
 
@@ -2197,8 +2163,7 @@ SCENARIO("Testing JazzBlock creation from scratch")
 }
 
 
-SCENARIO("Testing JazzBlock creation by copying/filtering")
-{
+SCENARIO("Testing JazzBlock creation by copying/filtering") {
 	pJazzBlock p_db_r1, p_db_r3, p_db_r6,
 			   p_st_r1, p_st_r3, p_st_r6,
 			   p_by_r1, p_by_r3, p_by_r6;
@@ -2230,8 +2195,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 
 	bool buff_1k[1024] = {false};
 
-	GIVEN("A set of 9 blocks of 3 types x 3 ranks")
-	{
+	GIVEN("A set of 9 blocks of 3 types x 3 ranks") {
 		p_db_r1 = new_jazz_block(CELL_TYPE_DOUBLE, dim_r1.dim, &old_str);
 
 		REQUIRE(p_db_r1 != nullptr);
@@ -2400,8 +2364,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 		REQUIRE(p_bf_r6->can_filter(p_st_r6));
 		REQUIRE(p_bf_r6->can_filter(p_by_r6));
 
-		WHEN("I give wrong arguments, I get nullptr.")
-		{
+		WHEN("I give wrong arguments, I get nullptr.") {
 			pJazzBlock pcp;
 
 			pcp = new_jazz_block(nullptr);
@@ -2482,8 +2445,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			REQUIRE(pcp == nullptr);
 		}
 
-		WHEN("I create identical blocks")
-		{
+		WHEN("I create identical blocks") {
 			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
 					   pcp_st_r1, pcp_st_r3, pcp_st_r6,
 			   		   pcp_by_r1, pcp_by_r3, pcp_by_r6;
@@ -2533,8 +2495,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			REQUIRE(pcp_by_r6 != nullptr);
 			REQUIRE(pcp_by_r6->size == 840);
 
-			THEN("Their structure is as expected.")
-			{
+			THEN("Their structure is as expected.") {
 				REQUIRE(pcp_db_r1->cell_type							 == p_db_r1->cell_type);
 				REQUIRE(pcp_st_r6->cell_type							 == p_st_r6->cell_type);
 				REQUIRE(pcp_by_r3->rank									 == p_by_r3->rank);
@@ -2654,8 +2615,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			REQUIRE(pcp_by_r6 == nullptr);
 		}
 
-		WHEN("I create identical blocks with different attributes")
-		{
+		WHEN("I create identical blocks with different attributes") {
 			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
 					   pcp_st_r1, pcp_st_r3, pcp_st_r6,
 			   		   pcp_by_r1, pcp_by_r3, pcp_by_r6;
@@ -2705,8 +2665,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			REQUIRE(pcp_by_r6 != nullptr);
 			REQUIRE(pcp_by_r6->size == 840);
 
-			THEN("Their structure is as expected.")
-			{
+			THEN("Their structure is as expected.") {
 				REQUIRE(pcp_db_r1->cell_type							 == p_db_r1->cell_type);
 				REQUIRE(pcp_st_r6->cell_type							 == p_st_r6->cell_type);
 				REQUIRE(pcp_by_r3->rank									 == p_by_r3->rank);
@@ -2854,8 +2813,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			REQUIRE(pcp_by_r6 == nullptr);
 		}
 
-		WHEN("I filter with all combinations of blocks an filters")
-		{
+		WHEN("I filter with all combinations of blocks an filters") {
 			pJazzBlock pcpa_db_r1, pcpa_db_r3, pcpa_db_r6,
 					   pcpa_st_r1, pcpa_st_r3, pcpa_st_r6,
 			   		   pcpa_by_r1, pcpa_by_r3, pcpa_by_r6,
@@ -3013,8 +2971,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 			REQUIRE(pcpb_by_r6 != nullptr);
 			REQUIRE(pcpb_by_r6->size == 420);
 
-			THEN("Their structure is as expected.")
-			{
+			THEN("Their structure is as expected.") {
 				REQUIRE(pcpa_db_r1->cell_type							  == p_db_r1->cell_type);
 				REQUIRE(pcpa_st_r6->cell_type							  == p_st_r6->cell_type);
 				REQUIRE(pcpa_db_r3->rank								  == p_db_r3->rank);
@@ -3455,10 +3412,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering")
 }
 
 
-SCENARIO("Testing threading functions")
-{
-	WHEN("We check basic assumptions, we get expected results")
-	{
+SCENARIO("Testing threading functions") {
+	WHEN("We check basic assumptions, we get expected results") {
 		REQUIRE(JBK._keepr_lock_ == 0);
 
 		int lock = JBK._keepr_lock_.fetch_add(1, std::memory_order_relaxed);
@@ -3499,8 +3454,7 @@ SCENARIO("Testing threading functions")
 		REQUIRE(PSB.reader(i) == 0);
 	}
 
-	WHEN("We run a 240x100 readers and 16x10 writers sequentially and no errors happen.")
-	{
+	WHEN("We run a 240x100 readers and 16x10 writers sequentially and no errors happen.") {
 		for (int i = 0; i < 256; i++) {
 			if ((i % 16) == 0)
 				unsafe_writer(nullptr);
@@ -3518,8 +3472,7 @@ SCENARIO("Testing threading functions")
 #ifndef LONG_THREAD_TEST
 	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
 
-	WHEN("We run a short thread test. Define LONG_THREAD_TEST for the long test.")
-	{
+	WHEN("We run a short thread test. Define LONG_THREAD_TEST for the long test.") {
 		bool failed = false;
 
 		pthread_t th_id[32];
@@ -3560,8 +3513,7 @@ SCENARIO("Testing threading functions")
 	const int num_threads = 256,
 			  num_times   = 64;
 
-	WHEN("We run a 240x100 readers 16x10 writers in parallel num_times times without control, errors happen.")
-	{
+	WHEN("We run a 240x100 readers 16x10 writers in parallel num_times times without control, errors happen.") {
 		bool failed = false;
 
 		for (int times = 0; times < num_times; times++) {
@@ -3599,8 +3551,7 @@ SCENARIO("Testing threading functions")
 
 	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
 
-	WHEN("We run a 240x1000 readers 16x10 writers in parallel num_times times with control and no errors happen.")
-	{
+	WHEN("We run a 240x1000 readers 16x10 writers in parallel num_times times with control and no errors happen.") {
 		bool failed = false;
 
 		for (int times = 0; times < num_times; times++) {
@@ -3640,10 +3591,9 @@ SCENARIO("Testing threading functions")
 }
 
 
-SCENARIO("Unit Tests for JazzBlockKeepr")
-{
+SCENARIO("Unit Tests for JazzBlockKeepr") {
 	const char *log_file   {"/tmp/jazz_test_containers.log"};
-	struct stat stat_struc = {0};
+	struct stat stat_struc {0};
 
 	if (stat(log_file, &stat_struc) == 0)
 		remove(log_file);
@@ -3655,12 +3605,9 @@ SCENARIO("Unit Tests for JazzBlockKeepr")
 	jbk.log       (LOG_INFO, "Hello JazzLogger!");
 	jbk.log_printf(LOG_INFO, "2 + 2 = %d", 2 + 2);
 
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
+	GIVEN("We want to test the xyz") {
+		WHEN("Something") {
+			THEN("Something") {
 //TODO: Write Unit Tests for JazzBlockKeepr
 			}
 		}
@@ -3668,14 +3615,10 @@ SCENARIO("Unit Tests for JazzBlockKeepr")
 }
 
 
-SCENARIO("Unit Tests for JazzTree")
-{
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
+SCENARIO("Unit Tests for JazzTree") {
+	GIVEN("We want to test the xyz") {
+		WHEN("Something") {
+			THEN("Something") {
 //TODO: Write Unit Tests for JazzTree
 			}
 		}
@@ -3913,14 +3856,10 @@ bool TestLibClasses()
 
 
 
-SCENARIO("Testing internal AA tree functionality")
-{
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
+SCENARIO("Testing internal AA tree functionality") {
+	GIVEN("We want to test the xyz") {
+		WHEN("Something") {
+			THEN("Something") {
 //TODO: Write Testing internal AA tree functionality
 			}
 		}
@@ -3928,14 +3867,10 @@ SCENARIO("Testing internal AA tree functionality")
 }
 
 
-SCENARIO("Unit Tests for AATBlockQueue")
-{
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
+SCENARIO("Unit Tests for AATBlockQueue") {
+	GIVEN("We want to test the xyz") {
+		WHEN("Something") {
+			THEN("Something") {
 //TODO: Write Unit Tests for AATBlockQueue
 			}
 		}
@@ -3943,14 +3878,10 @@ SCENARIO("Unit Tests for AATBlockQueue")
 }
 
 
-SCENARIO("Unit Tests for JazzCache")
-{
-	GIVEN("We want to test the xyz")
-	{
-		WHEN("Something")
-		{
-			THEN("Something")
-			{
+SCENARIO("Unit Tests for JazzCache") {
+	GIVEN("We want to test the xyz") {
+		WHEN("Something") {
+			THEN("Something") {
 //TODO: Write Unit Tests for JazzCache
 			}
 		}
