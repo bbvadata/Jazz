@@ -3608,7 +3608,6 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 	JazzTensorDim dim {{3, 0}};
 
-
 	WHEN("I try to allocate blocks in an empty JazzBlockKeepr and fail.") {
 		pJazzBlockKeeprItem p_item = jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
@@ -3618,12 +3617,12 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 	WHEN("I do simple JazzBlock allocation.") {
 		pJazzBlockKeeprItem p_base;
 
-		REQUIRE(jbk.alloc_keeprs(3));
+		REQUIRE(jbk.alloc_keeprs(4));
 
 		p_base = jbk.p_buffer_base;
 
 		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
-		REQUIRE(jbk.num_allocd_items == 3);
+		REQUIRE(jbk.num_allocd_items == 4);
 		REQUIRE(jbk.p_buffer_base    != nullptr);
 		REQUIRE(jbk.p_first_item     == nullptr);
 		REQUIRE(jbk.p_first_free     == p_base);
@@ -3631,7 +3630,7 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		REQUIRE(!jbk.alloc_keeprs(10));
 
 		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
-		REQUIRE(jbk.num_allocd_items == 3);
+		REQUIRE(jbk.num_allocd_items == 4);
 		REQUIRE(jbk.p_buffer_base    == p_base);
 		REQUIRE(jbk.p_first_item     == nullptr);
 		REQUIRE(jbk.p_first_free     == p_base);
@@ -3641,11 +3640,109 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		REQUIRE(p_item == p_base);
 
 		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
-		REQUIRE(jbk.num_allocd_items == 3);
+		REQUIRE(jbk.num_allocd_items == 4);
 		REQUIRE(jbk.p_buffer_base    == p_base);
 		REQUIRE(jbk.p_first_item     == p_base);
 		REQUIRE(jbk.p_first_free     != nullptr);
 
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== 1234567890123);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
+
+		REQUIRE(jbk.last_item_in() == p_item);
+
+		p_item = jbk.new_jazz_block(4567890123456, p_item->p_jazz_block);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== 4567890123456);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
+
+		REQUIRE(jbk.last_item_in() == p_item);
+
+		p_item = jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim);
+
+		REQUIRE(p_item != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_alpha"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
+
+		p_item = jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
+
+		REQUIRE(p_item != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_beta"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
+
+		REQUIRE(jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim)									== nullptr);
+		REQUIRE(jbk.new_jazz_block(4567890123456, p_item->p_jazz_block)											== nullptr);
+		REQUIRE(jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim) == nullptr);
+		REQUIRE(jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block)		== nullptr);
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 4);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     != nullptr);
+		REQUIRE(jbk.p_first_free     == nullptr);
+
+		p_item = jbk.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbk.free_jazz_block(p_item);
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 4);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     != nullptr);
+		REQUIRE(jbk.p_first_free     != nullptr);
+
+		p_item = jbk.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbk.free_jazz_block(p_item);
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 4);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     != nullptr);
+		REQUIRE(jbk.p_first_free     != nullptr);
+
+		p_item = jbk.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbk.free_jazz_block(p_item);
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 4);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     != nullptr);
+		REQUIRE(jbk.p_first_free     != nullptr);
+
+		p_item = jbk.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbk.free_jazz_block(p_item);
+
+		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.num_allocd_items == 4);
+		REQUIRE(jbk.p_buffer_base    == p_base);
+		REQUIRE(jbk.p_first_item     == nullptr);
+		REQUIRE(jbk.p_first_free     == p_base);
+
+		p_item = jbk.last_item_in();
+
+		REQUIRE(p_item == nullptr);
+
+		jbk.free_jazz_block(p_item);
 
 	}
 
