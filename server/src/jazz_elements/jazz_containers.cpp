@@ -572,11 +572,11 @@ bool JazzBlockKeepr::alloc_keeprs(int num_items)
 	pJazzBlockKeeprItem p_item = p_first_free = p_buffer_base;
 
 	for (int i = 0; i < num_items - 1; i++) {
-		void *pt = p_item + keepr_item_size;
+		pJazzBlockKeeprItem p_next = (pJazzBlockKeeprItem) ((uintptr_t) p_item + keepr_item_size);
 
-		p_item->p_alloc_next = (pJazzBlockKeeprItem) pt;
+		p_item->p_alloc_next = p_next;
 
-		p_item = (pJazzBlockKeeprItem) pt;
+		p_item = p_next;
 	}
 
 	num_allocd_items = num_items;
