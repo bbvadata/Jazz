@@ -3605,13 +3605,16 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 	jbk.log       (LOG_INFO, "Hello JazzLogger!");
 	jbk.log_printf(LOG_INFO, "2 + 2 = %d", 2 + 2);
 
-	GIVEN("We want to test the xyz") {
-		WHEN("Something") {
-			THEN("Something") {
-//TODO: Write Unit Tests for JazzBlockKeepr
-			}
-		}
+	JazzTensorDim dim {{3, 0}};
+
+
+	WHEN("I try to allocate blocks in an empty JazzBlockKeepr") {
+		pJazzBlockKeeprItem p_item = jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == nullptr);
 	}
+
+
 }
 
 
