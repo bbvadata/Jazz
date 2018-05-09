@@ -4086,13 +4086,143 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 
 SCENARIO("Unit Tests for JazzTree") {
-	GIVEN("We want to test the xyz") {
-		WHEN("Something") {
-			THEN("Something") {
-//TODO: Write Unit Tests for JazzTree
-			}
-		}
+
+	JazzTree jbt(nullptr);
+
+	JazzTensorDim dim {{3, 0}};
+
+	WHEN("I try to allocate blocks in an empty JazzBlockKeepr and fail.") {
+		pJazzTreeItem p_item = (pJazzTreeItem) jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == nullptr);	// Test passes but Valgrind detects is the internal JazzBlock was not freed.
 	}
+
+	WHEN("I do simple JazzTree allocation.") {
+		pJazzTreeItem p_base;
+
+		REQUIRE(jbt.alloc_keeprs(4));
+
+		p_base = (pJazzTreeItem) jbt.p_buffer_base;
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    != nullptr);
+		REQUIRE(jbt.p_first_item     == nullptr);
+		REQUIRE(jbt.p_first_free     == p_base);
+		REQUIRE(jbt.p_tree_root		 == nullptr);
+
+		pJazzTreeItem p_item = (pJazzTreeItem) jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == p_base);
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    == p_base);
+		REQUIRE(jbt.p_first_item     == p_base);
+		REQUIRE(jbt.p_first_free     != nullptr);
+		REQUIRE(jbt.p_tree_root		 == nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== 1234567890123);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
+
+		REQUIRE(jbt.last_item_in() == p_item);
+/*
+		p_item = jbt.new_jazz_block(4567890123456, p_item->p_jazz_block);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== 4567890123456);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
+
+		REQUIRE(jbt.last_item_in() == p_item);
+
+		p_item = jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim);
+
+		REQUIRE(p_item != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_alpha"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
+
+		p_item = jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
+
+		REQUIRE(p_item != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_beta"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
+
+		REQUIRE(jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim)									== nullptr);
+		REQUIRE(jbt.new_jazz_block(4567890123456, p_item->p_jazz_block)											== nullptr);
+		REQUIRE(jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim) == nullptr);
+		REQUIRE(jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block)		== nullptr);
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    == p_base);
+		REQUIRE(jbt.p_first_item     != nullptr);
+		REQUIRE(jbt.p_first_free     == nullptr);
+
+		p_item = jbt.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbt.free_jazz_block(p_item);
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    == p_base);
+		REQUIRE(jbt.p_first_item     != nullptr);
+		REQUIRE(jbt.p_first_free     != nullptr);
+
+		p_item = jbt.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbt.free_jazz_block(p_item);
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    == p_base);
+		REQUIRE(jbt.p_first_item     != nullptr);
+		REQUIRE(jbt.p_first_free     != nullptr);
+
+		p_item = jbt.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbt.free_jazz_block(p_item);
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    == p_base);
+		REQUIRE(jbt.p_first_item     != nullptr);
+		REQUIRE(jbt.p_first_free     != nullptr);
+
+		p_item = jbt.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		jbt.free_jazz_block(p_item);
+
+		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.num_allocd_items == 4);
+		REQUIRE(jbt.p_buffer_base    == p_base);
+		REQUIRE(jbt.p_first_item     == nullptr);
+		REQUIRE(jbt.p_first_free     == p_base);
+
+		p_item = jbt.last_item_in();
+
+		REQUIRE(p_item == nullptr);
+
+		jbt.free_jazz_block(p_item);
+*/
+	}
+
 }
 
 
