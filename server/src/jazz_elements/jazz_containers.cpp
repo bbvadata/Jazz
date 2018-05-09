@@ -652,18 +652,18 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 													pJazzFilter			p_row_filter,
 													AllAttributes	   *att)
 {
-	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
-
-	if (p_block == nullptr) {
-		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): jazz_containers::new_jazz_block() returned a nullptr.");
-
-		return nullptr;
-	}
-
 	pJazzBlockKeeprItem p_item = new_keepr_item();
 
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
 	}
@@ -739,18 +739,18 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 													const char		   *p_text,
 													char				eoln)
 {
-	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
-
-	if (p_block == nullptr) {
-		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): jazz_containers::new_jazz_block() returned a nullptr.");
-
-		return nullptr;
-	}
-
 	pJazzBlockKeeprItem p_item = new_keepr_item();
 
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
 	}
@@ -788,18 +788,18 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 													pJazzFilter			  	   p_row_filter,
 													AllAttributes			  *att)
 {
-	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
-
-	if (p_block == nullptr) {
-		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(3): jazz_containers::new_jazz_block() returned a nullptr.");
-
-		return nullptr;
-	}
-
 	pJazzBlockKeeprItem p_item = new_keepr_item();
 
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(3): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(3): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
 	}
@@ -872,18 +872,18 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 													const char				  *p_text,
 													char					   eoln)
 {
-	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
-
-	if (p_block == nullptr) {
-		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(4): jazz_containers::new_jazz_block() returned a nullptr.");
-
-		return nullptr;
-	}
-
 	pJazzBlockKeeprItem p_item = new_keepr_item();
 
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(4): new_keepr_item() returned a nullptr.");
+
+		return nullptr;
+	}
+
+	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
+
+	if (p_block == nullptr) {
+		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(4): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
 	}
