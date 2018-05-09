@@ -3593,6 +3593,7 @@ SCENARIO("Testing threading functions") {
 
 SCENARIO("Unit Tests for JazzBlockKeepr") {
 
+#ifdef LOG_ERRORS
 	const char *log_file   {"/tmp/jazz_test_containers.log"};
 	struct stat stat_struc {0};
 
@@ -3605,6 +3606,9 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 	jbk.log       (LOG_INFO, "Hello JazzLogger!");
 	jbk.log_printf(LOG_INFO, "2 + 2 = %d", 2 + 2);
+#else
+	JazzBlockKeepr jbk(nullptr);
+#endif
 
 	JazzTensorDim dim {{3, 0}};
 
