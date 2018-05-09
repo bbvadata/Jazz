@@ -4126,19 +4126,27 @@ SCENARIO("Unit Tests for JazzTree") {
 		REQUIRE(p_item->p_jazz_block->size		== 3);
 		REQUIRE(p_item->block_id64 				== 1234567890123);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
+		REQUIRE(p_item->p_parent				== nullptr);
+		REQUIRE(p_item->p_first_child			== nullptr);
+		REQUIRE(p_item->p_next_sibling			== nullptr);
+		REQUIRE(p_item->num_visits				== 0);
+		REQUIRE(p_item->num_wins				== 0);
 
-		REQUIRE(jbt.last_item_in() == p_item);
-/*
-		p_item = jbt.new_jazz_block(4567890123456, p_item->p_jazz_block);
+		p_item = (pJazzTreeItem) jbt.new_jazz_block(4567890123456, p_item->p_jazz_block);
+
+		REQUIRE(p_item != nullptr);
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
 		REQUIRE(p_item->block_id64 				== 4567890123456);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
+		REQUIRE(p_item->p_parent				== nullptr);
+		REQUIRE(p_item->p_first_child			== nullptr);
+		REQUIRE(p_item->p_next_sibling			== nullptr);
+		REQUIRE(p_item->num_visits				== 0);
+		REQUIRE(p_item->num_wins				== 0);
 
-		REQUIRE(jbt.last_item_in() == p_item);
-
-		p_item = jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim);
+		p_item = (pJazzTreeItem) jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim);
 
 		REQUIRE(p_item != nullptr);
 
@@ -4146,8 +4154,13 @@ SCENARIO("Unit Tests for JazzTree") {
 		REQUIRE(p_item->p_jazz_block->size		== 3);
 		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_alpha"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
+		REQUIRE(p_item->p_parent				== nullptr);
+		REQUIRE(p_item->p_first_child			== nullptr);
+		REQUIRE(p_item->p_next_sibling			== nullptr);
+		REQUIRE(p_item->num_visits				== 0);
+		REQUIRE(p_item->num_wins				== 0);
 
-		p_item = jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
+		p_item = (pJazzTreeItem) jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
 
 		REQUIRE(p_item != nullptr);
 
@@ -4155,74 +4168,24 @@ SCENARIO("Unit Tests for JazzTree") {
 		REQUIRE(p_item->p_jazz_block->size		== 3);
 		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_beta"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
+		REQUIRE(p_item->p_parent				== nullptr);
+		REQUIRE(p_item->p_first_child			== nullptr);
+		REQUIRE(p_item->p_next_sibling			== nullptr);
+		REQUIRE(p_item->num_visits				== 0);
+		REQUIRE(p_item->num_wins				== 0);
 
-		REQUIRE(jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim)									== nullptr);
-		REQUIRE(jbt.new_jazz_block(4567890123456, p_item->p_jazz_block)											== nullptr);
-		REQUIRE(jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim) == nullptr);
-		REQUIRE(jbt.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block)		== nullptr);
-
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
-		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    == p_base);
-		REQUIRE(jbt.p_first_item     != nullptr);
-		REQUIRE(jbt.p_first_free     == nullptr);
-
-		p_item = jbt.last_item_in();
-
-		REQUIRE(p_item != nullptr);
-
-		jbt.free_jazz_block(p_item);
-
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
-		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    == p_base);
-		REQUIRE(jbt.p_first_item     != nullptr);
-		REQUIRE(jbt.p_first_free     != nullptr);
-
-		p_item = jbt.last_item_in();
-
-		REQUIRE(p_item != nullptr);
-
-		jbt.free_jazz_block(p_item);
-
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
-		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    == p_base);
-		REQUIRE(jbt.p_first_item     != nullptr);
-		REQUIRE(jbt.p_first_free     != nullptr);
-
-		p_item = jbt.last_item_in();
-
-		REQUIRE(p_item != nullptr);
-
-		jbt.free_jazz_block(p_item);
-
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
-		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    == p_base);
-		REQUIRE(jbt.p_first_item     != nullptr);
-		REQUIRE(jbt.p_first_free     != nullptr);
-
-		p_item = jbt.last_item_in();
-
-		REQUIRE(p_item != nullptr);
-
-		jbt.free_jazz_block(p_item);
+		for (int i = 0; i < 4; i++) {
+			p_item = (pJazzTreeItem) jbt.last_item_in();
+			REQUIRE(p_item != nullptr);
+			jbt.free_jazz_block(p_item);
+		}
 
 		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
 		REQUIRE(jbt.num_allocd_items == 4);
 		REQUIRE(jbt.p_buffer_base    == p_base);
 		REQUIRE(jbt.p_first_item     == nullptr);
 		REQUIRE(jbt.p_first_free     == p_base);
-
-		p_item = jbt.last_item_in();
-
-		REQUIRE(p_item == nullptr);
-
-		jbt.free_jazz_block(p_item);
-*/
 	}
-
 }
 
 
@@ -4453,8 +4416,6 @@ bool TestLibClasses()
 };
 
 */
-
-
 
 SCENARIO("Testing internal AA tree functionality") {
 	GIVEN("We want to test the xyz") {
