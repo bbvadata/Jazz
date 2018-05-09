@@ -540,7 +540,8 @@ JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)
 */
 JazzBlockKeepr::~JazzBlockKeepr()
 {
-	destroy_keeprs();
+	if (num_allocd_items > 0)
+		destroy_keeprs();
 }
 
 
@@ -990,7 +991,8 @@ AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger a_logger) : JazzBlockKeepr(
 */
 AATBlockQueue::~AATBlockQueue()
 {
-	destroy_keeprs();
+	if (num_allocd_items > 0)
+		destroy_keeprs();
 }
 
 
