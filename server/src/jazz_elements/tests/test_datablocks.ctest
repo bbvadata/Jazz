@@ -26,6 +26,7 @@ using namespace jazz_datablocks;
 
 typedef int int6[JAZZ_MAX_TENSOR_RANK];
 
+
 SCENARIO("Testing Block Sizes, NAs and indexing logic") {
 	GIVEN("We want to check absolute sizes and offsets") {
 		WHEN("We have a JazzBlock") {
@@ -434,6 +435,7 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic") {
 		REQUIRE(d2[5] == 0);
 	}
 }
+
 
 SCENARIO("Testing String and Attribute logic") {
 	char buff[16384];
@@ -884,6 +886,7 @@ SCENARIO("Testing String and Attribute logic") {
 	}
 }
 
+
 SCENARIO("Testing Filters") {
 	char buf1[4096], buf2[4096];
 	pJazzBlock  pjb = reinterpret_cast<pJazzBlock>(&buf1);
@@ -1092,7 +1095,8 @@ SCENARIO("Testing Filters") {
 	}
 }
 
-SCENARIO("Testing JazzBlock::find_NAs_in_tensor() for all types verifying allocation at boundaries") {
+
+SCENARIO("Testing JazzBlock::find_NAs_in_tensor() checking boundaries") {
 	char buf1[4096], buf2[4096];
 	pJazzBlock pjb = reinterpret_cast<pJazzBlock>(&buf1);
 
