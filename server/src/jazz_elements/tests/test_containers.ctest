@@ -4485,47 +4485,194 @@ SCENARIO("Testing internal AA tree functionality") {
 
 	memset(&buff, 0, sizeof(buff));
 
-	p_item = &buff[alloc_items++];
+	WHEN("I do simple zero init walkthough, it works") {
+		p_item = &buff[alloc_items++];
 
-	p_item->block_id64 = 1;
-	p_item->priority   = 2;
+		p_item->block_id64 = 1;
+		p_item->priority   = 2;
 
-	p_root = aaq.insert(p_item, p_root);
+		p_root = aaq.insert(p_item, p_root);
 
-	REQUIRE(p_root == p_item);
-	REQUIRE(p_root->level == 1);
+		REQUIRE(p_item->times_used == 0);
 
-	p_item = &buff[alloc_items++];
+		REQUIRE(p_root == p_item);
+		REQUIRE(p_root->level == 1);
 
-	p_item->block_id64 = 2;
-	p_item->priority   = 1;
+		p_item = &buff[alloc_items++];
 
-	p_root = aaq.insert(p_item, p_root);
+		p_item->block_id64 = 2;
+		p_item->priority   = 1;
 
-	p_item = &buff[alloc_items++];
+		p_root = aaq.insert(p_item, p_root);
 
-	p_item->block_id64 = 3;
-	p_item->priority   = 3;
+		p_item = &buff[alloc_items++];
 
-	p_root = aaq.insert(p_item, p_root);
+		p_item->block_id64 = 3;
+		p_item->priority   = 3;
 
-	REQUIRE(p_root != nullptr);
-	REQUIRE(p_root->block_id64 == 2);
-	REQUIRE(p_root->level == 2);
-	REQUIRE(p_root->p_alloc_next->block_id64 == 3);
-	REQUIRE(p_root->p_alloc_prev->block_id64 == 1);
+		p_root = aaq.insert(p_item, p_root);
 
+		REQUIRE(p_root != nullptr);
+		REQUIRE(p_root->block_id64 == 1);
+		REQUIRE(p_root->level == 2);
+		REQUIRE(p_root->p_alloc_next->block_id64 == 3);
+		REQUIRE(p_root->p_alloc_prev->block_id64 == 2);
 
-/*
-		inline pJazzQueueItem highest_priority(pJazzQueueItem p_item)
-		inline pJazzQueueItem lowest_priority(pJazzQueueItem p_item)
-		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree)
-		inline void decrease_level(pJazzQueueItem p_item)
-		inline pJazzQueueItem skew(pJazzQueueItem p_item)
-		inline pJazzQueueItem split(pJazzQueueItem p_item)
-		inline pJazzQueueItem insert(pJazzQueueItem p_new, pJazzQueueItem p_tree)
-*/
+		p_item = aaq.highest_priority(p_root);
 
+		REQUIRE(p_item != nullptr);
+		REQUIRE(p_item->priority == 3);
+		REQUIRE(p_item->level    == 1);
+
+		p_item = aaq.lowest_priority(p_root);
+
+		REQUIRE(p_item != nullptr);
+		REQUIRE(p_item->priority == 1);
+		REQUIRE(p_item->level    == 1);
+
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 4;
+		p_item->priority   = 4;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 5;
+		p_item->priority   = 5;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		REQUIRE(p_item->times_used == 0);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 5);
+
+		p_root = aaq.remove(p_root, p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 4);
+
+		p_root = aaq.remove(aaq.lowest_priority(p_root), p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 3);
+
+		p_root = aaq.remove(aaq.highest_priority(p_root), p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 2);
+
+		if (p_root->p_alloc_next == nullptr)
+			p_item = (pJazzQueueItem) p_root->p_alloc_prev;
+		else
+			p_item = (pJazzQueueItem) p_root->p_alloc_next;
+
+		p_root = aaq.remove(p_item, p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 1);
+
+		p_root = aaq.insert(p_item, p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 0);
+	}
+
+	memset(&buff, 0x5a5a5a5a, sizeof(buff));
+
+	WHEN("I do simple junk init walkthough, it works") {
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 1;
+		p_item->priority   = 2;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		REQUIRE(p_item->times_used == 0x5a5a5a5a);
+
+		REQUIRE(p_root == p_item);
+		REQUIRE(p_root->level == 1);
+
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 2;
+		p_item->priority   = 1;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 3;
+		p_item->priority   = 3;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		REQUIRE(p_root != nullptr);
+		REQUIRE(p_root->block_id64 == 1);
+		REQUIRE(p_root->level == 2);
+		REQUIRE(p_root->p_alloc_next->block_id64 == 3);
+		REQUIRE(p_root->p_alloc_prev->block_id64 == 2);
+
+		p_item = aaq.highest_priority(p_root);
+
+		REQUIRE(p_item != nullptr);
+		REQUIRE(p_item->priority == 3);
+		REQUIRE(p_item->level    == 1);
+
+		p_item = aaq.lowest_priority(p_root);
+
+		REQUIRE(p_item != nullptr);
+		REQUIRE(p_item->priority == 1);
+		REQUIRE(p_item->level    == 1);
+
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 4;
+		p_item->priority   = 4;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		p_item = &buff[alloc_items++];
+
+		p_item->block_id64 = 5;
+		p_item->priority   = 5;
+
+		p_root = aaq.insert(p_item, p_root);
+
+		REQUIRE(p_item->times_used == 0x5a5a5a5a);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 5);
+
+		p_root = aaq.remove(p_root, p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 4);
+
+		p_root = aaq.remove(aaq.lowest_priority(p_root), p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 3);
+
+		p_root = aaq.remove(aaq.highest_priority(p_root), p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 2);
+
+		if (p_root->p_alloc_next == nullptr)
+			p_item = (pJazzQueueItem) p_root->p_alloc_prev;
+		else
+			p_item = (pJazzQueueItem) p_root->p_alloc_next;
+
+		p_root = aaq.remove(p_item, p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 1);
+
+		p_root = aaq.insert(p_item, p_root);
+
+		REQUIRE(recursive_audit_aa_tree(p_root) == 0);
+	}
+
+	alloc_items = 0;
+
+	memset(&buff, 0, sizeof(buff));
+
+	WHEN("I fill a 10K buffer 100K inserts and 95K deletes") {
+		THEN("I can still audit as expected") {
+		}
+	}
 }
 
 
