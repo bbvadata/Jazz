@@ -623,7 +623,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 		inline pJazzQueueItem highest_priority(pJazzQueueItem p_item)
 		{
 			if (p_item != nullptr) {
-				while (p_item->p_alloc_next != nullptr) p_item = (pJazzQueueItem) p_item->p_alloc_next;
+				while (p_item->p_alloc_next != nullptr)
+					p_item = (pJazzQueueItem) p_item->p_alloc_next;
 			};
 
 			return p_item;
@@ -640,7 +641,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 		inline pJazzQueueItem lowest_priority(pJazzQueueItem p_item)
 		{
 			if (p_item != nullptr) {
-				while (p_item->p_alloc_prev != nullptr) p_item = (pJazzQueueItem) p_item->p_alloc_prev;
+				while (p_item->p_alloc_prev != nullptr)
+					p_item = (pJazzQueueItem) p_item->p_alloc_prev;
 			};
 
 			return p_item;
@@ -657,10 +659,10 @@ class AATBlockQueue: public JazzBlockKeepr {
 		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree)
 		{
 			if (p_item == p_tree) {
-				if (!p_tree->p_alloc_prev) {
+				if (p_tree->p_alloc_prev == nullptr) {
 					p_tree = (pJazzQueueItem) p_tree->p_alloc_next;
 
-					if (!p_tree)
+					if (p_tree == nullptr)
 						return nullptr;
 				} else {
 					p_tree = (pJazzQueueItem) p_tree->p_alloc_prev;
