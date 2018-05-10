@@ -590,7 +590,9 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		}
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		pJazzQueueItem new_keepr_item();
 
