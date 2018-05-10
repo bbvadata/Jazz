@@ -138,7 +138,28 @@ void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HA
 	close_jazz_block(p_block, set_has_NA);
 }
 
-int recursive_audit_aa_tree(pJazzQueueItem p_tree) {
+pJazzQueueItem highest_priority(pJazzQueueItem p_item)
+{
+	if (p_item != nullptr) {
+		while (p_item->p_alloc_next != nullptr)
+		p_item = (pJazzQueueItem) p_item->p_alloc_next;
+	};
+
+	return p_item;
+};
+
+pJazzQueueItem lowest_priority(pJazzQueueItem p_item)
+{
+	if (p_item != nullptr) {
+		while (p_item->p_alloc_prev != nullptr)
+			p_item = (pJazzQueueItem) p_item->p_alloc_prev;
+	};
+
+	return p_item;
+};
+
+int recursive_audit_aa_tree(pJazzQueueItem p_tree)
+{
 /*	1. The level of every leaf node is one.
 	2. The level of every left child is exactly one less than that of its parent.
 	3. The level of every right child is equal to or one less than that of its parent.
