@@ -795,7 +795,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 				return p_new;
 			} else {
-				if (p_new->priority < p_tree->priority)
+
+				if (to_left(p_new, p_tree))
 					p_tree->p_alloc_prev = insert(p_new, (pJazzQueueItem) p_tree->p_alloc_prev);
 				else
 					p_tree->p_alloc_next = insert(p_new, (pJazzQueueItem) p_tree->p_alloc_next);
