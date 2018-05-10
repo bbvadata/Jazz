@@ -4098,7 +4098,7 @@ SCENARIO("Unit Tests for JazzTree") {
 	}
 
 	WHEN("I do simple JazzTree allocation.") {
-		pJazzTreeItem p_base;
+		pJazzTreeItem p_base, p_only;
 
 		REQUIRE(jbt.alloc_keeprs(4));
 
@@ -4168,6 +4168,32 @@ SCENARIO("Unit Tests for JazzTree") {
 		REQUIRE(p_item->p_jazz_block->size		== 3);
 		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_beta"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
+		REQUIRE(p_item->p_parent				== nullptr);
+		REQUIRE(p_item->p_first_child			== nullptr);
+		REQUIRE(p_item->p_next_sibling			== nullptr);
+		REQUIRE(p_item->num_visits				== 0);
+		REQUIRE(p_item->num_wins				== 0);
+
+		p_only = p_item;
+
+		p_item->p_parent	   == p_base;
+		p_item->p_first_child  == p_base;
+		p_item->p_next_sibling == p_base;
+		p_item->num_visits	   == 888;
+		p_item->num_wins	   == 777;
+
+		REQUIRE(jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		jbt.free_jazz_block(p_item);
+
+		p_item = (pJazzTreeItem) jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == p_only);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64 				== 1234567890123);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
 		REQUIRE(p_item->p_parent				== nullptr);
 		REQUIRE(p_item->p_first_child			== nullptr);
 		REQUIRE(p_item->p_next_sibling			== nullptr);
