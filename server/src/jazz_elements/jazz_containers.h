@@ -633,8 +633,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
 		*/
-		inline pJazzQueueItem highest_priority(pJazzQueueItem p_item)
-		{
+		inline pJazzQueueItem highest_priority(pJazzQueueItem p_item) {
 			if (p_item != nullptr) {
 				while (p_item->p_alloc_next != nullptr)
 					p_item = (pJazzQueueItem) p_item->p_alloc_next;
@@ -651,8 +650,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
 		*/
-		inline pJazzQueueItem lowest_priority(pJazzQueueItem p_item)
-		{
+		inline pJazzQueueItem lowest_priority(pJazzQueueItem p_item) {
 			if (p_item != nullptr) {
 				while (p_item->p_alloc_prev != nullptr)
 					p_item = (pJazzQueueItem) p_item->p_alloc_prev;
@@ -669,8 +667,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
 		*/
-		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree)
-		{
+		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree) {
 			if (p_tree == nullptr || p_item == nullptr)
 				return p_tree;
 
@@ -761,8 +758,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
-		inline pJazzQueueItem skew(pJazzQueueItem p_item)
-		{
+		inline pJazzQueueItem skew(pJazzQueueItem p_item) {
 			// rotate p_alloc_next if p_alloc_prev child has same level
 			if (p_item->p_alloc_prev != nullptr && p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level) {
 				pJazzQueueItem p_left = (pJazzQueueItem) p_item->p_alloc_prev;
@@ -783,8 +779,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
-		inline pJazzQueueItem split(pJazzQueueItem p_item)
-		{
+		inline pJazzQueueItem split(pJazzQueueItem p_item) {
 			// rotate p_alloc_prev if there are two p_alloc_next children on same level
 			if (   p_item->p_alloc_next != nullptr
 				&& p_item->p_alloc_next->p_alloc_next != nullptr
@@ -808,8 +803,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 			\param p_tree The root of the subtree where p_new will be inserted
 			\return		  A balanced version of p_tree including p_new
 		*/
-		inline pJazzQueueItem insert(pJazzQueueItem p_new, pJazzQueueItem p_tree)
-		{
+		inline pJazzQueueItem insert(pJazzQueueItem p_new, pJazzQueueItem p_tree) {
 			// Do the normal binary tree insertion procedure. Set the result of the
 			// recursive call to the correct child in case a new node was created or the
 			// root of the subtree changes.
@@ -860,8 +854,7 @@ class JazzCache: public AATBlockQueue {
 
 			\return A pointer to the JazzBlockKeeprItem containing the block or nullptr if not found.
 		*/
-		inline pJazzQueueItem find_jazz_block (const JazzBlockIdentifier *p_id)
-		{
+		inline pJazzQueueItem find_jazz_block (const JazzBlockIdentifier *p_id) {
 			JazzBlockId64 id64 = hash_block_id((char *) p_id);
 
 			if (!id64)
