@@ -596,6 +596,17 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 		pJazzQueueItem new_keepr_item();
 
+		/** Check the relative position (left or right) between an item and a tree for inserting a deleting.
+
+			\param p_item The item that will be inserted or deleted.
+			\param p_tree The AA subtree compared with the item,.
+
+			Note: This should be the only way to break ties when p_item->priority == p_tree->priority.
+		*/
+		inline bool to_left(pJazzQueueItem p_item, pJazzQueueItem p_tree) {
+			return p_item->priority == p_tree->priority ? (uintptr_t) p_item < (uintptr_t) p_tree : p_item->priority < p_tree->priority;
+		}
+
 		/** Free all the JazzBlock blocks in the sub-tree calling free_jazz_block() recursively.
 
 			\param p_item The root of the AA subtree from which we the free all the JazzBlock blocks.
