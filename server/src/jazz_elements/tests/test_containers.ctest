@@ -176,10 +176,12 @@ int recursive_audit_aa_tree(pJazzQueueItem p_tree)
 	}
 
 	if (p_tree->p_alloc_prev != nullptr) {
+		REQUIRE(highest_priority((pJazzQueueItem) p_tree->p_alloc_prev)->priority <= p_tree->priority);
 		REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_prev)->level == p_tree->level - 1);
 	}
 
 	if (p_tree->p_alloc_next != nullptr) {
+		REQUIRE(lowest_priority((pJazzQueueItem) p_tree->p_alloc_next)->priority >= p_tree->priority);
 		if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level != p_tree->level - 1) {
 			REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level == p_tree->level);
 			if (p_tree->p_alloc_next->p_alloc_prev != nullptr)
