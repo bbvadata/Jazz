@@ -4444,13 +4444,55 @@ bool TestLibClasses()
 */
 
 SCENARIO("Testing internal AA tree functionality") {
-	GIVEN("We want to test the xyz") {
-		WHEN("Something") {
-			THEN("Something") {
-//TODO: Write Testing internal AA tree functionality
-			}
-		}
-	}
+	AATBlockQueue aaq(nullptr);
+
+	pJazzQueueItem p_root = nullptr, p_item;
+	JazzQueueItem buff[10000];
+	int alloc_items = 0;
+
+	memset(&buff, 0, sizeof(buff));
+
+	p_item = &buff[alloc_items++];
+
+	p_item->block_id64 = 1;
+	p_item->priority   = 2;
+
+	p_root = aaq.insert(p_item, p_root);
+
+	REQUIRE(p_root == p_item);
+	REQUIRE(p_root->level == 1);
+
+	p_item = &buff[alloc_items++];
+
+	p_item->block_id64 = 2;
+	p_item->priority   = 1;
+
+	p_root = aaq.insert(p_item, p_root);
+
+	p_item = &buff[alloc_items++];
+
+	p_item->block_id64 = 3;
+	p_item->priority   = 3;
+
+	p_root = aaq.insert(p_item, p_root);
+
+	REQUIRE(p_root != nullptr);
+	REQUIRE(p_root->block_id64 == 2);
+	REQUIRE(p_root->level == 2);
+	REQUIRE(p_root->p_alloc_next->block_id64 == 3);
+	REQUIRE(p_root->p_alloc_prev->block_id64 == 1);
+
+
+/*
+		inline pJazzQueueItem highest_priority(pJazzQueueItem p_item)
+		inline pJazzQueueItem lowest_priority(pJazzQueueItem p_item)
+		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree)
+		inline void decrease_level(pJazzQueueItem p_item)
+		inline pJazzQueueItem skew(pJazzQueueItem p_item)
+		inline pJazzQueueItem split(pJazzQueueItem p_item)
+		inline pJazzQueueItem insert(pJazzQueueItem p_new, pJazzQueueItem p_tree)
+*/
+
 }
 
 
