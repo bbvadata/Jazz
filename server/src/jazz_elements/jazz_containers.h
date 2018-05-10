@@ -723,16 +723,32 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
-		inline void decrease_level(pJazzQueueItem p_item)
-		{
-			if (p_item->p_alloc_prev != nullptr && p_item->p_alloc_next != nullptr) {
-				int should_be = std::min(reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level,
-										 reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level) + 1;
+		inline void decrease_level(pJazzQueueItem p_item) {
+			if (p_item->p_alloc_prev == nullptr) {
+				if (p_item->p_alloc_next == nullptr) {
+					p_item->level = 1;
+				} else {
+					int should_be = reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level + 1;
+					if (should_be < p_item->level) {
+						p_item->level = should_be;
+						if (should_be < reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level)
+							reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level = should_be;
+					}
+				}
+			} else {
+				if (p_item->p_alloc_next == nullptr) {
+					int should_be = reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level + 1;
 
-				if (should_be < p_item->level) {
-					p_item->level = should_be;
-					if (should_be < reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level) {
-						reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level = should_be;
+					if (should_be < p_item->level)
+						p_item->level = should_be;
+				} else {
+					int should_be = std::min(reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level,
+											 reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level) + 1;
+
+					if (should_be < p_item->level) {
+						p_item->level = should_be;
+						if (should_be < reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level)
+							reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level = should_be;
 					}
 				}
 			}
