@@ -671,6 +671,9 @@ class AATBlockQueue: public JazzBlockKeepr {
 		*/
 		inline pJazzQueueItem remove(pJazzQueueItem p_item, pJazzQueueItem p_tree)
 		{
+			if (p_tree == nullptr || p_item == nullptr)
+				return p_tree;
+
 			if (p_item == p_tree) {
 				if (p_tree->p_alloc_prev == nullptr) {
 					p_tree = (pJazzQueueItem) p_tree->p_alloc_next;
@@ -678,16 +681,23 @@ class AATBlockQueue: public JazzBlockKeepr {
 					if (p_tree == nullptr)
 						return nullptr;
 				} else {
-					p_tree = (pJazzQueueItem) p_tree->p_alloc_prev;
+					if (p_tree->p_alloc_next == nullptr) {
+						p_tree = (pJazzQueueItem) p_tree->p_alloc_prev;
+					} else {
+						pJazzBlockKeeprItem p_left = p_tree->p_alloc_prev;
+
+						p_tree->p_alloc_prev = p_left->p_alloc_next;
+						p_left->p_alloc_next = p_tree;
+
+						p_tree = remove(p_tree, (pJazzQueueItem) p_left);
+					}
 				}
 			} else {
-				if (p_item->priority < p_tree->priority) {
+				if (to_left(p_item, p_tree))
 					p_tree->p_alloc_prev = remove(p_item, (pJazzQueueItem) p_tree->p_alloc_prev);
-				} else {
-					if (p_item->priority > p_tree->priority)
-						p_tree->p_alloc_next = remove(p_item, (pJazzQueueItem) p_tree->p_alloc_next);
-				}
-			};
+				else
+					p_tree->p_alloc_next = remove(p_item, (pJazzQueueItem) p_tree->p_alloc_next);
+			}
 
 			// Rebalance the tree. Decrease the level of all nodes in this level if
 			// necessary, and then skew and split all nodes in the new level.
