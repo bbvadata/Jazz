@@ -702,9 +702,9 @@ class AATBlockQueue: public JazzBlockKeepr {
 		*/
 		inline void decrease_level(pJazzQueueItem p_item)
 		{
-			if ((p_item->p_alloc_prev != nullptr) & (p_item->p_alloc_next != nullptr)) {
+			if (p_item->p_alloc_prev != nullptr && p_item->p_alloc_next != nullptr) {
 				int should_be = std::min(reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level,
-										 reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level + 1);
+										 reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next)->level) + 1;
 
 				if (should_be < p_item->level) {
 					p_item->level = should_be;
@@ -725,7 +725,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 		inline pJazzQueueItem skew(pJazzQueueItem p_item)
 		{
 			// rotate p_alloc_next if p_alloc_prev child has same level
-			if ((p_item->p_alloc_prev != nullptr) & (p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level)) {
+			if (p_item->p_alloc_prev != nullptr && p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_prev)->level) {
 				pJazzQueueItem p_left = (pJazzQueueItem) p_item->p_alloc_prev;
 
 				p_item->p_alloc_prev = p_left->p_alloc_next;
@@ -747,9 +747,9 @@ class AATBlockQueue: public JazzBlockKeepr {
 		inline pJazzQueueItem split(pJazzQueueItem p_item)
 		{
 			// rotate p_alloc_prev if there are two p_alloc_next children on same level
-			if (  (p_item->p_alloc_next != nullptr)
-				& (p_item->p_alloc_next->p_alloc_next != nullptr)
-				& (p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next->p_alloc_next)->level)) {
+			if (   p_item->p_alloc_next != nullptr
+				&& p_item->p_alloc_next->p_alloc_next != nullptr
+				&& p_item->level == reinterpret_cast<pJazzQueueItem>(p_item->p_alloc_next->p_alloc_next)->level) {
 
 				pJazzQueueItem p_right = (pJazzQueueItem) p_item->p_alloc_next;
 
