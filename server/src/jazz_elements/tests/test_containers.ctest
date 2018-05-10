@@ -4374,7 +4374,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 		REQUIRE(num_nodes == 1);
 
-		p_root = aaq.insert(p_item, p_root);
+		p_root = aaq.remove(p_root, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
@@ -4477,7 +4477,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 		REQUIRE(num_nodes == 1);
 
-		p_root = aaq.insert(p_item, p_root);
+		p_root = aaq.remove(p_root, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
