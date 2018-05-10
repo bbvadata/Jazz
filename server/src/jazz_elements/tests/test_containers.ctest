@@ -138,6 +138,39 @@ void check_and_close_jazz_block(pJazzBlock p_block, int set_has_NA = JAZZ_SET_HA
 	close_jazz_block(p_block, set_has_NA);
 }
 
+int recursive_audit_aa_tree(pJazzQueueItem p_tree) {
+/*	1. The level of every leaf node is one.
+	2. The level of every left child is exactly one less than that of its parent.
+	3. The level of every right child is equal to or one less than that of its parent.
+	4. The level of every right grandchild is strictly less than that of its grandparent.
+	5. Every node of level greater than one has two children.
+	Returns number of nodes in the tree.
+*/
+	if (p_tree == nullptr)
+		return 0;
+
+	if (p_tree->p_alloc_prev == nullptr && p_tree->p_alloc_next == nullptr) {
+		REQUIRE(p_tree->level == 1);
+		return 1;
+	}
+
+	if (p_tree->p_alloc_prev != nullptr) {
+		REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_prev)->level == p_tree->level - 1);
+	}
+
+	if (p_tree->p_alloc_next != nullptr) {
+		if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level != p_tree->level - 1) {
+			REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level == p_tree->level);
+			if (p_tree->p_alloc_next->p_alloc_prev != nullptr)
+				REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next->p_alloc_prev)->level < p_tree->level);
+			if (p_tree->p_alloc_next->p_alloc_next != nullptr)
+				REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next->p_alloc_next)->level < p_tree->level);
+		}
+	}
+
+	return 1 + recursive_audit_aa_tree((pJazzQueueItem) p_tree->p_alloc_prev) + recursive_audit_aa_tree((pJazzQueueItem) p_tree->p_alloc_next);
+}
+
 // Tests
 // -----
 
