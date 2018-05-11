@@ -681,10 +681,12 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_tree;
 		}
 
-		/** AAA.
-//TODO: write this.
-			\param  p_tree
-			\return 	   AAA
+		/** Check if a node belongs to a tree
+			\param  p_item The node checked if part of the AA subtree
+			\param  p_tree The the AA subtree that may contain p_item
+			\return 	   True if the node was found in the tree
+		Note: This is a debugging function, never used in the real code. It is a prerequisite of remove() but correct management
+		of the JazzQueueItems makes it unnecessary.
 		*/
 		inline bool is_in_tree(pJazzQueueItem p_item, pJazzQueueItem p_tree) {
 			if (p_tree == nullptr || p_item == nullptr)
