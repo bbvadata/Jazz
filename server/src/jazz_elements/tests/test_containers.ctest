@@ -4524,10 +4524,10 @@ SCENARIO("Testing internal AA tree functionality") {
 			p_item = &buff[j];
 
 std::cout << i << ":[" << j << "]\n";
-num_nodes = recursive_audit_aa_tree(p_root);
+recursive_audit_aa_tree(p_root);
 			REQUIRE(aaq.is_in_tree(p_item, p_root));
 			p_root = aaq.remove(p_item, p_root);
-num_nodes = recursive_audit_aa_tree(p_root);
+recursive_audit_aa_tree(p_root);
 
 			p_item->block_id64 = 5000 + i;
 			p_item->priority   = p_item->priority*((i % 9) - 4);
@@ -4536,7 +4536,7 @@ num_nodes = recursive_audit_aa_tree(p_root);
 
 REQUIRE(aaq.is_in_tree(&buff[2992], p_root));
 
-num_nodes = recursive_audit_aa_tree(p_root);
+recursive_audit_aa_tree(p_root);
 		}
 
 		num_nodes = recursive_audit_aa_tree(p_root);
