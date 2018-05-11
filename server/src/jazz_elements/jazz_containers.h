@@ -706,21 +706,28 @@ class AATBlockQueue: public JazzBlockKeepr {
 		*/
 		inline pJazzQueueItem remove_go_deep(pJazzQueueItem p_kill, pJazzQueueItem p_parent, pJazzQueueItem p_tree, pJazzQueueItem &p_deep) {
 			if (p_kill->p_alloc_next != nullptr)
-				p_kill->p_alloc_next = remove_go_deep((pJazzQueueItem) p_kill->p_alloc_next, p_kill, p_tree);
+				p_kill->p_alloc_next = remove_go_deep((pJazzQueueItem) p_kill->p_alloc_next, p_kill, p_tree, p_deep);
 			else {
-				if (p_parent == p_tree)
-					p_parent->p_alloc_prev = p_kill->p_alloc_prev;
-				else
-					p_parent->p_alloc_next = p_kill->p_alloc_prev;
-
-				p_kill->level        = p_tree->level;
-				p_kill->p_alloc_next = p_tree->p_alloc_next;
-				p_kill->p_alloc_prev = p_tree->p_alloc_prev;
-
-				p_tree = p_kill;
+				if (p_parent == p_tree) {
+					p_tree->p_alloc_prev = p_kill->p_alloc_prev;	// Disconnect p_kill
+					p_kill->level        = p_tree->level;
+					p_kill->p_alloc_next = p_tree->p_alloc_next;
+					p_kill->p_alloc_prev = p_tree->p_alloc_prev;	// p_kill is the new p_tree
+					return rebalance(p_kill);
+				} else {
+					p_deep = p_kill;								// Save p_kill for the end
+					return (pJazzQueueItem) p_kill->p_alloc_prev;	// Disconnect p_kill
+				}
 			}
 			if (p_parent != p_tree)
-				return rebalance(p_parent);
+				return rebalance(p_kill);
+			else {
+				p_deep->level        = p_tree->level;
+				p_deep->p_alloc_next = p_tree->p_alloc_next;
+				p_deep->p_alloc_prev = rebalance(p_kill);
+
+				return rebalance(p_deep);
+			}
 		}
 
 		/** Remove a node in an AA subtree
