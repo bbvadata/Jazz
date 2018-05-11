@@ -704,7 +704,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 			\param  p_tree
 			\return 	   AAA
 		*/
-		inline pJazzQueueItem remove_go_deep(pJazzQueueItem p_kill, pJazzQueueItem p_parent, pJazzQueueItem &p_tree) {
+		inline pJazzQueueItem remove_go_deep(pJazzQueueItem p_kill, pJazzQueueItem p_parent, pJazzQueueItem p_tree, pJazzQueueItem &p_deep) {
 			if (p_kill->p_alloc_next != nullptr)
 				p_kill->p_alloc_next = remove_go_deep((pJazzQueueItem) p_kill->p_alloc_next, p_kill, p_tree);
 			else {
@@ -742,7 +742,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 					if (p_tree->p_alloc_next == nullptr)
 						return (pJazzQueueItem) p_tree->p_alloc_prev;
 					else
-						return remove_go_deep((pJazzQueueItem) p_tree->p_alloc_prev, p_tree, p_tree);
+						pJazzQueueItem p_deep = nullptr;
+						return remove_go_deep((pJazzQueueItem) p_tree->p_alloc_prev, p_tree, p_tree, p_deep);
 				}
 			} else {
 				if (to_left(p_item, p_tree))
