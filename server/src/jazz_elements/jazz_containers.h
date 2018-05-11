@@ -741,9 +741,10 @@ class AATBlockQueue: public JazzBlockKeepr {
 				} else {
 					if (p_tree->p_alloc_next == nullptr)
 						return (pJazzQueueItem) p_tree->p_alloc_prev;
-					else
+					else {
 						pJazzQueueItem p_deep = nullptr;
 						return remove_go_deep((pJazzQueueItem) p_tree->p_alloc_prev, p_tree, p_tree, p_deep);
+					}
 				}
 			} else {
 				if (to_left(p_item, p_tree))
