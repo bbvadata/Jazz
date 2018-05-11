@@ -701,10 +701,19 @@ class AATBlockQueue: public JazzBlockKeepr {
 				return is_in_tree(p_item, (pJazzQueueItem) p_tree->p_alloc_next);
 		};
 
-		/** AAA.
-//TODO: write this.
-			\param  p_tree
-			\return 	   AAA
+		/** Implements the "deep case" of AA tree removal.
+			\param p_kill   The node that we are following towards HPLoT found by recursion
+			\param p_parent The parent of p_kill (required to rebalance the tree after every recursive step)
+			\param p_tree   The (never changing) root of the subtree (we want to remove it)
+			\param p_deep   A variable to store the HPLoT (found in the deepest level, applied in the shallowest)
+			\return 	    The rebalanced HPLoT converted in the new subtree root
+
+			Note: Against what is stated in AA tree literature, it is not always easy to convert an arbitrary node that has to be
+			removed into a leaf. (Many applications only remove high or low priority node and that does not apply then.) When we need
+			to remove a node high in the tree (far away for leaves) skewing the tree to make its predecessor the new root is feasible,
+			but that still does not solve the problem of removing it. The safest option is removing the HPLoT (Highest Priority to the
+			Left of Tree) which at least will have no successor, rebalancing the tree after removal and inserting it back as the root
+			in replacement of the previous root. That is what is function does.
 		*/
 		inline pJazzQueueItem remove_go_deep(pJazzQueueItem p_kill, pJazzQueueItem p_parent, pJazzQueueItem p_tree, pJazzQueueItem &p_deep) {
 			if (p_kill->p_alloc_next != nullptr)
