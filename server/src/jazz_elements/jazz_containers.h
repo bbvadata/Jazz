@@ -659,6 +659,28 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_item;
 		};
 
+		/** Rebalance the tree after remove().
+			\param  p_tree The tree resulting of (a recursive step) in remove
+			\return The balanced tree
+		 Decrease the level of all nodes in this level if necessary, and then skew and split all nodes in the new level.
+		*/
+		inline pJazzQueueItem rebalance(pJazzQueueItem p_tree) {
+			decrease_level(p_tree);
+			p_tree = skew(p_tree);
+			if (p_tree->p_alloc_next != nullptr) {
+				p_tree->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next);
+
+				if (p_tree->p_alloc_next->p_alloc_next != nullptr)
+					p_tree->p_alloc_next->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next->p_alloc_next);
+			};
+			p_tree = split(p_tree);
+
+			if (p_tree->p_alloc_next != nullptr)
+				p_tree->p_alloc_next = split((pJazzQueueItem) p_tree->p_alloc_next);
+
+			return p_tree;
+		}
+
 		/** Remove a node in an AA subtree
 
 			\param p_item The node to be removed
