@@ -739,26 +739,10 @@ class AATBlockQueue: public JazzBlockKeepr {
 				if (p_tree->p_alloc_prev == nullptr) {
 					return (pJazzQueueItem) p_tree->p_alloc_next;
 				} else {
-					if (p_tree->p_alloc_next == nullptr) {
+					if (p_tree->p_alloc_next == nullptr)
 						return (pJazzQueueItem) p_tree->p_alloc_prev;
-					} else {
-						pJazzQueueItem p_parent = p_tree, p_kill = (pJazzQueueItem) p_tree->p_alloc_prev;
-
-						while (p_kill->p_alloc_next != nullptr) {
-							p_parent = p_kill;
-							p_kill   = (pJazzQueueItem) p_kill->p_alloc_next;
-						}														// p_kill is the highest prio left of p_tree
-
-						if (p_parent == p_tree)
-							p_parent->p_alloc_prev = p_kill->p_alloc_prev;
-						else
-							p_parent->p_alloc_next = p_kill->p_alloc_prev;		// p_kill is not in the tree anymore
-
-						p_kill->level        = p_tree->level;
-						p_kill->p_alloc_next = p_tree->p_alloc_next;
-						p_kill->p_alloc_prev = p_tree->p_alloc_prev;
-						p_tree				 = p_kill;							// p_kill is the new tree
-					}
+					else
+						return remove_go_deep((pJazzQueueItem) p_tree->p_alloc_prev, p_tree, p_tree);
 				}
 			} else {
 				if (to_left(p_item, p_tree))
@@ -766,23 +750,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 				else
 					p_tree->p_alloc_next = remove(p_item, (pJazzQueueItem) p_tree->p_alloc_next);
 			}
-
-			// Rebalance the tree. Decrease the level of all nodes in this level if
-			// necessary, and then skew and split all nodes in the new level.
-			decrease_level(p_tree);
-			p_tree = skew(p_tree);
-			if (p_tree->p_alloc_next != nullptr) {
-				p_tree->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next);
-
-				if (p_tree->p_alloc_next->p_alloc_next != nullptr)
-					p_tree->p_alloc_next->p_alloc_next = skew((pJazzQueueItem) p_tree->p_alloc_next->p_alloc_next);
-			};
-			p_tree = split(p_tree);
-
-			if (p_tree->p_alloc_next != nullptr)
-				p_tree->p_alloc_next = split((pJazzQueueItem) p_tree->p_alloc_next);
-
-			return p_tree;
+			return rebalance(p_tree);
 		};
 
 		/** Remove links that skip level in an AA subtree
