@@ -681,6 +681,24 @@ class AATBlockQueue: public JazzBlockKeepr {
 			return p_tree;
 		}
 
+		/** AAA.
+//TODO: write this.
+			\param  p_tree
+			\return 	   AAA
+		*/
+		inline bool is_in_tree(pJazzQueueItem p_item, pJazzQueueItem p_tree) {
+			if (p_tree == nullptr || p_item == nullptr)
+				return false;
+
+			if (p_item == p_tree)
+				return true;
+
+			if (to_left(p_item, p_tree))
+				return is_in_tree(p_item, (pJazzQueueItem) p_tree->p_alloc_prev);
+			else
+				return is_in_tree(p_item, (pJazzQueueItem) p_tree->p_alloc_next);
+		};
+
 		/** Remove a node in an AA subtree
 
 			\param p_item The node to be removed
