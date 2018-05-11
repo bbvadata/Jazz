@@ -4507,8 +4507,10 @@ SCENARIO("Testing internal AA tree functionality") {
 		REQUIRE(num_nodes == 5000);
 
 		for (int i = 0; i < 5000; i++) {
-			long long lj = std::rand()*5000;
+			long long lj = 5000;
+			lj *= std::rand();
 			int j = lj/RAND_MAX;
+			std::cout << j << ", ";
 
 			p_item = &buff[j];
 
