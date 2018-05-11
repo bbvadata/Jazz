@@ -4345,18 +4345,21 @@ SCENARIO("Testing internal AA tree functionality") {
 
 		REQUIRE(num_nodes == 5);
 
+		REQUIRE(aaq.is_in_tree(p_root, p_root));
 		p_root = aaq.remove(p_root, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
 		REQUIRE(num_nodes == 4);
 
+		REQUIRE(aaq.is_in_tree(aaq.lowest_priority(p_root), p_root));
 		p_root = aaq.remove(aaq.lowest_priority(p_root), p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
 		REQUIRE(num_nodes == 3);
 
+		REQUIRE(aaq.is_in_tree(aaq.highest_priority(p_root), p_root));
 		p_root = aaq.remove(aaq.highest_priority(p_root), p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
@@ -4368,12 +4371,14 @@ SCENARIO("Testing internal AA tree functionality") {
 		else
 			p_item = (pJazzQueueItem) p_root->p_alloc_next;
 
+		REQUIRE(aaq.is_in_tree(p_item, p_root));
 		p_root = aaq.remove(p_item, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
 		REQUIRE(num_nodes == 1);
 
+		REQUIRE(aaq.is_in_tree(p_root, p_root));
 		p_root = aaq.remove(p_root, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
@@ -4448,18 +4453,21 @@ SCENARIO("Testing internal AA tree functionality") {
 
 		REQUIRE(num_nodes == 5);
 
+		REQUIRE(aaq.is_in_tree(p_root, p_root));
 		p_root = aaq.remove(p_root, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
 		REQUIRE(num_nodes == 4);
 
+		REQUIRE(aaq.is_in_tree(aaq.lowest_priority(p_root), p_root));
 		p_root = aaq.remove(aaq.lowest_priority(p_root), p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
 		REQUIRE(num_nodes == 3);
 
+		REQUIRE(aaq.is_in_tree(aaq.highest_priority(p_root), p_root));
 		p_root = aaq.remove(aaq.highest_priority(p_root), p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
@@ -4471,12 +4479,14 @@ SCENARIO("Testing internal AA tree functionality") {
 		else
 			p_item = (pJazzQueueItem) p_root->p_alloc_next;
 
+		REQUIRE(aaq.is_in_tree(p_item, p_root));
 		p_root = aaq.remove(p_item, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
 
 		REQUIRE(num_nodes == 1);
 
+		REQUIRE(aaq.is_in_tree(p_root, p_root));
 		p_root = aaq.remove(p_root, p_root);
 
 		num_nodes = recursive_audit_aa_tree(p_root);
