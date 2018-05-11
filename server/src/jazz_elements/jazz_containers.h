@@ -673,20 +673,27 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 			if (p_item == p_tree) {
 				if (p_tree->p_alloc_prev == nullptr) {
-					p_tree = (pJazzQueueItem) p_tree->p_alloc_next;
-
-					if (p_tree == nullptr)
-						return nullptr;
+					return (pJazzQueueItem) p_tree->p_alloc_next;
 				} else {
 					if (p_tree->p_alloc_next == nullptr) {
-						p_tree = (pJazzQueueItem) p_tree->p_alloc_prev;
+						return (pJazzQueueItem) p_tree->p_alloc_prev;
 					} else {
-						pJazzBlockKeeprItem p_left = p_tree->p_alloc_prev;
+						pJazzQueueItem p_parent = p_tree, p_kill = (pJazzQueueItem) p_tree->p_alloc_prev;
 
-						p_tree->p_alloc_prev = p_left->p_alloc_next;
-						p_left->p_alloc_next = p_tree;
+						while (p_kill->p_alloc_next != nullptr) {
+							p_parent = p_kill;
+							p_kill   = (pJazzQueueItem) p_kill->p_alloc_next;
+						}														// p_kill is the highest prio left of p_tree
 
-						p_tree = remove(p_tree, (pJazzQueueItem) p_left);
+						if (p_parent == p_tree)
+							p_parent->p_alloc_prev = p_kill->p_alloc_prev;
+						else
+							p_parent->p_alloc_next = p_kill->p_alloc_prev;		// p_kill is not in the tree anymore
+
+						p_kill->level        = p_tree->level;
+						p_kill->p_alloc_next = p_tree->p_alloc_next;
+						p_kill->p_alloc_prev = p_tree->p_alloc_prev;
+						p_tree				 = p_kill;							// p_kill is the new tree
 					}
 				}
 			} else {
