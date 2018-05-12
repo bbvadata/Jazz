@@ -1463,40 +1463,44 @@ void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
 	\param p_id The JazzBlockIdentifier of the block to be searched for deletion
+	\return     true if the block was found and removed
 
 	Logs with level LOG_MISS if the block is not found.
 */
-void JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
+bool JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
 {
 	pJazzQueueItem p_item = find_jazz_block (p_id);
 
 	if (p_item == nullptr) {
 		log_printf(LOG_MISS, "Block %s not found in JazzCache::free_jazz_block()", p_id);
 
-		return;
+		return false;
 	}
 
 	AATBlockQueue::free_jazz_block(p_item);
+	return true;
 }
 
 
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockId64 (block name)
 
 	\param id64 The JazzBlockId64 of the block to be searched for deletion
+	\return     true if the block was found and removed
 
 	Logs with level LOG_MISS if the block is not found.
 */
-void JazzCache::free_jazz_block (JazzBlockId64 id64)
+bool JazzCache::free_jazz_block (JazzBlockId64 id64)
 {
 	pJazzQueueItem p_item = find_jazz_block (id64);
 
 	if (p_item == nullptr) {
 		log_printf(LOG_MISS, "Block with hash %16x not found in JazzCache::free_jazz_block()", id64);
 
-		return;
+		return false;
 	}
 
 	AATBlockQueue::free_jazz_block(p_item);
+	return true;
 }
 
 
