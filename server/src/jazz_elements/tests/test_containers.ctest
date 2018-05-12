@@ -4928,7 +4928,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		}
 		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -4938,7 +4938,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
@@ -4951,7 +4951,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		}
 		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -4961,7 +4961,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
@@ -4974,7 +4974,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		}
 		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -4991,7 +4991,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			}
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
@@ -5004,7 +5004,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		}
 		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5014,7 +5014,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5027,7 +5027,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		}
 		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5037,7 +5037,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5050,7 +5050,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		}
 		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5067,7 +5067,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			}
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5078,7 +5078,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5090,7 +5090,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5100,7 +5100,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5112,7 +5112,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5122,7 +5122,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5134,7 +5134,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5151,7 +5151,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			}
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5162,7 +5162,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
@@ -5174,7 +5174,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5184,7 +5184,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
@@ -5196,7 +5196,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5206,7 +5206,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			aaq.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
@@ -5218,7 +5218,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 != nullptr);
@@ -5235,7 +5235,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 			}
 		}
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
