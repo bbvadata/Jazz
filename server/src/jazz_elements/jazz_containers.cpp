@@ -1103,7 +1103,9 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 
 	set_item_priority(p_item);
 
+	enter_writing();
 	p_queue_root = insert(p_item, p_queue_root);
+	leave_writing();
 
 	return p_item;
 }
@@ -1202,7 +1204,9 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 
 	set_item_priority(p_item);
 
+	enter_writing();
 	p_queue_root = insert(p_item, p_queue_root);
+	leave_writing();
 
 	return p_item;
 }
@@ -1265,7 +1269,9 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	set_item_priority(p_item);
 
+	enter_writing();
 	p_queue_root = insert(p_item, p_queue_root);
+	leave_writing();
 
 	return p_item;
 }
@@ -1361,7 +1367,9 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	set_item_priority(p_item);
 
+	enter_writing();
 	p_queue_root = insert(p_item, p_queue_root);
+	leave_writing();
 
 	return p_item;
 }
