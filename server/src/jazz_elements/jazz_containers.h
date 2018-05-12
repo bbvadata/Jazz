@@ -850,11 +850,14 @@ class AATBlockQueue: public JazzBlockKeepr {
 				p_right->p_alloc_prev = p_item;
 				if (p_item->p_alloc_prev == nullptr && p_item->p_alloc_next == nullptr && p_item->level > 1) {
 					p_item->level = 1;
+/* The following condition looks like it could be problematic (since the previous one is already an undocumented deviation from the
+canonical method description). It has never been observed (in intense unit testing) and should only be considered if problems happen.
+It may very well be impossible, who knows. Just keep it as a remark, unless someone smarter proves it unnecessary.
 					if (   p_right->level != 2
 						|| (   p_right->p_alloc_next->p_alloc_next != nullptr
 							&& reinterpret_cast<pJazzQueueItem>(p_right->p_alloc_next->p_alloc_next)->level >= 2)) {
-							p_right->level++;
-					}
+							p_right->level++;	// This is actually a breakpoint possibility, not a solution!!
+					} */
 				} else {
 					p_right->level++;
 				}
