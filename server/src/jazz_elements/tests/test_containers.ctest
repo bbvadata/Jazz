@@ -171,23 +171,33 @@ int recursive_audit_aa_tree(pJazzQueueItem p_tree)
 		return 0;
 
 	if (p_tree->p_alloc_prev == nullptr && p_tree->p_alloc_next == nullptr) {
-		REQUIRE(p_tree->level == 1);
+		if (p_tree->level != 1)
+			return -1;
 		return 1;
 	}
 
 	if (p_tree->p_alloc_prev != nullptr) {
-		REQUIRE(highest_priority((pJazzQueueItem) p_tree->p_alloc_prev)->priority <= p_tree->priority);
-		REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_prev)->level == p_tree->level - 1);
+		if (highest_priority((pJazzQueueItem) p_tree->p_alloc_prev)->priority > p_tree->priority)
+			return -1;
+		if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_prev)->level != p_tree->level - 1)
+			return -1;
 	}
 
 	if (p_tree->p_alloc_next != nullptr) {
-		REQUIRE(lowest_priority((pJazzQueueItem) p_tree->p_alloc_next)->priority >= p_tree->priority);
+		if (lowest_priority((pJazzQueueItem) p_tree->p_alloc_next)->priority < p_tree->priority)
+			return -1;
 		if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level != p_tree->level - 1) {
-			REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level == p_tree->level);
-			if (p_tree->p_alloc_next->p_alloc_prev != nullptr)
-				REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next->p_alloc_prev)->level < p_tree->level);
-			if (p_tree->p_alloc_next->p_alloc_next != nullptr)
-				REQUIRE(reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next->p_alloc_next)->level < p_tree->level);
+			if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next)->level != p_tree->level)
+				return -1;
+			if (p_tree->p_alloc_next->p_alloc_prev != nullptr) {
+				if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next->p_alloc_prev)->level >= p_tree->level)
+					return -1;
+
+			}
+			if (p_tree->p_alloc_next->p_alloc_next != nullptr) {
+				if (reinterpret_cast<pJazzQueueItem>(p_tree->p_alloc_next->p_alloc_next)->level >= p_tree->level)
+					return -1;
+			}
 		}
 	}
 
