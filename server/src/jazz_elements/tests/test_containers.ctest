@@ -4507,7 +4507,8 @@ SCENARIO("Testing internal AA tree functionality") {
 
 			p_item = &buff[j];
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 5000 + i;
@@ -4521,7 +4522,8 @@ SCENARIO("Testing internal AA tree functionality") {
 		for (int i = 0; i < 5000; i++) {
 			p_item = &buff[i];
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 10000 + i;
@@ -4535,7 +4537,8 @@ SCENARIO("Testing internal AA tree functionality") {
 		for (int i = 0; i < 5000; i++) {
 			p_item = &buff[i];
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 15000 + i;
@@ -4564,7 +4567,8 @@ SCENARIO("Testing internal AA tree functionality") {
 
 			p_item = &buff[j];
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 25000 + i;
@@ -4578,7 +4582,8 @@ SCENARIO("Testing internal AA tree functionality") {
 		for (int i = 0; i < 10000; i++) {
 			p_item = &buff[i];
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 35000 + i;
@@ -4592,7 +4597,8 @@ SCENARIO("Testing internal AA tree functionality") {
 		for (int i = 4999; i >= 0; i--) {
 			p_item = &buff[i];
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 45000 + i;
@@ -4612,7 +4618,8 @@ SCENARIO("Testing internal AA tree functionality") {
 				p_item = &buff[j];
 			} while (p_item->block_id64 == 0xfaded);
 
-			REQUIRE(aaq.is_in_tree(p_item, p_root));
+			if (!aaq.is_in_tree(p_item, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_item, p_root);
 
 			p_item->block_id64 = 0xfaded;
@@ -4621,35 +4628,40 @@ SCENARIO("Testing internal AA tree functionality") {
 		REQUIRE(recursive_audit_aa_tree(p_root) == 5000);
 
 		for (int i = 0; i < 1000; i++) {
-			REQUIRE(aaq.is_in_tree(p_root, p_root));
+			if (!aaq.is_in_tree(p_root, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_root, p_root);
 		}
 
 		REQUIRE(recursive_audit_aa_tree(p_root) == 4000);
 
 		for (int i = 0; i < 1000; i++) {
-			REQUIRE(aaq.is_in_tree(aaq.highest_priority(p_root), p_root));
+			if (!aaq.is_in_tree(aaq.highest_priority(p_root), p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(aaq.highest_priority(p_root), p_root);
 		}
 
 		REQUIRE(recursive_audit_aa_tree(p_root) == 3000);
 
 		for (int i = 0; i < 1000; i++) {
-			REQUIRE(aaq.is_in_tree(aaq.lowest_priority(p_root), p_root));
+			if (!aaq.is_in_tree(aaq.lowest_priority(p_root), p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(aaq.lowest_priority(p_root), p_root);
 		}
 
 		REQUIRE(recursive_audit_aa_tree(p_root) == 2000);
 
 		for (int i = 0; i < 1000; i++) {
-			REQUIRE(aaq.is_in_tree(p_root, p_root));
+			if (!aaq.is_in_tree(p_root, p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(p_root, p_root);
 		}
 
 		REQUIRE(recursive_audit_aa_tree(p_root) == 1000);
 
 		for (int i = 0; i < 990; i++) {
-			REQUIRE(aaq.is_in_tree(aaq.lowest_priority(p_root), p_root));
+			if (!aaq.is_in_tree(aaq.lowest_priority(p_root), p_root))
+				REQUIRE(false);
 			p_root = aaq.remove(aaq.lowest_priority(p_root), p_root);
 		}
 
