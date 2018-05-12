@@ -1759,14 +1759,14 @@ bool JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
 */
 bool JazzCache::free_jazz_block (JazzBlockId64 id64)
 {
-	pJazzQueueItem p_item = find_jazz_block (id64);
+	pJazzQueueItem p_item = find_jazz_block(id64);
 
 	if (p_item == nullptr) {
 		log_printf(LOG_MISS, "Block with hash %16x not found in JazzCache::free_jazz_block()", id64);
 
 		return false;
 	}
-
+//TODO: Remove id64 from the queue
 	AATBlockQueue::free_jazz_block(p_item);
 	return true;
 }
