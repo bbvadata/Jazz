@@ -922,6 +922,42 @@ class JazzCache: public AATBlockQueue {
 	public:
 		 JazzCache(jazz_utils::pJazzLogger a_logger = nullptr);
 
+		// Methods for JazzBlock allocation
+
+		pJazzQueueItem new_jazz_block (const JazzBlockId64	id64,
+									   pJazzBlock			p_as_block,
+									   pJazzFilter			p_row_filter  = nullptr,
+									   AllAttributes	   *att			  = nullptr,
+									   uint64_t				time_to_build = 0);
+
+		pJazzQueueItem new_jazz_block (const JazzBlockId64	id64,
+									   int					cell_type,
+									   int				   *dim,
+									   AllAttributes	   *att				= nullptr,
+									   int					fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
+									   bool				   *p_bool_filter	= nullptr,
+									   int					stringbuff_size	= 0,
+									   const char		   *p_text			= nullptr,
+									   char					eoln			= '\n',
+									   uint64_t				time_to_build	= 0);
+
+		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
+									   pJazzBlock				  p_as_block,
+									   pJazzFilter				  p_row_filter	= nullptr,
+									   AllAttributes			 *att			= nullptr,
+									   uint64_t					  time_to_build = 0);
+
+		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
+									   int						  cell_type,
+									   int						 *dim,
+									   AllAttributes			 *att			  = nullptr,
+									   int						  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
+									   bool						 *p_bool_filter	  = nullptr,
+									   int						  stringbuff_size = 0,
+									   const char				 *p_text		  = nullptr,
+									   char						  eoln			  = '\n',
+									   uint64_t					  time_to_build	  = 0);
+
 		/** Find a JazzBlock in a JazzCache by JazzBlockIdentifier (block name)
 
 			\param p_id The JazzBlockIdentifier of the block to be found
