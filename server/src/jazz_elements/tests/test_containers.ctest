@@ -171,9 +171,7 @@ int recursive_audit_aa_tree(pJazzQueueItem p_tree)
 		return 0;
 
 	if (p_tree->p_alloc_prev == nullptr && p_tree->p_alloc_next == nullptr) {
-		if (p_tree->level != 1) {
-			REQUIRE(p_tree->level == 1);
-		}
+		REQUIRE(p_tree->level == 1);
 		return 1;
 	}
 
