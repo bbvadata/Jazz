@@ -848,7 +848,16 @@ class AATBlockQueue: public JazzBlockKeepr {
 
 				p_item->p_alloc_next  = p_right->p_alloc_prev;
 				p_right->p_alloc_prev = p_item;
-				p_right->level++;
+				if (p_item->p_alloc_prev == nullptr && p_item->p_alloc_next == nullptr && p_item->level > 1) {
+					p_item->level = 1;
+					if (   p_right->level != 2
+						|| (   p_right->p_alloc_next->p_alloc_next != nullptr
+							&& reinterpret_cast<pJazzQueueItem>(p_right->p_alloc_next->p_alloc_next)->level >= 2)) {
+							p_right->level++;
+					}
+				} else {
+					p_right->level++;
+				}
 
 				return p_right;
 			}
