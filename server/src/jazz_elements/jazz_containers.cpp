@@ -956,9 +956,9 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item)
 		return;
 	}
 
-	jazz_containers::free_jazz_block(p_item->p_jazz_block);
-
 	enter_writing();
+
+	jazz_containers::free_jazz_block(p_item->p_jazz_block);
 
 	if (p_item->p_alloc_prev == nullptr)
 		p_first_item = p_item->p_alloc_next;
