@@ -4634,13 +4634,18 @@ SCENARIO("Testing internal AA tree functionality") {
 		REQUIRE(num_nodes == 10000);
 
 		for (int i = 0; i < 5000; i++) {
-			long long lj = std::rand()*10000;
-			int j = lj/RAND_MAX;
+			do {
+				long long lj = 5000;
+				lj *= std::rand();
+				int j = lj/RAND_MAX;
 
-			p_item = &buff[j];
+				p_item = &buff[j];
+			} while (p_item->block_id64 == 0xfaded);
 
 			REQUIRE(aaq.is_in_tree(p_item, p_root));
 			p_root = aaq.remove(p_item, p_root);
+
+			p_item->block_id64 = 0xfaded;
 		}
 
 		num_nodes = recursive_audit_aa_tree(p_root);
@@ -4700,6 +4705,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 			REQUIRE(num_nodes == i);
 		}
+		REQUIRE(p_root == nullptr);
 	}
 }
 
