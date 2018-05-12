@@ -889,7 +889,7 @@ SCENARIO("Testing String and Attribute logic") {
 
 SCENARIO("Testing Filters") {
 	char buf1[4096], buf2[4096];
-	pJazzBlock  pjb = reinterpret_cast<pJazzBlock>(&buf1);
+	pJazzBlock	pjb = reinterpret_cast<pJazzBlock>(&buf1);
 	pJazzFilter pjf = reinterpret_cast<pJazzFilter>(&buf2);
 
 	GIVEN("A block pjb") {
@@ -960,26 +960,26 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(size == pjf->size);
 
-		REQUIRE(pjf->filter_type()   == JAZZ_FILTER_TYPE_BOOLEAN);
-		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->filter_type()	 == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->filter_audit()	 == JAZZ_FILTER_TYPE_BOOLEAN);
 		REQUIRE(pjf->can_filter(pjb));
 
 		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor);
 		pt[17] = 17;
 
-		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->filter_audit()	 == JAZZ_FILTER_TYPE_BOOLEAN);
 
 		pt[16] = 16;
 
-		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_NOTAFILTER);
+		REQUIRE(pjf->filter_audit()	 == JAZZ_FILTER_TYPE_NOTAFILTER);
 
 		pt[16] = 1;
 
-		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->filter_audit()	 == JAZZ_FILTER_TYPE_BOOLEAN);
 
 		pt[0] = 2;
 
-		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_NOTAFILTER);
+		REQUIRE(pjf->filter_audit()	 == JAZZ_FILTER_TYPE_NOTAFILTER);
 	}
 
 	GIVEN("A valid integer filter pjf for pjb") {
@@ -1028,8 +1028,8 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(size == pjf->size);
 
-		REQUIRE(pjf->filter_type()   == JAZZ_FILTER_TYPE_INTEGER);
-		REQUIRE(pjf->filter_audit()  == JAZZ_FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->filter_type()	 == JAZZ_FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->filter_audit()	 == JAZZ_FILTER_TYPE_INTEGER);
 		REQUIRE(pjf->can_filter(pjb));
 
 		pjf->range.filter.length = -1;
@@ -1049,7 +1049,7 @@ SCENARIO("Testing Filters") {
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_INTEGER);
 
 		pjf->range.filter.length = 5;
-		pjf->tensor.cell_int[4]  = 6;
+		pjf->tensor.cell_int[4]	 = 6;
 
 		REQUIRE(pjf->filter_audit() == JAZZ_FILTER_TYPE_NOTAFILTER);
 

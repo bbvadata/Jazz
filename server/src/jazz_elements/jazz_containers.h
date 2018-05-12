@@ -306,8 +306,8 @@ class JazzBlockKeepr {
 											char				eoln			= '\n');
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
-											pJazzBlock			  	   p_as_block,
-											pJazzFilter			  	   p_row_filter	= nullptr,
+											pJazzBlock				   p_as_block,
+											pJazzFilter				   p_row_filter	= nullptr,
 											AllAttributes			  *att			= nullptr);
 
 		pJazzBlockKeeprItem new_jazz_block (const JazzBlockIdentifier *p_id,
@@ -533,8 +533,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 									   uint64_t				time_to_build	= 0);
 
 		pJazzQueueItem new_jazz_block (const JazzBlockIdentifier *p_id,
-									   pJazzBlock			  	  p_as_block,
-									   pJazzFilter			  	  p_row_filter	= nullptr,
+									   pJazzBlock				  p_as_block,
+									   pJazzFilter				  p_row_filter	= nullptr,
 									   AllAttributes			 *att			= nullptr,
 									   uint64_t					  time_to_build = 0);
 
@@ -660,7 +660,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 		};
 
 		/** Rebalance the tree after remove().
-			\param  p_tree The tree resulting of (a recursive step) in remove
+			\param	p_tree The tree resulting of (a recursive step) in remove
 			\return The balanced tree
 		 Decrease the level of all nodes in this level if necessary, and then skew and split all nodes in the new level.
 		*/
@@ -684,7 +684,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 		/** Check if a node belongs to a tree
 			\param p_item The node checked if part of the AA subtree
 			\param p_tree The the AA subtree that may contain p_item
-			\return 	  True if the node was found in the tree
+			\return		  True if the node was found in the tree
 		Note: This is a debugging function, never used in the real code. It is a prerequisite of remove() but correct management
 		of the JazzQueueItems makes it unnecessary.
 		*/
@@ -702,11 +702,11 @@ class AATBlockQueue: public JazzBlockKeepr {
 		};
 
 		/** Implements the "deep case" of AA tree removal.
-			\param p_kill   The node that we are following towards HPLoT found by recursion
+			\param p_kill	The node that we are following towards HPLoT found by recursion
 			\param p_parent The parent of p_kill (required to rebalance the tree after every recursive step)
-			\param p_tree   The (never changing) root of the subtree (we want to remove it)
-			\param p_deep   A variable to store the HPLoT (found in the deepest level, applied in the shallowest)
-			\return 	    The rebalanced HPLoT converted in the new subtree root
+			\param p_tree	The (never changing) root of the subtree (we want to remove it)
+			\param p_deep	A variable to store the HPLoT (found in the deepest level, applied in the shallowest)
+			\return			The rebalanced HPLoT converted in the new subtree root
 
 			Note: Against what is stated in AA tree literature, it is not always easy to convert an arbitrary node that has to be
 			removed into a leaf. (Many applications only remove high or low priority node and that does not apply then.) When we need
@@ -721,7 +721,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 			else {
 				if (p_parent == p_tree) {
 					p_tree->p_alloc_prev = p_kill->p_alloc_prev;	// Disconnect p_kill
-					p_kill->level        = p_tree->level;
+					p_kill->level		 = p_tree->level;
 					p_kill->p_alloc_next = p_tree->p_alloc_next;
 					p_kill->p_alloc_prev = p_tree->p_alloc_prev;	// p_kill is the new p_tree
 					return rebalance(p_kill);
@@ -733,7 +733,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 			if (p_parent != p_tree)
 				return rebalance(p_kill);
 			else {
-				p_deep->level        = p_tree->level;
+				p_deep->level		 = p_tree->level;
 				p_deep->p_alloc_next = p_tree->p_alloc_next;
 				p_deep->p_alloc_prev = rebalance(p_kill);
 

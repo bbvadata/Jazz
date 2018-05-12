@@ -1,13 +1,13 @@
 /* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
 
    1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
-      exclusively for the use in the Jazz server software.
+	  exclusively for the use in the Jazz server software.
 
 	  Copyright 2009-2012 Jacques Basaldúa
 
    2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
-   		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
 
 	  This product includes software developed at
 
@@ -209,8 +209,8 @@ int recursive_audit_aa_tree(pJazzQueueItem p_tree)
 
 SCENARIO("Testing JazzBlock containers") {
 	REQUIRE(sizeof(JazzBlockIdentifier) == 32);
-	REQUIRE(sizeof(JazzBlockId64) 		==  8);
-	REQUIRE(sizeof(JazzBlockKeeprItem)  == 64);
+	REQUIRE(sizeof(JazzBlockId64)		==	8);
+	REQUIRE(sizeof(JazzBlockKeeprItem)	== 64);
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
 	REQUIRE(sizeof(JazzQueueItem)		== 96);
 
@@ -266,7 +266,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	WHEN("I force all the possible error conditions, I get nullptr.") {
 		JazzTensorDim dim7 {{7, 0}}, dim_in;
 		pJazzBlock pjb;
-		char const *buffer  = "One Two Three Four Five Six Seven";
+		char const *buffer	= "One Two Three Four Five Six Seven";
 		char const *buffer6 = "One Two Three Four Five Six";
 		bool filter[7];
 
@@ -472,7 +472,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			REQUIRE(pjb->num_attributes == 1);
 			REQUIRE(pjb->total_bytes == 64 + 16*27 + 8 + 16);
 			REQUIRE(pjb->has_NA == true);
-			REQUIRE(pjb->tensor.cell_int[0]   == JAZZ_INTEGER_NA);
+			REQUIRE(pjb->tensor.cell_int[0]	  == JAZZ_INTEGER_NA);
 			REQUIRE(pjb->tensor.cell_int[104] == JAZZ_INTEGER_NA);
 
 			check_and_close_jazz_block(pjb);
@@ -516,7 +516,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*27 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
-		REQUIRE(pjb->tensor.cell_int[0]   == JAZZ_BOOLEAN_NA);
+		REQUIRE(pjb->tensor.cell_int[0]	  == JAZZ_BOOLEAN_NA);
 		REQUIRE(pjb->tensor.cell_int[104] == JAZZ_BOOLEAN_NA);
 
 		check_and_close_jazz_block(pjb);
@@ -645,7 +645,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*53 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
-		REQUIRE(pjb->tensor.cell_longint[0]   == JAZZ_LONG_INTEGER_NA);
+		REQUIRE(pjb->tensor.cell_longint[0]	  == JAZZ_LONG_INTEGER_NA);
 		REQUIRE(pjb->tensor.cell_longint[104] == JAZZ_LONG_INTEGER_NA);
 
 		check_and_close_jazz_block(pjb);
@@ -688,7 +688,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*53 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
-		REQUIRE(pjb->tensor.cell_longint[0]   == JAZZ_TIME_POINT_NA);
+		REQUIRE(pjb->tensor.cell_longint[0]	  == JAZZ_TIME_POINT_NA);
 		REQUIRE(pjb->tensor.cell_longint[104] == JAZZ_TIME_POINT_NA);
 
 		check_and_close_jazz_block(pjb);
@@ -870,7 +870,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			REQUIRE(pjb->num_attributes == 1);
 			REQUIRE(pjb->total_bytes == 64 + 16*84 + 8 + 16);
 			REQUIRE(pjb->has_NA == false);
-			REQUIRE(pjb->tensor.cell_int[0]   == 0);
+			REQUIRE(pjb->tensor.cell_int[0]	  == 0);
 			REQUIRE(pjb->tensor.cell_int[335] == 0);
 
 			check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
@@ -914,7 +914,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*84 + 8 + 16);
 		REQUIRE(pjb->has_NA == false);
-		REQUIRE(pjb->tensor.cell_int[0]   == 0);
+		REQUIRE(pjb->tensor.cell_int[0]	  == 0);
 		REQUIRE(pjb->tensor.cell_int[335] == 0);
 
 		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
@@ -1043,7 +1043,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*168 + 8 + 16);
 		REQUIRE(pjb->has_NA == false);
-		REQUIRE(pjb->tensor.cell_longint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_longint[0]	  == 0);
 		REQUIRE(pjb->tensor.cell_longint[335] == 0);
 
 		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
@@ -1086,7 +1086,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(pjb->num_attributes == 1);
 		REQUIRE(pjb->total_bytes == 64 + 16*168 + 8 + 16);
 		REQUIRE(pjb->has_NA == true);
-		REQUIRE(pjb->tensor.cell_longint[0]   == 0);
+		REQUIRE(pjb->tensor.cell_longint[0]	  == 0);
 		REQUIRE(pjb->tensor.cell_longint[335] == 0);
 
 		check_and_close_jazz_block(pjb, JAZZ_SET_HAS_NA_TRUE);
@@ -1158,8 +1158,8 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 
 	AllAttributes block_att;
 	block_att [1357] = "Hello world!";
-	block_att [468]  = "Hi!";
-	block_att [222]  = "123.";
+	block_att [468]	 = "Hi!";
+	block_att [222]	 = "123.";
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
 		pJazzBlock pjb = new_jazz_block(CELL_TYPE_BYTE, dim.dim, &block_att, JAZZ_FILL_NEW_DONT_FILL);
@@ -1921,16 +1921,16 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 
 		REQUIRE(pjb->has_NA == false);
 
-		REQUIRE(!strcmp(pjb->get_string(0),  "January"));
-		REQUIRE(!strcmp(pjb->get_string(1),  "February"));
-		REQUIRE(!strcmp(pjb->get_string(2),  "March"));
-		REQUIRE(!strcmp(pjb->get_string(3),  "April"));
-		REQUIRE(!strcmp(pjb->get_string(4),  "May"));
-		REQUIRE(!strcmp(pjb->get_string(5),  "June"));
-		REQUIRE(!strcmp(pjb->get_string(6),  "July"));
-		REQUIRE(!strcmp(pjb->get_string(7),  "August"));
-		REQUIRE(!strcmp(pjb->get_string(8),  "September"));
-		REQUIRE(!strcmp(pjb->get_string(9),  "October"));
+		REQUIRE(!strcmp(pjb->get_string(0),	 "January"));
+		REQUIRE(!strcmp(pjb->get_string(1),	 "February"));
+		REQUIRE(!strcmp(pjb->get_string(2),	 "March"));
+		REQUIRE(!strcmp(pjb->get_string(3),	 "April"));
+		REQUIRE(!strcmp(pjb->get_string(4),	 "May"));
+		REQUIRE(!strcmp(pjb->get_string(5),	 "June"));
+		REQUIRE(!strcmp(pjb->get_string(6),	 "July"));
+		REQUIRE(!strcmp(pjb->get_string(7),	 "August"));
+		REQUIRE(!strcmp(pjb->get_string(8),	 "September"));
+		REQUIRE(!strcmp(pjb->get_string(9),	 "October"));
 		REQUIRE(!strcmp(pjb->get_string(10), "November"));
 		REQUIRE(!strcmp(pjb->get_string(11), "December"));
 
@@ -1965,16 +1965,16 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 
 		REQUIRE(pjb->has_NA == false);
 
-		REQUIRE(!strcmp(pjb->get_string(0),  "January"));
-		REQUIRE(!strcmp(pjb->get_string(1),  "February"));
-		REQUIRE(!strcmp(pjb->get_string(2),  "March"));
-		REQUIRE(!strcmp(pjb->get_string(3),  "April"));
-		REQUIRE(!strcmp(pjb->get_string(4),  "May"));
-		REQUIRE(!strcmp(pjb->get_string(5),  "June"));
-		REQUIRE(!strcmp(pjb->get_string(6),  "July"));
-		REQUIRE(!strcmp(pjb->get_string(7),  "August"));
-		REQUIRE(!strcmp(pjb->get_string(8),  "September"));
-		REQUIRE(!strcmp(pjb->get_string(9),  "October"));
+		REQUIRE(!strcmp(pjb->get_string(0),	 "January"));
+		REQUIRE(!strcmp(pjb->get_string(1),	 "February"));
+		REQUIRE(!strcmp(pjb->get_string(2),	 "March"));
+		REQUIRE(!strcmp(pjb->get_string(3),	 "April"));
+		REQUIRE(!strcmp(pjb->get_string(4),	 "May"));
+		REQUIRE(!strcmp(pjb->get_string(5),	 "June"));
+		REQUIRE(!strcmp(pjb->get_string(6),	 "July"));
+		REQUIRE(!strcmp(pjb->get_string(7),	 "August"));
+		REQUIRE(!strcmp(pjb->get_string(8),	 "September"));
+		REQUIRE(!strcmp(pjb->get_string(9),	 "October"));
 		REQUIRE(!strcmp(pjb->get_string(10), "November"));
 		REQUIRE(!strcmp(pjb->get_string(11), "December"));
 
@@ -2003,16 +2003,16 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 
 		REQUIRE(pjb->has_NA == false);
 
-		REQUIRE(!strcmp(pjb->get_string(0),  "January"));
-		REQUIRE(!strcmp(pjb->get_string(1),  "February"));
-		REQUIRE(!strcmp(pjb->get_string(2),  "March"));
-		REQUIRE(!strcmp(pjb->get_string(3),  "April"));
-		REQUIRE(!strcmp(pjb->get_string(4),  "May"));
-		REQUIRE(!strcmp(pjb->get_string(5),  "June"));
-		REQUIRE(!strcmp(pjb->get_string(6),  "July"));
-		REQUIRE(!strcmp(pjb->get_string(7),  "August"));
-		REQUIRE(!strcmp(pjb->get_string(8),  "September"));
-		REQUIRE(!strcmp(pjb->get_string(9),  "October"));
+		REQUIRE(!strcmp(pjb->get_string(0),	 "January"));
+		REQUIRE(!strcmp(pjb->get_string(1),	 "February"));
+		REQUIRE(!strcmp(pjb->get_string(2),	 "March"));
+		REQUIRE(!strcmp(pjb->get_string(3),	 "April"));
+		REQUIRE(!strcmp(pjb->get_string(4),	 "May"));
+		REQUIRE(!strcmp(pjb->get_string(5),	 "June"));
+		REQUIRE(!strcmp(pjb->get_string(6),	 "July"));
+		REQUIRE(!strcmp(pjb->get_string(7),	 "August"));
+		REQUIRE(!strcmp(pjb->get_string(8),	 "September"));
+		REQUIRE(!strcmp(pjb->get_string(9),	 "October"));
 		REQUIRE(!strcmp(pjb->get_string(10), "November"));
 		REQUIRE(!strcmp(pjb->get_string(11), "December"));
 
@@ -2514,7 +2514,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		WHEN("I create identical blocks") {
 			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
 					   pcp_st_r1, pcp_st_r3, pcp_st_r6,
-			   		   pcp_by_r1, pcp_by_r3, pcp_by_r6;
+					   pcp_by_r1, pcp_by_r3, pcp_by_r6;
 
 			pcp_db_r1 = new_jazz_block(p_db_r1);
 
@@ -2588,7 +2588,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 				REQUIRE(pcp_by_r3->p_attribute_keys()[0]				 == p_by_r3->p_attribute_keys()[0]);
 				REQUIRE(pcp_db_r1->p_string_buffer()->stop_check_4_match == p_db_r1->p_string_buffer()->stop_check_4_match);
-				REQUIRE(pcp_st_r6->p_attribute_keys()[0]                 == p_st_r6->p_attribute_keys()[0]);
+				REQUIRE(pcp_st_r6->p_attribute_keys()[0]				 == p_st_r6->p_attribute_keys()[0]);
 				REQUIRE(pcp_by_r3->p_string_buffer()->alloc_failed		 == p_by_r3->p_string_buffer()->alloc_failed);
 				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx			 == p_db_r1->p_string_buffer()->last_idx);
 
@@ -2606,27 +2606,27 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_by_r3->find_attribute(921), "that struts and frets his hour"));
 				REQUIRE(!strcmp(pcp_db_r1->find_attribute(222), "upon the stage and"));
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(321), "then ..."));
-				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
 				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r6->find_attribute(486)						    == nullptr);
-				REQUIRE(pcp_by_r3->find_attribute(487)						    == nullptr);
+				REQUIRE(pcp_st_r6->find_attribute(486)							== nullptr);
+				REQUIRE(pcp_by_r3->find_attribute(487)							== nullptr);
 
 				REQUIRE(!strcmp(pcp_db_r3->find_attribute(123), ""));
 				REQUIRE(!strcmp(pcp_st_r1->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
-				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
 				REQUIRE(pcp_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r6->find_attribute(487)						    == nullptr);
+				REQUIRE(pcp_by_r6->find_attribute(487)							== nullptr);
 
 				REQUIRE(!strcmp(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
 				REQUIRE(!strcmp(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
 				REQUIRE(!strcmp(pcp_by_r1->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
 				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 				REQUIRE(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r1->find_attribute(487)						    == nullptr);
+				REQUIRE(pcp_by_r1->find_attribute(487)							== nullptr);
 
 				REQUIRE(pcp_db_r1->tensor.cell_double[33] == 3.3);
-				REQUIRE(pcp_by_r1->tensor.cell_byte  [33] == 73);
+				REQUIRE(pcp_by_r1->tensor.cell_byte	 [33] == 73);
 				REQUIRE(!strcmp(pcp_st_r1->get_string(15), "April"));
 				REQUIRE(!pcp_st_r1->p_string_buffer()->alloc_failed);
 
@@ -2635,7 +2635,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_close_jazz_block(pcp_by_r1);
 
 				REQUIRE(pcp_db_r3->tensor.cell_double[334] == 12003001.0);
-				REQUIRE(pcp_by_r3->tensor.cell_byte  [334] == 102);
+				REQUIRE(pcp_by_r3->tensor.cell_byte	 [334] == 102);
 				REQUIRE(!strcmp(pcp_st_r3->get_string(334), "July"));
 				REQUIRE(!pcp_st_r3->p_string_buffer()->alloc_failed);
 
@@ -2644,7 +2644,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_close_jazz_block(pcp_by_r3);
 
 				REQUIRE(pcp_db_r6->tensor.cell_double[753] == 120000307.0);
-				REQUIRE(pcp_by_r6->tensor.cell_byte  [753] == 167);
+				REQUIRE(pcp_by_r6->tensor.cell_byte	 [753] == 167);
 				REQUIRE(!strcmp(pcp_st_r6->get_string(753), "December"));
 				REQUIRE(!pcp_st_r6->p_string_buffer()->alloc_failed);
 
@@ -2684,7 +2684,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		WHEN("I create identical blocks with different attributes") {
 			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
 					   pcp_st_r1, pcp_st_r3, pcp_st_r6,
-			   		   pcp_by_r1, pcp_by_r3, pcp_by_r6;
+					   pcp_by_r1, pcp_by_r3, pcp_by_r6;
 
 			pcp_db_r1 = new_jazz_block(p_db_r1, nullptr, &new_str);
 
@@ -2764,26 +2764,26 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_by_r1->find_attribute(358), "told by an idiot.."));
 				REQUIRE(!strcmp(pcp_db_r3->find_attribute(222), "full of sound and fury.."));
 				REQUIRE(!strcmp(pcp_st_r3->find_attribute(676), "signifying .."));
-				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
 				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r1->find_attribute(486)						    == nullptr);
-				REQUIRE(pcp_by_r1->find_attribute(487)						    == nullptr);
+				REQUIRE(pcp_st_r1->find_attribute(486)							== nullptr);
+				REQUIRE(pcp_by_r1->find_attribute(487)							== nullptr);
 				REQUIRE(!strcmp(pcp_db_r3->find_attribute(321), "NULL"));
 
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
-				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)  == nullptr);
+				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
 				REQUIRE(pcp_st_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 
 				REQUIRE(pcp_db_r1->tensor.cell_double[33] == 3.3);
-				REQUIRE(pcp_by_r1->tensor.cell_byte  [33] == 73);
+				REQUIRE(pcp_by_r1->tensor.cell_byte	 [33] == 73);
 				REQUIRE(!strcmp(pcp_st_r1->get_string(15), "April"));
 				REQUIRE(!pcp_st_r1->p_string_buffer()->alloc_failed);
 
 				// Not a string, from old_str to new_str:
-				REQUIRE(pcp_db_r1->total_bytes 				      == p_db_r1->total_bytes);
+				REQUIRE(pcp_db_r1->total_bytes					  == p_db_r1->total_bytes);
 				REQUIRE(pcp_db_r1->p_string_buffer()->buffer_size == p_db_r1->p_string_buffer()->buffer_size - 8);	// 8 bytes == keys 1+ attr
-				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx    == p_db_r1->p_string_buffer()->last_idx - 8);
+				REQUIRE(pcp_db_r1->p_string_buffer()->last_idx	  == p_db_r1->p_string_buffer()->last_idx - 8);
 
 				REQUIRE(!strcmp(pcp_db_r1->find_attribute(921), "is heard nomore ..."));
 				REQUIRE(!strcmp(pcp_db_r1->find_attribute(313), "It's a tale.."));
@@ -2793,18 +2793,18 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_db_r1->find_attribute(321), "NULL"));
 
 				// Not a string, from nullptr to new_str:
-				REQUIRE(pcp_by_r1->total_bytes 				      == p_by_r1->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_by_r1->total_bytes					  == p_by_r1->total_bytes + 8*5 + 97);
 				REQUIRE(pcp_by_r1->p_string_buffer()->buffer_size == pcp_db_r1->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_by_r1->p_string_buffer()->last_idx    == pcp_db_r1->p_string_buffer()->last_idx);
+				REQUIRE(pcp_by_r1->p_string_buffer()->last_idx	  == pcp_db_r1->p_string_buffer()->last_idx);
 
 				// String, from no_str to new_str:
- 				REQUIRE(pcp_st_r1->total_bytes 				      == p_st_r1->total_bytes + 8*4 + 97);
- 				REQUIRE(pcp_st_r1->num_attributes			      == p_st_r1->num_attributes + 4);
+				REQUIRE(pcp_st_r1->total_bytes					  == p_st_r1->total_bytes + 8*4 + 97);
+				REQUIRE(pcp_st_r1->num_attributes				  == p_st_r1->num_attributes + 4);
 
 				REQUIRE(pcp_st_r1->p_string_buffer()->buffer_size == p_st_r1->p_string_buffer()->buffer_size + 97);
 
 				// String, from nullptr to new_str:
- 				REQUIRE(pcp_st_r3->total_bytes 				      == p_st_r3->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_st_r3->total_bytes					  == p_st_r3->total_bytes + 8*5 + 97);
 				REQUIRE(pcp_st_r3->p_string_buffer()->buffer_size == p_st_r3->p_string_buffer()->buffer_size + 97);
 
 				REQUIRE(!strcmp(pcp_st_r3->find_attribute(921), "is heard nomore ..."));
@@ -2815,9 +2815,9 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_st_r3->find_attribute(321), "NULL"));
 
 				// String, from old_str to no_str:
-				REQUIRE(pcp_st_r6->total_bytes 				      == p_st_r6->total_bytes - 8*3);
+				REQUIRE(pcp_st_r6->total_bytes					  == p_st_r6->total_bytes - 8*3);
 				REQUIRE(pcp_st_r6->p_string_buffer()->buffer_size == p_st_r6->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_st_r6->p_string_buffer()->last_idx    == p_st_r6->p_string_buffer()->last_idx);
+				REQUIRE(pcp_st_r6->p_string_buffer()->last_idx	  == p_st_r6->p_string_buffer()->last_idx);
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(123), ""));
 				REQUIRE(pcp_st_r6->find_attribute(654) == nullptr);
@@ -2833,7 +2833,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_close_jazz_block(pcp_by_r1);
 
 				REQUIRE(pcp_db_r3->tensor.cell_double[334] == 12003001.0);
-				REQUIRE(pcp_by_r3->tensor.cell_byte  [334] == 102);
+				REQUIRE(pcp_by_r3->tensor.cell_byte	 [334] == 102);
 				REQUIRE(!strcmp(pcp_st_r3->get_string(334), "July"));
 				REQUIRE(!pcp_st_r3->p_string_buffer()->alloc_failed);
 
@@ -2842,7 +2842,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_close_jazz_block(pcp_by_r3);
 
 				REQUIRE(pcp_db_r6->tensor.cell_double[753] == 120000307.0);
-				REQUIRE(pcp_by_r6->tensor.cell_byte  [753] == 167);
+				REQUIRE(pcp_by_r6->tensor.cell_byte	 [753] == 167);
 				REQUIRE(!strcmp(pcp_st_r6->get_string(753), "December"));
 				REQUIRE(!pcp_st_r6->p_string_buffer()->alloc_failed);
 
@@ -2882,26 +2882,26 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		WHEN("I filter with all combinations of blocks an filters") {
 			pJazzBlock pcpa_db_r1, pcpa_db_r3, pcpa_db_r6,
 					   pcpa_st_r1, pcpa_st_r3, pcpa_st_r6,
-			   		   pcpa_by_r1, pcpa_by_r3, pcpa_by_r6,
+					   pcpa_by_r1, pcpa_by_r3, pcpa_by_r6,
 					   pcpb_db_r1, pcpb_db_r3, pcpb_db_r6,
 					   pcpb_st_r1, pcpb_st_r3, pcpb_st_r6,
-			   		   pcpb_by_r1, pcpb_by_r3, pcpb_by_r6;
+					   pcpb_by_r1, pcpb_by_r3, pcpb_by_r6;
 
 			// Select all elements with binary, correct, and just dimensioned integer
 			for (int i = 0; i < p_if_r1->size; i++) {
-				p_if_r1->tensor.cell_int[i]  = i;
+				p_if_r1->tensor.cell_int[i]	 = i;
 				p_bf_r1->tensor.cell_bool[i] = true;
 			}
 			p_if_r1->range.filter.length = p_if_r1->size;
 
 			for (int i = 0; i < p_if_r3->size; i++) {
-				p_if_r3->tensor.cell_int[i]  = 0;
+				p_if_r3->tensor.cell_int[i]	 = 0;
 				p_bf_r3->tensor.cell_bool[i] = true;
 			}
 			p_if_r3->range.filter.length = p_if_r3->size;
 
 			for (int i = 0; i < p_if_r6->size; i++) {
-				p_if_r6->tensor.cell_int[i]  = -i;
+				p_if_r6->tensor.cell_int[i]	 = -i;
 				p_bf_r6->tensor.cell_bool[i] = true;
 			}
 			p_if_r6->range.filter.length = p_if_r6->size;
@@ -2990,19 +2990,19 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 			// Select some elements with binary and integer	 - dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
 			for (int i = 0; i < p_if_r1->size; i++) {
-				p_if_r1->tensor.cell_int[i]  = 3*i + 4;
+				p_if_r1->tensor.cell_int[i]	 = 3*i + 4;
 				p_bf_r1->tensor.cell_bool[i] = i % 3 == 2;
 			}
 			p_if_r1->range.filter.length = 17;
 
 			for (int i = 0; i < p_if_r3->size; i++) {
-				p_if_r3->tensor.cell_int[i]  = i;
+				p_if_r3->tensor.cell_int[i]	 = i;
 				p_bf_r3->tensor.cell_bool[i] = i % 4 == 2;
 			}
 			p_if_r3->range.filter.length = 7;
 
 			for (int i = 0; i < p_if_r6->size; i++) {
-				p_if_r6->tensor.cell_int[i]  = 1;
+				p_if_r6->tensor.cell_int[i]	 = 1;
 				p_bf_r6->tensor.cell_bool[i] = i == 0;
 			}
 			p_if_r6->range.filter.length = 1;
@@ -3148,7 +3148,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 												1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w);
 
 										REQUIRE(!strcmp(pcpa_st_r6->get_string((int *) &index),
-												 		month[(45*i + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
+														month[(45*i + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
 										REQUIRE(pcpa_st_r6->tensor.cell_int[pcpa_st_r6->get_offset((int *) &index)] ==
 												p_st_r6->tensor.cell_int[p_st_r6->get_offset((int *) &index)]);
 									}
@@ -3227,15 +3227,15 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 						- (uintptr_t) pcpb_st_r6->align_128bit(4*(p_st_r6->size))
 						+ (uintptr_t) pcpb_st_r6->align_128bit(4*(pcpb_st_r6->size)));
 				REQUIRE(pcpb_by_r1->total_bytes ==
-					    p_by_r1->total_bytes + pcpb_by_r1->p_string_buffer()->buffer_size - 4 + 2*(6 -1)*sizeof(int)
+						p_by_r1->total_bytes + pcpb_by_r1->p_string_buffer()->buffer_size - 4 + 2*(6 -1)*sizeof(int)
 						- (uintptr_t) pcpb_by_r1->align_128bit(p_by_r1->size)
 						+ (uintptr_t) pcpb_by_r1->align_128bit(pcpb_by_r1->size));
 				REQUIRE(pcpb_by_r3->total_bytes ==
-					    p_by_r3->total_bytes
+						p_by_r3->total_bytes
 						- (uintptr_t) pcpb_by_r3->align_128bit(p_by_r3->size)
 						+ (uintptr_t) pcpb_by_r3->align_128bit(pcpb_by_r3->size));
 				REQUIRE(pcpb_by_r6->total_bytes ==
-					    p_by_r6->total_bytes
+						p_by_r6->total_bytes
 						- (uintptr_t) pcpb_by_r6->align_128bit(p_by_r6->size)
 						+ (uintptr_t) pcpb_by_r6->align_128bit(pcpb_by_r6->size));
 
@@ -3362,7 +3362,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 											index[5] = index_o[5] = w;
 
 											REQUIRE(!strcmp(pcpb_st_r6->get_string((int *) &index),
-													 		month[(45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
+															month[(45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
 											REQUIRE(pcpb_st_r6->tensor.cell_int[pcpb_st_r6->get_offset((int *) &index)] ==
 													p_st_r6->tensor.cell_int[p_st_r6->get_offset((int *) &index_o)]);
 										}
@@ -3577,7 +3577,7 @@ SCENARIO("Testing threading functions") {
 	PSB.writers = PSB.readers = PSB.reads_ok = PSB.thread_errors = 0;
 
 	const int num_threads = 256,
-			  num_times   = 64;
+			  num_times	  = 64;
 
 	WHEN("We run a 240x100 readers 16x10 writers in parallel num_times times without control, errors happen.") {
 		bool failed = false;
@@ -3670,7 +3670,7 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 	JazzBlockKeepr jbk(&jll);
 
-	jbk.log       (LOG_INFO, "Hello JazzLogger!");
+	jbk.log		  (LOG_INFO, "Hello JazzLogger!");
 	jbk.log_printf(LOG_INFO, "2 + 2 = %d", 2 + 2);
 #else
 	JazzBlockKeepr jbk(nullptr);
@@ -3691,33 +3691,33 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		p_base = jbk.p_buffer_base;
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    != nullptr);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     == p_base);
+		REQUIRE(jbk.p_buffer_base	 != nullptr);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 == p_base);
 
 		REQUIRE(!jbk.alloc_keeprs(10));
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     == p_base);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 == p_base);
 
 		pJazzBlockKeeprItem p_item = jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
 		REQUIRE(p_item == p_base);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == p_base);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == p_base);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== 1234567890123);
+		REQUIRE(p_item->block_id64				== 1234567890123);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 
 		REQUIRE(jbk.last_item_in() == p_item);
@@ -3726,7 +3726,7 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== 4567890123456);
+		REQUIRE(p_item->block_id64				== 4567890123456);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 
 		REQUIRE(jbk.last_item_in() == p_item);
@@ -3737,7 +3737,7 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_alpha"));
+		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_alpha"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
 
 		p_item = jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
@@ -3746,7 +3746,7 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_beta"));
+		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_beta"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
 
 		REQUIRE(jbk.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim)									== nullptr);
@@ -3754,11 +3754,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		REQUIRE(jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim) == nullptr);
 		REQUIRE(jbk.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block)		== nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		p_item = jbk.last_item_in();
 
@@ -3766,11 +3766,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		jbk.free_jazz_block(p_item);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		p_item = jbk.last_item_in();
 
@@ -3778,11 +3778,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		jbk.free_jazz_block(p_item);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		p_item = jbk.last_item_in();
 
@@ -3790,11 +3790,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		jbk.free_jazz_block(p_item);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		p_item = jbk.last_item_in();
 
@@ -3802,11 +3802,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		jbk.free_jazz_block(p_item);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 4);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     == p_base);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 == p_base);
 
 		p_item = jbk.last_item_in();
 
@@ -3822,11 +3822,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 
 		p_base = jbk.p_buffer_base;
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     == p_base);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 == p_base);
 
 		// Fill full, remove full same order
 		for (int i = 0; i < 16; i++) {
@@ -3835,21 +3835,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		}
 		REQUIRE(jbk.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		for (int i = 0; i < 16; i++) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill full, remove full inverse order
 		for (int i = 0; i < 16; i++) {
@@ -3858,21 +3858,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		}
 		REQUIRE(jbk.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		for (int i = 15; i >= 0; i--) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill full, remove full middle order
 		for (int i = 0; i < 16; i++) {
@@ -3881,11 +3881,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		}
 		REQUIRE(jbk.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		for (int i = 15; i >= 0; i--) {
 			int j = i/2;
@@ -3898,11 +3898,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			}
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill full, remove half same order
 		for (int i = 0; i < 16; i++) {
@@ -3911,21 +3911,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		}
 		REQUIRE(jbk.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		for (int i = 0; i < 8; i++) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill full, remove half inverse order
 		for (int i = 0; i < 8; i++) {
@@ -3934,21 +3934,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		}
 		REQUIRE(jbk.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		for (int i = 7; i >= 0; i--) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill full, remove half middle order
 		for (int i = 0; i < 8; i++) {
@@ -3957,11 +3957,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 		}
 		REQUIRE(jbk.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     == nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 == nullptr);
 
 		for (int i = 7; i >= 0; i--) {
 			int j = i/2;
@@ -3974,22 +3974,22 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			}
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Remove top 4
 		for (int i = 15; i >= 12; i--) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill -4, remove half same order
 		for (int i = 0; i < 8; i++) {
@@ -3997,21 +3997,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		for (int i = 0; i < 8; i++) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill -4, remove half inverse order
 		for (int i = 0; i < 8; i++) {
@@ -4019,21 +4019,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		for (int i = 7; i >= 0; i--) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill -4, remove half middle order
 		for (int i = 0; i < 8; i++) {
@@ -4041,11 +4041,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		for (int i = 7; i >= 0; i--) {
 			int j = i/2;
@@ -4058,22 +4058,22 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			}
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Remove next 4
 		for (int i = 11; i >= 8; i--) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill -8, remove half same order
 		for (int i = 0; i < 8; i++) {
@@ -4081,21 +4081,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		for (int i = 0; i < 8; i++) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill -8, remove half inverse order
 		for (int i = 0; i < 8; i++) {
@@ -4103,21 +4103,21 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		for (int i = 7; i >= 0; i--) {
 			jbk.free_jazz_block(p_item[i]);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		// Fill -8, remove half middle order
 		for (int i = 0; i < 8; i++) {
@@ -4125,11 +4125,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			REQUIRE(p_item[i] != nullptr);
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     != nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 != nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 
 		for (int i = 7; i >= 0; i--) {
 			int j = i/2;
@@ -4142,11 +4142,11 @@ SCENARIO("Unit Tests for JazzBlockKeepr") {
 			}
 		}
 
-		REQUIRE(jbk.keepr_item_size  == sizeof(JazzBlockKeeprItem));
+		REQUIRE(jbk.keepr_item_size	 == sizeof(JazzBlockKeeprItem));
 		REQUIRE(jbk.num_allocd_items == 16);
-		REQUIRE(jbk.p_buffer_base    == p_base);
-		REQUIRE(jbk.p_first_item     == nullptr);
-		REQUIRE(jbk.p_first_free     != nullptr);
+		REQUIRE(jbk.p_buffer_base	 == p_base);
+		REQUIRE(jbk.p_first_item	 == nullptr);
+		REQUIRE(jbk.p_first_free	 != nullptr);
 	}
 }
 
@@ -4170,27 +4170,27 @@ SCENARIO("Unit Tests for JazzTree") {
 
 		p_base = (pJazzTreeItem) jbt.p_buffer_base;
 
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.keepr_item_size	 == sizeof(JazzTreeItem));
 		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    != nullptr);
-		REQUIRE(jbt.p_first_item     == nullptr);
-		REQUIRE(jbt.p_first_free     == p_base);
+		REQUIRE(jbt.p_buffer_base	 != nullptr);
+		REQUIRE(jbt.p_first_item	 == nullptr);
+		REQUIRE(jbt.p_first_free	 == p_base);
 		REQUIRE(jbt.p_tree_root		 == nullptr);
 
 		pJazzTreeItem p_item = (pJazzTreeItem) jbt.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
 		REQUIRE(p_item == p_base);
 
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.keepr_item_size	 == sizeof(JazzTreeItem));
 		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    == p_base);
-		REQUIRE(jbt.p_first_item     == p_base);
-		REQUIRE(jbt.p_first_free     != nullptr);
+		REQUIRE(jbt.p_buffer_base	 == p_base);
+		REQUIRE(jbt.p_first_item	 == p_base);
+		REQUIRE(jbt.p_first_free	 != nullptr);
 		REQUIRE(jbt.p_tree_root		 == nullptr);
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== 1234567890123);
+		REQUIRE(p_item->block_id64				== 1234567890123);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 		REQUIRE(p_item->p_parent				== nullptr);
 		REQUIRE(p_item->p_first_child			== nullptr);
@@ -4204,7 +4204,7 @@ SCENARIO("Unit Tests for JazzTree") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== 4567890123456);
+		REQUIRE(p_item->block_id64				== 4567890123456);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 		REQUIRE(p_item->p_parent				== nullptr);
 		REQUIRE(p_item->p_first_child			== nullptr);
@@ -4218,7 +4218,7 @@ SCENARIO("Unit Tests for JazzTree") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_alpha"));
+		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_alpha"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
 		REQUIRE(p_item->p_parent				== nullptr);
 		REQUIRE(p_item->p_first_child			== nullptr);
@@ -4232,7 +4232,7 @@ SCENARIO("Unit Tests for JazzTree") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== hash_block_id(".block_442_beta"));
+		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_beta"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
 		REQUIRE(p_item->p_parent				== nullptr);
 		REQUIRE(p_item->p_first_child			== nullptr);
@@ -4258,7 +4258,7 @@ SCENARIO("Unit Tests for JazzTree") {
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
-		REQUIRE(p_item->block_id64 				== 1234567890123);
+		REQUIRE(p_item->block_id64				== 1234567890123);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 		REQUIRE(p_item->p_parent				== nullptr);
 		REQUIRE(p_item->p_first_child			== nullptr);
@@ -4272,11 +4272,11 @@ SCENARIO("Unit Tests for JazzTree") {
 			jbt.free_jazz_block(p_item);
 		}
 
-		REQUIRE(jbt.keepr_item_size  == sizeof(JazzTreeItem));
+		REQUIRE(jbt.keepr_item_size	 == sizeof(JazzTreeItem));
 		REQUIRE(jbt.num_allocd_items == 4);
-		REQUIRE(jbt.p_buffer_base    == p_base);
-		REQUIRE(jbt.p_first_item     == nullptr);
-		REQUIRE(jbt.p_first_free     == p_base);
+		REQUIRE(jbt.p_buffer_base	 == p_base);
+		REQUIRE(jbt.p_first_item	 == nullptr);
+		REQUIRE(jbt.p_first_free	 == p_base);
 	}
 }
 
@@ -4327,13 +4327,13 @@ SCENARIO("Testing internal AA tree functionality") {
 
 		REQUIRE(p_item != nullptr);
 		REQUIRE(p_item->priority == 3);
-		REQUIRE(p_item->level    == 1);
+		REQUIRE(p_item->level	 == 1);
 
 		p_item = aaq.lowest_priority(p_root);
 
 		REQUIRE(p_item != nullptr);
 		REQUIRE(p_item->priority == 1);
-		REQUIRE(p_item->level    == 1);
+		REQUIRE(p_item->level	 == 1);
 
 		p_item = &buff[alloc_items++];
 
@@ -4423,13 +4423,13 @@ SCENARIO("Testing internal AA tree functionality") {
 
 		REQUIRE(p_item != nullptr);
 		REQUIRE(p_item->priority == 3);
-		REQUIRE(p_item->level    == 1);
+		REQUIRE(p_item->level	 == 1);
 
 		p_item = aaq.lowest_priority(p_root);
 
 		REQUIRE(p_item != nullptr);
 		REQUIRE(p_item->priority == 1);
-		REQUIRE(p_item->level    == 1);
+		REQUIRE(p_item->level	 == 1);
 
 		p_item = &buff[alloc_items++];
 

@@ -785,8 +785,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 	Logs with level LOG_ERROR on any error condition.
 */
 pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p_id,
-													pJazzBlock			  	   p_as_block,
-													pJazzFilter			  	   p_row_filter,
+													pJazzBlock				   p_as_block,
+													pJazzFilter				   p_row_filter,
 													AllAttributes			  *att)
 {
 	pJazzBlockKeeprItem p_item = new_keepr_item();
@@ -1071,7 +1071,7 @@ void AATBlockQueue::destroy_keeprs()
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 											  pJazzBlock		  p_as_block,
 											  pJazzFilter		  p_row_filter,
-											  AllAttributes	   	 *att,
+											  AllAttributes		 *att,
 											  uint64_t			  time_to_build)
 {
 	TimePoint time_o = std::chrono::steady_clock::now();
@@ -1096,8 +1096,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 	p_item->block_id64		= id64;
 	p_item->block_id.key[0] = 0;
 
-	p_item->times_used    = 1;
-	p_item->last_used     = time_o;
+	p_item->times_used	  = 1;
+	p_item->last_used	  = time_o;
 	p_item->time_to_build = time_to_build + jazz_utils::elapsed_us(time_o);
 
 	set_item_priority(p_item);
@@ -1164,8 +1164,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 											  int				  cell_type,
-											  int			   	 *dim,
-											  AllAttributes	   	 *att,
+											  int				 *dim,
+											  AllAttributes		 *att,
 											  int				  fill_tensor,
 											  bool				 *p_bool_filter,
 											  int				  stringbuff_size,
@@ -1195,8 +1195,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 	p_item->block_id64		= id64;
 	p_item->block_id.key[0] = 0;
 
-	p_item->times_used    = 1;
-	p_item->last_used     = time_o;
+	p_item->times_used	  = 1;
+	p_item->last_used	  = time_o;
 	p_item->time_to_build = time_to_build + jazz_utils::elapsed_us(time_o);
 
 	set_item_priority(p_item);
@@ -1229,8 +1229,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockId64 id64,
 	if allocating the JazzBlock fails.
 */
 pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
-											  pJazzBlock			  	 p_as_block,
-											  pJazzFilter			  	 p_row_filter,
+											  pJazzBlock				 p_as_block,
+											  pJazzFilter				 p_row_filter,
 											  AllAttributes				*att,
 											  uint64_t					 time_to_build)
 {
@@ -1258,8 +1258,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	p_item->block_id64 = hash_block_id((const char *) p_id);
 
-	p_item->times_used    = 1;
-	p_item->last_used     = time_o;
+	p_item->times_used	  = 1;
+	p_item->last_used	  = time_o;
 	p_item->time_to_build = time_to_build + jazz_utils::elapsed_us(time_o);
 
 	set_item_priority(p_item);
@@ -1354,8 +1354,8 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	p_item->block_id64 = hash_block_id((const char *) p_id);
 
-	p_item->times_used    = 1;
-	p_item->last_used     = time_o;
+	p_item->times_used	  = 1;
+	p_item->last_used	  = time_o;
 	p_item->time_to_build = time_to_build + jazz_utils::elapsed_us(time_o);
 
 	set_item_priority(p_item);
@@ -1383,9 +1383,9 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 
 		p_first_free = p_item->p_alloc_next;
 
-		p_item->p_alloc_next       = p_first_item;
+		p_item->p_alloc_next	   = p_first_item;
 		p_first_item->p_alloc_prev = p_item;
-		p_item->p_alloc_prev       = nullptr;
+		p_item->p_alloc_prev	   = nullptr;
 
 		p_first_item = p_item;
 
