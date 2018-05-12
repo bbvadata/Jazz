@@ -4704,44 +4704,51 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 
 		REQUIRE(p_item == nullptr);	// Test passes but Valgrind detects is the internal JazzBlock was not freed.
 	}
-/*
+
 	WHEN("I do simple JazzBlock allocation.") {
-		pJazzQueueItem p_base;
+		pJazzQueueItem p_base, p_lowest;
 
 		REQUIRE(aaq.alloc_keeprs(4));
 
-		p_base = aaq.p_buffer_base;
+		p_base = (pJazzQueueItem) aaq.p_buffer_base;
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 != nullptr);
-		REQUIRE(aaq.p_first_item	 == nullptr);
 		REQUIRE(aaq.p_first_free	 == p_base);
+		REQUIRE(aaq.p_queue_root	 == nullptr);
 
 		REQUIRE(!aaq.alloc_keeprs(10));
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 == nullptr);
 		REQUIRE(aaq.p_first_free	 == p_base);
+		REQUIRE(aaq.p_queue_root	 == nullptr);
 
 		pJazzQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
 		REQUIRE(p_item == p_base);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 == p_base);
 		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
 
 		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_item->p_jazz_block->size		== 3);
 		REQUIRE(p_item->block_id64				== 1234567890123);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 
-		REQUIRE(aaq.last_item_in() == p_item);
+		REQUIRE(p_item->level		  == 1);
+		REQUIRE(p_item->times_used	  == 1);
+		REQUIRE(p_item->priority	  >= 1);
+		REQUIRE(p_item->time_to_build >= 0);
+		REQUIRE(jazz_utils::elapsed_us(p_item->last_used) > 1);
+
+		REQUIRE(aaq.get_highest_priority_item() == p_item);
+		REQUIRE(aaq.get_lowest_priority_item() == p_item);
 
 		p_item = aaq.new_jazz_block(4567890123456, p_item->p_jazz_block);
 
@@ -4750,7 +4757,11 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		REQUIRE(p_item->block_id64				== 4567890123456);
 		REQUIRE(strlen(p_item->block_id.key)	== 0);
 
-		REQUIRE(aaq.last_item_in() == p_item);
+		REQUIRE(p_item->level		  >= 1);
+		REQUIRE(p_item->times_used	  == 1);
+		REQUIRE(p_item->priority	  >= 1);
+		REQUIRE(p_item->time_to_build >= 0);
+		REQUIRE(jazz_utils::elapsed_us(p_item->last_used) > 1);
 
 		p_item = aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim);
 
@@ -4761,6 +4772,12 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_alpha"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
 
+		REQUIRE(p_item->level		  >= 1);
+		REQUIRE(p_item->times_used	  == 1);
+		REQUIRE(p_item->priority	  >= 1);
+		REQUIRE(p_item->time_to_build >= 0);
+		REQUIRE(jazz_utils::elapsed_us(p_item->last_used) > 1);
+
 		p_item = aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
 
 		REQUIRE(p_item != nullptr);
@@ -4770,72 +4787,127 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_beta"));
 		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
 
-		REQUIRE(aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim)									== nullptr);
-		REQUIRE(aaq.new_jazz_block(4567890123456, p_item->p_jazz_block)											== nullptr);
-		REQUIRE(aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim) == nullptr);
-		REQUIRE(aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block)		== nullptr);
+		REQUIRE(p_item->level		  >= 1);
+		REQUIRE(p_item->times_used	  == 1);
+		REQUIRE(p_item->priority	  >= 1);
+		REQUIRE(p_item->time_to_build >= 0);
+		REQUIRE(jazz_utils::elapsed_us(p_item->last_used) > 1);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 != nullptr);
 		REQUIRE(aaq.p_first_free	 == nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
 
-		p_item = aaq.last_item_in();
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 4);
 
+		p_lowest = aaq.get_lowest_priority_item();
+
+		p_item = aaq.new_jazz_block((const JazzBlockIdentifier *) ".a_new_block", CELL_TYPE_FACTOR, dim.dim);
+
+		REQUIRE(p_item == p_lowest);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_FACTOR);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64				== hash_block_id(".a_new_block"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".a_new_block"));
+
+		REQUIRE(p_item->level		  >= 1);
+		REQUIRE(p_item->times_used	  == 1);
+		REQUIRE(p_item->priority	  >= 1);
+		REQUIRE(p_item->time_to_build >= 0);
+		REQUIRE(jazz_utils::elapsed_us(p_item->last_used) > 1);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
+
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 4);
+
+		p_item = aaq.get_highest_priority_item();
 		REQUIRE(p_item != nullptr);
 
 		aaq.free_jazz_block(p_item);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 != nullptr);
 		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
 
-		p_item = aaq.last_item_in();
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 3);
 
-		REQUIRE(p_item != nullptr);
+		aaq.free_jazz_block(aaq.p_queue_root);
 
-		aaq.free_jazz_block(p_item);
-
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 != nullptr);
 		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
 
-		p_item = aaq.last_item_in();
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 2);
 
+		p_item = aaq.get_lowest_priority_item();
 		REQUIRE(p_item != nullptr);
 
 		aaq.free_jazz_block(p_item);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 != nullptr);
 		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
 
-		p_item = aaq.last_item_in();
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 1);
 
-		REQUIRE(p_item != nullptr);
+		p_lowest = (pJazzQueueItem) aaq.p_first_free;
 
-		aaq.free_jazz_block(p_item);
+		p_item = aaq.new_jazz_block((const JazzBlockIdentifier *) ".and_again", CELL_TYPE_LONG_INTEGER, dim.dim);
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(p_item == p_lowest);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_LONG_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64				== hash_block_id(".and_again"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".and_again"));
+
+		REQUIRE(p_item->level		  >= 1);
+		REQUIRE(p_item->times_used	  == 1);
+		REQUIRE(p_item->priority	  >= 1);
+		REQUIRE(p_item->time_to_build >= 0);
+		REQUIRE(jazz_utils::elapsed_us(p_item->last_used) > 1);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 4);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
-		REQUIRE(aaq.p_first_item	 == nullptr);
-		REQUIRE(aaq.p_first_free	 == p_base);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
 
-		p_item = aaq.last_item_in();
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 2);
 
-		REQUIRE(p_item == nullptr);
+		aaq.free_jazz_block(aaq.p_queue_root);
 
-		aaq.free_jazz_block(p_item);
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 != nullptr);
+
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 1);
+
+		aaq.free_jazz_block(aaq.p_queue_root);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+		REQUIRE(aaq.p_queue_root	 == nullptr);
+
+		REQUIRE(recursive_audit_aa_tree(aaq.p_queue_root) == 0);
 	}
-
+/*
 	WHEN("Fill AATBlockQueues empty and half empty in all orders.") {
 		pJazzQueueItem p_base, p_item[16];
 
@@ -4843,7 +4915,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 
 		p_base = aaq.p_buffer_base;
 
-		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.keepr_item_size	 == sizeof(JazzQueueItem));
 		REQUIRE(aaq.num_allocd_items == 16);
 		REQUIRE(aaq.p_buffer_base	 == p_base);
 		REQUIRE(aaq.p_first_item	 == nullptr);
