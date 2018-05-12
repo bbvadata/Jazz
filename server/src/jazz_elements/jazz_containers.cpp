@@ -1460,6 +1460,19 @@ void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
 }
 
 
+/** Constructor for class JazzCache
+
+	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
+It is safe to ignore this parameter, in that case the events will not be logged.
+
+	This does not allocate any items, you must call alloc_keeprs () before using the object.
+*/
+JazzCache::JazzCache(jazz_utils::pJazzLogger a_logger) : AATBlockQueue(a_logger)
+{
+	cache = {};
+}
+
+
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
 	\param p_id The JazzBlockIdentifier of the block to be searched for deletion
