@@ -549,6 +549,8 @@ JazzBlockKeepr::~JazzBlockKeepr()
 	\param num_items The number of JazzBlockKeeprItem descendant objects
 	\return True if successful. Logs with level LOG_ERROR if failed or called on an already allocated object.
 	Fails if called when the buffer is already allocated.
+
+	Note: This method can only be called once and is not thread safe by design.
 */
 bool JazzBlockKeepr::alloc_keeprs(int num_items)
 {
