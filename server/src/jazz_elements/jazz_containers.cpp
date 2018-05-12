@@ -1473,6 +1473,260 @@ JazzCache::JazzCache(jazz_utils::pJazzLogger a_logger) : AATBlockQueue(a_logger)
 }
 
 
+/** Create a new JazzBlock as a selection (of possibly all) of an existing JazzBlock owned by a JazzQueueItem
+
+	\param id64			 A binary block ID. When blocks are created by giving a JazzBlockIdentifier, their binary ID is built automatically
+						 as the hash of their JazzBlockIdentifier (NOT the content of the block). That is the normal way of creating blocks
+						 and the only way that supports persisted blocks. Volatile blocks may have a "forced" binary id computed as the
+						 result of the function that creates them and the hashes of its dependencies. To support creating blocks (typically
+						 cached results of functions) with a give binary id, this form of new_jazz_block() comes in hand. Block items using
+						 this always have their JazzBlockIdentifier defined as a null string.
+	\param p_as_block	 An existing block from which everything is copied, possibly with a selection over its rows.
+	\param p_row_filter	 A filter that is applicable to p_as_block. I.e., p_row_filter->can_filter(p_as_block) == true
+						 If p_row_filter == nullptr then p_as_block is copied into a newly allocated pointer.
+						 See parameter dim in the new_jazz_block() version that uses dim to understand how selection is applied.
+	\param att			 An alternative source of attributes. When this parameter in != nullptr, the new block will get its
+						 attributes from att instead of copying those in p_as_block->.
+	\param time_to_build The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
+						 If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+						 jazz_utils::elapsed_us().
+
+	OWNERSHIP: If you create a one shot block using new_jazz_block(), you earn the responsibility to free it with free_jazz_block().
+	This is not the normal way to create JazzBlocks, when you use a JazzBlockKeepr descendant, that object will allocate and free
+	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
+	automatically.
+
+	\return	The address of the JazzQueueItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzQueueItem
+	if allocating the JazzBlock fails.
+*/
+pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockId64 id64,
+										  pJazzBlock		  p_as_block,
+										  pJazzFilter		  p_row_filter,
+										  AllAttributes		 *att,
+										  uint64_t			  time_to_build)
+{
+	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(id64, p_as_block, p_row_filter, att, time_to_build);
+
+	cache[id64] = p_item;
+
+	return p_item;
+}
+
+
+/** Create a new JazzBlock (including a JazzFilter) from scratch owned by a JazzQueueItem
+
+	\param id64				A binary block ID. When blocks are created by giving a JazzBlockIdentifier, their binary ID is built automatically
+							as the hash of their JazzBlockIdentifier (NOT the content of the block). That is the normal way of creating blocks
+							and the only way that supports persisted blocks. Volatile blocks may have a "forced" binary id computed as the
+							result of the function that creates them and the hashes of its dependencies. To support creating blocks (typically
+							cached results of functions) with a give binary id, this form of new_jazz_block() comes in hand. Block items using
+							this always have their JazzBlockIdentifier defined as a null string.
+	\param cell_type		The type for the tensor's cell types in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
+	\param dim				This defines both the rank and the dimensions of the tensor. Note that, except for the first position a
+							dimension of 0 and 1 is the same dim = {3, 1} is a vector of 3 elements with rank 1, exactly like {3, 0}.
+							As a matter of convention, dim should always end with a 0 except when it is JAZZ_MAX_TENSOR_RANK long.
+							For the first dimension 1 means one element and 0 means no element. Both have rank 1. The latter is the
+							typical result of a selection where no row matches the condition. Blocks never have rank == 0 and zero-element
+							blocks have the same rank as the block from which they were selected. When 0 rows are selected from a block
+							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
+							If dim == nullptr and p_text != nullptr, dim will be set automatically to the number of lines (see eoln) in p_text
+							when cell_type == CELL_TYPE_JAZZ_STRING.
+	\param att				The attributes to set when creating the block. They are be immutable. To change the attributes of a JazzBlock
+							use the version of new_jazz_block() with parameter p_as_block.
+	\param fill_tensor		How to fill the tensor. When creating anything that is not a JazzFilter, p_bool_filter is ignored and the options
+							are: JAZZ_FILL_NEW_DONT_FILL (don't do anything with the tensor), JAZZ_FILL_NEW_WITH_ZERO (fill with binary zero
+							no matter what the cell_type is), JAZZ_FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
+							When creating a filter, p_bool_filter must be a vector of length == size and the filter will be created as
+							boolean (when fill_tensor == JAZZ_FILL_BOOLEAN_FILTER) or integer (when fill_tensor == JAZZ_FILL_INTEGER_FILTER)
+	\param p_bool_filter	The vector of boolean (each true value means the corresponding row is selected) used when fill_tensor ==
+							JAZZ_FILL_BOOLEAN_FILTER and fill_tensor == JAZZ_FILL_INTEGER_FILTER
+	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
+							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
+							only allocate the space and do nothing with it. The caller should assign strings to cells with JazzBlock.set_string().
+	\param p_text			The other possible way to allocate space for strings is by declaring p_text. Imagine the content of p_text
+							as a text file with n = size rows that will be pushed into the tensor and the string buffer. The eoln character
+							separates the cells. (cell_type == CELL_TYPE_JAZZ_STRING & p_text != nullptr) overrides any setting in fill_tensor.
+							Also, either dim should be nullptr and set automatically or its resulting size must be the same as the number of
+							lines in p_text.
+	\param eoln				A single character that separates the cells in p_text and will not be pushed to the string buffer.
+	\param time_to_build	The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
+							If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+							jazz_utils::elapsed_us().
+
+	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be changed
+	only creating a new block with new = new_jazz_block(p_as_block = old, att = new_att).
+	String buffer allocation should only be used for cell_type == CELL_TYPE_JAZZ_STRING and either with stringbuff_size or with p_text (and eoln).
+	If stringbuff_size is used, JazzBlock.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
+	JazzBlock.set_string() **should not** be called after that.
+
+	OWNERSHIP: If you create a one shot block using new_jazz_block(), you earn the responsibility to free it with free_jazz_block().
+	This is not the normal way to create JazzBlocks, when you use a JazzBlockKeepr descendant, that object will allocate and free
+	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
+	automatically.
+
+	\return	The address of the JazzQueueItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzQueueItem
+	if allocating the JazzBlock fails.
+*/
+pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockId64 id64,
+										  int				  cell_type,
+										  int				 *dim,
+										  AllAttributes		 *att,
+										  int				  fill_tensor,
+										  bool				 *p_bool_filter,
+										  int				  stringbuff_size,
+										  const char		 *p_text,
+										  char				  eoln,
+										  uint64_t			  time_to_build)
+{
+	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(id64,
+														  cell_type,
+														  dim,
+														  att,
+														  fill_tensor,
+														  p_bool_filter,
+														  stringbuff_size,
+														  p_text,
+														  eoln,
+														  time_to_build);
+
+	cache[id64] = p_item;
+
+	return p_item;
+}
+
+
+/** Create a new JazzBlock as a selection (of possibly all) of an existing JazzBlock owned by a JazzQueueItem
+
+	\param p_id			 A block ID. A string matching JAZZ_REGEX_VALIDATE_BLOCK_ID to identify the block globally and locally.
+	\param p_as_block	 An existing block from which everything is copied, possibly with a selection over its rows.
+	\param p_row_filter	 A filter that is applicable to p_as_block. I.e., p_row_filter->can_filter(p_as_block) == true
+						 If p_row_filter == nullptr then p_as_block is copied into a newly allocated pointer.
+						 See parameter dim in the new_jazz_block() version that uses dim to understand how selection is applied.
+	\param att			 An alternative source of attributes. When this parameter in != nullptr, the new block will get its
+						 attributes from att instead of copying those in p_as_block->.
+	\param time_to_build The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
+						 If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+						 jazz_utils::elapsed_us().
+
+	OWNERSHIP: If you create a one shot block using new_jazz_block(), you earn the responsibility to free it with free_jazz_block().
+	This is not the normal way to create JazzBlocks, when you use a JazzBlockKeepr descendant, that object will allocate and free
+	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
+	automatically.
+
+	\return	The address of the JazzQueueItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzQueueItem
+	if allocating the JazzBlock fails.
+*/
+pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
+										  pJazzBlock				 p_as_block,
+										  pJazzFilter				 p_row_filter,
+										  AllAttributes				*att,
+										  uint64_t					 time_to_build)
+{
+	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(p_id, p_as_block, p_row_filter, att, time_to_build);
+
+	JazzBlockId64 id64 = hash_block_id((char *) p_id);
+
+	if (!id64) {
+		log(LOG_ERROR, "JazzCache::new_jazz_block(3): Blocks with void p_id cannot be cached.");
+
+		AATBlockQueue::free_jazz_block(p_item);
+
+		return nullptr;
+	}
+
+	cache[id64] = p_item;
+
+	return p_item;
+}
+
+
+/** Create a new JazzBlock (including a JazzFilter) from scratch owned by a JazzQueueItem
+
+	\param p_id				A block ID. A string matching JAZZ_REGEX_VALIDATE_BLOCK_ID to identify the block globally and locally.
+	\param cell_type		The type for the tensor's cell types in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
+	\param dim				This defines both the rank and the dimensions of the tensor. Note that, except for the first position a
+							dimension of 0 and 1 is the same dim = {3, 1} is a vector of 3 elements with rank 1, exactly like {3, 0}.
+							As a matter of convention, dim should always end with a 0 except when it is JAZZ_MAX_TENSOR_RANK long.
+							For the first dimension 1 means one element and 0 means no element. Both have rank 1. The latter is the
+							typical result of a selection where no row matches the condition. Blocks never have rank == 0 and zero-element
+							blocks have the same rank as the block from which they were selected. When 0 rows are selected from a block
+							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
+							If dim == nullptr and p_text != nullptr, dim will be set automatically to the number of lines (see eoln) in p_text
+							when cell_type == CELL_TYPE_JAZZ_STRING.
+	\param att				The attributes to set when creating the block. They are be immutable. To change the attributes of a JazzBlock
+							use the version of new_jazz_block() with parameter p_as_block.
+	\param fill_tensor		How to fill the tensor. When creating anything that is not a JazzFilter, p_bool_filter is ignored and the options
+							are: JAZZ_FILL_NEW_DONT_FILL (don't do anything with the tensor), JAZZ_FILL_NEW_WITH_ZERO (fill with binary zero
+							no matter what the cell_type is), JAZZ_FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
+							When creating a filter, p_bool_filter must be a vector of length == size and the filter will be created as
+							boolean (when fill_tensor == JAZZ_FILL_BOOLEAN_FILTER) or integer (when fill_tensor == JAZZ_FILL_INTEGER_FILTER)
+	\param p_bool_filter	The vector of boolean (each true value means the corresponding row is selected) used when fill_tensor ==
+							JAZZ_FILL_BOOLEAN_FILTER and fill_tensor == JAZZ_FILL_INTEGER_FILTER
+	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
+							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
+							only allocate the space and do nothing with it. The caller should assign strings to cells with JazzBlock.set_string().
+	\param p_text			The other possible way to allocate space for strings is by declaring p_text. Imagine the content of p_text
+							as a text file with n = size rows that will be pushed into the tensor and the string buffer. The eoln character
+							separates the cells. (cell_type == CELL_TYPE_JAZZ_STRING & p_text != nullptr) overrides any setting in fill_tensor.
+							Also, either dim should be nullptr and set automatically or its resulting size must be the same as the number of
+							lines in p_text.
+	\param eoln				A single character that separates the cells in p_text and will not be pushed to the string buffer.
+	\param time_to_build	The time to build the object in microseconds. (this typically includes the evaluation of the function who built it.)
+							If that value is known, it may be used to optimize the priority of the block in the queue. In us compatible with
+							jazz_utils::elapsed_us().
+
+	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be changed
+	only creating a new block with new = new_jazz_block(p_as_block = old, att = new_att).
+	String buffer allocation should only be used for cell_type == CELL_TYPE_JAZZ_STRING and either with stringbuff_size or with p_text (and eoln).
+	If stringbuff_size is used, JazzBlock.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
+	JazzBlock.set_string() **should not** be called after that.
+
+	OWNERSHIP: If you create a one shot block using new_jazz_block(), you earn the responsibility to free it with free_jazz_block().
+	This is not the normal way to create JazzBlocks, when you use a JazzBlockKeepr descendant, that object will allocate and free
+	the JazzBlocks automatically. The same applies to JazzBlocks created in the stack of a bebop program which are also managed
+	automatically.
+
+	\return	The address of the JazzQueueItem owning the new JazzBlock or nullptr if failed. Will not allocate a JazzQueueItem
+	if allocating the JazzBlock fails.
+*/
+pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
+										  int						 cell_type,
+										  int						*dim,
+										  AllAttributes				*att,
+										  int						 fill_tensor,
+										  bool						*p_bool_filter,
+										  int						 stringbuff_size,
+										  const char				*p_text,
+										  char						 eoln,
+										  uint64_t					 time_to_build)
+{
+	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(p_id,
+														  cell_type,
+														  dim,
+														  att,
+														  fill_tensor,
+														  p_bool_filter,
+														  stringbuff_size,
+														  p_text,
+														  eoln,
+														  time_to_build);
+
+	JazzBlockId64 id64 = hash_block_id((char *) p_id);
+
+	if (!id64) {
+		log(LOG_ERROR, "JazzCache::new_jazz_block(4): Blocks with void p_id cannot be cached.");
+
+		AATBlockQueue::free_jazz_block(p_item);
+
+		return nullptr;
+	}
+
+	cache[id64] = p_item;
+
+	return p_item;
+}
+
+
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
 	\param p_id The JazzBlockIdentifier of the block to be searched for deletion
@@ -1482,14 +1736,15 @@ JazzCache::JazzCache(jazz_utils::pJazzLogger a_logger) : AATBlockQueue(a_logger)
 */
 bool JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
 {
-	pJazzQueueItem p_item = find_jazz_block (p_id);
+//TODO: Compute id64 first to do it just once (find() and remove from cache)
+	pJazzQueueItem p_item = find_jazz_block(p_id);
 
 	if (p_item == nullptr) {
 		log_printf(LOG_MISS, "Block %s not found in JazzCache::free_jazz_block()", p_id);
 
 		return false;
 	}
-
+//TODO: Remove id64 from the queue
 	AATBlockQueue::free_jazz_block(p_item);
 	return true;
 }
