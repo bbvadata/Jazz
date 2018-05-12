@@ -1035,7 +1035,6 @@ void AATBlockQueue::destroy_keeprs()
 
 	num_allocd_items = 0;
 	p_buffer_base	 = nullptr;
-	p_first_item	 = nullptr;
 	p_first_free	 = nullptr;
 
 	leave_writing();
@@ -1382,12 +1381,6 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 		pJazzQueueItem p_item = (pJazzQueueItem) p_first_free;
 
 		p_first_free = p_item->p_alloc_next;
-
-		p_item->p_alloc_next	   = p_first_item;
-		p_first_item->p_alloc_prev = p_item;
-		p_item->p_alloc_prev	   = nullptr;
-
-		p_first_item = p_item;
 
 		leave_writing();
 
