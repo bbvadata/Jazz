@@ -4908,13 +4908,218 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 	}
 }
 
+# define LOG_ERRORS
 
 SCENARIO("Unit Tests for JazzCache") {
-	GIVEN("We want to test the xyz") {
-		WHEN("Something") {
-			THEN("Something") {
-//TODO: Write Unit Tests for JazzCache
+#ifdef LOG_ERRORS
+	const char *log_file   {"/tmp/jazz_test_containers.log"};
+	struct stat stat_struc {0};
+
+	if (stat(log_file, &stat_struc) == 0)
+		remove(log_file);
+
+	jazz_utils::JazzLogger jll(log_file);
+
+	JazzCache jca(&jll);
+
+	jca.log		  (LOG_INFO, "Hello JazzLogger!");
+	jca.log_printf(LOG_INFO, "2 + 3 = %d", 2 + 3);
+#else
+	JazzCache jca(nullptr);
+#endif
+
+	JazzTensorDim dim {{7, 3, 2, 0}};
+
+	GIVEN("A 25K element cache.") {
+		pJazzQueueItem p_base, p_item;
+
+		REQUIRE(jca.alloc_keeprs(25000));
+
+		p_base = (pJazzQueueItem) jca.p_buffer_base;
+
+		REQUIRE(jca.keepr_item_size	 == sizeof(JazzQueueItem));
+		REQUIRE(jca.num_allocd_items == 25000);
+		REQUIRE(jca.p_buffer_base	 != nullptr);
+		REQUIRE(jca.p_first_free	 == p_base);
+		REQUIRE(jca.p_queue_root	 == nullptr);
+
+		WHEN("I insert 20K blocks in it") {
+			for (int i = 0; i < 10000; i++)
+				if (jca.new_jazz_block(i, CELL_TYPE_INTEGER, dim.dim) == nullptr)
+					REQUIRE(false);
+
+			JazzBlockIdentifier block_id;
+
+			for (int i = 0; i < 10000; i++) {
+				sprintf(block_id.key, "._block_%x_", i);
+				if (jca.new_jazz_block(&block_id, CELL_TYPE_DOUBLE, dim.dim) == nullptr)
+					REQUIRE(false);
 			}
+
+			REQUIRE(jca.keepr_item_size	 == sizeof(JazzQueueItem));
+			REQUIRE(jca.num_allocd_items == 25000);
+			REQUIRE(jca.p_buffer_base	 == p_base);
+			REQUIRE(jca.p_first_free	 != nullptr);
+			REQUIRE(jca.p_queue_root	 != nullptr);
+
+			REQUIRE(recursive_audit_aa_tree(jca.p_queue_root) == 20000);
+
+			THEN("I can find them all") {
+				int found = 0, failed = 0, wrong = 0;
+				for (int i = 0; i < 10000; i++) {
+					p_item = jca.find_jazz_block(i);
+					if (p_item == nullptr)
+						failed++;
+					else {
+						if (p_item->block_id64 == i)
+							found++;
+						else
+							wrong++;
+					}
+				}
+				REQUIRE(found  == 10000);
+				REQUIRE(failed == 0);
+				REQUIRE(wrong  == 0);
+
+				JazzBlockIdentifier block_id;
+
+				for (int i = 0; i < 10000; i++) {
+					sprintf(block_id.key, "._block_%x_", i);
+					p_item = jca.find_jazz_block(&block_id);
+					if (p_item == nullptr)
+						failed++;
+					else {
+						if (!strcmp(p_item->block_id.key, block_id.key))
+							found++;
+						else
+							wrong++;
+					}
+				}
+				REQUIRE(found  == 20000);
+				REQUIRE(failed == 0);
+				REQUIRE(wrong  == 0);
+			}
+		}
+
+		WHEN("I insert 50K blocks in it") {
+			for (int i = 0; i < 25000; i++)
+				if (jca.new_jazz_block(i, CELL_TYPE_INTEGER, dim.dim) == nullptr)
+					REQUIRE(false);
+
+			JazzBlockIdentifier block_id;
+
+			for (int i = 0; i < 25000; i++) {
+				sprintf(block_id.key, "._block_%x_", i);
+				if (jca.new_jazz_block(&block_id, CELL_TYPE_DOUBLE, dim.dim) == nullptr)
+					REQUIRE(false);
+			}
+
+			REQUIRE(jca.keepr_item_size	 == sizeof(JazzQueueItem));
+			REQUIRE(jca.num_allocd_items == 25000);
+			REQUIRE(jca.p_buffer_base	 == p_base);
+			REQUIRE(jca.p_first_free	 == nullptr);
+			REQUIRE(jca.p_queue_root	 != nullptr);
+
+			REQUIRE(recursive_audit_aa_tree(jca.p_queue_root) == 25000);
+
+			THEN("I can find half of them") {
+				int found = 0, failed = 0, wrong = 0;
+				for (int i = 0; i < 25000; i++) {
+					p_item = jca.find_jazz_block(i);
+					if (p_item == nullptr)
+						failed++;
+					else {
+						if (p_item->block_id64 == i)
+							found++;
+						else
+							wrong++;
+					}
+				}
+
+				JazzBlockIdentifier block_id;
+
+				for (int i = 0; i < 25000; i++) {
+					sprintf(block_id.key, "._block_%x_", i);
+					p_item = jca.find_jazz_block(&block_id);
+					if (p_item == nullptr)
+						failed++;
+					else {
+						if (!strcmp(p_item->block_id.key, block_id.key))
+							found++;
+						else
+							wrong++;
+					}
+				}
+				REQUIRE(found  == 25000);
+				REQUIRE(failed == 25000);
+				REQUIRE(wrong  == 0);
+			}
+		}
+
+		WHEN("I insert 50K blocks and delete the found ones, I get an empty buffer") {
+			for (int i = 0; i < 25000; i++)
+				if (jca.new_jazz_block(i, CELL_TYPE_INTEGER, dim.dim) == nullptr)
+					REQUIRE(false);
+
+			JazzBlockIdentifier block_id;
+
+			for (int i = 0; i < 25000; i++) {
+				sprintf(block_id.key, "._block_%x_", i);
+				if (jca.new_jazz_block(&block_id, CELL_TYPE_DOUBLE, dim.dim) == nullptr)
+					REQUIRE(false);
+			}
+
+			REQUIRE(jca.keepr_item_size	 == sizeof(JazzQueueItem));
+			REQUIRE(jca.num_allocd_items == 25000);
+			REQUIRE(jca.p_buffer_base	 == p_base);
+			REQUIRE(jca.p_first_free	 == nullptr);
+			REQUIRE(jca.p_queue_root	 != nullptr);
+
+			REQUIRE(recursive_audit_aa_tree(jca.p_queue_root) == 25000);
+
+			int found = 0, failed = 0, wrong = 0;
+			for (int i = 0; i < 25000; i++) {
+				p_item = jca.find_jazz_block(i);
+				if (p_item == nullptr)
+					failed++;
+				else {
+					if (p_item->block_id64 == i) {
+						if (!jca.free_jazz_block(i))
+							REQUIRE(false);
+						found++;
+					} else {
+						wrong++;
+					}
+				}
+			}
+
+			for (int i = 0; i < 25000; i++) {
+				sprintf(block_id.key, "._block_%x_", i);
+				p_item = jca.find_jazz_block(&block_id);
+				if (p_item == nullptr)
+					failed++;
+				else {
+					if (!strcmp(p_item->block_id.key, block_id.key)) {
+						if (!jca.free_jazz_block(&block_id))
+							REQUIRE(false);
+						found++;
+					} else {
+						wrong++;
+					}
+				}
+			}
+
+			REQUIRE(found  == 25000);
+			REQUIRE(failed == 25000);
+			REQUIRE(wrong  == 0);
+
+			REQUIRE(jca.keepr_item_size	 == sizeof(JazzQueueItem));
+			REQUIRE(jca.num_allocd_items == 25000);
+			REQUIRE(jca.p_buffer_base	 == p_base);
+			REQUIRE(jca.p_first_free	 != nullptr);
+			REQUIRE(jca.p_queue_root	 == nullptr);
+
+			REQUIRE(recursive_audit_aa_tree(jca.p_queue_root) == 0);
 		}
 	}
 }
