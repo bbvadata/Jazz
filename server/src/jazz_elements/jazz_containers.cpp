@@ -1386,12 +1386,10 @@ pJazzQueueItem AATBlockQueue::new_jazz_block (const JazzBlockIdentifier *p_id,
 pJazzQueueItem AATBlockQueue::new_keepr_item()
 {
 	if (p_first_free != nullptr) {
+
 		enter_writing();
-
 		pJazzQueueItem p_item = (pJazzQueueItem) p_first_free;
-
-		p_first_free = p_item->p_alloc_next;
-
+		p_first_free 		  = p_item->p_alloc_next;
 		leave_writing();
 
 		return p_item;
@@ -1404,17 +1402,14 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 	}
 
 	enter_writing();
-
 	pJazzQueueItem p_item = lowest_priority(p_queue_root);
+	p_queue_root 		  = remove(p_item, p_queue_root);
+	leave_writing();
 
 	if (p_item->p_jazz_block == nullptr)
 		log_printf(LOG_ERROR, "AATBlockQueue::new_keepr_item(): Item %p has no block.", p_item);
 	else
 		jazz_containers::free_jazz_block(p_item->p_jazz_block);
-
-	p_queue_root = remove(p_item, p_queue_root);
-
-	leave_writing();
 
 	return p_item;
 }
