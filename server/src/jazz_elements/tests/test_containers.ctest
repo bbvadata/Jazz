@@ -4692,21 +4692,21 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 	AATBlockQueue aaq(&jll);
 
 	aaq.log		  (LOG_INFO, "Hello JazzLogger!");
-	aaq.log_printf(LOG_INFO, "2 + 2 = %d", 2 + 2);
+	aaq.log_printf(LOG_INFO, "2 + 3 = %d", 2 + 3);
 #else
 	AATBlockQueue aaq(nullptr);
 #endif
 
 	JazzTensorDim dim {{3, 0}};
-/*
+
 	WHEN("I try to allocate blocks in an empty AATBlockQueue and fail.") {
-		pAATBlockQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+		pJazzQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
 		REQUIRE(p_item == nullptr);	// Test passes but Valgrind detects is the internal JazzBlock was not freed.
 	}
 /*
 	WHEN("I do simple JazzBlock allocation.") {
-		pAATBlockQueueItem p_base;
+		pJazzQueueItem p_base;
 
 		REQUIRE(aaq.alloc_keeprs(4));
 
@@ -4726,7 +4726,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 		REQUIRE(aaq.p_first_item	 == nullptr);
 		REQUIRE(aaq.p_first_free	 == p_base);
 
-		pAATBlockQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+		pJazzQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
 
 		REQUIRE(p_item == p_base);
 
@@ -4837,7 +4837,7 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 	}
 
 	WHEN("Fill AATBlockQueues empty and half empty in all orders.") {
-		pAATBlockQueueItem p_base, p_item[16];
+		pJazzQueueItem p_base, p_item[16];
 
 		REQUIRE(aaq.alloc_keeprs(16));
 
