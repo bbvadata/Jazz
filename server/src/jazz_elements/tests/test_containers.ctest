@@ -4677,15 +4677,499 @@ SCENARIO("Testing internal AA tree functionality") {
 	}
 }
 
+#define LOG_ERRORS
 
 SCENARIO("Unit Tests for AATBlockQueue") {
-	GIVEN("We want to test the xyz") {
-		WHEN("Something") {
-			THEN("Something") {
-//TODO: Write Unit Tests for AATBlockQueue
+#ifdef LOG_ERRORS
+	const char *log_file   {"/tmp/jazz_test_containers.log"};
+	struct stat stat_struc {0};
+
+	if (stat(log_file, &stat_struc) == 0)
+		remove(log_file);
+
+	jazz_utils::JazzLogger jll(log_file);
+
+	AATBlockQueue aaq(&jll);
+
+	aaq.log		  (LOG_INFO, "Hello JazzLogger!");
+	aaq.log_printf(LOG_INFO, "2 + 2 = %d", 2 + 2);
+#else
+	AATBlockQueue aaq(nullptr);
+#endif
+
+	JazzTensorDim dim {{3, 0}};
+/*
+	WHEN("I try to allocate blocks in an empty AATBlockQueue and fail.") {
+		pAATBlockQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == nullptr);	// Test passes but Valgrind detects is the internal JazzBlock was not freed.
+	}
+/*
+	WHEN("I do simple JazzBlock allocation.") {
+		pAATBlockQueueItem p_base;
+
+		REQUIRE(aaq.alloc_keeprs(4));
+
+		p_base = aaq.p_buffer_base;
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 != nullptr);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 == p_base);
+
+		REQUIRE(!aaq.alloc_keeprs(10));
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 == p_base);
+
+		pAATBlockQueueItem p_item = aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim);
+
+		REQUIRE(p_item == p_base);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == p_base);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64				== 1234567890123);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
+
+		REQUIRE(aaq.last_item_in() == p_item);
+
+		p_item = aaq.new_jazz_block(4567890123456, p_item->p_jazz_block);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64				== 4567890123456);
+		REQUIRE(strlen(p_item->block_id.key)	== 0);
+
+		REQUIRE(aaq.last_item_in() == p_item);
+
+		p_item = aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim);
+
+		REQUIRE(p_item != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_alpha"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_alpha"));
+
+		p_item = aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block);
+
+		REQUIRE(p_item != nullptr);
+
+		REQUIRE(p_item->p_jazz_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_item->p_jazz_block->size		== 3);
+		REQUIRE(p_item->block_id64				== hash_block_id(".block_442_beta"));
+		REQUIRE(!strcmp(p_item->block_id.key, ".block_442_beta"));
+
+		REQUIRE(aaq.new_jazz_block(1234567890123, CELL_TYPE_INTEGER, dim.dim)									== nullptr);
+		REQUIRE(aaq.new_jazz_block(4567890123456, p_item->p_jazz_block)											== nullptr);
+		REQUIRE(aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_alpha", CELL_TYPE_DOUBLE, dim.dim) == nullptr);
+		REQUIRE(aaq.new_jazz_block((const JazzBlockIdentifier *) ".block_442_beta", p_item->p_jazz_block)		== nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		p_item = aaq.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		aaq.free_jazz_block(p_item);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		p_item = aaq.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		aaq.free_jazz_block(p_item);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		p_item = aaq.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		aaq.free_jazz_block(p_item);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		p_item = aaq.last_item_in();
+
+		REQUIRE(p_item != nullptr);
+
+		aaq.free_jazz_block(p_item);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 4);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 == p_base);
+
+		p_item = aaq.last_item_in();
+
+		REQUIRE(p_item == nullptr);
+
+		aaq.free_jazz_block(p_item);
+	}
+
+	WHEN("Fill AATBlockQueues empty and half empty in all orders.") {
+		pAATBlockQueueItem p_base, p_item[16];
+
+		REQUIRE(aaq.alloc_keeprs(16));
+
+		p_base = aaq.p_buffer_base;
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 == p_base);
+
+		// Fill full, remove full same order
+		for (int i = 0; i < 16; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		for (int i = 0; i < 16; i++) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill full, remove full inverse order
+		for (int i = 0; i < 16; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		for (int i = 15; i >= 0; i--) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill full, remove full middle order
+		for (int i = 0; i < 16; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		for (int i = 15; i >= 0; i--) {
+			int j = i/2;
+
+			if (i == j) {
+				aaq.free_jazz_block(p_item[i]);
+			} else {
+				aaq.free_jazz_block(p_item[j]);
+				p_item[j] = p_item[i];
 			}
 		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill full, remove half same order
+		for (int i = 0; i < 16; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		for (int i = 0; i < 8; i++) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill full, remove half inverse order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		for (int i = 7; i >= 0; i--) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill full, remove half middle order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+		REQUIRE(aaq.new_jazz_block(98765432101, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 == nullptr);
+
+		for (int i = 7; i >= 0; i--) {
+			int j = i/2;
+
+			if (i == j) {
+				aaq.free_jazz_block(p_item[i]);
+			} else {
+				aaq.free_jazz_block(p_item[j]);
+				p_item[j] = p_item[i];
+			}
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Remove top 4
+		for (int i = 15; i >= 12; i--) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill -4, remove half same order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		for (int i = 0; i < 8; i++) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill -4, remove half inverse order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		for (int i = 7; i >= 0; i--) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill -4, remove half middle order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		for (int i = 7; i >= 0; i--) {
+			int j = i/2;
+
+			if (i == j) {
+				aaq.free_jazz_block(p_item[i]);
+			} else {
+				aaq.free_jazz_block(p_item[j]);
+				p_item[j] = p_item[i];
+			}
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Remove next 4
+		for (int i = 11; i >= 8; i--) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill -8, remove half same order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		for (int i = 0; i < 8; i++) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill -8, remove half inverse order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		for (int i = 7; i >= 0; i--) {
+			aaq.free_jazz_block(p_item[i]);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		// Fill -8, remove half middle order
+		for (int i = 0; i < 8; i++) {
+			p_item[i] = aaq.new_jazz_block(12345678901*i, CELL_TYPE_INTEGER, dim.dim);
+			REQUIRE(p_item[i] != nullptr);
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 != nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
+
+		for (int i = 7; i >= 0; i--) {
+			int j = i/2;
+
+			if (i == j) {
+				aaq.free_jazz_block(p_item[i]);
+			} else {
+				aaq.free_jazz_block(p_item[j]);
+				p_item[j] = p_item[i];
+			}
+		}
+
+		REQUIRE(aaq.keepr_item_size	 == sizeof(AATBlockQueueItem));
+		REQUIRE(aaq.num_allocd_items == 16);
+		REQUIRE(aaq.p_buffer_base	 == p_base);
+		REQUIRE(aaq.p_first_item	 == nullptr);
+		REQUIRE(aaq.p_first_free	 != nullptr);
 	}
+*/
 }
 
 
