@@ -873,6 +873,8 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 			\param p_new  The node to be inserted
 			\param p_tree The root of the subtree where p_new will be inserted
 			\return		  A balanced version of p_tree including p_new
+
+			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
 		*/
 		inline pJazzQueueItem insert(pJazzQueueItem p_new, pJazzQueueItem p_tree) {
 			// Do the normal binary tree insertion procedure. Set the result of the
