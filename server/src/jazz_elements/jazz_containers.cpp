@@ -1387,6 +1387,12 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 		return p_item;
 	}
 
+	if (p_queue_root == nullptr) {
+		log(LOG_ERROR, "AATBlockQueue::new_keepr_item(): No items.");
+
+		return nullptr;
+	}
+
 	enter_writing();
 
 	pJazzQueueItem p_item = lowest_priority(p_queue_root);
