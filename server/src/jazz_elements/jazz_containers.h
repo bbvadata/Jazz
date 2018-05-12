@@ -920,6 +920,7 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class JazzCache: public AATBlockQueue {
 
 	public:
+		 JazzCache(jazz_utils::pJazzLogger a_logger = nullptr);
 
 		/** Find a JazzBlock in a JazzCache by JazzBlockIdentifier (block name)
 
