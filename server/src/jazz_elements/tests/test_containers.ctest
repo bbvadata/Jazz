@@ -4908,25 +4908,9 @@ SCENARIO("Unit Tests for AATBlockQueue") {
 	}
 }
 
-# define LOG_ERRORS
 
 SCENARIO("Unit Tests for JazzCache") {
-#ifdef LOG_ERRORS
-	const char *log_file   {"/tmp/jazz_test_containers.log"};
-	struct stat stat_struc {0};
-
-	if (stat(log_file, &stat_struc) == 0)
-		remove(log_file);
-
-	jazz_utils::JazzLogger jll(log_file);
-
-	JazzCache jca(&jll);
-
-	jca.log		  (LOG_INFO, "Hello JazzLogger!");
-	jca.log_printf(LOG_INFO, "2 + 3 = %d", 2 + 3);
-#else
 	JazzCache jca(nullptr);
-#endif
 
 	JazzTensorDim dim {{7, 3, 2, 0}};
 
@@ -5121,6 +5105,4 @@ SCENARIO("Unit Tests for JazzCache") {
 			REQUIRE(recursive_audit_aa_tree(jca.p_queue_root) == 0);
 		}
 	}
-//TODO: Implement a test with all the log miss and log_errors including the parents
-
 }
