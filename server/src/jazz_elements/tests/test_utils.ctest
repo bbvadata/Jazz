@@ -25,8 +25,7 @@
 using namespace jazz_utils;
 
 
-SCENARIO("Testing CountBytesFromUtf8().")
-{
+SCENARIO("Testing CountBytesFromUtf8().") {
 	char buf1[80] = {"abcdefghi"};
 	char buf2[80] = {"ácido"};
 	char buf3[80] = {"eñe"};
@@ -55,8 +54,7 @@ SCENARIO("Testing CountBytesFromUtf8().")
 }
 
 
-SCENARIO("Testing ExpandEscapeSequences().")
-{
+SCENARIO("Testing ExpandEscapeSequences().") {
 	char buff[80];
 
 	buff[0] = 0;
@@ -263,15 +261,13 @@ SCENARIO("Testing ExpandEscapeSequences().")
 }
 
 
-SCENARIO("Testing FindProcessIdByName().")
-{
+SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
 	REQUIRE(FindProcessIdByName("/usr/sbin/acpid") != 0);
 }
 
 
-SCENARIO("Testing MurmurHash64A().")
-{
+SCENARIO("Testing MurmurHash64A().") {
 	REQUIRE(sizeof(uint64_t) == 8);
 	REQUIRE(MURMUR_SEED	== 76493);
 
@@ -280,8 +276,7 @@ SCENARIO("Testing MurmurHash64A().")
 	REQUIRE(MurmurHash64A(&today, 4) == 1361846023767824266);
 	//cout << "Origin of time's hash " << MurmurHash64A(&today, 4) << endl;
 
-	GIVEN("Three sets of vars of different types. A!=B, A==C")
-	{
+	GIVEN("Three sets of vars of different types. A!=B, A==C") {
 		int	   ia	  = 299792458;
 		double da	  = 3.141592;
 		char   sa[16] = "Hello, world!";
@@ -304,75 +299,64 @@ SCENARIO("Testing MurmurHash64A().")
 		hda = MurmurHash64A(&da, sizeof(da));
 		hsa = MurmurHash64A(&sa, sizeof(sa));
 
-		WHEN("I hash the first set.")
-		{
-			THEN("I get different hashes ...")
-			{
+		WHEN("I hash the first set.") {
+			THEN("I get different hashes ...") {
 				REQUIRE(hia != hda);
 				REQUIRE(hia != hsa);
 				REQUIRE(hda != hsa);
 			}
 
-			THEN("... but identical if I repeat.")
-			{
+			THEN("... but identical if I repeat.") {
 				REQUIRE(hia == MurmurHash64A(&ia, sizeof(ia)));
 				REQUIRE(hda == MurmurHash64A(&da, sizeof(da)));
 				REQUIRE(hsa == MurmurHash64A(&sa, sizeof(sa)));
 			}
 		}
-		WHEN("I hash the second set.")
-		{
+		WHEN("I hash the second set.") {
 			uint64_t hib, hdb, hsb;
 
 			hib = MurmurHash64A(&ib, sizeof(ib));
 			hdb = MurmurHash64A(&db, sizeof(db));
 			hsb = MurmurHash64A(&sb, sizeof(sb));
 
-			THEN("I get different hashes.")
-			{
+			THEN("I get different hashes.") {
 				REQUIRE(hib != hdb);
 				REQUIRE(hib != hsb);
 				REQUIRE(hdb != hsb);
 			}
 
-			THEN("They are all different from those in A ...")
-			{
+			THEN("They are all different from those in A ...") {
 				REQUIRE(hia != hib);
 				REQUIRE(hda != hdb);
 				REQUIRE(hda != hdb);
 			}
 
-			THEN("... but identical if I repeat.")
-			{
+			THEN("... but identical if I repeat.") {
 				REQUIRE(hib == MurmurHash64A(&ib, sizeof(ib)));
 				REQUIRE(hdb == MurmurHash64A(&db, sizeof(db)));
 				REQUIRE(hsb == MurmurHash64A(&sb, sizeof(sb)));
 			}
 		}
-		WHEN("I hash the third set.")
-		{
+		WHEN("I hash the third set.") {
 			uint64_t hic, hdc, hsc;
 
 			hic = MurmurHash64A(&ic, sizeof(ic));
 			hdc = MurmurHash64A(&dc, sizeof(dc));
 			hsc = MurmurHash64A(&sc, sizeof(sc));
 
-			THEN("I get different hashes.")
-			{
+			THEN("I get different hashes.") {
 				REQUIRE(hic != hdc);
 				REQUIRE(hic != hsc);
 				REQUIRE(hdc != hsc);
 			}
 
-			THEN("They are all identical to those in A ...")
-			{
+			THEN("They are all identical to those in A ...") {
 				REQUIRE(hia == hic);
 				REQUIRE(hda == hdc);
 				REQUIRE(hda == hdc);
 			}
 
-			THEN("... and identical if I repeat.")
-			{
+			THEN("... and identical if I repeat.") {
 				REQUIRE(hic == MurmurHash64A(&ic, sizeof(ic)));
 				REQUIRE(hdc == MurmurHash64A(&dc, sizeof(dc)));
 				REQUIRE(hsc == MurmurHash64A(&sc, sizeof(sc)));
@@ -380,8 +364,7 @@ SCENARIO("Testing MurmurHash64A().")
 		}
 	}
 	char buffer[100];
-	THEN("I can hash all lengths from 0 to 64 without boundary issues.")
-	{
+	THEN("I can hash all lengths from 0 to 64 without boundary issues.") {
 		for (int i = 0; i < 65; i++) {
 			for (int j = 0; j < i; j++) buffer[10 + j] = 2*j;
 
@@ -427,8 +410,7 @@ SCENARIO("Testing MurmurHash64A().")
 }
 
 
-SCENARIO("Testing TenBitsAtAddress().")
-{
+SCENARIO("Testing TenBitsAtAddress().") {
 	REQUIRE(TenBitsAtAddress("7") == 0x17);
 	REQUIRE(TenBitsAtAddress("0") == 0x10);
 	REQUIRE(TenBitsAtAddress("a") == 0x01);
@@ -451,8 +433,7 @@ SCENARIO("Testing TenBitsAtAddress().")
 }
 
 
-SCENARIO("Testing CleanConfigArgument().")
-{
+SCENARIO("Testing CleanConfigArgument().") {
 	std::string a("This Is\tIt");
 
 	std::string b = CleanConfigArgument(a);
@@ -475,8 +456,7 @@ SCENARIO("Testing CleanConfigArgument().")
 }
 
 
-SCENARIO("Testing class JazzConfigFile")
-{
+SCENARIO("Testing class JazzConfigFile") {
 	JazzConfigFile conf1("/tmp/f5d0fb3fbf831bfdb5273d22e8f73af1");
 
 	REQUIRE(conf1.num_keys() == 0);
@@ -622,8 +602,7 @@ SCENARIO("Testing class JazzConfigFile")
 }
 
 
-SCENARIO("Testing class JazzLogger")
-{
+SCENARIO("Testing class JazzLogger") {
 	JazzLogger log1("/tmp/b7fcecb99b2947db7a04ef3b8ff684df/906f2f7fabf6dda97410bb508aeb0d35");
 
 	char file_name [MAX_FILENAME_LENGTH];
