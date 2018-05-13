@@ -427,6 +427,21 @@ class JazzBlockKeepr {
 			}
 		}
 
+		/** Aaa
+
+			\param aaa Aaa
+			\return	   Aaa
+		*/
+		inline bool verify_p_item(pJazzBlockKeeprItem p_item) {
+			if (p_item == nullptr || p_buffer_base == nullptr)
+				return false;
+			long long ofs = (uintptr_t) p_item - (uintptr_t) p_buffer_base;
+			if (ofs < 0 || ofs % keepr_item_size != 0)
+				return false;
+			ofs /= keepr_item_size;
+			return ofs < num_allocd_items;
+		}
+
 		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 
 			\param loglevel The trace level.
