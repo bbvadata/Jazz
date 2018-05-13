@@ -1444,16 +1444,18 @@ void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing, 
 		return;
 	}
 
-	if (p_item->p_jazz_block == nullptr)
+	if (!never_used && p_item->p_jazz_block == nullptr)
 		log_printf(LOG_ERROR, "AATBlockQueue::free_jazz_block(): Item %p has no block.", p_item);
 
 	if (!inside_writing)
 		enter_writing();
 
-	p_queue_root = remove(p_item, p_queue_root);
+	if (!never_used) {
+		p_queue_root = remove(p_item, p_queue_root);
 
-	if (p_item->p_jazz_block != nullptr)
-		jazz_containers::free_jazz_block(p_item->p_jazz_block);
+		if (p_item->p_jazz_block != nullptr)
+			jazz_containers::free_jazz_block(p_item->p_jazz_block);
+	}
 
 	p_item->p_alloc_next = p_first_free;
 	p_first_free = p_item;
