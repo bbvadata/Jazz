@@ -17,10 +17,16 @@ cd server
 make clean
 
 scan-build -o ./static_analysis_reports/ make jazz
-scan-build -o ./static_analysis_reports/ make runtest
 if [ $? -ne 0 ]
 then
-  echo "Running Unit tests failed."
+  echo "make failed."
+  exit 1
+fi
+
+scan-build -o ./static_analysis_reports/ make tjazz
+if [ $? -ne 0 ]
+then
+  echo "make failed."
   exit 1
 fi
 

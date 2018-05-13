@@ -37,12 +37,12 @@
 namespace jazz_utils {
 
 
-/** Count the number of bytes required by an utf-8 string of len characters.
+/** Count the number of bytes required by an utf-8 string of length characters.
 
-\param buff The string (not necessarily null-terminated)
-\param len	The number of characters in the string
+\param buff	  The string (not necessarily null-terminated)
+\param length The number of characters in the string
 
-\return		The numebr of bytes in the string.
+\return		The number of bytes in the string.
 
 The RFC http://www.ietf.org/rfc/rfc3629.txt says:
 
@@ -54,12 +54,12 @@ Char. number range	|		 UTF-8 octet sequence
 0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
 0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 */
-int CountBytesFromUtf8(char *buff, int len)
+int CountBytesFromUtf8(char *buff, int length)
 {
 	int bytes = 0;
 
-	while (len > 0)	{
-		len--;
+	while (length > 0)	{
+		length--;
 		bytes++;
 		char lb = *buff++;
 
@@ -81,18 +81,18 @@ int CountBytesFromUtf8(char *buff, int len)
 }
 
 
-/** Expand escaped strings at runtime.
+/** Expand escaped strings at run-time.
 
 Public Domain by Jerry Coffin.
 
 Interprets a string in a manner similar to that the compiler does string literals in a program.	 All escape sequences are
-longer than their translated equivalant, so the string is translated in place and either remains the same length or becomes shorter.
+longer than their translated equivalent, so the string is translated in place and either remains the same length or becomes shorter.
 
 April 17 tests built and compliant with:
 
 \\a	 07	   Alert (Beep, Bell) (added in C89)[1]
 \\b	 08	   Backspace
-\\f	 0C	   Formfeed
+\\f	 0C	   Form-feed
 \\n	 0A	   Newline (Line Feed); see notes below
 \\r	 0D	   Carriage Return
 \\t	 09	   Horizontal Tab
@@ -467,7 +467,7 @@ bool JazzConfigFile::get_key(const char *key, std::string &value)
 /** DEBUG ONLY function: Set a config key manually.
 
 	\param key	The configuration key to be set.
-	\param val	New value of the key as a string (also valid for int and double if the string can be converted).
+	\param val	New value of the key as a string (also valiud for int and double if the string can be converted).
 */
 void JazzConfigFile::debug_put(const std::string key, const std::string val)
 {

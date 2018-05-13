@@ -37,7 +37,7 @@
 
 #include "src/jazz_elements/jazz_datablocks.h"
 
-/**< \brief Miscelaneous utility functions for Jazz.
+/**< \brief Miscellaneous utility functions for Jazz.
 
 	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
 without global variables.
@@ -87,7 +87,7 @@ without global variables.
 namespace jazz_utils
 {
 
-int			 CountBytesFromUtf8	   (char *buff, int len);
+int			 CountBytesFromUtf8	   (char *buff, int length);
 char		*ExpandEscapeSequences (char *buff);
 pid_t		 FindProcessIdByName   (const char *name);
 uint64_t	 MurmurHash64A		   (const void *key, int len);
@@ -97,8 +97,7 @@ std::string	 CleanConfigArgument   (std::string s);
 /** Get ten bits taking the least significant 5 of the first two characters of a string.
 	Warning: No pointer validation or length check. Never use on nullptr or "".
 */
-inline int TenBitsAtAddress (const char* str)
-{
+inline int TenBitsAtAddress (const char* str) {
 	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
 }
 
@@ -106,7 +105,7 @@ inline int TenBitsAtAddress (const char* str)
 /** Return the time elapsed in microseconds as a 64 bit integer since a primordial event.
 
 	\param big_bang The primordial event
-	\return         The time elapsed in microseconds
+	\return			The time elapsed in microseconds
 */
 inline int64_t elapsed_us(jazz_datablocks::TimePoint big_bang) {
 	jazz_datablocks::TimePoint now = std::chrono::steady_clock::now();
@@ -116,7 +115,7 @@ inline int64_t elapsed_us(jazz_datablocks::TimePoint big_bang) {
 
 
 typedef class JazzConfigFile *pJazzConfigFile;
-typedef class JazzLogger 	 *pJazzLogger;
+typedef class JazzLogger	 *pJazzLogger;
 
 
 /** A configuration file as a key/value store.
@@ -149,7 +148,7 @@ class JazzConfigFile {
 /** A simple logger.
 
 	This objects logs events one line per event. It prefixes the time since the logger was created, the trace level and the thread id as
-in "   0.224036 : 02 :  2872 : jzzAPI started.".  A printf style version supports printing variables using variadic arguments.
+in "   0.224036 : 02 :	2872 : jzzAPI started.".  A printf style version supports printing variables using variadic arguments.
 */
 class JazzLogger {
 

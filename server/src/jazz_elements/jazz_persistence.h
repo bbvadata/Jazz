@@ -61,11 +61,11 @@ or (JazzPersistence descendant::)new_jazz_block() and not required to be removed
 (JazzPersistence descendant::)remove_jazz_block(). Unlike volatile JazzBlocks, persisted JazzBlocks are not controlled by a JazzBlockKeeprItem.
 Difference between JazzPersistence and JazzSource is the former implements a strict JazzBlockKeepr interface that can be used from c++ to do
 things like select information from blocks without assigning or copying them, the latter has a much simpler interface that is exported to
-Python and R and provides what a script language programmer would expect at the price of not always benefitting from the memory-mapped
+Python and R and provides what a script language programmer would expect at the price of not always benefiting from the memory-mapped
 file allocation in lmdb that underlies JazzPersistence.
 
 THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzPersistence: public JazzBlockKeepr {
@@ -78,16 +78,16 @@ class JazzPersistence: public JazzBlockKeepr {
 		// Methods for JazzBlock allocation
 
 		pJazzBlock new_jazz_block (const JazzBlockIdentifier *p_id,
-										 pJazzBlock 	  	  p_as_block,
-							   			 pJazzBlock 	  	  p_row_filter	= nullptr,
-							   			 AllAttributes		 *att			= nullptr);
+										 pJazzBlock			  p_as_block,
+										 pJazzBlock			  p_row_filter	= nullptr,
+										 AllAttributes		 *att			= nullptr);
 
 		pJazzBlock new_jazz_block (const JazzBlockIdentifier *p_id,
-										 int			  	  cell_type,
+										 int				  cell_type,
 										 JazzTensorDim		 *dim,
 										 AllAttributes		 *att,
 										 int				  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
-										 bool				 *p_bool_filter   = nullptr,
+										 bool				 *p_bool_filter	  = nullptr,
 										 int				  stringbuff_size = 0,
 										 const char			 *p_text		  = nullptr,
 										 char				  eoln			  = '\n');
@@ -101,7 +101,7 @@ A much simpler interface to create/read/update/delete JazzBlocks in source using
 to R, Python and the REST API directly.
 
 THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is inteded to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
+is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
 class JazzSource: public JazzPersistence {
