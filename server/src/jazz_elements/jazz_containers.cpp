@@ -1048,6 +1048,7 @@ void AATBlockQueue::destroy_keeprs()
 	num_allocd_items = 0;
 	p_buffer_base	 = nullptr;
 	p_first_free	 = nullptr;
+	p_queue_root	 = nullptr;
 
 	leave_writing();
 }
