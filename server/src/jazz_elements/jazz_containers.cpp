@@ -1433,8 +1433,9 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 
 	\param p_item 		  The JazzQueueItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
+	\param never_used     The item was allocated but the block creation failed, ignore p_jazz_block.
 */
-void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing)
+void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing, bool never_used)
 {
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "AATBlockQueue::free_jazz_block: Wrong call.");
@@ -1747,8 +1748,9 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	\param p_item 		  The JazzQueueItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
+	\param never_used     The item was allocated but the block creation failed, ignore p_jazz_block.
 */
-void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing)
+void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing, bool never_used)
 {
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "JazzCache::free_jazz_block: Wrong call.");
