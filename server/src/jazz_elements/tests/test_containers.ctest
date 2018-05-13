@@ -5250,21 +5250,33 @@ SCENARIO("Force all error conditions") {
 	p_item = jbk.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim);
 	jbk.free_jazz_block(p_item);
 	jbk.free_jazz_block(p_item);
+	jbt.free_jazz_block(p_item);
+	aaq.free_jazz_block((pJazzQueueItem) p_item);
+	jca.free_jazz_block((pJazzQueueItem) p_item);
 	jbk.free_jazz_block((pJazzBlockKeeprItem) nullptr);
 
 	p_item = jbt.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim);
 	jbt.free_jazz_block(p_item);
+	jbt.free_jazz_block(p_item);
 	jbk.free_jazz_block(p_item);
-	jbk.free_jazz_block((pJazzBlockKeeprItem) nullptr);
+	aaq.free_jazz_block((pJazzQueueItem) p_item);
+	jca.free_jazz_block((pJazzQueueItem) p_item);
+	jbt.free_jazz_block((pJazzBlockKeeprItem) nullptr);
 
 	p_qitem = aaq.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim);
 	aaq.free_jazz_block(p_qitem);
 	aaq.free_jazz_block(p_qitem);
+	jca.free_jazz_block(p_qitem);
+	jbk.free_jazz_block((pJazzBlockKeeprItem) p_qitem);
+	jbt.free_jazz_block((pJazzBlockKeeprItem) p_qitem);
 	aaq.free_jazz_block((pJazzQueueItem) nullptr);
 
 	p_qitem = jca.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim);
 	jca.free_jazz_block(p_qitem);
 	jca.free_jazz_block(p_qitem);
+	aaq.free_jazz_block(p_qitem);
+	jbk.free_jazz_block((pJazzBlockKeeprItem) p_qitem);
+	jbt.free_jazz_block((pJazzBlockKeeprItem) p_qitem);
 	jca.free_jazz_block((pJazzQueueItem) nullptr);
 
 	free_jazz_block(p_block);
