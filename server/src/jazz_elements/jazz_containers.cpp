@@ -1633,19 +1633,16 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 										  AllAttributes				*att,
 										  uint64_t					 time_to_build)
 {
-	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(p_id, p_as_block, p_row_filter, att, time_to_build);
-
-	JazzBlockId64 id64 = hash_block_id((char *) p_id);
-
-	if (!id64) {
+	if (!p_id->key[0]) {
 		log(LOG_ERROR, "JazzCache::new_jazz_block(3): Blocks with void p_id cannot be cached.");
-
-		AATBlockQueue::free_jazz_block(p_item);
 
 		return nullptr;
 	}
 
-	cache[id64] = p_item;
+	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(p_id, p_as_block, p_row_filter, att, time_to_build);
+
+	if (p_item != nullptr)
+		cache[p_item->block_id64] = p_item;
 
 	return p_item;
 }
@@ -1711,6 +1708,12 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 										  char						 eoln,
 										  uint64_t					 time_to_build)
 {
+	if (!p_id->key[0]) {
+		log(LOG_ERROR, "JazzCache::new_jazz_block(4): Blocks with void p_id cannot be cached.");
+
+		return nullptr;
+	}
+
 	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(p_id,
 														  cell_type,
 														  dim,
@@ -1722,17 +1725,9 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 														  eoln,
 														  time_to_build);
 
-	JazzBlockId64 id64 = hash_block_id((char *) p_id);
 
-	if (!id64) {
-		log(LOG_ERROR, "JazzCache::new_jazz_block(4): Blocks with void p_id cannot be cached.");
-
-		AATBlockQueue::free_jazz_block(p_item);
-
-		return nullptr;
-	}
-
-	cache[id64] = p_item;
+	if (p_item != nullptr)
+		cache[p_item->block_id64] = p_item;
 
 	return p_item;
 }
