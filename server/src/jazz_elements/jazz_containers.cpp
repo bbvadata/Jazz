@@ -1788,6 +1788,7 @@ bool JazzCache::free_jazz_block(const JazzBlockIdentifier *p_id)
 	}
 	pJazzQueueItem p_item = it->second;
 
+	cache.erase(it);
 	p_queue_root = remove(p_item, p_queue_root);
 
 	if (p_item->p_jazz_block == nullptr)
@@ -1808,7 +1809,7 @@ bool JazzCache::free_jazz_block(const JazzBlockIdentifier *p_id)
 
 	Logs with level LOG_MISS if the block is not found.
 */
-bool JazzCache::free_jazz_block (JazzBlockId64 id64)
+bool JazzCache::free_jazz_block(JazzBlockId64 id64)
 {
 	enter_writing();
 	JazzBlockMap::iterator it = cache.find(id64);
@@ -1821,6 +1822,7 @@ bool JazzCache::free_jazz_block (JazzBlockId64 id64)
 	}
 	pJazzQueueItem p_item = it->second;
 
+	cache.erase(it);
 	p_queue_root = remove(p_item, p_queue_root);
 
 	if (p_item->p_jazz_block == nullptr)
