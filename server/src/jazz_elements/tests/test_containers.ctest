@@ -5136,6 +5136,38 @@ SCENARIO("Force all error conditions") {
 	JazzCache 	   jca(nullptr);
 #endif
 
-	JazzTensorDim dim {{7, 3, 2, 0}};
+	JazzTensorDim dim {{5, 2, 0}};
 
+	pJazzBlock p_block = new_jazz_block(CELL_TYPE_INTEGER, dim.dim);
+
+	REQUIRE(p_block != nullptr);
+
+	JazzBlockIdentifier block_id;
+	sprintf(block_id.key, "What???");
+
+	REQUIRE(jca.find_jazz_block(12345) == nullptr);
+	REQUIRE(jca.find_jazz_block(&block_id) == nullptr);
+
+	REQUIRE(jbk.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+	REQUIRE(jbt.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+	REQUIRE(aaq.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+	REQUIRE(jca.new_jazz_block(123, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+	REQUIRE(jbk.new_jazz_block(&block_id, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+	REQUIRE(jbt.new_jazz_block(&block_id, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+	REQUIRE(aaq.new_jazz_block(&block_id, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+	REQUIRE(jca.new_jazz_block(&block_id, CELL_TYPE_INTEGER, dim.dim) == nullptr);
+
+	REQUIRE(jbk.new_jazz_block(123, p_block) == nullptr);
+	REQUIRE(jbt.new_jazz_block(123, p_block) == nullptr);
+	REQUIRE(aaq.new_jazz_block(123, p_block) == nullptr);
+	REQUIRE(jca.new_jazz_block(123, p_block) == nullptr);
+
+	REQUIRE(jbk.new_jazz_block(&block_id, p_block) == nullptr);
+	REQUIRE(jbt.new_jazz_block(&block_id, p_block) == nullptr);
+	REQUIRE(aaq.new_jazz_block(&block_id, p_block) == nullptr);
+	REQUIRE(jca.new_jazz_block(&block_id, p_block) == nullptr);
+
+
+	free_jazz_block(p_block);
 }
