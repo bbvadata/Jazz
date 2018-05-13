@@ -333,7 +333,7 @@ class JazzBlockKeepr {
 			return p_item;
 		}
 
-		virtual void free_jazz_block(pJazzBlockKeeprItem p_item);
+		virtual void free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_writing = false);
 
 		/// A virtual method returning the size of the JazzBlockKeeprItem descendant that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzBlockKeeprItem); }
@@ -549,7 +549,7 @@ class AATBlockQueue: public JazzBlockKeepr {
 									   char						  eoln			  = '\n',
 									   uint64_t					  time_to_build	  = 0);
 
-		virtual void free_jazz_block(pJazzQueueItem p_item);
+		virtual void free_jazz_block(pJazzQueueItem p_item, bool inside_writing = false);
 
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
@@ -981,7 +981,7 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
 
-		virtual void free_jazz_block (pJazzQueueItem 			 p_item);
+		virtual void free_jazz_block (pJazzQueueItem 			 p_item, bool inside_writing = false);
 		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
 		bool		 free_jazz_block (JazzBlockId64				 id64);
 
