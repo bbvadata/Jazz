@@ -5108,8 +5108,6 @@ SCENARIO("Unit Tests for JazzCache") {
 }
 
 
-#define LOG_ERRORS
-
 SCENARIO("Force all error conditions") {
 #ifdef LOG_ERRORS
 	const char *log_file   {"/tmp/jazz_test_containers.log"};
