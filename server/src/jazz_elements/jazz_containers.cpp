@@ -1777,15 +1777,26 @@ bool JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
 */
 bool JazzCache::free_jazz_block (JazzBlockId64 id64)
 {
-	pJazzQueueItem p_item = find_jazz_block(id64);
+	enter_writing();
+	JazzBlockMap::iterator it = cache.find(id64);
+	if (it == cache.end()) {
+		leave_writing();
 
-	if (p_item == nullptr) {
-		log_printf(LOG_MISS, "Block with hash %16x not found in JazzCache::free_jazz_block()", id64);
+		log_printf(LOG_MISS, "JazzCache::free_jazz_block(2): Block (%llu) not found.", id64);
 
 		return false;
 	}
-//TODO: Remove id64 from the queue
-	AATBlockQueue::free_jazz_block(p_item);
+	pJazzQueueItem p_item = it->second;
+
+	p_queue_root = remove(p_item, p_queue_root);
+
+	if (p_item->p_jazz_block == nullptr)
+		jazz_containers::free_jazz_block(p_item->p_jazz_block);
+
+	p_item->p_alloc_next = p_first_free;
+	p_first_free = p_item;
+	leave_writing();
+
 	return true;
 }
 
