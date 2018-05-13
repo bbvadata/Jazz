@@ -1727,6 +1727,39 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 }
 
 
+/** Destroy a JazzBlock, free its owning JazzQueueItem and remove it from the cache
+
+	\param p_item The JazzQueueItem owning the JazzBlock that will be destroyed.
+*/
+void JazzCache::free_jazz_block (pJazzQueueItem p_item)
+{
+	if (p_item == nullptr) {
+		log(LOG_ERROR, "JazzCache::free_jazz_block: Wrong call.");
+
+		return;
+	}
+
+	if (p_item->p_jazz_block == nullptr)
+		log_printf(LOG_ERROR, "JazzCache::free_jazz_block(): Item %p has no block.", p_item);
+
+	enter_writing();
+	JazzBlockMap::iterator it = cache.find(p_item->block_id64);
+	if (it == cache.end())
+		log_printf(LOG_ERROR, "JazzCache::free_jazz_block(): Item %p was not found in cache.", p_item);
+	else
+		cache.erase(it);
+
+	p_queue_root = remove(p_item, p_queue_root);
+
+	if (p_item->p_jazz_block != nullptr)
+		jazz_containers::free_jazz_block(p_item->p_jazz_block);
+
+	p_item->p_alloc_next = p_first_free;
+	p_first_free = p_item;
+	leave_writing();
+}
+
+
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
 	\param p_id The JazzBlockIdentifier of the block to be searched for deletion
@@ -1734,7 +1767,7 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 	Logs with level LOG_MISS if the block is not found.
 */
-bool JazzCache::free_jazz_block (const JazzBlockIdentifier *p_id)
+bool JazzCache::free_jazz_block(const JazzBlockIdentifier *p_id)
 {
 	JazzBlockId64 id64 = hash_block_id((char *) p_id);
 
