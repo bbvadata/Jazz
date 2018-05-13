@@ -943,7 +943,7 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 
 	Logs with level LOG_ERROR on errors.
 */
-void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_writing = false)
+void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_writing)
 {
 	while (p_item == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Wrong call.");
@@ -1405,14 +1405,12 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 	}
 
 	enter_writing();
-	pJazzQueueItem p_item = lowest_priority(p_queue_root);
-	p_queue_root 		  = remove(p_item, p_queue_root);
-	leave_writing();
 
-	if (p_item->p_jazz_block == nullptr)
-		log_printf(LOG_ERROR, "AATBlockQueue::new_keepr_item(): Item %p has no block.", p_item);
-	else
-		jazz_containers::free_jazz_block(p_item->p_jazz_block);
+	pJazzQueueItem p_item = lowest_priority(p_queue_root);
+
+	free_jazz_block(p_item, true);
+
+	leave_writing();
 
 	return p_item;
 }
@@ -1423,7 +1421,7 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 	\param p_item 		  The JazzQueueItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
 */
-void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing = false)
+void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing)
 {
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "AATBlockQueue::free_jazz_block: Wrong call.");
@@ -1740,7 +1738,7 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 	\param p_item 		  The JazzQueueItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
 */
-void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing = false)
+void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing)
 {
 	if (p_item == nullptr) {
 		log(LOG_ERROR, "JazzCache::free_jazz_block: Wrong call.");
