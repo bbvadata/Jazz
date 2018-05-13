@@ -1746,9 +1746,6 @@ void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing)
 		return;
 	}
 
-	if (p_item->p_jazz_block == nullptr)
-		log_printf(LOG_ERROR, "JazzCache::free_jazz_block(): Item %p has no block.", p_item);
-
 	if (!inside_writing)
 		enter_writing();
 
@@ -1758,13 +1755,7 @@ void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing)
 	else
 		cache.erase(it);
 
-	p_queue_root = remove(p_item, p_queue_root);
-
-	if (p_item->p_jazz_block != nullptr)
-		jazz_containers::free_jazz_block(p_item->p_jazz_block);
-
-	p_item->p_alloc_next = p_first_free;
-	p_first_free = p_item;
+	AATBlockQueue::free_jazz_block(p_item, true);
 
 	if (!inside_writing)
 		leave_writing();
@@ -1797,16 +1788,8 @@ bool JazzCache::free_jazz_block(const JazzBlockIdentifier *p_id)
 
 		return false;
 	}
-	pJazzQueueItem p_item = it->second;
-
+	AATBlockQueue::free_jazz_block(it->second, true);
 	cache.erase(it);
-	p_queue_root = remove(p_item, p_queue_root);
-
-	if (p_item->p_jazz_block == nullptr)
-		jazz_containers::free_jazz_block(p_item->p_jazz_block);
-
-	p_item->p_alloc_next = p_first_free;
-	p_first_free = p_item;
 	leave_writing();
 
 	return true;
@@ -1831,16 +1814,8 @@ bool JazzCache::free_jazz_block(JazzBlockId64 id64)
 
 		return false;
 	}
-	pJazzQueueItem p_item = it->second;
-
+	AATBlockQueue::free_jazz_block(it->second, true);
 	cache.erase(it);
-	p_queue_root = remove(p_item, p_queue_root);
-
-	if (p_item->p_jazz_block == nullptr)
-		jazz_containers::free_jazz_block(p_item->p_jazz_block);
-
-	p_item->p_alloc_next = p_first_free;
-	p_first_free = p_item;
 	leave_writing();
 
 	return true;
