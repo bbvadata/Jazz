@@ -1516,7 +1516,8 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockId64 id64,
 {
 	pJazzQueueItem p_item = AATBlockQueue::new_jazz_block(id64, p_as_block, p_row_filter, att, time_to_build);
 
-	cache[id64] = p_item;
+	if (p_item != nullptr)
+		cache[id64] = p_item;
 
 	return p_item;
 }
@@ -1598,7 +1599,8 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockId64 id64,
 														  eoln,
 														  time_to_build);
 
-	cache[id64] = p_item;
+	if (p_item != nullptr)
+		cache[id64] = p_item;
 
 	return p_item;
 }
