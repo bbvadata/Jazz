@@ -666,6 +666,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
 
 	if (p_block == nullptr) {
+		free_jazz_block(p_item, false, true);
+
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(1): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
@@ -753,6 +755,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockId64	id64,
 	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
 
 	if (p_block == nullptr) {
+		free_jazz_block(p_item, false, true);
+
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(2): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
@@ -802,6 +806,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 	pJazzBlock p_block = jazz_containers::new_jazz_block(p_as_block, p_row_filter, att);
 
 	if (p_block == nullptr) {
+		free_jazz_block(p_item, false, true);
+
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(3): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
@@ -886,6 +892,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_jazz_block (const JazzBlockIdentifier *p
 	pJazzBlock p_block = jazz_containers::new_jazz_block(cell_type, dim, att, fill_tensor, p_bool_filter, stringbuff_size, p_text, eoln);
 
 	if (p_block == nullptr) {
+		free_jazz_block(p_item, false, true);
+
 		log(LOG_ERROR, "JazzBlockKeepr::new_jazz_block(4): jazz_containers::new_jazz_block() returned a nullptr.");
 
 		return nullptr;
