@@ -954,8 +954,8 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 */
 void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_writing, bool never_used)
 {
-	while (p_item == nullptr) {
-		log(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Wrong call.");
+	if (!verify_p_item(p_item)) {
+		log_printf(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Wrong call: p_item %p does not belong here.", p_item);
 
 		return;
 	}
@@ -1439,8 +1439,8 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 */
 void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing, bool never_used)
 {
-	if (p_item == nullptr) {
-		log(LOG_ERROR, "AATBlockQueue::free_jazz_block: Wrong call.");
+	if (!verify_p_item((pJazzBlockKeeprItem) p_item)) {
+		log_printf(LOG_ERROR, "AATBlockQueue::free_jazz_block(): Wrong call: p_item %p does not belong here.", p_item);
 
 		return;
 	}
@@ -1756,8 +1756,8 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 */
 void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing, bool never_used)
 {
-	if (p_item == nullptr) {
-		log(LOG_ERROR, "JazzCache::free_jazz_block: Wrong call.");
+	if (!verify_p_item((pJazzBlockKeeprItem) p_item)) {
+		log_printf(LOG_ERROR, "JazzCache::free_jazz_block(): Wrong call: p_item %p does not belong here.", p_item);
 
 		return;
 	}
