@@ -1410,6 +1410,9 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 
 	free_jazz_block(p_item, true);
 
+	// if (p_item == p_first_free)	is ALWAYS true!
+	p_first_free = p_item->p_alloc_next;
+
 	leave_writing();
 
 	return p_item;
