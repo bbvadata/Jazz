@@ -427,10 +427,12 @@ class JazzBlockKeepr {
 			}
 		}
 
-		/** Aaa
+		/** Verifies (strictly) if p_item belong to this JazzBlockKeepr (or descendant)
 
-			\param aaa Aaa
-			\return	   Aaa
+			\param p_item The pJazzBlockKeeprItem (or descendant) that will be verified.
+			\return		  true only if p_item is pointing to a JazzBlockKeeprItem (or descendant) in the allocated array.
+
+			Note: All public methods that accept p_item as arguments should use this!
 		*/
 		inline bool verify_p_item(pJazzBlockKeeprItem p_item) {
 			if (p_item == nullptr || p_buffer_base == nullptr)
