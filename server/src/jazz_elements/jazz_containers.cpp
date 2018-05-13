@@ -948,10 +948,11 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 
 	\param p_item         The JazzBlockKeeprItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
+	\param never_used     The item was allocated but the block creation failed, ignore p_jazz_block.
 
 	Logs with level LOG_ERROR on errors.
 */
-void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_writing)
+void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_writing, bool never_used)
 {
 	while (p_item == nullptr) {
 		log(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Wrong call.");
@@ -959,7 +960,7 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_wri
 		return;
 	}
 
-	if (p_item->p_jazz_block == nullptr) {
+	if (!never_used && p_item->p_jazz_block == nullptr) {
 		log_printf(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Item %p has no block.", p_item);
 
 		return;
@@ -968,7 +969,8 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_wri
 	if (!inside_writing)
 		enter_writing();
 
-	jazz_containers::free_jazz_block(p_item->p_jazz_block);
+	if (!never_used)
+		jazz_containers::free_jazz_block(p_item->p_jazz_block);
 
 	if (p_item->p_alloc_prev == nullptr)
 		p_first_item = p_item->p_alloc_next;
