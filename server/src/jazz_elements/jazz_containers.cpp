@@ -960,11 +960,8 @@ void JazzBlockKeepr::free_jazz_block(pJazzBlockKeeprItem p_item, bool inside_wri
 		return;
 	}
 
-	if (!never_used && p_item->p_jazz_block == nullptr) {
+	if (!never_used && p_item->p_jazz_block == nullptr)
 		log_printf(LOG_ERROR, "JazzBlockKeepr::free_jazz_block(): Item %p has no block.", p_item);
-
-		return;
-	}
 
 	if (!inside_writing)
 		enter_writing();
