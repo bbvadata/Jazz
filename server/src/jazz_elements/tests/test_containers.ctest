@@ -5002,13 +5002,12 @@ SCENARIO("Unit Tests for JazzCache") {
 		}
 
 		WHEN("I insert 50K blocks in it") {
-			for (int i = 0; i < 25000; i++)
-				if (jca.new_jazz_block(i, CELL_TYPE_INTEGER, dim.dim) == nullptr)
-					REQUIRE(false);
-
 			JazzBlockIdentifier block_id;
 
 			for (int i = 0; i < 25000; i++) {
+				if (jca.new_jazz_block(i, CELL_TYPE_INTEGER, dim.dim) == nullptr)
+					REQUIRE(false);
+
 				sprintf(block_id.key, "._block_%x_", i);
 				if (jca.new_jazz_block(&block_id, CELL_TYPE_DOUBLE, dim.dim) == nullptr)
 					REQUIRE(false);
@@ -5122,6 +5121,6 @@ SCENARIO("Unit Tests for JazzCache") {
 			REQUIRE(recursive_audit_aa_tree(jca.p_queue_root) == 0);
 		}
 	}
-//TODO: Implement a test with all the log miss and log_errors
+//TODO: Implement a test with all the log miss and log_errors including the parents
 
 }
