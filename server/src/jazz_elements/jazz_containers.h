@@ -554,8 +554,6 @@ class AATBlockQueue: public JazzBlockKeepr {
 		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzQueueItem); }
 
-		virtual void set_item_priority(pJazzQueueItem p_item);
-
 		/** Return the JazzQueueItem with the highest priority value in the AATBlockQueue
 
 			\return A pointer to JazzQueueItem holding the block or nullptr if there are no items in the AATBlockQueue.
@@ -593,6 +591,8 @@ class AATBlockQueue: public JazzBlockKeepr {
 #ifndef CATCH_TEST
 	private:
 #endif
+
+		virtual void set_item_priority(pJazzQueueItem p_item);
 
 		pJazzQueueItem new_keepr_item();
 
