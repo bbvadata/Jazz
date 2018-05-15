@@ -21,4 +21,4 @@
   limitations under the License.
 */
 
-#include "src/jazz_elements/jazz_primitives.h"
+#include "src/jazz_elements/jazz_stdcore.h"

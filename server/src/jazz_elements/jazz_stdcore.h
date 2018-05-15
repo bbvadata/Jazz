@@ -22,10 +22,10 @@
 */
 
 
-/**< \brief Arithmetic, logic and type conversion primitives applicable to JazzDataBlock structures.
+/**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
 
 	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
-structures or throw exceptions. These functions are called "primitives" for a reason, they are the simplest blocks
+structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
 approximately matching Bebop bytecode instructions.
 */
 
@@ -40,10 +40,10 @@ approximately matching Bebop bytecode instructions.
 #endif
 
 
-#ifndef INCLUDED_JAZZ_ELEMENTS_PRIMITIVES
-#define INCLUDED_JAZZ_ELEMENTS_PRIMITIVES
+#ifndef INCLUDED_JAZZ_ELEMENTS_STDCORE
+#define INCLUDED_JAZZ_ELEMENTS_STDCORE
 
-namespace jazz_primitives
+namespace jazz_stdcore
 {
 
 }
