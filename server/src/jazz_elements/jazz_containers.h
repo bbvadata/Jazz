@@ -102,13 +102,13 @@ using namespace jazz_datablocks;
 #define BLOCK_ATTR_CONTAINERS_FILTER	BLOCK_ATTR_BASEOF_CONTAINERS + 2	///< A new filter: creates a <this:empty string>
 
 #define BLOCK_ATTR_BASEOF_PERSISTENCE	BLOCK_ATTR_BASEOF_CONTAINERS  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_persistence.h
-#define BLOCK_ATTR_BASEOF_CLASSES		BLOCK_ATTR_BASEOF_PERSISTENCE + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_classes.h
-#define BLOCK_ATTR_BASEOF_PRIMITIVES	BLOCK_ATTR_BASEOF_CLASSES	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_primitives.h
-#define BLOCK_ATTR_BASEOF_PROCESSCALL	BLOCK_ATTR_BASEOF_PRIMITIVES  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_processcall.h
-#define BLOCK_ATTR_BASEOF_CLUSTER		BLOCK_ATTR_BASEOF_PROCESSCALL + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_cluster.h
-#define BLOCK_ATTR_BASEOF_COLUMN		BLOCK_ATTR_BASEOF_CLUSTER	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_column.h
-#define BLOCK_ATTR_BASEOF_ARCHIVE		BLOCK_ATTR_BASEOF_COLUMN	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_archive.h
-#define BLOCK_ATTR_BASEOF_DATAFRAME		BLOCK_ATTR_BASEOF_ARCHIVE	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_dataframe.h
+#define BLOCK_ATTR_BASEOF_HTTPCLIENT	BLOCK_ATTR_BASEOF_PERSISTENCE + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_httpclient.h
+#define BLOCK_ATTR_BASEOF_CLASSES		BLOCK_ATTR_BASEOF_HTTPCLIENT  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_classes.h
+#define BLOCK_ATTR_BASEOF_STDCORE		BLOCK_ATTR_BASEOF_CLASSES	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_stdcore.h
+#define BLOCK_ATTR_BASEOF_CLUSTER		BLOCK_ATTR_BASEOF_STDCORE	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_cluster.h
+#define BLOCK_ATTR_BASEOF_FILESYSTEM	BLOCK_ATTR_BASEOF_CLUSTER	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_filesystem.h
+#define BLOCK_ATTR_BASEOF_COLUMN		BLOCK_ATTR_BASEOF_FILESYSTEM  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_column.h
+#define BLOCK_ATTR_BASEOF_DATAFRAME		BLOCK_ATTR_BASEOF_COLUMN	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_dataframe.h
 #define BLOCK_ATTR_BASEOF_BEBOP			BLOCK_ATTR_BASEOF_DATAFRAME	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_bebop.h
 #define BLOCK_ATTR_BASEOF_RESTAPI		BLOCK_ATTR_BASEOF_BEBOP		  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_restapi.h
 #define BLOCK_ATTR_BASEOF_EXTENSIONS	BLOCK_ATTR_BASEOF_RESTAPI	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys from C++ extensions
