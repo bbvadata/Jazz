@@ -42,10 +42,11 @@ need jazz_api.h
 #define INCLUDED_JAZZ_INCLUDE_JAZZ
 
 #include "src/jazz_elements/jazz_datablocks.h"
-#include "src/jazz_elements/jazz_containers.h"
 #include "src/jazz_elements/jazz_utils.h"
-#include "src/jazz_elements/jazz_primitives.h"
+#include "src/jazz_elements/jazz_containers.h"
 #include "src/jazz_elements/jazz_persistence.h"
+#include "src/jazz_elements/jazz_httpclient.h"
 #include "src/jazz_elements/jazz_classes.h"
+#include "src/jazz_elements/jazz_stdcore.h"
 
 #endif
