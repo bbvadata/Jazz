@@ -1,6 +1,6 @@
 ## Jazz
 
-Jazz is a lightweight modular data processing framework, including a web server. It provides data persistence and computation capabilities accessible from R and Python and also through a REST API. 
+Jazz is a lightweight data processing framework, including a web server. It provides data persistence and computation capabilities accessible from R and Python and also through a REST API. 
 
 
 ## Jazz modules diagram
