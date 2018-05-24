@@ -135,6 +135,10 @@ class JazzPersistence: public JazzBlockKeepr {
 		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzPersistenceItem); }
 
+		/// A cache definition interface
+		bool alloc_cache(int num_items, int cache_mode);
+
+
 };
 
 
