@@ -29,6 +29,7 @@ structures or throw exceptions. These functions are called "stdcore" for a reaso
 approximately matching Bebop bytecode instructions.
 */
 
+#include "curl/curl.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
