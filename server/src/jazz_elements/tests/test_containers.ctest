@@ -214,7 +214,7 @@ SCENARIO("Testing JazzBlock containers") {
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
 	REQUIRE(sizeof(JazzQueueItem)		== 96);
 
-	GIVEN("We want to test valid_block_identifier()") {
+	WHEN("We want to test valid_block_identifier()") {
 		REQUIRE( JBK.valid_block_identifier("$abc"));
 		REQUIRE( JBK.valid_block_identifier(".abc"));
 		REQUIRE( JBK.valid_block_identifier("@abc"));
