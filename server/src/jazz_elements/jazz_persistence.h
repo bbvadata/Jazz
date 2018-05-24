@@ -166,8 +166,90 @@ class JazzSource: public JazzPersistence {
 
 	public:
 
-		 JazzSource();
+		 JazzSource(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzSource();
+
+		// Methods for buffer allocation
+
+		virtual void destroy_keeprs();
+
+		// Methods for JazzBlock allocation
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 pJazzBlock			 p_as_block,
+											 pJazzFilter		 p_row_filter  = nullptr,
+											 AllAttributes		*att		   = nullptr,
+											 uint64_t			 time_to_build = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 int				 cell_type,
+											 int				*dim,
+											 AllAttributes		*att			 = nullptr,
+											 int				 fill_tensor	 = JAZZ_FILL_NEW_WITH_NA,
+											 bool				*p_bool_filter	 = nullptr,
+											 int				 stringbuff_size = 0,
+											 const char			*p_text			 = nullptr,
+											 char				 eoln			 = '\n',
+											 uint64_t			 time_to_build	 = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 pJazzBlock					p_as_block,
+											 pJazzFilter				p_row_filter  = nullptr,
+											 AllAttributes			   *att			  = nullptr,
+											 uint64_t					time_to_build = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 int						cell_type,
+											 int					   *dim,
+											 AllAttributes			   *att				= nullptr,
+											 int						fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
+											 bool					   *p_bool_filter	= nullptr,
+											 int						stringbuff_size = 0,
+											 const char				   *p_text		  	= nullptr,
+											 char						eoln			= '\n',
+											 uint64_t					time_to_build	= 0);
+
+		// Methods for finding JazzBlock by ID (individually)
+
+		pJazzPersistenceItem find_jazz_block (const JazzBlockIdentifier *p_id);
+		pJazzPersistenceItem find_jazz_block (JazzBlockId64 			 id64);
+
+		// Methods for removing JazzBlock (individually)
+
+		virtual void free_jazz_block (pJazzPersistenceItem 		 p_item);
+		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
+		bool		 free_jazz_block (JazzBlockId64				 id64);
+
+		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
+		virtual int item_size() { return sizeof(JazzPersistenceItem); }
+
+		/// A cache interface
+		bool alloc_cache (int num_items, int cache_mode);
+
+		/// A pipeline interface
+		bool copy_to_keepr (JazzBlockKeepr keepr,
+							JazzBlockList  p_id,
+							int			   num_blocks);
+
+		bool copy_from_keepr (JazzBlockKeepr keepr,
+							  JazzBlockList  p_id,
+							  int			 num_blocks);
+
+		/// A filesystem interface
+		int open_jazz_file  (const char *file_name);
+		int flush_jazz_file ();
+		int file_errors     ();
+		int close_jazz_file ();
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
 };
 
 }
