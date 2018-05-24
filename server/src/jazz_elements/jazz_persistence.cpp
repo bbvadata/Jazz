@@ -232,3 +232,8 @@ int JazzSource::close_jazz_file()
 
 
 } // namespace jazz_persistence
+
+
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_persistence.ctest"
+#endif
