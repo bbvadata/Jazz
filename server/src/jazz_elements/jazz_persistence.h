@@ -139,10 +139,10 @@ class JazzPersistence: public JazzBlockKeepr {
 		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
 		virtual int item_size() { return sizeof(JazzPersistenceItem); }
 
-		/// A cache definition interface
-		bool alloc_cache(int num_items, int cache_mode);
+		/// A cache interface
+		bool alloc_cache (int num_items, int cache_mode);
 
-		/// A pipeline definition interface
+		/// A pipeline interface
 		bool copy_to_keepr (JazzBlockKeepr keepr,
 							JazzBlockList  p_id,
 							int			   num_blocks);
@@ -150,6 +150,12 @@ class JazzPersistence: public JazzBlockKeepr {
 		bool copy_from_keepr (JazzBlockKeepr keepr,
 							  JazzBlockList  p_id,
 							  int			 num_blocks);
+
+		/// A filesystem interface
+		int open_jazz_file  (const char *file_name);
+		int flush_jazz_file ();
+		int file_errors     ();
+		int close_jazz_file ();
 };
 
 
