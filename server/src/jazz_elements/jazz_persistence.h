@@ -59,6 +59,15 @@ using namespace jazz_datablocks;
 using namespace jazz_containers;
 
 
+typedef struct JazzPersistenceItem *pJazzPersistenceItem;		///< A pointer to a JazzPersistenceItem
+
+/** The root class for different JazzTree descendants
+*/
+struct JazzPersistenceItem: JazzBlockKeeprItem {
+};
+
+
+
 /**
 This is the root class for storing persisted JazzBlocks. JazzBlocks are created with jazz_persistence::JazzPersistence::new_jazz_block()
 or (JazzPersistence descendant::)new_jazz_block() and not required to be removed, but can be removed using
