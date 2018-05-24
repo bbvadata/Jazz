@@ -62,7 +62,7 @@ void JazzSource::destroy_keeprs()
 */
 pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockId64 id64,
 												pJazzBlock			p_as_block,
-												pJazzFilter		    p_row_filter,
+												pJazzFilter			p_row_filter,
 												AllAttributes	   *att,
 												uint64_t			time_to_build)
 {
@@ -74,10 +74,10 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockId64 id64,
 //TODO: Document new_jazz_block (2)
 */
 pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockId64 id64,
-												int				 	cell_type,
+												int					cell_type,
 												int				   *dim,
 												AllAttributes	   *att,
-												int				 	fill_tensor,
+												int					fill_tensor,
 												bool			   *p_bool_filter,
 												int					stringbuff_size,
 												const char		   *p_text,
@@ -106,7 +106,7 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockIdentifier *p_id,
 */
 pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockIdentifier *p_id,
 												int						   cell_type,
-												int					   	  *dim,
+												int						  *dim,
 												AllAttributes			  *att,
 												int						   fill_tensor,
 												bool					  *p_bool_filter,
@@ -188,7 +188,7 @@ bool JazzSource::copy_to_keepr(JazzBlockKeepr keepr,
 //TODO: Document copy_from_keepr
 */
 bool JazzSource::copy_from_keepr(JazzBlockKeepr keepr,
-								 JazzBlockList  p_id,
+								 JazzBlockList	p_id,
 								 int			num_blocks)
 {
 //TODO: Implement copy_from_keepr

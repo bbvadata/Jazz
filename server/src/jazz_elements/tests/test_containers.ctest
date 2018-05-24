@@ -269,39 +269,39 @@ SCENARIO("Testing JazzBlock containers") {
 		std::basic_regex<char>	spacing_rex {JAZZ_REGEX_VALID_SPACING};
 		std::basic_regex<char>	valid_rex {JAZZ_REGEX_VALID_CHARS};
 
-		std::string tt  = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789+*.$()?-_%@&:=/!";
+		std::string tt	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789+*.$()?-_%@&:=/!";
 
 		REQUIRE( std::regex_match(tt, valid_rex));
 
-		std::string raw  = "The + quick - brown * fox / jumps & over\n .the:lazy:(.dog, @cat, $mouse, ?(id; 2.0 :rep: 20))=.y!if_exists%20";
+		std::string raw	 = "The + quick - brown * fox / jumps & over\n .the:lazy:(.dog, @cat, $mouse, ?(id; 2.0 :rep: 20))=.y!if_exists%20";
 		std::string neat = std::regex_replace(raw, spacing_rex, "");
 
 		REQUIRE( std::regex_match(neat, valid_rex));
-		REQUIRE(!std::regex_match(raw,  valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
 
-		raw  = "12*(3 + 456) - 7890.3/4";
+		raw	 = "12*(3 + 456) - 7890.3/4";
 		neat = std::regex_replace(raw, spacing_rex, "");
 
 		REQUIRE( std::regex_match(neat, valid_rex));
-		REQUIRE(!std::regex_match(raw,  valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
 
-		raw  = "Abc <";
+		raw	 = "Abc <";
 		neat = std::regex_replace(raw, spacing_rex, "");
 
 		REQUIRE(!std::regex_match(neat, valid_rex));
-		REQUIRE(!std::regex_match(raw,  valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
 
-		raw  = "Abc {";
+		raw	 = "Abc {";
 		neat = std::regex_replace(raw, spacing_rex, "");
 
 		REQUIRE(!std::regex_match(neat, valid_rex));
-		REQUIRE(!std::regex_match(raw,  valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
 
-		raw  = "Abc ]";
+		raw	 = "Abc ]";
 		neat = std::regex_replace(raw, spacing_rex, "");
 
 		REQUIRE(!std::regex_match(neat, valid_rex));
-		REQUIRE(!std::regex_match(raw,  valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
 	}
 }
 
@@ -5165,9 +5165,9 @@ SCENARIO("Force all error conditions") {
 	jazz_utils::JazzLogger jll(log_file);
 
 	JazzBlockKeepr jbk(&jll);
-	JazzTree 	   jbt(&jll);
+	JazzTree	   jbt(&jll);
 	AATBlockQueue  aaq(&jll);
-	JazzCache 	   jca(&jll);
+	JazzCache	   jca(&jll);
 
 	jbk.log(LOG_INFO, "Hello JazzBlockKeepr!");
 	jbt.log(LOG_INFO, "Hello JazzTree!");
@@ -5175,9 +5175,9 @@ SCENARIO("Force all error conditions") {
 	jca.log(LOG_INFO, "Hello JazzCache!");
 #else
 	JazzBlockKeepr jbk(nullptr);
-	JazzTree 	   jbt(nullptr);
+	JazzTree	   jbt(nullptr);
 	AATBlockQueue  aaq(nullptr);
-	JazzCache 	   jca(nullptr);
+	JazzCache	   jca(nullptr);
 #endif
 
 	JazzTensorDim dim {{5, 2, 0}};

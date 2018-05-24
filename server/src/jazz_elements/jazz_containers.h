@@ -82,7 +82,7 @@ using namespace jazz_datablocks;
 */
 #define JAZZ_REGEX_VALID_CHARS		   "^[a-zA-Z0-9\\+\\*\\.\\$\\(\\)\\?\\-_,;%@&:=/!]*$"
 #define JAZZ_REGEX_VALID_SPACING										   "[\\n\\r \\t]"	///< Regex validating any spacing (is removed)
-#define JAZZ_REGEX_VALIDATE_BLOCK_ID  					"^(\\.|@|\\$)[a-zA-Z0-9_]{1,30}$"	///< Regex validating a JazzBlockIdentifier
+#define JAZZ_REGEX_VALIDATE_BLOCK_ID					"^(\\.|@|\\$)[a-zA-Z0-9_]{1,30}$"	///< Regex validating a JazzBlockIdentifier
 
 #define JAZZ_MAX_BLOCK_ID_LENGTH								 32		///< Maximum length for a block name
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL								'.'		///< First char of a LOCAL JazzBlockIdentifier
@@ -1015,8 +1015,8 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
 
-		virtual void free_jazz_block (pJazzQueueItem 			 p_item, bool inside_writing = false, bool never_used = false);
-		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
+		virtual void free_jazz_block (pJazzQueueItem			 p_item, bool inside_writing = false, bool never_used = false);
+		bool		 free_jazz_block (const JazzBlockIdentifier *p_id);
 		bool		 free_jazz_block (JazzBlockId64				 id64);
 
 	private:
