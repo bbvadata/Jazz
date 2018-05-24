@@ -32,8 +32,7 @@
 
 /**< \brief Jazz class JazzPersistedSource
 
-	This module defines the class JazzPersistedSource to store the data in memory mapped node-local files called "sources".
-The persistence is a thread safe key-value store based on LMDB.
+//TODO: Write the module description
 */
 
 
