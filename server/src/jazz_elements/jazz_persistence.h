@@ -54,8 +54,11 @@
 namespace jazz_persistence
 {
 
-#define JAZZ_PERSISTENCE_CACHE_READ_ONLY		0	///< Do not cache write operations.
-#define JAZZ_PERSISTENCE_CACHE_READ_WRITE		1	///< Cache write operations.
+#define JAZZ_PERSISTENCE_CACHE_READ_ONLY		1	///< Do not cache write operations.
+#define JAZZ_PERSISTENCE_CACHE_READ_WRITE		3	///< Cache write operations.
+
+#define JAZZ_SOURCE_MODE_READ_ONLY				1	///< Open a JazzPersistence as read only.
+#define JAZZ_SOURCE_MODE_READ_WRITE				3	///< Open a JazzPersistence with read/write access.
 
 
 using namespace jazz_datablocks;
@@ -63,6 +66,7 @@ using namespace jazz_containers;
 
 
 typedef struct JazzPersistenceItem *pJazzPersistenceItem;		///< A pointer to a JazzPersistenceItem
+typedef JazzBlockIdentifier			JazzBlockList[];			///< A pointer to an array of JazzBlockIdentifier
 
 /** The item class for JazzPersistence descendants
 */
