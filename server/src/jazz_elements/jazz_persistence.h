@@ -252,6 +252,6 @@ class JazzSource: public JazzPersistence {
 
 };
 
-}
+} // namespace jazz_persistence
 
 #endif
