@@ -214,35 +214,41 @@ SCENARIO("Testing JazzBlock containers") {
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
 	REQUIRE(sizeof(JazzQueueItem)		== 96);
 
-	GIVEN("We want to test the regex") {
-		REQUIRE( JBK.valid_block_identifier("/abc"));
+	GIVEN("We want to test valid_block_identifier()") {
+		REQUIRE( JBK.valid_block_identifier("$abc"));
 		REQUIRE( JBK.valid_block_identifier(".abc"));
-		REQUIRE(!JBK.valid_block_identifier("@abc"));
+		REQUIRE( JBK.valid_block_identifier("@abc"));
 		REQUIRE(!JBK.valid_block_identifier("abc"));
+		REQUIRE(!JBK.valid_block_identifier("#abc"));
+		REQUIRE(!JBK.valid_block_identifier("/abc"));
+		REQUIRE(!JBK.valid_block_identifier("~abc"));
 
-		REQUIRE(!JBK.valid_block_identifier("/"));
-		REQUIRE( JBK.valid_block_identifier("/a"));
+		REQUIRE(!JBK.valid_block_identifier("$"));
+		REQUIRE( JBK.valid_block_identifier("$a"));
 		REQUIRE(!JBK.valid_block_identifier("."));
 		REQUIRE( JBK.valid_block_identifier(".a"));
+		REQUIRE(!JBK.valid_block_identifier("@"));
+		REQUIRE( JBK.valid_block_identifier("@a"));
 
-		REQUIRE( JBK.valid_block_identifier("/abcdefghijklmnopqrstuvwxyz"));
-		REQUIRE( JBK.valid_block_identifier("/ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-		REQUIRE( JBK.valid_block_identifier("/1234567890_"));
-		REQUIRE(!JBK.valid_block_identifier("/Á"));
-		REQUIRE(!JBK.valid_block_identifier("/ñ"));
-		REQUIRE(!JBK.valid_block_identifier("/$"));
-		REQUIRE(!JBK.valid_block_identifier("/ç"));
-		REQUIRE(!JBK.valid_block_identifier("/á"));
-		REQUIRE(!JBK.valid_block_identifier("/à"));
-		REQUIRE(!JBK.valid_block_identifier("/ä"));
-		REQUIRE(!JBK.valid_block_identifier("/ä"));
+		REQUIRE( JBK.valid_block_identifier("@abcdefghijklmnopqrstuvwxyz"));
+		REQUIRE( JBK.valid_block_identifier("@ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+		REQUIRE( JBK.valid_block_identifier("@1234567890_"));
+		REQUIRE(!JBK.valid_block_identifier("@Á"));
+		REQUIRE(!JBK.valid_block_identifier("@ñ"));
+		REQUIRE(!JBK.valid_block_identifier("@$"));
+		REQUIRE(!JBK.valid_block_identifier("@ç"));
+		REQUIRE(!JBK.valid_block_identifier("@á"));
+		REQUIRE(!JBK.valid_block_identifier("@à"));
+		REQUIRE(!JBK.valid_block_identifier("@ä"));
+		REQUIRE(!JBK.valid_block_identifier("@ä"));
 
 		REQUIRE(!JBK.valid_block_identifier("."));
 		REQUIRE( JBK.valid_block_identifier(".AaBc55_cKrrfe96_"));
 		REQUIRE( JBK.valid_block_identifier("._"));
 		REQUIRE( JBK.valid_block_identifier("._wow_"));
+		REQUIRE(!JBK.valid_block_identifier("._wow<"));
 		REQUIRE(!JBK.valid_block_identifier(".AaBc55.cKrrfe96_"));
-		REQUIRE(!JBK.valid_block_identifier(".AaBc55/cKrrfe96_"));
+		REQUIRE(!JBK.valid_block_identifier(".AaBc55@cKrrfe96_"));
 
 		REQUIRE(!JBK.valid_block_identifier(".hello world"));
 		REQUIRE( JBK.valid_block_identifier(".hello_world"));
@@ -254,9 +260,10 @@ SCENARIO("Testing JazzBlock containers") {
 		REQUIRE( JBK.valid_block_identifier(".hello_world_"));
 		REQUIRE(!JBK.valid_block_identifier("a.hello_world_"));
 
-		REQUIRE( JBK.valid_block_identifier("/123456789012345678901234567890"));
-		REQUIRE(!JBK.valid_block_identifier("/1234567890123456789012345678901"));
+		REQUIRE( JBK.valid_block_identifier("$123456789012345678901234567890"));
+		REQUIRE(!JBK.valid_block_identifier("$1234567890123456789012345678901"));
 	}
+
 }
 
 
