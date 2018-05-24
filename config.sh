@@ -159,11 +159,12 @@ printf "Writing: server/Makefile ... "
 
 echo "`cat _config_/makefile_head`
 
-CXXFLAGS    := -std=c++11 -I. -I$mhd_inclpath
-LINUX       := ${jazz_distro1}_${jazz_distro2}
-HOME        := $jazz_pwd
-VERSION     := $jazz_version
-mhd_libpath := $mhd_libpath
+CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath
+LINUX        := ${jazz_distro1}_${jazz_distro2}
+HOME         := $jazz_pwd
+VERSION      := $jazz_version
+mhd_libpath  := $mhd_libpath
+curl_libpath := $curl_libpath
 
 VPATH = $vpath
 
