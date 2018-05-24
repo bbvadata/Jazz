@@ -82,12 +82,9 @@ class JazzPersistence: public JazzBlockKeepr {
 
 	public:
 
-		 JazzPersistence(jazz_utils::pJazzLogger a_logger = nullptr);
-		~JazzPersistence();
-
 		// Methods for buffer allocation
 
-		virtual void destroy_keeprs();
+		virtual void destroy_keeprs() = 0;
 
 		// Methods for JazzBlock allocation
 
@@ -132,12 +129,12 @@ class JazzPersistence: public JazzBlockKeepr {
 
 		// Methods for removing JazzBlock (individually)
 
-		virtual void free_jazz_block (pJazzPersistenceItem 		 p_item);
+		virtual void free_jazz_block (pJazzPersistenceItem 		 p_item) = 0;
 		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
 		bool		 free_jazz_block (JazzBlockId64				 id64);
 
 		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
-		virtual int item_size() { return sizeof(JazzPersistenceItem); }
+		virtual int item_size() = 0;
 
 		/// A cache interface
 		bool alloc_cache (int num_items, int cache_mode);
