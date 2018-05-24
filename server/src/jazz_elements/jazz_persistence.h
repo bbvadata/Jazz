@@ -142,7 +142,14 @@ class JazzPersistence: public JazzBlockKeepr {
 		/// A cache definition interface
 		bool alloc_cache(int num_items, int cache_mode);
 
+		/// A pipeline definition interface
+		bool copy_to_keepr (JazzBlockKeepr keepr,
+							JazzBlockList  p_id,
+							int			   num_blocks);
 
+		bool copy_from_keepr (JazzBlockKeepr keepr,
+							  JazzBlockList  p_id,
+							  int			 num_blocks);
 };
 
 
