@@ -54,7 +54,7 @@ if [ ! -e "$mhd_libpath/libmicrohttpd.so" ]; then
   exit 1
 fi
 
-if [ -e '_config_/curl_include_path' ]; then curl_inclpath=`cat _config_/curl_include_path`; else curl_inclpath='/usr/include/x86_64-linux-gnu/'; fi
+if [ -e '_config_/curl_include_path' ]; then curl_inclpath=`cat _config_/curl_include_path`; else curl_inclpath='/usr/include/x86_64-linux-gnu'; fi
 
 if [ ! -e "$curl_inclpath/curl/curl.h" ]; then
   echo "** File $curl_inclpath/curl/curl.h was not found. **"
