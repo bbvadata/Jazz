@@ -54,13 +54,17 @@
 namespace jazz_persistence
 {
 
+#define JAZZ_PERSISTENCE_CACHE_READ_ONLY		0	///< Do not cache write operations.
+#define JAZZ_PERSISTENCE_CACHE_READ_WRITE		1	///< Cache write operations.
+
+
 using namespace jazz_datablocks;
 using namespace jazz_containers;
 
 
 typedef struct JazzPersistenceItem *pJazzPersistenceItem;		///< A pointer to a JazzPersistenceItem
 
-/** The root class for different JazzTree descendants
+/** The item class for JazzPersistence descendants
 */
 struct JazzPersistenceItem: JazzBlockKeeprItem {
 };
@@ -68,17 +72,7 @@ struct JazzPersistenceItem: JazzBlockKeeprItem {
 
 
 /**
-This is the root class for storing persisted JazzBlocks. JazzBlocks are created with jazz_persistence::JazzPersistence::new_jazz_block()
-or (JazzPersistence descendant::)new_jazz_block() and not required to be removed, but can be removed using
-(JazzPersistence descendant::)remove_jazz_block(). Unlike volatile JazzBlocks, persisted JazzBlocks are not controlled by a JazzBlockKeeprItem.
-Difference between JazzPersistence and JazzSource is the former implements a strict JazzBlockKeepr interface that can be used from c++ to do
-things like select information from blocks without assigning or copying them, the latter has a much simpler interface that is exported to
-Python and R and provides what a script language programmer would expect at the price of not always benefiting from the memory-mapped
-file allocation in lmdb that underlies JazzPersistence.
-
-THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
-them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
+//TODO: Write the JazzPersistence description
 */
 class JazzPersistence: public JazzBlockKeepr {
 
