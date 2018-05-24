@@ -87,45 +87,48 @@ class JazzPersistence: public JazzBlockKeepr {
 
 		// Methods for JazzBlock allocation
 
-		pJazzPersistenceItem new_jazz_block (const JazzBlockId64	id64,
-									   pJazzBlock			p_as_block,
-									   pJazzFilter			p_row_filter  = nullptr,
-									   AllAttributes	   *att			  = nullptr,
-									   uint64_t				time_to_build = 0);
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 pJazzBlock			 p_as_block,
+											 pJazzFilter		 p_row_filter  = nullptr,
+											 AllAttributes		*att		   = nullptr,
+											 uint64_t			 time_to_build = 0);
 
-		pJazzPersistenceItem new_jazz_block (const JazzBlockId64	id64,
-									   int					cell_type,
-									   int				   *dim,
-									   AllAttributes	   *att				= nullptr,
-									   int					fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
-									   bool				   *p_bool_filter	= nullptr,
-									   int					stringbuff_size	= 0,
-									   const char		   *p_text			= nullptr,
-									   char					eoln			= '\n',
-									   uint64_t				time_to_build	= 0);
-
-		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
-									   pJazzBlock				  p_as_block,
-									   pJazzFilter				  p_row_filter	= nullptr,
-									   AllAttributes			 *att			= nullptr,
-									   uint64_t					  time_to_build = 0);
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 int				 cell_type,
+											 int				*dim,
+											 AllAttributes		*att			 = nullptr,
+											 int				 fill_tensor	 = JAZZ_FILL_NEW_WITH_NA,
+											 bool				*p_bool_filter	 = nullptr,
+											 int				 stringbuff_size = 0,
+											 const char			*p_text			 = nullptr,
+											 char				 eoln			 = '\n',
+											 uint64_t			 time_to_build	 = 0);
 
 		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
-									   int						  cell_type,
-									   int						 *dim,
-									   AllAttributes			 *att			  = nullptr,
-									   int						  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
-									   bool						 *p_bool_filter	  = nullptr,
-									   int						  stringbuff_size = 0,
-									   const char				 *p_text		  = nullptr,
-									   char						  eoln			  = '\n',
-									   uint64_t					  time_to_build	  = 0);
+											 pJazzBlock					p_as_block,
+											 pJazzFilter				p_row_filter  = nullptr,
+											 AllAttributes			   *att			  = nullptr,
+											 uint64_t					time_to_build = 0);
 
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 int						cell_type,
+											 int					   *dim,
+											 AllAttributes			   *att				= nullptr,
+											 int						fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
+											 bool					   *p_bool_filter	= nullptr,
+											 int						stringbuff_size = 0,
+											 const char				   *p_text		  	= nullptr,
+											 char						eoln			= '\n',
+											 uint64_t					time_to_build	= 0);
+
+		// Methods for finding JazzBlock by ID (individually)
 
 		pJazzPersistenceItem find_jazz_block (const JazzBlockIdentifier *p_id);
-		pJazzPersistenceItem find_jazz_block (JazzBlockId64 id64);
+		pJazzPersistenceItem find_jazz_block (JazzBlockId64 			 id64);
 
-		virtual void free_jazz_block (pJazzPersistenceItem 			 p_item);
+		// Methods for removing JazzBlock (individually)
+
+		virtual void free_jazz_block (pJazzPersistenceItem 		 p_item);
 		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
 		bool		 free_jazz_block (JazzBlockId64				 id64);
 
