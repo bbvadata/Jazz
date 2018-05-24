@@ -15,7 +15,7 @@
 #   limitations under the License.
 
 
-mode='DEBUG'	# Set mode='DEBUG' for echoing all variables before confirmation.
+mode='RUN'	# Set mode='DEBUG' for echoing all variables before confirmation.
 
 
 # Section 1. Gathering all necessary information. 1. Fail if necessary. 2. Do nothing without confirmation
