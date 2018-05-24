@@ -67,8 +67,21 @@ namespace jazz_containers
 
 using namespace jazz_datablocks;
 
+/**
+	+ - * / &		- One char operators
+	:sum:			- Composed operators
+	. @ $			- First char in a block name
+	()				- Evaluate (block must be a function)
+	(arg_1,arg_2)	- Evaluate with arguments
+	?(id;expr)		- A block constructor
+	=				- Assignment lvalue=rvalue
+	!				- Modifier
+	!if_exists		- Assign only if exists			.x!if_exists=.y
+	!if_not_exists	- Assign only if not exists		.x!if_not_exists=.y
+	%20				- urlencode (space or any other char 2 digit hex)
+*/
+#define JAZZ_REGEX_VALID_CHARS		   "^[a-zA-Z0-9\\+\\*\\.\\$\\(\\)\\?\\-_,;%@&:=/!]*$"
 #define JAZZ_REGEX_VALID_SPACING										   "[\\n\\r \\t]"	///< Regex validating any spacing (is removed)
-#define JAZZ_REGEX_VALID_CHARS		   "^[a-zA-Z0-9\\+\\*\\.\\$\\(\\)\\?\\-_,;%@&:=/!]*$"	///< Regex validating all valid characters
 #define JAZZ_REGEX_VALIDATE_BLOCK_ID  					"^(\\.|@|\\$)[a-zA-Z0-9_]{1,30}$"	///< Regex validating a JazzBlockIdentifier
 
 #define JAZZ_MAX_BLOCK_ID_LENGTH								 32		///< Maximum length for a block name
