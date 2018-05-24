@@ -54,6 +54,25 @@ if [ ! -e "$mhd_libpath/libmicrohttpd.so" ]; then
   exit 1
 fi
 
+if [ -e '_config_/curl_include_path' ]; then curl_inclpath=`cat _config_/curl_include_path`; else curl_inclpath='/usr/include/x86_64-linux-gnu/'; fi
+
+if [ ! -e "$curl_inclpath/curl/curl.h" ]; then
+  echo "** File $curl_inclpath/curl/curl.h was not found. **"
+  cat _config_/help_curl_not_found.txt
+  exit
+fi
+
+if [ -e '_config_/curl_library_path' ]; then curl_libpath=`cat _config_/curl_library_path`
+else
+  if [ -e '/usr/lib/x86_64-linux-gnu/libcurl.so' ]; then curl_libpath='/usr/lib/x86_64-linux-gnu'; else curl_libpath='/usr/lib'; fi
+fi
+
+if [ ! -e "$curl_libpath/libcurl.so" ]; then
+  echo "** File $curl_libpath/libcurl.so was not found. **"
+  cat _config_/help_curl_not_found.txt
+  exit 1
+fi
+
 cd server
 
 testp=`echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' '`
