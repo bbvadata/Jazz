@@ -132,19 +132,14 @@ class JazzPersistence: public JazzBlockKeepr {
 		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
 		bool		 free_jazz_block (JazzBlockId64				 id64);
 
-		/// A virtual method returning the size of JazzQueueItem that JazzBlockKeepr needs for allocation
-		virtual int item_size() { return sizeof(JazzQueueItem); }
+		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
+		virtual int item_size() { return sizeof(JazzPersistenceItem); }
 
 };
 
 
 /**
-A much simpler interface to create/read/update/delete JazzBlocks in source using and underlying JazzPersistence that can be exported
-to R, Python and the REST API directly.
-
-THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
-them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
+//TODO: Write the JazzSource description
 */
 class JazzSource: public JazzPersistence {
 
