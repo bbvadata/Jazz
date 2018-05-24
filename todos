@@ -1,18 +1,5 @@
 TODOS:
 
-Volatile - Temporary blocks that are always local. There is no way to reference them across nodes.
-Local - Blocks that could be persisted locally. They will if owned by a source (or any JazzPersistence).
-Distributed - Blocks distributed and persisted (sharded and replicated) across a Jazz cluster.
-Ubiquitous - Blocks that are everywhere in a cluster (like methods and variables of distributed tables).
-
-
-JazzPersistence -
-		abstract class
-		file saving
-		read/write to/from other keeprs any number of blocks in one call.
-
-JazzSource - Is the implementation of JazzPersistence using LMDB.
-
 explicit identifiers
 Unix time is an example of explicit identifier
 implicit identifier
