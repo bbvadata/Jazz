@@ -104,18 +104,20 @@ cd $jazz_pwd
 
 # End of section 1: Dump all variables if debugging
 if [[ $mode =~ 'DEBUG' ]]; then
-  echo "jazz_pwd     = $jazz_pwd"
-  echo "jazz_version = $jazz_version"
-  echo "jz_processor = $jz_processor"
-  echo "jazz_distro1 = $jazz_distro1"
-  echo "jazz_distro2 = $jazz_distro2"
-  echo "mhd_inclpath = $mhd_inclpath"
-  echo "mhd_libpath  = $mhd_libpath"
-  echo "vpath        = $vpath"
-  echo "jzpat        = $jzpat"
-  echo "cpps         = $cpps"
-  echo "objs         = $objs"
-  echo "jazz_depends = $jazz_depends"
+  echo "jazz_pwd      = $jazz_pwd"
+  echo "jazz_version  = $jazz_version"
+  echo "jz_processor  = $jz_processor"
+  echo "jazz_distro1  = $jazz_distro1"
+  echo "jazz_distro2  = $jazz_distro2"
+  echo "mhd_inclpath  = $mhd_inclpath"
+  echo "mhd_libpath   = $mhd_libpath"
+  echo "curl_inclpath = $curl_inclpath"
+  echo "curl_libpath  = $curl_libpath"
+  echo "vpath         = $vpath"
+  echo "jzpat         = $jzpat"
+  echo "cpps          = $cpps"
+  echo "objs          = $objs"
+  echo "jazz_depends  = $jazz_depends"
 
   printf "\n"
 fi
