@@ -33,7 +33,7 @@ rm *.o
 
 rm jazz_blocks_wrap.c
 
-cd $py_package/pyjazz || return 1
+cd "$py_package"/pyjazz || return 1
 
 python setup.py sdist
 twine upload dist/*
