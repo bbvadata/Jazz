@@ -2,7 +2,7 @@
 
 py_package=$(pwd)
 
-cd pyjazz
+cd pyjazz || return 1
 
 rm -rf dist/
 rm -rf pyjazz.egg-info/
@@ -11,7 +11,7 @@ rm -f *.rst
 cp ../html/index.md README.md
 pandoc --from=markdown --to=rst --output=README.rst README.md
 
-cd pyjazz
+cd pyjazz || return 1
 
 rm -f *.so
 
@@ -33,7 +33,7 @@ rm *.o
 
 rm jazz_blocks_wrap.c
 
-cd $py_package/pyjazz
+cd $py_package/pyjazz || return 1
 
 python setup.py sdist
 twine upload dist/*
