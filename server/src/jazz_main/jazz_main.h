@@ -26,3 +26,21 @@
   limitations under the License.
 */
 
+
+/**< \brief	 The application entry point.
+
+	Most high level server logic: see the description of main()
+	The entry point is replaced by the catch2 entry point for unit testing.
+*/
+
+
+#include "src/include/jazz.h"
+
+
+// Command line arguments for the Jazz server
+
+#define CMND_HELP		0	///< Command 'help' as a numerical constant (see parse_arg())
+#define CMND_START		1	///< Command 'start' as a numerical constant (see parse_arg())
+#define CMND_STOP		2	///< Command 'stop' as a numerical constant (see parse_arg())
+#define CMND_STATUS		3	///< Command 'status' as a numerical constant (see parse_arg())
+
