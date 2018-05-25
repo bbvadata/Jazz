@@ -89,7 +89,7 @@ depends ( )
 {
   for cpp in $cpps; do
     obj=$(echo "$cpp" | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/')
-    hea=$(echo "$cpp" | sed 's/cpp$/h/')
+    hea="${cpp//cpp/h}"
 
     if [ -e "$hea" ]; then
       dep=$(grep -rnw "$cpp" "$hea" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
