@@ -58,54 +58,6 @@ using namespace std;
 #define IF_ZERO			2	///< 'fun' value for register_service(): Register if zero, meaning 'not disabled'.
 
 
-/** Display the Jazz logo message automatically appending JAZZ_VERSION.
- */
-void hello()
-{
-	cout << "\x20 888888" << endl
-		 << "\x20 \x20 `88b" << endl
-		 << " \x20 \x20 888" << endl
-		 << " \x20 \x20 888\x20 8888b.\x20 88888888 88888888" << endl
-		 << " \x20 \x20 888 \x20 \x20 `88b\x20 \x20 d88P \x20 \x20 d88P" << endl
-		 << " \x20 \x20 888 .d888888 \x20 d88P \x20 \x20 d88P" << endl
-		 << " \x20 \x20 88P 888\x20 888\x20 d88P \x20 \x20 d88P" << endl
-		 << " \x20 \x20 888 `Y888888 88888888 88888888" << endl
-		 << " \x20 .d88P" << endl
-		 << " .d88P'" << endl
-		 << "888P'\x20 \x20 \x20 by BBVA Data & Analytics" << endl
-		 << " \x20 \x20 \x20 \x20 \x20 \x20 \x20 version: " << JAZZ_VERSION << " (" << LINUX_PLATFORM << ")" << endl << endl;
-}
-
-
-/** Explain usage of the command line interface to stdout.
- */
-void help()
-{
-	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
-
-		 << " <config>: A configuration file for the server in case of command start." << endl
-		 << "\x20 \x20 \x20 \x20 \x20 \x20 by default, Jazz will try to load: config/jazz_config.ini" << endl
-		 << "\x20 start\x20 : Start the jazz server." << endl
-		 << "\x20 stop \x20 : Stop the jazz server." << endl
-		 << "\x20 status : Just check if server is running." << endl;
-}
-
-
-/** Parse the command line argument (start, stop, ...) into a numeric constant, CMND_START, CMND_STOP, ...
-
-	\param arg The argument as typed.
-	\return the numeric constant and CMND_HELP when not known.
-*/
-int parse_arg(const char *arg)
-{
-	if (!strcmp("start",  arg)) return CMND_START;
-	if (!strcmp("stop",	  arg)) return CMND_STOP;
-	if (!strcmp("status", arg)) return CMND_STATUS;
-
-	return CMND_HELP;
-}
-
-
 /** A verbose configuration load made a function to avoid its repetition.
 */
 bool normal_verbose_load_configuration()
