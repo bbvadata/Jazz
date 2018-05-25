@@ -225,7 +225,7 @@ printf "Ok.\n"
 
 printf "Writing: py_package/pyjazz/setup.py ... "
 
-echo "from setuptools import setup
+printf "from setuptools import setup
 
 try:
 	with open('README.md', 'r') as ldf:
@@ -235,7 +235,7 @@ except FileNotFoundError:
 		long_desc = ldf.read().replace('\n', '')
 
 setup(name='pyjazz',
-	version					= '$jazz_version',
+	version					= %s,
 	description				= 'Official Python client for Jazz',
 	long_description		= long_desc,
 	url						= 'http://github.com/kaalam/jazz',
@@ -263,7 +263,7 @@ setup(name='pyjazz',
 		'Programming Language :: Python :: 3',
 		'Topic :: Scientific/Engineering :: Artificial Intelligence'
       ],
-	)" > py_package/pyjazz/setup.py
+	)" "$jazz_version" > py_package/pyjazz/setup.py
 
 printf "Ok.\n"
 
