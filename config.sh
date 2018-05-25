@@ -30,15 +30,15 @@ printf "(usage: ./config.sh --help)\n\nGathering information ...\n\n"
 
 jazz_pwd=$(pwd)
 
-jazz_version=`cat _config_/version`
-jz_processor=`uname -p`
-jazz_distro1=`cat /etc/*-release | grep '^DISTRIB_ID=' | sed 's/^DISTRIB_ID=//'`
-jazz_distro2=`cat /etc/*-release | grep '^DISTRIB_RELEASE=' | sed 's/^DISTRIB_RELEASE=//'`
+jazz_version=$(cat _config_/version)
+jz_processor=$(uname -p)
+jazz_distro1=$(cat /etc/*-release | grep '^DISTRIB_ID=' | sed 's/^DISTRIB_ID=//')
+jazz_distro2=$(cat /etc/*-release | grep '^DISTRIB_RELEASE=' | sed 's/^DISTRIB_RELEASE=//')
 
-jazz_years=`date +%Y`
-if [ $jazz_years != '2017' ]; then jazz_years="2017-$jazz_years"; fi
+jazz_years=$(date +%Y)
+if [ "$jazz_years" != '2017' ]; then jazz_years="2017-$jazz_years"; fi
 
-if [ -e '_config_/mhd_include_path' ]; then mhd_inclpath=`cat _config_/mhd_include_path`; else mhd_inclpath='/usr/include'; fi
+if [ -e '_config_/mhd_include_path' ]; then mhd_inclpath=$(cat _config_/mhd_include_path); else mhd_inclpath='/usr/include'; fi
 
 if [ ! -e "$mhd_inclpath/microhttpd.h" ]; then
   echo "** File $mhd_inclpath/microhttpd.h was not found. **"
@@ -46,7 +46,7 @@ if [ ! -e "$mhd_inclpath/microhttpd.h" ]; then
   exit
 fi
 
-if [ -e '_config_/mhd_library_path' ]; then mhd_libpath=`cat _config_/mhd_library_path`
+if [ -e '_config_/mhd_library_path' ]; then mhd_libpath=$(cat _config_/mhd_library_path)
 else
   if [ -e '/usr/lib/x86_64-linux-gnu/libmicrohttpd.so' ]; then mhd_libpath='/usr/lib/x86_64-linux-gnu'; else mhd_libpath='/usr/lib'; fi
 fi
@@ -57,7 +57,7 @@ if [ ! -e "$mhd_libpath/libmicrohttpd.so" ]; then
   exit 1
 fi
 
-if [ -e '_config_/curl_include_path' ]; then curl_inclpath=`cat _config_/curl_include_path`; else curl_inclpath='/usr/include/x86_64-linux-gnu'; fi
+if [ -e '_config_/curl_include_path' ]; then curl_inclpath=$(cat _config_/curl_include_path); else curl_inclpath='/usr/include/x86_64-linux-gnu'; fi
 
 if [ ! -e "$curl_inclpath/curl/curl.h" ]; then
   echo "** File $curl_inclpath/curl/curl.h was not found. **"
@@ -65,7 +65,7 @@ if [ ! -e "$curl_inclpath/curl/curl.h" ]; then
   exit
 fi
 
-if [ -e '_config_/curl_library_path' ]; then curl_libpath=`cat _config_/curl_library_path`
+if [ -e '_config_/curl_library_path' ]; then curl_libpath=$(cat _config_/curl_library_path)
 else
   if [ -e '/usr/lib/x86_64-linux-gnu/libcurl.so' ]; then curl_libpath='/usr/lib/x86_64-linux-gnu'; else curl_libpath='/usr/lib'; fi
 fi
@@ -76,34 +76,34 @@ if [ ! -e "$curl_libpath/libcurl.so" ]; then
   exit 1
 fi
 
-cd server
+cd server || return 1
 
-testp=`echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' '`
-vpath=`echo src/*/ $testp`
-jzpat=`echo $vpath | sed 's/\ /\n/g' | grep jazz | tr '\n' ' '`
+testp=$(echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' ')
+vpath=$(echo src/*/ "$testp")
+jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 
-cpps=`find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' '`
-objs=`echo $cpps | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' '`
+cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
+objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
 depends ( )
 {
   for cpp in $cpps; do
-    obj=`echo $cpp | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/'`
-    hea=`echo $cpp | sed 's/cpp$/h/'`
+    obj=$(echo "$cpp" | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/')
+    hea=$(echo "$cpp" | sed 's/cpp$/h/')
 
-    if [ -e $hea ]; then
-      dep=`grep -rnw $cpp $hea -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/'`
+    if [ -e "$hea" ]; then
+      dep=$(grep -rnw "$cpp" "$hea" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
     else
-      dep=`grep -rnw $cpp -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/'`
+      dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
     fi
 
-    echo $obj: $dep
+    echo "$obj": "$dep"
   done
 }
 
-jazz_depends=`depends`
+jazz_depends=$(depends)
 
-cd $jazz_pwd
+cd "$jazz_pwd" || return 1
 
 # End of section 1: Dump all variables if debugging
 if [[ $mode =~ 'DEBUG' ]]; then
@@ -145,7 +145,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
 
 printf "Writing: server/src/include/jazz_platform.h ... "
 
-echo "`cat _config_/copyright_notice`
+echo "$(cat _config_/copyright_notice)
 
 #define JAZZ_VERSION \"$jazz_version\"
 #define JAZZ_YEARS \"$jazz_years\"
@@ -162,7 +162,7 @@ printf "Ok.\n"
 
 printf "Writing: server/Makefile ... "
 
-echo "`cat _config_/makefile_head`
+echo "$(cat _config_/makefile_head)
 
 CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath
 LINUX        := ${jazz_distro1}_${jazz_distro2}
@@ -179,7 +179,7 @@ objects = $objs
 
 $jazz_depends
 
-`cat _config_/makefile_tail`" > server/Makefile
+$(cat _config_/makefile_tail)" > server/Makefile
 
 printf "Ok.\n"
 
@@ -189,24 +189,24 @@ printf "Writing: server/src/main.dox ... "
 echo "/**
 \mainpage [Programming documentation for the Jazz Server version \"$jazz_version\"]
 
-`cat _config_/main_dox_tail`" > server/src/main.dox
+$(cat _config_/main_dox_tail)" > server/src/main.dox
 
 printf "Ok.\n"
 
 
 printf "Writing: r_package/rjazz/DESCRIPTION ... "
 
-echo "`cat _config_/description_head`
+echo "$(cat _config_/description_head)
 Version: $jazz_version
 Date: $(date +%F)
-`cat _config_/description_tail`" > r_package/rjazz/DESCRIPTION
+$(cat _config_/description_tail)" > r_package/rjazz/DESCRIPTION
 
 printf "Ok.\n"
 
 
 printf "Writing: r_package/build.sh ... "
 
-echo "`cat _config_/build_r_head`
+echo "$(cat _config_/build_r_head)
 R CMD check rjazz_$jazz_version.tar.gz
 R CMD INSTALL rjazz_$jazz_version.tar.gz
 rm -rf rjazz.Rcheck" > r_package/build.sh
@@ -272,24 +272,24 @@ mkdir -p py_package/html
 
 printf "Writing: py_package/html/index.md ... "
 
-echo "`cat _config_/pyjazz_index_head`
+echo "$(cat _config_/pyjazz_index_head)
 
 
 ## Reference for version $jazz_version
 
-`cat _config_/pyjazz_index_tail`" > py_package/html/index.md
+$(cat _config_/pyjazz_index_tail)" > py_package/html/index.md
 
 printf "Ok.\n"
 
 
 printf "Writing: docker/upload_docker.sh ... "
 
-echo "`cat _config_/upload_docker_head`
+echo "$(cat _config_/upload_docker_head)
 
 docker tag jazz_ref_stable kaalam/jazz_neat:$jazz_version
 docker push kaalam/jazz_neat:$jazz_version
 
-`cat _config_/upload_docker_tail`" > docker/upload_docker.sh
+$(cat _config_/upload_docker_tail)" > docker/upload_docker.sh
 
 chmod 777 docker/upload_docker.sh
 
