@@ -35,6 +35,9 @@ jz_processor=`uname -p`
 jazz_distro1=`cat /etc/*-release | grep '^DISTRIB_ID=' | sed 's/^DISTRIB_ID=//'`
 jazz_distro2=`cat /etc/*-release | grep '^DISTRIB_RELEASE=' | sed 's/^DISTRIB_RELEASE=//'`
 
+jazz_years=`date +%Y`
+if [ $jazz_years != '2017' ]; then jazz_years="2017-$jazz_years"; fi
+
 if [ -e '_config_/mhd_include_path' ]; then mhd_inclpath=`cat _config_/mhd_include_path`; else mhd_inclpath='/usr/include'; fi
 
 if [ ! -e "$mhd_inclpath/microhttpd.h" ]; then
@@ -109,6 +112,7 @@ if [[ $mode =~ 'DEBUG' ]]; then
   echo "jz_processor  = $jz_processor"
   echo "jazz_distro1  = $jazz_distro1"
   echo "jazz_distro2  = $jazz_distro2"
+  echo "jazz_years    = $jazz_years"
   echo "mhd_inclpath  = $mhd_inclpath"
   echo "mhd_libpath   = $mhd_libpath"
   echo "curl_inclpath = $curl_inclpath"
@@ -144,6 +148,7 @@ printf "Writing: server/src/include/jazz_platform.h ... "
 echo "`cat _config_/copyright_notice`
 
 #define JAZZ_VERSION \"$jazz_version\"
+#define JAZZ_YEARS \"$jazz_years\"
 #define JAZZ_DEBUG_HOME \"$jazz_pwd\"
 
 #define LINUX_DISTRO \"$jazz_distro1\"
