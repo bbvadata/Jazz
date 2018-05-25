@@ -131,7 +131,7 @@ fi
 # ----------
 
 printf "You will now override:\n\n"
-cat _config_/help_on_config.txt | grep '  - '
+< _config_/help_on_config.txt grep '  - '
 printf "\n"
 
 read -p "Do you want to continue? [y/N] " -n 1 -r
