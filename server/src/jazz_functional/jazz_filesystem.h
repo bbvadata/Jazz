@@ -21,3 +21,5 @@
   limitations under the License.
 */
 
+//TODO: Integrate project building with https://opencv.org/
+//TODO: Integrate image classes from https://docs.opencv.org/master/de/d7a/tutorial_table_of_content_core.html
