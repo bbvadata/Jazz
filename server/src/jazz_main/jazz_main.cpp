@@ -27,7 +27,11 @@
 */
 
 
+#include "src/jazz_main/jazz_main.h"
+
+
 #if !defined CATCH_TEST
+
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
  */
