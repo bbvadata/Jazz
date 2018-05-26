@@ -37,12 +37,25 @@
 namespace jazz_utils {
 
 
+/** Check if a file exists.
+
+	\param file_name The file name.
+	\return True if the file exists
+ */
+bool FileExists(const char* file_name)
+{
+	std::ifstream ff(file_name);
+
+	return ff.good();
+}
+
+
 /** Count the number of bytes required by an utf-8 string of length characters.
 
 \param buff	  The string (not necessarily null-terminated)
 \param length The number of characters in the string
 
-\return		The number of bytes in the string.
+\return	The number of bytes in the string.
 
 The RFC http://www.ietf.org/rfc/rfc3629.txt says:
 
