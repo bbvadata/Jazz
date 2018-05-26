@@ -24,7 +24,7 @@ make clean
 
 popd
 
-reports=`find server/dynamic_analysis_reports/ | grep ".txt"`
+reports=$(find server/dynamic_analysis_reports/ | grep ".txt")
 
 printf "\nDone.\n"
 printf "\n** See the reports in: **"
