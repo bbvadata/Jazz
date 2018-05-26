@@ -27,6 +27,9 @@
 */
 
 
+#define CATCH_CONFIG_MAIN		//This tells Catch to provide a main() - has no effect when CATCH_TEST is not defined
+
+
 #include "src/jazz_main/jazz_main.h"
 
 
