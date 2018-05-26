@@ -16,15 +16,13 @@ pushd server
 
 make clean
 
-scan-build -o ./static_analysis_reports/ make jazz
-if [ $? -ne 0 ]
+if ! scan-build -o ./static_analysis_reports/ make jazz
 then
   echo "make failed."
   exit 1
 fi
 
-scan-build -o ./static_analysis_reports/ make tjazz
-if [ $? -ne 0 ]
+if ! scan-build -o ./static_analysis_reports/ make tjazz
 then
   echo "make failed."
   exit 1
