@@ -35,6 +35,7 @@
 
 
 #include <iostream>
+#include <signal.h>
 
 
 #include "src/include/jazz.h"
