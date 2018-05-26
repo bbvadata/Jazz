@@ -12,7 +12,7 @@
 rm -rf server/static_analysis_reports/
 rm -f sever/report.xml
 
-cd server
+pushd server
 
 make clean
 
@@ -36,7 +36,7 @@ cppcheck-htmlreport --file=report.xml --title=Jazz --report-dir=static_analysis_
 make clean
 rm -f report.xml
 
-cd ..
+popd
 
 reports=`find server/static_analysis_reports/ | grep "index.html"`
 
