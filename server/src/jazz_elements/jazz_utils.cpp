@@ -218,7 +218,7 @@ char *ExpandEscapeSequences(char *buff)
 	\param name The name of the process as typed on the console. In case parameters were given to start the process,
 	it is just the left part before the first space.
 
-	\return the pid of the process if found, 0 if not.
+	\return The pid of the process if found, 0 if not.
  */
 pid_t FindProcessIdByName(const char *name)
 {
@@ -334,7 +334,7 @@ it removes the quotes. This is used by JazzConfigFile and has obvious limitation
 and easily predictable results.
 
 	\param s Input string
-	\return String without space or tab.
+	\return  String without space or tab.
 */
 std::string CleanConfigArgument(std::string s)
 {
@@ -357,7 +357,7 @@ std::string CleanConfigArgument(std::string s)
 
 	\param input_file_name The input file name containing a configuration
 
-	\return check num_keys
+	\return Nothing. Check num_keys() for errors.
 */
 JazzConfigFile::JazzConfigFile(const char *input_file_name)
 {
