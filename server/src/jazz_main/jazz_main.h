@@ -34,6 +34,9 @@
 */
 
 
+#include <iostream>
+
+
 #include "src/include/jazz.h"
 
 
@@ -44,3 +47,4 @@
 #define CMND_STOP		2	///< Command 'stop' as a numerical constant (see parse_arg())
 #define CMND_STATUS		3	///< Command 'status' as a numerical constant (see parse_arg())
 
+using namespace std;
