@@ -11,7 +11,7 @@
 
 rm -rf server/dynamic_analysis_reports/
 
-cd server
+pushd server
 
 make tjazz
 
@@ -22,7 +22,7 @@ valgrind --leak-check=yes --log-file=dynamic_analysis_reports/memcheck.txt ./tja
 
 make clean
 
-cd ..
+popd
 
 reports=`find server/dynamic_analysis_reports/ | grep ".txt"`
 
