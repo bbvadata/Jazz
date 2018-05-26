@@ -50,8 +50,8 @@ void hello()
 		 << "888P'" << endl << endl
 		 << " \x20 \x20(c) " << JAZZ_YEARS << "kaalam.ai - The Authors of Jazz" << endl
 		 << " \x20 \x20This product includes software developed at BBVA" << endl
-		 << " \x20 \x20 Licensed under the Apache License, Version 2.0" << endl;
-		 << " \x20 \x20 \x20 \x20http://www.apache.org/licenses/LICENSE-2.0" << endl;
+		 << " \x20 \x20 Licensed under the Apache License, Version 2.0" << endl
+		 << " \x20 \x20 \x20 \x20http://www.apache.org/licenses/LICENSE-2.0" << endl
 		 << " \x20 \x20 \x20 \x20version: " << JAZZ_VERSION << " (" << LINUX_PLATFORM << ")" << endl << endl;
 }
 
