@@ -38,7 +38,7 @@ rm -f report.xml
 
 popd
 
-reports=`find server/static_analysis_reports/ | grep "index.html"`
+reports=$(find server/static_analysis_reports/ | grep "index.html")
 
 printf "\nDone.\n"
 printf "\n** See the reports in: **"
