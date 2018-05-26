@@ -97,7 +97,8 @@ depends ( )
       dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
     fi
 
-    echo "$obj": "$dep"
+	# shellcheck disable=SC2068
+    echo "$obj": ${dep[@]}
   done
 }
 
