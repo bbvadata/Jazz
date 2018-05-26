@@ -624,3 +624,5 @@ SCENARIO("Testing class JazzLogger") {
 
 	log2.log(LOG_INFO, "Extended");
 }
+
+//TODO: Write test for function FileExists()
