@@ -22,7 +22,7 @@ make jazz
 cp jazz ../docker
 make clean
 
-cd $docker_pwd || return 1
+cd "$docker_pwd" || return 1
 
 cp ../server/config/jazz_config.ini .
 
