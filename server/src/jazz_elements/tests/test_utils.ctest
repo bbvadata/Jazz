@@ -263,7 +263,7 @@ SCENARIO("Testing ExpandEscapeSequences().") {
 
 SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
-	REQUIRE(FindProcessIdByName("/usr/sbin/acpid") != 0);
+	REQUIRE(FindProcessIdByName("/usr/bin/lxcfs") != 0);
 }
 
 
