@@ -87,6 +87,7 @@ without global variables.
 namespace jazz_utils
 {
 
+bool		 FileExists			   (const char* file_name);
 int			 CountBytesFromUtf8	   (char *buff, int length);
 char		*ExpandEscapeSequences (char *buff);
 pid_t		 FindProcessIdByName   (const char *name);
