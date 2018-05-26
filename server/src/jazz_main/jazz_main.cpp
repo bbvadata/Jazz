@@ -85,6 +85,14 @@ int parse_arg(const char *arg)
 }
 
 
+//TODO: Apply style guide to this and all other function names in this module.
+
+//TODO: Implement/document/test this.
+int main_server_start(const char *conf)
+{
+	return EXIT_FAILURE;
+}
+
 /** Entry point.
 
 \param argc (Linux) number of arguments, counting the name of the executable.
