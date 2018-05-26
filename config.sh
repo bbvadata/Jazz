@@ -135,7 +135,7 @@ printf "You will now override:\n\n"
 < _config_/help_on_config.txt grep '  - '
 printf "\n"
 
-read -p "Do you want to continue? [y/N] " -n 1 -r
+read -p "Do you want to continue? [y/N] " -r
 echo    # (optional) move to a new line
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
