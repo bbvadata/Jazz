@@ -55,7 +55,12 @@ void hello()
 		 << " \x20 \x20This product includes software developed at BBVA" << endl
 		 << " \x20 \x20 Licensed under the Apache License, Version 2.0" << endl
 		 << " \x20 \x20 \x20 http://www.apache.org/licenses/LICENSE-2.0" << endl
-		 << " \x20 \x20 \x20 \x20 \x20version: " << JAZZ_VERSION << " (" << LINUX_PLATFORM << ")" << endl << endl;
+		 << " \x20 \x20 \x20 \x20 \x20version: " << JAZZ_VERSION << " (" << LINUX_PLATFORM << ")" << endl
+#ifdef DEBUG
+		 << endl
+		 << " \x20 \x20 \x20 \x20 \x20 \x20 *** D E B U G - B U I L D ***" << endl
+#endif
+		 << endl;
 }
 
 
@@ -66,7 +71,7 @@ void help()
 	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
 
 		 << " <config>: A configuration file for the server in case of command start." << endl
-		 << "\x20 \x20 \x20 \x20 \x20 \x20 by default, Jazz will try to load: config/jazz_config.ini" << endl
+		 << "\x20 \x20 \x20 \x20 \x20\x20 by default, Jazz will try to load: config/jazz_config.ini" << endl
 		 << "\x20 start\x20 : Start the jazz server." << endl
 		 << "\x20 stop \x20 : Stop the jazz server." << endl
 		 << "\x20 status : Just check if server is running." << endl;
