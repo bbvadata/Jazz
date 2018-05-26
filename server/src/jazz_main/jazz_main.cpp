@@ -155,7 +155,7 @@ int main(int argc, char* argv[])
 		{
 			conf = argv[1];
 
-			if (!exists(conf.c_str()))
+			if (!jazz_utils::FileExists(conf.c_str()))
 			{
 				cout << "The file " << conf << " does not exist." << endl;
 
