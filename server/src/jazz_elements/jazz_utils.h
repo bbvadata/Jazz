@@ -44,16 +44,6 @@ without global variables.
 */
 
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
-
-
 #define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
 
 
