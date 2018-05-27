@@ -14,6 +14,10 @@
 
    http://www.apache.org/licenses/LICENSE-2.0
 
+   Also includes LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+   Licensed under http://www.OpenLDAP.org/license.html
+
    Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,8 +32,7 @@
 
 /**< \brief Jazz class JazzPersistedSource
 
-	This module defines the class JazzPersistedSource to store the data in memory mapped node-local files called "sources".
-The persistence is a thread safe key-value store based on LMDB.
+//TODO: Write the module description
 */
 
 
@@ -51,67 +54,201 @@ The persistence is a thread safe key-value store based on LMDB.
 namespace jazz_persistence
 {
 
+#define JAZZ_PERSISTENCE_CACHE_READ_ONLY		1	///< Do not cache write operations.
+#define JAZZ_PERSISTENCE_CACHE_READ_WRITE		3	///< Cache write operations.
+
+#define JAZZ_SOURCE_MODE_READ_ONLY				1	///< Open a JazzPersistence as read only.
+#define JAZZ_SOURCE_MODE_READ_WRITE				3	///< Open a JazzPersistence with read/write access.
+
+
 using namespace jazz_datablocks;
 using namespace jazz_containers;
 
 
-/**
-This is the root class for storing persisted JazzBlocks. JazzBlocks are created with jazz_persistence::JazzPersistence::new_jazz_block()
-or (JazzPersistence descendant::)new_jazz_block() and not required to be removed, but can be removed using
-(JazzPersistence descendant::)remove_jazz_block(). Unlike volatile JazzBlocks, persisted JazzBlocks are not controlled by a JazzBlockKeeprItem.
-Difference between JazzPersistence and JazzSource is the former implements a strict JazzBlockKeepr interface that can be used from c++ to do
-things like select information from blocks without assigning or copying them, the latter has a much simpler interface that is exported to
-Python and R and provides what a script language programmer would expect at the price of not always benefiting from the memory-mapped
-file allocation in lmdb that underlies JazzPersistence.
+typedef struct JazzPersistenceItem *pJazzPersistenceItem;		///< A pointer to a JazzPersistenceItem
+typedef JazzBlockIdentifier			JazzBlockList[];			///< A pointer to an array of JazzBlockIdentifier
 
-THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
-them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
+/** The item class for JazzPersistence descendants
+*/
+struct JazzPersistenceItem: JazzBlockKeeprItem {
+};
+
+
+
+/**
+//TODO: Write the JazzPersistence description
 */
 class JazzPersistence: public JazzBlockKeepr {
 
 	public:
 
-		 JazzPersistence();
-		~JazzPersistence();
+		// Methods for buffer allocation
+
+		virtual void destroy_keeprs() = 0;
 
 		// Methods for JazzBlock allocation
 
-		pJazzBlock new_jazz_block (const JazzBlockIdentifier *p_id,
-										 pJazzBlock			  p_as_block,
-										 pJazzBlock			  p_row_filter	= nullptr,
-										 AllAttributes		 *att			= nullptr);
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 pJazzBlock			 p_as_block,
+											 pJazzFilter		 p_row_filter  = nullptr,
+											 AllAttributes		*att		   = nullptr,
+											 uint64_t			 time_to_build = 0);
 
-		pJazzBlock new_jazz_block (const JazzBlockIdentifier *p_id,
-										 int				  cell_type,
-										 JazzTensorDim		 *dim,
-										 AllAttributes		 *att,
-										 int				  fill_tensor	  = JAZZ_FILL_NEW_WITH_NA,
-										 bool				 *p_bool_filter	  = nullptr,
-										 int				  stringbuff_size = 0,
-										 const char			 *p_text		  = nullptr,
-										 char				  eoln			  = '\n');
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 int				 cell_type,
+											 int				*dim,
+											 AllAttributes		*att			 = nullptr,
+											 int				 fill_tensor	 = JAZZ_FILL_NEW_WITH_NA,
+											 bool				*p_bool_filter	 = nullptr,
+											 int				 stringbuff_size = 0,
+											 const char			*p_text			 = nullptr,
+											 char				 eoln			 = '\n',
+											 uint64_t			 time_to_build	 = 0);
 
-		void remove_jazz_block(pJazzBlock p_item);
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 pJazzBlock					p_as_block,
+											 pJazzFilter				p_row_filter  = nullptr,
+											 AllAttributes			   *att			  = nullptr,
+											 uint64_t					time_to_build = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 int						cell_type,
+											 int					   *dim,
+											 AllAttributes			   *att				= nullptr,
+											 int						fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
+											 bool					   *p_bool_filter	= nullptr,
+											 int						stringbuff_size = 0,
+											 const char				   *p_text			= nullptr,
+											 char						eoln			= '\n',
+											 uint64_t					time_to_build	= 0);
+
+		// Methods for finding JazzBlock by ID (individually)
+
+		pJazzPersistenceItem find_jazz_block (const JazzBlockIdentifier *p_id);
+		pJazzPersistenceItem find_jazz_block (JazzBlockId64				 id64);
+
+		// Methods for removing JazzBlock (individually)
+
+		virtual void free_jazz_block (pJazzPersistenceItem		 p_item) = 0;
+		bool		 free_jazz_block (const JazzBlockIdentifier *p_id);
+		bool		 free_jazz_block (JazzBlockId64				 id64);
+
+		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
+		virtual int item_size() = 0;
+
+		/// A cache interface
+		bool alloc_cache (int num_items, int cache_mode);
+
+		/// A pipeline interface
+		bool copy_to_keepr (JazzBlockKeepr keepr,
+							JazzBlockList  p_id,
+							int			   num_blocks);
+
+		bool copy_from_keepr (JazzBlockKeepr keepr,
+							  JazzBlockList	 p_id,
+							  int			 num_blocks);
+
+		/// A filesystem interface
+		int open_jazz_file	(const char *file_name);
+		int flush_jazz_file ();
+		int file_errors		();
+		int close_jazz_file ();
 };
 
 
 /**
-A much simpler interface to create/read/update/delete JazzBlocks in source using and underlying JazzPersistence that can be exported
-to R, Python and the REST API directly.
-
-THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread safe. In the core objects, thread-safe failure in public methods
-is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
-them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
+//TODO: Write the JazzSource description
 */
 class JazzSource: public JazzPersistence {
 
 	public:
 
-		 JazzSource();
+		 JazzSource(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzSource();
+
+		// Methods for buffer allocation
+
+		virtual void destroy_keeprs();
+
+		// Methods for JazzBlock allocation
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 pJazzBlock			 p_as_block,
+											 pJazzFilter		 p_row_filter  = nullptr,
+											 AllAttributes		*att		   = nullptr,
+											 uint64_t			 time_to_build = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockId64 id64,
+											 int				 cell_type,
+											 int				*dim,
+											 AllAttributes		*att			 = nullptr,
+											 int				 fill_tensor	 = JAZZ_FILL_NEW_WITH_NA,
+											 bool				*p_bool_filter	 = nullptr,
+											 int				 stringbuff_size = 0,
+											 const char			*p_text			 = nullptr,
+											 char				 eoln			 = '\n',
+											 uint64_t			 time_to_build	 = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 pJazzBlock					p_as_block,
+											 pJazzFilter				p_row_filter  = nullptr,
+											 AllAttributes			   *att			  = nullptr,
+											 uint64_t					time_to_build = 0);
+
+		pJazzPersistenceItem new_jazz_block (const JazzBlockIdentifier *p_id,
+											 int						cell_type,
+											 int					   *dim,
+											 AllAttributes			   *att				= nullptr,
+											 int						fill_tensor		= JAZZ_FILL_NEW_WITH_NA,
+											 bool					   *p_bool_filter	= nullptr,
+											 int						stringbuff_size = 0,
+											 const char				   *p_text			= nullptr,
+											 char						eoln			= '\n',
+											 uint64_t					time_to_build	= 0);
+
+		// Methods for finding JazzBlock by ID (individually)
+
+		pJazzPersistenceItem find_jazz_block (const JazzBlockIdentifier *p_id);
+		pJazzPersistenceItem find_jazz_block (JazzBlockId64				 id64);
+
+		// Methods for removing JazzBlock (individually)
+
+		virtual void free_jazz_block (pJazzPersistenceItem		 p_item);
+		bool		 free_jazz_block (const JazzBlockIdentifier *p_id);
+		bool		 free_jazz_block (JazzBlockId64				 id64);
+
+		/// A virtual method returning the size of JazzPersistenceItem that JazzBlockKeepr needs for allocation
+		virtual int item_size() { return sizeof(JazzPersistenceItem); }
+
+		/// A cache interface
+		bool alloc_cache (int num_items, int cache_mode);
+
+		/// A pipeline interface
+		bool copy_to_keepr (JazzBlockKeepr keepr,
+							JazzBlockList  p_id,
+							int			   num_blocks);
+
+		bool copy_from_keepr (JazzBlockKeepr keepr,
+							  JazzBlockList	 p_id,
+							  int			 num_blocks);
+
+		/// A filesystem interface
+		int open_jazz_file	(const char *file_name);
+		int flush_jazz_file ();
+		int file_errors		();
+		int close_jazz_file ();
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
 };
 
-}
+} // namespace jazz_persistence
 
 #endif

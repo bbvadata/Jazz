@@ -1,0 +1,64 @@
+TODOS:
+
+explicit identifiers
+Unix time is an example of explicit identifier
+implicit identifier
+
+DenseMapping
+SparseMapping
+
+JazzFileSystem is an abstraction to manage files in the Linux box running Jazz as JazzBlocks without necessarily copying their content.
+
+JazzRemoteSource is an http client connecting to a REST API and storing the result as a block. The connection can be initiated periodically or on demand.
+	The result is typically filtered by a validation function written in Bebop.
+
+JazzClusterFileSystem is a JazzFileSystem interface that uses a DenseMapping to shard the file names across a cluster.
+
+BopCompiler Bebop compiles into bytecode automatically.
+
+Actually, a Bebop function is a block of compiled bytecode with its source code stored as an attribute.
+
+Bebop source code uses operators (both in the standard core or defined in Bebop) to support “natural expressions”.
+Bebop has aliases and other syntactic sugar. E.g., using /xxx.yy.zz as z
+Bebop is functional, blocks are immutable, reads are safe, writes are idempotent, side effects are not possible.
+Bebop is object oriented.
+Bebop supports multiple inheritance using combined classes of any number of parents.
+Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra storing space (until its state changes from that of its ancestor).
+Bebop supports match for type checking. This provides some metaprogramming, like defining math over many types in one declaration.
+Bebop supports match for switching (as in Rust).
+Bebop supports alternative functions for managing errors.
+
+object forking,
+pattern matching and
+alternative function
+
+Automatic function result caching
+
+
+In Jazz an lvalue is one of:
+
+A chain of keeprs abstracted as block ids starting from root ending with the name of a block. They must all exist except, possibly, the last name. If the last name is new, it is created, if it exists, overridden.
+A data block that will be returned as a Python object, R object or http (GET) resource.
+In Jazz an rvalue is one of:
+
+A block constructor. A constant expression that can be used to build a block from it.
+Chains of keeprs abstracted as existing blocks starting from root. This includes functions and blocks passed as arguments to functions.
+A combination of the previous two.
+A data block that will be passed as a Python object, R object or http (PUT) resource.
+A delete predicate. This deletes the corresponding lvalue.
+Since the API has to be REST compatible and is intended for using over a network.
+
+All rvalue evaluations are safe. They cannot have side effects. Function calls cannot have side effects.
+All lvalue assignments are idempotent. Assigning twice has the same effect than assigning once. There is no += operator.
+
+GET with a valid rvalue. To read from Jazz.
+HEAD with a valid rvalue. Internally the same as GET, but returns the header only.
+PUT with a valid lvalue. To write blocks into a Jazz keepr.
+DELETE with a valid lvalue. To delete blocks or keeprs (even recursively).
+OPTIONS with a string. Parses the string and returns the commands that would accept that string as a URL.
+GET with lvalue=rvalue. Assignment in the server. Similar to “PUT(lvalue, GET(rvalue))” without traffic.
+
+jazz_get(rvalue)
+jazz_put(object, lvalue)
+jazz_delete(lvalue)
+jazz_assign(lvalue, rvalue)

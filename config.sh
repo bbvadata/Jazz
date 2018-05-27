@@ -54,6 +54,25 @@ if [ ! -e "$mhd_libpath/libmicrohttpd.so" ]; then
   exit 1
 fi
 
+if [ -e '_config_/curl_include_path' ]; then curl_inclpath=`cat _config_/curl_include_path`; else curl_inclpath='/usr/include/x86_64-linux-gnu'; fi
+
+if [ ! -e "$curl_inclpath/curl/curl.h" ]; then
+  echo "** File $curl_inclpath/curl/curl.h was not found. **"
+  cat _config_/help_curl_not_found.txt
+  exit
+fi
+
+if [ -e '_config_/curl_library_path' ]; then curl_libpath=`cat _config_/curl_library_path`
+else
+  if [ -e '/usr/lib/x86_64-linux-gnu/libcurl.so' ]; then curl_libpath='/usr/lib/x86_64-linux-gnu'; else curl_libpath='/usr/lib'; fi
+fi
+
+if [ ! -e "$curl_libpath/libcurl.so" ]; then
+  echo "** File $curl_libpath/libcurl.so was not found. **"
+  cat _config_/help_curl_not_found.txt
+  exit 1
+fi
+
 cd server
 
 testp=`echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' '`
@@ -85,18 +104,20 @@ cd $jazz_pwd
 
 # End of section 1: Dump all variables if debugging
 if [[ $mode =~ 'DEBUG' ]]; then
-  echo "jazz_pwd     = $jazz_pwd"
-  echo "jazz_version = $jazz_version"
-  echo "jz_processor = $jz_processor"
-  echo "jazz_distro1 = $jazz_distro1"
-  echo "jazz_distro2 = $jazz_distro2"
-  echo "mhd_inclpath = $mhd_inclpath"
-  echo "mhd_libpath  = $mhd_libpath"
-  echo "vpath        = $vpath"
-  echo "jzpat        = $jzpat"
-  echo "cpps         = $cpps"
-  echo "objs         = $objs"
-  echo "jazz_depends = $jazz_depends"
+  echo "jazz_pwd      = $jazz_pwd"
+  echo "jazz_version  = $jazz_version"
+  echo "jz_processor  = $jz_processor"
+  echo "jazz_distro1  = $jazz_distro1"
+  echo "jazz_distro2  = $jazz_distro2"
+  echo "mhd_inclpath  = $mhd_inclpath"
+  echo "mhd_libpath   = $mhd_libpath"
+  echo "curl_inclpath = $curl_inclpath"
+  echo "curl_libpath  = $curl_libpath"
+  echo "vpath         = $vpath"
+  echo "jzpat         = $jzpat"
+  echo "cpps          = $cpps"
+  echo "objs          = $objs"
+  echo "jazz_depends  = $jazz_depends"
 
   printf "\n"
 fi
@@ -138,11 +159,12 @@ printf "Writing: server/Makefile ... "
 
 echo "`cat _config_/makefile_head`
 
-CXXFLAGS    := -std=c++11 -I. -I$mhd_inclpath
-LINUX       := ${jazz_distro1}_${jazz_distro2}
-HOME        := $jazz_pwd
-VERSION     := $jazz_version
-mhd_libpath := $mhd_libpath
+CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath
+LINUX        := ${jazz_distro1}_${jazz_distro2}
+HOME         := $jazz_pwd
+VERSION      := $jazz_version
+mhd_libpath  := $mhd_libpath
+curl_libpath := $curl_libpath
 
 VPATH = $vpath
 

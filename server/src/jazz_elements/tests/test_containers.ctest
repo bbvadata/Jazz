@@ -214,35 +214,41 @@ SCENARIO("Testing JazzBlock containers") {
 	REQUIRE(sizeof(JazzTreeItem)		== 96);
 	REQUIRE(sizeof(JazzQueueItem)		== 96);
 
-	GIVEN("We want to test the regex") {
-		REQUIRE( JBK.valid_block_identifier("/abc"));
+	WHEN("We want to test valid_block_identifier()") {
+		REQUIRE( JBK.valid_block_identifier("$abc"));
 		REQUIRE( JBK.valid_block_identifier(".abc"));
-		REQUIRE(!JBK.valid_block_identifier("@abc"));
+		REQUIRE( JBK.valid_block_identifier("@abc"));
 		REQUIRE(!JBK.valid_block_identifier("abc"));
+		REQUIRE(!JBK.valid_block_identifier("#abc"));
+		REQUIRE(!JBK.valid_block_identifier("/abc"));
+		REQUIRE(!JBK.valid_block_identifier("~abc"));
 
-		REQUIRE(!JBK.valid_block_identifier("/"));
-		REQUIRE( JBK.valid_block_identifier("/a"));
+		REQUIRE(!JBK.valid_block_identifier("$"));
+		REQUIRE( JBK.valid_block_identifier("$a"));
 		REQUIRE(!JBK.valid_block_identifier("."));
 		REQUIRE( JBK.valid_block_identifier(".a"));
+		REQUIRE(!JBK.valid_block_identifier("@"));
+		REQUIRE( JBK.valid_block_identifier("@a"));
 
-		REQUIRE( JBK.valid_block_identifier("/abcdefghijklmnopqrstuvwxyz"));
-		REQUIRE( JBK.valid_block_identifier("/ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-		REQUIRE( JBK.valid_block_identifier("/1234567890_"));
-		REQUIRE(!JBK.valid_block_identifier("/Á"));
-		REQUIRE(!JBK.valid_block_identifier("/ñ"));
-		REQUIRE(!JBK.valid_block_identifier("/$"));
-		REQUIRE(!JBK.valid_block_identifier("/ç"));
-		REQUIRE(!JBK.valid_block_identifier("/á"));
-		REQUIRE(!JBK.valid_block_identifier("/à"));
-		REQUIRE(!JBK.valid_block_identifier("/ä"));
-		REQUIRE(!JBK.valid_block_identifier("/ä"));
+		REQUIRE( JBK.valid_block_identifier("@abcdefghijklmnopqrstuvwxyz"));
+		REQUIRE( JBK.valid_block_identifier("@ABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+		REQUIRE( JBK.valid_block_identifier("@1234567890_"));
+		REQUIRE(!JBK.valid_block_identifier("@Á"));
+		REQUIRE(!JBK.valid_block_identifier("@ñ"));
+		REQUIRE(!JBK.valid_block_identifier("@$"));
+		REQUIRE(!JBK.valid_block_identifier("@ç"));
+		REQUIRE(!JBK.valid_block_identifier("@á"));
+		REQUIRE(!JBK.valid_block_identifier("@à"));
+		REQUIRE(!JBK.valid_block_identifier("@ä"));
+		REQUIRE(!JBK.valid_block_identifier("@ä"));
 
 		REQUIRE(!JBK.valid_block_identifier("."));
 		REQUIRE( JBK.valid_block_identifier(".AaBc55_cKrrfe96_"));
 		REQUIRE( JBK.valid_block_identifier("._"));
 		REQUIRE( JBK.valid_block_identifier("._wow_"));
+		REQUIRE(!JBK.valid_block_identifier("._wow<"));
 		REQUIRE(!JBK.valid_block_identifier(".AaBc55.cKrrfe96_"));
-		REQUIRE(!JBK.valid_block_identifier(".AaBc55/cKrrfe96_"));
+		REQUIRE(!JBK.valid_block_identifier(".AaBc55@cKrrfe96_"));
 
 		REQUIRE(!JBK.valid_block_identifier(".hello world"));
 		REQUIRE( JBK.valid_block_identifier(".hello_world"));
@@ -254,8 +260,48 @@ SCENARIO("Testing JazzBlock containers") {
 		REQUIRE( JBK.valid_block_identifier(".hello_world_"));
 		REQUIRE(!JBK.valid_block_identifier("a.hello_world_"));
 
-		REQUIRE( JBK.valid_block_identifier("/123456789012345678901234567890"));
-		REQUIRE(!JBK.valid_block_identifier("/1234567890123456789012345678901"));
+		REQUIRE( JBK.valid_block_identifier("$123456789012345678901234567890"));
+		REQUIRE(!JBK.valid_block_identifier("$1234567890123456789012345678901"));
+	}
+
+	WHEN("We want to test JAZZ_REGEX_VALID_CHARS & JAZZ_REGEX_VALID_SPACING") {
+
+		std::basic_regex<char>	spacing_rex {JAZZ_REGEX_VALID_SPACING};
+		std::basic_regex<char>	valid_rex {JAZZ_REGEX_VALID_CHARS};
+
+		std::string tt	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ0123456789+*.$()?-_%@&:=/!";
+
+		REQUIRE( std::regex_match(tt, valid_rex));
+
+		std::string raw	 = "The + quick - brown * fox / jumps & over\n .the:lazy:(.dog, @cat, $mouse, ?(id; 2.0 :rep: 20))=.y!if_exists%20";
+		std::string neat = std::regex_replace(raw, spacing_rex, "");
+
+		REQUIRE( std::regex_match(neat, valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
+
+		raw	 = "12*(3 + 456) - 7890.3/4";
+		neat = std::regex_replace(raw, spacing_rex, "");
+
+		REQUIRE( std::regex_match(neat, valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
+
+		raw	 = "Abc <";
+		neat = std::regex_replace(raw, spacing_rex, "");
+
+		REQUIRE(!std::regex_match(neat, valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
+
+		raw	 = "Abc {";
+		neat = std::regex_replace(raw, spacing_rex, "");
+
+		REQUIRE(!std::regex_match(neat, valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
+
+		raw	 = "Abc ]";
+		neat = std::regex_replace(raw, spacing_rex, "");
+
+		REQUIRE(!std::regex_match(neat, valid_rex));
+		REQUIRE(!std::regex_match(raw,	valid_rex));
 	}
 }
 
@@ -5119,9 +5165,9 @@ SCENARIO("Force all error conditions") {
 	jazz_utils::JazzLogger jll(log_file);
 
 	JazzBlockKeepr jbk(&jll);
-	JazzTree 	   jbt(&jll);
+	JazzTree	   jbt(&jll);
 	AATBlockQueue  aaq(&jll);
-	JazzCache 	   jca(&jll);
+	JazzCache	   jca(&jll);
 
 	jbk.log(LOG_INFO, "Hello JazzBlockKeepr!");
 	jbt.log(LOG_INFO, "Hello JazzTree!");
@@ -5129,9 +5175,9 @@ SCENARIO("Force all error conditions") {
 	jca.log(LOG_INFO, "Hello JazzCache!");
 #else
 	JazzBlockKeepr jbk(nullptr);
-	JazzTree 	   jbt(nullptr);
+	JazzTree	   jbt(nullptr);
 	AATBlockQueue  aaq(nullptr);
-	JazzCache 	   jca(nullptr);
+	JazzCache	   jca(nullptr);
 #endif
 
 	JazzTensorDim dim {{5, 2, 0}};

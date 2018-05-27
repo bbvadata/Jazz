@@ -21,7 +21,31 @@
   limitations under the License.
 */
 
-/*
-#define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
-#include "microhttpd.h"
+
+/**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
+
+	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
+structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
+approximately matching Bebop bytecode instructions.
 */
+
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_STDCORE
+#define INCLUDED_JAZZ_ELEMENTS_STDCORE
+
+namespace jazz_stdcore
+{
+
+}
+
+#endif

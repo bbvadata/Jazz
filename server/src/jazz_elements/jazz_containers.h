@@ -67,13 +67,30 @@ namespace jazz_containers
 
 using namespace jazz_datablocks;
 
+/**
+	+ - * / &		- One char operators
+	:sum:			- Composed operators
+	. @ $			- First char in a block name
+	()				- Evaluate (block must be a function)
+	(arg_1,arg_2)	- Evaluate with arguments
+	?(id;expr)		- A block constructor
+	=				- Assignment lvalue=rvalue
+	!				- Modifier
+	!if_exists		- Assign only if exists			.x!if_exists=.y
+	!if_not_exists	- Assign only if not exists		.x!if_not_exists=.y
+	%20				- urlencode (space or any other char 2 digit hex)
+*/
+#define JAZZ_REGEX_VALID_CHARS		   "^[a-zA-Z0-9\\+\\*\\.\\$\\(\\)\\?\\-_,;%@&:=/!]*$"
+#define JAZZ_REGEX_VALID_SPACING										   "[\\n\\r \\t]"	///< Regex validating any spacing (is removed)
+#define JAZZ_REGEX_VALIDATE_BLOCK_ID					"^(\\.|@|\\$)[a-zA-Z0-9_]{1,30}$"	///< Regex validating a JazzBlockIdentifier
+
 #define JAZZ_MAX_BLOCK_ID_LENGTH								 32		///< Maximum length for a block name
-#define JAZZ_REGEX_VALIDATE_BLOCK_ID  "^(/|\\.)[[:alnum:]_]{1,30}$"		///< Regex validating a JazzBlockIdentifier
 #define JAZZ_BLOCK_ID_PREFIX_LOCAL								'.'		///< First char of a LOCAL JazzBlockIdentifier
-#define JAZZ_BLOCK_ID_PREFIX_DISTRIB							'/'		///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_DISTRIB							'@'		///< First char of a DISTRIBUTED JazzBlockIdentifier
+#define JAZZ_BLOCK_ID_PREFIX_UBIQUITOUS							'$'		///< First char of a UBIQUITOUS JazzBlockIdentifier
 #define JAZZ_LOCK_READING_RETRY_NUMTIMES						100		///< # retries when lock fails (reading) before this_thread::yield();
 #define JAZZ_LOCK_WRITING_RETRY_NUMTIMES						100		///< # retries when lock fails (writing) before this_thread::yield();
-#define JAZZ_LOCK_KICKING_RETRY_NUMTIMES					   1000		///< # retries when writing ok but with readers before this_thread::yield();
+#define JAZZ_LOCK_KICKING_RETRY_NUMTIMES					   1000		///< # retries when writing ok with readers before this_thread::yield();
 /// (Approx) sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
 #define JAZZ_LOCK_WEIGHT_OF_WRITE							  46341
 
@@ -102,13 +119,13 @@ using namespace jazz_datablocks;
 #define BLOCK_ATTR_CONTAINERS_FILTER	BLOCK_ATTR_BASEOF_CONTAINERS + 2	///< A new filter: creates a <this:empty string>
 
 #define BLOCK_ATTR_BASEOF_PERSISTENCE	BLOCK_ATTR_BASEOF_CONTAINERS  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_persistence.h
-#define BLOCK_ATTR_BASEOF_CLASSES		BLOCK_ATTR_BASEOF_PERSISTENCE + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_classes.h
-#define BLOCK_ATTR_BASEOF_PRIMITIVES	BLOCK_ATTR_BASEOF_CLASSES	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_primitives.h
-#define BLOCK_ATTR_BASEOF_PROCESSCALL	BLOCK_ATTR_BASEOF_PRIMITIVES  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_processcall.h
-#define BLOCK_ATTR_BASEOF_CLUSTER		BLOCK_ATTR_BASEOF_PROCESSCALL + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_cluster.h
-#define BLOCK_ATTR_BASEOF_COLUMN		BLOCK_ATTR_BASEOF_CLUSTER	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_column.h
-#define BLOCK_ATTR_BASEOF_ARCHIVE		BLOCK_ATTR_BASEOF_COLUMN	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_archive.h
-#define BLOCK_ATTR_BASEOF_DATAFRAME		BLOCK_ATTR_BASEOF_ARCHIVE	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_dataframe.h
+#define BLOCK_ATTR_BASEOF_HTTPCLIENT	BLOCK_ATTR_BASEOF_PERSISTENCE + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_httpclient.h
+#define BLOCK_ATTR_BASEOF_CLASSES		BLOCK_ATTR_BASEOF_HTTPCLIENT  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_classes.h
+#define BLOCK_ATTR_BASEOF_STDCORE		BLOCK_ATTR_BASEOF_CLASSES	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_stdcore.h
+#define BLOCK_ATTR_BASEOF_CLUSTER		BLOCK_ATTR_BASEOF_STDCORE	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_cluster.h
+#define BLOCK_ATTR_BASEOF_FILESYSTEM	BLOCK_ATTR_BASEOF_CLUSTER	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_filesystem.h
+#define BLOCK_ATTR_BASEOF_COLUMN		BLOCK_ATTR_BASEOF_FILESYSTEM  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_column.h
+#define BLOCK_ATTR_BASEOF_DATAFRAME		BLOCK_ATTR_BASEOF_COLUMN	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_dataframe.h
 #define BLOCK_ATTR_BASEOF_BEBOP			BLOCK_ATTR_BASEOF_DATAFRAME	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_bebop.h
 #define BLOCK_ATTR_BASEOF_RESTAPI		BLOCK_ATTR_BASEOF_BEBOP		  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys in jazz_restapi.h
 #define BLOCK_ATTR_BASEOF_EXTENSIONS	BLOCK_ATTR_BASEOF_RESTAPI	  + BLOCK_ATTR_SECTION_SIZE	///< Base of attribute keys from C++ extensions
@@ -998,8 +1015,8 @@ class JazzCache: public AATBlockQueue {
 		*/
 		inline pJazzQueueItem find_jazz_block (JazzBlockId64 id64) { return cache[id64]; }
 
-		virtual void free_jazz_block (pJazzQueueItem 			 p_item, bool inside_writing = false, bool never_used = false);
-		bool 		 free_jazz_block (const JazzBlockIdentifier *p_id);
+		virtual void free_jazz_block (pJazzQueueItem			 p_item, bool inside_writing = false, bool never_used = false);
+		bool		 free_jazz_block (const JazzBlockIdentifier *p_id);
 		bool		 free_jazz_block (JazzBlockId64				 id64);
 
 	private:

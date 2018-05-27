@@ -29,28 +29,3 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-
-
-#include "src/include/jazz_platform.h"
-
-
-/**< \brief Basic JAZZ types and definitions.
-
-	This file merges headers in src/jazz_elements/ to define all the higher level types and root classes. This is what you need to create
-your own descendent classes to extend Jazz en C++. If you need the core implementations, Bebop or extending in scripting languages, you
-need jazz_api.h
-*/
-
-
-#ifndef INCLUDED_JAZZ_INCLUDE_JAZZ
-#define INCLUDED_JAZZ_INCLUDE_JAZZ
-
-#include "src/jazz_elements/jazz_datablocks.h"
-#include "src/jazz_elements/jazz_utils.h"
-#include "src/jazz_elements/jazz_containers.h"
-#include "src/jazz_elements/jazz_persistence.h"
-#include "src/jazz_elements/jazz_httpclient.h"
-#include "src/jazz_elements/jazz_classes.h"
-#include "src/jazz_elements/jazz_stdcore.h"
-
-#endif

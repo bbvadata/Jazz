@@ -946,9 +946,9 @@ pJazzBlockKeeprItem JazzBlockKeepr::new_keepr_item()
 
 /** Destroy a JazzBlock and free its owning JazzBlockKeeprItem
 
-	\param p_item         The JazzBlockKeeprItem owning the JazzBlock that will be destroyed.
+	\param p_item		  The JazzBlockKeeprItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
-	\param never_used     The item was allocated but the block creation failed, ignore p_jazz_block.
+	\param never_used	  The item was allocated but the block creation failed, ignore p_jazz_block.
 
 	Logs with level LOG_ERROR on errors.
 */
@@ -1404,7 +1404,7 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 
 		enter_writing();
 		pJazzQueueItem p_item = (pJazzQueueItem) p_first_free;
-		p_first_free 		  = p_item->p_alloc_next;
+		p_first_free		  = p_item->p_alloc_next;
 		leave_writing();
 
 		return p_item;
@@ -1433,9 +1433,9 @@ pJazzQueueItem AATBlockQueue::new_keepr_item()
 
 /** Destroy a JazzBlock and free its owning JazzQueueItem
 
-	\param p_item 		  The JazzQueueItem owning the JazzBlock that will be destroyed.
+	\param p_item		  The JazzQueueItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
-	\param never_used     The item was allocated but the block creation failed, ignore p_jazz_block.
+	\param never_used	  The item was allocated but the block creation failed, ignore p_jazz_block.
 */
 void AATBlockQueue::free_jazz_block(pJazzQueueItem p_item, bool inside_writing, bool never_used)
 {
@@ -1750,9 +1750,9 @@ pJazzQueueItem JazzCache::new_jazz_block (const JazzBlockIdentifier *p_id,
 
 /** Destroy a JazzBlock, free its owning JazzQueueItem and remove it from the cache
 
-	\param p_item 		  The JazzQueueItem owning the JazzBlock that will be destroyed.
+	\param p_item		  The JazzQueueItem owning the JazzBlock that will be destroyed.
 	\param inside_writing The caller already has called enter_writing(), it should not be called again.
-	\param never_used     The item was allocated but the block creation failed, ignore p_jazz_block.
+	\param never_used	  The item was allocated but the block creation failed, ignore p_jazz_block.
 */
 void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing, bool never_used)
 {
@@ -1781,7 +1781,7 @@ void JazzCache::free_jazz_block (pJazzQueueItem p_item, bool inside_writing, boo
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockIdentifier (block name hash)
 
 	\param p_id The JazzBlockIdentifier of the block to be searched for deletion
-	\return     true if the block was found and removed
+	\return		true if the block was found and removed
 
 	Logs with level LOG_MISS if the block is not found.
 */
@@ -1815,7 +1815,7 @@ bool JazzCache::free_jazz_block(const JazzBlockIdentifier *p_id)
 /** Delete a block and remove its JazzBlockKeeprItem descendant searching by JazzBlockId64 (block name)
 
 	\param id64 The JazzBlockId64 of the block to be searched for deletion
-	\return     true if the block was found and removed
+	\return		true if the block was found and removed
 
 	Logs with level LOG_MISS if the block is not found.
 */
