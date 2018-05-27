@@ -30,14 +30,7 @@ approximately matching Bebop bytecode instructions.
 */
 
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/jazz_elements/jazz_classes.h"
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_STDCORE

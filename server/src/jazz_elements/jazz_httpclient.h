@@ -31,14 +31,8 @@ approximately matching Bebop bytecode instructions.
 
 #include "curl/curl.h"
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
 
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/jazz_elements/jazz_persistence.h"
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT

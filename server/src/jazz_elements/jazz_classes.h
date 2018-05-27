@@ -28,14 +28,7 @@ and the basic single block classes and multiblock or multinode abstractions.
 */
 
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/jazz_elements/jazz_httpclient.h"
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_CLASSES
