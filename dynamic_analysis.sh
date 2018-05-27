@@ -20,8 +20,6 @@ mkdir dynamic_analysis_reports
 valgrind --leak-check=yes --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
 #valgrind --tool=callgrind --log-file=dynamic_analysis_reports/callgrind.txt ./tjazz
 
-make clean
-
 popd
 
 reports=$(find server/dynamic_analysis_reports/ | grep ".txt")
