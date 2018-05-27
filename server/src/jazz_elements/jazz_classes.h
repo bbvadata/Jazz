@@ -23,8 +23,8 @@
 
 /**< \brief Definitions of Jazz root classes
 
-	This module contains the top-level definitions of many classes. This includes utilities like JazzLogger,
-and the basic single block classes and multiblock or multinode abstractions.
+	This module contains the top-level definitions of Jazz classes. This means, classes stored as attributes of JazzBlock to determine
+	what JazzBlockKeepr (or other root) class descendants they belong to, not c++ classes.
 */
 
 
