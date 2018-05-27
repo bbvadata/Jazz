@@ -22,11 +22,11 @@
 */
 
 
-/**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
+/**< \brief Simplest functionality to operate as an http client to GET, PUT, DELETE JazzBlock descendants to/from other Jazz nodes or any
+http servers.
 
-	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
-structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
-approximately matching Bebop bytecode instructions.
+	This module uses curl in combination with JazzBlock and Jazz allocators (one shot or volatile) to simplify the communication from
+	remote sources or across Jazz nodes.
 */
 
 #include "curl/curl.h"
