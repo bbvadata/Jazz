@@ -26,10 +26,7 @@
 namespace jazz_classes
 {
 
-/**
-//TODO: Document jazz_classes module
-*/
-
+//TODO: Implement module jazz_classes.
 
 } // namespace jazz_classes
 
