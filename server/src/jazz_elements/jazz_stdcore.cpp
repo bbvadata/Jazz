@@ -22,3 +22,18 @@
 */
 
 #include "src/jazz_elements/jazz_stdcore.h"
+
+namespace jazz_stdcore
+{
+
+/**
+//TODO: Document jazz_stdcore module
+*/
+
+
+} // namespace jazz_stdcore
+
+
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_stdcore.ctest"
+#endif
