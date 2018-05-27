@@ -22,3 +22,18 @@
 */
 
 #include "src/jazz_elements/jazz_classes.h"
+
+namespace jazz_classes
+{
+
+/**
+//TODO: Document jazz_classes module
+*/
+
+
+} // namespace jazz_classes
+
+
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_classes.ctest"
+#endif
