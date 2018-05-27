@@ -24,6 +24,14 @@
 #include "src/jazz_elements/jazz_httpclient.h"
 
 
+namespace jazz_httpclient
+{
+
+/**
+//TODO: Document jazz_httpclient module
+*/
+
+
 /** A test write callback.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
@@ -85,3 +93,10 @@ bool remote_testing_point ()
 	return true;
 }
 
+
+} // namespace jazz_httpclient
+
+
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_httpclient.ctest"
+#endif
