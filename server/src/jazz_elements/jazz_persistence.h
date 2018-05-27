@@ -26,8 +26,6 @@
 */
 
 
-#include "src/jazz_elements/jazz_datablocks.h"
-#include "src/jazz_elements/jazz_utils.h"
 #include "src/jazz_elements/jazz_containers.h"
 
 /**< \brief Jazz class JazzPersistedSource
