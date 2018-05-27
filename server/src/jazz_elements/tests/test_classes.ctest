@@ -36,6 +36,8 @@ using namespace jazz_classes;
 
 SCENARIO("Testing JazzClasses") {
 
+//TODO: Write tests for jazz_classes.
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
