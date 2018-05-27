@@ -25,6 +25,8 @@
 
 	This module contains the top-level definitions of Jazz classes. This means, classes stored as attributes of JazzBlock to determine
 	what JazzBlockKeepr (or other root) class descendants they belong to, not c++ classes.
+
+//TODO: Extend module description for jazz_classes when implemented.
 */
 
 
@@ -36,6 +38,10 @@
 
 namespace jazz_classes
 {
+
+//TODO: Document interface for module jazz_classes.
+
+//TODO: Implement interface for module jazz_classes.
 
 }
 
