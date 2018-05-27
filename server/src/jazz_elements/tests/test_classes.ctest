@@ -34,7 +34,7 @@ using namespace jazz_classes;
 // Tests
 // -----
 
-SCENARIO("Testing JazzClasse") {
+SCENARIO("Testing JazzClasses") {
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
