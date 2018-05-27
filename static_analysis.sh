@@ -9,9 +9,6 @@
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
 
-rm -rf server/static_analysis_reports/
-rm -f sever/report.xml
-
 pushd server
 
 make clean
@@ -31,7 +28,6 @@ fi
 cppcheck src/ -i src/catch2/ -i src/curl/ --force --xml 2>report.xml
 cppcheck-htmlreport --file=report.xml --title=Jazz --report-dir=static_analysis_reports --source-dir=.
 
-make clean
 rm -f report.xml
 
 popd
