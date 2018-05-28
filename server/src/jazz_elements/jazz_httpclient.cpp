@@ -27,9 +27,7 @@
 namespace jazz_httpclient
 {
 
-/**
-//TODO: Document jazz_httpclient module
-*/
+//TODO: Implement module jazz_httpclient.
 
 
 /** A test write callback.
