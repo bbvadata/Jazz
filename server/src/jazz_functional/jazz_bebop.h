@@ -21,3 +21,25 @@
   limitations under the License.
 */
 
+/**< \brief TODO
+
+//TODO: Write module description for jazz_bebop when implemented.
+*/
+
+
+#include "src/include/jazz.h"
+
+
+#ifndef INCLUDED_JAZZ_FUNCTIONAL_BEBOP
+#define INCLUDED_JAZZ_FUNCTIONAL_BEBOP
+
+namespace jazz_bebop
+{
+
+//TODO: Document interface for module jazz_bebop.
+
+//TODO: Implement interface for module jazz_bebop.
+
+}
+
+#endif
