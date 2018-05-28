@@ -36,6 +36,8 @@ using namespace jazz_stdcore;
 
 SCENARIO("Testing JazzStdcore") {
 
+//TODO: Write tests for jazz_stdcore.
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
