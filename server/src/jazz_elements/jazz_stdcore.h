@@ -27,6 +27,9 @@
 	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
 structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
 approximately matching Bebop bytecode instructions.
+
+//TODO: Extend module description for jazz_stdcore when implemented.
+
 */
 
 
@@ -38,6 +41,10 @@ approximately matching Bebop bytecode instructions.
 
 namespace jazz_stdcore
 {
+
+//TODO: Document interface for module jazz_stdcore.
+
+//TODO: Implement interface for module jazz_stdcore.
 
 }
 
