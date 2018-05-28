@@ -21,3 +21,25 @@
   limitations under the License.
 */
 
+/**< \brief TODO
+
+//TODO: Write module description for jazz_column when implemented.
+*/
+
+
+#include "src/include/jazz.h"
+
+
+#ifndef INCLUDED_JAZZ_FUNCTIONAL_BEBOP
+#define INCLUDED_JAZZ_FUNCTIONAL_BEBOP
+
+namespace jazz_column
+{
+
+//TODO: Document interface for module jazz_column.
+
+//TODO: Implement interface for module jazz_column.
+
+}
+
+#endif
