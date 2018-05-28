@@ -26,10 +26,7 @@
 namespace jazz_stdcore
 {
 
-/**
-//TODO: Document jazz_stdcore module
-*/
-
+//TODO: Implement module jazz_stdcore.
 
 } // namespace jazz_stdcore
 
