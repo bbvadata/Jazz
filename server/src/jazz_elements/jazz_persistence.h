@@ -30,7 +30,7 @@
 
 /**< \brief Jazz class JazzPersistedSource
 
-//TODO: Write the module description
+//TODO: Write jazz_persistence module description
 */
 
 
