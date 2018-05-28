@@ -27,6 +27,9 @@ http servers.
 
 	This module uses curl in combination with JazzBlock and Jazz allocators (one shot or volatile) to simplify the communication from
 	remote sources or across Jazz nodes.
+
+//TODO: Extend module description for jazz_httpclient when implemented.
+
 */
 
 #include "curl/curl.h"
@@ -40,6 +43,10 @@ http servers.
 
 namespace jazz_httpclient
 {
+
+//TODO: Document interface for module jazz_httpclient.
+
+//TODO: Implement interface for module jazz_httpclient.
 
 }
 
