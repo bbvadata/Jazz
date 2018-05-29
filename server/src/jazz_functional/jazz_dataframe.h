@@ -27,7 +27,7 @@
 */
 
 
-#include "src/include/jazz.h"
+#include "src/jazz_functional/jazz_column.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_DATAFRAME
