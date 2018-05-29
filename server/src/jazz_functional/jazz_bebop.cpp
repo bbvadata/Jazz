@@ -21,3 +21,16 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_bebop.h"
+
+namespace jazz_bebop
+{
+
+//TODO: Implement module jazz_bebop.
+
+} // namespace jazz_bebop
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_bebop.ctest"
+#endif
