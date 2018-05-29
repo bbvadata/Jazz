@@ -30,8 +30,8 @@
 #include "src/include/jazz.h"
 
 
-#ifndef INCLUDED_JAZZ_FUNCTIONAL_BEBOP
-#define INCLUDED_JAZZ_FUNCTIONAL_BEBOP
+#ifndef INCLUDED_JAZZ_FUNCTIONAL_CLUSTER
+#define INCLUDED_JAZZ_FUNCTIONAL_CLUSTER
 
 namespace jazz_cluster
 {

@@ -33,8 +33,8 @@
 #include "src/include/jazz.h"
 
 
-#ifndef INCLUDED_JAZZ_FUNCTIONAL_BEBOP
-#define INCLUDED_JAZZ_FUNCTIONAL_BEBOP
+#ifndef INCLUDED_JAZZ_FUNCTIONAL_FILESYSTEM
+#define INCLUDED_JAZZ_FUNCTIONAL_FILESYSTEM
 
 namespace jazz_filesystem
 {
