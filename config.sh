@@ -91,10 +91,10 @@ depends ( )
     obj=$(echo "$cpp" | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/')
     hea="${cpp//cpp/h}"
 
+    dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+
     if [ -e "$hea" ]; then
-      dep=$(grep -rnw "$cpp" "$hea" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
-    else
-      dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+      dep=$(dep recursive_parse_header $hea)
     fi
 
 	# shellcheck disable=SC2068
