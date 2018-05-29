@@ -21,3 +21,16 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_column.h"
+
+namespace jazz_column
+{
+
+//TODO: Implement module jazz_column.
+
+} // namespace jazz_column
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_column.ctest"
+#endif
