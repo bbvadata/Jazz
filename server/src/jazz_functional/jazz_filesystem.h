@@ -30,7 +30,7 @@
 */
 
 
-#include "src/include/jazz.h"
+#include "src/jazz_functional/jazz_cluster.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_FILESYSTEM
