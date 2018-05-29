@@ -21,3 +21,16 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_filesystem.h"
+
+namespace jazz_filesystem
+{
+
+//TODO: Implement module jazz_filesystem.
+
+} // namespace jazz_filesystem
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_filesystem.ctest"
+#endif
