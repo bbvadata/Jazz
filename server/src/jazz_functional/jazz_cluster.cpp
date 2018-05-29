@@ -21,3 +21,16 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_cluster.h"
+
+namespace jazz_cluster
+{
+
+//TODO: Implement module jazz_cluster.
+
+} // namespace jazz_cluster
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_cluster.ctest"
+#endif
