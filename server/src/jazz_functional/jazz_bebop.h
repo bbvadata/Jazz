@@ -27,7 +27,7 @@
 */
 
 
-#include "src/include/jazz.h"
+#include "src/jazz_functional/jazz_dataframe.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_BEBOP
