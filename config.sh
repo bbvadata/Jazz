@@ -88,11 +88,14 @@ objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | 
 
 recursive_parse_header ( )
 {
+echo "Enter recursive_parse_header($1)" >&2
+
   dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
   recursive_parse_header_result="$recursive_parse_header_result $dep"
 
   for dp in $dep; do
+echo "Enter recursive_parse_header($1)" >&2
     if [ -e "$dp" ]; then
       recursive_parse_header_result="$recursive_parse_header_result $(recursive_parse_header $dp)"
     fi
