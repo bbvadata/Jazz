@@ -119,9 +119,10 @@ depends ( )
     fi
 
     # shellcheck disable=SC2068
-    echo "$obj": ${dep[@]} ${hea_incl[@]}
+    echo "$obj": ${dep[@]} $hea_incl
   done
 }
+
 
 jazz_depends=$(depends)
 
