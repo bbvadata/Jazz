@@ -90,16 +90,15 @@ recursive_parse_header ( )
 {
   dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
-  result=${dep[@]}
+  recursive_parse_header_result="$recursive_parse_header_result $dep"
 
   for dp in $dep; do
-    if [ -e "$hea" ]; then
-      hea_incl=$(recursive_parse_header "$hea")
+    if [ -e "$dp" ]; then
+      recursive_parse_header_result="$recursive_parse_header_result $(recursive_parse_header $dp)"
     fi
-
   done
 
-  echo result
+  echo $recursive_parse_header_result
 }
 
 
