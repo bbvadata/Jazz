@@ -89,7 +89,7 @@ recursive_parse_header ( )
 {
   dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
-  echo ${dep[@]}
+  echo "$dep"
 }
 
 depends ( )
@@ -98,14 +98,17 @@ depends ( )
     obj=$(echo "$cpp" | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/')
     hea="${cpp//cpp/h}"
 
+    unset dep
+    unset hea_incl
+
     dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
     if [ -e "$hea" ]; then
-      dep=$(dep recursive_parse_header $hea)
+      hea_incl=$(recursive_parse_header "$hea")
     fi
 
-	# shellcheck disable=SC2068
-    echo "$obj": ${dep[@]}
+    # shellcheck disable=SC2068
+    echo "$obj": ${dep[@]} ${hea_incl[@]}
   done
 }
 
