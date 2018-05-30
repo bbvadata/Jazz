@@ -85,12 +85,23 @@ jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
 objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
+
 recursive_parse_header ( )
 {
   dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
-  echo "$dep"
+  result=${dep[@]}
+
+  for dp in $dep; do
+    if [ -e "$hea" ]; then
+      hea_incl=$(recursive_parse_header "$hea")
+    fi
+
+  done
+
+  echo result
 }
+
 
 depends ( )
 {
