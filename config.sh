@@ -118,7 +118,7 @@ depends ( )
 
     if [ -e "$hea" ]; then
 	  unset recursive_parse_header_result
-      hea_incl=$(recursive_parse_header "$hea")
+      hea_incl=$(recursive_parse_header "$hea" "_")
     fi
 
     # shellcheck disable=SC2068
