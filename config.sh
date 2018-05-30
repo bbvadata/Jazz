@@ -88,16 +88,17 @@ objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | 
 
 recursive_parse_header ( )
 {
-echo "$2Enter recursive_parse_header($1)" >&2
+echo "$2 Enter recursive_parse_header($1)" >&2
 
-  dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
-
-  recursive_parse_header_result="$recursive_parse_header_result $dep"
+  dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
 
   for dp in $dep; do
-echo "$2  iterating in dep($dp)" >&2
+echo "$2   iterating in dep($dp)" >&2
     if [ -e "$dp" ]; then
-      recursive_parse_header_result="$recursive_parse_header_result $(recursive_parse_header $dp "$2 _")"
+echo "$2     file exists" >&2
+      recursive_parse_header_result="$recursive_parse_header_result $(echo $dp | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')"
+
+	  recursive_parse_header_result=$(recursive_parse_header $dp "$2 _")
     fi
   done
 
