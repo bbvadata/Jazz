@@ -114,6 +114,7 @@ depends ( )
     dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
     if [ -e "$hea" ]; then
+	  unset recursive_parse_header_result
       hea_incl=$(recursive_parse_header "$hea")
     fi
 
