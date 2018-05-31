@@ -96,7 +96,7 @@ echo "$2 Enter recursive_parse_header($1)" >&2
 echo "$2   iterating in dep($dp)" >&2
     if [ -e "$dp" ]; then
 echo "$2     file exists" >&2
-      recursive_parse_header_result="$recursive_parse_header_result $(echo $dp | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')"
+      recursive_parse_header_result="$recursive_parse_header_result $(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')"
 
 	  recursive_parse_header_result=$(recursive_parse_header $dp "$2 _")
     fi
