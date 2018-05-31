@@ -104,6 +104,7 @@ echo "$2     file exists" >&2
     fi
   done
 
+  # shellcheck disable=SC2001
   echo "$recursive_parse_header_result" | sed 's/^ //'
 }
 
