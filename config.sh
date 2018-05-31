@@ -98,7 +98,7 @@ recursive_parse_header ( )
       if [[ $recursive_parse_header_result != *"$short_name"* ]]; then
         recursive_parse_header_result="$recursive_parse_header_result $short_name"
 
-        recursive_parse_header_result=$(recursive_parse_header "$dp" "$2 _")
+        recursive_parse_header_result=$(recursive_parse_header "$dp")
       fi
     fi
   done
