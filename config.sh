@@ -104,7 +104,7 @@ echo "$2     file exists" >&2
     fi
   done
 
-  echo "$recursive_parse_header_result"
+  echo "$recursive_parse_header_result" | sed 's/^ //'
 }
 
 
