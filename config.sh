@@ -15,7 +15,7 @@
 #   limitations under the License.
 
 
-mode='RUN'	# Set mode='DEBUG' for echoing all variables before confirmation.
+mode='RUN'    # Set mode='DEBUG' for echoing all variables before confirmation.
 
 
 # Section 1. Gathering all necessary information. 1. Fail if necessary. 2. Do nothing without confirmation
@@ -93,7 +93,7 @@ recursive_parse_header ( )
   for dp in $dep; do
     if [ -e "$dp" ]; then
       # shellcheck disable=SC2001
-	  short_name=$(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+      short_name=$(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
       if [[ $recursive_parse_header_result = *"$short_name"* ]]; then
       else
@@ -121,7 +121,7 @@ depends ( )
     dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
     if [ -e "$hea" ]; then
-	  unset recursive_parse_header_result
+      unset recursive_parse_header_result
       hea_incl=$(recursive_parse_header "$hea" "_")
     fi
 
