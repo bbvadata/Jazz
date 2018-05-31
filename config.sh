@@ -99,11 +99,11 @@ echo "$2     file exists" >&2
       # shellcheck disable=SC2001
       recursive_parse_header_result="$recursive_parse_header_result $(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')"
 
-	  recursive_parse_header_result=$(recursive_parse_header $dp "$2 _")
+	  recursive_parse_header_result=$(recursive_parse_header "$dp" "$2 _")
     fi
   done
 
-  echo $recursive_parse_header_result
+  echo "$recursive_parse_header_result"
 }
 
 
