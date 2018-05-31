@@ -95,8 +95,7 @@ recursive_parse_header ( )
       # shellcheck disable=SC2001
       short_name=$(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
 
-      if [[ $recursive_parse_header_result = *"$short_name"* ]]; then
-      else
+      if [[ $recursive_parse_header_result != *"$short_name"* ]]; then
         recursive_parse_header_result="$recursive_parse_header_result $short_name"
 
         recursive_parse_header_result=$(recursive_parse_header "$dp" "$2 _")
