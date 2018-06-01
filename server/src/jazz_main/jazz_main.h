@@ -45,6 +45,11 @@
 
    This list is collected here for convenience. It is mostly documentation related and belong to all the project
 
+	MAIN PAGE & INTRODUCTION
+
+
+	NAMESPACES
+
 //TODO: Edit doc of NAMESPACE jazz_bebop		current is: TODO
 //TODO: Edit doc of NAMESPACE jazz_classes		current is: Definitions of Jazz root classes
 //TODO: Edit doc of NAMESPACE jazz_cluster		current is: TODO
@@ -58,6 +63,29 @@
 //TODO: Edit doc of NAMESPACE jazz_restapi		current is:
 //TODO: Edit doc of NAMESPACE jazz_stdcore		current is: Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock ...
 //TODO: Edit doc of NAMESPACE jazz_utils		current is:
+
+	DATA STRUCTURES
+
+//TODO: Edit doc of STRUC AATBlockQueue				current is:
+//TODO: Edit doc of STRUC JazzBlockIdentifier		current is:
+//TODO: Edit doc of STRUC JazzBlockKeepr			current is:
+//TODO: Edit doc of STRUC JazzBlockKeeprItem		current is:
+//TODO: Edit doc of STRUC JazzCache					current is:
+//TODO: Edit doc of STRUC JazzQueueItem				current is:
+//TODO: Edit doc of STRUC JazzTree					current is:
+//TODO: Edit doc of STRUC JazzTreeItem				current is:
+//TODO: Edit doc of STRUC FilterSize				current is: Two names for the first two elements in a JazzTensorDim
+//TODO: Edit doc of STRUC JazzBlock					current is:
+//TODO: Edit doc of STRUC JazzBlockHeader			current is: Header for a JazzBlock
+//TODO: Edit doc of STRUC JazzFilter				current is:
+//TODO: Edit doc of STRUC JazzStringBuffer			current is: Structure at the end of a JazzBlock, initially created with ...
+//TODO: Edit doc of STRUC JazzTensor				current is: A tensor of cell size 1, 4 or 8
+//TODO: Edit doc of STRUC JazzTensorDim				current is:
+//TODO: Edit doc of STRUC JazzPersistence			current is:
+//TODO: Edit doc of STRUC JazzPersistenceItem		current is:
+//TODO: Edit doc of STRUC JazzSource				current is:
+//TODO: Edit doc of STRUC JazzConfigFile			current is:
+//TODO: Edit doc of STRUC JazzLogger				current is:
 
 */
 
