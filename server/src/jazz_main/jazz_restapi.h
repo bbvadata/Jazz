@@ -22,9 +22,9 @@
 */
 
 
-/**< \brief Jazz class JazzHtppServer
+/**< \brief Jazz class JazzHttpServer
 
-	This module defines the class JazzHtppServer with the full logic to expose all the API available in
+	This module defines the class JazzHttpServer with the full logic to expose all the API available in
 jazz_api.h through a REST API.
 */
 
