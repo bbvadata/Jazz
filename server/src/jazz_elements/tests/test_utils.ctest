@@ -26,7 +26,7 @@ using namespace jazz_utils;
 
 
 SCENARIO("Testing CountBytesFromUtf8().") {
-	char buf1[80] = {"abcdefghi"};
+	char buf1[80] = {"NineChars"};
 	char buf2[80] = {"ácido"};
 	char buf3[80] = {"eñe"};
 	char buf4[80] = {"\xF0...\xE0..\xC0.Z"};
@@ -264,7 +264,7 @@ SCENARIO("Testing ExpandEscapeSequences().") {
 //TODO: Find a better way to test an existing process by name (creating it?)
 SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
-//	REQUIRE(FindProcessIdByName("/usr/bin/lxcfs") != 0);
+//	REQUIRE(FindProcessIdByName("/usr/bin/") != 0);
 }
 
 
@@ -424,12 +424,12 @@ SCENARIO("Testing TenBitsAtAddress().") {
 	REQUIRE(TenBitsAtAddress("aa") == 0x021);
 	REQUIRE(TenBitsAtAddress("00") == 0x210);
 
-	REQUIRE(TenBitsAtAddress("77x")	 == 0x2f7);
-	REQUIRE(TenBitsAtAddress("70y")	 == 0x217);
-	REQUIRE(TenBitsAtAddress("7az")	 == 0x037);
-	REQUIRE(TenBitsAtAddress("a7xx")	 == 0x2e1);
-	REQUIRE(TenBitsAtAddress("a0yy")	 == 0x201);
-	REQUIRE(TenBitsAtAddress("aazz")	 == 0x021);
+	REQUIRE(TenBitsAtAddress("77x")	  == 0x2f7);
+	REQUIRE(TenBitsAtAddress("70y")	  == 0x217);
+	REQUIRE(TenBitsAtAddress("7az")	  == 0x037);
+	REQUIRE(TenBitsAtAddress("a7xx")  == 0x2e1);
+	REQUIRE(TenBitsAtAddress("a0yy")  == 0x201);
+	REQUIRE(TenBitsAtAddress("aa_zz") == 0x021);
 	REQUIRE(TenBitsAtAddress("00ttt") == 0x210);
 }
 
@@ -625,5 +625,6 @@ SCENARIO("Testing class JazzLogger") {
 
 	log2.log(LOG_INFO, "Extended");
 }
+
 
 //TODO: Write test for function FileExists()
