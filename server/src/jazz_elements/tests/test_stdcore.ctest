@@ -45,5 +45,4 @@ SCENARIO("Testing JazzStdcore") {
 			}
 		}
 	}
-
 }
