@@ -334,7 +334,7 @@ it removes the quotes. This is used by JazzConfigFile and has obvious limitation
 and easily predictable results.
 
 	\param s Input string
-	\return  String without space or tab.
+	\return	 String without space or tab.
 */
 std::string CleanConfigArgument(std::string s)
 {
