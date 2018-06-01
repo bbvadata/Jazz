@@ -40,6 +40,27 @@
 
 #include "src/include/jazz.h"
 
+/* HUGE TODO LIST - not from this file
+   ===================================
+
+   This list is collected here for convenience. It is mostly documentation related and belong to all the project
+
+//TODO: Edit doc of NAMESPACE jazz_bebop		current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_classes		current is: Definitions of Jazz root classes
+//TODO: Edit doc of NAMESPACE jazz_cluster		current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_column		current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_containers	current is: Container classes for JazzBlock objects
+//TODO: Edit doc of NAMESPACE jazz_datablocks	current is:
+//TODO: Edit doc of NAMESPACE jazz_dataframe	current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_filesystem	current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_httpclient	current is: Simplest functionality to operate as an http client to GET, PUT, DELETE ...
+//TODO: Edit doc of NAMESPACE jazz_persistence	current is: Jazz class JazzPersistedSource
+//TODO: Edit doc of NAMESPACE jazz_restapi		current is:
+//TODO: Edit doc of NAMESPACE jazz_stdcore		current is: Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock ...
+//TODO: Edit doc of NAMESPACE jazz_utils		current is:
+
+*/
+
 
 // Command line arguments for the Jazz server
 
