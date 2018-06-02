@@ -21,3 +21,16 @@
   limitations under the License.
 */
 
+#include "src/jazz_main/jazz_restapi.h"
+
+namespace jazz_restapi
+{
+
+//TODO: Implement module jazz_restapi.
+
+} // namespace jazz_restapi
+
+
+#if defined CATCH_TEST
+#include "src/jazz_main/tests/test_restapi.ctest"
+#endif
