@@ -29,12 +29,6 @@
 #include <iostream>
 
 
-/**< \brief Basic Jazz code-less structures, constants and the class JazzBlock.
-
-	This module defines the logic to get/set data from/to JazzBlock objects at the simplest level.
-*/
-
-
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
@@ -48,6 +42,11 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_DATABLOCKS
 #define INCLUDED_JAZZ_ELEMENTS_DATABLOCKS
 
+
+/**< \brief Basic Jazz code-less structures, constants and the class JazzBlock.
+
+	This module defines the logic to get/set data from/to JazzBlock objects at the simplest level.
+*/
 namespace jazz_datablocks
 {
 

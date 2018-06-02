@@ -21,7 +21,6 @@
   limitations under the License.
 */
 
-
 #include <chrono>
 #include <iostream>
 #include <fstream>
@@ -68,6 +67,11 @@
 #define MAX_FILENAME_LENGTH	256
 
 
+/**< \brief Miscellaneous utility functions for Jazz.
+
+	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
+without global variables.
+*/
 namespace jazz_utils
 {
 

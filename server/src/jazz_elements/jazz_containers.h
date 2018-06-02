@@ -36,6 +36,11 @@
 
 #include "src/jazz_elements/jazz_utils.h"
 
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+
+
 /**< \brief Container classes for JazzBlock objects.
 
   JazzBlock objects can be:\n
@@ -45,12 +50,6 @@
 3. Persisted - Owned by a JazzPersistence (or descendant), typically a JazzSource
 
 */
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-
-
 namespace jazz_containers
 {
 

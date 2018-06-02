@@ -21,6 +21,15 @@
   limitations under the License.
 */
 
+#include "curl/curl.h"
+
+
+#include "src/jazz_elements/jazz_persistence.h"
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT
+#define INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT
+
 
 /**< \brief Simplest functionality to operate as an http client to GET, PUT, DELETE JazzBlock descendants to/from other Jazz nodes or any
 http servers.
@@ -31,16 +40,6 @@ http servers.
 //TODO: Extend module description for jazz_httpclient when implemented.
 
 */
-
-#include "curl/curl.h"
-
-
-#include "src/jazz_elements/jazz_persistence.h"
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT
-#define INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT
-
 namespace jazz_httpclient
 {
 

@@ -22,6 +22,13 @@
 */
 
 
+#include "src/jazz_elements/jazz_classes.h"
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_STDCORE
+#define INCLUDED_JAZZ_ELEMENTS_STDCORE
+
+
 /**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
 
 	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
@@ -31,14 +38,6 @@ approximately matching Bebop bytecode instructions.
 //TODO: Extend module description for jazz_stdcore when implemented.
 
 */
-
-
-#include "src/jazz_elements/jazz_classes.h"
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_STDCORE
-#define INCLUDED_JAZZ_ELEMENTS_STDCORE
-
 namespace jazz_stdcore
 {
 

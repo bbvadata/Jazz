@@ -28,17 +28,17 @@
 
 #include "src/jazz_elements/jazz_containers.h"
 
-/**< \brief Jazz class JazzPersistedSource
-
-//TODO: Write jazz_persistence module description
-*/
-
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_PERSISTENCE
 #define INCLUDED_JAZZ_ELEMENTS_PERSISTENCE
 
 #include "src/lmdb/lmdb.h"
 
+
+/**< \brief Jazz class JazzPersistedSource
+
+//TODO: Write jazz_persistence module description
+*/
 namespace jazz_persistence
 {
 

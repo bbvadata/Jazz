@@ -21,6 +21,13 @@
   limitations under the License.
 */
 
+#include "src/jazz_elements/jazz_httpclient.h"
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_CLASSES
+#define INCLUDED_JAZZ_ELEMENTS_CLASSES
+
+
 /**< \brief Definitions of Jazz root classes
 
 	This module contains the top-level definitions of Jazz classes. This means, classes stored as attributes of JazzBlock to determine
@@ -28,14 +35,6 @@
 
 //TODO: Extend module description for jazz_classes when implemented.
 */
-
-
-#include "src/jazz_elements/jazz_httpclient.h"
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_CLASSES
-#define INCLUDED_JAZZ_ELEMENTS_CLASSES
-
 namespace jazz_classes
 {
 
