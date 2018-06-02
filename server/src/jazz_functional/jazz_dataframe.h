@@ -21,18 +21,17 @@
   limitations under the License.
 */
 
-/**< \brief TODO
-
-//TODO: Write module description for jazz_dataframe when implemented.
-*/
-
-
 #include "src/jazz_functional/jazz_column.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_DATAFRAME
 #define INCLUDED_JAZZ_FUNCTIONAL_DATAFRAME
 
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_dataframe when implemented.
+*/
 namespace jazz_dataframe
 {
 

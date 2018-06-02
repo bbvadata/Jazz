@@ -21,18 +21,17 @@
   limitations under the License.
 */
 
-/**< \brief TODO
-
-//TODO: Write module description for jazz_column when implemented.
-*/
-
-
 #include "src/jazz_functional/jazz_filesystem.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_COLUMN
 #define INCLUDED_JAZZ_FUNCTIONAL_COLUMN
 
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_column when implemented.
+*/
 namespace jazz_column
 {
 

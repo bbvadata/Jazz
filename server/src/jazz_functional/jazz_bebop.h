@@ -21,18 +21,17 @@
   limitations under the License.
 */
 
-/**< \brief TODO
-
-//TODO: Write module description for jazz_bebop when implemented.
-*/
-
-
 #include "src/jazz_functional/jazz_dataframe.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_BEBOP
 #define INCLUDED_JAZZ_FUNCTIONAL_BEBOP
 
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_bebop when implemented.
+*/
 namespace jazz_bebop
 {
 

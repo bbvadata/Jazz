@@ -21,18 +21,17 @@
   limitations under the License.
 */
 
-/**< \brief TODO
-
-//TODO: Write module description for jazz_cluster when implemented.
-*/
-
-
 #include "src/include/jazz.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_CLUSTER
 #define INCLUDED_JAZZ_FUNCTIONAL_CLUSTER
 
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_cluster when implemented.
+*/
 namespace jazz_cluster
 {
 

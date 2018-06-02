@@ -24,18 +24,17 @@
 //TODO: Integrate project building with https://opencv.org/
 //TODO: Integrate image classes from https://docs.opencv.org/master/de/d7a/tutorial_table_of_content_core.html
 
-/**< \brief TODO
-
-//TODO: Write module description for jazz_filesystem when implemented.
-*/
-
-
 #include "src/jazz_functional/jazz_cluster.h"
 
 
 #ifndef INCLUDED_JAZZ_FUNCTIONAL_FILESYSTEM
 #define INCLUDED_JAZZ_FUNCTIONAL_FILESYSTEM
 
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_filesystem when implemented.
+*/
 namespace jazz_filesystem
 {
 
