@@ -38,6 +38,11 @@
 #ifndef INCLUDED_JAZZ_MAIN_API
 #define INCLUDED_JAZZ_MAIN_API
 
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_api when implemented.
+*/
 namespace jazz_api
 {
 
