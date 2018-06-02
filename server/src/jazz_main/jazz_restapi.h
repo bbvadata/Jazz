@@ -29,16 +29,6 @@ jazz_api.h through a REST API.
 */
 
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
-
-
 #ifndef INCLUDED_JAZZ_MAIN_RESTAPI
 #define INCLUDED_JAZZ_MAIN_RESTAPI
 
