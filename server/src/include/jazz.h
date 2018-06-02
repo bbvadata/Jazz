@@ -1,13 +1,13 @@
 /* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
 
    1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
-      exclusively for the use in the Jazz server software.
+	  exclusively for the use in the Jazz server software.
 
 	  Copyright 2009-2012 Jacques Basaldúa
 
    2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
-   		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+		Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
 
 	  This product includes software developed at
 
