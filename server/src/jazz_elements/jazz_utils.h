@@ -37,18 +37,12 @@
 
 #include "src/jazz_elements/jazz_datablocks.h"
 
-/**< \brief Miscellaneous utility functions for Jazz.
-
-	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
-without global variables.
-*/
-
-
-#define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
-
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_UTILS
 #define INCLUDED_JAZZ_ELEMENTS_UTILS
+
+
+#define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
 
 
 /** The trace levels for argument loglevel in JazzLogger.log()
