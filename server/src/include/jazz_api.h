@@ -32,3 +32,19 @@
 
 
 #include "src/include/jazz.h"
+#include "src/jazz_functional/jazz_bebop.h"
+
+
+#ifndef INCLUDED_JAZZ_MAIN_API
+#define INCLUDED_JAZZ_MAIN_API
+
+namespace jazz_api
+{
+
+//TODO: Document interface for module jazz_api.
+
+//TODO: Implement interface for module jazz_api.
+
+}
+
+#endif
