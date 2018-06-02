@@ -29,3 +29,17 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+
+#include "src/include/jazz_api.h"
+
+namespace jazz_api
+{
+
+//TODO: Implement module jazz_api.
+
+} // namespace jazz_api
+
+
+#if defined CATCH_TEST
+#include "src/jazz_main/tests/test_api.ctest"
+#endif
