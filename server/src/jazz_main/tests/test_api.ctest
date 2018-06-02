@@ -25,6 +25,9 @@
   limitations under the License.
 */
 
+using namespace jazz_api;
+
+
 // Functions to support testing
 // ----------------------------
 
