@@ -24,6 +24,19 @@
 //TODO: Integrate project building with https://opencv.org/
 //TODO: Integrate image classes from https://docs.opencv.org/master/de/d7a/tutorial_table_of_content_core.html
 
+
+/* NOTES from the Jazz draft description including tasks for this
+   --------------------------------------------------------------
+
+//TODO: JazzFileSystem is an abstraction to manage files in the Linux box running Jazz as JazzBlocks without necessarily copying their
+		content.
+//TODO: JazzRemoteSource is an http client connecting to a REST API and storing the result as a block. The connection can be initiated
+		periodically or on demand. The result is typically filtered by a validation function written in Bebop.
+
+//TODO: JazzClusterFileSystem is a JazzFileSystem interface that uses a DenseMapping to shard the file names across a cluster.
+
+*/
+
 #include "src/jazz_functional/jazz_cluster.h"
 
 
