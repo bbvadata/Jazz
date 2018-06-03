@@ -21,3 +21,16 @@
   limitations under the License.
 */
 
+#include "src/jazz_main/jazz_instances.h"
+
+namespace jazz_instances
+{
+
+//TODO: Implement module jazz_instances.
+
+} // namespace jazz_instances
+
+
+#if defined CATCH_TEST
+#include "src/jazz_main/tests/test_instances.ctest"
+#endif
