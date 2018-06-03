@@ -21,6 +21,35 @@
   limitations under the License.
 */
 
+/* NOTES from the Jazz draft description including tasks for this
+   --------------------------------------------------------------
+
+//TODO: BopCompiler Bebop compiles into bytecode automatically.
+
+//TODO: A Bebop function is a block of compiled bytecode with its source code stored as an attribute.
+
+Bebop source code uses operators (both in the standard core or defined in Bebop) to support “natural expressions”.
+Bebop has aliases and other syntactic sugar. E.g., using /xxx.yy.zz as z
+Bebop is functional, blocks are immutable, reads are safe, writes are idempotent, side effects are not possible.
+Bebop is object oriented.
+Bebop supports multiple inheritance using combined classes of any number of parents.
+Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra storing space (until its state changes from that of its ancestor).
+Bebop supports match for type checking. This provides some metaprogramming, like defining math over many types in one declaration.
+Bebop supports match for switching (as in Rust).
+Bebop supports alternative functions for managing errors.
+
+//TODO: Review assertions on bebop listed above
+
+object forking,
+pattern matching and
+alternative function
+
+//TODO: Review assertions on support for automated coding listed above
+
+//TODO: Automatic function result caching
+
+*/
+
 #include "src/jazz_functional/jazz_dataframe.h"
 
 
