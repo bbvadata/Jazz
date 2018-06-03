@@ -48,6 +48,14 @@ alternative function
 
 //TODO: Automatic function result caching
 
+//TODO: Consider 'using ... as ...' the easily create aliases of lvalues and rvalues.
+//TODO: Consider 'matching ... as {... {} ... {} ... {}}' as the case syntax.
+//TODO: Consider how to make regex a first class citizen.
+//TODO: Consider a logic for type assertion (possibly with regex) A bebop function has a low-level way to specify the first, 2nd, ... block
+		passed as arguments. It may also put restriction on types (any numeric sorted, etc.) that throw exceptions when not met. Since
+		refering to the argument as $1, $2, ... is unfriendly, the argument declaration implicitly creates a series of 'using $1 as
+		latitude' statement that allow using the argument with a nice name and an assertion on its type.
+
 */
 
 #include "src/jazz_functional/jazz_dataframe.h"
