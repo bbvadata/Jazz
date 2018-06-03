@@ -59,6 +59,13 @@ GET with lvalue=rvalue. Assignment in the server. Similar to “PUT(lvalue, GET(
 //TODO: Consider these statements when implementing jazz_api
 //TODO: Create explanation on jazz_api for the doxy page and linked from the reference
 
+jazz_get(rvalue)
+jazz_put(object, lvalue)
+jazz_delete(lvalue)
+jazz_assign(lvalue, rvalue)
+
+//TODO: Confirm top-level Python and R interfaces match this.
+
 */
 
 #include "src/include/jazz.h"
