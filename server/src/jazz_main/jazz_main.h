@@ -38,7 +38,7 @@
 #include <signal.h>
 
 
-#include "src/include/jazz.h"
+#include "src/jazz_main/jazz_instances.h"
 
 /* HUGE TODO LIST - not from this file
    ===================================
