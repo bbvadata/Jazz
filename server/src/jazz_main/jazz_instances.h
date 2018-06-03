@@ -21,3 +21,23 @@
   limitations under the License.
 */
 
+#include "src/jazz_main/jazz_restapi.h"
+
+
+#ifndef INCLUDED_JAZZ_MAIN_INSTANCES
+#define INCLUDED_JAZZ_MAIN_INSTANCES
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_instances when implemented.
+*/
+namespace jazz_instances
+{
+
+//TODO: Document interface for module jazz_instances.
+
+//TODO: Implement interface for module jazz_instances.
+
+}
+
+#endif
