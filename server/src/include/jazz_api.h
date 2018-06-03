@@ -30,7 +30,6 @@
   limitations under the License.
 */
 
-
 #include "src/include/jazz.h"
 #include "src/jazz_functional/jazz_bebop.h"
 
