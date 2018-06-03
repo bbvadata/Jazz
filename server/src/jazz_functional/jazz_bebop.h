@@ -57,6 +57,11 @@ alternative function
 		refering to the argument as $1, $2, ... is unfriendly, the argument declaration implicitly creates a series of 'using $1 as
 		latitude' statement that allow using the argument with a nice name and an assertion on its type.
 
+//TODO: Program flow level 1 - 'for each ... {}'
+//TODO: Program flow level 2 - 'if ... {}', 'if not ... {}', 'if ... {} else {}'
+//TODO: Program flow level 3 - 'while ... {}', 'do {} while ...'
+//TODO: Program flow level 4 - 'break', 'fail ...', 'return ...'
+
 */
 
 #include "src/jazz_functional/jazz_dataframe.h"
