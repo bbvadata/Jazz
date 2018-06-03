@@ -33,7 +33,8 @@ Bebop has aliases and other syntactic sugar. E.g., using /xxx.yy.zz as z
 Bebop is functional, blocks are immutable, reads are safe, writes are idempotent, side effects are not possible.
 Bebop is object oriented.
 Bebop supports multiple inheritance using combined classes of any number of parents.
-Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra storing space (until its state changes from that of its ancestor).
+Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra
+storing space (until its state changes from that of its ancestor).
 Bebop supports match for type checking. This provides some metaprogramming, like defining math over many types in one declaration.
 Bebop supports match for switching (as in Rust).
 Bebop supports alternative functions for managing errors.
