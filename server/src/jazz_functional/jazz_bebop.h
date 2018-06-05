@@ -29,17 +29,13 @@
 //TODO: A Bebop function is a block of compiled bytecode with its source code stored as an attribute.
 
 Bebop source code uses operators (both in the standard core or defined in Bebop) to support “natural expressions”.
-Bebop has aliases and other syntactic sugar. E.g., using /xxx.yy.zz as z
 Bebop is functional, blocks are immutable, reads are safe, writes are idempotent, side effects are not possible.
 Bebop is object oriented.
 Bebop supports multiple inheritance using combined classes of any number of parents.
 Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra
 storing space (until its state changes from that of its ancestor).
 Bebop supports match for type checking. This provides some metaprogramming, like defining math over many types in one declaration.
-Bebop supports match for switching (as in Rust).
 Bebop supports alternative functions for managing errors.
-
-//TODO: Review assertions on bebop listed above
 
 object forking,
 pattern matching and
@@ -50,8 +46,7 @@ alternative function
 //TODO: Automatic function result caching
 
 //TODO: Consider 'using ... as ...' the easily create aliases of lvalues and rvalues.
-//TODO: Consider 'matching ... as {... {} ... {} ... {}}' as the case syntax.
-//TODO: Consider how to make regex a first class citizen.
+//TODO: Consider 'matching ... as {... {} ... {} ... {}}' as the case syntax. (Bebop supports match for switching (as in Rust).)
 //TODO: Consider a logic for type assertion (possibly with regex) A bebop function has a low-level way to specify the first, 2nd, ... block
 		passed as arguments. It may also put restriction on types (any numeric sorted, etc.) that throw exceptions when not met. Since
 		refering to the argument as $1, $2, ... is unfriendly, the argument declaration implicitly creates a series of 'using $1 as
