@@ -44,7 +44,7 @@
 
 //TODO: Errors in a wrong mutation can be handled by the ancestor function. Bebop supports alternative functions for managing errors.
 
-//TODO: Automatic function result caching
+//TODO: Automatic function result caching. Use of "memoize" directive. (Or memoize by default and declare "prevent_result_cache")
 
 //TODO: Consider 'using ... as ...' the easily create aliases of lvalues and rvalues.
 //TODO: Consider 'matching ... as {... {} ... {} ... {}}' as the case syntax. (Bebop supports match for switching (as in Rust).)
