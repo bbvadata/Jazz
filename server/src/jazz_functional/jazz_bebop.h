@@ -28,13 +28,19 @@
 
 //TODO: A Bebop function is a block of compiled bytecode with its source code stored as an attribute.
 
-Bebop source code uses operators (both in the standard core or defined in Bebop) to support “natural expressions”.
-Bebop is functional, blocks are immutable, reads are safe, writes are idempotent, side effects are not possible.
+//TODO: Bebop is functional (== functions accept functions as arguments and can return functions), blocks are immutable, reads are safe,
+        writes are idempotent, side effects are not possible.
+
+//TODO: Bebop source code uses operators (both in the standard core or defined in Bebop) to support “natural expressions”. Operators are
+		only syntactic sugar for functions.
+
+//TODO: Function overloading is possible with and order and a match for type checking. This provides some metaprogramming, like defining
+		math over many types in one declaration. This also applies to operators (since they are just functions).
+
 Bebop is object oriented.
 Bebop supports multiple inheritance using combined classes of any number of parents.
 Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra
 storing space (until its state changes from that of its ancestor).
-Bebop supports match for type checking. This provides some metaprogramming, like defining math over many types in one declaration.
 Bebop supports alternative functions for managing errors.
 
 object forking,
