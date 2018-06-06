@@ -24,9 +24,13 @@ By file location:\n
 \n
 A. jazz_elements/jazz_containers.h\n
 B. jazz_elements/jazz_persistence.h\n
-C. jazz_functional/jazz_column.h\n
-D. jazz_functional/jazz_archive.h\n
-E. jazz_functional/jazz_dataframe.h\n
+C. jazz_elements/jazz_httpclient.h\n
+D. jazz_elements/jazz_classes.h\n
+E. jazz_functional/jazz_cluster.h\n
+F. jazz_functional/jazz_filesystem.h\n
+G. jazz_functional/jazz_column.h\n
+H. jazz_functional/jazz_dataframe.h\n
+I. jazz_functional/jazz_bebop.h\n
 \n
 
 JazzBlocks can be:\n
