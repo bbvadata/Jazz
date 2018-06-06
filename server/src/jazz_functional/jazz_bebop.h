@@ -40,12 +40,9 @@
 //TODO: Bebop is object oriented. Bebop supports multiple inheritance using combined classes of any number of parents.
 //TODO: Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using
 		extra storing space (until its state changes from that of its ancestor).
+//TODO: A class is internally a keepr that contains variables and functions.
 
-Bebop supports alternative functions for managing errors.
-
-alternative function
-
-//TODO: Review assertions on support for automated coding listed above
+//TODO: Errors in a wrong mutation can be handled by the ancestor function. Bebop supports alternative functions for managing errors.
 
 //TODO: Automatic function result caching
 
