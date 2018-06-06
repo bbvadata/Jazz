@@ -37,14 +37,12 @@
 //TODO: Function overloading is possible with and order and a match for type checking. This provides some metaprogramming, like defining
 		math over many types in one declaration. This also applies to operators (since they are just functions).
 
-Bebop is object oriented.
-Bebop supports multiple inheritance using combined classes of any number of parents.
-Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using extra
-storing space (until its state changes from that of its ancestor).
+//TODO: Bebop is object oriented. Bebop supports multiple inheritance using combined classes of any number of parents.
+//TODO: Objects can be forked from other objects. A forked object points to its ancestor and is initialized with its state without using
+		extra storing space (until its state changes from that of its ancestor).
+
 Bebop supports alternative functions for managing errors.
 
-object forking,
-pattern matching and
 alternative function
 
 //TODO: Review assertions on support for automated coding listed above
