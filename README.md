@@ -1,6 +1,6 @@
 ## Jazz
 
-Jazz is a lightweight data processing framework, including a web server. It provides data persistence and computation capabilities accessible from R and Python and also through a REST API. 
+Jazz is a lightweight data processing framework, including a web server. It provides data persistence and computation capabilities accessible from R and Python and also through a REST API.
 
 
 ## Jazz modules diagram
@@ -26,9 +26,15 @@ Special thanks to Roberto Maestre and Israel Herraiz who have been discussing th
 
 ## Next Steps
 
-  - Jazz version 0.3.1 is expected for June 2018.
-  - This repository is where it will happen. Stay Tuned.
-  
+  - Jazz version 0.3.1 was released July 2018 completing the refactoring for the BBVA product to the Jazz server for years to come.
+  - Jazz version 0.4.1 is the next major milestone, completing all MVP functionality, expected November 2018.
+  - The repositories where it will happen are:
+
+    - [develop](https://github.com/kaalam/Jazz)
+    - [stable](https://github.com/bbvadata/Jazz)
+
+  Stay Tuned.
+
 ## Version 0.1.7 (The released sources)
 
   - [server](https://github.com/bbvadata/jazz-server)
