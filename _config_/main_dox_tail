@@ -60,20 +60,6 @@ You will typically use (2) build docker images containing your applications.\n
 If you use (1), you are the end user, not a developer. ;-)\n
 
 \n
-\section note_sec TRANSITION FROM Jazz 0.1.x
-
-  The working scaffold released as 0.2.1.99 is functionally equivalent (the server) to Jazz 0.1.7.
-Jazz will be completely rewritten bottom-up (starting from new block definitions and Jazz classes)
-during this rewriting, every time we merge the master branch (adding 0.0.1 to the version) will
-be fully functional and tested as a replacement for the 0.1.7 server. When rewriting is done,
-all the old files will be removed (the authorship remains as there is a lot of code copying).
-
-At this point, both the R and the Python clients will be fully functional and we change the
-version to 0.3.1. The version will be conceptually Jazz, although many basic primitives
-will still be missing.
-
-
-\n
 \section repo_sec REPOSITORIES
 
   The main repository of the stable Jazz project: https://github.com/bbvadata/Jazz
