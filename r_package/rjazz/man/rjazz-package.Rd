@@ -26,7 +26,7 @@ This is fastest way for evaluation purposes. Check dockerhub to find the name of
 
 The most controlable way is to compile the server from source.
 
-  git clone https://github.com/bbvadata/Jazz\cr
+  git clone https://github.com/kaalam/Jazz\cr
   cd Jazz\cr
   ./config.sh\cr
   cd server\cr
