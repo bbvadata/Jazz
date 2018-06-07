@@ -2,10 +2,10 @@
 
 The talk introduces the package rjazz, (in cran).
 
-Jazz (the server https://github.com/bbvadata/jazz-server) and rjazz (the client https://cran.r-project.org/web/packages/rjazz/index.html) were released 
+Jazz (the server https://github.com/kaalam/jazz-server) and rjazz (the client https://cran.r-project.org/web/packages/rjazz/index.html) were released
 as OSS by BBVA end of 2017. This corresponds to the current version actually available at cran.
 
-During 2018, a community of volunteers started refactoring Jazz into the product showed in this talk. https://github.com/kaalam/Jazz 
+During 2018, a community of volunteers started refactoring Jazz into the product showed in this talk. https://github.com/kaalam/Jazz
 It will be available before Nov '18 including:
 
 ## From 20,000 feet:
