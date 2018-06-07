@@ -50,7 +50,7 @@ namespace jazz_httpclient
 /** A URL both for inter-Jazz and web services in general
 */
 struct JazzURL {
-	char key[JAZZ_MAX_URL_LENGTH];
+	char url[JAZZ_MAX_URL_LENGTH];
 };
 
 
