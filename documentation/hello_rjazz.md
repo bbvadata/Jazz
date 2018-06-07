@@ -53,7 +53,7 @@ In Jazz an rvalue is one of:
   * A combination of the previous two.
   * A data block that will be passed as a Python object, R object or http (PUT) resource.
   * A delete predicate. This deletes the corresponding lvalue.
-  
+
 Since the API has to be REST compatible and is intended for using over a network.
 
   * All rvalue evaluations are safe. They cannot have side effects. Function calls cannot have side effects.
@@ -68,7 +68,7 @@ The R API has four methods:
   * jazz_put(object, lvalue)
   * jazz_delete(lvalue)
   * jazz_assign(lvalue, rvalue)
-  
+
 All methods return error codes, except jazz_get() which returns R vectors. R objects are limited to R core vectors, ergo not all the possible complexity of Jazz types is directly readable or writable to R. It is possible to create complex Jazz objects by “assembling” them from simple parts using Bebop functions written inside R. Since Jazz is accessible through files and the REST API, this is not a serious limitation. Other R packages built on top of rjazz can make working inside R friendlier.
 
 The R package rjazz also includes built-in http client support to use the REST API from R.
