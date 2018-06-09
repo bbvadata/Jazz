@@ -109,6 +109,15 @@ JazzHttpclient::~JazzHttpclient()
 }
 
 
+/**
+//TODO: Document get_jazz_block
+*/
+pJazzBlockKeeprItem JazzHttpclient::get_jazz_block (const JazzURL*p_url)
+{
+//TODO: Implement get_jazz_block
+}
+
+
 } // namespace jazz_httpclient
 
 
