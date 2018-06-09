@@ -100,6 +100,15 @@ JazzHttpclient::JazzHttpclient(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzHttpclient()
+*/
+JazzHttpclient::~JazzHttpclient()
+{
+//TODO: Implement ~JazzHttpclient()
+}
+
+
 } // namespace jazz_httpclient
 
 
