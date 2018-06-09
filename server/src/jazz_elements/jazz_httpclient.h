@@ -93,7 +93,7 @@ class JazzHttpclient: public JazzBlockKeepr {
 
 	private:
 		inline JazzURL *merge_urls(const JazzURL *p_url_base,
-								   const JazzBlockIdentifier *p_id)
+								   const JazzBlockIdentifier *p_id);
 };
 
 }
