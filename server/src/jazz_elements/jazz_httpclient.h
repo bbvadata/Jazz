@@ -92,8 +92,13 @@ class JazzHttpclient: public JazzBlockKeepr {
 									const JazzURL 		 *p_url_base);
 
 	private:
+
+		/**
+//TODO: Document the method to make a URL form a base_url and a JazzBlockIdentifier
+		*/
 		inline JazzURL *merge_urls (const JazzURL 			  *p_url_base,
 								    const JazzBlockIdentifier *p_id);
+//TODO: Implement the method to make a URL form a base_url and a JazzBlockIdentifier
 };
 
 }
