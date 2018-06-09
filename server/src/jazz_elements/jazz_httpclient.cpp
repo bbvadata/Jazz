@@ -27,9 +27,6 @@
 namespace jazz_httpclient
 {
 
-//TODO: Implement module jazz_httpclient.
-
-
 /** A test write callback.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
