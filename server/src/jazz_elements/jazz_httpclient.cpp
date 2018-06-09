@@ -149,6 +149,18 @@ bool JazzHttpclient::get_to_keepr (		 JazzBlockKeepr *p_keepr,
 }
 
 
+/**
+//TODO: Document put_from_keepr
+*/
+bool JazzHttpclient::put_from_keepr (	   JazzBlockKeepr *p_keepr,
+										   JazzBlockList   p_id,
+										   int			   num_blocks,
+									 const JazzURL		  *p_url_base)
+{
+//TODO: Implement put_from_keepr
+}
+
+
 } // namespace jazz_httpclient
 
 
