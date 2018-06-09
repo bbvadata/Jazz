@@ -43,6 +43,10 @@ http servers.
 namespace jazz_httpclient
 {
 
+using namespace jazz_containers;
+using namespace jazz_persistence;
+
+
 /// Apparently, there is no standard URL length limit. Some browsers seem to accept over 128K, but Apache has a limit of 4K. Lets use that.
 #define JAZZ_MAX_URL_LENGTH		4096
 
