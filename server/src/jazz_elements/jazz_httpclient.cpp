@@ -118,6 +118,16 @@ pJazzBlockKeeprItem JazzHttpclient::get_jazz_block (const JazzURL*p_url)
 }
 
 
+/**
+//TODO: Document put_jazz_block
+*/
+bool JazzHttpclient::put_jazz_block (	  pJazzBlockKeeprItem  p_keepr,
+									 const JazzURL			  *p_url)
+{
+//TODO: Implement put_jazz_block
+}
+
+
 } // namespace jazz_httpclient
 
 
