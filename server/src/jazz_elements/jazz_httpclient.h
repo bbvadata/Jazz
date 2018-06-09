@@ -53,6 +53,44 @@ struct JazzURL {
 	char url[JAZZ_MAX_URL_LENGTH];
 };
 
+/**
+//TODO: Write the JazzHttpclient description
+*/
+class JazzHttpclient: public JazzBlockKeepr {
+
+	public:
+		 JazzHttpclient(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzHttpclient();
+
+		// Methods for JazzBlock crud
+
+		pJazzBlockKeeprItem get_jazz_block (const JazzURL *p_url);
+
+		bool put_jazz_block (pJazzBlockKeeprItem p_keepr,
+							const JazzURL *p_url);
+
+		bool delete_jazz_resource (const JazzURL *p_url);
+
+		/// A pipeline interface
+
+		bool get_to_keepr (JazzBlockKeepr keepr,
+							JazzBlockList  p_id,
+							int			   num_blocks,
+							const JazzURL *p_url_base);
+
+		bool put_from_keepr (JazzBlockKeepr keepr,
+							  JazzBlockList	 p_id,
+							  int			 num_blocks,
+							const JazzURL *p_url_base);
+
+		bool delete_jazz_resources (JazzBlockList	 p_id,
+							  int			 num_blocks,
+							const JazzURL *p_url_base);
+
+	private:
+		inline JazzURL *merge_urls(const JazzURL *p_url_base,
+								   const JazzBlockIdentifier *p_id)
+};
 
 }
 
