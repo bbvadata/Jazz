@@ -88,6 +88,17 @@ bool remote_testing_point ()
 	return true;
 }
 
+//TODO: Remove the PoC code above when no longer necessary.
+
+
+/**
+//TODO: Document JazzHttpclient
+*/
+JazzHttpclient::JazzHttpclient(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzHttpclient
+}
+
 
 } // namespace jazz_httpclient
 
