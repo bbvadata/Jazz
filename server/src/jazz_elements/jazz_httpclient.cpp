@@ -161,6 +161,16 @@ bool JazzHttpclient::put_from_keepr (	   JazzBlockKeepr *p_keepr,
 }
 
 
+/**
+//TODO: Document delete_jazz_resources
+*/
+bool JazzHttpclient::delete_jazz_resources (	  JazzBlockList  p_id,
+												  int			 num_blocks,
+										    const JazzURL		*p_url_base)
+{
+//TODO: Implement delete_jazz_resources
+}
+
 } // namespace jazz_httpclient
 
 
