@@ -68,36 +68,36 @@ class JazzHttpclient: public JazzBlockKeepr {
 
 		// Methods for JazzBlock crud
 
-		pJazzBlockKeeprItem get_jazz_block 		 (const JazzURL 			*p_url);
+		pJazzBlockKeeprItem get_jazz_block		 (const JazzURL				*p_url);
 
-		bool			    put_jazz_block		 (	    pJazzBlockKeeprItem  p_keepr,
-												  const JazzURL 			*p_url);
+		bool				put_jazz_block		 (		pJazzBlockKeeprItem	 p_keepr,
+												  const JazzURL				*p_url);
 
-		bool 				delete_jazz_resource (const JazzURL 			*p_url);
+		bool				delete_jazz_resource (const JazzURL				*p_url);
 
 		/// A pipeline interface
 
 		bool get_to_keepr		   (	JazzBlockKeepr	 *p_keepr,
-										JazzBlockList  	  p_id,
-										int			  	  num_blocks,
-									const JazzURL 		 *p_url_base);
+										JazzBlockList	  p_id,
+										int				  num_blocks,
+									const JazzURL		 *p_url_base);
 
 		bool put_from_keepr		   (	  JazzBlockKeepr *p_keepr,
-							  			  JazzBlockList	  p_id,
-							  			  int			  num_blocks,
-									const JazzURL 		 *p_url_base);
+										  JazzBlockList	  p_id,
+										  int			  num_blocks,
+									const JazzURL		 *p_url_base);
 
-		bool delete_jazz_resources ( 	  JazzBlockList	  p_id,
-							  			  int			  num_blocks,
-									const JazzURL 		 *p_url_base);
+		bool delete_jazz_resources (	  JazzBlockList	  p_id,
+										  int			  num_blocks,
+									const JazzURL		 *p_url_base);
 
 	private:
 
 		/**
 //TODO: Document the method to make a URL form a base_url and a JazzBlockIdentifier
 		*/
-		inline JazzURL *merge_urls (const JazzURL 			  *p_url_base,
-								    const JazzBlockIdentifier *p_id);
+		inline JazzURL *merge_urls (const JazzURL			  *p_url_base,
+									const JazzBlockIdentifier *p_id);
 //TODO: Implement the method to make a URL form a base_url and a JazzBlockIdentifier
 };
 
