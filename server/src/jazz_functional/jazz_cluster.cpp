@@ -28,6 +28,18 @@ namespace jazz_cluster
 
 //TODO: Implement module jazz_cluster.
 
+//TODO: Implement module jazz_classes.
+
+
+/**
+//TODO: Document JazzCluster()
+*/
+JazzCluster::JazzCluster(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzCluster
+}
+
+
 } // namespace jazz_cluster
 
 
