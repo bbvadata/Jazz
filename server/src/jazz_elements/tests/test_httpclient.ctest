@@ -36,8 +36,6 @@ using namespace jazz_httpclient;
 
 SCENARIO("Testing JazzHttpclient") {
 
-//TODO: Write tests for jazz_httpclient.
-
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
