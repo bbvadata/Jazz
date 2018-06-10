@@ -56,7 +56,7 @@ class JazzCluster {
 
 	public:
 		 JazzCluster(const char *config_file_name,
-		 			 jazz_utils::pJazzLogger a_logger = nullptr);
+					 jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzCluster();
 
 	private:
