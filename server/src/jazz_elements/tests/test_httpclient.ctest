@@ -36,6 +36,13 @@ using namespace jazz_httpclient;
 
 SCENARIO("Testing JazzHttpclient") {
 
+//TODO: Write unit test for JazzHttpclient::get_jazz_block()
+//TODO: Write unit test for JazzHttpclient::put_jazz_block()
+//TODO: Write unit test for JazzHttpclient::delete_jazz_resource()
+//TODO: Write unit test for JazzHttpclient::get_to_keepr()
+//TODO: Write unit test for JazzHttpclient::put_from_keepr()
+//TODO: Write unit test for JazzHttpclient::delete_jazz_resources()
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
