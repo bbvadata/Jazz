@@ -41,7 +41,7 @@ JazzClass::JazzClass(jazz_utils::pJazzLogger a_logger)
 /**
 //TODO: Document ~JazzClass()
 */
-JazzClass~JazzClass()
+JazzClass::~JazzClass()
 {
 //TODO: Implement ~JazzClass
 }
