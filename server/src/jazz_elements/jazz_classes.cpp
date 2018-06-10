@@ -28,6 +28,16 @@ namespace jazz_classes
 
 //TODO: Implement module jazz_classes.
 
+
+/**
+//TODO: Document JazzClass()
+*/
+JazzClass::JazzClass(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzClass
+}
+
+
 } // namespace jazz_classes
 
 
