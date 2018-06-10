@@ -38,6 +38,9 @@
 namespace jazz_classes
 {
 
+using namespace jazz_persistence;
+
+
 //TODO: Document interface for module jazz_classes.
 
 //TODO: Implement interface for module jazz_classes.
