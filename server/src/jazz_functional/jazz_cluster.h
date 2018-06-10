@@ -37,6 +37,7 @@ namespace jazz_cluster
 
 #define MAX_ALIAS_NAMELENGTH	  32	///< Max length of a node alias
 #define MAX_HOST_NAMELENGTH		  32	///< Max length of a host name or IP
+#define MAX_CLUSTER_NODES		  32	///< Number of nodes.
 
 /** A node as declared in the configuration file.
 */
