@@ -37,12 +37,10 @@ namespace jazz_cluster
 
 /** A node as declared in the configuration file.
 */
-struct jazz_node
+struct JazzNode
 {
 	char  alias		 [MAX_ALIAS_NAMELENGTH];	///< Name used internally, also for reporting.
 	char  host_or_ip [MAX_HOST_NAMELENGTH];		///< Host or IP. Must be a valid hostname.
-	int	  min_role;								///< What the node must be able to do. (Flag combination in [ROLE_PERSISTENCE..ROLE_FOREMAN])
-	int	  max_role;								///< What the node could do. (Flag combination in [ROLE_PERSISTENCE..ROLE_FOREMAN])
 	int	  port;									///< Http port
 };
 
