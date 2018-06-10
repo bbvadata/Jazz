@@ -42,6 +42,17 @@ namespace jazz_classes
 
 //TODO: Implement interface for module jazz_classes.
 
+
+/**
+//TODO: Write the JazzClass description
+*/
+class JazzClass: public JazzCache {
+
+	public:
+		 JazzClass(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzClass();
+};
+
 }
 
 #endif
