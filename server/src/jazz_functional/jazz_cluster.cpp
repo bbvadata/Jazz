@@ -40,6 +40,14 @@ JazzCluster::JazzCluster(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzCluster()
+*/
+JazzCluster::~JazzCluster()
+{
+//TODO: Implement ~JazzCluster
+}
+
 } // namespace jazz_cluster
 
 
