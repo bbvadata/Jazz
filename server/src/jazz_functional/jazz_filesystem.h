@@ -70,6 +70,17 @@ class JazzFileSystem: public JazzTree {
 };
 
 
+/**
+//TODO: Write the JazzClusterFileSystem description
+*/
+class JazzClusterFileSystem: public JazzFileSystem {
+
+	public:
+		 JazzClusterFileSystem(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzClusterFileSystem();
+};
+
+
 }
 
 #endif
