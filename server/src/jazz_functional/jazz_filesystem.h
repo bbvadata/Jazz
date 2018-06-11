@@ -51,9 +51,24 @@
 namespace jazz_filesystem
 {
 
+using namespace jazz_containers;
+
+
 //TODO: Document interface for module jazz_filesystem.
 
 //TODO: Implement interface for module jazz_filesystem.
+
+
+/**
+//TODO: Write the JazzFileSystem description
+*/
+class JazzFileSystem: public JazzTree {
+
+	public:
+		 JazzFileSystem(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzFileSystem();
+};
+
 
 }
 
