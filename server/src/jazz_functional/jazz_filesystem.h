@@ -81,6 +81,17 @@ class JazzClusterFileSystem: public JazzFileSystem {
 };
 
 
+/**
+//TODO: Write the JazzRemoteSource description
+*/
+class JazzRemoteSource: public JazzBlockKeepr {
+
+	public:
+		 JazzRemoteSource(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzRemoteSource();
+};
+
+
 }
 
 #endif
