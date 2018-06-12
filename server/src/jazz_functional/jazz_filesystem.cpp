@@ -28,6 +28,15 @@ namespace jazz_filesystem
 
 //TODO: Implement module jazz_filesystem.
 
+/**
+//TODO: Document JazzFileSystem()
+*/
+JazzFileSystem::JazzFileSystem(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzFileSystem
+}
+
+
 } // namespace jazz_filesystem
 
 
