@@ -37,6 +37,15 @@ JazzFileSystem::JazzFileSystem(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzFileSystem()
+*/
+JazzFileSystem::~JazzFileSystem()
+{
+//TODO: Implement ~JazzFileSystem
+}
+
+
 } // namespace jazz_filesystem
 
 
