@@ -73,6 +73,14 @@ JazzRemoteSource::JazzRemoteSource(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzRemoteSource()
+*/
+JazzRemoteSource::~JazzRemoteSource()
+{
+//TODO: Implement ~JazzRemoteSource
+}
+
 } // namespace jazz_filesystem
 
 
