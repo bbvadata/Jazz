@@ -34,9 +34,9 @@ using namespace jazz_filesystem;
 // Tests
 // -----
 
-SCENARIO("Testing JazzFilesystem") {
+SCENARIO("Testing JazzFileSystem") {
 
-//TODO: Write tests for jazz_filesystem.
+//TODO: Write tests for JazzFileSystem.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
