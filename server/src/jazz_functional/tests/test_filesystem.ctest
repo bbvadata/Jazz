@@ -46,3 +46,16 @@ SCENARIO("Testing JazzFileSystem") {
 		}
 	}
 }
+
+
+SCENARIO("Testing JazzClusterFileSystem") {
+
+//TODO: Write tests for JazzClusterFileSystem.
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
