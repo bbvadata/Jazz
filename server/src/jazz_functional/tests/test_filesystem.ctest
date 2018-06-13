@@ -59,3 +59,17 @@ SCENARIO("Testing JazzClusterFileSystem") {
 			}
 		}
 	}
+}
+
+
+SCENARIO("Testing JazzRemoteSource") {
+
+//TODO: Write tests for JazzRemoteSource.
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
