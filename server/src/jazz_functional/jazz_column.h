@@ -35,6 +35,16 @@
 namespace jazz_column
 {
 
+class DenseMapping {
+
+//TODO: Define DenseMapping
+//TODO: Implement DenseMapping
+//TODO: Document DenseMapping
+//TODO: Test DenseMapping
+
+};
+
+
 };
 
 }
