@@ -35,9 +35,7 @@
 namespace jazz_column
 {
 
-//TODO: Document interface for module jazz_column.
-
-//TODO: Implement interface for module jazz_column.
+};
 
 }
 
