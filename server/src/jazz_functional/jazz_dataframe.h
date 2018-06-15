@@ -35,6 +35,9 @@
 namespace jazz_dataframe
 {
 
+using namespace jazz_column;
+
+
 //TODO: Document interface for module jazz_dataframe.
 
 //TODO: Implement interface for module jazz_dataframe.
