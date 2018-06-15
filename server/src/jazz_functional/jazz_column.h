@@ -40,6 +40,10 @@ using namespace jazz_containers;
 
 class DenseMapping {
 
+	public:
+		 DenseMapping();
+		~DenseMapping();
+
 //TODO: Define DenseMapping
 //TODO: Implement DenseMapping
 //TODO: Document DenseMapping
@@ -49,6 +53,10 @@ class DenseMapping {
 
 
 class SparseMapping: public DenseMapping {
+
+	public:
+		 SparseMapping();
+		~SparseMapping();
 
 //TODO: Define SparseMapping
 //TODO: Implement SparseMapping
