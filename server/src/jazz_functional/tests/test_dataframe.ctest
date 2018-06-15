@@ -36,7 +36,7 @@ using namespace jazz_dataframe;
 
 SCENARIO("Testing JazzDataframe") {
 
-//TODO: Write tests for jazz_dataframe.
+//TODO: Write tests for JazzDataframe.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
