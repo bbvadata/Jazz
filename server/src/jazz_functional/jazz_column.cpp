@@ -35,6 +35,15 @@ DenseMapping::DenseMapping()
 }
 
 
+/**
+//TODO: Document ~DenseMapping()
+*/
+DenseMapping::~DenseMapping()
+{
+//TODO: Implement ~DenseMapping
+}
+
+
 } // namespace jazz_column
 
 
