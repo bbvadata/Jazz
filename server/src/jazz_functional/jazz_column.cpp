@@ -62,6 +62,15 @@ SparseMapping::~SparseMapping()
 }
 
 
+/**
+//TODO: Document JazzColumn()
+*/
+JazzColumn::JazzColumn(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzColumn
+}
+
+
 } // namespace jazz_column
 
 
