@@ -28,6 +28,15 @@ namespace jazz_dataframe
 
 //TODO: Implement module jazz_dataframe.
 
+/**
+//TODO: Document JazzDataframe()
+*/
+JazzDataframe::JazzDataframe(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzDataframe
+}
+
+
 } // namespace jazz_dataframe
 
 
