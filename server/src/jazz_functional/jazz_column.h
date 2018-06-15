@@ -45,7 +45,15 @@ class DenseMapping {
 };
 
 
+class SparseMapping: public DenseMapping {
+
+//TODO: Define SparseMapping
+//TODO: Implement SparseMapping
+//TODO: Document SparseMapping
+//TODO: Test SparseMapping
+
 };
+
 
 }
 
