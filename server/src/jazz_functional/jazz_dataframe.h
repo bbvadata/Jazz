@@ -39,6 +39,21 @@ namespace jazz_dataframe
 
 //TODO: Implement interface for module jazz_dataframe.
 
+
+/**
+//TODO: Write the JazzDataframe description
+*/
+class JazzDataframe: public JazzColumn {
+
+	public:
+		 JazzDataframe(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzDataframe();
+
+//TODO: Document interface for module jazz_column.
+//TODO: Implement interface for module jazz_column.
+
+};
+
 }
 
 #endif
