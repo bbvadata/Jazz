@@ -26,7 +26,14 @@
 namespace jazz_column
 {
 
-//TODO: Implement module jazz_column.
+/**
+//TODO: Document DenseMapping()
+*/
+DenseMapping::DenseMapping()
+{
+//TODO: Implement DenseMapping
+}
+
 
 } // namespace jazz_column
 
