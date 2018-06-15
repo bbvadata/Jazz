@@ -34,6 +34,20 @@ using namespace jazz_column;
 // Tests
 // -----
 
+SCENARIO("Testing DenseMapping") {
+
+//TODO: Write tests for DenseMapping.
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
 SCENARIO("Testing JazzColumn") {
 
 //TODO: Write tests for JazzColumn.
