@@ -55,6 +55,20 @@ class SparseMapping: public DenseMapping {
 };
 
 
+/**
+//TODO: Write the JazzColumn description
+*/
+class JazzColumn: public JazzTree {
+
+	public:
+		 JazzColumn(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzColumn();
+
+//TODO: Document interface for module jazz_column.
+//TODO: Implement interface for module jazz_column.
+
+};
+
 }
 
 #endif
