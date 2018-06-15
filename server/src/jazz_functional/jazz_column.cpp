@@ -71,6 +71,14 @@ JazzColumn::JazzColumn(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzColumn()
+*/
+JazzColumn::~JazzColumn()
+{
+//TODO: Implement ~JazzColumn
+}
+
 } // namespace jazz_column
 
 
