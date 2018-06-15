@@ -35,6 +35,9 @@
 namespace jazz_column
 {
 
+using namespace jazz_containers;
+
+
 class DenseMapping {
 
 //TODO: Define DenseMapping
