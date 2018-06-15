@@ -44,6 +44,15 @@ DenseMapping::~DenseMapping()
 }
 
 
+/**
+//TODO: Document SparseMapping()
+*/
+SparseMapping::SparseMapping()
+{
+//TODO: Implement SparseMapping
+}
+
+
 } // namespace jazz_column
 
 
