@@ -37,6 +37,14 @@ JazzDataframe::JazzDataframe(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzDataframe()
+*/
+JazzDataframe::~JazzDataframe()
+{
+//TODO: Implement ~JazzDataframe
+}
+
 } // namespace jazz_dataframe
 
 
