@@ -48,6 +48,20 @@ SCENARIO("Testing DenseMapping") {
 }
 
 
+SCENARIO("Testing SparseMapping") {
+
+//TODO: Write tests for SparseMapping.
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
 SCENARIO("Testing JazzColumn") {
 
 //TODO: Write tests for JazzColumn.
