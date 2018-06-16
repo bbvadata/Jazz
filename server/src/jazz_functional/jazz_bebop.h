@@ -78,6 +78,19 @@ namespace jazz_bebop
 
 //TODO: Implement interface for module jazz_bebop.
 
+class Bebop {
+
+	public:
+		 Bebop();
+		~Bebop();
+
+//TODO: Define Bebop
+//TODO: Implement Bebop
+//TODO: Document Bebop
+//TODO: Test Bebop
+
+};
+
 }
 
 #endif
