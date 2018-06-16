@@ -145,6 +145,18 @@ class rAPI: public JazzAPI {
 };
 
 
+/** \brief Same as before, objects are Python vectors, not numpy or Pandas objects, so similar limitations apply.
+
+//TODO: Write the pyAPI description
+*/
+class pyAPI: public JazzAPI {
+
+	public:
+		 pyAPI(jazz_utils::pJazzLogger a_logger = nullptr);
+		~pyAPI();
+
+};
+
 }
 
 #endif
