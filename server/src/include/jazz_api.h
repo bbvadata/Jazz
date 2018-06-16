@@ -117,6 +117,18 @@ all the characters are explained in containers:
 typedef int API_ErrorCode;
 
 
+/** \brief The JazzAPI is a keepr (JazzCache) named / (root in Unix) where all the keeprs and blocks are linked.
+
+//TODO: Write the JazzAPI description
+*/
+class JazzAPI: public JazzCache {
+
+	public:
+		 JazzAPI(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzAPI();
+
+};
+
 }
 
 #endif
