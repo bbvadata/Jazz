@@ -83,10 +83,6 @@ jazz_assign(lvalue, rvalue)
 namespace jazz_api
 {
 
-//TODO: Document interface for module jazz_api.
-
-//TODO: Implement interface for module jazz_api.
-
 }
 
 #endif
