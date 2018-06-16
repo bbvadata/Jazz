@@ -28,6 +28,15 @@ namespace jazz_bebop
 
 //TODO: Implement module jazz_bebop.
 
+/**
+//TODO: Document Bebop()
+*/
+Bebop::Bebop()
+{
+//TODO: Implement Bebop
+}
+
+
 } // namespace jazz_bebop
 
 
