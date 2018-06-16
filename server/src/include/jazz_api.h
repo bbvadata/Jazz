@@ -83,6 +83,8 @@ jazz_assign(lvalue, rvalue)
 namespace jazz_api
 {
 
+using namespace jazz_containers;
+
 /*
 all the characters are explained in containers:
 
