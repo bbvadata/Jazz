@@ -131,6 +131,20 @@ class JazzAPI: public JazzCache {
 
 };
 
+
+/** \brief R objects are limited to R core vectors, ergo not all the possible complexity of Jazz types is directly readable or writable to R.
+
+//TODO: Write the rAPI description
+*/
+class rAPI: public JazzAPI {
+
+	public:
+		 rAPI(jazz_utils::pJazzLogger a_logger = nullptr);
+		~rAPI();
+
+};
+
+
 }
 
 #endif
