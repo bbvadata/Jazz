@@ -37,6 +37,14 @@ Bebop::Bebop()
 }
 
 
+/**
+//TODO: Document ~Bebop()
+*/
+Bebop::~Bebop()
+{
+//TODO: Implement ~Bebop
+}
+
 } // namespace jazz_bebop
 
 
