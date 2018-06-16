@@ -44,6 +44,15 @@ JazzAPI::JazzAPI(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzAPI()
+*/
+JazzAPI::~JazzAPI()
+{
+//TODO: Implement ~JazzAPI
+}
+
+
 } // namespace jazz_api
 
 
