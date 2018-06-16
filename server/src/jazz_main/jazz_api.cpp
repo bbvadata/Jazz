@@ -35,8 +35,6 @@
 namespace jazz_api
 {
 
-//TODO: Implement module jazz_api.
-
 } // namespace jazz_api
 
 
