@@ -110,6 +110,10 @@ all the characters are explained in containers:
 //TODO: Remove this (there is just one definition in jazz_containers) when the parser is written.
 
 */
+
+#define JAZZ_API_ERROR_INVALID_CHAR		1		///< The API call contains unacceptable characters.
+
+
 }
 
 #endif
