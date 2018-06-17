@@ -41,10 +41,6 @@ jazz_api.h through a REST API.
 namespace jazz_restapi
 {
 
-//TODO: Document interface for module jazz_restapi.
-
-//TODO: Implement interface for module jazz_restapi.
-
 }
 
 #endif
