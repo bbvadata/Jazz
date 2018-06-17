@@ -34,9 +34,9 @@ using namespace jazz_restapi;
 // Tests
 // -----
 
-SCENARIO("Testing JazzRestAPI") {
+SCENARIO("Testing JazzHttpServer") {
 
-//TODO: Write tests for jazz_restapi.
+//TODO: Write tests for JazzHttpServer.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
