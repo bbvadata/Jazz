@@ -46,3 +46,16 @@ SCENARIO("Testing JazzAPI") {
 		}
 	}
 }
+
+
+SCENARIO("Testing rAPI") {
+
+//TODO: Write tests for rAPI.
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
