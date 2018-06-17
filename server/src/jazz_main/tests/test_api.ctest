@@ -59,3 +59,18 @@ SCENARIO("Testing rAPI") {
 			}
 		}
 	}
+}
+
+
+SCENARIO("Testing pyAPI") {
+
+//TODO: Write tests for pyAPI.
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
