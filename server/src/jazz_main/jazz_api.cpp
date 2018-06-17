@@ -80,6 +80,14 @@ pyAPI::pyAPI(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~pyAPI()
+*/
+pyAPI::~pyAPI()
+{
+//TODO: Implement ~pyAPI
+}
+
 } // namespace jazz_api
 
 
