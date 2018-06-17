@@ -41,6 +41,8 @@ jazz_api.h through a REST API.
 namespace jazz_restapi
 {
 
+using namespace jazz_api;
+
 /** \brief TODO
 
 The REST API supports standard http commands.
