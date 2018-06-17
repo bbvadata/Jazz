@@ -41,6 +41,18 @@ The full list of Jazz global variables is.
 namespace jazz_instances
 {
 
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+extern JazzConfigFile J_CONFIG;
+extern JazzLogger	  J_LOGGER;
+extern JazzCluster	  J_CLUSTER;
+extern Bebop		  J_BOP;
+extern JazzHttpServer J_HTTP_SERVER;
+extern rAPI			  J_R_API;
+extern pyAPI		  J_PYTHON_API;
+
 }
 
 #endif
