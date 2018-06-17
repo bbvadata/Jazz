@@ -26,8 +26,6 @@
 namespace jazz_instances
 {
 
-//TODO: Implement module jazz_instances.
-
 } // namespace jazz_instances
 
 
