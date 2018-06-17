@@ -62,6 +62,15 @@ rAPI::rAPI(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~rAPI()
+*/
+rAPI::~rAPI()
+{
+//TODO: Implement ~rAPI
+}
+
+
 } // namespace jazz_api
 
 
