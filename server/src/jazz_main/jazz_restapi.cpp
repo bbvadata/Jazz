@@ -37,6 +37,14 @@ JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger)
 }
 
 
+/**
+//TODO: Document ~JazzHttpServer()
+*/
+JazzHttpServer::~JazzHttpServer()
+{
+//TODO: Implement ~JazzHttpServer
+}
+
 } // namespace jazz_restapi
 
 
