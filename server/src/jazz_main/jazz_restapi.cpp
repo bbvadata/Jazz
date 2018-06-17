@@ -28,6 +28,15 @@ namespace jazz_restapi
 
 //TODO: Implement module jazz_restapi.
 
+/**
+//TODO: Document JazzHttpServer()
+*/
+JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger)
+{
+//TODO: Implement JazzHttpServer
+}
+
+
 } // namespace jazz_restapi
 
 
