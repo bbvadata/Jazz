@@ -36,7 +36,7 @@ using namespace jazz_api;
 
 SCENARIO("Testing JazzAPI") {
 
-//TODO: Write tests for jazz_api.
+//TODO: Write tests for JazzAPI.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
