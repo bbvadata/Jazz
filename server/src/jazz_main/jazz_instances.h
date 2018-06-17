@@ -27,6 +27,17 @@
 #ifndef INCLUDED_JAZZ_MAIN_INSTANCES
 #define INCLUDED_JAZZ_MAIN_INSTANCES
 
+/**< \brief Contains one instance of each major class implemented as a global variable
+
+The full list of Jazz global variables is.
+  - J_CONFIG a JazzConfigFile
+  - J_LOGGER a JazzLogger
+  - J_CLUSTER a JazzCluster
+  - J_BOP a Bebop
+  - J_HTTP_SERVER a JazzHttpServer
+  - J_R_API a rAPI
+  - J_PYTHON_API a pyAPI
+*/
 namespace jazz_instances
 {
 
