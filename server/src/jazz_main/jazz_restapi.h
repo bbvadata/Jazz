@@ -41,6 +41,28 @@ jazz_api.h through a REST API.
 namespace jazz_restapi
 {
 
+/** \brief TODO
+
+The REST API supports standard http commands.
+
+GET with a valid rvalue. To read from Jazz.
+HEAD with a valid rvalue. Internally the same as GET, but returns the header only.
+PUT with a valid lvalue. To write blocks into a Jazz keepr.
+DELETE with a valid lvalue. To delete blocks or keeprs (even recursively).
+OPTIONS with a string. Parses the string and returns the commands that would accept that string as a URL.
+GET with lvalue=rvalue. Assignment in the server. Similar to “PUT(lvalue, GET(rvalue))” without traffic.
+There is no support for POST or TRACE, any functions other than those mentioned return an error.
+
+//TODO: Write the JazzHttpServer description
+*/
+class JazzHttpServer: public JazzAPI {
+
+	public:
+		 JazzHttpServer(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzHttpServer();
+
+};
+
 }
 
 #endif
