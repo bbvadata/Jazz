@@ -41,6 +41,11 @@ The full list of Jazz global variables is.
 namespace jazz_instances
 {
 
+using namespace jazz_utils;
+using namespace jazz_cluster;
+using namespace jazz_bebop;
+using namespace jazz_restapi;
+
 /*	-----------------------------
 	  I n s t a n t i a t i n g
 --------------------------------- */
