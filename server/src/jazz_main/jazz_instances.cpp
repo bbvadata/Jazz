@@ -26,6 +26,18 @@
 namespace jazz_instances
 {
 
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+JazzConfigFile J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+// JazzLogger	   J_LOGGER;
+// JazzCluster	   J_CLUSTER;
+// Bebop		   J_BOP;
+// JazzHttpServer J_HTTP_SERVER;
+// rAPI		   J_R_API;
+// pyAPI		   J_PYTHON_API;
+
 } // namespace jazz_instances
 
 
