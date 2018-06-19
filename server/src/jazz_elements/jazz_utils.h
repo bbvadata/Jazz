@@ -143,7 +143,9 @@ class JazzLogger {
 
 	public:
 
-		 JazzLogger(const char *output_file_name);
+		 JazzLogger(const char			 *output_file_name);
+		 JazzLogger(const JazzConfigFile  config,
+					const char			 *config_key);
 		~JazzLogger();
 
 		int	 get_output_file_name (char *buff, int buff_size);
