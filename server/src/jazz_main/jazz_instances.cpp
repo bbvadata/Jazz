@@ -31,7 +31,7 @@ namespace jazz_instances
 --------------------------------- */
 
 JazzConfigFile J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
-// JazzLogger	   J_LOGGER;
+JazzLogger	   J_LOGGER(J_CONFIG, "LOGGER_PATH");
 // JazzCluster	   J_CLUSTER;
 // Bebop		   J_BOP;
 // JazzHttpServer J_HTTP_SERVER;
