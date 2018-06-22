@@ -501,6 +501,31 @@ JazzLogger::JazzLogger (const char *output_file_name)
 }
 
 
+/** Common part of the constructor has been emancipated as a private argument-less method to avoid repeating code.
+
+	Sets the stopwatch origin in big_bang.
+	Tries to open the file ..
+	.. if successful, logs out a new execution message with level LOG_INFO
+	.. if failed, clears the file_name (that can be queried via get_output_file_name())
+*/
+void JazzLogger::InitLogger()
+{
+	f_buff = f_stream.rdbuf();
+
+	f_buff->open (file_name, std::ios::out | std::ios::app);
+
+	big_bang = std::chrono::steady_clock::now();
+
+	if (f_buff->is_open()) {
+		log(LOG_INFO, "+-----------------------------------+");
+		log(LOG_INFO, "| --- N E W - E X E C U T I O N --- |");
+		log(LOG_INFO, "+-----------------------------------+");
+	} else {
+		file_name[0] = 0;
+	}
+}
+
+
 /** Close the output file in the JazzLogger.
 
 	.. and clears the file_name (that can be queried via get_output_file_name())
