@@ -506,7 +506,7 @@ JazzLogger::JazzLogger (const char *output_file_name)
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
- JazzLogger::JazzLogger(const JazzConfigFile  config,
+ JazzLogger::JazzLogger(	  JazzConfigFile  config,
 						const char			 *config_key)
 {
 	file_name[0] = 0;
