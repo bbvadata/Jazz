@@ -501,6 +501,17 @@ JazzLogger::JazzLogger (const char *output_file_name)
 }
 
 
+/** Initialize the JazzLogger (Method 2: with a configuration file and a configuration key).
+
+	Stores a copy of the file name,
+	Calls InitLogger() for the rest of the initialization.
+*/
+ JazzLogger::JazzLogger(const JazzConfigFile  config,
+						const char			 *config_key)
+{
+}
+
+
 /** Common part of the constructor has been emancipated as a private argument-less method to avoid repeating code.
 
 	Sets the stopwatch origin in big_bang.
