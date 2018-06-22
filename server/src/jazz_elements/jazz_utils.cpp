@@ -488,31 +488,16 @@ void JazzConfigFile::debug_put(const std::string key, const std::string val)
 }
 
 
-/** Initialize the JazzLogger.
+/** Initialize the JazzLogger (Method 1: by directly giving it the output_file_name).
 
 	Stores a copy of the file name,
-	Sets the stopwatch origin in big_bang.
-	Tries to open the file ..
-	.. if successful, logs out a new execution message with level LOG_INFO
-	.. if failed, clears the file_name (that can be queried via get_output_file_name())
+	Calls InitLogger() for the rest of the initialization.
 */
 JazzLogger::JazzLogger (const char *output_file_name)
 {
 	strncpy(file_name, output_file_name, MAX_FILENAME_LENGTH - 1);
 
-	f_buff = f_stream.rdbuf();
-
-	f_buff->open (file_name, std::ios::out | std::ios::app);
-
-	big_bang = std::chrono::steady_clock::now();
-
-	if (f_buff->is_open()) {
-		log(LOG_INFO, "+-----------------------------------+");
-		log(LOG_INFO, "| --- N E W - E X E C U T I O N --- |");
-		log(LOG_INFO, "+-----------------------------------+");
-	} else {
-		file_name[0] = 0;
-	}
+	InitLogger();
 }
 
 
