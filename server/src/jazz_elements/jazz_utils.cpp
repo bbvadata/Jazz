@@ -509,6 +509,13 @@ JazzLogger::JazzLogger (const char *output_file_name)
  JazzLogger::JazzLogger(const JazzConfigFile  config,
 						const char			 *config_key)
 {
+	file_name[0] = 0;
+
+	std::string log_name;
+
+	if (config.get_key(config_key, log_name)) strncpy(file_name, log_name.c_str(), MAX_FILENAME_LENGTH - 1);
+
+	InitLogger();
 }
 
 
