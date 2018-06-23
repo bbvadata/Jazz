@@ -38,7 +38,7 @@
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
  */
-void hello()
+void Hello()
 {
 	cout << "\x20 888888" << endl
 		 << "\x20 \x20 `88b" << endl
@@ -66,7 +66,7 @@ void hello()
 
 /** Explain usage of the command line interface to stdout.
  */
-void help()
+void Help()
 {
 	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
 
@@ -83,7 +83,7 @@ void help()
 	\param arg The argument as typed.
 	\return the numeric constant and CMND_HELP when not known.
 */
-int parse_arg(const char *arg)
+int ParseArgument(const char *arg)
 {
 	if (!strcmp("start",  arg)) return CMND_START;
 	if (!strcmp("stop",	  arg)) return CMND_STOP;
