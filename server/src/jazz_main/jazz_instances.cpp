@@ -23,6 +23,8 @@
 
 #include "src/jazz_main/jazz_instances.h"
 
+#if !defined CATCH_TEST
+
 namespace jazz_instances
 {
 
