@@ -40,7 +40,4 @@ JazzLogger	   J_LOGGER(J_CONFIG, "LOGGER_PATH");
 
 } // namespace jazz_instances
 
-
-#if defined CATCH_TEST
-#include "src/jazz_main/tests/test_instances.ctest"
 #endif
