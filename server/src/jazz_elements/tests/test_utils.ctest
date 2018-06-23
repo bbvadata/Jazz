@@ -624,6 +624,28 @@ SCENARIO("Testing class JazzLogger") {
 	REQUIRE(log3.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
 
 	log2.log(LOG_INFO, "Extended");
+
+	std::ofstream fh;
+
+	fh.open ("/tmp/jzz_unit_cnf.ini");
+	fh << "// Config file\n";
+	fh << "LOGGER_PATH = /tmp/jzz_unit_log.log\n";
+	fh << "\\eof\n";
+	fh.close();
+
+	JazzConfigFile J_CONFIG("/tmp/jzz_unit_cnf.ini");
+
+	std::string key;
+
+	J_CONFIG.get_key("LOGGER_PATH", key);
+
+	REQUIRE(strcmp("/tmp/jzz_unit_log.log", key.c_str()) == 0);
+
+	JazzLogger log4(J_CONFIG, "LOGGER_PATH");
+
+	REQUIRE(log4.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
+
+	REQUIRE(strcmp("/tmp/jzz_unit_log.log", file_name) == 0);
 }
 
 
