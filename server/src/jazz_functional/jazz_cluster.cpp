@@ -34,9 +34,12 @@ namespace jazz_cluster
 /**
 //TODO: Document JazzCluster()
 */
-JazzCluster::JazzCluster(const char *config_file_name,
-							   jazz_utils::pJazzLogger a_logger) : config (config_file_name)
+JazzCluster::JazzCluster(jazz_utils::pJazzConfigFile a_config,
+					 	 jazz_utils::pJazzLogger	 a_logger)
 {
+	p_config = a_config;
+	p_logger = a_logger;
+
 //TODO: Use config.num_keys() to check for errors.
 
 //TODO: Implement JazzCluster
