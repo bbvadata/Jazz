@@ -129,12 +129,11 @@ When the command is anything else, too many or too few:
  */
 int main(int argc, char* argv[])
 {
-	int cmnd = (argc < 2 || argc > 3) ? CMND_HELP : parse_arg(argv[argc - 1]);
+	int cmnd = (argc < 2 || argc > 3) ? CMND_HELP : ParseArgument(argv[argc - 1]);
 
-	if (cmnd == CMND_HELP || argc == 3 && cmnd != CMND_START)
-	{
-		hello();
-		help();
+	if (cmnd == CMND_HELP || argc == 3 && cmnd != CMND_START) {
+		Hello();
+		Help();
 
 		exit(EXIT_FAILURE);
 	}
@@ -149,51 +148,43 @@ int main(int argc, char* argv[])
 
 	if (!jzzPID) jzzPID = jazz_utils::FindProcessIdByName("/etc/jazz-server/jazz");
 
-	if (!jzzPID)
-	{
-		if (cmnd != CMND_START)
-		{
+	if (!jzzPID) {
+		if (cmnd != CMND_START) {
 			cout << "The process \"" << proc_name << "\" is not running." << endl;
 
 			exit(EXIT_FAILURE);
 		}
 
 		string conf ("");
-		if (argc == 3)
-		{
+		if (argc == 3) {
 			conf = argv[1];
 
-			if (!jazz_utils::FileExists(conf.c_str()))
-			{
+			if (!jazz_utils::FileExists(conf.c_str())) {
 				cout << "The file " << conf << " does not exist." << endl;
 
 				exit(EXIT_FAILURE);
 			}
 		}
 
-		hello();
+		Hello();
 
 		exit(main_server_start(conf.c_str()));
-	}
-	else
-	{
-		if (cmnd == CMND_START)
-		{
+
+	} else {
+
+		if (cmnd == CMND_START) {
 			cout << "The process \"" << proc_name << "\" is already running with pid = " << jzzPID << "." << endl;
 
 			exit(EXIT_FAILURE);
 		}
 
-		if (cmnd == CMND_STOP)
-		{
+		if (cmnd == CMND_STOP) {
 			kill(jzzPID, SIGTERM);
 
 			cout << "Break signal was sent to process \"" << proc_name << "\" running with pid = " << jzzPID << "." << endl << endl;
-			for (int t = 0; t < 200; t++)
-			{
+			for (int t = 0; t < 200; t++) {
 				usleep (100000);
-				if (!jazz_utils::FindProcessIdByName(proc_name.c_str()))
-				{
+				if (!jazz_utils::FindProcessIdByName(proc_name.c_str())) {
 					cout << "The process \"" << proc_name << "\" was stopped." << endl;
 
 					exit(EXIT_SUCCESS);
@@ -205,12 +196,11 @@ int main(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 		}
 
-//		if (cmnd == CMND_STATUS)
-//		{
-			cout << "The process \"" << proc_name << "\" is running with pid = " << jzzPID << "." << endl;
+// (cmnd == CMND_STATUS)
 
-			exit(EXIT_SUCCESS);
-//		}
+		cout << "The process \"" << proc_name << "\" is running with pid = " << jzzPID << "." << endl;
+
+		exit(EXIT_SUCCESS);
 	}
 };
 
