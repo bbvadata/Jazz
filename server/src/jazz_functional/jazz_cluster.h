@@ -55,13 +55,14 @@ struct JazzNode
 class JazzCluster {
 
 	public:
-		 JazzCluster(const char *config_file_name,
-					 jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzCluster(jazz_utils::pJazzConfigFile a_config,
+					 jazz_utils::pJazzLogger	 a_logger = nullptr);
 		~JazzCluster();
 
 	private:
 
-		jazz_utils::JazzConfigFile config;
+		jazz_utils::pJazzConfigFile p_config;
+		jazz_utils::pJazzLogger		p_logger;
 };
 
 }
