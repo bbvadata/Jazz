@@ -46,7 +46,7 @@ void signalHandler_SIGTERM(int signum)
 
 	MHD_stop_daemon (Jazz_MHD_Daemon);
 
-	jCommons.logger_close();
+/*	jCommons.logger_close();
 
 	cout << "Stopping all services ..." << endl;
 
@@ -60,7 +60,7 @@ void signalHandler_SIGTERM(int signum)
 
 		exit (EXIT_FAILURE);
 	}
-
+*/
 	exit (EXIT_SUCCESS);
 }
 
