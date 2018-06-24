@@ -147,20 +147,23 @@ int main(int argc, char* argv[])
 			exit(EXIT_FAILURE);
 		}
 
-		string conf ("");
 		if (argc == 3) {
-			conf = argv[1];
-
-			if (!jazz_utils::FileExists(conf.c_str())) {
-				cout << "The file " << conf << " does not exist." << endl;
+			if (!jazz_utils::FileExists(argv[1])) {
+				cout << "The file " << argv[1] << " does not exist." << endl;
 
 				exit(EXIT_FAILURE);
 			}
+			if (!jazz_instances::J_CONFIG.load_config(argv[1])) {
+				cout << "The configuration file " << argv[1] << " could not be parsed." << endl;
+
+				exit(EXIT_FAILURE);
+			}
+			cout << "The configuration file " << argv[1] << " has been loaded." << endl;
 		}
 
-		Hello();
+		show_credits();
 
-		exit(main_server_start(conf.c_str()));
+		exit(jazz_instances::J_HTTP_SERVER.server_start());
 
 	} else {
 
