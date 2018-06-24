@@ -363,6 +363,44 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 }
 
 
+/** Load a configuration from a file.
+
+	Configuration is stored in: map<string, string> config which is private and read using the function get_key().
+
+	\param input_file_name The input file name containing a configuration
+
+	\return Nothing. Check num_keys() for errors.
+*/
+bool JazzConfigFile::load_config (const char *input_file_name)
+{
+	std::ifstream fh (input_file_name);
+
+	if (!fh.is_open()) return;
+
+	std::string ln, key, val;
+
+	while (!fh.eof()) {
+		getline(fh, ln);
+
+		size_t p;
+		p = ln.find("//");
+
+		if (p != std::string::npos) ln.erase(p, ln.length());
+
+		p = ln.find("=");
+
+		if (p != std::string::npos) {
+			key = CleanConfigArgument(ln.substr(0, p));
+			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
+
+			// std::cout << "config_put(\"" << key << "\", \"" << val << "\");" << std::endl;
+			config[key] = val;
+		}
+	}
+	fh.close();
+}
+
+
 /** Get the number of known configuration keys.
 
 	\return	 The number of configuration keys read from the file when constructing the object. Zero means some failure.
