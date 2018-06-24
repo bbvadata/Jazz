@@ -75,6 +75,10 @@ void signalHandler_SIGTERM(int signum)
 */
 JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger)
 {
+#ifdef DEBUG
+	log(LOG_DEBUG, "Entering JazzHttpServer::JazzHttpServer");
+#endif
+
 //TODO: Implement JazzHttpServer
 }
 
@@ -85,6 +89,10 @@ JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger)
 JazzHttpServer::~JazzHttpServer()
 {
 //TODO: Implement ~JazzHttpServer
+
+#ifdef DEBUG
+	log(LOG_DEBUG, "Leaving JazzHttpServer::~JazzHttpServer");
+#endif
 }
 
 
