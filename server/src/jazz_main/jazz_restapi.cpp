@@ -45,6 +45,17 @@ JazzHttpServer::~JazzHttpServer()
 //TODO: Implement ~JazzHttpServer
 }
 
+
+/**
+//TODO: Document server_start()
+*/
+int JazzHttpServer::server_start()
+{
+//TODO: Implement server_start
+
+	return EXIT_FAILURE;
+}
+
 } // namespace jazz_restapi
 
 
