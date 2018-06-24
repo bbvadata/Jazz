@@ -158,7 +158,9 @@ int main(int argc, char* argv[])
 
 				exit(EXIT_FAILURE);
 			}
-			cout << "The configuration file " << argv[1] << " has been loaded." << endl;
+			cout << endl
+				 << "**NOTE:** The configuration file " << argv[1] << " has been loaded." << endl
+				 << "---------" << endl << endl;
 		}
 
 		show_credits();
