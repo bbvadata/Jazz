@@ -138,7 +138,11 @@ int main(int argc, char* argv[])
 
 	pid_t jzzPID = jazz_utils::FindProcessIdByName(proc_name.c_str());
 
-	if (!jzzPID) jzzPID = jazz_utils::FindProcessIdByName("/etc/jazz-server/jazz");
+	if (!jzzPID) {
+		proc_name = "/etc/jazz-server/jazz";
+
+		jzzPID = jazz_utils::FindProcessIdByName(proc_name.c_str());
+	}
 
 	if (!jzzPID) {
 		if (cmnd != CMND_START) {
