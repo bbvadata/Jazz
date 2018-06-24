@@ -150,6 +150,160 @@ int JazzHttpServer::server_start()
 //TODO: Implement server_start
 
 	return EXIT_FAILURE;
+/*
+// 1. This first loads a configuration, returns EXIT_FAILURE if that fails.
+
+	bool cnf_ok;
+
+	if (strcmp("",	conf))
+	{
+		cnf_ok = jCommons.load_config_file(conf);
+
+		cout << "Loading configuration \"" << conf << "\" " << okfail(cnf_ok);
+	}
+	else
+	{
+		cnf_ok = normal_verbose_load_configuration();
+	}
+
+	if (!cnf_ok)
+	{
+		cout << "No valid configuration loaded." << endl;
+
+		return EXIT_FAILURE;
+	}
+
+// 2. Initializes the logger, returns EXIT_FAILURE if that fails.
+
+	if (!jCommons.logger_init())
+	{
+		cout << "Logger failed to initialize." << endl;
+
+		return EXIT_FAILURE;
+	}
+
+// 3. Loads the cluster configuration, returns EXIT_FAILURE if that fails.
+
+	if (!jCommons.load_cluster_conf())
+	{
+		cout << "Failed to load the cluster configuration." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to load the cluster configuration.");
+
+		return EXIT_FAILURE;
+	}
+
+// 4. Finds a port using the variable JAZZ_NODE_WHO_AM_I, returns EXIT_FAILURE if that fails.
+
+	int port;
+	string me;
+	if (!jCommons.get_config_key("JazzCLUSTER.JAZZ_NODE_WHO_AM_I", me) || !jCommons.get_cluster_port(me.c_str(), port))
+	{
+		cout << "Failed to find server port in configuration." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to find server port in configuration.");
+
+		return EXIT_FAILURE;
+	}
+
+// 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
+
+	if (!jCommons.configure_MHD_server())
+	{
+		cout << "Failed to configure the http server." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to configure the http server.");
+
+		return EXIT_FAILURE;
+	}
+
+// 6. Registers all services configuration variables JazzHTTPSERVER.MHD_DISABLE_BLOCKS..MHD_DISABLE_RAMQ.
+
+	register_service(&jBLOCKC,	  NOT_CONDITIONAL, NULL);
+
+	register_service(&jAPI, NOT_CONDITIONAL, NULL);
+
+// 7. Calls jServices.start_all()
+
+	if (!jServices.start_all())
+	{
+		jServices.stop_all();
+
+		cout << "Failed to start all services." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to start all services.");
+
+		return EXIT_FAILURE;
+	}
+
+// 8. Registers the signal handlers for SIGTERM
+
+	int sig_ok = signal(SIGTERM, signalHandler_SIGTERM) != SIG_ERR;
+
+	if (!sig_ok)
+	{
+		jServices.stop_all();
+
+		cout << "Failed to register signal handlers." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to register signal handlers.");
+
+		return EXIT_FAILURE;
+	}
+
+// 9. Forks
+
+	pid_t pid = fork();
+	if (pid < 0)
+	{
+		jServices.stop_all();
+
+		cout << "Failed to fork." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to fork.");
+
+		return EXIT_FAILURE;
+	}
+	if (pid > 0) return EXIT_SUCCESS; // This is parent process, exit now.
+
+//10. Calls MHD_start_daemon()
+
+	cout << "Starting server on port : " << port << endl;
+
+	unsigned int			  flags;
+	MHD_AcceptPolicyCallback  apc;
+	MHD_AccessHandlerCallback dh;
+	MHD_OptionItem *		  pops;
+
+	jCommons.get_server_start_params(flags, apc, dh, pops);
+
+	jzzdaemon = MHD_start_daemon (flags, port, apc, NULL, dh, NULL, MHD_OPTION_ARRAY, pops, MHD_OPTION_END);
+
+	if (jzzdaemon == NULL)
+	{
+		jServices.stop_all();
+
+		cout << "Failed to start the server." << endl;
+
+		jCommons.log(LOG_ERROR, "Failed to start the server.");
+	}
+
+// Creates a new session if the calling process is not a process group leader. The calling process is the leader of the new session,
+// the process group leader of the new process group, and has no controlling terminal.
+
+	setsid();
+
+#ifdef DEBUG
+	cout << endl << "DEBUG MODE: -- Press any key to stop the server. ---" << endl;
+	getchar();
+	cout << endl << "Stopping ..." << endl;
+	kill(getpid(), SIGTERM);
+	sleep(1);
+	cout << endl << "Failed :-(" << endl;
+#endif
+
+	while(true) sleep(60);
+*/
 }
 
 } // namespace jazz_restapi
