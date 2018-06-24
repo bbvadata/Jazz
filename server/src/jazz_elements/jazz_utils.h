@@ -120,6 +120,8 @@ class JazzConfigFile {
 
 		JazzConfigFile(const char *input_file_name);
 
+		bool load_config (const char *input_file_name);
+
 		int	 num_keys ();
 
 		bool get_key  (const char *key, int &value);
