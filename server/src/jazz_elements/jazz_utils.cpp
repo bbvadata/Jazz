@@ -373,6 +373,8 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 */
 bool JazzConfigFile::load_config (const char *input_file_name)
 {
+	config.clear();
+
 	std::ifstream fh (input_file_name);
 
 	if (!fh.is_open()) return;
