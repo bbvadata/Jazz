@@ -351,9 +351,7 @@ std::string CleanConfigArgument(std::string s)
 }
 
 
-/** Load a configuration from a file.
-
-	Configuration is stored in: map<string, string> config which is private and read using the function get_key().
+/** Build a JazzConfigFile by calling load_config()
 
 	\param input_file_name The input file name containing a configuration
 
@@ -361,31 +359,7 @@ std::string CleanConfigArgument(std::string s)
 */
 JazzConfigFile::JazzConfigFile(const char *input_file_name)
 {
-	std::ifstream fh (input_file_name);
-
-	if (!fh.is_open()) return;
-
-	std::string ln, key, val;
-
-	while (!fh.eof()) {
-		getline(fh, ln);
-
-		size_t p;
-		p = ln.find("//");
-
-		if (p != std::string::npos) ln.erase(p, ln.length());
-
-		p = ln.find("=");
-
-		if (p != std::string::npos) {
-			key = CleanConfigArgument(ln.substr(0, p));
-			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
-
-			// std::cout << "config_put(\"" << key << "\", \"" << val << "\");" << std::endl;
-			config[key] = val;
-		}
-	}
-	fh.close();
+	load_config(input_file_name);
 }
 
 
