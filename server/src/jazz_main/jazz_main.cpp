@@ -121,11 +121,11 @@ When the command is anything else, too many or too few:
  */
 int main(int argc, char* argv[])
 {
-	int cmnd = (argc < 2 || argc > 3) ? CMND_HELP : ParseArgument(argv[argc - 1]);
+	int cmnd = (argc < 2 || argc > 3) ? CMND_HELP : parse_command(argv[argc - 1]);
 
 	if (cmnd == CMND_HELP || argc == 3 && cmnd != CMND_START) {
-		Hello();
-		Help();
+		show_credits();
+		show_usage();
 
 		exit(EXIT_FAILURE);
 	}
