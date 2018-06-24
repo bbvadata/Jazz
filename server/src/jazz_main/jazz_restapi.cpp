@@ -26,6 +26,12 @@
 namespace jazz_restapi
 {
 
+
+/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
+*/
+struct MHD_Daemon *Jazz_MHD_Daemon;
+
+
 //TODO: Implement module jazz_restapi.
 
 /**
