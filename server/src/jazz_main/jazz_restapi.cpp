@@ -61,6 +61,9 @@ void signalHandler_SIGTERM(int signum)
 		exit (EXIT_FAILURE);
 	}
 */
+
+//TODO: Implement server shutdown logic here.
+
 	exit (EXIT_SUCCESS);
 }
 
