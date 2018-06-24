@@ -377,7 +377,7 @@ bool JazzConfigFile::load_config (const char *input_file_name)
 
 	std::ifstream fh (input_file_name);
 
-	if (!fh.is_open()) return;
+	if (!fh.is_open()) return false;
 
 	std::string ln, key, val;
 
@@ -400,6 +400,8 @@ bool JazzConfigFile::load_config (const char *input_file_name)
 		}
 	}
 	fh.close();
+
+	return config.size() > 1;
 }
 
 
