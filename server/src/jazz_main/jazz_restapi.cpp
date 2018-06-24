@@ -73,7 +73,7 @@ void signalHandler_SIGTERM(int signum)
 /**
 //TODO: Document JazzHttpServer()
 */
-JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger)
+JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger) : JazzAPI(a_logger)
 {
 #ifdef DEBUG
 	log(LOG_DEBUG, "Entering JazzHttpServer::JazzHttpServer");
