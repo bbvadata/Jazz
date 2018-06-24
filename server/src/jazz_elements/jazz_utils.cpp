@@ -369,7 +369,7 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 
 	\param input_file_name The input file name containing a configuration
 
-	\return Nothing. Check num_keys() for errors.
+	\return true if some keys were read. (There is no systematic error checking.)
 */
 bool JazzConfigFile::load_config (const char *input_file_name)
 {
