@@ -88,8 +88,62 @@ JazzHttpServer::~JazzHttpServer()
 }
 
 
-/**
-//TODO: Document server_start()
+/** Start the Jazz server.
+
+\param conf
+\return on failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return. The
+application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful or with EXIT_FAILURE
+if not.
+
+Starting logic:
+
+ 1. This first loads a configuration, returns EXIT_FAILURE if that fails.
+
+	If conf is not void, it uses this file as the configuration source,
+	else it tries config/jazz_config.ini
+
+ 2. Initializes the logger, returns EXIT_FAILURE if that fails.
+
+ 3. Loads the cluster configuration, returns EXIT_FAILURE if that fails.
+
+ 4. Finds a port using the variable JAZZ_NODE_WHO_AM_I, returns EXIT_FAILURE if that fails.
+
+ 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
+
+ 6. Registers all services configuration variables JazzHTTPSERVER.MHD_DISABLE_BLOCKS..MHD_DISABLE_RAMQ.
+
+	if anything fails:
+		calls jServices.stop_all() and returns EXIT_FAILURE
+
+ 7. Calls jServices.start_all()
+
+	if anyone fails:
+		calls jServices.stop_all() and returns EXIT_FAILURE
+
+ 8. Registers the signal handlers for SIGTERM
+
+	if that fails:
+		calls jServices.stop_all() and returns EXIT_FAILURE
+
+ 9. Forks
+
+	if that fails:
+		calls jServices.stop_all() and returns EXIT_FAILURE
+
+	(The parent exits with EXIT_SUCCESS, the child continues)
+
+ 10. Calls MHD_start_daemon()
+
+	if that fails:
+		The child calls jServices.stop_all() and returns EXIT_FAILURE
+
+	Then calls setsid() This creates a new session if the calling process is not a process group leader. The calling process is the leader of the
+	new session, the process group leader of the new process group, and has no controlling terminal.
+
+	And sleeps forever! (The child.)
+
+//TODO: Update this documentation server_start()
+
 */
 int JazzHttpServer::server_start()
 {
