@@ -132,17 +132,18 @@ int main(int argc, char* argv[])
 
 #ifdef DEBUG
 	string proc_name ("./djazz");
+
+	pid_t jzzPID;
 #else
 	string proc_name ("./jazz");
-#endif
 
 	pid_t jzzPID = jazz_utils::FindProcessIdByName(proc_name.c_str());
 
-	if (!jzzPID) {
+	if (!jzzPID)
 		proc_name = "/etc/jazz-server/jazz";
+#endif
 
-		jzzPID = jazz_utils::FindProcessIdByName(proc_name.c_str());
-	}
+	jzzPID = jazz_utils::FindProcessIdByName(proc_name.c_str());
 
 	if (!jzzPID) {
 		if (cmnd != CMND_START) {
