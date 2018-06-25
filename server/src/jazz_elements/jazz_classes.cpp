@@ -32,7 +32,7 @@ namespace jazz_classes
 /**
 //TODO: Document JazzClass()
 */
-JazzClass::JazzClass(jazz_utils::pJazzLogger a_logger)
+JazzClass::JazzClass(jazz_utils::pJazzLogger a_logger)	: JazzCache(a_logger)
 {
 //TODO: Implement JazzClass
 }
