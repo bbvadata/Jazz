@@ -94,7 +94,7 @@ bool remote_testing_point ()
 /**
 //TODO: Document JazzHttpclient
 */
-JazzHttpclient::JazzHttpclient(jazz_utils::pJazzLogger a_logger)
+JazzHttpclient::JazzHttpclient(jazz_utils::pJazzLogger a_logger)	: JazzBlockKeepr(a_logger)
 {
 //TODO: Implement JazzHttpclient
 }
