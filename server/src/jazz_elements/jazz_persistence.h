@@ -70,6 +70,8 @@ class JazzPersistence: public JazzBlockKeepr {
 
 	public:
 
+		 JazzPersistence(jazz_utils::pJazzLogger a_logger = nullptr);
+
 		// Methods for buffer allocation
 
 		virtual void destroy_keeprs() = 0;
