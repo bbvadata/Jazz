@@ -31,11 +31,11 @@ namespace jazz_persistence
 {
 
 /**
-//TODO: Document JazzSource constructor
+//TODO: Document JazzPersistence constructor
 */
 JazzPersistence::JazzPersistence(jazz_utils::pJazzLogger a_logger)	: JazzBlockKeepr(a_logger)
 {
-//TODO: Implement JazzSource constructor
+//TODO: Implement JazzPersistence constructor
 }
 
 
