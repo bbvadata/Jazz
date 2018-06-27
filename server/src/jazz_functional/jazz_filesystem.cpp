@@ -31,7 +31,7 @@ namespace jazz_filesystem
 /**
 //TODO: Document JazzFileSystem()
 */
-JazzFileSystem::JazzFileSystem(jazz_utils::pJazzLogger a_logger)
+JazzFileSystem::JazzFileSystem(jazz_utils::pJazzLogger a_logger)	: JazzTree(a_logger)
 {
 //TODO: Implement JazzFileSystem
 }
