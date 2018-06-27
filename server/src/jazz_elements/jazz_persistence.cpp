@@ -42,7 +42,7 @@ JazzPersistence::JazzPersistence(jazz_utils::pJazzLogger a_logger)	: JazzBlockKe
 /**
 //TODO: Document JazzSource constructor
 */
-JazzSource::JazzSource(jazz_utils::pJazzLogger a_logger)
+JazzSource::JazzSource(jazz_utils::pJazzLogger a_logger)	: JazzPersistence(a_logger)
 {
 //TODO: Implement JazzSource constructor
 }
