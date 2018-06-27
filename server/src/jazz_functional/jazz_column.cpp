@@ -65,7 +65,7 @@ SparseMapping::~SparseMapping()
 /**
 //TODO: Document JazzColumn()
 */
-JazzColumn::JazzColumn(jazz_utils::pJazzLogger a_logger)
+JazzColumn::JazzColumn(jazz_utils::pJazzLogger a_logger)	: JazzTree(a_logger)
 {
 //TODO: Implement JazzColumn
 }
