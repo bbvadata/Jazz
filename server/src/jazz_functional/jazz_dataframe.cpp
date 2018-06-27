@@ -31,7 +31,7 @@ namespace jazz_dataframe
 /**
 //TODO: Document JazzDataframe()
 */
-JazzDataframe::JazzDataframe(jazz_utils::pJazzLogger a_logger)
+JazzDataframe::JazzDataframe(jazz_utils::pJazzLogger a_logger)	: JazzColumn(a_logger)
 {
 //TODO: Implement JazzDataframe
 }
