@@ -74,7 +74,7 @@ rAPI::~rAPI()
 /**
 //TODO: Document pyAPI()
 */
-pyAPI::pyAPI(jazz_utils::pJazzLogger a_logger)
+pyAPI::pyAPI(jazz_utils::pJazzLogger a_logger)	: JazzAPI(a_logger)
 {
 //TODO: Implement pyAPI
 }
