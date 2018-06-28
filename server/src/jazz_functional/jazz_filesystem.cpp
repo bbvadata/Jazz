@@ -67,7 +67,7 @@ JazzClusterFileSystem::~JazzClusterFileSystem()
 /**
 //TODO: Document JazzRemoteSource()
 */
-JazzRemoteSource::JazzRemoteSource(jazz_utils::pJazzLogger a_logger)
+JazzRemoteSource::JazzRemoteSource(jazz_utils::pJazzLogger a_logger)	: JazzBlockKeepr(a_logger)
 {
 //TODO: Implement JazzRemoteSource
 }
