@@ -113,12 +113,6 @@ all the characters are explained in containers:
 
 */
 
-#define JAZZ_API_ERROR_INVALID_CHAR		1		///< The API call contains unacceptable characters.
-
-
-typedef int API_ErrorCode;
-
-
 /** \brief The JazzAPI is a keepr (JazzCache) named / (root in Unix) where all the keeprs and blocks are linked.
 
 //TODO: Write the JazzAPI description

@@ -53,4 +53,11 @@ need jazz_api.h
 #include "src/jazz_elements/jazz_classes.h"
 #include "src/jazz_elements/jazz_stdcore.h"
 
+
+#define JAZZ_API_NO_ERROR				0		///< No errors found processing the API call.
+#define JAZZ_API_ERROR_INVALID_CHAR		1		///< The API call contains unacceptable characters.
+
+
+typedef int API_ErrorCode;
+
 #endif
