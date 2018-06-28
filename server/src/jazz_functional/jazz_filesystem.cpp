@@ -49,7 +49,7 @@ JazzFileSystem::~JazzFileSystem()
 /**
 //TODO: Document JazzClusterFileSystem()
 */
-JazzClusterFileSystem::JazzClusterFileSystem(jazz_utils::pJazzLogger a_logger)
+JazzClusterFileSystem::JazzClusterFileSystem(jazz_utils::pJazzLogger a_logger)	: JazzFileSystem(a_logger)
 {
 //TODO: Implement JazzClusterFileSystem
 }
