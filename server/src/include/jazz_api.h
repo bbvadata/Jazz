@@ -123,6 +123,7 @@ class JazzAPI: public JazzCache {
 		 JazzAPI(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzAPI();
 
+	API_ErrorCode ShutDown (bool restarting_service = false);
 };
 
 
