@@ -60,7 +60,16 @@ class JazzCluster {
 		~JazzCluster();
 
 		API_ErrorCode ShutDown (bool restarting_service = false);
-;
+
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
+
+			\param loglevel The trace level.
+			\param message	A message.
+
+			See JazzLogger for details.
+		*/
+		inline void log (int loglevel, const char *message) { if (p_logger != nullptr) p_logger->log(loglevel, message); }
+
 	private:
 
 		jazz_utils::pJazzConfigFile p_config;
