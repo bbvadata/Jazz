@@ -26,48 +26,6 @@
 namespace jazz_restapi
 {
 
-using namespace std;
-
-
-/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
-*/
-struct MHD_Daemon *Jazz_MHD_Daemon;
-
-
-/** Capture SIGTERM. This callback procedure stops a running server.
-
-	See main_server_start() for details on the server's start/stop.
-*/
-void signalHandler_SIGTERM(int signum)
-{
-	cout << "Interrupt signal (" << signum << ") received." << endl;
-
-	cout << "Closing the http server ..." << endl;
-
-	MHD_stop_daemon (Jazz_MHD_Daemon);
-
-/*	jCommons.logger_close();
-
-	cout << "Stopping all services ..." << endl;
-
-	bool clok = jServices.stop_all();
-
-	cout << "Stopped all services : " << okfail(clok) << endl;
-
-	if (!clok)
-	{
-		jCommons.log(LOG_ERROR, "Failed stopping all services.");
-
-		exit (EXIT_FAILURE);
-	}
-*/
-
-//TODO: Implement server shutdown logic here.
-
-	exit (EXIT_SUCCESS);
-}
-
-
 //TODO: Implement module jazz_restapi.
 
 /**
