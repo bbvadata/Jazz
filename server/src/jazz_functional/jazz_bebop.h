@@ -84,6 +84,8 @@ class Bebop {
 		 Bebop();
 		~Bebop();
 
+		API_ErrorCode ShutDown (bool restarting_service = false);
+
 //TODO: Define Bebop
 //TODO: Implement Bebop
 //TODO: Document Bebop

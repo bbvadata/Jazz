@@ -59,6 +59,8 @@ class JazzCluster {
 					 jazz_utils::pJazzLogger	 a_logger = nullptr);
 		~JazzCluster();
 
+		API_ErrorCode ShutDown (bool restarting_service = false);
+;
 	private:
 
 		jazz_utils::pJazzConfigFile p_config;
