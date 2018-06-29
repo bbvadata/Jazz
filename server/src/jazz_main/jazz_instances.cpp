@@ -40,6 +40,46 @@ JazzHttpServer J_HTTP_SERVER(&J_LOGGER);
 rAPI		   J_R_API(&J_LOGGER);
 pyAPI		   J_PYTHON_API(&J_LOGGER);
 
+
+/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
+*/
+struct MHD_Daemon *Jazz_MHD_Daemon;
+
+
+/** Capture SIGTERM. This callback procedure stops a running server.
+
+	See main_server_start() for details on the server's start/stop.
+*/
+void signalHandler_SIGTERM(int signum)
+{
+	cout << "Interrupt signal (" << signum << ") received." << endl;
+
+	cout << "Closing the http server ..." << endl;
+
+	MHD_stop_daemon (Jazz_MHD_Daemon);
+
+	cout << "Stopping JazzCluster ..." << endl;
+
+	bool stop_ok = J_CLUSTER.ShutDown() == JAZZ_API_NO_ERROR;
+
+	cout << "Stopping Bebop ..." << endl;
+
+	if (J_BOP.ShutDown() != JAZZ_API_NO_ERROR) stop_ok = false;
+
+	cout << "Stopping JazzHttpServer ..." << endl;
+
+	if (J_HTTP_SERVER.ShutDown() != JAZZ_API_NO_ERROR) stop_ok = false;
+
+	if (!stop_ok)
+	{
+		J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
+
+		exit (EXIT_FAILURE);
+	}
+
+	exit (EXIT_SUCCESS);
+}
+
 } // namespace jazz_instances
 
 #endif
