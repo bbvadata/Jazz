@@ -27,6 +27,7 @@
 
 namespace jazz_instances
 {
+	using namespace std;
 
 /*	-----------------------------
 	  I n s t a n t i a t i n g
