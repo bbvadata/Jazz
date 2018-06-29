@@ -49,7 +49,20 @@ JazzAPI::JazzAPI(jazz_utils::pJazzLogger a_logger) : JazzCache(a_logger)
 */
 JazzAPI::~JazzAPI()
 {
-//TODO: Implement ~JazzAPI
+	ShutDown();
+}
+
+
+/** Close the JazzAPI object persisting pending cached write operations, freeing resources, etc.
+
+	\param restarting_service Tell the object that it will be used again immediately if true and that makes any difference..
+	\return					  JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
+*/
+API_ErrorCode JazzAPI::ShutDown (bool restarting_service)
+{
+	log(LOG_INFO, "Completed JazzAPI::ShutDown()");
+
+	return JAZZ_API_NO_ERROR;
 }
 
 
