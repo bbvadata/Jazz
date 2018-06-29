@@ -31,9 +31,9 @@ namespace jazz_bebop
 /**
 //TODO: Document Bebop()
 */
-Bebop::Bebop()
+Bebop::Bebop(jazz_utils::pJazzLogger a_logger)
 {
-//TODO: Implement Bebop
+	p_log = a_logger;
 }
 
 
