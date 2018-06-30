@@ -42,7 +42,7 @@ Bebop::Bebop(jazz_utils::pJazzLogger a_logger)
 */
 Bebop::~Bebop()
 {
-//TODO: Implement ~Bebop
+	ShutDown();
 }
 
 
