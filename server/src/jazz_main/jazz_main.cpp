@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 
 		show_credits();
 
-		exit(jazz_instances::J_HTTP_SERVER.server_start());
+		exit(jazz_instances::J_HTTP_SERVER.server_start(&jazz_instances::J_CONFIG));
 
 	} else {
 
