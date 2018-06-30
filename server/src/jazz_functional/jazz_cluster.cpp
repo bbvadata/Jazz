@@ -51,7 +51,7 @@ JazzCluster::JazzCluster(jazz_utils::pJazzConfigFile a_config,
 */
 JazzCluster::~JazzCluster()
 {
-//TODO: Implement ~JazzCluster
+	ShutDown();
 }
 
 
