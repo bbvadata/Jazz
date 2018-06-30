@@ -35,7 +35,7 @@ namespace jazz_cluster
 //TODO: Document JazzCluster()
 */
 JazzCluster::JazzCluster(jazz_utils::pJazzConfigFile a_config,
-					 	 jazz_utils::pJazzLogger	 a_logger)
+						 jazz_utils::pJazzLogger	 a_logger)
 {
 	p_config = a_config;
 	p_logger = a_logger;
