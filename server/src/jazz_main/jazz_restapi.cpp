@@ -113,52 +113,7 @@ Starting logic:
 */
 int JazzHttpServer::server_start()
 {
-//TODO: Implement server_start
-
-	return EXIT_FAILURE;
 /*
-// 1. This first loads a configuration, returns EXIT_FAILURE if that fails.
-
-	bool cnf_ok;
-
-	if (strcmp("",	conf))
-	{
-		cnf_ok = jCommons.load_config_file(conf);
-
-		cout << "Loading configuration \"" << conf << "\" " << okfail(cnf_ok);
-	}
-	else
-	{
-		cnf_ok = normal_verbose_load_configuration();
-	}
-
-	if (!cnf_ok)
-	{
-		cout << "No valid configuration loaded." << endl;
-
-		return EXIT_FAILURE;
-	}
-
-// 2. Initializes the logger, returns EXIT_FAILURE if that fails.
-
-	if (!jCommons.logger_init())
-	{
-		cout << "Logger failed to initialize." << endl;
-
-		return EXIT_FAILURE;
-	}
-
-// 3. Loads the cluster configuration, returns EXIT_FAILURE if that fails.
-
-	if (!jCommons.load_cluster_conf())
-	{
-		cout << "Failed to load the cluster configuration." << endl;
-
-		jCommons.log(LOG_ERROR, "Failed to load the cluster configuration.");
-
-		return EXIT_FAILURE;
-	}
-
 // 4. Finds a port using the variable JAZZ_NODE_WHO_AM_I, returns EXIT_FAILURE if that fails.
 
 	int port;
