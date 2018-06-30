@@ -56,9 +56,10 @@ JazzHttpServer::~JazzHttpServer()
 
 /** Start the Jazz server.
 
-\param conf
-\return on failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return. The
-application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful or with EXIT_FAILURE
+\param p_config A pointer to a JazzConfigFile object containing the server configuration.
+
+\return         On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return.
+The application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful or with EXIT_FAILURE
 if not.
 
 Starting logic:
