@@ -26,6 +26,8 @@
 namespace jazz_restapi
 {
 
+using namespace std;
+
 //TODO: Implement module jazz_restapi.
 
 /**
