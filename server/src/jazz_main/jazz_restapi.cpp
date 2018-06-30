@@ -114,22 +114,18 @@ Starting logic:
 */
 int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 {
-/*
-// 4. Finds a port using the variable JAZZ_NODE_WHO_AM_I, returns EXIT_FAILURE if that fails.
+	int http_port;
 
-	int port;
-	string me;
-	if (!jCommons.get_config_key("JazzCLUSTER.JAZZ_NODE_WHO_AM_I", me) || !jCommons.get_cluster_port(me.c_str(), port))
-	{
+	if (!p_config->get_key("HTTP_PORT", http_port)) {
 		cout << "Failed to find server port in configuration." << endl;
 
-		jCommons.log(LOG_ERROR, "Failed to find server port in configuration.");
+		log(LOG_ERROR, "Failed to find server port in configuration.");
 
 		return EXIT_FAILURE;
 	}
 
 // 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
-
+/*
 	if (!jCommons.configure_MHD_server())
 	{
 		cout << "Failed to configure the http server." << endl;
