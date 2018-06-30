@@ -111,7 +111,7 @@ Starting logic:
 //TODO: Update this documentation server_start()
 
 */
-int JazzHttpServer::server_start()
+int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 {
 /*
 // 4. Finds a port using the variable JAZZ_NODE_WHO_AM_I, returns EXIT_FAILURE if that fails.
