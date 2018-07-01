@@ -180,24 +180,7 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 	if (lar) pop[0] = {MHD_OPTION_LISTENING_ADDRESS_REUSE,	   lar, NULL}; pop++;
 
 	pop[0] = {MHD_OPTION_END, 0, NULL};
-
-// 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
 /*
-	if (!jCommons.configure_MHD_server())
-	{
-		cout << "Failed to configure the http server." << endl;
-
-		jCommons.log(LOG_ERROR, "Failed to configure the http server.");
-
-		return EXIT_FAILURE;
-	}
-
-// 6. Registers all services configuration variables JazzHTTPSERVER.MHD_DISABLE_BLOCKS..MHD_DISABLE_RAMQ.
-
-	register_service(&jBLOCKC,	  NOT_CONDITIONAL, NULL);
-
-	register_service(&jAPI, NOT_CONDITIONAL, NULL);
-
 // 7. Calls jServices.start_all()
 
 	if (!jServices.start_all())
