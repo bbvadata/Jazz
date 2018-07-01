@@ -57,7 +57,7 @@ JazzCluster::~JazzCluster()
 
 /** Close the JazzCluster object persisting pending cached write operations, freeing resources, etc.
 
-	\param restarting_service Tell the object that it will be used again immediately if true and that makes any difference..
+	\param restarting_service Tell the object that it will be used again immediately if true and that makes any difference.
 	\return					  JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
 */
 API_ErrorCode JazzCluster::ShutDown (bool restarting_service)
