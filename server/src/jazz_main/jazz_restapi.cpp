@@ -135,9 +135,10 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 		 & p_config->get_key("MHD_SUPPRESS_DATE", supp_date)
 		 & p_config->get_key("MHD_USE_TCP_FASTOPEN", tcp_fastopen);
 
-	if ((!ok ) | ((debug | ssl | ipv6 | pedantic | supp_date | tcp_fastopen) & 0xfffffffe))
-	{
-		log(LOG_ERROR, "configure_MHD_server() failed. In flags variables block.");
+	if ((!ok ) | ((debug | ssl | ipv6 | pedantic | supp_date | tcp_fastopen) & 0xfffffffe)) {
+		cout << "Failed parsing flags block in configuration." << endl;
+
+		log(LOG_ERROR, "JazzHttpServer::server_start() failed config in flags block.");
 
 		return EXIT_FAILURE;
 	}
