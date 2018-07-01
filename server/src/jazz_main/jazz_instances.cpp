@@ -71,8 +71,7 @@ void signalHandler_SIGTERM(int signum)
 
 	if (J_HTTP_SERVER.ShutDown() != JAZZ_API_NO_ERROR) stop_ok = false;
 
-	if (!stop_ok)
-	{
+	if (!stop_ok) {
 		J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
 
 		exit (EXIT_FAILURE);
