@@ -55,6 +55,19 @@ JazzCluster::~JazzCluster()
 }
 
 
+/** Start the JazzCluster object loading its settings from a JazzConfigFile if necessary.
+
+	\param p_config A pointer to a JazzConfigFile that may be used
+	\return					  JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
+*/
+API_ErrorCode JazzCluster::StartService (jazz_utils::pJazzConfigFile p_config)
+{
+	log(LOG_INFO, "Completed JazzCluster::StartService()");
+
+	return JAZZ_API_NO_ERROR;
+}
+
+
 /** Close the JazzCluster object persisting pending cached write operations, freeing resources, etc.
 
 	\param restarting_service Tell the object that it will be used again immediately if true and that makes any difference.
