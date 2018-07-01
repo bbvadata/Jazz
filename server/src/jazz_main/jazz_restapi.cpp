@@ -146,6 +146,41 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 				 				| pedantic*MHD_USE_PEDANTIC_CHECKS | supp_date*MHD_SUPPRESS_DATE_NO_CLOCK | tcp_fastopen*MHD_USE_TCP_FASTOPEN
 								| MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL;		// Only threading model for Jazz.
 
+	MHD_OptionItem server_options[9];		// The variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
+
+	int cml, cmi, ocl, oct, pic, tps, tss, lar;
+
+	ok =   p_config->get_key("MHD_CONN_MEMORY_LIMIT", cml)
+		 & p_config->get_key("MHD_CONN_MEMORY_INCR", cmi)
+		 & p_config->get_key("MHD_CONN_LIMIT", ocl)
+		 & p_config->get_key("MHD_CONN_TIMEOUT", oct)
+		 & p_config->get_key("MHD_PER_IP_CONN_LIMIT", pic)
+		 & p_config->get_key("MHD_THREAD_POOL_SIZE", tps)
+		 & p_config->get_key("MHD_THREAD_STACK_SIZE", tss)
+		 & p_config->get_key("MHD_LISTEN_ADDR_REUSE", lar);
+
+	if (!ok)
+	{
+		cout << "Failed parsing integers block in configuration." << endl;
+
+		log(LOG_ERROR, "JazzHttpServer::server_start() failed config in integers block.");
+
+		return EXIT_FAILURE;
+	}
+
+	MHD_OptionItem *pop = server_options;
+
+	if (cml) pop[0] = {MHD_OPTION_CONNECTION_MEMORY_LIMIT,	   cml, NULL}; pop++;
+	if (cmi) pop[0] = {MHD_OPTION_CONNECTION_MEMORY_INCREMENT, cmi, NULL}; pop++;
+	if (ocl) pop[0] = {MHD_OPTION_CONNECTION_LIMIT,			   ocl, NULL}; pop++;
+	if (oct) pop[0] = {MHD_OPTION_CONNECTION_TIMEOUT,		   oct, NULL}; pop++;
+	if (pic) pop[0] = {MHD_OPTION_PER_IP_CONNECTION_LIMIT,	   pic, NULL}; pop++;
+	if (tps) pop[0] = {MHD_OPTION_THREAD_POOL_SIZE,			   tps, NULL}; pop++;
+	if (tss) pop[0] = {MHD_OPTION_THREAD_STACK_SIZE,		   tss, NULL}; pop++;
+	if (lar) pop[0] = {MHD_OPTION_LISTENING_ADDRESS_REUSE,	   lar, NULL}; pop++;
+
+	pop[0] = {MHD_OPTION_END, 0, NULL};
+
 // 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
 /*
 	if (!jCommons.configure_MHD_server())
