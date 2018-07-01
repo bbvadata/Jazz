@@ -121,7 +121,7 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 	if (!p_config->get_key("HTTP_PORT", http_port)) {
 		cout << "Failed to find server port in configuration." << endl;
 
-		log(LOG_ERROR, "Failed to find server port in configuration.");
+		log(LOG_ERROR, "JazzHttpServer::server_start() failed to find server port in configuration.");
 
 		return EXIT_FAILURE;
 	}
