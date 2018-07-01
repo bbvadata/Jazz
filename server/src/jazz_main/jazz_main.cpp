@@ -170,6 +170,42 @@ int main(int argc, char* argv[])
 
 		show_credits();
 
+		cout << "Starting JazzAPI ... ";
+
+		if (J_HTTP_SERVER.StartService(&J_CONFIG) != JAZZ_API_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			J_LOGGER.log(LOG_ERROR, "Errors occurred starting JazzAPI.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
+		cout << "Starting Bebop ... ";
+
+		if (J_BOP.StartService(&J_CONFIG) != JAZZ_API_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			J_LOGGER.log(LOG_ERROR, "Errors occurred starting Bebop.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
+		cout << "Starting JazzCluster ... ";
+
+		if (J_CLUSTER.StartService(&J_CONFIG) != JAZZ_API_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			J_LOGGER.log(LOG_ERROR, "Errors occurred starting JazzCluster.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
 		exit(J_HTTP_SERVER.server_start(&J_CONFIG));
 
 	} else {
