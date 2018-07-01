@@ -126,6 +126,25 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
 		return EXIT_FAILURE;
 	}
 
+	int ok, debug, ssl, ipv6, pedantic, supp_date, tcp_fastopen;
+
+	ok =   p_config->get_key("MHD_DEBUG", debug)
+		 & p_config->get_key("MHD_SSL", ssl)
+		 & p_config->get_key("MHD_IPv6", ipv6)
+		 & p_config->get_key("MHD_PEDANTIC_CHECKS", pedantic)
+		 & p_config->get_key("MHD_SUPPRESS_DATE", supp_date)
+		 & p_config->get_key("MHD_USE_TCP_FASTOPEN", tcp_fastopen);
+
+	if ((!ok ) | ((debug | ssl | ipv6 | pedantic | supp_date | tcp_fastopen) & 0xfffffffe))
+	{
+		log(LOG_ERROR, "configure_MHD_server() failed. In flags variables block.");
+
+		return EXIT_FAILURE;
+	}
+	unsigned int server_flags =   debug*MHD_USE_DEBUG | ssl*MHD_USE_SSL | ipv6*MHD_USE_IPv6
+				 				| pedantic*MHD_USE_PEDANTIC_CHECKS | supp_date*MHD_SUPPRESS_DATE_NO_CLOCK | tcp_fastopen*MHD_USE_TCP_FASTOPEN
+								| MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL;		// Only threading model for Jazz.
+
 // 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
 /*
 	if (!jCommons.configure_MHD_server())
