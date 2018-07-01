@@ -68,7 +68,8 @@ class JazzHttpServer: public JazzAPI {
 		 JazzHttpServer(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzHttpServer();
 
-		int server_start(jazz_utils::pJazzConfigFile p_config);
+		int server_start(jazz_utils::pJazzConfigFile p_config,
+						 SignalHandler				 p_sig_handler);
 };
 
 }
