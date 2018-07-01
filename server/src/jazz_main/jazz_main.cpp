@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
 
 				exit(EXIT_FAILURE);
 			}
-			if (!jazz_instances::J_CONFIG.load_config(argv[1])) {
+			if (!J_CONFIG.load_config(argv[1])) {
 				cout << "The configuration file " << argv[1] << " could not be parsed." << endl;
 
 				exit(EXIT_FAILURE);
@@ -170,7 +170,7 @@ int main(int argc, char* argv[])
 
 		show_credits();
 
-		exit(jazz_instances::J_HTTP_SERVER.server_start(&jazz_instances::J_CONFIG));
+		exit(J_HTTP_SERVER.server_start(&J_CONFIG));
 
 	} else {
 
