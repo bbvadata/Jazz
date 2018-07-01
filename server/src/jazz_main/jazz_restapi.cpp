@@ -114,8 +114,11 @@ Starting logic:
 //TODO: Update this documentation server_start()
 
 */
-int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config)
+int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
+						 		 SignalHandler				 p_sig_handler)
 {
+// 1. Get all the MHD server config settings from p_config
+
 	int http_port;
 
 	if (!p_config->get_key("HTTP_PORT", http_port)) {

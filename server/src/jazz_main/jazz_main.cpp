@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 
 		cout << "ok." << endl;
 
-		exit(J_HTTP_SERVER.server_start(&J_CONFIG));
+		exit(J_HTTP_SERVER.server_start(&J_CONFIG, &signalHandler_SIGTERM));
 
 	} else {
 
