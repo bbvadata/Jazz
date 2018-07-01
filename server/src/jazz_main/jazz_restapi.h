@@ -43,6 +43,11 @@ namespace jazz_restapi
 
 using namespace jazz_api;
 
+
+/** Callback function used to handle a POSIX signal.
+*/
+typedef void (*SignalHandler) (int signum);
+
 /** \brief TODO
 
 The REST API supports standard http commands.

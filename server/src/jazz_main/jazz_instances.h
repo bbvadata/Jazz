@@ -48,8 +48,6 @@ using namespace jazz_restapi;
 
 #define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
 
-typedef void (*signalhandler) (int signum);
-
 /*	-----------------------------
 	  I n s t a n t i a t i n g
 --------------------------------- */
