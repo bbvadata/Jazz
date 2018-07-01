@@ -59,7 +59,8 @@ class JazzCluster {
 					 jazz_utils::pJazzLogger	 a_logger = nullptr);
 		~JazzCluster();
 
-		API_ErrorCode ShutDown (bool restarting_service = false);
+		API_ErrorCode StartService (jazz_utils::pJazzConfigFile p_config 		   = nullptr);
+		API_ErrorCode ShutDown     (bool 						restarting_service = false);
 
 		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 
