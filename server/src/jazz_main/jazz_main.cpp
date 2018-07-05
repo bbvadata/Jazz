@@ -206,7 +206,23 @@ int main(int argc, char* argv[])
 
 		cout << "ok." << endl;
 
-		exit(J_HTTP_SERVER.server_start(&J_CONFIG, &signalHandler_SIGTERM));
+		int ret_code = J_HTTP_SERVER.server_start(&J_CONFIG, &signalHandler_SIGTERM);
+
+		if (ret_code != EXIT_SUCCESS) {
+			cout << "Stopping JazzCluster ..." << endl;
+
+			J_CLUSTER.ShutDown();
+
+			cout << "Stopping Bebop ..." << endl;
+
+			J_BOP.ShutDown();
+
+			cout << "Stopping JazzHttpServer ..." << endl;
+
+			J_HTTP_SERVER.ShutDown();
+		}
+
+		exit(ret_code);
 
 	} else {
 
