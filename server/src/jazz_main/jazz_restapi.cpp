@@ -162,8 +162,7 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 		 & p_config->get_key("MHD_THREAD_STACK_SIZE", tss)
 		 & p_config->get_key("MHD_LISTEN_ADDR_REUSE", lar);
 
-	if (!ok)
-	{
+	if (!ok) {
 		cout << "Failed parsing integers block in configuration." << endl;
 
 		log(LOG_ERROR, "JazzHttpServer::server_start() failed config in integers block.");
