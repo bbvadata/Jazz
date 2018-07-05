@@ -183,22 +183,9 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 	if (lar) pop[0] = {MHD_OPTION_LISTENING_ADDRESS_REUSE,	   lar, NULL}; pop++;
 
 	pop[0] = {MHD_OPTION_END, 0, NULL};
+
+// 2. Register the signal handlers for SIGTERM
 /*
-// 7. Calls jServices.start_all()
-
-	if (!jServices.start_all())
-	{
-		jServices.stop_all();
-
-		cout << "Failed to start all services." << endl;
-
-		jCommons.log(LOG_ERROR, "Failed to start all services.");
-
-		return EXIT_FAILURE;
-	}
-
-// 8. Registers the signal handlers for SIGTERM
-
 	int sig_ok = signal(SIGTERM, signalHandler_SIGTERM) != SIG_ERR;
 
 	if (!sig_ok)
@@ -211,7 +198,7 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 
 		return EXIT_FAILURE;
 	}
-
+/*
 // 9. Forks
 
 	pid_t pid = fork();
