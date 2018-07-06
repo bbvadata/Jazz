@@ -196,22 +196,19 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 
 		return EXIT_FAILURE;
 	}
-/*
-// 9. Forks
+
+// 3. Forks
 
 	pid_t pid = fork();
-	if (pid < 0)
-	{
-		jServices.stop_all();
-
+	if (pid < 0) {
 		cout << "Failed to fork." << endl;
 
-		jCommons.log(LOG_ERROR, "Failed to fork.");
+		log(LOG_ERROR, "Failed to fork.");
 
 		return EXIT_FAILURE;
 	}
 	if (pid > 0) return EXIT_SUCCESS; // This is parent process, exit now.
-
+/*
 //10. Calls MHD_start_daemon()
 
 	cout << "Starting server on port : " << port << endl;
