@@ -184,16 +184,13 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 	pop[0] = {MHD_OPTION_END, 0, NULL};
 
 // 2. Register the signal handlers for SIGTERM
-/*
-	int sig_ok = signal(SIGTERM, signalHandler_SIGTERM) != SIG_ERR;
 
-	if (!sig_ok)
-	{
-		jServices.stop_all();
+	int sig_ok = signal(SIGTERM, p_sig_handler) != SIG_ERR;
 
+	if (!sig_ok) {
 		cout << "Failed to register signal handlers." << endl;
 
-		jCommons.log(LOG_ERROR, "Failed to register signal handlers.");
+		log(LOG_ERROR, "Failed to register signal handlers.");
 
 		return EXIT_FAILURE;
 	}
