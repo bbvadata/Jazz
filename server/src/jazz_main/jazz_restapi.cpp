@@ -21,6 +21,8 @@
   limitations under the License.
 */
 
+#include <signal.h>
+
 #include "src/jazz_main/jazz_restapi.h"
 
 namespace jazz_restapi
