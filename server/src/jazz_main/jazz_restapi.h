@@ -48,6 +48,12 @@ using namespace jazz_api;
 */
 typedef void (*SignalHandler) (int signum);
 
+
+/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
+*/
+typedef MHD_Daemon * pMHD_Daemon;
+
+
 /** \brief TODO
 
 The REST API supports standard http commands.
