@@ -46,7 +46,7 @@ using namespace jazz_api;
 
 /** Callback function used to handle a POSIX signal.
 */
-typedef void (*SignalHandler) (int signum);
+typedef void (*pSignalHandler) (int signum);
 
 
 /** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
