@@ -28,6 +28,426 @@
 namespace jazz_restapi
 {
 
+
+int JazzCallbackAnswerHTTP(void *cls,
+						   struct MHD_Connection *connection,
+						   const char *url,
+						   const char *method,
+						   const char *version,
+						   const char *upload_data,
+						   size_t *upload_data_size,
+						   void **con_cls)
+{
+/*
+	// Step 1: First opportunity to end the connection before uploading or getting. Not used. We initialize con_cls for the next call.
+
+	if (*con_cls == NULL)
+	{
+		*con_cls = &state_new_call;
+
+		return MHD_YES;
+	}
+
+	// Step 2 : Continue uploads in progress, checking all possible error conditions.
+
+	int imethod;
+	imethod = imethods[jazz_utils::TenBitsAtAddress(method)];
+
+	parsedURL pars;
+
+	if (*con_cls == &state_upload_in_progress)
+	{
+		if (*upload_data_size == 0)
+			goto create_response_answer_put_ok;
+
+		if (imethod != HTTP_PUT || !jAPI.parse_url(url, HTTP_PUT, pars) || pars.isInstrumental || pars.hasAFunction)
+		{
+			jCommons.log(LOG_MISS, "jazz_answer_to_connection(): Trying to continue state_upload_in_progress, but not exec_block_put()");
+
+			return MHD_NO;
+		}
+
+		if (int tid = jCommons.enter_persistence(ACMODE_READWRITE) >= 0)
+		{
+			if (jAPI.exec_block_put(pars, upload_data, *upload_data_size, false))
+			{
+				jCommons.leave_persistence(tid);
+
+				goto continue_in_put_ok;
+			}
+			jCommons.leave_persistence(tid);
+
+			goto continue_in_put_notacceptable;
+		}
+
+		jCommons.log(LOG_MISS, "jazz_answer_to_connection(): Trying to continue state_upload_in_progress, but failed enter_persistence()");
+
+		goto continue_in_put_unavailable;
+	}
+
+	// Step 3 : Get rid of failed uploads without doing anything.
+
+	if (*con_cls == &state_upload_notacceptable)
+	{
+		if (*upload_data_size == 0)
+			goto create_response_answer_PUT_NOTACCEPTABLE;
+
+		return MHD_YES;
+	}
+
+	if (*con_cls == &state_upload_unavailable)
+	{
+		if (*upload_data_size == 0)
+			goto create_response_answer_PUT_UNAVAILABLE;
+
+		return MHD_YES;
+	}
+
+	if (*con_cls == &state_upload_badrequest)
+	{
+		if (*upload_data_size == 0)
+			goto create_response_answer_PUT_BADREQUEST;
+
+		return MHD_YES;
+	}
+
+	// Step 4 : This point is reached just once per http petition. Parse the query, returns errors and web pages, continue to API.
+
+	struct MHD_Response * response;
+
+#ifdef DEBUG
+	jCommons.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - cls \x20 \x20 \x20 \x20 \x20 \x20 \x20: %p", cls);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - connection \x20 \x20 \x20 : %p", connection);
+	MHD_get_connection_values (connection, MHD_HEADER_KIND, &print_out_key, NULL);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - url \x20 \x20 \x20 \x20 \x20 \x20 \x20: %s", url);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - method \x20 \x20 \x20 \x20 \x20 : %s", method);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - version \x20 \x20 \x20 \x20 \x20: %s", version);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - upload_data \x20 \x20 \x20: %p", upload_data);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - upload_data_size : %d", *upload_data_size);
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - *con_cls \x20 \x20 \x20 \x20 : %p", *con_cls);
+	jCommons.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
+
+	response = NULL;	// clang warning
+#endif
+
+	switch (imethod)
+	{
+		case HTTP_NOTUSED:
+			return jAPI.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
+
+
+		case HTTP_OPTIONS:
+			{
+				string allow;
+				if (jazz_utils::TenBitsAtAddress(url) != tenbitDS)
+				{
+					if (no_webpages)
+						return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
+
+					URLattrib uattr;
+
+					if (jAPI.get_url(url, uattr))
+						allow = "HEAD,GET,";
+
+					allow = allow + "OPTIONS";
+				}
+				else
+				{
+					if (jAPI.parse_url(url, HTTP_GET, pars))
+						allow = "HEAD,GET,";
+					if (jAPI.parse_url(url, HTTP_PUT, pars))
+						allow = allow + "PUT,";
+					if (jAPI.parse_url(url, HTTP_DELETE, pars))
+						allow = allow + "DELETE,";
+
+					allow = allow + "OPTIONS";
+				}
+
+				response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+				MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, "Jazz " JAZZ_VERSION " - " LINUX_PLATFORM);
+				MHD_add_response_header (response, MHD_HTTP_HEADER_ALLOW, allow.c_str());
+			}
+
+			goto answer_no_content;
+
+
+		case HTTP_HEAD:
+		case HTTP_GET:
+			if (jazz_utils::TenBitsAtAddress(url) != tenbitDS)
+			{
+				if (no_webpages)
+					return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
+
+				bool ok;
+
+				if (int tid = jCommons.enter_persistence(ACMODE_READONLY) >= 0)
+				{
+					ok = jAPI.exec_www_get(url, response);
+
+					jCommons.leave_persistence(tid);
+				}
+				else
+				{
+					jCommons.log(LOG_MISS, "jazz_answer_to_connection(): HTTP_HEAD or HTTP_GET failed enter_persistence()");
+
+					return jAPI.return_error_message(connection, MHD_HTTP_SERVICE_UNAVAILABLE);
+				}
+
+				if (ok)
+					goto answer_http_ok;
+
+				return jAPI.return_error_message(connection, MHD_HTTP_NOT_FOUND);
+			}
+			else
+			{
+				if (!jAPI.parse_url(url, HTTP_GET, pars))
+					return jAPI.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
+			}
+			break;
+
+
+		default:
+			if (jazz_utils::TenBitsAtAddress(url) != tenbitDS)
+			{
+				if (no_webpages)
+					return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
+
+				return jAPI.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
+			}
+			else
+			{
+				if (!jAPI.parse_url(url, imethod, pars))
+				{
+					if (imethod == HTTP_PUT)
+						goto continue_in_put_badrequest;
+					return jAPI.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
+				}
+			}
+	}
+
+	// Step 5 : This is the core. This point is only reached by correct API queries for the first (or only) time.
+
+	if (no_storage && pars.source > SYSTEM_SOURCE_WWW)
+		return jAPI.return_error_message(connection, MHD_HTTP_FORBIDDEN);
+
+	bool sample;
+	int tid, status;
+
+	sample = jAPI.sample_api_call();
+
+	if (sample)
+		jCommons.enter_api_call(connection, url, imethod);
+
+	switch (imethod)
+	{
+		case HTTP_PUT:
+
+			tid = pars.deleteSource ? jCommons.enter_persistence(ACMODE_SOURCECTL) : jCommons.enter_persistence(ACMODE_READWRITE);
+			if (tid >= 0)
+			{
+				if (pars.isInstrumental)
+				{
+					status = pars.hasAFunction ? jAPI.exec_instr_put_function(pars, upload_data, *upload_data_size)
+											   : jAPI.exec_instr_put(pars, upload_data, *upload_data_size);
+				}
+				else
+				{
+					status = pars.hasAFunction ? jAPI.exec_block_put_function(pars, upload_data, *upload_data_size)
+											   : jAPI.exec_block_put(pars, upload_data, *upload_data_size, true);
+				}
+			}
+
+			break;
+
+		case HTTP_DELETE:
+
+			tid = pars.deleteSource ? jCommons.enter_persistence(ACMODE_SOURCECTL) : jCommons.enter_persistence(ACMODE_READWRITE);
+			if (tid >= 0)
+			{
+				if (pars.isInstrumental)
+				{
+					status = jAPI.exec_instr_kill(pars);
+				}
+				else
+				{
+					status = jAPI.exec_block_kill(pars);
+				}
+			}
+
+			break;
+
+		default:
+
+			tid = jCommons.enter_persistence(ACMODE_READONLY);
+			if (tid >= 0)
+			{
+				if (pars.isInstrumental)
+				{
+					status = pars.hasAFunction ? jAPI.exec_instr_get_function(pars, response) : jAPI.exec_instr_get(pars, response);
+				}
+				else
+				{
+					status = pars.hasAFunction ? jAPI.exec_block_get_function(pars, response) : jAPI.exec_block_get(pars, response);
+				}
+			}
+	}
+
+	if (tid >= 0) jCommons.leave_persistence(tid);
+	else
+	{
+		jCommons.log(LOG_MISS, "jazz_answer_to_connection(): CORE failed enter_persistence()");
+
+		if (imethod == HTTP_PUT) goto continue_in_put_unavailable;
+
+		status = MHD_HTTP_SERVICE_UNAVAILABLE;
+	}
+
+	if (sample)
+		jCommons.leave_api_call(status);
+
+	// Step 6 : The core finished, just distribute the answer as appropriate.
+
+	if (imethod == HTTP_PUT)
+	{
+		if (status)
+		{
+			if (*upload_data_size) goto continue_in_put_ok;
+			else				   goto create_response_answer_put_ok;
+		}
+		else
+		{
+			if (*upload_data_size) goto continue_in_put_notacceptable;
+			else				   goto create_response_answer_PUT_NOTACCEPTABLE;
+		}
+	}
+
+	if (status >= MHD_HTTP_ANYERROR)
+		return jAPI.return_error_message(connection, status);
+
+	if (imethod == HTTP_DELETE)
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+	int ret;
+
+answer_status:
+
+	ret = MHD_queue_response (connection, status, response);
+
+	MHD_destroy_response (response);
+
+	return ret;
+
+
+answer_http_ok:
+
+	status = MHD_HTTP_OK;
+
+	goto answer_status;
+
+
+answer_no_content:
+
+	status = MHD_HTTP_NO_CONTENT;
+
+	goto answer_status;
+
+
+create_response_answer_put_ok:
+
+	response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+	ret = MHD_queue_response (connection, MHD_HTTP_CREATED, response);
+
+	MHD_destroy_response (response);
+
+	return ret;
+
+
+create_response_answer_PUT_NOTACCEPTABLE:
+
+	response = MHD_create_response_from_buffer (1, response_put_fail, MHD_RESPMEM_PERSISTENT);
+
+	ret = MHD_queue_response (connection, MHD_HTTP_NOT_ACCEPTABLE, response);
+
+	MHD_destroy_response (response);
+
+	return ret;
+
+
+create_response_answer_PUT_UNAVAILABLE:
+
+	response = MHD_create_response_from_buffer (1, response_put_fail, MHD_RESPMEM_PERSISTENT);
+
+	ret = MHD_queue_response (connection, MHD_HTTP_SERVICE_UNAVAILABLE, response);
+
+	MHD_destroy_response (response);
+
+	return ret;
+
+
+create_response_answer_PUT_BADREQUEST:
+
+	response = MHD_create_response_from_buffer (1, response_put_fail, MHD_RESPMEM_PERSISTENT);
+
+	ret = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, response);
+
+	MHD_destroy_response (response);
+
+	return ret;
+
+
+continue_in_put_notacceptable:
+
+	if (*upload_data_size)
+	{
+		*upload_data_size = 0;
+		*con_cls		  = &state_upload_notacceptable;
+
+		return MHD_YES;
+	}
+	return MHD_NO;
+
+
+continue_in_put_unavailable:
+
+	if (*upload_data_size)
+	{
+		*upload_data_size = 0;
+		*con_cls		  = &state_upload_unavailable;
+
+		return MHD_YES;
+	}
+	return MHD_NO;
+
+
+continue_in_put_badrequest:
+
+	if (*upload_data_size)
+	{
+		*upload_data_size = 0;
+		*con_cls		  = &state_upload_badrequest;
+
+		return MHD_YES;
+	}
+	return MHD_NO;
+
+
+continue_in_put_ok:
+
+	if (*upload_data_size)
+	{
+		*upload_data_size = 0;
+		*con_cls		  = &state_upload_in_progress;
+
+		return MHD_YES;
+	}
+*/
+	return MHD_NO;
+}
+
+
 using namespace std;
 
 //TODO: Implement module jazz_restapi.
