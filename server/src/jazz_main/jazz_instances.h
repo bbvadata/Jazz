@@ -37,6 +37,8 @@ The full list of Jazz global variables is.
   - J_HTTP_SERVER a JazzHttpServer
   - J_R_API a rAPI
   - J_PYTHON_API a pyAPI
+
+It also contains a signal handler function for SIGTERM and a pointer to a MHD_Daemon controlling the http server daemon.
 */
 namespace jazz_instances
 {
