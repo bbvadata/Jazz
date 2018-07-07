@@ -537,7 +537,8 @@ Starting logic:
 
 */
 int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
-						 		 SignalHandler				 p_sig_handler)
+						 		 pSignalHandler				 p_sig_handler,
+						 		 pMHD_Daemon				 &p_daemon)
 {
 // 1. Get all the MHD server config settings from p_config
 
@@ -628,27 +629,22 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 		return EXIT_FAILURE;
 	}
 	if (pid > 0) return EXIT_SUCCESS; // This is parent process, exit now.
-/*
-//10. Calls MHD_start_daemon()
 
-	cout << "Starting server on port : " << port << endl;
+// 4. Calls MHD_start_daemon()
 
-	unsigned int			  flags;
-	MHD_AcceptPolicyCallback  apc;
-	MHD_AccessHandlerCallback dh;
-	MHD_OptionItem *		  pops;
+	cout << "Starting server on port : " << http_port << endl;
 
-	jCommons.get_server_start_params(flags, apc, dh, pops);
+//TODO: Implement an MHD_AcceptPolicyCallback when security is taken in consideration
 
-	jzzdaemon = MHD_start_daemon (flags, port, apc, NULL, dh, NULL, MHD_OPTION_ARRAY, pops, MHD_OPTION_END);
+	p_daemon = MHD_start_daemon (server_flags, http_port, NULL, NULL, JazzCallbackAnswerHTTP, NULL, MHD_OPTION_ARRAY, server_options, MHD_OPTION_END);
 
-	if (jzzdaemon == NULL)
+	if (p_daemon == NULL)
 	{
-		jServices.stop_all();
+//TODO: See what could replace "jServices.stop_all()" when MHD_start_daemon fails
 
 		cout << "Failed to start the server." << endl;
 
-		jCommons.log(LOG_ERROR, "Failed to start the server.");
+		log(LOG_ERROR, "Failed to start the server.");
 	}
 
 // Creates a new session if the calling process is not a process group leader. The calling process is the leader of the new session,
@@ -666,7 +662,6 @@ int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
 #endif
 
 	while(true) sleep(60);
-*/
 }
 
 } // namespace jazz_restapi
