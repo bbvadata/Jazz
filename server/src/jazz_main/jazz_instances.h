@@ -60,6 +60,8 @@ extern JazzHttpServer J_HTTP_SERVER;
 extern rAPI			  J_R_API;
 extern pyAPI		  J_PYTHON_API;
 
+extern pMHD_Daemon    Jazz_MHD_Daemon;
+
 void signalHandler_SIGTERM(int signum);
 
 }
