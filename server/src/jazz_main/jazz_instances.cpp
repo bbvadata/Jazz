@@ -41,10 +41,7 @@ JazzHttpServer J_HTTP_SERVER(&J_LOGGER);
 rAPI		   J_R_API(&J_LOGGER);
 pyAPI		   J_PYTHON_API(&J_LOGGER);
 
-
-/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
-*/
-struct MHD_Daemon *Jazz_MHD_Daemon;
+pMHD_Daemon    Jazz_MHD_Daemon;
 
 
 /** Capture SIGTERM. This callback procedure stops a running server.
