@@ -206,7 +206,7 @@ int main(int argc, char* argv[])
 
 		cout << "ok." << endl;
 
-		int ret_code = J_HTTP_SERVER.server_start(&J_CONFIG, &signalHandler_SIGTERM, Jazz_MHD_Daemon);
+		int ret_code = J_HTTP_SERVER.StartServer(&J_CONFIG, &signalHandler_SIGTERM, Jazz_MHD_Daemon);
 
 		if (ret_code != EXIT_SUCCESS) {
 			cout << "Stopping JazzCluster ..." << endl;

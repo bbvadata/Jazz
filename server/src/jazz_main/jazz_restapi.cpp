@@ -536,7 +536,7 @@ Starting logic:
 //TODO: Update this documentation server_start()
 
 */
-int JazzHttpServer::server_start(jazz_utils::pJazzConfigFile p_config,
+int JazzHttpServer::StartServer (jazz_utils::pJazzConfigFile p_config,
 						 		 pSignalHandler				 p_sig_handler,
 						 		 pMHD_Daemon				 &p_daemon)
 {

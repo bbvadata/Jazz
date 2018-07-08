@@ -74,7 +74,7 @@ class JazzHttpServer: public JazzAPI {
 		 JazzHttpServer(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzHttpServer();
 
-		int server_start(jazz_utils::pJazzConfigFile p_config,
+		int StartServer (jazz_utils::pJazzConfigFile p_config,
 						 pSignalHandler				 p_sig_handler,
 						 pMHD_Daemon				 &p_daemon);
 };
