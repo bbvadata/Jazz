@@ -51,6 +51,13 @@ class JazzCoreTypecasting {
 		 JazzCoreTypecasting(jazz_utils::pJazzLogger a_logger = nullptr);
 		~JazzCoreTypecasting();
 
+		bool FromR	  (pJazzBlock p_source, pJazzBlock &p_dest);
+		bool ToR	  (pJazzBlock p_source, pJazzBlock &p_dest);
+
+		bool FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt);
+		bool ToText   (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt);
+
+
 		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 
 			\param loglevel The trace level.
