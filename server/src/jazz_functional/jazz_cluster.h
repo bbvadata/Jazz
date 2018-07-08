@@ -52,7 +52,7 @@ struct JazzNode
 
 //TODO: Implement interface for module jazz_cluster.
 
-class JazzCluster {
+class JazzCluster	: public JazzObject {
 
 	public:
 		 JazzCluster(jazz_utils::pJazzConfigFile a_config,

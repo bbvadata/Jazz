@@ -273,7 +273,7 @@ THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread s
 is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
-class JazzBlockKeepr {
+class JazzBlockKeepr	: public JazzObject {
 
 	public:
 		 JazzBlockKeepr(jazz_utils::pJazzLogger a_logger = nullptr);

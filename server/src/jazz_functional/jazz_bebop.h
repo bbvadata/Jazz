@@ -78,7 +78,7 @@ namespace jazz_bebop
 
 //TODO: Implement interface for module jazz_bebop.
 
-class Bebop {
+class Bebop	: public JazzObject {
 
 	public:
 		 Bebop(jazz_utils::pJazzLogger a_logger = nullptr);

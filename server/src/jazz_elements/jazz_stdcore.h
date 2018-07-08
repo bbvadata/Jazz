@@ -48,7 +48,7 @@ using namespace jazz_datablocks;
 
 //TODO: Implement interface for module jazz_stdcore.
 
-class JazzCoreTypecasting {
+class JazzCoreTypecasting	: public JazzObject {
 
 	public:
 		 JazzCoreTypecasting(jazz_utils::pJazzLogger a_logger = nullptr);
