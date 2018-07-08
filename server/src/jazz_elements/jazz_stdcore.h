@@ -41,6 +41,9 @@ approximately matching Bebop bytecode instructions.
 namespace jazz_stdcore
 {
 
+using namespace jazz_datablocks;
+
+
 //TODO: Document interface for module jazz_stdcore.
 
 //TODO: Implement interface for module jazz_stdcore.
