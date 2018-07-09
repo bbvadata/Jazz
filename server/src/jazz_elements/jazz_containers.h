@@ -250,6 +250,24 @@ inline JazzBlockId64 hash_block_id(const char *p_id) {
 	return jazz_utils::MurmurHash64A(p_id, strlen(p_id));
 }
 
+/** Root class for all
+*/
+class JazzObject {
+
+	public:
+		 JazzObject(jazz_utils::pJazzLogger	    a_logger = nullptr,
+		 			jazz_utils::pJazzConfigFile a_config = nullptr);
+		~JazzObject();
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
+		jazz_utils::pJazzLogger		p_log;
+		jazz_utils::pJazzConfigFile	p_config;
+};
+
+
 /** Root class for all JazzBlock containers, including JazzPersistence containers.
 
 JazzBlocks can be allocated in three ways:
