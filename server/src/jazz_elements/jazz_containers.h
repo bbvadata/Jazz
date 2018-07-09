@@ -259,6 +259,9 @@ class JazzObject {
 		 			jazz_utils::pJazzConfigFile a_config = nullptr);
 		~JazzObject();
 
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown     (bool restarting_service = false);
+
 		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 
 			\param loglevel The trace level.
