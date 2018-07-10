@@ -496,32 +496,6 @@ class JazzBlockKeepr	: public JazzObject {
 			return ofs < num_allocd_items;
 		}
 
-		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
-
-			\param loglevel The trace level.
-			\param message	A message.
-
-			See JazzLogger for details.
-		*/
-		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
-
-		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
-
-			\param loglevel The trace level.
-			\param fmt		The printf-style format string.
-			\param ...		The list of parameters as a variadic list of parameters.
-
-			See JazzLogger for details.
-		*/
-		inline void log_printf (int loglevel, const char *fmt, ...) {
-			if (p_log != nullptr) {
-				va_list args;
-				va_start(args, fmt);
-				p_log->log_printf(loglevel, fmt, args);
-				va_end(args);
-			}
-		}
-
 		int					keepr_item_size, num_allocd_items;
 		pJazzBlockKeeprItem	p_buffer_base, p_first_item, p_first_free;
 
@@ -531,7 +505,6 @@ class JazzBlockKeepr	: public JazzObject {
 
 		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
 		JazzLock				_keepr_lock_;
-		jazz_utils::pJazzLogger	p_log;
 };
 
 
