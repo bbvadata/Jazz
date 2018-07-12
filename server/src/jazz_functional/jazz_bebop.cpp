@@ -48,10 +48,9 @@ Bebop::~Bebop()
 
 /** Start the Bebop object loading its settings from a JazzConfigFile if necessary.
 
-	\param p_config A pointer to a JazzConfigFile that may be used
-	\return					  JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
+	\return JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
 */
-API_ErrorCode Bebop::StartService (jazz_utils::pJazzConfigFile p_config)
+API_ErrorCode Bebop::StartService ()
 {
 	log(LOG_INFO, "Completed Bebop::StartService()");
 
