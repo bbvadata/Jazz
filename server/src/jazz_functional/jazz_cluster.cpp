@@ -57,7 +57,7 @@ JazzCluster::~JazzCluster()
 
 /** Start the JazzCluster object loading its settings from a JazzConfigFile if necessary.
 
-	\return					  JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
+	\return JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
 */
 API_ErrorCode JazzCluster::StartService ()
 {
