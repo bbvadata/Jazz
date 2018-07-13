@@ -250,8 +250,15 @@ inline JazzBlockId64 hash_block_id(const char *p_id) {
 	return jazz_utils::MurmurHash64A(p_id, strlen(p_id));
 }
 
-/** Root class for all
+
+/** Constants for API_ErrorCode values
 */
+#define JAZZ_API_NO_ERROR				0		///< No errors found processing the API call.
+#define JAZZ_API_ERROR_INVALID_CHAR		1		///< The API call contains unacceptable characters.
+
+typedef int API_ErrorCode;
+
+
 class JazzObject {
 
 	public:
@@ -291,7 +298,6 @@ class JazzObject {
 #ifndef CATCH_TEST
 	private:
 #endif
-
 		jazz_utils::pJazzLogger		p_log;
 		jazz_utils::pJazzConfigFile	p_config;
 };
