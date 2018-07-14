@@ -58,6 +58,24 @@ class JazzCoreTypecasting	: public JazzObject {
 		bool ToText   (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt);
 };
 
+
+class JazzCoreArithmetic	: public JazzObject {
+
+	public:
+		 JazzCoreArithmetic(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzCoreArithmetic();
+
+};
+
+
+class JazzCoreMath	: public JazzObject {
+
+	public:
+		 JazzCoreArithmetic(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzCoreArithmetic();
+
+};
+
 }
 
 #endif
