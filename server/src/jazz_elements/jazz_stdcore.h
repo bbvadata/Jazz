@@ -80,8 +80,8 @@ class JazzCoreArithmetic : public JazzObject {
 class JazzCoreMath : public JazzObject {
 
 	public:
-		 JazzCoreArithmetic(jazz_utils::pJazzLogger a_logger = nullptr);
-		~JazzCoreArithmetic();
+		 JazzCoreMath(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzCoreMath();
 
 };
 
