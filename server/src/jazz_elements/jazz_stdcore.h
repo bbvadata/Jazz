@@ -45,7 +45,10 @@ using namespace jazz_datablocks;
 using namespace jazz_containers;
 
 
-class JazzCoreTypecasting	: public JazzObject {
+/**
+//TODO: Write the JazzCoreTypecasting description
+*/
+class JazzCoreTypecasting : public JazzObject {
 
 	public:
 		 JazzCoreTypecasting(jazz_utils::pJazzLogger a_logger = nullptr);
@@ -59,7 +62,10 @@ class JazzCoreTypecasting	: public JazzObject {
 };
 
 
-class JazzCoreArithmetic	: public JazzObject {
+/**
+//TODO: Write the JazzCoreArithmetic description
+*/
+class JazzCoreArithmetic : public JazzObject {
 
 	public:
 		 JazzCoreArithmetic(jazz_utils::pJazzLogger a_logger = nullptr);
@@ -68,7 +74,10 @@ class JazzCoreArithmetic	: public JazzObject {
 };
 
 
-class JazzCoreMath	: public JazzObject {
+/**
+//TODO: Write the JazzCoreMath description
+*/
+class JazzCoreMath : public JazzObject {
 
 	public:
 		 JazzCoreArithmetic(jazz_utils::pJazzLogger a_logger = nullptr);
