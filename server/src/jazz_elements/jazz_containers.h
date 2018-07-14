@@ -259,6 +259,10 @@ inline JazzBlockId64 hash_block_id(const char *p_id) {
 typedef int API_ErrorCode;
 
 
+/** Root class for all object that need to use jazz_utils::pJazzLogger and/or jazz_utils::pJazzConfigFile to avoid duplicating wrappers.
+
+	This class also server a a basic for the StartService/ShutDown interface and the log/log_printf interface.
+*/
 class JazzObject {
 
 	public:
