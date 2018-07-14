@@ -42,6 +42,7 @@ namespace jazz_stdcore
 {
 
 using namespace jazz_datablocks;
+using namespace jazz_containers;
 
 
 //TODO: Document interface for module jazz_stdcore.
