@@ -26,7 +26,13 @@
 namespace jazz_stdcore
 {
 
-//TODO: Implement module jazz_stdcore.
+/**
+//TODO: Document JazzCoreTypecasting()
+*/
+JazzCoreTypecasting::JazzCoreTypecasting(jazz_utils::pJazzLogger a_logger)	: JazzObject(a_logger)
+{
+//TODO: Implement JazzCoreTypecasting
+}
 
 } // namespace jazz_stdcore
 
