@@ -43,6 +43,30 @@ JazzCoreTypecasting::~JazzCoreTypecasting()
 //TODO: Implement ~JazzCoreTypecasting
 }
 
+
+bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
+{
+
+}
+
+
+bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
+{
+
+}
+
+
+bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt)
+{
+
+}
+
+
+bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt)
+{
+
+}
+
 } // namespace jazz_stdcore
 
 
