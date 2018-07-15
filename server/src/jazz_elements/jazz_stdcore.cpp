@@ -34,6 +34,15 @@ JazzCoreTypecasting::JazzCoreTypecasting(jazz_utils::pJazzLogger a_logger)	: Jaz
 //TODO: Implement JazzCoreTypecasting
 }
 
+
+/**
+//TODO: Document ~JazzCoreTypecasting()
+*/
+JazzCoreTypecasting::~JazzCoreTypecasting()
+{
+//TODO: Implement ~JazzCoreTypecasting
+}
+
 } // namespace jazz_stdcore
 
 
