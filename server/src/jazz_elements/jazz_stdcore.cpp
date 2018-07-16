@@ -21,6 +21,8 @@
   limitations under the License.
 */
 
+#include <arpa/inet.h>
+
 #include "src/jazz_elements/jazz_stdcore.h"
 
 namespace jazz_stdcore
