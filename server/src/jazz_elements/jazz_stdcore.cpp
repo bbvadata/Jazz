@@ -74,6 +74,15 @@ union pRStr_stream					///< A pointer to the R stream usable as both RStr_header
 #define NA_AS_TEXT			"NA\n"	///< The output produced by translate_block_TO_TEXT() for all NA values.
 
 
+/** Constants identifying R object types
+*/
+#define CHARSXP					   9	///< "scalar" string type (internal only)
+#define LGLSXP					  10	///< logical vectors
+#define INTSXP					  13	///< integer vectors
+#define REALSXP					  14	///< real variables
+#define STRSXP					  16	///< string vectors
+
+
 /**
 //TODO: Document JazzCoreTypecasting()
 */
