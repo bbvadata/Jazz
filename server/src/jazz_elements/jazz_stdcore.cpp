@@ -165,65 +165,51 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 			{
 				// Allocation: R serializes all strings without final zero and with 8 trailing bytes -> string_buffer + Nx(4 bytes + 2 trailing)
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_OFFS_CHARS, p_source->size - sizeof(R_binary) + sizeof(string_buffer) + 8 - 2*R_len);
-				if (!ok)
-				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
+				if (!ok) {
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
 
 					return false;
 				}
-				if (!R_len)
-				{
+				if (!R_len) {
 					memset(&reinterpret_cast<pCharBlock>(p_dest)->data, 0, p_dest->size);
 					return true;
 				}
 
-				if (!format_C_OFFS_CHARS((pCharBlock) p_dest, R_len))
-				{
+				if (!format_C_OFFS_CHARS((pCharBlock) p_dest, R_len)) {
 					JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : format_C_OFFS_CHARS() failed.");
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : format_C_OFFS_CHARS() failed.");
 
 					return false;
 				}
 				pRStr_stream src;
 				src.pchar = (char *) &p_head[1];
-				for (int i = 0; i < R_len; i++)
-				{
+				for (int i = 0; i < R_len; i++) {
 					RStr_header rh = *src.phead++;
 
-					if (rh.signature == sw_CHARSXP_NA && rh.nchar == sw_CHARSXP_NA_LENGTH)
-					{
+					if (rh.signature == R_SIG_CHARSXP_NA && rh.n_char == R_SIG_CHARSXP_NA_LENGTH) {
 						reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZC_NA_STRING;
-					}
-					else
-					{
-						if ((rh.signature & sw_CHARSXP_MASK_FROM_R) == sw_CHARSXP_HEA_FROM_R)
-						{
-							int nchar = htonl(rh.nchar);
-							if (nchar >= MAX_STRING_LENGTH || nchar < 0)
-							{
+					} else {
+						if ((rh.signature & R_SIG_CHARSXP_MASK_FROM_R) == R_SIG_CHARSXP_HEA_FROM_R) {
+							int n_char = htonl(rh.n_char);
+							if (n_char >= MAX_STRING_LENGTH || n_char < 0) {
 								JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-								jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : String too long.");
+								log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : String too long.");
 
 								return false;
 							}
-							if (nchar == 0)
-							{
+							if (n_char == 0) {
 								reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZC_EMPTY_STRING;
-							}
-							else
-							{
-								reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, src.pchar, nchar);
+							} else {
+								reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, src.pchar, n_char);
 
-								src.pchar += nchar;
+								src.pchar += n_char;
 							}
-						}
-						else
-						{
+						} else {
 							JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-							jCommons.log_printf(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Unexpected signature = %4X", rh.signature);
+							log_printf(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Unexpected signature = %4X", rh.signature);
 
 							return false;
 						}
@@ -235,16 +221,14 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 		case REALSXP:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_REAL, R_len);
-				if (!ok)
-				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
+				if (!ok) {
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
 
 					return false;
 				}
 				int * p_data_src	 = (int *) &p_head[1];
 				int * p_data_dest = (int *) &reinterpret_cast<pRealBlock>(p_dest)->data;
-				for (int i = 0; i < R_len; i++)
-				{
+				for (int i = 0; i < R_len; i++) {
 					p_data_dest[1] = ntohl(*p_data_src++);
 					p_data_dest[0] = ntohl(*p_data_src++);
 
@@ -255,13 +239,14 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 
 		default:
 		{
-			jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Wrong type.");
+			log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Wrong type.");
 
 			return false;
 		}
 	}
 
 	return true;
+*/
 }
 
 
@@ -278,6 +263,7 @@ block_C_R_REAL or block_C_OFFS_CHARS.
 */
 bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 {
+/*
 	int size = sizeof(R_binary);
 
 	switch (p_source->type)
@@ -300,7 +286,7 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 			break;
 
 		default:
-			jCommons.log(LOG_MISS, "translate_block_TO_R(): Unsupported type.");
+			log(LOG_MISS, "translate_block_TO_R(): Unsupported type.");
 
 			return false;
 	}
@@ -308,7 +294,7 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 	bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_RAW, size);
 	if (!ok)
 	{
-		jCommons.log(LOG_MISS, "translate_block_TO_R(): JAZZALLOC failed.");
+		log(LOG_MISS, "translate_block_TO_R(): JAZZALLOC failed.");
 
 		return false;
 
@@ -316,10 +302,10 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 	reinterpret_cast_block(p_dest, BLOCKTYPE_RAW_R_RAW);
 	R_binary * pt = (R_binary *) &reinterpret_cast<pRawBlock>(p_dest)->data;
 
-	pt->signature	   = sw_RBINARY_SIGNATURE;
-	pt->format_version = sw_RBINARY_FORMATVERSION;
-	pt->writer		   = sw_RBINARY_WRITER;
-	pt->min_reader	   = sw_RBINARY_MINREADER;
+	pt->signature	   = R_SIG_RBINARY_SIGNATURE;
+	pt->format_version = R_SIG_RBINARY_FORMATVERSION;
+	pt->writer		   = R_SIG_RBINARY_WRITER;
+	pt->min_reader	   = R_SIG_RBINARY_MINREADER;
 	pt->R_length	   = ntohl(p_source->length);
 
 	switch (p_source->type)
@@ -333,8 +319,8 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 				{
 					if (p_data_src[i])
 					{
-						if (p_data_src[i] == 1) p_data_dest[i] = sw_ONE;
-						else				   p_data_dest[i] = sw_NA_LOGICAL;
+						if (p_data_src[i] == 1) p_data_dest[i] = R_SIG_ONE;
+						else				   p_data_dest[i] = R_SIG_NA_LOGICAL;
 					}
 					else					   p_data_dest[i] = 0;
 				}
@@ -365,16 +351,16 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 					{
 						char * p_data_src = PCHAR(reinterpret_cast<pCharBlock>(p_source), i);
 						int len = strlen(p_data_src);
-						sth.nchar = ntohl(len);
-						sth.signature = sw_CHARSXP_HEA_TO_R;
+						sth.n_char = ntohl(len);
+						sth.signature = R_SIG_CHARSXP_HEA_TO_R;
 						*dest.phead++ = sth;
 						for (int j = 0; j < len; j ++)
 							*dest.pchar++ = p_data_src[j];
 					}
 					else
 					{
-						sth.nchar	  = sw_CHARSXP_NA_LENGTH;
-						sth.signature = sw_CHARSXP_NA;
+						sth.n_char	  = R_SIG_CHARSXP_NA_LENGTH;
+						sth.signature = R_SIG_CHARSXP_NA;
 						*dest.phead++ = sth;
 					}
 				}
@@ -398,6 +384,7 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 	}
 
 	return true;
+*/
 }
 
 
@@ -419,11 +406,12 @@ BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or BLOCKTYPE_RAW_MIME_XML.
 */
 bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt)
 {
+/*
 	bool copy = fmt[0] == 0;
 
 	if (copy && type != BLOCKTYPE_C_OFFS_CHARS)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : fmt == '' is only valid for strings.");
+		log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : fmt == '' is only valid for strings.");
 
 		return false;
 	}
@@ -433,23 +421,23 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 
 	int bytes  = p_source->size;
 	int length = 0;
-	int nchar;
+	int n_char;
 
 	while (bytes > 0)
 	{
 		length++;
-		nchar = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
-		nchar = min(nchar, bytes);
+		n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+		n_char = min(n_char, bytes);
 
-		if (nchar >= MAX_STRING_LENGTH)
+		if (n_char >= MAX_STRING_LENGTH)
 		{
-			jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : String too long.");
+			log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : String too long.");
 
 			return false;
 		}
 
-		pchar += nchar;
-		bytes -= nchar;
+		pchar += n_char;
+		bytes -= n_char;
 	}
 
 	pchar = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
@@ -462,7 +450,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_BOOL, length);
 				if (!ok)
 				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
 
 					return false;
 				}
@@ -470,16 +458,16 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				int i = 0;
 				while (bytes > 0)
 				{
-					nchar = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
-					nchar = min(nchar, bytes);
+					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, nchar);
-					buff[nchar] = 0;
+					strncpy(buff, pchar, n_char);
+					buff[n_char] = 0;
 					if (sscanf(buff, fmt, &p_data_dest[i]) != 1)
-						p_data_dest[i] = JAZZC_NA_BOOL;
+						p_data_dest[i] = JAZZ_BOOLEAN_NA;
 
-					pchar += nchar;
-					bytes -= nchar;
+					pchar += n_char;
+					bytes -= n_char;
 					i++;
 				}
 			}
@@ -491,7 +479,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_OFFS_CHARS, p_source->size + sizeof(string_buffer) + 8 + 6*length);
 				if (!ok)
 				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
 
 					return false;
 				}
@@ -504,7 +492,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				{
 					JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : format_C_OFFS_CHARS() failed.");
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : format_C_OFFS_CHARS() failed.");
 
 					return false;
 				}
@@ -512,14 +500,14 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				int i = 0;
 				while (bytes > 0)
 				{
-					nchar = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
-					nchar = min(nchar, bytes);
+					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, nchar);
-					buff[nchar] = 0;
+					strncpy(buff, pchar, n_char);
+					buff[n_char] = 0;
 					if (copy)
 					{
-						int nc = nchar == bytes ? nchar : nchar - 1;
+						int nc = n_char == bytes ? n_char : n_char - 1;
 						reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, buff, nc);
 					}
 					else
@@ -534,8 +522,8 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 						}
 					}
 
-					pchar += nchar;
-					bytes -= nchar;
+					pchar += n_char;
+					bytes -= n_char;
 					i++;
 				}
 			}
@@ -548,7 +536,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_INTEGER, length);
 				if (!ok)
 				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
 
 					return false;
 				}
@@ -557,16 +545,16 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				int i = 0;
 				while (bytes > 0)
 				{
-					nchar = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
-					nchar = min(nchar, bytes);
+					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, nchar);
-					buff[nchar] = 0;
+					strncpy(buff, pchar, n_char);
+					buff[n_char] = 0;
 					if (sscanf(buff, fmt, &p_data_dest[i]) != 1)
 						p_data_dest[i] = JAZZC_NA_INTEGER;
 
-					pchar += nchar;
-					bytes -= nchar;
+					pchar += n_char;
+					bytes -= n_char;
 					i++;
 				}
 			}
@@ -578,7 +566,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_REAL, length);
 				if (!ok)
 				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
 
 					return false;
 				}
@@ -587,28 +575,29 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				int i = 0;
 				while (bytes > 0)
 				{
-					nchar = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
-					nchar = min(nchar, bytes);
+					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, nchar);
-					buff[nchar] = 0;
+					strncpy(buff, pchar, n_char);
+					buff[n_char] = 0;
 					if (sscanf(buff, fmt, &p_data_dest[i]) != 1)
 						p_data_dest[i] = JAZZC_NA_DOUBLE;
 
-					pchar += nchar;
-					bytes -= nchar;
+					pchar += n_char;
+					bytes -= n_char;
 					i++;
 				}
 			}
 			break;
 
 		default:
-			jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : Unexpected block type.");
+			log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : Unexpected block type.");
 
 			return false;
 	}
 
 	return true;
+*/
 }
 
 
@@ -626,6 +615,7 @@ block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS.
 */
 bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt)
 {
+/*
 	char buff_item[MAX_STRING_LENGTH];
 	int size = 0;
 
@@ -634,7 +624,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 		case BLOCKTYPE_C_BOOL:
 			for (int i = 0; i < p_source->length; i++)
 			{
-				if (reinterpret_cast<pBoolBlock>(p_source)->data[i] == JAZZC_NA_BOOL)
+				if (reinterpret_cast<pBoolBlock>(p_source)->data[i] == JAZZ_BOOLEAN_NA)
 				{
 					size += LENGTH_NA_AS_TEXT;
 				}
@@ -695,7 +685,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			break;
 
 		default:
-			jCommons.log(LOG_MISS, "translate_block_TO_TEXT(): Unexpected block type.");
+			log(LOG_MISS, "translate_block_TO_TEXT(): Unexpected block type.");
 
 			return false;
 	}
@@ -705,7 +695,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 
 	if (!ok)
 	{
-		jCommons.log(LOG_MISS, "translate_block_TO_TEXT(): JAZZALLOC failed.");
+		log(LOG_MISS, "translate_block_TO_TEXT(): JAZZALLOC failed.");
 
 		return false;
 
@@ -718,7 +708,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 		case BLOCKTYPE_C_BOOL:
 			for (int i = 0; i < p_source->length; i++)
 			{
-				if (reinterpret_cast<pBoolBlock>(p_source)->data[i] == JAZZC_NA_BOOL)
+				if (reinterpret_cast<pBoolBlock>(p_source)->data[i] == JAZZ_BOOLEAN_NA)
 				{
 					strcpy(pt, NA_AS_TEXT);
 					pt += LENGTH_NA_AS_TEXT;
@@ -782,6 +772,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 	pt[0] = 0;
 
 	return true;
+*/
 }
 
 } // namespace jazz_stdcore
