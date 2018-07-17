@@ -114,36 +114,32 @@ compatible with a serialized R object.
 */
 bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 {
-	R_binary * p_head = (R_binary *) &reinterpret_cast<pRawBlock>(p_source)->data;
+	R_binary * p_head = (R_binary *) &p_source->tensor.cell_byte[0];
 
-	if (p_head->signature != sw_RBINARY_SIGNATURE || p_head->format_version != sw_RBINARY_FORMATVERSION)
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Wrong signature || format_version.");
+	if (p_head->signature != R_SIG_RBINARY_SIGNATURE || p_head->format_version != R_SIG_RBINARY_FORMATVERSION) {
+		log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Wrong signature || format_version.");
 
 		return false;
 	}
 
 	int type = htonl(p_head->R_type), R_len = htonl(p_head->R_length);
-
+/*
 	switch (type)
 	{
 		case LGLSXP:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_BOOL, R_len);
-				if (!ok)
-				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
+				if (!ok) {
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
 
 					return false;
 				}
 				int	 *			p_data_src  = (int *)		   &p_head[1];
 				unsigned char * p_data_dest = (unsigned char *) &reinterpret_cast<pBoolBlock>(p_dest)->data;
-				for (int i = 0; i < R_len; i++)
-				{
-					if (p_data_src[i])
-					{
-						if (p_data_src[i] == sw_ONE) p_data_dest[i] = 1;
-						else						p_data_dest[i] = JAZZC_NA_BOOL;
+				for (int i = 0; i < R_len; i++) {
+					if (p_data_src[i]) {
+						if (p_data_src[i] == R_SIG_ONE) p_data_dest[i] = 1;
+						else						p_data_dest[i] = JAZZ_BOOLEAN_NA;
 					}
 					else							p_data_dest[i] = 0;
 				}
@@ -153,9 +149,8 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 		case INTSXP:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_INTEGER, R_len);
-				if (!ok)
-				{
-					jCommons.log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
+				if (!ok) {
+					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
 
 					return false;
 				}
