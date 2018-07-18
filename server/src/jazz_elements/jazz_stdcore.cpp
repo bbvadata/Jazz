@@ -244,9 +244,11 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 			return false;
 		}
 	}
-
-	return true;
 */
+
+//TODO: Complete refactoring of JazzCoreTypecasting::FromR
+
+	return false;
 }
 
 
