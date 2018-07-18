@@ -104,13 +104,16 @@ JazzCoreTypecasting::~JazzCoreTypecasting()
 /** Create a block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS from a block_C_R_RAW of type BLOCKTYPE_RAW_R_RAW binary
 compatible with a serialized R object.
 
-	\param p_source	 An R object serialized as a block_C_R_RAW of type BLOCKTYPE_RAW_R_RAW
-	\param p_dest Address of a pJazzBlock allocated by this function to store the block.
+	\param p_source	An R object serialized as a block_C_R_RAW of type BLOCKTYPE_RAW_R_RAW
+	\param p_dest 	Address of a pJazzBlock allocated by this function to store the block.
 
-	\return		 true if successful, false and log(LOG_MISS, "further details") if not.
+	\return			true if successful, false and log(LOG_MISS, "further details") if not.
 
 	This function does nothing with the p_source object except copying it.
 	The returned p_dest is owned by the caller and must be JAZZFREE()ed when no longer necessary.
+
+//TODO: Update doc of JazzCoreTypecasting::FromR when complete.
+
 */
 bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 {
