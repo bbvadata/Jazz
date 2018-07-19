@@ -71,7 +71,7 @@ union pRStr_stream					///< A pointer to the R stream usable as both RStr_header
 /** NA converted as output.
 */
 #define LENGTH_NA_AS_TEXT	3		///< The length of NA_AS_TEXT
-#define NA_AS_TEXT			"NA\n"	///< The output produced by translate_block_TO_TEXT() for all NA values.
+#define NA_AS_TEXT			"NA\n"	///< The output produced by JazzCoreTypecasting::ToText() for all NA values.
 
 
 /** Constants identifying R object types
@@ -120,20 +120,19 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 	R_binary * p_head = (R_binary *) &p_source->tensor.cell_byte[0];
 
 	if (p_head->signature != R_SIG_RBINARY_SIGNATURE || p_head->format_version != R_SIG_RBINARY_FORMATVERSION) {
-		log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Wrong signature || format_version.");
+		log(LOG_MISS, "JazzCoreTypecasting::FromR() : Wrong signature || format_version.");
 
 		return false;
 	}
 
 	int type = htonl(p_head->R_type), R_len = htonl(p_head->R_length);
 /*
-	switch (type)
-	{
+	switch (type) {
 		case LGLSXP:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_BOOL, R_len);
 				if (!ok) {
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromR() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
 
 					return false;
 				}
@@ -153,7 +152,7 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_INTEGER, R_len);
 				if (!ok) {
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromR() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
 
 					return false;
 				}
@@ -169,7 +168,7 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 				// Allocation: R serializes all strings without final zero and with 8 trailing bytes -> string_buffer + Nx(4 bytes + 2 trailing)
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_OFFS_CHARS, p_source->size - sizeof(R_binary) + sizeof(string_buffer) + 8 - 2*R_len);
 				if (!ok) {
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromR() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
 
 					return false;
 				}
@@ -181,38 +180,38 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 				if (!format_C_OFFS_CHARS((pCharBlock) p_dest, R_len)) {
 					JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : format_C_OFFS_CHARS() failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromR() : format_C_OFFS_CHARS() failed.");
 
 					return false;
 				}
 				pRStr_stream src;
-				src.pchar = (char *) &p_head[1];
+				src.p_char = (char *) &p_head[1];
 				for (int i = 0; i < R_len; i++) {
 					RStr_header rh = *src.phead++;
 
 					if (rh.signature == R_SIG_CHARSXP_NA && rh.n_char == R_SIG_CHARSXP_NA_LENGTH) {
-						reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZC_NA_STRING;
+						reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZ_STRING_NA;
 					} else {
 						if ((rh.signature & R_SIG_CHARSXP_MASK_FROM_R) == R_SIG_CHARSXP_HEA_FROM_R) {
 							int n_char = htonl(rh.n_char);
 							if (n_char >= MAX_STRING_LENGTH || n_char < 0) {
 								JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-								log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : String too long.");
+								log(LOG_MISS, "JazzCoreTypecasting::FromR() : String too long.");
 
 								return false;
 							}
 							if (n_char == 0) {
-								reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZC_EMPTY_STRING;
+								reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZ_STRING_EMPTY;
 							} else {
-								reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, src.pchar, n_char);
+								reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, src.p_char, n_char);
 
-								src.pchar += n_char;
+								src.p_char += n_char;
 							}
 						} else {
 							JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-							log_printf(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Unexpected signature = %4X", rh.signature);
+							log_printf(LOG_MISS, "JazzCoreTypecasting::FromR() : Unexpected signature = %4X", rh.signature);
 
 							return false;
 						}
@@ -225,7 +224,7 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_REAL, R_len);
 				if (!ok) {
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromR() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
 
 					return false;
 				}
@@ -242,7 +241,7 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 
 		default:
 		{
-			log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_R() : Wrong type.");
+			log(LOG_MISS, "JazzCoreTypecasting::FromR() : Wrong type.");
 
 			return false;
 		}
