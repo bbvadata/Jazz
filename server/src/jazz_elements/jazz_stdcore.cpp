@@ -270,38 +270,35 @@ block_C_R_REAL or block_C_OFFS_CHARS.
 */
 bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 {
-/*
 	int size = sizeof(R_binary);
 
-	switch (p_source->type)
-	{
-		case BLOCKTYPE_C_BOOL:
-		case BLOCKTYPE_C_FACTOR:
-		case BLOCKTYPE_C_GRADE:
-		case BLOCKTYPE_C_INTEGER:
-			size += p_source->length*sizeof(int);
+	switch (p_source->cell_type) {
+		case CELL_TYPE_BOOLEAN:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_INTEGER:
+			size += p_source->size*sizeof(int);
 			break;
 
-		case BLOCKTYPE_C_OFFS_CHARS:
-			for (int i = 0; i < p_source->length; i++)
-				size += 2*sizeof(int) + strlen(PCHAR(reinterpret_cast<pCharBlock>(p_source), i));
+		case CELL_TYPE_JAZZ_STRING:
+			for (int i = 0; i < p_source->size; i++)
+				size += 2*sizeof(int) + strlen(p_source->get_string(i));
 			break;
 
-		case BLOCKTYPE_C_TIMESEC:
-		case BLOCKTYPE_C_REAL:
-			size += p_source->length*sizeof(double);
+		case CELL_TYPE_JAZZ_TIME:
+		case CELL_TYPE_DOUBLE:
+			size += p_source->size*sizeof(double);
 			break;
 
 		default:
-			log(LOG_MISS, "translate_block_TO_R(): Unsupported type.");
+			log(LOG_MISS, "JazzCoreTypecasting::ToR(): Unsupported type.");
 
 			return false;
 	}
-
+/*
 	bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_RAW, size);
-	if (!ok)
-	{
-		log(LOG_MISS, "translate_block_TO_R(): JAZZALLOC failed.");
+	if (!ok) {
+		log(LOG_MISS, "JazzCoreTypecasting::ToR(): JAZZALLOC failed.");
 
 		return false;
 
