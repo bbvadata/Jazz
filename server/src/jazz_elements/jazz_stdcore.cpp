@@ -441,21 +441,18 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 	p_char = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
 	bytes = p_source->size;
 
-	switch (type)
-	{
+	switch (type) {
 		case CELL_TYPE_BOOLEAN:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_BOOL, length);
-				if (!ok)
-				{
+				if (!ok) {
 					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
 
 					return false;
 				}
 				unsigned char * p_data_dest = (unsigned char *) &reinterpret_cast<pBoolBlock>(p_dest)->data;
 				int i = 0;
-				while (bytes > 0)
-				{
+				while (bytes > 0) {
 					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
@@ -475,19 +472,17 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 			{
 				// Allocation: string_buffer + Nx(4 bytes + 2 trailing)
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_OFFS_CHARS, p_source->size + sizeof(string_buffer) + 8 + 6*length);
-				if (!ok)
-				{
+				if (!ok) {
 					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
 
 					return false;
 				}
-				if (!length)
-				{
+				if (!length) {
 					memset(&reinterpret_cast<pCharBlock>(p_dest)->data, 0, p_dest->size);
+
 					return true;
 				}
-				if (!format_C_OFFS_CHARS((pCharBlock) p_dest, length))
-				{
+				if (!format_C_OFFS_CHARS((pCharBlock) p_dest, length)) {
 					JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
 					log(LOG_MISS, "JazzCoreTypecasting::FromText() : format_C_OFFS_CHARS() failed.");
@@ -496,26 +491,19 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				}
 				char buff2[MAX_STRING_LENGTH + 4];
 				int i = 0;
-				while (bytes > 0)
-				{
+				while (bytes > 0) {
 					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
 					strncpy(buff, p_char, n_char);
 					buff[n_char] = 0;
-					if (copy)
-					{
+					if (copy) {
 						int nc = n_char == bytes ? n_char : n_char - 1;
 						reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, buff, nc);
-					}
-					else
-					{
-						if (sscanf(buff, fmt, buff2) == 1)
-						{
+					} else {
+						if (sscanf(buff, fmt, buff2) == 1) {
 							reinterpret_cast<pCharBlock>(p_dest)->data[i] = get_string_idx_C_OFFS_CHARS((pCharBlock) p_dest, buff2, strlen(buff2));
-						}
-						else
-						{
+						} else {
 							reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZ_STRING_NA;
 						}
 					}
@@ -532,8 +520,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 		case CELL_TYPE_INTEGER:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_INTEGER, length);
-				if (!ok)
-				{
+				if (!ok) {
 					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
 
 					return false;
@@ -541,8 +528,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				p_dest->cell_type = type;
 				int * p_data_dest = (int *) &reinterpret_cast<pIntBlock>(p_dest)->data;
 				int i = 0;
-				while (bytes > 0)
-				{
+				while (bytes > 0) {
 					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
@@ -562,8 +548,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 		case CELL_TYPE_DOUBLE:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_REAL, length);
-				if (!ok)
-				{
+				if (!ok) {
 					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
 
 					return false;
@@ -571,8 +556,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				p_dest->cell_type = type;
 				double * p_data_dest = (double *) &reinterpret_cast<pRealBlock>(p_dest)->data;
 				int i = 0;
-				while (bytes > 0)
-				{
+				while (bytes > 0) {
 					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
