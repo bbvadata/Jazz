@@ -390,18 +390,21 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 /** Create a block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS from a block_C_R_RAW of type BLOCKTYPE_RAW_MIME_CSV,
 BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or BLOCKTYPE_RAW_MIME_XML.
 
-	\param p_source	 The source block (A block_C_R_RAW of type BLOCKTYPE_RAW_MIME_CSV, BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or
-				 BLOCKTYPE_RAW_MIME_XML).
-	\param p_dest Address of a pJazzBlock allocated by this function to store the block.
-	\param type	 The output type (CELL_TYPE_BOOLEAN, CELL_TYPE_JAZZ_STRING, BLOCKTYPE_C_R_FACTOR, BLOCKTYPE_C_R_GRADE, BLOCKTYPE_C_R_INTEGER,
-				 BLOCKTYPE_C_R_TIMESEC or BLOCKTYPE_C_R_REAL).
-	\param fmt	 The (sscanf() compatible) format for converting the data. Each row of text must be convertible to one element of the appropriate
-				 data type. E.g., " %lf," will convert " 1.23," to a double == 1.23
+	\param p_source	The source block (A block_C_R_RAW of type BLOCKTYPE_RAW_MIME_CSV, BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or
+					BLOCKTYPE_RAW_MIME_XML).
+	\param p_dest 	Address of a pJazzBlock allocated by this function to store the block.
+	\param type	 	The output type (CELL_TYPE_BOOLEAN, CELL_TYPE_JAZZ_STRING, BLOCKTYPE_C_R_FACTOR, BLOCKTYPE_C_R_GRADE, BLOCKTYPE_C_R_INTEGER,
+					BLOCKTYPE_C_R_TIMESEC or BLOCKTYPE_C_R_REAL).
+	\param fmt		The (sscanf() compatible) format for converting the data. Each row of text must be convertible to one element of the appropriate
+					data type. E.g., " %lf," will convert " 1.23," to a double == 1.23
 
-	\return		 true if successful, false and log(LOG_MISS, "further details") if not.
+	\return			true if successful, false and log(LOG_MISS, "further details") if not.
 
 	This function does nothing with the p_source object except copying it.
 	The returned p_dest is owned by the caller and must be JAZZFREE()ed when no longer necessary.
+
+//TODO: Update doc of JazzCoreTypecasting::FromText when complete.
+
 */
 bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt)
 {
