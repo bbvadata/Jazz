@@ -577,9 +577,11 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 
 			return false;
 	}
-
-	return true;
 */
+
+//TODO: Complete refactoring of JazzCoreTypecasting::FromText
+
+	return false;
 }
 
 
