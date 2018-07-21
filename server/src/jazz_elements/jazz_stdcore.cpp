@@ -408,16 +408,14 @@ BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or BLOCKTYPE_RAW_MIME_XML.
 */
 bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt)
 {
-/*
 	bool copy = fmt[0] == 0;
 
-	if (copy && type != CELL_TYPE_JAZZ_STRING)
-	{
+	if (copy && type != CELL_TYPE_JAZZ_STRING) {
 		log(LOG_MISS, "JazzCoreTypecasting::FromText() : fmt == '' is only valid for strings.");
 
 		return false;
 	}
-
+/*
 	char buff[MAX_STRING_LENGTH + 4];
 	char * p_char = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
 
@@ -425,14 +423,12 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 	int length = 0;
 	int n_char;
 
-	while (bytes > 0)
-	{
+	while (bytes > 0) {
 		length++;
 		n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 		n_char = min(n_char, bytes);
 
-		if (n_char >= MAX_STRING_LENGTH)
-		{
+		if (n_char >= MAX_STRING_LENGTH) {
 			log(LOG_MISS, "JazzCoreTypecasting::FromText() : String too long.");
 
 			return false;
