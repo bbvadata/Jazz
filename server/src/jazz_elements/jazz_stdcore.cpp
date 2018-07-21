@@ -588,14 +588,17 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 /** Create a block_C_R_RAW of type BLOCKTYPE_RAW_MIME_CSV, BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or BLOCKTYPE_RAW_MIME_XML from a
 block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS.
 
-	\param p_source	 The source block (A block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS).
-	\param p_dest Address of a pJazzBlock allocated by this function to store the block.
-	\param fmt	 The (sprintf() compatible) format for converting the data, must be compatible with the source type.
+	\param p_source	The source block (A block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS).
+	\param p_dest   Address of a pJazzBlock allocated by this function to store the block.
+	\param fmt		The (sprintf() compatible) format for converting the data, must be compatible with the source type.
 
-	\return		 true if successful, false and log(LOG_MISS, "further details") if not.
+	\return			true if successful, false and log(LOG_MISS, "further details") if not.
 
 	This function does nothing with the p_source object except copying it.
 	The returned p_dest is owned by the caller and must be JAZZFREE()ed when no longer necessary.
+
+//TODO: Update doc of JazzCoreTypecasting::ToText when complete.
+
 */
 bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt)
 {
