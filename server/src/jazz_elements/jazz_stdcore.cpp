@@ -312,28 +312,26 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 	pt->min_reader	   = R_SIG_RBINARY_MINREADER;
 	pt->R_length	   = ntohl(p_source->length);
 
-	switch (p_source->type)
+	switch (p_source->cell_type)
 	{
-		case BLOCKTYPE_C_BOOL:
+		case CELL_TYPE_BOOLEAN:
 			{
 				int	 * p_data_dest = (int *) &pt[1];
 				unsigned char * p_data_src  = (unsigned char *) &reinterpret_cast<pBoolBlock>(p_source)->data;
 				pt->R_type = ntohl(LGLSXP);
-				for (int i = 0; i < p_source->length; i++)
-				{
-					if (p_data_src[i])
-					{
+				for (int i = 0; i < p_source->length; i++) {
+					if (p_data_src[i]) {
 						if (p_data_src[i] == 1) p_data_dest[i] = R_SIG_ONE;
-						else				   p_data_dest[i] = R_SIG_NA_LOGICAL;
+						else				    p_data_dest[i] = R_SIG_NA_LOGICAL;
 					}
-					else					   p_data_dest[i] = 0;
+					else					    p_data_dest[i] = 0;
 				}
 			}
 			break;
 
-		case BLOCKTYPE_C_FACTOR:
-		case BLOCKTYPE_C_GRADE:
-		case BLOCKTYPE_C_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_INTEGER:
 			{
 				int * p_data_dest = (int *) &pt[1];
 				int * p_data_src	 = (int *) &reinterpret_cast<pIntBlock>(p_source)->data;
@@ -343,26 +341,22 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 			}
 			break;
 
-		case BLOCKTYPE_C_OFFS_CHARS:
+		case CELL_TYPE_JAZZ_STRING:
 			{
 				pRStr_stream dest;
-				dest.pchar = (char *) &pt[1];
+				dest.p_char = (char *) &pt[1];
 				RStr_header sth;
 				pt->R_type = ntohl(STRSXP);
-				for (int i = 0; i < p_source->length; i++)
-				{
-					if (reinterpret_cast<pCharBlock>(p_source)->data[i] != JAZZC_NA_STRING)
-					{
+				for (int i = 0; i < p_source->length; i++) {
+					if (reinterpret_cast<pCharBlock>(p_source)->data[i] != JAZZ_STRING_NA) {
 						char * p_data_src = PCHAR(reinterpret_cast<pCharBlock>(p_source), i);
 						int len = strlen(p_data_src);
 						sth.n_char = ntohl(len);
 						sth.signature = R_SIG_CHARSXP_HEA_TO_R;
 						*dest.phead++ = sth;
 						for (int j = 0; j < len; j ++)
-							*dest.pchar++ = p_data_src[j];
-					}
-					else
-					{
+							*dest.p_char++ = p_data_src[j];
+					} else {
 						sth.n_char	  = R_SIG_CHARSXP_NA_LENGTH;
 						sth.signature = R_SIG_CHARSXP_NA;
 						*dest.phead++ = sth;
@@ -371,14 +365,13 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 			}
 			break;
 
-		case BLOCKTYPE_C_TIMESEC:
-		case BLOCKTYPE_C_REAL:
+		case CELL_TYPE_JAZZ_TIME:
+		case CELL_TYPE_DOUBLE:
 			{
 				int * p_data_dest = (int *) &pt[1];
 				int * p_data_src	 = (int *) &reinterpret_cast<pRealBlock>(p_source)->data;
 				pt->R_type = ntohl(REALSXP);
-				for (int i = 0; i < p_source->length; i++)
-				{
+				for (int i = 0; i < p_source->length; i++) {
 					p_data_dest[1] = ntohl(*p_data_src++);
 					p_data_dest[0] = ntohl(*p_data_src++);
 
@@ -386,9 +379,11 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 				}
 			}
 	}
-
-	return true;
 */
+
+//TODO: Complete refactoring of JazzCoreTypecasting::ToR
+
+	return false;
 }
 
 
@@ -398,7 +393,7 @@ BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or BLOCKTYPE_RAW_MIME_XML.
 	\param p_source	 The source block (A block_C_R_RAW of type BLOCKTYPE_RAW_MIME_CSV, BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or
 				 BLOCKTYPE_RAW_MIME_XML).
 	\param p_dest Address of a pJazzBlock allocated by this function to store the block.
-	\param type	 The output type (BLOCKTYPE_C_BOOL, BLOCKTYPE_C_OFFS_CHARS, BLOCKTYPE_C_R_FACTOR, BLOCKTYPE_C_R_GRADE, BLOCKTYPE_C_R_INTEGER,
+	\param type	 The output type (CELL_TYPE_BOOLEAN, CELL_TYPE_JAZZ_STRING, BLOCKTYPE_C_R_FACTOR, BLOCKTYPE_C_R_GRADE, BLOCKTYPE_C_R_INTEGER,
 				 BLOCKTYPE_C_R_TIMESEC or BLOCKTYPE_C_R_REAL).
 	\param fmt	 The (sscanf() compatible) format for converting the data. Each row of text must be convertible to one element of the appropriate
 				 data type. E.g., " %lf," will convert " 1.23," to a double == 1.23
@@ -413,15 +408,15 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 /*
 	bool copy = fmt[0] == 0;
 
-	if (copy && type != BLOCKTYPE_C_OFFS_CHARS)
+	if (copy && type != CELL_TYPE_JAZZ_STRING)
 	{
-		log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : fmt == '' is only valid for strings.");
+		log(LOG_MISS, "JazzCoreTypecasting::FromText() : fmt == '' is only valid for strings.");
 
 		return false;
 	}
 
 	char buff[MAX_STRING_LENGTH + 4];
-	char * pchar = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
+	char * p_char = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
 
 	int bytes  = p_source->size;
 	int length = 0;
@@ -430,31 +425,31 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 	while (bytes > 0)
 	{
 		length++;
-		n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+		n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 		n_char = min(n_char, bytes);
 
 		if (n_char >= MAX_STRING_LENGTH)
 		{
-			log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : String too long.");
+			log(LOG_MISS, "JazzCoreTypecasting::FromText() : String too long.");
 
 			return false;
 		}
 
-		pchar += n_char;
+		p_char += n_char;
 		bytes -= n_char;
 	}
 
-	pchar = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
+	p_char = (char *) &reinterpret_cast<pRawBlock>(p_source)->data;
 	bytes = p_source->size;
 
 	switch (type)
 	{
-		case BLOCKTYPE_C_BOOL:
+		case CELL_TYPE_BOOLEAN:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_BOOL, length);
 				if (!ok)
 				{
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_BOOL) failed.");
 
 					return false;
 				}
@@ -462,28 +457,28 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				int i = 0;
 				while (bytes > 0)
 				{
-					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, n_char);
+					strncpy(buff, p_char, n_char);
 					buff[n_char] = 0;
 					if (sscanf(buff, fmt, &p_data_dest[i]) != 1)
 						p_data_dest[i] = JAZZ_BOOLEAN_NA;
 
-					pchar += n_char;
+					p_char += n_char;
 					bytes -= n_char;
 					i++;
 				}
 			}
 			break;
 
-		case BLOCKTYPE_C_OFFS_CHARS:
+		case CELL_TYPE_JAZZ_STRING:
 			{
 				// Allocation: string_buffer + Nx(4 bytes + 2 trailing)
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_OFFS_CHARS, p_source->size + sizeof(string_buffer) + 8 + 6*length);
 				if (!ok)
 				{
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_OFFS_CHARS) failed.");
 
 					return false;
 				}
@@ -496,7 +491,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				{
 					JAZZFREE(p_dest, AUTOTYPEBLOCK(p_dest));
 
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : format_C_OFFS_CHARS() failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromText() : format_C_OFFS_CHARS() failed.");
 
 					return false;
 				}
@@ -504,10 +499,10 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 				int i = 0;
 				while (bytes > 0)
 				{
-					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, n_char);
+					strncpy(buff, p_char, n_char);
 					buff[n_char] = 0;
 					if (copy)
 					{
@@ -522,72 +517,72 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 						}
 						else
 						{
-							reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZC_NA_STRING;
+							reinterpret_cast<pCharBlock>(p_dest)->data[i] = JAZZ_STRING_NA;
 						}
 					}
 
-					pchar += n_char;
+					p_char += n_char;
 					bytes -= n_char;
 					i++;
 				}
 			}
 			break;
 
-		case BLOCKTYPE_C_FACTOR:
-		case BLOCKTYPE_C_GRADE:
-		case BLOCKTYPE_C_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_INTEGER:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_INTEGER, length);
 				if (!ok)
 				{
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_INTEGER) failed.");
 
 					return false;
 				}
-				p_dest->type = type;
+				p_dest->cell_type = type;
 				int * p_data_dest = (int *) &reinterpret_cast<pIntBlock>(p_dest)->data;
 				int i = 0;
 				while (bytes > 0)
 				{
-					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, n_char);
+					strncpy(buff, p_char, n_char);
 					buff[n_char] = 0;
 					if (sscanf(buff, fmt, &p_data_dest[i]) != 1)
-						p_data_dest[i] = JAZZC_NA_INTEGER;
+						p_data_dest[i] = JAZZ_INTEGER_NA;
 
-					pchar += n_char;
+					p_char += n_char;
 					bytes -= n_char;
 					i++;
 				}
 			}
 			break;
 
-		case BLOCKTYPE_C_TIMESEC:
-		case BLOCKTYPE_C_REAL:
+		case CELL_TYPE_JAZZ_TIME:
+		case CELL_TYPE_DOUBLE:
 			{
 				bool ok = JAZZALLOC(p_dest, RAM_ALLOC_C_REAL, length);
 				if (!ok)
 				{
-					log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
+					log(LOG_MISS, "JazzCoreTypecasting::FromText() : JAZZALLOC(RAM_ALLOC_C_REAL) failed.");
 
 					return false;
 				}
-				p_dest->type = type;
+				p_dest->cell_type = type;
 				double * p_data_dest = (double *) &reinterpret_cast<pRealBlock>(p_dest)->data;
 				int i = 0;
 				while (bytes > 0)
 				{
-					n_char = (uintptr_t) strchrnul(pchar, '\n') - (uintptr_t) pchar + 1;
+					n_char = (uintptr_t) strchrnul(p_char, '\n') - (uintptr_t) p_char + 1;
 					n_char = min(n_char, bytes);
 
-					strncpy(buff, pchar, n_char);
+					strncpy(buff, p_char, n_char);
 					buff[n_char] = 0;
 					if (sscanf(buff, fmt, &p_data_dest[i]) != 1)
-						p_data_dest[i] = JAZZC_NA_DOUBLE;
+						p_data_dest[i] = JAZZ_DOUBLE_NA;
 
-					pchar += n_char;
+					p_char += n_char;
 					bytes -= n_char;
 					i++;
 				}
@@ -595,7 +590,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 			break;
 
 		default:
-			log(LOG_MISS, "jzzBLOCKCONV::translate_block_FROM_TEXT() : Unexpected block type.");
+			log(LOG_MISS, "JazzCoreTypecasting::FromText() : Unexpected block type.");
 
 			return false;
 	}
@@ -623,9 +618,9 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 	char buff_item[MAX_STRING_LENGTH];
 	int size = 0;
 
-	switch (p_source->type)
+	switch (p_source->cell_type)
 	{
-		case BLOCKTYPE_C_BOOL:
+		case CELL_TYPE_BOOLEAN:
 			for (int i = 0; i < p_source->length; i++)
 			{
 				if (reinterpret_cast<pBoolBlock>(p_source)->data[i] == JAZZ_BOOLEAN_NA)
@@ -640,10 +635,10 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			}
 			break;
 
-		case BLOCKTYPE_C_OFFS_CHARS:
+		case CELL_TYPE_JAZZ_STRING:
 			for (int i = 0; i < p_source->length; i++)
 			{
-				if (reinterpret_cast<pCharBlock>(p_source)->data[i] == JAZZC_NA_STRING)
+				if (reinterpret_cast<pCharBlock>(p_source)->data[i] == JAZZ_STRING_NA)
 				{
 					size += LENGTH_NA_AS_TEXT;
 				}
@@ -655,12 +650,12 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			}
 			break;
 
-		case BLOCKTYPE_C_FACTOR:
-		case BLOCKTYPE_C_GRADE:
-		case BLOCKTYPE_C_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_INTEGER:
 			for (int i = 0; i < p_source->length; i++)
 			{
-				if (reinterpret_cast<pIntBlock>(p_source)->data[i] == JAZZC_NA_INTEGER)
+				if (reinterpret_cast<pIntBlock>(p_source)->data[i] == JAZZ_INTEGER_NA)
 				{
 					size += LENGTH_NA_AS_TEXT;
 				}
@@ -672,8 +667,8 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			}
 			break;
 
-		case BLOCKTYPE_C_TIMESEC:
-		case BLOCKTYPE_C_REAL:
+		case CELL_TYPE_JAZZ_TIME:
+		case CELL_TYPE_DOUBLE:
 			for (int i = 0; i < p_source->length; i++)
 			{
 				if (R_IsNA(reinterpret_cast<pRealBlock>(p_source)->data[i]))
@@ -689,7 +684,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			break;
 
 		default:
-			log(LOG_MISS, "translate_block_TO_TEXT(): Unexpected block type.");
+			log(LOG_MISS, "JazzCoreTypecasting::ToText(): Unexpected block cell_type.");
 
 			return false;
 	}
@@ -699,7 +694,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 
 	if (!ok)
 	{
-		log(LOG_MISS, "translate_block_TO_TEXT(): JAZZALLOC failed.");
+		log(LOG_MISS, "JazzCoreTypecasting::ToText(): JAZZALLOC failed.");
 
 		return false;
 
@@ -707,9 +702,9 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 	reinterpret_cast_block(p_dest, BLOCKTYPE_RAW_STRINGS);
 	char * pt = (char *) &reinterpret_cast<pRawBlock>(p_dest)->data;
 
-	switch (p_source->type)
+	switch (p_source->cell_type)
 	{
-		case BLOCKTYPE_C_BOOL:
+		case CELL_TYPE_BOOLEAN:
 			for (int i = 0; i < p_source->length; i++)
 			{
 				if (reinterpret_cast<pBoolBlock>(p_source)->data[i] == JAZZ_BOOLEAN_NA)
@@ -725,10 +720,10 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			}
 			break;
 
-		case BLOCKTYPE_C_OFFS_CHARS:
+		case CELL_TYPE_JAZZ_STRING:
 			for (int i = 0; i < p_source->length; i++)
 			{
-				if (reinterpret_cast<pCharBlock>(p_source)->data[i] == JAZZC_NA_STRING)
+				if (reinterpret_cast<pCharBlock>(p_source)->data[i] == JAZZ_STRING_NA)
 				{
 					strcpy(pt, NA_AS_TEXT);
 					pt += LENGTH_NA_AS_TEXT;
@@ -741,8 +736,8 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			}
 			break;
 
-		case BLOCKTYPE_C_TIMESEC:
-		case BLOCKTYPE_C_REAL:
+		case CELL_TYPE_JAZZ_TIME:
+		case CELL_TYPE_DOUBLE:
 			for (int i = 0; i < p_source->length; i++)
 			{
 				if (R_IsNA(reinterpret_cast<pRealBlock>(p_source)->data[i]))
@@ -761,7 +756,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 		default:
 			for (int i = 0; i < p_source->length; i++)
 			{
-				if (reinterpret_cast<pIntBlock>(p_source)->data[i] == JAZZC_NA_INTEGER)
+				if (reinterpret_cast<pIntBlock>(p_source)->data[i] == JAZZ_INTEGER_NA)
 				{
 					strcpy(pt, NA_AS_TEXT);
 					pt += LENGTH_NA_AS_TEXT;
