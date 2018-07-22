@@ -723,9 +723,11 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 			}
 	}
 	pt[0] = 0;
-
-	return true;
 */
+
+//TODO: Complete refactoring of JazzCoreTypecasting::ToText
+
+	return false;
 }
 
 } // namespace jazz_stdcore
