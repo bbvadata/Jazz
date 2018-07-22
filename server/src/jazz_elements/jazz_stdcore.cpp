@@ -48,7 +48,7 @@ struct RStr_header					///< The header of each individual R string
 
 union pRStr_stream					///< A pointer to the R stream usable as both RStr_header_int and char.
 {
-	char 		*p_char;
+	char		*p_char;
 	RStr_header *p_head;
 };
 
@@ -105,7 +105,7 @@ JazzCoreTypecasting::~JazzCoreTypecasting()
 compatible with a serialized R object.
 
 	\param p_source	An R object serialized as a block_C_R_RAW of type BLOCKTYPE_RAW_R_RAW
-	\param p_dest 	Address of a pJazzBlock allocated by this function to store the block.
+	\param p_dest	Address of a pJazzBlock allocated by this function to store the block.
 
 	\return			true if successful, false and log(LOG_MISS, "further details") if not.
 
@@ -136,7 +136,7 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 
 					return false;
 				}
-				int	 *			p_data_src  = (int *)		   &p_head[1];
+				int	 *			p_data_src	= (int *)		   &p_head[1];
 				unsigned char * p_data_dest = (unsigned char *) &reinterpret_cast<pBoolBlock>(p_dest)->data;
 				for (int i = 0; i < R_len; i++) {
 					if (p_data_src[i]) {
@@ -258,9 +258,9 @@ bool JazzCoreTypecasting::FromR (pJazzBlock p_source, pJazzBlock &p_dest)
 block_C_R_REAL or block_C_OFFS_CHARS.
 
 	\param p_source	The source block (A block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS).
-	\param p_dest 	Address of a pJazzBlock allocated by this function to store the block.
+	\param p_dest	Address of a pJazzBlock allocated by this function to store the block.
 
-	\return		 	true if successful, false and log(LOG_MISS, "further details") if not.
+	\return			true if successful, false and log(LOG_MISS, "further details") if not.
 
 	This function does nothing with the p_source object except copying it.
 	The returned p_dest is owned by the caller and must be JAZZFREE()ed when no longer necessary.
@@ -317,14 +317,14 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 		case CELL_TYPE_BOOLEAN:
 			{
 				int	 * p_data_dest = (int *) &pt[1];
-				unsigned char * p_data_src  = (unsigned char *) &reinterpret_cast<pBoolBlock>(p_source)->data;
+				unsigned char * p_data_src	= (unsigned char *) &reinterpret_cast<pBoolBlock>(p_source)->data;
 				pt->R_type = ntohl(LGLSXP);
 				for (int i = 0; i < p_source->length; i++) {
 					if (p_data_src[i]) {
 						if (p_data_src[i] == 1) p_data_dest[i] = R_SIG_ONE;
-						else				    p_data_dest[i] = R_SIG_NA_LOGICAL;
+						else					p_data_dest[i] = R_SIG_NA_LOGICAL;
 					}
-					else					    p_data_dest[i] = 0;
+					else						p_data_dest[i] = 0;
 				}
 			}
 			break;
@@ -392,8 +392,8 @@ BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or BLOCKTYPE_RAW_MIME_XML.
 
 	\param p_source	The source block (A block_C_R_RAW of type BLOCKTYPE_RAW_MIME_CSV, BLOCKTYPE_RAW_MIME_JSON, BLOCKTYPE_RAW_MIME_TSV or
 					BLOCKTYPE_RAW_MIME_XML).
-	\param p_dest 	Address of a pJazzBlock allocated by this function to store the block.
-	\param type	 	The output type (CELL_TYPE_BOOLEAN, CELL_TYPE_JAZZ_STRING, BLOCKTYPE_C_R_FACTOR, BLOCKTYPE_C_R_GRADE, BLOCKTYPE_C_R_INTEGER,
+	\param p_dest	Address of a pJazzBlock allocated by this function to store the block.
+	\param type		The output type (CELL_TYPE_BOOLEAN, CELL_TYPE_JAZZ_STRING, BLOCKTYPE_C_R_FACTOR, BLOCKTYPE_C_R_GRADE, BLOCKTYPE_C_R_INTEGER,
 					BLOCKTYPE_C_R_TIMESEC or BLOCKTYPE_C_R_REAL).
 	\param fmt		The (sscanf() compatible) format for converting the data. Each row of text must be convertible to one element of the appropriate
 					data type. E.g., " %lf," will convert " 1.23," to a double == 1.23
@@ -589,7 +589,7 @@ bool JazzCoreTypecasting::FromText (pJazzBlock p_source, pJazzBlock &p_dest, int
 block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS.
 
 	\param p_source	The source block (A block_C_BOOL, block_C_R_INTEGER, block_C_R_REAL or block_C_OFFS_CHARS).
-	\param p_dest   Address of a pJazzBlock allocated by this function to store the block.
+	\param p_dest	Address of a pJazzBlock allocated by this function to store the block.
 	\param fmt		The (sprintf() compatible) format for converting the data, must be compatible with the source type.
 
 	\return			true if successful, false and log(LOG_MISS, "further details") if not.

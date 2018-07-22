@@ -266,12 +266,12 @@ typedef int API_ErrorCode;
 class JazzObject {
 
 	public:
-		 JazzObject(jazz_utils::pJazzLogger	    a_logger = nullptr,
-		 			jazz_utils::pJazzConfigFile a_config = nullptr);
+		 JazzObject(jazz_utils::pJazzLogger		a_logger = nullptr,
+					jazz_utils::pJazzConfigFile a_config = nullptr);
 		~JazzObject();
 
 		API_ErrorCode StartService ();
-		API_ErrorCode ShutDown     (bool restarting_service = false);
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
 
 		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
 

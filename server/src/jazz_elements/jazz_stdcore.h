@@ -58,7 +58,7 @@ class JazzCoreTypecasting : public JazzObject {
 		bool ToR	  (pJazzBlock p_source, pJazzBlock &p_dest);
 
 		bool FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt);
-		bool ToText   (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt);
+		bool ToText	  (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt);
 };
 
 
