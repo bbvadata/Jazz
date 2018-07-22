@@ -154,7 +154,8 @@ class JazzSource: public JazzPersistence {
 
 	public:
 
-		 JazzSource(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzSource(jazz_utils::pJazzLogger 	a_logger = nullptr,
+		 			jazz_utils::pJazzConfigFile a_config);
 		~JazzSource();
 
 		// Methods for buffer allocation
