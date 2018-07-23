@@ -521,7 +521,8 @@ It is safe to ignore this parameter, in that case the events will not be logged.
 
 	This does not allocate any items, you must call alloc_keeprs () before using the object.
 */
-JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger)	: JazzObject(a_logger)
+JazzBlockKeepr::JazzBlockKeepr(jazz_utils::pJazzLogger a_logger,
+							   jazz_utils::pJazzConfigFile a_config)	: JazzObject(a_logger, a_config)
 {
 	_keepr_lock_	 = 0;
 	num_allocd_items = 0;

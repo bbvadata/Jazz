@@ -333,7 +333,8 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class JazzBlockKeepr	: public JazzObject {
 
 	public:
-		 JazzBlockKeepr(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzBlockKeepr(jazz_utils::pJazzLogger		a_logger = nullptr,
+						jazz_utils::pJazzConfigFile a_config = nullptr);
 		~JazzBlockKeepr();
 
 		// Methods for buffer allocation
