@@ -70,8 +70,8 @@ class JazzPersistence: public JazzBlockKeepr {
 
 	public:
 
-		 JazzPersistence(jazz_utils::pJazzLogger 	 a_logger = nullptr,
-		 				 jazz_utils::pJazzConfigFile a_config);
+		 JazzPersistence(jazz_utils::pJazzLogger	 a_logger,
+						 jazz_utils::pJazzConfigFile a_config);
 
 		// Methods for buffer allocation
 
@@ -154,8 +154,8 @@ class JazzSource: public JazzPersistence {
 
 	public:
 
-		 JazzSource(jazz_utils::pJazzLogger 	a_logger = nullptr,
-		 			jazz_utils::pJazzConfigFile a_config);
+		 JazzSource(jazz_utils::pJazzLogger		a_logger,
+					jazz_utils::pJazzConfigFile a_config);
 		~JazzSource();
 
 		// Methods for buffer allocation
