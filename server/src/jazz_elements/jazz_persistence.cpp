@@ -68,6 +68,18 @@ void JazzSource::destroy_keeprs()
 }
 
 
+API_ErrorCode JazzSource::StartService ()
+{
+
+}
+
+
+API_ErrorCode JazzSource::ShutDown (bool restarting_service)
+{
+
+}
+
+
 /**
 //TODO: Document new_jazz_block (1)
 */

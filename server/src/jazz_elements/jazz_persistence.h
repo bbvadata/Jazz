@@ -230,6 +230,10 @@ class JazzSource: public JazzPersistence {
 		int file_errors		();
 		int close_jazz_file ();
 
+		/// A StartService/ShutDown interface
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
+
 #ifndef CATCH_TEST
 	protected:
 #endif
