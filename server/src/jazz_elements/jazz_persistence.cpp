@@ -33,7 +33,8 @@ namespace jazz_persistence
 /**
 //TODO: Document JazzPersistence constructor
 */
-JazzPersistence::JazzPersistence(jazz_utils::pJazzLogger a_logger)	: JazzBlockKeepr(a_logger)
+JazzPersistence::JazzPersistence(jazz_utils::pJazzLogger	 a_logger,
+								 jazz_utils::pJazzConfigFile a_config)	: JazzBlockKeepr(a_logger, a_config)
 {
 //TODO: Implement JazzPersistence constructor
 }
@@ -42,7 +43,8 @@ JazzPersistence::JazzPersistence(jazz_utils::pJazzLogger a_logger)	: JazzBlockKe
 /**
 //TODO: Document JazzSource constructor
 */
-JazzSource::JazzSource(jazz_utils::pJazzLogger a_logger)	: JazzPersistence(a_logger)
+JazzSource::JazzSource(jazz_utils::pJazzLogger	   a_logger,
+					   jazz_utils::pJazzConfigFile a_config)	: JazzPersistence(a_logger, a_config)
 {
 //TODO: Implement JazzSource constructor
 }
