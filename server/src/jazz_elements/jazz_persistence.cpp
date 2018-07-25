@@ -85,6 +85,12 @@ void JazzSource::destroy_keeprs()
 }
 
 
+/** JazzSource::StartService
+
+	\return JAZZ_API_NO_ERROR if successful, JAZZ_API_ERROR_xxx and log(LOG_MISS, "further details") if not.
+
+	This service initialization checks configuration values related with persistence and starts lmdb with configured values.
+*/
 API_ErrorCode JazzSource::StartService ()
 {
 
