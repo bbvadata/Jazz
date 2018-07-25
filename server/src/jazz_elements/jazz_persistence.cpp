@@ -93,19 +93,20 @@ void JazzSource::destroy_keeprs()
 */
 API_ErrorCode JazzSource::StartService ()
 {
+	JazzLmdbOptions lmdb_opt;
 	int fixedmap, writemap, nometasync, nosync, mapasync, nolock, noreadahead, nomeminit;
 
-	ok =  p_config->get_key("MDB_ENV_SET_MAPSIZE",	  lmdb.env_set_mapsize)
-		& p_config->get_key("MDB_ENV_SET_MAXREADERS", lmdb.env_set_maxreaders)
-		& p_config->get_key("MDB_ENV_SET_MAXDBS",	  lmdb.env_set_maxdbs)
-		& p_config->get_key("MDB_FIXEDMAP",			  fixedmap)
-		& p_config->get_key("MDB_WRITEMAP",			  writemap)
-		& p_config->get_key("MDB_NOMETASYNC",		  nometasync)
-		& p_config->get_key("MDB_NOSYNC",			  nosync)
-		& p_config->get_key("MDB_MAPASYNC",			  mapasync)
-		& p_config->get_key("MDB_NOLOCK",			  nolock)
-		& p_config->get_key("MDB_NOREADAHEAD",		  noreadahead)
-		& p_config->get_key("MDB_NOMEMINIT",		  nomeminit);
+	bool ok =	p_config->get_key("MDB_ENV_SET_MAPSIZE",	lmdb_opt.env_set_mapsize)
+			  & p_config->get_key("MDB_ENV_SET_MAXREADERS", lmdb_opt.env_set_maxreaders)
+			  & p_config->get_key("MDB_ENV_SET_MAXDBS",		lmdb_opt.env_set_maxdbs)
+			  & p_config->get_key("MDB_FIXEDMAP",			fixedmap)
+			  & p_config->get_key("MDB_WRITEMAP",			writemap)
+			  & p_config->get_key("MDB_NOMETASYNC",			nometasync)
+			  & p_config->get_key("MDB_NOSYNC",				nosync)
+			  & p_config->get_key("MDB_MAPASYNC",			mapasync)
+			  & p_config->get_key("MDB_NOLOCK",				nolock)
+			  & p_config->get_key("MDB_NOREADAHEAD",		noreadahead)
+			  & p_config->get_key("MDB_NOMEMINIT",			nomeminit);
 /*
 	if (!ok) {
 		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed. Invalid MHD_* config (integer values).");
