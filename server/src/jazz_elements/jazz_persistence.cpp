@@ -30,6 +30,23 @@
 namespace jazz_persistence
 {
 
+#define MAX_LMDB_HOME_LEN			128		///< The number of char for the LMDB home path
+#define LMDB_UNIX_FILE_PERMISSIONS 0664		///< The file permissions (as in chmod) for the database files
+
+
+/** All the necessary LMDB options (a binary representation of the values in the config file)
+*/
+struct JazzLmdbOptions
+{
+	char path[MAX_LMDB_HOME_LEN];
+
+	int env_set_mapsize,
+		env_set_maxreaders,
+		env_set_maxdbs,
+		flags;
+};
+
+
 /**
 //TODO: Document JazzPersistence constructor
 */
