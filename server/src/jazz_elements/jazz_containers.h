@@ -300,7 +300,7 @@ class JazzObject {
 		}
 
 #ifndef CATCH_TEST
-	private:
+	protected:
 #endif
 		jazz_utils::pJazzLogger		p_log;
 		jazz_utils::pJazzConfigFile	p_config;
