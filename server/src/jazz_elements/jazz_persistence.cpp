@@ -107,18 +107,18 @@ API_ErrorCode JazzSource::StartService ()
 			  & p_config->get_key("MDB_NOLOCK",				nolock)
 			  & p_config->get_key("MDB_NOREADAHEAD",		noreadahead)
 			  & p_config->get_key("MDB_NOMEMINIT",			nomeminit);
-/*
+
 	if (!ok) {
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed. Invalid MHD_* config (integer values).");
+		log(LOG_MISS, "JazzSource::StartService() failed. Invalid MHD_* config (integer values).");
 
 		return false;
 	}
 
-	ok = ((fixedmap | writemap | nometasync | nosync | mapasync | nolock | nordahead | nomeminit) & 0xfffffffe) == 0;
+	ok = ((fixedmap | writemap | nometasync | nosync | mapasync | nolock | noreadahead | nomeminit) & 0xfffffffe) == 0;
 
 	if (!ok)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed. Flags must be 0 or 1.");
+		log(LOG_MISS, "JazzSource::StartService() failed. Flags must be 0 or 1.");
 
 		return false;
 	}
@@ -134,7 +134,7 @@ API_ErrorCode JazzSource::StartService ()
 
 	if (lmdb.env_set_maxdbs > MAX_POSSIBLE_SOURCES)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
+		log(LOG_MISS, "JazzSource::StartService() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
 
 		return false;
 	}
@@ -145,91 +145,69 @@ API_ErrorCode JazzSource::StartService ()
 
 	if (!ok || pat.length() > MAX_LMDB_HOME_LEN - 1)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
+		log(LOG_MISS, "JazzSource::StartService() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
 
 		return false;
 	}
 
 	strcpy(lmdb.path, pat.c_str());
 
-//_in_deprecated_code_TODO: Understand why this breaks CATCH_TEST
-
-#ifndef CATCH_TEST
-
-//_in_deprecated_code_TODO: Now every run removes the database from file to avoid syssegv. -- Remove this when fixed -------//
-	struct stat st1 = {0};																				//
-																										//
-	if (stat(lmdb.path, &st1) == 0 && S_ISDIR(st1.st_mode))												//
-	{																									//
-		string dbi = pat;																				//
-		dbi = dbi + "/data.mdb";																		//
-		remove(dbi.c_str());																			//
-																										//
-		if (remove(lmdb.path))																			//
-		{																								//
-			return false;																				//
-		}																								//
-	}																									//
-//_in_deprecated_code_TODO: Now every run removes the database from file to avoid syssegv. -- Remove this when fixed -------//
-
-#endif
-
 	struct stat st = {0};
 	if (stat(lmdb.path, &st) != 0)
 	{
-		jCommons.log_printf(LOG_INFO, "Path \"%s\" does not exist, creating it.", pat.c_str());
+		log_printf(LOG_INFO, "Path \"%s\" does not exist, creating it.", pat.c_str());
 
 		mkdir(lmdb.path, 0700);
 	}
 
-	jCommons.log(LOG_INFO, "Creating an lmdb environment.");
+	log(LOG_INFO, "Creating an lmdb environment.");
 
 	if (mdb_env_create(&lmdb_env) != MDB_SUCCESS)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed: mdb_env_create() failed.");
+		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_create() failed.");
 
 		return false;
 	}
 
 	if (mdb_env_set_maxreaders(lmdb_env, lmdb.env_set_maxreaders) != MDB_SUCCESS)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed: mdb_env_set_maxreaders() failed.");
+		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_set_maxreaders() failed.");
 
 		return false;
 	}
 
 	if (mdb_env_set_maxdbs(lmdb_env, lmdb.env_set_maxdbs) != MDB_SUCCESS)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed: mdb_env_set_maxdbs() failed.");
+		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_set_maxdbs() failed.");
 
 		return false;
 	}
 
 	if (mdb_env_set_mapsize(lmdb_env, ((mdb_size_t)1024)*1024*lmdb.env_set_mapsize) != MDB_SUCCESS)
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed: mdb_env_set_mapsize() failed.");
+		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_set_mapsize() failed.");
 
 		return false;
 	}
 
-	jCommons.log_printf(LOG_INFO, "Opening LMDB environment at : \"%s\"", lmdb.path);
+	log_printf(LOG_INFO, "Opening LMDB environment at : \"%s\"", lmdb.path);
 
 	if (int ret = mdb_env_open(lmdb_env, lmdb.path, lmdb.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS)
 	{
 		cout << "Returned:" << ret << endl;
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed: mdb_env_open() failed.");
+		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_open() failed.");
 
 		return false;
 	}
 
 	if (!open_all_sources())
 	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::start() failed: open_all_sources() failed.");
+		log(LOG_MISS, "JazzSource::StartService() failed: open_all_sources() failed.");
 
 		return false;
 	}
 
-	jCommons.log(LOG_INFO, "jzzBLOCKS started.");
+	log(LOG_INFO, "jzzBLOCKS started.");
 */
 	return JAZZ_API_NO_ERROR;
 }
