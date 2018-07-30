@@ -130,27 +130,25 @@ API_ErrorCode JazzSource::StartService ()
 					 + MDB_NOLOCK*nolock
 					 + MDB_NORDAHEAD*noreadahead
 					 + MDB_NOMEMINIT*nomeminit;
-/*
-	if (lmdb.env_set_maxdbs > MAX_POSSIBLE_SOURCES)
-	{
+
+	if (lmdb_opt.env_set_maxdbs > MAX_POSSIBLE_SOURCES) {
 		log(LOG_MISS, "JazzSource::StartService() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
 
 		return false;
 	}
 
-	string pat;
+	std::string pat;
 
-	ok = jCommons.get_config_key("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", pat);
+	ok = p_config->get_key("MDB_PERSISTENCE_PATH", pat);
 
-	if (!ok || pat.length() > MAX_LMDB_HOME_LEN - 1)
-	{
+	if (!ok || pat.length() > MAX_LMDB_HOME_LEN - 1) {
 		log(LOG_MISS, "JazzSource::StartService() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
 
 		return false;
 	}
 
-	strcpy(lmdb.path, pat.c_str());
-
+	strcpy(lmdb_opt.path, pat.c_str());
+/*
 	struct stat st = {0};
 	if (stat(lmdb.path, &st) != 0)
 	{
