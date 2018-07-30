@@ -116,22 +116,21 @@ API_ErrorCode JazzSource::StartService ()
 
 	ok = ((fixedmap | writemap | nometasync | nosync | mapasync | nolock | noreadahead | nomeminit) & 0xfffffffe) == 0;
 
-	if (!ok)
-	{
+	if (!ok) {
 		log(LOG_MISS, "JazzSource::StartService() failed. Flags must be 0 or 1.");
 
 		return false;
 	}
 
-	lmdb.flags =   MDB_FIXEDMAP*fixedmap
-				 + MDB_WRITEMAP*writemap
-				 + MDB_NOMETASYNC*nometasync
-				 + MDB_NOSYNC*nosync
-				 + MDB_MAPASYNC*mapasync
-				 + MDB_NOLOCK*nolock
-				 + MDB_NORDAHEAD*nordahead
-				 + MDB_NOMEMINIT*nomeminit;
-
+	lmdb_opt.flags =   MDB_FIXEDMAP*fixedmap
+					 + MDB_WRITEMAP*writemap
+					 + MDB_NOMETASYNC*nometasync
+					 + MDB_NOSYNC*nosync
+					 + MDB_MAPASYNC*mapasync
+					 + MDB_NOLOCK*nolock
+					 + MDB_NORDAHEAD*noreadahead
+					 + MDB_NOMEMINIT*nomeminit;
+/*
 	if (lmdb.env_set_maxdbs > MAX_POSSIBLE_SOURCES)
 	{
 		log(LOG_MISS, "JazzSource::StartService() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
