@@ -253,8 +253,10 @@ inline JazzBlockId64 hash_block_id(const char *p_id) {
 
 /** Constants for API_ErrorCode values
 */
-#define JAZZ_API_NO_ERROR				0		///< No errors found processing the API call.
-#define JAZZ_API_ERROR_INVALID_CHAR		1		///< The API call contains unacceptable characters.
+#define JAZZ_API_NO_ERROR					0		///< No errors found processing the API call.
+#define JAZZ_API_ERROR_INVALID_CHAR			1		///< The API call contains unacceptable characters.
+#define JAZZ_API_ERROR_PARSING_CONFIG		2		///< Generic error related with configuration parsing.
+#define JAZZ_API_ERROR_STARTING_SERVICE		3		///< Generic error related with starting a service.
 
 typedef int API_ErrorCode;
 
