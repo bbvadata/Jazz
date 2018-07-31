@@ -112,7 +112,7 @@ API_ErrorCode JazzSource::StartService ()
 	if (!ok) {
 		log(LOG_MISS, "JazzSource::StartService() failed. Invalid MHD_* config (integer values).");
 
-		return false;
+		return JAZZ_API_ERROR_PARSING_CONFIG;
 	}
 
 	ok = ((fixedmap | writemap | nometasync | nosync | mapasync | nolock | noreadahead | nomeminit) & 0xfffffffe) == 0;
@@ -120,7 +120,7 @@ API_ErrorCode JazzSource::StartService ()
 	if (!ok) {
 		log(LOG_MISS, "JazzSource::StartService() failed. Flags must be 0 or 1.");
 
-		return false;
+		return JAZZ_API_ERROR_PARSING_CONFIG;
 	}
 
 	lmdb_opt.flags =   MDB_FIXEDMAP*fixedmap
@@ -135,7 +135,7 @@ API_ErrorCode JazzSource::StartService ()
 	if (lmdb_opt.env_set_maxdbs > MAX_POSSIBLE_SOURCES) {
 		log(LOG_MISS, "JazzSource::StartService() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
 
-		return false;
+		return JAZZ_API_ERROR_PARSING_CONFIG;
 	}
 
 	std::string pat;
@@ -145,14 +145,13 @@ API_ErrorCode JazzSource::StartService ()
 	if (!ok || pat.length() > MAX_LMDB_HOME_LEN - 1) {
 		log(LOG_MISS, "JazzSource::StartService() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
 
-		return false;
+		return JAZZ_API_ERROR_PARSING_CONFIG;
 	}
 
 	strcpy(lmdb_opt.path, pat.c_str());
-/*
+
 	struct stat st = {0};
-	if (stat(lmdb.path, &st) != 0)
-	{
+	if (stat(lmdb.path, &st) != 0) {
 		log_printf(LOG_INFO, "Path \"%s\" does not exist, creating it.", pat.c_str());
 
 		mkdir(lmdb.path, 0700);
@@ -160,29 +159,25 @@ API_ErrorCode JazzSource::StartService ()
 
 	log(LOG_INFO, "Creating an lmdb environment.");
 
-	if (mdb_env_create(&lmdb_env) != MDB_SUCCESS)
-	{
+	if (mdb_env_create(&lmdb_env) != MDB_SUCCESS) {
 		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_create() failed.");
 
 		return false;
 	}
 
-	if (mdb_env_set_maxreaders(lmdb_env, lmdb.env_set_maxreaders) != MDB_SUCCESS)
-	{
+	if (mdb_env_set_maxreaders(lmdb_env, lmdb.env_set_maxreaders) != MDB_SUCCESS) {
 		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_set_maxreaders() failed.");
 
 		return false;
 	}
 
-	if (mdb_env_set_maxdbs(lmdb_env, lmdb.env_set_maxdbs) != MDB_SUCCESS)
-	{
+	if (mdb_env_set_maxdbs(lmdb_env, lmdb.env_set_maxdbs) != MDB_SUCCESS) {
 		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_set_maxdbs() failed.");
 
 		return false;
 	}
 
-	if (mdb_env_set_mapsize(lmdb_env, ((mdb_size_t)1024)*1024*lmdb.env_set_mapsize) != MDB_SUCCESS)
-	{
+	if (mdb_env_set_mapsize(lmdb_env, ((mdb_size_t)1024)*1024*lmdb.env_set_mapsize) != MDB_SUCCESS) {
 		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_set_mapsize() failed.");
 
 		return false;
@@ -190,14 +185,13 @@ API_ErrorCode JazzSource::StartService ()
 
 	log_printf(LOG_INFO, "Opening LMDB environment at : \"%s\"", lmdb.path);
 
-	if (int ret = mdb_env_open(lmdb_env, lmdb.path, lmdb.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS)
-	{
+	if (int ret = mdb_env_open(lmdb_env, lmdb.path, lmdb.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS) {
 		cout << "Returned:" << ret << endl;
 		log(LOG_MISS, "JazzSource::StartService() failed: mdb_env_open() failed.");
 
 		return false;
 	}
-
+/*
 	if (!open_all_sources())
 	{
 		log(LOG_MISS, "JazzSource::StartService() failed: open_all_sources() failed.");
