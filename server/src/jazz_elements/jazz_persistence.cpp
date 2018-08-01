@@ -25,6 +25,8 @@
   limitations under the License.
 */
 
+#include <sys/stat.h>
+
 #include "src/jazz_elements/jazz_persistence.h"
 
 namespace jazz_persistence
