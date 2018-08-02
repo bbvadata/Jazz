@@ -243,6 +243,8 @@ class JazzSource: public JazzPersistence {
 	private:
 #endif
 
+		MDB_env *lmdb_env;
+
 };
 
 } // namespace jazz_persistence
