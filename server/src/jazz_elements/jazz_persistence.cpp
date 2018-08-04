@@ -213,22 +213,20 @@ API_ErrorCode JazzSource::StartService ()
 */
 API_ErrorCode JazzSource::ShutDown (bool restarting_service)
 {
-	jCommons.log(LOG_INFO, "Closing all LMDB sources.");
+	log(LOG_INFO, "Closing all LMDB sources.");
 
-	close_all_sources();
+//	close_all_sources();
 
-//_in_deprecated_code_TODO: Flushing mechanism (Is it necessary?)
-	jCommons.log(LOG_INFO, "Flushing LMDB environment.");
+//TODO: Flushing mechanism (Is it necessary?)
+	log(LOG_INFO, "Flushing LMDB environment.");
 	mdb_env_sync(lmdb_env, true);
-//_in_deprecated_code_TODO: Flushing mechanism (Is it necessary?)
+//end of TODO
 
-	jCommons.log(LOG_INFO, "Closing LMDB environment.");
+	log(LOG_INFO, "Closing LMDB environment.");
 
 	mdb_env_close(lmdb_env);
 
-	jCommons.log(LOG_INFO, "jzzBLOCKS stopped.");
-
-	blocks_lock--;
+	log(LOG_INFO, "jzzBLOCKS stopped.");
 
 	return JAZZ_API_NO_ERROR;
 }
