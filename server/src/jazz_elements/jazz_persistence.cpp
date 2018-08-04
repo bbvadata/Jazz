@@ -409,7 +409,7 @@ int JazzSource::close_jazz_file()
 } // namespace jazz_persistence
 
 
-#if !defined LEGACY_LMDB_CODE
+#if defined LEGACY_LMDB_CODE
 
 /*	--------------------------------------------------
 	  M a n a g e	s o u r c e s
@@ -424,24 +424,21 @@ bool jzzBLOCKS::open_all_sources()
 	if (numsources) return true;
 
 	MDB_txn * txn;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::open_all_sources().");
 
 		return false;
 	}
 
 	MDB_dbi dbi;
-	if (int err = mdb_dbi_open(txn, NULL, 0, &dbi))
-	{
+	if (int err = mdb_dbi_open(txn, NULL, 0, &dbi)) {
 		log_lmdb_err_as_miss(err, "mdb_dbi_open() failed in jzzBLOCKS::open_all_sources().");
 
 		goto release_txn_and_fail;
 	}
 
 	MDB_cursor *cursor;
-	if (int err = mdb_cursor_open(txn, dbi, &cursor))
-	{
+	if (int err = mdb_cursor_open(txn, dbi, &cursor)) {
 		log_lmdb_err_as_miss(err, "mdb_cursor_open() failed in jzzBLOCKS::open_all_sources().");
 
 		goto release_dbi_and_fail;
@@ -451,33 +448,25 @@ bool jzzBLOCKS::open_all_sources()
 	source_open[SYSTEM_SOURCE_WWW] = false;
 
 	MDB_val key, data;
-	while (!mdb_cursor_get(cursor, &key, &data, MDB_NEXT))
-	{
+	while (!mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) {
 		sourceName name;
 
-		if (!char_to_key((char *) key.mv_data, name))
-		{
-			jCommons.log(LOG_MISS, "mdb_cursor_get() returned an impossible source name in jzzBLOCKS::open_all_sources().");
+		if (!char_to_key((char *) key.mv_data, name)) {
+			log(LOG_MISS, "mdb_cursor_get() returned an impossible source name in jzzBLOCKS::open_all_sources().");
 
 			goto release_cur_and_fail;
 		}
 
-		if (!strcmp(name.key, "sys"))
-		{
+		if (!strcmp(name.key, "sys")) {
 			numsources = max(numsources, SYSTEM_SOURCE_SYS + 1);
 			source_nam [SYSTEM_SOURCE_SYS] = name;
 			source_open[SYSTEM_SOURCE_SYS] = false;
-		}
-		else
-		{
-			if (!strcmp(name.key, "www"))
-			{
+		} else {
+			if (!strcmp(name.key, "www")) {
 				numsources = max(numsources, SYSTEM_SOURCE_WWW + 1);
 				source_nam [SYSTEM_SOURCE_WWW] = name;
 				source_open[SYSTEM_SOURCE_WWW] = false;
-			}
-			else
-			{
+			} else {
 				numsources = max(numsources, SYSTEM_SOURCE_WWW + 1);
 				source_nam [numsources]	  = name;
 				source_open[numsources++] = false;
@@ -489,26 +478,20 @@ bool jzzBLOCKS::open_all_sources()
 	mdb_dbi_close(lmdb_env, dbi);
 	mdb_txn_abort(txn);
 
-	if (numsources == 0)
-	{
-		if (!new_source("sys"))
-		{
-			jCommons.log(LOG_MISS, "new_source('sys') failed in jzzBLOCKS::open_all_sources().");
+	if (numsources == 0) {
+		if (!new_source("sys")) {
+			log(LOG_MISS, "new_source('sys') failed in jzzBLOCKS::open_all_sources().");
 
 			return false;
 		}
-		if (!new_source("www"))
-		{
-			jCommons.log(LOG_MISS, "new_source('www') failed in jzzBLOCKS::open_all_sources().");
+		if (!new_source("www")) {
+			log(LOG_MISS, "new_source('www') failed in jzzBLOCKS::open_all_sources().");
 
 			return false;
 		}
-	}
-	else
-	{
-		if (numsources < 2 || strcmp(source_nam[SYSTEM_SOURCE_SYS].key, "sys") || strcmp(source_nam[SYSTEM_SOURCE_WWW].key, "www"))
-		{
-			jCommons.log(LOG_MISS, "sources 'sys' or 'www' not found in jzzBLOCKS::open_all_sources().");
+	} else {
+		if (numsources < 2 || strcmp(source_nam[SYSTEM_SOURCE_SYS].key, "sys") || strcmp(source_nam[SYSTEM_SOURCE_WWW].key, "www")) {
+			log(LOG_MISS, "sources 'sys' or 'www' not found in jzzBLOCKS::open_all_sources().");
 
 			return false;
 		}
@@ -551,9 +534,8 @@ int jzzBLOCKS::num_sources()
 */
 bool jzzBLOCKS::source_name(int idx, sourceName &name)
 {
-	if (idx < 0 || idx >= numsources)
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::source_name(): wrong index.");
+	if (idx < 0 || idx >= numsources) {
+		log(LOG_MISS, "jzzBLOCKS::source_name(): wrong index.");
 
 		return false;
 	}
@@ -571,10 +553,9 @@ bool jzzBLOCKS::source_name(int idx, sourceName &name)
 */
 int jzzBLOCKS::get_source_idx(const char * name)
 {
-	int imax = source_idx[jazz_utils::TenBitsAtAddress(name)];
+	int i_max = source_idx[jazz_utils::TenBitsAtAddress(name)];
 
-	for (int i = imax; i >= 0; i--)
-	{
+	for (int i = i_max; i >= 0; i--) {
 		if (!strcmp(name, source_nam[i].key)) return i;
 	}
 
@@ -582,7 +563,7 @@ int jzzBLOCKS::get_source_idx(const char * name)
 }
 
 
-/** Create a new lmbd dbi and add it as a new source to the source[] vector.
+/** Create a new lmdb dbi and add it as a new source to the source[] vector.
 	\param name The name of the source to be added.
 
 	\return true if successful, false and log(LOG_MISS, "further details") if not.
@@ -591,32 +572,28 @@ int jzzBLOCKS::get_source_idx(const char * name)
 */
 bool jzzBLOCKS::new_source(const char * name)
 {
-	if (numsources >= MAX_POSSIBLE_SOURCES)
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::new_source(): too many sources.");
+	if (numsources >= MAX_POSSIBLE_SOURCES) {
+		log(LOG_MISS, "jzzBLOCKS::new_source(): too many sources.");
 
 		return false;
 	}
 
-	sourceName snam;
+	sourceName s_name;
 
-	if (!char_to_key(name, snam))
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::new_source(): invalid name.");
+	if (!char_to_key(name, s_name)) {
+		log(LOG_MISS, "jzzBLOCKS::new_source(): invalid name.");
 
 		return false;
 	}
 
-	if (get_source_idx(name) >= 0)
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::new_source(): source already exists.");
+	if (get_source_idx(name) >= 0) {
+		log(LOG_MISS, "jzzBLOCKS::new_source(): source already exists.");
 
 		return false;
 	}
 
 	MDB_txn * txn;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::new_source().");
 
 		return false;
@@ -626,17 +603,16 @@ bool jzzBLOCKS::new_source(const char * name)
 
 	block_SourceAttributes src_attr = {};
 
-	if (int err = mdb_dbi_open(txn, snam.key, MDB_CREATE, &source_dbi[idx]))
-	{
+	if (int err = mdb_dbi_open(txn, s_name.key, MDB_CREATE, &source_dbi[idx])) {
 		log_lmdb_err_as_miss(err, "mdb_dbi_open() failed in jzzBLOCKS::new_source().");
 
 		goto release_txn_and_fail;
 	}
 
-	source_nam [idx] = snam;
+	source_nam [idx] = s_name;
 	source_open[idx] = true;
 
-	MDB_val lkey, data;
+	MDB_val l_key, data;
 
 	persistedKey key;
 	key.key[0] = '.';
@@ -647,20 +623,18 @@ bool jzzBLOCKS::new_source(const char * name)
 	src_attr.version = 1001;
 	src_attr.hash64	 = 0;
 
-	lkey.mv_size = 1;
-	lkey.mv_data = &key.key;
+	l_key.mv_size = 1;
+	l_key.mv_data = &key.key;
 	data.mv_size = sizeof(block_SourceAttributes);
 	data.mv_data = &src_attr;
 
-	if (int err = mdb_put(txn, source_dbi[idx], &lkey, &data, 0))
-	{
+	if (int err = mdb_put(txn, source_dbi[idx], &l_key, &data, 0)) {
 		log_lmdb_err_as_miss(err, "mdb_put() failed in jzzBLOCKS::new_source().");
 
 		goto release_dbi_and_fail;
 	}
 
-	if (int err = mdb_txn_commit(txn))
-	{
+	if (int err = mdb_txn_commit(txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_commit() failed in jzzBLOCKS::new_source().");
 
 		goto release_dbi_and_fail;
@@ -697,54 +671,46 @@ bool jzzBLOCKS::kill_source(const char * name)
 {
 	int idx = get_source_idx(name);
 
-	if (idx < 0)
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::kill_source(): source does not exist.");
+	if (idx < 0) {
+		log(LOG_MISS, "jzzBLOCKS::kill_source(): source does not exist.");
 
 		return false;
 	}
 
-	if (idx < 2)
-	{
-		jCommons.log(LOG_MISS, "jzzBLOCKS::kill_source(): attempt to kill system source.");
+	if (idx < 2) {
+		log(LOG_MISS, "jzzBLOCKS::kill_source(): attempt to kill system source.");
 
 		return false;
 	}
 
 	MDB_txn * txn;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::kill_source().");
 
 		return false;
 	}
 
-	if (!source_open[idx])
-	{
-		if (!internal_open_dbi(idx))
-		{
-			jCommons.log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::kill_source().");
+	if (!source_open[idx]) {
+		if (!internal_open_dbi(idx)) {
+			log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::kill_source().");
 
 			goto release_txn_and_fail;
 		}
 	}
 
-	if (int err = mdb_drop(txn, source_dbi[idx], 1))
-	{
+	if (int err = mdb_drop(txn, source_dbi[idx], 1)) {
 		log_lmdb_err_as_miss(err, "mdb_drop() failed in jzzBLOCKS::kill_source().");
 
 		goto release_txn_and_fail;
 	}
 
-	if (int err = mdb_txn_commit(txn))
-	{
+	if (int err = mdb_txn_commit(txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_commit() failed in jzzBLOCKS::kill_source().");
 
 		goto release_txn_and_fail;
 	}
 
-	for (int i = idx;i < numsources - 1; i++)
-	{
+	for (int i = idx;i < numsources - 1; i++) {
 		source_nam [i] = source_nam [i + 1];
 		source_open[i] = source_open[i + 1];
 		source_dbi [i] = source_dbi [i + 1];
@@ -801,47 +767,41 @@ void jzzBLOCKS::close_all_sources()
 */
 bool jzzBLOCKS::block_put(int source, const persistedKey &key, pJazzBlock block)
 {
-	if (source < 0 || source >= numsources)
-	{
-		jCommons.log(LOG_MISS, "Invalid source in jzzBLOCKS::block_put().");
+	if (source < 0 || source >= numsources) {
+		log(LOG_MISS, "Invalid source in jzzBLOCKS::block_put().");
 
 		return false;
 	}
 
 	MDB_txn * txn;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::block_put().");
 
 		return false;
 	}
 
-	if (!source_open[source])
-	{
-		if (!internal_open_dbi(source))
-		{
-			jCommons.log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::block_put().");
+	if (!source_open[source]) {
+		if (!internal_open_dbi(source)) {
+			log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::block_put().");
 
 			goto release_txn_and_fail;
 		}
 	}
 
-	MDB_val lkey, data;
+	MDB_val l_key, data;
 
-	lkey.mv_size = strlen(key.key);
-	lkey.mv_data = (void *) &key;
+	l_key.mv_size = strlen(key.key);
+	l_key.mv_data = (void *) &key;
 	data.mv_size = block->size + sizeof(jzzBlockHeader);
 	data.mv_data = block;
 
-	if (int err = mdb_put(txn, source_dbi[source], &lkey, &data, 0))
-	{
+	if (int err = mdb_put(txn, source_dbi[source], &l_key, &data, 0)) {
 		log_lmdb_err_as_miss(err, "mdb_put() failed in jzzBLOCKS::block_put().");
 
 		goto release_txn_and_fail;
 	}
 
-	if (int err = mdb_txn_commit(txn))
-	{
+	if (int err = mdb_txn_commit(txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_commit() failed in jzzBLOCKS::block_put().");
 
 		goto release_txn_and_fail;
@@ -878,24 +838,21 @@ a mutex to be thread safe.
 */
 bool jzzBLOCKS::block_get(int source, const persistedKey &key, pJazzBlock &block)
 {
-	if (source < 0 || source >= numsources)
-	{
-		jCommons.log(LOG_MISS, "Invalid source in jzzBLOCKS::block_get().");
+	if (source < 0 || source >= numsources) {
+		log(LOG_MISS, "Invalid source in jzzBLOCKS::block_get().");
 
 		return false;
 	}
 
 	int prot_idx = lock_get_protect_slot();
-	if (prot_idx < 0)
-	{
-		jCommons.log(LOG_MISS, "No slot in block protection found in jzzBLOCKS::block_get().");
+	if (prot_idx < 0) {
+		log(LOG_MISS, "No slot in block protection found in jzzBLOCKS::block_get().");
 
 		return false;
 	}
 
 	MDB_txn * txn;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &txn)) {
 		lock_release_protect_slot(prot_idx);
 
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::block_get().");
@@ -903,23 +860,20 @@ bool jzzBLOCKS::block_get(int source, const persistedKey &key, pJazzBlock &block
 		return false;
 	}
 
-	if (!source_open[source])
-	{
-		if (!internal_open_dbi(source))
-		{
-			jCommons.log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::block_get().");
+	if (!source_open[source]) {
+		if (!internal_open_dbi(source)) {
+			log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::block_get().");
 
 			goto release_txn_and_fail;
 		}
 	}
 
-	MDB_val lkey, data;
+	MDB_val l_key, data;
 
-	lkey.mv_size = strlen(key.key);
-	lkey.mv_data = (void *) &key;
+	l_key.mv_size = strlen(key.key);
+	l_key.mv_data = (void *) &key;
 
-	if (int err = mdb_get(txn, source_dbi[source], &lkey, &data))
-	{
+	if (int err = mdb_get(txn, source_dbi[source], &l_key, &data)) {
 		if (err == MDB_NOTFOUND) goto release_txn_and_fail; // Not found does not log anything
 
 		log_lmdb_err_as_miss(err, "mdb_get() failed in jzzBLOCKS::block_get() with a code other than MDB_NOTFOUND.");
@@ -957,45 +911,39 @@ release_txn_and_fail:
 */
 bool jzzBLOCKS::block_kill(int source, const persistedKey &key)
 {
-	if (source < 0 || source >= numsources)
-	{
-		jCommons.log(LOG_MISS, "Invalid source in jzzBLOCKS::block_kill().");
+	if (source < 0 || source >= numsources) {
+		log(LOG_MISS, "Invalid source in jzzBLOCKS::block_kill().");
 
 		return false;
 	}
 
 	MDB_txn * txn;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::block_kill().");
 
 		return false;
 	}
 
-	if (!source_open[source])
-	{
-		if (!internal_open_dbi(source))
-		{
-			jCommons.log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::block_kill().");
+	if (!source_open[source]) {
+		if (!internal_open_dbi(source)) {
+			log(LOG_MISS, "internal_open_dbi() failed in jzzBLOCKS::block_kill().");
 
 			goto release_txn_and_fail;
 		}
 	}
 
-	MDB_val lkey;
+	MDB_val l_key;
 
-	lkey.mv_size = strlen(key.key);
-	lkey.mv_data = (void *) &key;
+	l_key.mv_size = strlen(key.key);
+	l_key.mv_data = (void *) &key;
 
-	if (int err = mdb_del(txn, source_dbi[source], &lkey, NULL))
-	{
+	if (int err = mdb_del(txn, source_dbi[source], &l_key, NULL)) {
 		log_lmdb_err_as_miss(err, "mdb_del() failed in jzzBLOCKS::block_kill().");
 
 		goto release_txn_and_fail;
 	}
 
-	if (int err = mdb_txn_commit(txn))
-	{
+	if (int err = mdb_txn_commit(txn)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_commit() failed in jzzBLOCKS::block_kill().");
 
 		goto release_txn_and_fail;
@@ -1021,8 +969,7 @@ int jzzBLOCKS::lock_get_protect_slot()
 {
 	int i = prot_SP++;
 
-	if (i >= MAX_PROTECTED_BLOCKS)
-	{
+	if (i >= MAX_PROTECTED_BLOCKS) {
 		prot_SP--;
 
 		return -1;
@@ -1039,8 +986,7 @@ void jzzBLOCKS::lock_release_protect_slot(int idx)
 	protect_ptr[idx] = NULL;
 	protect_txn[idx] = NULL;
 
-	if (idx == prot_SP - 1)
-	{
+	if (idx == prot_SP - 1) {
 		prot_SP--;
 		while (prot_SP > 0 && protect_ptr[prot_SP - 1] == NULL) prot_SP--;
 	}
@@ -1060,10 +1006,8 @@ a mutex to be thread safe.
 */
 bool jzzBLOCKS::block_unprotect (pJazzBlock block)
 {
-	for (int i = prot_SP - 1; i >= 0; i--)
-	{
-		if (protect_ptr[i] == block)
-		{
+	for (int i = prot_SP - 1; i >= 0; i--) {
+		if (protect_ptr[i] == block) {
 			MDB_txn * txn = protect_txn[i];
 
 			lock_release_protect_slot(i);
@@ -1074,7 +1018,7 @@ bool jzzBLOCKS::block_unprotect (pJazzBlock block)
 		}
 	}
 
-	jCommons.log(LOG_MISS, "'block' not found in 'protect_ptr[]' in jzzBLOCKS::block_unprotect().");
+	log(LOG_MISS, "'block' not found in 'protect_ptr[]' in jzzBLOCKS::block_unprotect().");
 
 	return false;
 }
@@ -1096,15 +1040,13 @@ bool jzzBLOCKS::block_unprotect (pJazzBlock block)
 bool jzzBLOCKS::internal_open_dbi (int source)
 {
 	MDB_txn * txo;
-	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txo))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txo)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_begin() failed in jzzBLOCKS::internal_open_dbi().");
 
 		return false;
 	}
 
-	if (int err = mdb_dbi_open(txo, source_nam[source].key, 0, &source_dbi[source]))
-	{
+	if (int err = mdb_dbi_open(txo, source_nam[source].key, 0, &source_dbi[source])) {
 		log_lmdb_err_as_miss(err, "mdb_dbi_open() failed in jzzBLOCKS::internal_open_dbi().");
 
 		mdb_txn_abort(txo);
@@ -1112,8 +1054,7 @@ bool jzzBLOCKS::internal_open_dbi (int source)
 		goto release_txn_and_fail;
 	}
 
-	if (int err = mdb_txn_commit(txo))
-	{
+	if (int err = mdb_txn_commit(txo)) {
 		log_lmdb_err_as_miss(err, "mdb_txn_commit() failed in jzzBLOCKS::internal_open_dbi().");
 
 		goto release_txn_and_fail;
@@ -1140,8 +1081,7 @@ void jzzBLOCKS::update_source_idx(bool incremental)
 {
 	if (!incremental) memset(source_idx, -1, sizeof(source_idx));
 
-	for (int i = 0; i < numsources; i++)
-	{
+	for (int i = 0; i < numsources; i++) {
 		int j = jazz_utils::TenBitsAtAddress(source_nam[i].key);
 
 		source_idx[j] = max(i, source_idx[j]);
@@ -1157,8 +1097,7 @@ void jzzBLOCKS::update_source_idx(bool incremental)
 void jzzBLOCKS::log_lmdb_err_as_miss(int err, const char * msg)
 {
 	char errmsg [128];
-	switch (err)
-	{
+	switch (err) {
 		case MDB_KEYEXIST:		  strcpy(errmsg, "LMDB MDB_KEYEXIST: Key/data pair already exists.");									  break;
 		case MDB_NOTFOUND:		  strcpy(errmsg, "LMDB MDB_NOTFOUND: Key/data pair not found (EOF).");									  break;
 		case MDB_PAGE_NOTFOUND:	  strcpy(errmsg, "LMDB MDB_PAGE_NOTFOUND: Requested page not found - this usually indicates corruption.");break;
@@ -1188,8 +1127,8 @@ void jzzBLOCKS::log_lmdb_err_as_miss(int err, const char * msg)
 		default:				  sprintf(errmsg,"LMDB Unknown code %d.", err);
 	}
 
-	jCommons.log(LOG_ERROR, errmsg);
-	jCommons.log(LOG_MISS, msg);
+	log(LOG_ERROR, errmsg);
+	log(LOG_MISS, msg);
 }
 #endif
 
