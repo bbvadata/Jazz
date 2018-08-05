@@ -349,7 +349,7 @@ bool JazzCoreTypecasting::ToR (pJazzBlock p_source, pJazzBlock &p_dest)
 				pt->R_type = ntohl(STRSXP);
 				for (int i = 0; i < p_source->length; i++) {
 					if (reinterpret_cast<pCharBlock>(p_source)->data[i] != JAZZ_STRING_NA) {
-						char * p_data_src = PCHAR(reinterpret_cast<pCharBlock>(p_source), i);
+						char * p_data_src = p_CHAR(reinterpret_cast<pCharBlock>(p_source), i);
 						int len = strlen(p_data_src);
 						sth.n_char = ntohl(len);
 						sth.signature = R_SIG_CHARSXP_HEA_TO_R;
@@ -624,7 +624,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 				if (reinterpret_cast<pCharBlock>(p_source)->data[i] == JAZZ_STRING_NA) {
 					size += LENGTH_NA_AS_TEXT;
 				} else {
-					sprintf(buff_item, fmt, PCHAR(reinterpret_cast<pCharBlock>(p_source), i));
+					sprintf(buff_item, fmt, p_CHAR(reinterpret_cast<pCharBlock>(p_source), i));
 					size += strlen(buff_item);
 				}
 			}
@@ -692,7 +692,7 @@ bool JazzCoreTypecasting::ToText (pJazzBlock p_source, pJazzBlock &p_dest, const
 					strcpy(pt, NA_AS_TEXT);
 					pt += LENGTH_NA_AS_TEXT;
 				} else {
-					sprintf(pt, fmt, PCHAR(reinterpret_cast<pCharBlock>(p_source), i));
+					sprintf(pt, fmt, p_CHAR(reinterpret_cast<pCharBlock>(p_source), i));
 					pt += strlen(pt);
 				}
 			}
