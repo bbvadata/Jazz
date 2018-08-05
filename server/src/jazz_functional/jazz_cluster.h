@@ -58,10 +58,13 @@ struct JazzNode
 class JazzCluster	: public JazzObject {
 
 	public:
-		 JazzCluster(jazz_utils::pJazzConfigFile a_config,
-					 jazz_utils::pJazzLogger	 a_logger = nullptr);
+		 JazzCluster(jazz_utils::pJazzLogger	 a_logger,
+					 jazz_utils::pJazzConfigFile a_config);
 		~JazzCluster();
 
+		/// A StartService/ShutDown interface
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
 };
 
 }
