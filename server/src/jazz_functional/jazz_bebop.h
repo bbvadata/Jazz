@@ -81,8 +81,13 @@ namespace jazz_bebop
 class Bebop	: public JazzObject {
 
 	public:
-		 Bebop(jazz_utils::pJazzLogger a_logger = nullptr);
+		 Bebop(jazz_utils::pJazzLogger	   a_logger,
+			   jazz_utils::pJazzConfigFile a_config);
 		~Bebop();
+
+		/// A StartService/ShutDown interface
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
 
 //TODO: Define Bebop
 //TODO: Implement Bebop
