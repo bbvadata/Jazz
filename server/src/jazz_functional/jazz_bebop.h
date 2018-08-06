@@ -74,6 +74,9 @@
 namespace jazz_bebop
 {
 
+using namespace jazz_containers;
+
+
 //TODO: Document interface for module jazz_bebop.
 
 //TODO: Implement interface for module jazz_bebop.
