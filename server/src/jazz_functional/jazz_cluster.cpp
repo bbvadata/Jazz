@@ -34,14 +34,9 @@ namespace jazz_cluster
 /**
 //TODO: Document JazzCluster()
 */
-JazzCluster::JazzCluster(jazz_utils::pJazzConfigFile a_config,
-						 jazz_utils::pJazzLogger	 a_logger)
+JazzCluster::JazzCluster(jazz_utils::pJazzLogger	 a_logger,
+						 jazz_utils::pJazzConfigFile a_config)	: JazzObject(a_logger, a_config)
 {
-	p_config = a_config;
-	p_logger = a_logger;
-
-//TODO: Use config.num_keys() to check for errors.
-
 //TODO: Implement JazzCluster
 }
 
