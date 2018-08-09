@@ -120,7 +120,8 @@ all the characters are explained in containers:
 class JazzAPI: public JazzCache {
 
 	public:
-		 JazzAPI(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzAPI(jazz_utils::pJazzLogger	 a_logger,
+			     jazz_utils::pJazzConfigFile a_config);
 		~JazzAPI();
 };
 
