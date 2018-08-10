@@ -123,6 +123,11 @@ class JazzAPI: public JazzCache {
 		 JazzAPI(jazz_utils::pJazzLogger	 a_logger,
 			     jazz_utils::pJazzConfigFile a_config);
 		~JazzAPI();
+
+		/// A StartService/ShutDown interface
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
+
 };
 
 
