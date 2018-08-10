@@ -482,7 +482,7 @@ JazzHttpServer::~JazzHttpServer()
 
 \param p_config A pointer to a JazzConfigFile object containing the server configuration.
 
-\return         On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return.
+\return			On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return.
 The application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful or with EXIT_FAILURE
 if not.
 
@@ -537,8 +537,8 @@ Starting logic:
 
 */
 int JazzHttpServer::StartServer (jazz_utils::pJazzConfigFile p_config,
-						 		 pSignalHandler				 p_sig_handler,
-						 		 pMHD_Daemon				 &p_daemon)
+								 pSignalHandler				 p_sig_handler,
+								 pMHD_Daemon				 &p_daemon)
 {
 // 1. Get all the MHD server config settings from p_config
 
@@ -568,8 +568,8 @@ int JazzHttpServer::StartServer (jazz_utils::pJazzConfigFile p_config,
 
 		return EXIT_FAILURE;
 	}
-	unsigned int server_flags =   debug*MHD_USE_DEBUG | ssl*MHD_USE_SSL | ipv6*MHD_USE_IPv6
-				 				| pedantic*MHD_USE_PEDANTIC_CHECKS | supp_date*MHD_SUPPRESS_DATE_NO_CLOCK | tcp_fastopen*MHD_USE_TCP_FASTOPEN
+	unsigned int server_flags =	  debug*MHD_USE_DEBUG | ssl*MHD_USE_SSL | ipv6*MHD_USE_IPv6
+								| pedantic*MHD_USE_PEDANTIC_CHECKS | supp_date*MHD_SUPPRESS_DATE_NO_CLOCK | tcp_fastopen*MHD_USE_TCP_FASTOPEN
 								| MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL;		// Only threading model for Jazz.
 
 	MHD_OptionItem server_options[9];		// The variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
