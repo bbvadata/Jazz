@@ -138,7 +138,8 @@ class JazzAPI: public JazzCache {
 class rAPI: public JazzAPI {
 
 	public:
-		 rAPI(jazz_utils::pJazzLogger a_logger = nullptr);
+		 rAPI(jazz_utils::pJazzLogger	  a_logger,
+			  jazz_utils::pJazzConfigFile a_config);
 		~rAPI();
 
 };
@@ -151,7 +152,8 @@ class rAPI: public JazzAPI {
 class pyAPI: public JazzAPI {
 
 	public:
-		 pyAPI(jazz_utils::pJazzLogger a_logger = nullptr);
+		 pyAPI(jazz_utils::pJazzLogger	   a_logger,
+			   jazz_utils::pJazzConfigFile a_config);
 		~pyAPI();
 
 };
