@@ -38,7 +38,8 @@ namespace jazz_api
 /**
 //TODO: Document JazzAPI()
 */
-JazzAPI::JazzAPI(jazz_utils::pJazzLogger a_logger) : JazzCache(a_logger)
+JazzAPI::JazzAPI(jazz_utils::pJazzLogger	 a_logger,
+				 jazz_utils::pJazzConfigFile a_config) : JazzCache(a_logger, a_config)
 {
 //TODO: Implement JazzAPI
 }
