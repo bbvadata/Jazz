@@ -82,7 +82,8 @@ API_ErrorCode JazzAPI::ShutDown (bool restarting_service)
 /**
 //TODO: Document rAPI()
 */
-rAPI::rAPI(jazz_utils::pJazzLogger a_logger)	: JazzAPI(a_logger)
+rAPI::rAPI(jazz_utils::pJazzLogger	 a_logger,
+		   jazz_utils::pJazzConfigFile a_config)	: JazzAPI(a_logger, a_config)
 {
 //TODO: Implement rAPI
 }
