@@ -975,7 +975,8 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class JazzCache: public AATBlockQueue {
 
 	public:
-		 JazzCache(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzCache(jazz_utils::pJazzLogger	   a_logger = nullptr,
+				   jazz_utils::pJazzConfigFile a_config = nullptr);
 
 		// Methods for JazzBlock allocation
 
