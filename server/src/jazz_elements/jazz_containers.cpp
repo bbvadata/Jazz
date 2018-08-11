@@ -1007,7 +1007,8 @@ It is safe to ignore this parameter, in that case the events will not be logged.
 
 	This does not allocate any items, you must call alloc_keeprs () before using the object.
 */
-AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger a_logger) : JazzBlockKeepr(a_logger)
+AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger	 a_logger,
+					 		 jazz_utils::pJazzConfigFile a_config) : JazzBlockKeepr(a_logger, a_config)
 {
 	discrete_recency = 0;
 	p_queue_root	 = nullptr;
