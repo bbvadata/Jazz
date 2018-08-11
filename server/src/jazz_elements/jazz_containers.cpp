@@ -1492,7 +1492,8 @@ It is safe to ignore this parameter, in that case the events will not be logged.
 
 	This does not allocate any items, you must call alloc_keeprs () before using the object.
 */
-JazzCache::JazzCache(jazz_utils::pJazzLogger a_logger) : AATBlockQueue(a_logger)
+JazzCache::JazzCache(jazz_utils::pJazzLogger	 a_logger,
+					 jazz_utils::pJazzConfigFile a_config) : AATBlockQueue(a_logger, a_config)
 {
 	cache = {};
 }
