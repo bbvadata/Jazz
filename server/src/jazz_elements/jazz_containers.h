@@ -561,7 +561,8 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class AATBlockQueue: public JazzBlockKeepr {
 
 	public:
-		 AATBlockQueue(jazz_utils::pJazzLogger a_logger = nullptr);
+		 AATBlockQueue(jazz_utils::pJazzLogger	   a_logger = nullptr,
+					   jazz_utils::pJazzConfigFile a_config = nullptr);
 		~AATBlockQueue();
 
 		// Methods for buffer allocation
