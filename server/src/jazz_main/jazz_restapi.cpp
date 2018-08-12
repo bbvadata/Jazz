@@ -537,9 +537,8 @@ Starting logic:
 //TODO: Update this documentation server_start()
 
 */
-int JazzHttpServer::StartServer (jazz_utils::pJazzConfigFile p_config,
-								 pSignalHandler				 p_sig_handler,
-								 pMHD_Daemon				 &p_daemon)
+int JazzHttpServer::StartServer (pSignalHandler	 p_sig_handler,
+								 pMHD_Daemon	&p_daemon)
 {
 // 1. Get all the MHD server config settings from p_config
 
