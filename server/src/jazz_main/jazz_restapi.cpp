@@ -455,7 +455,8 @@ using namespace std;
 /**
 //TODO: Document JazzHttpServer()
 */
-JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger a_logger) : JazzAPI(a_logger)
+JazzHttpServer::JazzHttpServer(jazz_utils::pJazzLogger	   a_logger,
+							   jazz_utils::pJazzConfigFile a_config) : JazzAPI(a_logger, a_config)
 {
 #ifdef DEBUG
 	log(LOG_DEBUG, "Entering JazzHttpServer::JazzHttpServer");
