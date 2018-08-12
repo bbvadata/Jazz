@@ -1004,11 +1004,13 @@ JazzTree::JazzTree(jazz_utils::pJazzLogger a_logger) : JazzBlockKeepr(a_logger)
 
 	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
 It is safe to ignore this parameter, in that case the events will not be logged.
+	\param a_config A JazzConfigFile. Many descendants do not require configuration, others do (e.g., JazzAPI). For the former it is safe to
+leave the default (nullptr) value.
 
 	This does not allocate any items, you must call alloc_keeprs () before using the object.
 */
 AATBlockQueue::AATBlockQueue(jazz_utils::pJazzLogger	 a_logger,
-					 		 jazz_utils::pJazzConfigFile a_config) : JazzBlockKeepr(a_logger, a_config)
+							 jazz_utils::pJazzConfigFile a_config) : JazzBlockKeepr(a_logger, a_config)
 {
 	discrete_recency = 0;
 	p_queue_root	 = nullptr;
@@ -1490,6 +1492,8 @@ void AATBlockQueue::set_item_priority(pJazzQueueItem p_item)
 
 	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
 It is safe to ignore this parameter, in that case the events will not be logged.
+	\param a_config A JazzConfigFile. Many descendants do not require configuration, others do (e.g., JazzAPI). For the former it is safe to
+leave the default (nullptr) value.
 
 	This does not allocate any items, you must call alloc_keeprs () before using the object.
 */
