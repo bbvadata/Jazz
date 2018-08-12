@@ -71,12 +71,12 @@ There is no support for POST or TRACE, any functions other than those mentioned 
 class JazzHttpServer: public JazzAPI {
 
 	public:
-		 JazzHttpServer(jazz_utils::pJazzLogger a_logger = nullptr);
-		~JazzHttpServer();
+		 JazzHttpServer (jazz_utils::pJazzLogger	 a_logger,
+						 jazz_utils::pJazzConfigFile a_config);
+		~JazzHttpServer ();
 
-		int StartServer (jazz_utils::pJazzConfigFile p_config,
-						 pSignalHandler				 p_sig_handler,
-						 pMHD_Daemon				 &p_daemon);
+		int StartServer (pSignalHandler	 p_sig_handler,
+						 pMHD_Daemon	&p_daemon);
 };
 
 }
