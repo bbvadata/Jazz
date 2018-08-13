@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
 
 		cout << "Starting JazzAPI ... ";
 
-		if (J_HTTP_SERVER.StartService(&J_CONFIG) != JAZZ_API_NO_ERROR) {
+		if (J_HTTP_SERVER.StartService() != JAZZ_API_NO_ERROR) {
 			cout << "FAILED!" << endl;
 
 			J_LOGGER.log(LOG_ERROR, "Errors occurred starting JazzAPI.");
@@ -184,7 +184,7 @@ int main(int argc, char* argv[])
 
 		cout << "Starting Bebop ... ";
 
-		if (J_BOP.StartService(&J_CONFIG) != JAZZ_API_NO_ERROR) {
+		if (J_BOP.StartService() != JAZZ_API_NO_ERROR) {
 			cout << "FAILED!" << endl;
 
 			J_LOGGER.log(LOG_ERROR, "Errors occurred starting Bebop.");
@@ -196,7 +196,7 @@ int main(int argc, char* argv[])
 
 		cout << "Starting JazzCluster ... ";
 
-		if (J_CLUSTER.StartService(&J_CONFIG) != JAZZ_API_NO_ERROR) {
+		if (J_CLUSTER.StartService() != JAZZ_API_NO_ERROR) {
 			cout << "FAILED!" << endl;
 
 			J_LOGGER.log(LOG_ERROR, "Errors occurred starting JazzCluster.");
