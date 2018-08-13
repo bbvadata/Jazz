@@ -34,12 +34,14 @@ namespace jazz_instances
 --------------------------------- */
 
 JazzConfigFile J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+
 JazzLogger	   J_LOGGER(J_CONFIG, "LOGGER_PATH");
-JazzCluster	   J_CLUSTER(&J_CONFIG, &J_LOGGER);
-Bebop		   J_BOP;
-JazzHttpServer J_HTTP_SERVER(&J_LOGGER);
-rAPI		   J_R_API(&J_LOGGER);
-pyAPI		   J_PYTHON_API(&J_LOGGER);
+
+JazzCluster	   J_CLUSTER	 (&J_LOGGER, &J_CONFIG);
+Bebop		   J_BOP		 (&J_LOGGER, &J_CONFIG);
+JazzHttpServer J_HTTP_SERVER (&J_LOGGER, &J_CONFIG);
+rAPI		   J_R_API		 (&J_LOGGER, &J_CONFIG);
+pyAPI		   J_PYTHON_API	 (&J_LOGGER, &J_CONFIG);
 
 pMHD_Daemon	   Jazz_MHD_Daemon;
 
