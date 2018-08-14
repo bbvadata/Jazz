@@ -522,6 +522,11 @@ JazzObject::JazzObject(jazz_utils::pJazzLogger a_logger,
 }
 
 
+JazzObject::~JazzObject()
+{
+}
+
+
 /** Constructor for class JazzBlockKeepr
 
 	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
