@@ -514,6 +514,13 @@ void free_jazz_block(pJazzBlock &p_block)
 }
 
 
+/** Constructor for class JazzObject
+
+	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
+It is safe to ignore this parameter, in that case the events will not be logged.
+	\param a_config A JazzConfigFile. Many descendants do not require configuration, others do (e.g., JazzSource). For the former it is safe to
+leave the default (nullptr) value.
+*/
 JazzObject::JazzObject(jazz_utils::pJazzLogger a_logger,
 					   jazz_utils::pJazzConfigFile a_config)
 {
@@ -522,6 +529,10 @@ JazzObject::JazzObject(jazz_utils::pJazzLogger a_logger,
 }
 
 
+/** Destructor for class JazzObject
+
+	Does nothing.
+*/
 JazzObject::~JazzObject()
 {
 }
