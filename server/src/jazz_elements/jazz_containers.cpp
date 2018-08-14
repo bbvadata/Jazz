@@ -514,6 +514,14 @@ void free_jazz_block(pJazzBlock &p_block)
 }
 
 
+JazzObject::JazzObject(jazz_utils::pJazzLogger a_logger,
+					   jazz_utils::pJazzConfigFile a_config)
+{
+	p_log	 = a_logger;
+	p_config = a_config;
+}
+
+
 /** Constructor for class JazzBlockKeepr
 
 	\param a_logger A running JazzLogger object that will be used to track all LOG_MISS, LOG_WARN and LOG_ERROR events if available.
