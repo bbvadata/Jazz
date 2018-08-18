@@ -872,6 +872,1176 @@ bool jazzWebSource::get_url(const char * url, URLattrib &uattr)
 }
 
 
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+jzzAPI jAPI;
+int	   imethods[1024];
+
+
+/*	---------------------------------------------
+	 M A I N   H T T P	 E N T R Y	 P O I N T S
+------------------------------------------------- */
+
+#define MHD_HTTP_ANYERROR 400
+
+#ifdef DEBUG
+int print_out_key (void *cls, enum MHD_ValueKind kind,
+				   const char *key, const char *value)
+{
+	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
+	return MHD_YES;
+}
+#endif
+
+
+/// Pointers to these global variables control the state of a PUT call.
+int	state_new_call				= 0;	///< Default state: connection open for any call
+int	state_upload_in_progress	= 1;	///< Data was uploaded, the function was executed and it returned true.
+int	state_upload_notacceptable	= 2;	///< Data uploaded failed, the function was executed and it failed. Will return MHD_HTTP_NOT_ACCEPTABLE
+int	state_upload_unavailable	= 3;	///< Data uploaded failed, call to enter_persistence() failed. Must end with MHD_HTTP_SERVICE_UNAVAILABLE.
+int	state_upload_badrequest		= 4;	///< PUT call malformed, Must end with MHD_HTTP_BAD_REQUEST.
+
+char response_put_ok[]			= "0";
+char response_put_fail[]		= "1";
+
+bool no_storage, no_webpages;
+
+int tenbitDS;							///< The binary ten bits of "//" double-slash to identify web source interface.
+
+
+/*	-----------------------------------------------
+		p a r s i n g  method
+--------------------------------------------------- */
+
+/** Parse an API url.
+
+	\param	url	   The http url
+	\param	method The http method in [HTTP_NOTUSED..HTTP_DELETE]
+	\param	pars   A structure with the parts of the url successfully parsed.
+
+	\return		   true if successful, does not log.
+*/
+bool jzzAPI::parse_url(const char * url, int method, parsedURL &pars)
+{
+	switch (method)
+	{
+		case HTTP_HEAD:
+			method = HTTP_GET;
+			break;
+
+		case HTTP_GET:
+		case HTTP_PUT:
+		case HTTP_DELETE:
+
+			break;
+
+		default:
+
+			return false;
+	}
+
+	memset(&pars, 0, sizeof(parsedURLhea));
+	int i;
+
+	// url is already verified to start with "//"
+
+	switch (url[2])	// syntactic sugar
+	{
+		case 0:
+			goto list_all_sources;
+
+		case '/':
+			goto full_server_id;
+	}
+
+	persistedKey source;
+
+	if (!char_to_key_relaxed_end(&url[2], source))
+		return false;
+
+	pars.source = jBLOCKC.get_source_idx(source.key);
+	if (pars.source < 0)
+		return false;
+
+	i = 2 + strlen(source.key);
+
+	switch (url[i])
+	{
+		case '.':
+			i++;
+			goto source_key;
+
+		case '/':
+			i++;
+			switch (url[i])
+			{
+				case '/':
+					i++;
+					goto anything_function_parameters;
+
+				case 0:	// - List all meshes from a source.
+					if (method != HTTP_GET)
+						return false;
+
+					pars.hasAFunction	= true;
+					pars.isInstrumental	= true;
+
+					strcpy(pars.function.name, "ls");
+					pars.parameters.param[0] = 0;
+					pars.instrument.name[0]	 = 0;
+
+					return true;
+
+				default:
+					goto source_mesh;
+			}
+
+		case 0:	// - Delete a source.
+			pars.deleteSource = true;
+			return method == HTTP_DELETE;
+	}
+
+	return false;
+
+
+list_all_sources:	// - List all sources.
+
+	if (method != HTTP_GET)
+		return false;
+
+	pars.hasAFunction = true;
+
+	pars.source = 0;
+
+	strcpy(pars.function.name, "ls");
+	pars.parameters.param[0] = 0;
+
+	return true;
+
+
+full_server_id:		// - //sys//server_vers/full
+
+	if (method != HTTP_GET || url[3] != 0)
+		return false;
+
+	pars.hasAFunction = true;
+
+	pars.source = 0;
+
+	strcpy(pars.function.name, "server_vers");
+	strcpy(pars.parameters.param, "full");
+
+	return true;
+
+
+source_key:
+
+	if (!char_to_key_relaxed_end(&url[i], pars.key))
+		return false;
+
+	i += strlen(pars.key.key);
+
+	pars.hasAKey = true;
+
+	switch (url[i])
+	{
+		case '.':
+			i++;
+			goto anything_function_parameters;
+
+		case 0:	// - Get a block, Write a block & Delete a block.
+			return true;
+	}
+
+	return false;
+
+
+anything_function_parameters:
+
+	if (method == HTTP_DELETE)
+		return false;
+
+	if (!char_to_instrum_relaxed_end(&url[i], pars.function))
+		return false;
+
+	pars.hasAFunction = true;
+
+	i += strlen(pars.function.name);
+
+	switch (url[i])
+	{
+		case '/':
+			return char_to_param_strict_end(&url[++i], pars.parameters);
+
+		case 0:
+			pars.parameters.param[0] = 0;
+
+			return true;
+	}
+
+	return false;
+
+
+source_mesh:
+
+	if (!char_to_key_relaxed_end(&url[i], pars.mesh))
+		return false;
+
+	i += strlen(pars.mesh.key);
+
+	pars.isInstrumental = true;
+	pars.instrument.name[0] = 0;
+
+	switch (url[i])
+	{
+		case '.':
+			i++;
+			goto anything_function_parameters;
+
+		case '/':
+			i++;
+			switch (url[i])
+			{
+				case 0:	// - List all instruments in a mesh.
+					if (method != HTTP_GET)
+						return false;
+
+					pars.hasAFunction = true;
+					strcpy(pars.function.name, "ls");
+					pars.parameters.param[0] = 0;
+
+					return true;
+
+				default:
+					goto source_mesh_instrument;
+			}
+
+		case 0:	// - Delete a mesh.
+			return method == HTTP_DELETE;
+	}
+
+	return false;
+
+
+source_mesh_instrument:
+
+	if (!char_to_instrum_relaxed_end(&url[i], pars.instrument))
+		return false;
+
+	i += strlen(pars.instrument.name);
+
+	switch (url[i])
+	{
+		case '.':
+			i++;
+			goto anything_function_parameters;
+
+		case 0:	// - Delete a mesh.
+			return true;
+	}
+
+	return false;
+}
+
+/*	-----------------------------------------------
+		deliver http  e r r o r	 pages
+--------------------------------------------------- */
+
+/** Finish a query by delivering the appropriate message page.
+
+	\param connection  The MHD connection passed to the callback function. (Needed for MHD_queue_response()ing the response.)
+	\param http_status The http status error (e.g., MHD_HTTP_NOT_FOUND)
+
+	\return			   A valid answer for an MHD callback. The callback returns: return jAPI.return_error_message(MHD_HTTP_METHOD_NOT_ALLOWED);
+
+	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
+*/
+int jzzAPI::return_error_message(struct MHD_Connection *connection, int http_status)
+{
+	persistedKey key;
+
+	sprintf(key.key, "httpERR_%d", http_status);
+
+	pJazzBlock block;
+
+	struct MHD_Response * response;
+
+	if (jBLOCKC.get_source_idx("www") == 1 && jBLOCKC.block_get(1, key, block))
+	{
+		response = MHD_create_response_from_buffer (block->size, &reinterpret_cast<pRawBlock>(block)->data, MHD_RESPMEM_MUST_COPY);
+
+		jBLOCKC.block_unprotect (block);
+	}
+	else
+	{
+		char buff[256];
+
+		sprintf(buff, "<html><body><h1><br/><br/>Http error : %d.</h1></body></html>", http_status);
+
+		response = MHD_create_response_from_buffer (strlen(buff), buff, MHD_RESPMEM_MUST_COPY);
+	}
+
+	int ret = MHD_queue_response (connection, http_status, response);
+
+	MHD_destroy_response (response);
+
+	return ret;
+}
+
+/*	---------------------------------------------------
+		execution method for the  w w w	 API
+------------------------------------------------------- */
+
+/** Execute a get www resource.
+
+	\param url		 The unparsed url as seen by the callback.
+	\param response	 A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+
+	\return			 http status and log(LOG_MISS, "further details") for errors.
+*/
+bool jzzAPI::exec_www_get(const char * url, struct MHD_Response * &response)
+{
+	URLattrib uattr;
+
+	if (!get_url(url, uattr))
+	{
+		jCommons.log(LOG_MISS, "jzzAPI::exec_www_get(): get_url() failed.");
+
+		return false;
+	}
+
+	pJazzBlock pb;
+
+	if (!jBLOCKC.block_get(1, uattr.block, pb))
+	{
+		jCommons.log(LOG_MISS, "jzzAPI::exec_www_get(): block_get() failed.");
+
+		return false;
+	}
+
+	response = MHD_create_response_from_buffer (pb->size, &reinterpret_cast<pRawBlock>(pb)->data, MHD_RESPMEM_MUST_COPY);
+
+	jBLOCKC.block_unprotect(pb);
+
+	MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, HTTP_MIMETYPE_STRING[uattr.blocktype]);
+
+	if (uattr.language != LANG_DONT_CARE)
+		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_LANGUAGE, HTTP_LANGUAGE_STRING[uattr.language]);
+
+	return true;
+}
+
+/*	---------------------------------------------------
+		execution methods for the  b l o c k  API
+------------------------------------------------------- */
+
+/** Execute a get block using the block API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	response A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+
+	\return	http status.
+*/
+int jzzAPI::exec_block_get(parsedURL &pars, struct MHD_Response * &response)
+{
+	if (!pars.source)
+	{
+		jCommons.log(LOG_MISS, "jzzAPI::exec_block_get(): direct block get to sys.");
+
+		return MHD_HTTP_FORBIDDEN;
+	}
+
+	pJazzBlock pb;
+
+	if (!jBLOCKC.block_get(pars.source, pars.key, pb))
+	{
+		jCommons.log(LOG_MISS, "jzzAPI::exec_block_get(): block_get() failed.");
+
+		return MHD_HTTP_NOT_FOUND;
+	}
+
+	response = MHD_create_response_from_buffer (pb->size, &reinterpret_cast<pRawBlock>(pb)->data, MHD_RESPMEM_MUST_COPY);
+
+	jBLOCKC.block_unprotect(pb);
+
+	MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, HTTP_MIMETYPE_STRING[BLOCKTYPE_RAW_ANYTHING]);
+
+	return MHD_HTTP_OK;
+}
+
+
+/** Execute a get function using the block API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	response A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+
+	\return			 http status and log(LOG_MISS, "further details") for errors.
+*/
+int jzzAPI::exec_block_get_function(parsedURL &pars, struct MHD_Response * &response)
+{
+	char page_2k[GET_FUN_BUFFER_SIZE];	// The size of this is checked by REQUIRE below.
+	pJazzBlock pb_dest;
+
+	switch (pars.source)
+	{
+		case 0:	// "sys" function
+			if (!strcmp(pars.function.name, "server_vers"))
+				goto return_server_version;
+
+			if (!strcmp(pars.function.name, "ls"))
+				goto return_list_sources;
+
+			break;
+
+		case 1:	// "www" function
+			if (!strcmp(pars.function.name, "ls"))
+				goto return_list_websources;
+
+			break;
+
+		default:
+			pJazzBlock pb;
+
+			if (pars.hasAKey)
+			{
+				if (!jBLOCKC.block_get(pars.source, pars.key, pb))
+				{
+					jCommons.log(LOG_MISS, "jzzAPI::exec_block_get_function(): block_get() failed.");
+
+					return MHD_HTTP_NOT_FOUND;
+				}
+
+				if (!strcmp(pars.function.name, "header"))
+				{
+					sprintf(page_2k, "type:%d\nlength:%d\nsize:%d\nflags:%d\nhash64:%lx\n",
+							pb->type, pb->length, pb->size, pb->flags, (long unsigned int) pb->hash64);
+
+					jBLOCKC.block_unprotect(pb);
+
+					goto return_page2k;
+				}
+
+				if (!strcmp(pars.function.name, "as_text"))
+				{
+					if (!jBLOCKC.translate_block_TO_TEXT(pb, pb_dest, pars.parameters.param))
+					{
+						jCommons.log(LOG_MISS, "jzzAPI::exec_block_get_function(): translate_block_TO_TEXT() failed.");
+
+						jBLOCKC.block_unprotect(pb);
+
+						return MHD_HTTP_NOT_ACCEPTABLE;
+					}
+
+					jBLOCKC.block_unprotect(pb);
+
+					goto return_pb_dest;
+				}
+
+				if (!strcmp(pars.function.name, "as_R"))
+				{
+					if (!jBLOCKC.translate_block_TO_R(pb, pb_dest))
+					{
+						jCommons.log(LOG_MISS, "jzzAPI::exec_block_get_function(): translate_block_TO_R() failed.");
+
+						jBLOCKC.block_unprotect(pb);
+
+						return MHD_HTTP_NOT_ACCEPTABLE;
+					}
+
+					jBLOCKC.block_unprotect(pb);
+
+					goto return_pb_dest;
+				}
+
+				jBLOCKC.block_unprotect(pb);
+			}
+
+			break;
+
+	}
+
+	jCommons.log(LOG_MISS, "jzzAPI::exec_block_get_function() failed: Unknown function.");
+
+	return MHD_HTTP_NOT_ACCEPTABLE;
+
+
+return_list_websources:
+
+	char * pt;
+	pt = (char *) &page_2k;
+	for(map<string, int>::iterator it = sources.begin(); it != sources.end(); ++it)
+	{
+		if (it->second == 1)
+		{
+			strcpy(pt, it->first.c_str());
+		}
+		pt += it->first.length();
+
+		*pt++ = '\n';
+	}
+	*pt++ = 0;
+	goto return_page2k;
+
+
+return_list_sources:
+
+	pt = (char *) &page_2k;
+	for (int i = 0; i < jBLOCKC.num_sources(); i++)
+	{
+		sourceName nam;
+		jBLOCKC.source_name(i, nam);
+
+		strcpy(pt, nam.key);
+		pt += strlen(nam.key);
+
+		*pt++ = '\n';
+	}
+	*pt++ = 0;
+	goto return_page2k;
+
+
+return_server_version:
+
+	if (!strcmp(pars.parameters.param, "full"))
+	{
+#ifdef DEBUG
+		string st ("DEBUG");
+#else
+		string st ("RELEASE");
+#endif
+
+		struct utsname unn;
+		uname(&unn);
+		string me;
+		jCommons.get_config_key("JazzCLUSTER.JAZZ_NODE_WHO_AM_I", me);
+
+		sprintf(page_2k, "Jazz\n\n version : %s\n build \x20 : %s\n artifact: %s\n myname\x20 : %s\n "
+				"sysname : %s\n hostname: %s\n kernel\x20 : %s\n sysvers : %s\n machine : %s",
+				JAZZ_VERSION, st.c_str(), LINUX_PLATFORM, me.c_str(),
+				unn.sysname, unn.nodename, unn.release, unn.version, unn.machine);
+	}
+	else
+		sprintf(page_2k, JAZZ_VERSION);
+
+
+return_page2k:
+
+	response = MHD_create_response_from_buffer (strlen (page_2k), (void *) &page_2k, MHD_RESPMEM_MUST_COPY);
+
+	MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, HTTP_MIMETYPE_STRING[BLOCKTYPE_RAW_STRINGS]);
+
+	return MHD_HTTP_OK;
+
+
+return_pb_dest:
+
+	response = MHD_create_response_from_buffer (pb_dest->size, &reinterpret_cast<pRawBlock>(pb_dest)->data, MHD_RESPMEM_MUST_COPY);
+
+	MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, HTTP_MIMETYPE_STRING[pb_dest->type]);
+
+	JAZZFREE(pb_dest, AUTOTYPEBLOCK(pb_dest));
+
+	return MHD_HTTP_OK;
+}
+
+
+/**	 Execute a put block using the block API.
+
+	\param	pars   The structure containing the parts of the url successfully parsed by parse_url().
+	\param	upload A pointer to the data uploaded with the http PUT call.
+	\param	size   The size of the data uploaded with the http PUT call.
+	\param	reset  Start a sequence resetting the block from scratch. Otherwise, the upload is added at the end of the already existing block.
+
+	\return		   true if successful, false and log(LOG_MISS, "further details") if not.
+
+	This function performs block PUT incrementally. The first time, reset == true and the block is created, all other times, the block is appended at
+the end on the existing block.
+*/
+bool jzzAPI::exec_block_put(parsedURL &pars, const char * upload, size_t size, bool reset)
+{
+	if (!pars.source)
+	{
+		jCommons.log(LOG_MISS, "jzzAPI::exec_block_put(): direct block put to sys.");
+
+		return false;
+	}
+
+	pRawBlock pb;
+
+	if (reset)
+	{
+		if (!jBLOCKC.new_block_C_RAW_once(pb, upload, size))
+		{
+			jCommons.log(LOG_MISS, "jzzAPI::exec_block_put(): new_block_C_RAW_once() failed.");
+
+			return false;
+		}
+	}
+	else
+	{
+		pJazzBlock pb2;
+
+		if (!jBLOCKC.block_get(pars.source, pars.key, pb2))
+		{
+			jCommons.log(LOG_MISS, "jzzAPI::exec_block_put(): block_get() failed.");
+
+			return false;
+		}
+
+		bool ok = JAZZALLOC(pb, RAM_ALLOC_C_RAW, pb2->size + size);
+		if (!ok)
+		{
+			jCommons.log(LOG_MISS, "jzzAPI::exec_block_put(): JAZZALLOC() failed.");
+
+			jBLOCKC.block_unprotect (pb2);
+
+			return false;
+		}
+
+		uint8_t * pt = (uint8_t *) &pb->data;
+		memcpy(pt, &reinterpret_cast<pRawBlock>(pb2)->data, pb2->size);
+
+		jBLOCKC.block_unprotect (pb2);
+
+		pt += pb2->size;
+		memcpy(pt, upload, size);
+	}
+
+	if (!jBLOCKC.block_put(pars.source, pars.key, pb))
+	{
+		jCommons.log(LOG_MISS, "jzzAPI::exec_block_put(): block_put() failed.");
+
+		JAZZFREE(pb, RAM_ALLOC_C_RAW);
+
+		return false;
+	}
+
+	JAZZFREE(pb, RAM_ALLOC_C_RAW);
+
+	return true;
+}
+
+
+/**	 Execute a put function using the block API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	upload	 A pointer to the data uploaded with the http PUT call.
+	\param	size	 The size of the data uploaded with the http PUT call.
+
+	\return			 true if successful, false and log(LOG_MISS, "further details") if not.
+*/
+bool jzzAPI::exec_block_put_function(parsedURL &pars, const char * upload, size_t size)
+{
+	if (pars.hasAKey)
+	{
+		switch (pars.source)
+		{
+			case 0:
+				jCommons.log(LOG_MISS, "exec_block_put_function() tried sys.block.");
+
+				return false;
+
+			case 1:
+				websourceName websource;
+
+				if (!jBLOCKC.char_to_key((const char *) &pars.parameters, websource))
+				{
+					jCommons.log(LOG_MISS, "exec_block_put_function() char_to_key() failed.");
+
+					return false;
+				}
+
+				if (!strcmp(pars.function.name, "assign_url"))
+				{
+					if (size > MAX_URL_LENGTH)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() assign_url, wrong size.");
+
+						return false;
+					}
+					char buff[MAX_URL_LENGTH + 1];
+					strncpy(buff, upload, size);
+					buff[size] = 0;
+					return set_url_to_block(buff, pars.key.key, websource.key);
+				}
+				if (!strcmp(pars.function.name, "assign_mime_type"))
+				{
+					if (size != sizeof(int))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() assign_mime_type, wrong size.");
+
+						return false;
+					}
+
+					return set_mime_to_block(* reinterpret_cast<const int *>(upload), pars.key.key, websource.key);
+				}
+				if (!strcmp(pars.function.name, "assign_language"))
+				{
+					if (size > MAX_URL_LENGTH)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() assign_language, wrong size.");
+
+						return false;
+					}
+					char buff[MAX_URL_LENGTH + 1];
+					strncpy(buff, upload, size);
+					buff[size] = 0;
+					return set_lang_to_block(buff, pars.key.key, websource.key);
+				}
+
+				break;
+
+			default:
+				if (!strcmp(pars.function.name, "header"))
+				{
+					if (!strcmp(pars.parameters.param, "type"))
+					{
+						if (size != sizeof(int))
+						{
+							jCommons.log(LOG_MISS, "exec_block_put_function() size != sizeof(int).");
+
+							return false;
+						}
+
+						int type = reinterpret_cast<const int *>(upload)[0];
+
+						return jBLOCKC.cast_lmdb_block(pars.source, pars.key, type);
+					}
+					if (!strcmp(pars.parameters.param, "flags"))
+					{
+						if (size != sizeof(int))
+						{
+							jCommons.log(LOG_MISS, "exec_block_put_function() flags, size != sizeof(int).");
+
+							return false;
+						}
+
+						int flags = reinterpret_cast<const int *>(upload)[0];
+
+						return jBLOCKC.set_lmdb_blockflags(pars.source, pars.key, flags);
+					}
+				}
+				if (!strcmp(pars.function.name, "from_text"))		// parameters: type,source_key	upload: -nothing-
+				{
+					int type;
+					char source_key[MAX_PARAM_LENGTH];
+					char fmt[MAX_PARAM_LENGTH];
+					fmt[0] = 0;
+					persistedKey key;
+					if (	sscanf(pars.parameters.param, "%d,%15[a-zA-Z0-9_],%15s", &type, source_key, fmt) < 2	// empty fmt is valid
+						|| !jBLOCKC.char_to_key(source_key, key))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() from_text, parse params failed.");
+
+						return false;
+					}
+
+					return jBLOCKC.set_lmdb_fromtext(pars.source, pars.key, type, key, fmt);
+				}
+				if (!strcmp(pars.function.name, "from_R"))			// parameters: source_key		upload: -nothing-
+				{
+					persistedKey key;
+
+					if(!jBLOCKC.char_to_key(pars.parameters.param, key))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() from_R, char_to_key() failed.");
+
+						return false;
+					}
+					return jBLOCKC.set_lmdb_fromR(pars.source, pars.key, key);
+				}
+				if (!strcmp(pars.function.name, "C_bool_rep"))		// parameters: x,times			upload: -nothing-
+				{
+					unsigned int x = JAZZC_NA_BOOL, times;
+					bool ok = sscanf(pars.parameters.param, "NA,%u", &times) == 1;
+					if (!ok)
+						ok = sscanf(pars.parameters.param, "%u,%u", &x, &times) == 2 && x < 2;
+					if (!ok)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_bool_rep, parse params failed.");
+
+						return false;
+					}
+					pBoolBlock pb;
+					if (!jBLOCKC.new_block_C_BOOL_rep(pb, x, times))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_bool_rep, new_block_C_BOOL_rep() failed.");
+
+						return false;
+					}
+					jBLOCKC.hash_block((pJazzBlock) pb);
+					if (!jBLOCKC.block_put(pars.source, pars.key, (pJazzBlock) pb))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_bool_rep, block_put() failed.");
+
+						JAZZFREE(pb, RAM_ALLOC_C_BOOL);
+
+						return false;
+					}
+					JAZZFREE(pb, RAM_ALLOC_C_BOOL);
+
+					return true;
+				}
+				if (!strcmp(pars.function.name, "C_integer_rep"))	// parameters: x,times			upload: -nothing-
+				{
+					int x = JAZZC_NA_INTEGER;
+					unsigned int times;
+					bool ok = sscanf(pars.parameters.param, "NA,%u", &times) == 1;
+					if (!ok)
+						ok = sscanf(pars.parameters.param, "%d,%u", &x, &times) == 2;
+					if (!ok)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_rep, parse params failed.");
+
+						return false;
+					}
+					pIntBlock pb;
+					if (!jBLOCKC.new_block_C_INTEGER_rep(pb, x, times))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_rep, new_block_C_INTEGER_rep() failed.");
+
+						return false;
+					}
+					jBLOCKC.hash_block((pJazzBlock) pb);
+					if (!jBLOCKC.block_put(pars.source, pars.key, (pJazzBlock) pb))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_rep, block_put() failed.");
+
+						JAZZFREE(pb, RAM_ALLOC_C_INTEGER);
+
+						return false;
+					}
+					JAZZFREE(pb, RAM_ALLOC_C_INTEGER);
+
+					return true;
+				}
+				if (!strcmp(pars.function.name, "C_integer_seq"))	// parameters: from,to,by		upload: -nothing-
+				{
+					int from, to, by;
+					if (sscanf(pars.parameters.param, "%d,%d,%d", &from, &to, &by) != 3)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_seq, parse params failed.");
+
+						return false;
+					}
+					pIntBlock pb;
+					if (!jBLOCKC.new_block_C_INTEGER_seq(pb, from, to, by))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_seq, new_block_C_INTEGER_seq() failed.");
+
+						return false;
+					}
+					jBLOCKC.hash_block((pJazzBlock) pb);
+					if (!jBLOCKC.block_put(pars.source, pars.key, (pJazzBlock) pb))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_seq, block_put() failed.");
+
+						JAZZFREE(pb, RAM_ALLOC_C_INTEGER);
+
+						return false;
+					}
+					JAZZFREE(pb, RAM_ALLOC_C_INTEGER);
+
+					return true;
+				}
+				if (!strcmp(pars.function.name, "C_real_rep"))		// parameters: x,times			upload: -nothing-
+				{
+					double x = JAZZC_NA_DOUBLE;
+					unsigned int times;
+					bool ok = sscanf(pars.parameters.param, "NA,%u", &times) == 1;
+					if (!ok)
+						ok = sscanf(pars.parameters.param, "%lf,%u", &x, &times) == 2;
+					if (!ok)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_real_rep, parse params failed.");
+
+						return false;
+					}
+					pRealBlock pb;
+					if (!jBLOCKC.new_block_C_REAL_rep(pb, x, times))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_real_rep, new_block_C_REAL_rep() failed.");
+
+						return false;
+					}
+					jBLOCKC.hash_block((pJazzBlock) pb);
+					if (!jBLOCKC.block_put(pars.source, pars.key, (pJazzBlock) pb))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_real_rep, block_put() failed.");
+
+						JAZZFREE(pb, RAM_ALLOC_C_REAL);
+
+						return false;
+					}
+					JAZZFREE(pb, RAM_ALLOC_C_REAL);
+
+					return true;
+				}
+				if (!strcmp(pars.function.name, "C_real_seq"))		// parameters: from,to,by		upload: -nothing-
+				{
+					double from, to, by;
+					if (sscanf(pars.parameters.param, "%lf,%lf,%lf", &from, &to, &by) != 3)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_real_seq, parse params failed.");
+
+						return false;
+					}
+					pRealBlock pb;
+					if (!jBLOCKC.new_block_C_REAL_seq(pb, from, to, by))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_real_seq, new_block_C_REAL_seq() failed.");
+
+						return false;
+					}
+					jBLOCKC.hash_block((pJazzBlock) pb);
+					if (!jBLOCKC.block_put(pars.source, pars.key, (pJazzBlock) pb))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_real_seq, block_put() failed.");
+
+						JAZZFREE(pb, RAM_ALLOC_C_REAL);
+
+						return false;
+					}
+					JAZZFREE(pb, RAM_ALLOC_C_REAL);
+
+					return true;
+				}
+				if (!strcmp(pars.function.name, "C_chars_rep"))		//	  parameters: str,times		upload: -nothing-
+				{													// or parameters: times			upload: string
+					char pt [MAX_PARAM_LENGTH];
+					unsigned int times;
+					if (size > MAX_PARAM_LENGTH - 1)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_chars_rep, wrong uploaded size.");
+
+						return false;
+					}
+					if (size) strncpy(pt, upload, size);
+					pt[size] = 0;
+					if (sscanf(pars.parameters.param, "%u", &times) != 1)
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_chars_rep, parse params failed.");
+
+						return false;
+					}
+					pCharBlock pb;
+					if (!jBLOCKC.new_block_C_CHARS_rep(pb, pt, times))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_chars_rep, new_block_C_CHARS_rep() failed.");
+
+						return false;
+					}
+					jBLOCKC.hash_block((pJazzBlock) pb);
+					if (!jBLOCKC.block_put(pars.source, pars.key, (pJazzBlock) pb))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() C_integer_rep, C_chars_rep() failed.");
+
+						JAZZFREE(pb, RAM_ALLOC_C_OFFS_CHARS);
+
+						return false;
+					}
+					JAZZFREE(pb, RAM_ALLOC_C_OFFS_CHARS);
+
+					return true;
+				}
+
+				break;
+		}
+	}
+	else
+	{
+		char buff[MAX_KEY_LENGTH];
+		if (size < 1 || size >= MAX_KEY_LENGTH)
+		{
+			jCommons.log(LOG_MISS, "exec_block_put_function() non-block functions expect an uploaded key.");
+
+			return false;
+		}
+		strncpy(buff, upload, size);
+		buff[size] = 0;
+		switch (pars.source)
+		{
+			case 0:
+
+				if (!strcmp(pars.function.name, "new_source"))
+				{
+					persistedKey key;
+
+					if (!jBLOCKC.char_to_key(buff, key))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() new_source, char_to_key() failed.");
+
+						return false;
+					}
+
+					return jBLOCKC.new_source(key.key);
+				}
+				break;
+
+			case 1:
+
+				if (!strcmp(pars.function.name, "new_websource"))
+				{
+					websourceName name;
+
+					if (!jBLOCKC.char_to_key(buff, name))
+					{
+						jCommons.log(LOG_MISS, "exec_block_put_function() new_websource, char_to_key() failed.");
+
+						return false;
+					}
+
+					return new_websource(name.key);
+				}
+				if (!strcmp(pars.function.name, "delete_websource"))
+				{
+					return kill_websource(buff);
+				}
+				break;
+		}
+	}
+
+	jCommons.log(LOG_MISS, "exec_block_put_function() Unknown function.");
+
+	return false;
+}
+
+
+/**	 Execute a kill block using the block API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+
+	\return			 http status and log(LOG_MISS, "further details") for errors.
+*/
+int jzzAPI::exec_block_kill(parsedURL &pars)
+{
+	if (pars.hasAKey)									// Delete block
+		if (jBLOCKC.block_kill(pars.source, pars.key))
+			return MHD_HTTP_NO_CONTENT;
+		else
+		{
+			jCommons.log(LOG_MISS, "exec_block_kill() block_kill() failed.");
+
+			return MHD_HTTP_NOT_FOUND;
+		}
+
+	sourceName name;									// Delete source
+
+	if (pars.source <= SYSTEM_SOURCE_WWW)
+	{
+		jCommons.log(LOG_MISS, "exec_block_kill() pars.source <= SYSTEM_SOURCE_WWW.");
+
+		return MHD_HTTP_FORBIDDEN;
+	}
+
+	if (!jBLOCKC.source_name(pars.source, name))
+	{
+		jCommons.log(LOG_MISS, "exec_block_kill() source_name() failed.");
+
+		return MHD_HTTP_NOT_ACCEPTABLE;
+	}
+
+	if (jBLOCKC.kill_source(name.key))
+		return MHD_HTTP_NO_CONTENT;
+	else
+	{
+		jCommons.log(LOG_MISS, "exec_block_kill() kill_source() failed.");
+
+		return MHD_HTTP_NOT_FOUND;
+	}
+}
+
+/*	---------------------------------------------------------------
+		execution methods for the  i n s t r u m e n t a l	API
+------------------------------------------------------------------- */
+
+/** Execute a get block using the instrumental API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	response A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+
+	\return			 http status and log(LOG_MISS, "further details") for errors.
+*/
+int jzzAPI::exec_instr_get(parsedURL &pars, struct MHD_Response * &response)
+{
+	jCommons.log(LOG_MISS, "exec_instr_get()");
+
+//_in_deprecated_code_TODO: Implement exec_instr_get().
+
+	return MHD_HTTP_NOT_IMPLEMENTED;
+}
+
+
+/** Execute a get function using the instrumental API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	response A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+
+	\return			 http status and log(LOG_MISS, "further details") for errors.
+*/
+int jzzAPI::exec_instr_get_function(parsedURL &pars, struct MHD_Response * &response)
+{
+	jCommons.log(LOG_MISS, "exec_instr_get_function()");
+
+//_in_deprecated_code_TODO: Implement exec_instr_get_function().
+
+	return MHD_HTTP_NOT_IMPLEMENTED;
+}
+
+
+/**	 Execute a put block using the instrumental API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	upload	 A pointer to the data uploaded with the http PUT call.
+	\param	size	 The size of the data uploaded with the http PUT call.
+
+	\return			 true if successful, false and log(LOG_MISS, "further details") if not.
+*/
+bool jzzAPI::exec_instr_put(parsedURL &pars, const char * upload, size_t size)
+{
+	jCommons.log(LOG_MISS, "exec_instr_put()");
+
+//_in_deprecated_code_TODO: Implement exec_instr_put().
+
+	return false;
+}
+
+
+/**	 Execute a put function using the instrumental API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+	\param	upload	 A pointer to the data uploaded with the http PUT call.
+	\param	size	 The size of the data uploaded with the http PUT call.
+
+	\return			 true if successful, false and log(LOG_MISS, "further details") if not.
+*/
+bool jzzAPI::exec_instr_put_function(parsedURL &pars, const char * upload, size_t size)
+{
+	jCommons.log(LOG_MISS, "exec_instr_put_function()");
+
+//_in_deprecated_code_TODO: Implement exec_instr_put_function().
+
+	return false;
+}
+
+
+/**	 Execute a kill block using the instrumental API.
+
+	\param	pars	 The structure containing the parts of the url successfully parsed by parse_url().
+
+	\return			 http status and log(LOG_MISS, "further details") for errors.
+*/
+int jzzAPI::exec_instr_kill(parsedURL &pars)
+{
+	jCommons.log(LOG_MISS, "exec_instr_kill()");
+
+//_in_deprecated_code_TODO: Implement exec_instr_kill().
+
+	return MHD_HTTP_NOT_IMPLEMENTED;
+}
+
 #endif
 
 
