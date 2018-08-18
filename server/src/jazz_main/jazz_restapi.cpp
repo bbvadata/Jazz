@@ -453,10 +453,77 @@ continue_in_put_ok:
 	return MHD_NO;
 }
 
+#if defined LEGACY_MHD_CODE
 
-using namespace std;
+/** Struct sizes
+*/
+#define MAX_URL_LENGTH		215		///< Maximum length of a URL in the www API. (This makes the URLattrib size = 256
+#define MAX_NUM_WEBSOURCES	100		///< The maximum number of web sources. Limited to avoid buffer overflow in GET function.
 
-//TODO: Implement module jazz_restapi.
+typedef persistedKey websourceName;
+
+
+/** A row in the url dictionary
+*/
+struct URLattrib
+{
+	char		 url[MAX_URL_LENGTH + 1];	///< The url
+	persistedKey block;						///< The key identifying the resource. The resource is persisted as source="www", key=key.
+	persistedKey websource;					///< The key identifying the resource. The resource is persisted as source="www", key=key.
+	int			 blocktype;					///< The block type of the resource. BLOCKTYPE_RAW_MIME_*
+	int			 language;					///< The language as an index to HTTP_LANGUAGE_STRING (consts like LANG_EN_US are valid too.)
+};
+
+
+/** A persistence block storing dictionary entries. The length parameter in the header defines the number of rows.
+*/
+struct block_URLdictionary : jzzBlockHeader
+{
+	URLattrib attr[];		///< The array of block_URLdictionary
+};
+
+
+class jazzWebSource: public jazzService {
+
+	public:
+
+		 jazzWebSource();
+		~jazzWebSource();
+
+		virtual bool start	();
+		virtual bool stop	();
+		virtual bool reload ();
+
+// Functions to manage websources.
+
+		bool open_all_websources  ();
+		bool new_websource		  (const char * websource);
+		bool kill_websource		  (const char * websource);
+		bool set_url_to_block	  (const char * url,  const char * block, const char * websource);
+		bool set_mime_to_block	  (int type,		  const char * block, const char * websource);
+		bool set_lang_to_block	  (const char * lang, const char * block, const char * websource);
+		bool close_all_websources ();
+
+// Function for the API.
+
+		bool get_url (const char * url, URLattrib &uattr);
+
+	protected:
+
+		map<string, int> sources;			// websource -> 1 (0 when deleted)
+
+	private:
+
+		typedef jazzService super;
+
+		map<string, string> url_block;		// url	  -> block
+		map<string, int>	block_mime;		// block  -> mime type
+		map<string, int>	block_lang;		// block  -> language
+		map<string, string> block_source;	// block  -> websource
+};
+
+#endif
+
 
 /**
 //TODO: Document JazzHttpServer()
