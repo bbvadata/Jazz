@@ -481,61 +481,29 @@ JazzHttpServer::~JazzHttpServer()
 
 /** Start the Jazz server.
 
-\param p_config A pointer to a JazzConfigFile object containing the server configuration.
+\param p_sig_handler, a function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
+\param p_daemon, returns by reference the pointer that will be used to control the MHD_Daemon.
 
 \return			On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return.
 The application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful or with EXIT_FAILURE
-if not.
+if not. On failure, the caller is responsible of stopping all started services (see jazz_main.cpp).
 
 Starting logic:
 
- 1. This first loads a configuration, returns EXIT_FAILURE if that fails.
+ 1. Get all the MHD server config settings from p_config
 
-	If conf is not void, it uses this file as the configuration source,
-	else it tries config/jazz_config.ini
+	The default config file is JAZZ_DEFAULT_CONFIG_PATH but that can be changed via command line argument (see jazz_main.cpp).
 
- 2. Initializes the logger, returns EXIT_FAILURE if that fails.
+ 2. Registers the signal handlers for SIGTERM. (See argument p_sig_handler)
 
- 3. Loads the cluster configuration, returns EXIT_FAILURE if that fails.
+ 3. Forks (== The parent exits with EXIT_SUCCESS, the child continues to call MHD_start_daemon().)
 
- 4. Finds a port using the variable JAZZ_NODE_WHO_AM_I, returns EXIT_FAILURE if that fails.
-
- 5. Configure the server, including variables: flags, MHD_AcceptPolicyCallback and MHD_AccessHandlerCallback from the configuration.
-
- 6. Registers all services configuration variables JazzHTTPSERVER.MHD_DISABLE_BLOCKS..MHD_DISABLE_RAMQ.
-
-	if anything fails:
-		calls jServices.stop_all() and returns EXIT_FAILURE
-
- 7. Calls jServices.start_all()
-
-	if anyone fails:
-		calls jServices.stop_all() and returns EXIT_FAILURE
-
- 8. Registers the signal handlers for SIGTERM
-
-	if that fails:
-		calls jServices.stop_all() and returns EXIT_FAILURE
-
- 9. Forks
-
-	if that fails:
-		calls jServices.stop_all() and returns EXIT_FAILURE
-
-	(The parent exits with EXIT_SUCCESS, the child continues)
-
- 10. Calls MHD_start_daemon()
-
-	if that fails:
-		The child calls jServices.stop_all() and returns EXIT_FAILURE
+ 4. Calls MHD_start_daemon()
 
 	Then calls setsid() This creates a new session if the calling process is not a process group leader. The calling process is the leader of the
 	new session, the process group leader of the new process group, and has no controlling terminal.
 
-	And sleeps forever! (The child.)
-
-//TODO: Update this documentation server_start()
-
+	And sleeps forever! (Remember, it is the child of the original caller who exited with EXIT_SUCCESS.)
 */
 int JazzHttpServer::StartServer (pSignalHandler	 p_sig_handler,
 								 pMHD_Daemon	&p_daemon)
