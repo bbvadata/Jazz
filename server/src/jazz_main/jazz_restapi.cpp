@@ -28,7 +28,13 @@
 namespace jazz_restapi
 {
 
+using namespace std;
 
+//TODO: Implement module jazz_restapi.
+
+/**
+//TODO: Document JazzCallbackAnswerHTTP
+*/
 int JazzCallbackAnswerHTTP(void *cls,
 						   struct MHD_Connection *connection,
 						   const char *url,
