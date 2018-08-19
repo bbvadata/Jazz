@@ -2233,7 +2233,7 @@ static int mdb_page_flush(MDB_txn *txn, int keep);
  *	1) our estimate of the txn size could be too small. Currently this
  *	 seems unlikely, except with a large number of #MDB_MULTIPLE items.
  *	2) child txns may run out of space if their parents dirtied a
- *	 lot of pages and never spilled them. TODO: we probably should do
+ *	 lot of pages and never spilled them. We probably should do
  *	 a preemptive spill during #mdb_txn_begin() of a child txn, if
  *	 the parent's dirty_room is below a given threshold.
  *
@@ -2480,7 +2480,7 @@ mdb_page_alloc(MDB_cursor *mc, int num, MDB_page **mp)
 			oldest = env->me_pgoldest;
 			mdb_cursor_init(&m2, txn, FREE_DBI, NULL);
 #if (MDB_DEVEL) & 2	/* "& 2" so MDB_DEVEL=1 won't hide bugs breaking freeDB */
-			/* Use original snapshot. TODO: Should need less care in code
+			/* Use original snapshot. Should need less care in code
 			 * which modifies the database. Maybe we can delete some code?
 			 */
 			m2.mc_flags |= C_ORIG_RDONLY;
@@ -3709,7 +3709,7 @@ retry_seek:
 							goto retry_write;
 						DPRINTF(("Write error: %s", strerror(rc)));
 					} else {
-						rc = EIO; /* TODO: Use which error code? */
+						rc = EIO; // Use which error code?
 						DPUTS("short write, filesystem full?");
 					}
 					return rc;
@@ -3899,7 +3899,7 @@ mdb_txn_commit(MDB_txn *txn)
 		parent->mt_dirty_room = txn->mt_dirty_room;
 		if (txn->mt_spill_pgs) {
 			if (parent->mt_spill_pgs) {
-				/* TODO: Prevent failure here, so parent does not fail */
+				// Prevent failure here, so parent does not fail
 				rc = mdb_midl_append_list(&parent->mt_spill_pgs, txn->mt_spill_pgs);
 				if (rc)
 					parent->mt_flags |= MDB_TXN_ERROR;
@@ -4161,8 +4161,7 @@ mdb_env_write_meta(MDB_txn *txn)
 		mp->mm_dbs[FREE_DBI] = txn->mt_dbs[FREE_DBI];
 		mp->mm_dbs[MAIN_DBI] = txn->mt_dbs[MAIN_DBI];
 		mp->mm_last_pg = txn->mt_next_pgno - 1;
-#if (__GNUC__ * 100 + __GNUC_MINOR__ >= 404) && /* TODO: portability */	\
-	!(defined(__i386__) || defined(__x86_64__))
+#if (__GNUC__ * 100 + __GNUC_MINOR__ >= 404) && !(defined(__i386__) || defined(__x86_64__))
 		/* LY: issue a memory barrier, if not x86. ITS#7969 */
 		__sync_synchronize();
 #endif
@@ -4389,7 +4388,7 @@ mdb_env_map(MDB_env *env, void *addr)
 	 * instead unmap existing pages to make room for the new map.
 	 */
 	if (addr && env->me_map != addr)
-		return EBUSY;	/* TODO: Make a new MDB_* error code? */
+		return EBUSY;	// Make a new MDB_* error code?
 #endif
 
 	p = (MDB_page *)env->me_map;
