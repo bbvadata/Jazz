@@ -34,6 +34,8 @@ using namespace jazz_restapi;
 // Tests
 // -----
 
+//TODO: Build a test for StartServer().
+
 SCENARIO("Testing JazzHttpServer") {
 
 //TODO: Write tests for JazzHttpServer.

@@ -1131,6 +1131,7 @@ void jzzBLOCKS::log_lmdb_err_as_miss(int err, const char * msg)
 	log(LOG_MISS, msg);
 }
 #endif
+//TODO: Remove section LEGACY_LMDB_CODE when refactoring is complete.
 
 
 #if defined CATCH_TEST

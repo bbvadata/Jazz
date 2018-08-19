@@ -2043,7 +2043,7 @@ int jzzAPI::exec_instr_kill(parsedURL &pars)
 }
 
 #endif
-
+//TODO: Remove section LEGACY_MHD_CODE when refactoring is complete.
 
 /**
 //TODO: Document JazzHttpServer()
