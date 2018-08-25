@@ -9,22 +9,17 @@
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
 
-rm -rf server/static_analysis_reports/
-rm -f sever/report.xml
-
-cd server
+pushd server
 
 make clean
 
-scan-build -o ./static_analysis_reports/ make jazz
-if [ $? -ne 0 ]
+if ! scan-build -o ./static_analysis_reports/ make jazz
 then
   echo "make failed."
   exit 1
 fi
 
-scan-build -o ./static_analysis_reports/ make tjazz
-if [ $? -ne 0 ]
+if ! scan-build -o ./static_analysis_reports/ make tjazz
 then
   echo "make failed."
   exit 1
@@ -33,12 +28,11 @@ fi
 cppcheck src/ -i src/catch2/ -i src/curl/ --force --xml 2>report.xml
 cppcheck-htmlreport --file=report.xml --title=Jazz --report-dir=static_analysis_reports --source-dir=.
 
-make clean
 rm -f report.xml
 
-cd ..
+popd
 
-reports=`find server/static_analysis_reports/ | grep "index.html"`
+reports=$(find server/static_analysis_reports/ | grep "index.html")
 
 printf "\nDone.\n"
 printf "\n** See the reports in: **"

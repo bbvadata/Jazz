@@ -21,7 +21,6 @@
   limitations under the License.
 */
 
-
 #include <chrono>
 #include <iostream>
 #include <fstream>
@@ -37,28 +36,12 @@
 
 #include "src/jazz_elements/jazz_datablocks.h"
 
-/**< \brief Miscellaneous utility functions for Jazz.
-
-	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
-without global variables.
-*/
-
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
-
-
-#define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
-
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_UTILS
 #define INCLUDED_JAZZ_ELEMENTS_UTILS
+
+
+#define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
 
 
 /** The trace levels for argument loglevel in JazzLogger.log()
@@ -84,9 +67,15 @@ without global variables.
 #define MAX_FILENAME_LENGTH	256
 
 
+/**< \brief Miscellaneous utility functions for Jazz.
+
+	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
+without global variables.
+*/
 namespace jazz_utils
 {
 
+bool		 FileExists			   (const char* file_name);
 int			 CountBytesFromUtf8	   (char *buff, int length);
 char		*ExpandEscapeSequences (char *buff);
 pid_t		 FindProcessIdByName   (const char *name);
@@ -131,6 +120,8 @@ class JazzConfigFile {
 
 		JazzConfigFile(const char *input_file_name);
 
+		bool load_config (const char *input_file_name);
+
 		int	 num_keys ();
 
 		bool get_key  (const char *key, int &value);
@@ -154,7 +145,9 @@ class JazzLogger {
 
 	public:
 
-		 JazzLogger(const char *output_file_name);
+		 JazzLogger(const char			 *output_file_name);
+		 JazzLogger(	  JazzConfigFile  config,
+					const char			 *config_key);
 		~JazzLogger();
 
 		int	 get_output_file_name (char *buff, int buff_size);
@@ -164,6 +157,8 @@ class JazzLogger {
 		void log_printf	(int loglevel, const char *fmt, va_list args);
 
 	private:
+
+		void InitLogger();
 
 		char file_name [MAX_FILENAME_LENGTH];
 		std::ifstream f_stream;

@@ -22,29 +22,68 @@
 */
 
 
-/**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
-
-	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
-structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
-approximately matching Bebop bytecode instructions.
-*/
-
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/jazz_elements/jazz_classes.h"
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_STDCORE
 #define INCLUDED_JAZZ_ELEMENTS_STDCORE
 
+
+/**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
+
+	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
+structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
+approximately matching Bebop bytecode instructions.
+
+//TODO: Extend module description for jazz_stdcore when implemented.
+
+*/
 namespace jazz_stdcore
 {
+
+using namespace jazz_datablocks;
+using namespace jazz_containers;
+
+
+/**
+//TODO: Write the JazzCoreTypecasting description
+*/
+class JazzCoreTypecasting : public JazzObject {
+
+	public:
+		 JazzCoreTypecasting(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzCoreTypecasting();
+
+		bool FromR	  (pJazzBlock p_source, pJazzBlock &p_dest);
+		bool ToR	  (pJazzBlock p_source, pJazzBlock &p_dest);
+
+		bool FromText (pJazzBlock p_source, pJazzBlock &p_dest, int type, char *fmt);
+		bool ToText	  (pJazzBlock p_source, pJazzBlock &p_dest, const char *fmt);
+};
+
+
+/**
+//TODO: Write the JazzCoreArithmetic description
+*/
+class JazzCoreArithmetic : public JazzObject {
+
+	public:
+		 JazzCoreArithmetic(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzCoreArithmetic();
+
+};
+
+
+/**
+//TODO: Write the JazzCoreMath description
+*/
+class JazzCoreMath : public JazzObject {
+
+	public:
+		 JazzCoreMath(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzCoreMath();
+
+};
 
 }
 

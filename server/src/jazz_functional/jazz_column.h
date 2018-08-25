@@ -21,3 +21,65 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_filesystem.h"
+
+
+#ifndef INCLUDED_JAZZ_FUNCTIONAL_COLUMN
+#define INCLUDED_JAZZ_FUNCTIONAL_COLUMN
+
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_column when implemented.
+*/
+namespace jazz_column
+{
+
+using namespace jazz_containers;
+
+
+class DenseMapping {
+
+	public:
+		 DenseMapping();
+		~DenseMapping();
+
+//TODO: Define DenseMapping
+//TODO: Implement DenseMapping
+//TODO: Document DenseMapping
+//TODO: Test DenseMapping
+
+};
+
+
+class SparseMapping: public DenseMapping {
+
+	public:
+		 SparseMapping();
+		~SparseMapping();
+
+//TODO: Define SparseMapping
+//TODO: Implement SparseMapping
+//TODO: Document SparseMapping
+//TODO: Test SparseMapping
+
+};
+
+
+/**
+//TODO: Write the JazzColumn description
+*/
+class JazzColumn: public JazzTree {
+
+	public:
+		 JazzColumn(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzColumn();
+
+//TODO: Document interface for module jazz_column.
+//TODO: Implement interface for module jazz_column.
+
+};
+
+}
+
+#endif

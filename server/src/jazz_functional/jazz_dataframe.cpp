@@ -21,3 +21,33 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_dataframe.h"
+
+namespace jazz_dataframe
+{
+
+//TODO: Implement module jazz_dataframe.
+
+/**
+//TODO: Document JazzDataframe()
+*/
+JazzDataframe::JazzDataframe(jazz_utils::pJazzLogger a_logger)	: JazzColumn(a_logger)
+{
+//TODO: Implement JazzDataframe
+}
+
+
+/**
+//TODO: Document ~JazzDataframe()
+*/
+JazzDataframe::~JazzDataframe()
+{
+//TODO: Implement ~JazzDataframe
+}
+
+} // namespace jazz_dataframe
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_dataframe.ctest"
+#endif

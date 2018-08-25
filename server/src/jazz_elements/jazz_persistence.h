@@ -26,24 +26,7 @@
 */
 
 
-#include "src/jazz_elements/jazz_datablocks.h"
-#include "src/jazz_elements/jazz_utils.h"
 #include "src/jazz_elements/jazz_containers.h"
-
-/**< \brief Jazz class JazzPersistedSource
-
-//TODO: Write the module description
-*/
-
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_PERSISTENCE
@@ -51,6 +34,11 @@
 
 #include "src/lmdb/lmdb.h"
 
+
+/**< \brief Jazz class JazzPersistedSource
+
+//TODO: Write jazz_persistence module description
+*/
 namespace jazz_persistence
 {
 
@@ -81,6 +69,9 @@ struct JazzPersistenceItem: JazzBlockKeeprItem {
 class JazzPersistence: public JazzBlockKeepr {
 
 	public:
+
+		 JazzPersistence(jazz_utils::pJazzLogger	 a_logger,
+						 jazz_utils::pJazzConfigFile a_config);
 
 		// Methods for buffer allocation
 
@@ -163,7 +154,8 @@ class JazzSource: public JazzPersistence {
 
 	public:
 
-		 JazzSource(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzSource(jazz_utils::pJazzLogger		a_logger,
+					jazz_utils::pJazzConfigFile a_config);
 		~JazzSource();
 
 		// Methods for buffer allocation
@@ -238,6 +230,10 @@ class JazzSource: public JazzPersistence {
 		int file_errors		();
 		int close_jazz_file ();
 
+		/// A StartService/ShutDown interface
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
+
 #ifndef CATCH_TEST
 	protected:
 #endif
@@ -246,6 +242,8 @@ class JazzSource: public JazzPersistence {
 #ifndef CATCH_TEST
 	private:
 #endif
+
+		MDB_env *lmdb_env;
 
 };
 

@@ -21,3 +21,59 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_bebop.h"
+
+namespace jazz_bebop
+{
+
+//TODO: Implement module jazz_bebop.
+
+/**
+//TODO: Document Bebop()
+*/
+Bebop::Bebop(jazz_utils::pJazzLogger	 a_logger,
+			 jazz_utils::pJazzConfigFile a_config)	: JazzObject(a_logger, a_config)
+{
+//TODO: Implement Bebop
+}
+
+
+/**
+//TODO: Document ~Bebop()
+*/
+Bebop::~Bebop()
+{
+	ShutDown();
+}
+
+
+/** Start the Bebop object loading its settings from a JazzConfigFile if necessary.
+
+	\return JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
+*/
+API_ErrorCode Bebop::StartService ()
+{
+	log(LOG_INFO, "Completed Bebop::StartService()");
+
+	return JAZZ_API_NO_ERROR;
+}
+
+
+/** Close the Bebop object persisting pending cached write operations, freeing resources, etc.
+
+	\param restarting_service Tell the object that it will be used again immediately if true and that makes any difference.
+	\return					  JAZZ_API_NO_ERROR or any other API_ErrorCode in cases errors occurred. (Errors will also be logged out.)
+*/
+API_ErrorCode Bebop::ShutDown (bool restarting_service)
+{
+	log(LOG_INFO, "Completed Bebop::ShutDown()");
+
+	return JAZZ_API_NO_ERROR;
+}
+
+} // namespace jazz_bebop
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_bebop.ctest"
+#endif

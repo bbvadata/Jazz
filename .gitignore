@@ -9,8 +9,6 @@
 server/Makefile
 server/src/include/jazz_platform.h
 server/src/main.dox
-server/dynamic_analysis_reports/
-server/static_analysis_reports/
 r_package/rjazz/DESCRIPTION
 r_package/build.sh
 r_package/*.tar.gz

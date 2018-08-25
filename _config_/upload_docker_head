@@ -16,13 +16,13 @@
 
 docker_pwd=$(pwd)
 
-cd ../server
+cd ../server || return 1
 
 make jazz
 cp jazz ../docker
 make clean
 
-cd $docker_pwd
+cd "$docker_pwd" || return 1
 
 cp ../server/config/jazz_config.ini .
 

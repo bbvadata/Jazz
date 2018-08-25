@@ -24,6 +24,9 @@
 #include "src/jazz_elements/jazz_httpclient.h"
 
 
+namespace jazz_httpclient
+{
+
 /** A test write callback.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
@@ -85,3 +88,92 @@ bool remote_testing_point ()
 	return true;
 }
 
+//TODO: Remove the PoC code above when no longer necessary.
+
+
+/**
+//TODO: Document JazzHttpclient
+*/
+JazzHttpclient::JazzHttpclient(jazz_utils::pJazzLogger a_logger)	: JazzBlockKeepr(a_logger)
+{
+//TODO: Implement JazzHttpclient
+}
+
+
+/**
+//TODO: Document ~JazzHttpclient()
+*/
+JazzHttpclient::~JazzHttpclient()
+{
+//TODO: Implement ~JazzHttpclient()
+}
+
+
+/**
+//TODO: Document get_jazz_block
+*/
+pJazzBlockKeeprItem JazzHttpclient::get_jazz_block (const JazzURL*p_url)
+{
+//TODO: Implement get_jazz_block
+}
+
+
+/**
+//TODO: Document put_jazz_block
+*/
+bool JazzHttpclient::put_jazz_block (	  pJazzBlockKeeprItem  p_keepr,
+									 const JazzURL			  *p_url)
+{
+//TODO: Implement put_jazz_block
+}
+
+
+/**
+//TODO: Document delete_jazz_resource
+*/
+bool JazzHttpclient::delete_jazz_resource (const JazzURL	*p_url)
+{
+//TODO: Implement delete_jazz_resource
+}
+
+
+/**
+//TODO: Document get_to_keepr
+*/
+bool JazzHttpclient::get_to_keepr (		 JazzBlockKeepr *p_keepr,
+										 JazzBlockList	 p_id,
+										 int			 num_blocks,
+								   const JazzURL		*p_url_base)
+{
+//TODO: Implement get_to_keepr
+}
+
+
+/**
+//TODO: Document put_from_keepr
+*/
+bool JazzHttpclient::put_from_keepr (	   JazzBlockKeepr *p_keepr,
+										   JazzBlockList   p_id,
+										   int			   num_blocks,
+									 const JazzURL		  *p_url_base)
+{
+//TODO: Implement put_from_keepr
+}
+
+
+/**
+//TODO: Document delete_jazz_resources
+*/
+bool JazzHttpclient::delete_jazz_resources (	  JazzBlockList	 p_id,
+												  int			 num_blocks,
+											const JazzURL		*p_url_base)
+{
+//TODO: Implement delete_jazz_resources
+}
+
+} // namespace jazz_httpclient
+
+
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_httpclient.ctest"
+#endif

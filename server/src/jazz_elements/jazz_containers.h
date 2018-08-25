@@ -34,8 +34,12 @@
 #include <regex>
 
 
-#include "src/jazz_elements/jazz_datablocks.h"
 #include "src/jazz_elements/jazz_utils.h"
+
+
+#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+
 
 /**< \brief Container classes for JazzBlock objects.
 
@@ -46,22 +50,6 @@
 3. Persisted - Owned by a JazzPersistence (or descendant), typically a JazzSource
 
 */
-
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-
-
 namespace jazz_containers
 {
 
@@ -262,6 +250,65 @@ inline JazzBlockId64 hash_block_id(const char *p_id) {
 	return jazz_utils::MurmurHash64A(p_id, strlen(p_id));
 }
 
+
+/** Constants for API_ErrorCode values
+*/
+#define JAZZ_API_NO_ERROR					0		///< No errors found processing the API call.
+#define JAZZ_API_ERROR_INVALID_CHAR			1		///< The API call contains unacceptable characters.
+#define JAZZ_API_ERROR_PARSING_CONFIG		2		///< Generic error related with configuration parsing.
+#define JAZZ_API_ERROR_STARTING_SERVICE		3		///< Generic error related with starting a service.
+
+typedef int API_ErrorCode;
+
+
+/** Root class for all object that need to use jazz_utils::pJazzLogger and/or jazz_utils::pJazzConfigFile to avoid duplicating wrappers.
+
+	This class also server a a basic for the StartService/ShutDown interface and the log/log_printf interface.
+*/
+class JazzObject {
+
+	public:
+		 JazzObject(jazz_utils::pJazzLogger		a_logger = nullptr,
+					jazz_utils::pJazzConfigFile a_config = nullptr);
+		~JazzObject();
+
+		API_ErrorCode StartService ();
+		API_ErrorCode ShutDown	   (bool restarting_service = false);
+
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
+
+			\param loglevel The trace level.
+			\param message	A message.
+
+			See JazzLogger for details.
+		*/
+		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
+
+		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
+
+			\param loglevel The trace level.
+			\param fmt		The printf-style format string.
+			\param ...		The list of parameters as a variadic list of parameters.
+
+			See JazzLogger for details.
+		*/
+		inline void log_printf (int loglevel, const char *fmt, ...) {
+			if (p_log != nullptr) {
+				va_list args;
+				va_start(args, fmt);
+				p_log->log_printf(loglevel, fmt, args);
+				va_end(args);
+			}
+		}
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+		jazz_utils::pJazzLogger		p_log;
+		jazz_utils::pJazzConfigFile	p_config;
+};
+
+
 /** Root class for all JazzBlock containers, including JazzPersistence containers.
 
 JazzBlocks can be allocated in three ways:
@@ -285,10 +332,11 @@ THREAD SAFETY: All public methods in JazzBlockKeepr descendants must be thread s
 is treated as a top priority bug that is intended to be spotted in burn-in tests. Private methods can be unsafe, but the public methods calling
 them must be aware of their limitations and use thread-locking when necessary. (Copy this message in all descendants.)
 */
-class JazzBlockKeepr {
+class JazzBlockKeepr	: public JazzObject {
 
 	public:
-		 JazzBlockKeepr(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzBlockKeepr(jazz_utils::pJazzLogger		a_logger = nullptr,
+						jazz_utils::pJazzConfigFile a_config = nullptr);
 		~JazzBlockKeepr();
 
 		// Methods for buffer allocation
@@ -461,32 +509,6 @@ class JazzBlockKeepr {
 			return ofs < num_allocd_items;
 		}
 
-		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
-
-			\param loglevel The trace level.
-			\param message	A message.
-
-			See JazzLogger for details.
-		*/
-		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
-
-		/** Wrapper method logging events through a JazzLogger when the logger was passed to the constructor of this class.
-
-			\param loglevel The trace level.
-			\param fmt		The printf-style format string.
-			\param ...		The list of parameters as a variadic list of parameters.
-
-			See JazzLogger for details.
-		*/
-		inline void log_printf (int loglevel, const char *fmt, ...) {
-			if (p_log != nullptr) {
-				va_list args;
-				va_start(args, fmt);
-				p_log->log_printf(loglevel, fmt, args);
-				va_end(args);
-			}
-		}
-
 		int					keepr_item_size, num_allocd_items;
 		pJazzBlockKeeprItem	p_buffer_base, p_first_item, p_first_free;
 
@@ -496,7 +518,6 @@ class JazzBlockKeepr {
 
 		std::basic_regex<char>	block_id_rex {JAZZ_REGEX_VALIDATE_BLOCK_ID};
 		JazzLock				_keepr_lock_;
-		jazz_utils::pJazzLogger	p_log;
 };
 
 
@@ -540,7 +561,8 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class AATBlockQueue: public JazzBlockKeepr {
 
 	public:
-		 AATBlockQueue(jazz_utils::pJazzLogger a_logger = nullptr);
+		 AATBlockQueue(jazz_utils::pJazzLogger	   a_logger = nullptr,
+					   jazz_utils::pJazzConfigFile a_config = nullptr);
 		~AATBlockQueue();
 
 		// Methods for buffer allocation
@@ -954,7 +976,8 @@ them must be aware of their limitations and use thread-locking when necessary. (
 class JazzCache: public AATBlockQueue {
 
 	public:
-		 JazzCache(jazz_utils::pJazzLogger a_logger = nullptr);
+		 JazzCache(jazz_utils::pJazzLogger	   a_logger = nullptr,
+				   jazz_utils::pJazzConfigFile a_config = nullptr);
 
 		// Methods for JazzBlock allocation
 

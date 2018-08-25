@@ -21,31 +21,85 @@
   limitations under the License.
 */
 
-
-/**< \brief Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock structures.
-
-	This module defines pure functions that accept JazzDataBlock structures as arguments and return JazzDataBlock
-structures or throw exceptions. These functions are called "stdcore" for a reason, they are the simplest blocks
-approximately matching Bebop bytecode instructions.
-*/
-
 #include "curl/curl.h"
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
 
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/jazz_elements/jazz_persistence.h"
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT
 #define INCLUDED_JAZZ_ELEMENTS_HTTPCLIENT
 
+
+/**< \brief Simplest functionality to operate as an http client to GET, PUT, DELETE JazzBlock descendants to/from other Jazz nodes or any
+http servers.
+
+	This module uses curl in combination with JazzBlock and Jazz allocators (one shot or volatile) to simplify the communication from
+	remote sources or across Jazz nodes.
+
+//TODO: Extend module description for jazz_httpclient when implemented.
+
+*/
 namespace jazz_httpclient
 {
+
+using namespace jazz_containers;
+using namespace jazz_persistence;
+
+
+/// Apparently, there is no standard URL length limit. Some browsers seem to accept over 128K, but Apache has a limit of 4K. Lets use that.
+#define JAZZ_MAX_URL_LENGTH		4096
+
+
+/** A URL both for inter-Jazz and web services in general
+*/
+struct JazzURL {
+	char url[JAZZ_MAX_URL_LENGTH];
+};
+
+/**
+//TODO: Write the JazzHttpclient description
+*/
+class JazzHttpclient: public JazzBlockKeepr {
+
+	public:
+		 JazzHttpclient(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzHttpclient();
+
+		// Methods for JazzBlock crud
+
+		pJazzBlockKeeprItem get_jazz_block		 (const JazzURL				*p_url);
+
+		bool				put_jazz_block		 (		pJazzBlockKeeprItem	 p_keepr,
+												  const JazzURL				*p_url);
+
+		bool				delete_jazz_resource (const JazzURL				*p_url);
+
+		/// A pipeline interface
+
+		bool get_to_keepr		   (	JazzBlockKeepr	 *p_keepr,
+										JazzBlockList	  p_id,
+										int				  num_blocks,
+									const JazzURL		 *p_url_base);
+
+		bool put_from_keepr		   (	  JazzBlockKeepr *p_keepr,
+										  JazzBlockList	  p_id,
+										  int			  num_blocks,
+									const JazzURL		 *p_url_base);
+
+		bool delete_jazz_resources (	  JazzBlockList	  p_id,
+										  int			  num_blocks,
+									const JazzURL		 *p_url_base);
+
+	private:
+
+		/**
+//TODO: Document the method to make a URL form a base_url and a JazzBlockIdentifier
+		*/
+		inline JazzURL *merge_urls (const JazzURL			  *p_url_base,
+									const JazzBlockIdentifier *p_id);
+//TODO: Implement the method to make a URL form a base_url and a JazzBlockIdentifier
+};
 
 }
 

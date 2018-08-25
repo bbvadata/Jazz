@@ -21,3 +21,69 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_filesystem.h"
+
+namespace jazz_filesystem
+{
+
+//TODO: Implement module jazz_filesystem.
+
+/**
+//TODO: Document JazzFileSystem()
+*/
+JazzFileSystem::JazzFileSystem(jazz_utils::pJazzLogger a_logger)	: JazzTree(a_logger)
+{
+//TODO: Implement JazzFileSystem
+}
+
+
+/**
+//TODO: Document ~JazzFileSystem()
+*/
+JazzFileSystem::~JazzFileSystem()
+{
+//TODO: Implement ~JazzFileSystem
+}
+
+
+/**
+//TODO: Document JazzClusterFileSystem()
+*/
+JazzClusterFileSystem::JazzClusterFileSystem(jazz_utils::pJazzLogger a_logger)	: JazzFileSystem(a_logger)
+{
+//TODO: Implement JazzClusterFileSystem
+}
+
+
+/**
+//TODO: Document ~JazzClusterFileSystem()
+*/
+JazzClusterFileSystem::~JazzClusterFileSystem()
+{
+//TODO: Implement ~JazzClusterFileSystem
+}
+
+
+/**
+//TODO: Document JazzRemoteSource()
+*/
+JazzRemoteSource::JazzRemoteSource(jazz_utils::pJazzLogger a_logger)	: JazzBlockKeepr(a_logger)
+{
+//TODO: Implement JazzRemoteSource
+}
+
+
+/**
+//TODO: Document ~JazzRemoteSource()
+*/
+JazzRemoteSource::~JazzRemoteSource()
+{
+//TODO: Implement ~JazzRemoteSource
+}
+
+} // namespace jazz_filesystem
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_filesystem.ctest"
+#endif

@@ -21,3 +21,42 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_column.h"
+
+
+#ifndef INCLUDED_JAZZ_FUNCTIONAL_DATAFRAME
+#define INCLUDED_JAZZ_FUNCTIONAL_DATAFRAME
+
+
+/**< \brief TODO
+
+//TODO: Write module description for jazz_dataframe when implemented.
+*/
+namespace jazz_dataframe
+{
+
+using namespace jazz_column;
+
+
+//TODO: Document interface for module jazz_dataframe.
+
+//TODO: Implement interface for module jazz_dataframe.
+
+
+/**
+//TODO: Write the JazzDataframe description
+*/
+class JazzDataframe: public JazzColumn {
+
+	public:
+		 JazzDataframe(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzDataframe();
+
+//TODO: Document interface for module jazz_column.
+//TODO: Implement interface for module jazz_column.
+
+};
+
+}
+
+#endif

@@ -37,12 +37,25 @@
 namespace jazz_utils {
 
 
+/** Check if a file exists.
+
+	\param file_name The file name.
+	\return True if the file exists
+ */
+bool FileExists(const char* file_name)
+{
+	std::ifstream ff(file_name);
+
+	return ff.good();
+}
+
+
 /** Count the number of bytes required by an utf-8 string of length characters.
 
 \param buff	  The string (not necessarily null-terminated)
 \param length The number of characters in the string
 
-\return		The number of bytes in the string.
+\return	The number of bytes in the string.
 
 The RFC http://www.ietf.org/rfc/rfc3629.txt says:
 
@@ -205,7 +218,7 @@ char *ExpandEscapeSequences(char *buff)
 	\param name The name of the process as typed on the console. In case parameters were given to start the process,
 	it is just the left part before the first space.
 
-	\return the pid of the process if found, 0 if not.
+	\return The pid of the process if found, 0 if not.
  */
 pid_t FindProcessIdByName(const char *name)
 {
@@ -321,7 +334,7 @@ it removes the quotes. This is used by JazzConfigFile and has obvious limitation
 and easily predictable results.
 
 	\param s Input string
-	\return String without space or tab.
+	\return	 String without space or tab.
 */
 std::string CleanConfigArgument(std::string s)
 {
@@ -338,19 +351,33 @@ std::string CleanConfigArgument(std::string s)
 }
 
 
+/** Build a JazzConfigFile by calling load_config()
+
+	\param input_file_name The input file name containing a configuration
+
+	\return Nothing. Check num_keys() for errors.
+*/
+JazzConfigFile::JazzConfigFile(const char *input_file_name)
+{
+	load_config(input_file_name);
+}
+
+
 /** Load a configuration from a file.
 
 	Configuration is stored in: map<string, string> config which is private and read using the function get_key().
 
 	\param input_file_name The input file name containing a configuration
 
-	\return check num_keys
+	\return true if some keys were read. (There is no systematic error checking.)
 */
-JazzConfigFile::JazzConfigFile(const char *input_file_name)
+bool JazzConfigFile::load_config (const char *input_file_name)
 {
+	config.clear();
+
 	std::ifstream fh (input_file_name);
 
-	if (!fh.is_open()) return;
+	if (!fh.is_open()) return false;
 
 	std::string ln, key, val;
 
@@ -373,6 +400,8 @@ JazzConfigFile::JazzConfigFile(const char *input_file_name)
 		}
 	}
 	fh.close();
+
+	return config.size() > 1;
 }
 
 
@@ -475,18 +504,46 @@ void JazzConfigFile::debug_put(const std::string key, const std::string val)
 }
 
 
-/** Initialize the JazzLogger.
+/** Initialize the JazzLogger (Method 1: by directly giving it the output_file_name).
 
 	Stores a copy of the file name,
-	Sets the stopwatch origin in big_bang.
-	Tries to open the file ..
-	.. if successful, logs out a new execution message with level LOG_INFO
-	.. if failed, clears the file_name (that can be queried via get_output_file_name())
+	Calls InitLogger() for the rest of the initialization.
 */
 JazzLogger::JazzLogger (const char *output_file_name)
 {
 	strncpy(file_name, output_file_name, MAX_FILENAME_LENGTH - 1);
 
+	InitLogger();
+}
+
+
+/** Initialize the JazzLogger (Method 2: with a configuration file and a configuration key).
+
+	Stores a copy of the file name,
+	Calls InitLogger() for the rest of the initialization.
+*/
+ JazzLogger::JazzLogger(	  JazzConfigFile  config,
+						const char			 *config_key)
+{
+	file_name[0] = 0;
+
+	std::string log_name;
+
+	if (config.get_key(config_key, log_name)) strncpy(file_name, log_name.c_str(), MAX_FILENAME_LENGTH - 1);
+
+	InitLogger();
+}
+
+
+/** Common part of the constructor has been emancipated as a private argument-less method to avoid repeating code.
+
+	Sets the stopwatch origin in big_bang.
+	Tries to open the file ..
+	.. if successful, logs out a new execution message with level LOG_INFO
+	.. if failed, clears the file_name (that can be queried via get_output_file_name())
+*/
+void JazzLogger::InitLogger()
+{
 	f_buff = f_stream.rdbuf();
 
 	f_buff->open (file_name, std::ios::out | std::ios::app);

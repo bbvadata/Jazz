@@ -21,3 +21,67 @@
   limitations under the License.
 */
 
+#include "src/jazz_functional/jazz_column.h"
+
+namespace jazz_column
+{
+
+/**
+//TODO: Document DenseMapping()
+*/
+DenseMapping::DenseMapping()
+{
+//TODO: Implement DenseMapping
+}
+
+
+/**
+//TODO: Document ~DenseMapping()
+*/
+DenseMapping::~DenseMapping()
+{
+//TODO: Implement ~DenseMapping
+}
+
+
+/**
+//TODO: Document SparseMapping()
+*/
+SparseMapping::SparseMapping()
+{
+//TODO: Implement SparseMapping
+}
+
+
+/**
+//TODO: Document ~SparseMapping()
+*/
+SparseMapping::~SparseMapping()
+{
+//TODO: Implement ~SparseMapping
+}
+
+
+/**
+//TODO: Document JazzColumn()
+*/
+JazzColumn::JazzColumn(jazz_utils::pJazzLogger a_logger)	: JazzTree(a_logger)
+{
+//TODO: Implement JazzColumn
+}
+
+
+/**
+//TODO: Document ~JazzColumn()
+*/
+JazzColumn::~JazzColumn()
+{
+//TODO: Implement ~JazzColumn
+}
+
+} // namespace jazz_column
+
+
+#if defined CATCH_TEST
+#include "src/jazz_functional/tests/test_column.ctest"
+#endif

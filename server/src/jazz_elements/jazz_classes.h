@@ -21,28 +21,40 @@
   limitations under the License.
 */
 
-/**< \brief Definitions of Jazz root classes
-
-	This module contains the top-level definitions of many classes. This includes utilities like JazzLogger,
-and the basic single block classes and multiblock or multinode abstractions.
-*/
-
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/jazz_elements/jazz_httpclient.h"
 
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_CLASSES
 #define INCLUDED_JAZZ_ELEMENTS_CLASSES
 
+
+/**< \brief Definitions of Jazz root classes
+
+	This module contains the top-level definitions of Jazz classes. This means, classes stored as attributes of JazzBlock to determine
+	what JazzBlockKeepr (or other root) class descendants they belong to, not c++ classes.
+
+//TODO: Extend module description for jazz_classes when implemented.
+*/
 namespace jazz_classes
 {
+
+using namespace jazz_persistence;
+
+
+//TODO: Document interface for module jazz_classes.
+
+//TODO: Implement interface for module jazz_classes.
+
+
+/**
+//TODO: Write the JazzClass description
+*/
+class JazzClass: public JazzCache {
+
+	public:
+		 JazzClass(jazz_utils::pJazzLogger a_logger = nullptr);
+		~JazzClass();
+};
 
 }
 

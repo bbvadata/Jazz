@@ -21,22 +21,7 @@
   limitations under the License.
 */
 
-
-/**< \brief Jazz class JazzHtppServer
-
-	This module defines the class JazzHtppServer with the full logic to expose all the API available in
-jazz_api.h through a REST API.
-*/
-
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
+#include "src/include/jazz_api.h"
 
 
 #ifndef INCLUDED_JAZZ_MAIN_RESTAPI
@@ -45,8 +30,54 @@ jazz_api.h through a REST API.
 #define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
 #include "microhttpd.h"
 
+
+/**< \brief Jazz class JazzHttpServer
+
+	This module defines the class JazzHttpServer with the full logic to expose all the API available in
+jazz_api.h through a REST API.
+
+//TODO: Write module description for jazz_restapi when implemented.
+*/
 namespace jazz_restapi
 {
+
+using namespace jazz_api;
+
+
+/** Callback function used to handle a POSIX signal.
+*/
+typedef void (*pSignalHandler) (int signum);
+
+
+/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
+*/
+typedef MHD_Daemon * pMHD_Daemon;
+
+
+/** \brief TODO
+
+The REST API supports standard http commands.
+
+GET with a valid rvalue. To read from Jazz.
+HEAD with a valid rvalue. Internally the same as GET, but returns the header only.
+PUT with a valid lvalue. To write blocks into a Jazz keepr.
+DELETE with a valid lvalue. To delete blocks or keeprs (even recursively).
+OPTIONS with a string. Parses the string and returns the commands that would accept that string as a URL.
+GET with lvalue=rvalue. Assignment in the server. Similar to “PUT(lvalue, GET(rvalue))” without traffic.
+There is no support for POST or TRACE, any functions other than those mentioned return an error.
+
+//TODO: Write the JazzHttpServer description
+*/
+class JazzHttpServer: public JazzAPI {
+
+	public:
+		 JazzHttpServer (jazz_utils::pJazzLogger	 a_logger,
+						 jazz_utils::pJazzConfigFile a_config);
+		~JazzHttpServer ();
+
+		int StartServer (pSignalHandler	 p_sig_handler,
+						 pMHD_Daemon	&p_daemon);
+};
 
 }
 

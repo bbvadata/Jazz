@@ -21,3 +21,64 @@
   limitations under the License.
 */
 
+#include "src/jazz_main/jazz_instances.h"
+
+#if !defined CATCH_TEST
+
+namespace jazz_instances
+{
+	using namespace std;
+
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+JazzConfigFile J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+
+JazzLogger	   J_LOGGER(J_CONFIG, "LOGGER_PATH");
+
+JazzCluster	   J_CLUSTER	 (&J_LOGGER, &J_CONFIG);
+Bebop		   J_BOP		 (&J_LOGGER, &J_CONFIG);
+JazzHttpServer J_HTTP_SERVER (&J_LOGGER, &J_CONFIG);
+rAPI		   J_R_API		 (&J_LOGGER, &J_CONFIG);
+pyAPI		   J_PYTHON_API	 (&J_LOGGER, &J_CONFIG);
+
+pMHD_Daemon	   Jazz_MHD_Daemon;
+
+
+/** Capture SIGTERM. This callback procedure stops a running server.
+
+	See main_server_start() for details on the server's start/stop.
+*/
+void signalHandler_SIGTERM(int signum)
+{
+	cout << "Interrupt signal (" << signum << ") received." << endl;
+
+	cout << "Closing the http server ..." << endl;
+
+	MHD_stop_daemon (Jazz_MHD_Daemon);
+
+	cout << "Stopping JazzCluster ..." << endl;
+
+	bool stop_ok = J_CLUSTER.ShutDown() == JAZZ_API_NO_ERROR;
+
+	cout << "Stopping Bebop ..." << endl;
+
+	if (J_BOP.ShutDown() != JAZZ_API_NO_ERROR) stop_ok = false;
+
+	cout << "Stopping JazzHttpServer ..." << endl;
+
+	if (J_HTTP_SERVER.ShutDown() != JAZZ_API_NO_ERROR) stop_ok = false;
+
+	if (!stop_ok) {
+		J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
+
+		exit (EXIT_FAILURE);
+	}
+
+	exit (EXIT_SUCCESS);
+}
+
+} // namespace jazz_instances
+
+#endif

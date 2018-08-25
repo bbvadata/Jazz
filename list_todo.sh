@@ -14,4 +14,16 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+grep -rnw server/src -e "^//TODO:\(.*\)$" > neat_todos.txt
+grep -rnw server/src -e "TODO:" > sloppy_todos.txt
+
+echo "List of sloppy todos:"
+diff neat_todos.txt sloppy_todos.txt
+
+rm neat_todos.txt sloppy_todos.txt
+
+echo "List of neat todos:"
 grep -rnw server/src -e "^//TODO:\(.*\)$"
+
+echo "Number of neat todos:"
+grep -rnw server/src -e "^//TODO:\(.*\)$" | wc -l

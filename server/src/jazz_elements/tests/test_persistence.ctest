@@ -36,6 +36,8 @@ using namespace jazz_persistence;
 
 SCENARIO("Testing JazzPersistence") {
 
+//TODO: Write tests for jazz_persistence.
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
@@ -43,5 +45,4 @@ SCENARIO("Testing JazzPersistence") {
 			}
 		}
 	}
-
 }

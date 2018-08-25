@@ -21,3 +21,51 @@
   limitations under the License.
 */
 
+#include "src/jazz_main/jazz_restapi.h"
+
+
+#ifndef INCLUDED_JAZZ_MAIN_INSTANCES
+#define INCLUDED_JAZZ_MAIN_INSTANCES
+
+/**< \brief Contains one instance of each major class implemented as a global variable
+
+The full list of Jazz global variables is.
+  - J_CONFIG a JazzConfigFile
+  - J_LOGGER a JazzLogger
+  - J_CLUSTER a JazzCluster
+  - J_BOP a Bebop
+  - J_HTTP_SERVER a JazzHttpServer
+  - J_R_API a rAPI
+  - J_PYTHON_API a pyAPI
+
+It also contains a signal handler function for SIGTERM and a pointer to a MHD_Daemon controlling the http server daemon.
+*/
+namespace jazz_instances
+{
+
+using namespace jazz_utils;
+using namespace jazz_cluster;
+using namespace jazz_bebop;
+using namespace jazz_restapi;
+
+#define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
+
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+extern JazzConfigFile J_CONFIG;
+extern JazzLogger	  J_LOGGER;
+extern JazzCluster	  J_CLUSTER;
+extern Bebop		  J_BOP;
+extern JazzHttpServer J_HTTP_SERVER;
+extern rAPI			  J_R_API;
+extern pyAPI		  J_PYTHON_API;
+
+extern pMHD_Daemon	  Jazz_MHD_Daemon;
+
+void signalHandler_SIGTERM(int signum);
+
+}
+
+#endif
