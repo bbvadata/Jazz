@@ -2074,8 +2074,8 @@ JazzHttpServer::~JazzHttpServer()
 
 /** Start the Jazz server.
 
-\param p_sig_handler, a function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
-\param p_daemon, returns by reference the pointer that will be used to control the MHD_Daemon.
+\param p_sig_handler	A function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
+\param p_daemon			Returns by reference the pointer that will be used to control the MHD_Daemon.
 
 \return			On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does not return.
 The application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful or with EXIT_FAILURE
