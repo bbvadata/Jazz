@@ -43,6 +43,7 @@ clean  :
 	@rm -f *.o
 	@rm -f *jazz
 	@rm -f compile_mode_*
+	@rm -f jazz_dbg.log
 	@rm -rf static_analysis_reports/
 	@rm -rf dynamic_analysis_reports/
 
