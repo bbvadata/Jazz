@@ -40,42 +40,44 @@
 
 	NAMESPACES
 
-//TODO: Edit doc of NAMESPACE jazz_bebop,		current is: TODO
-//TODO: Edit doc of NAMESPACE jazz_classes,		current is: Definitions of Jazz root classes
-//TODO: Edit doc of NAMESPACE jazz_cluster,		current is: TODO
-//TODO: Edit doc of NAMESPACE jazz_column,		current is: TODO
-//TODO: Edit doc of NAMESPACE jazz_containers,	current is: Container classes for JazzBlock objects
-//TODO: Edit doc of NAMESPACE jazz_datablocks,	current is empty.
-//TODO: Edit doc of NAMESPACE jazz_dataframe,	current is: TODO
-//TODO: Edit doc of NAMESPACE jazz_filesystem,	current is: TODO
-//TODO: Edit doc of NAMESPACE jazz_httpclient,	current is: Simplest functionality to operate as an http client to GET, PUT, DELETE ...
+//TODO: Edit doc of NAMESPACE jazz_bebop, current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_classes, current is: Definitions of Jazz root classes
+//TODO: Edit doc of NAMESPACE jazz_cluster, current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_column, current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_containers, current is: Container classes for JazzBlock objects
+//TODO: Edit doc of NAMESPACE jazz_datablocks, current is empty.
+//TODO: Edit doc of NAMESPACE jazz_dataframe, current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_filesystem, current is: TODO
+//TODO: Edit doc of NAMESPACE jazz_httpclient, current is: Simplest functionality to operate ...
 //TODO: Edit doc of NAMESPACE jazz_persistence, current is: Jazz class JazzPersistedSource
-//TODO: Edit doc of NAMESPACE jazz_restapi,		current is empty.
-//TODO: Edit doc of NAMESPACE jazz_stdcore,		current is: Arithmetic, logic and type conversion stdcore applicable to JazzDataBlock ...
-//TODO: Edit doc of NAMESPACE jazz_utils,		current is empty.
+//TODO: Edit doc of NAMESPACE jazz_restapi, current is empty.
+//TODO: Edit doc of NAMESPACE jazz_stdcore, current is: Arithmetic, logic and type conversion ...
+//TODO: Edit doc of NAMESPACE jazz_utils, current is empty.
+//TODO: Update the list of NAMESPACE to be documented from the doxygen page.
 
 	DATA STRUCTURES
 
-//TODO: Edit doc of STRUC AATBlockQueue,	   current is empty.
+//TODO: Edit doc of STRUC AATBlockQueue, current is empty.
 //TODO: Edit doc of STRUC JazzBlockIdentifier, current is empty.
-//TODO: Edit doc of STRUC JazzBlockKeepr,	   current is empty.
-//TODO: Edit doc of STRUC JazzBlockKeeprItem,  current is empty.
-//TODO: Edit doc of STRUC JazzCache,		   current is empty.
-//TODO: Edit doc of STRUC JazzQueueItem,	   current is empty.
-//TODO: Edit doc of STRUC JazzTree,			   current is empty.
-//TODO: Edit doc of STRUC JazzTreeItem,		   current is empty.
-//TODO: Edit doc of STRUC FilterSize,		   current is: Two names for the first two elements in a JazzTensorDim
-//TODO: Edit doc of STRUC JazzBlock,		   current is empty.
-//TODO: Edit doc of STRUC JazzBlockHeader,	   current is: Header for a JazzBlock
-//TODO: Edit doc of STRUC JazzFilter,		   current is empty.
-//TODO: Edit doc of STRUC JazzStringBuffer,	   current is: Structure at the end of a JazzBlock, initially created with ...
-//TODO: Edit doc of STRUC JazzTensor,		   current is: A tensor of cell size 1, 4 or 8
-//TODO: Edit doc of STRUC JazzTensorDim,	   current is empty.
-//TODO: Edit doc of STRUC JazzPersistence,	   current is empty.
+//TODO: Edit doc of STRUC JazzBlockKeepr, current is empty.
+//TODO: Edit doc of STRUC JazzBlockKeeprItem, current is empty.
+//TODO: Edit doc of STRUC JazzCache, current is empty.
+//TODO: Edit doc of STRUC JazzQueueItem, current is empty.
+//TODO: Edit doc of STRUC JazzTree, current is empty.
+//TODO: Edit doc of STRUC JazzTreeItem, current is empty.
+//TODO: Edit doc of STRUC FilterSize, current is: Two names for the first two elements in a JazzTensorDim
+//TODO: Edit doc of STRUC JazzBlock, current is empty.
+//TODO: Edit doc of STRUC JazzBlockHeader, current is: Header for a JazzBlock
+//TODO: Edit doc of STRUC JazzFilter, current is empty.
+//TODO: Edit doc of STRUC JazzStringBuffer, current is: Structure at the end of a JazzBlock, initially ...
+//TODO: Edit doc of STRUC JazzTensor, current is: A tensor of cell size 1, 4 or 8
+//TODO: Edit doc of STRUC JazzTensorDim, current is empty.
+//TODO: Edit doc of STRUC JazzPersistence, current is empty.
 //TODO: Edit doc of STRUC JazzPersistenceItem, current is empty.
-//TODO: Edit doc of STRUC JazzSource,		   current is empty.
-//TODO: Edit doc of STRUC JazzConfigFile,	   current is empty.
-//TODO: Edit doc of STRUC JazzLogger,		   current is empty.
+//TODO: Edit doc of STRUC JazzSource, current is empty.
+//TODO: Edit doc of STRUC JazzConfigFile, current is empty.
+//TODO: Edit doc of STRUC JazzLogger, current is empty.
+//TODO: Update the list of STRUC to be documented from the doxygen page.
 
 */
 
