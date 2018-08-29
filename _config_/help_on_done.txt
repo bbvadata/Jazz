@@ -1,5 +1,5 @@
 
-  Congratulations, you have succesfully configured your project. Now,
+  Congratulations, you have successfully configured your project. Now,
 you should be able to:
 
   1. Build the server
