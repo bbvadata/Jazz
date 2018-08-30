@@ -8,12 +8,6 @@
  - [Jazz R client](http://kaalam.github.io/rjazz/)
 
 
-## The simplest way to start
-
- - [Using the Python package without a server](http://kaalam.github.io/jazz_reference/pyjazz_walkthough_client_only.html)
- - [Using the Python client with a server](http://kaalam.github.io/jazz_reference/pyjazz_walkthough_with_server.html)
-
-
 ## License
 
      Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
