@@ -9,6 +9,12 @@ other tasks like bug fixes, ideas for changes or complete stories that don't eve
 
   - File issue in the python package build
   - Warnings in R package build_doc
+  - (With old R server) And R == 3.6 on the server side:
+     106.392668 : 03 :    47 : jzzBLOCKCONV::translate_block_FROM_R() : Wrong signature || format_version.
+     106.392723 : 03 :    47 : jzzAPI::set_lmdb_fromR(): translate_block_FROM_R() failed.
+	on the client side:
+     Error in put_R_block("test_ret_types", "blk_2", 3:6) :
+       Http PUT Not Acceptable.
 
 ### Missing things
 
