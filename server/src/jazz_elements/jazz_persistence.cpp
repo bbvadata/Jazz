@@ -242,6 +242,8 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockId64 id64,
 												uint64_t			time_to_build)
 {
 //TODO: Implement new_jazz_block (1)
+
+	return nullptr;
 }
 
 
@@ -260,6 +262,8 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockId64 id64,
 												uint64_t			time_to_build)
 {
 //TODO: Implement new_jazz_block (2)
+
+	return nullptr;
 }
 
 
@@ -273,6 +277,8 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockIdentifier *p_id,
 												uint64_t				   time_to_build)
 {
 //TODO: Implement new_jazz_block (3)
+
+	return nullptr;
 }
 
 
@@ -291,6 +297,8 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockIdentifier *p_id,
 												uint64_t				   time_to_build)
 {
 //TODO: Implement new_jazz_block (4)
+
+	return nullptr;
 }
 
 
@@ -300,6 +308,8 @@ pJazzPersistenceItem JazzSource::new_jazz_block(const JazzBlockIdentifier *p_id,
 pJazzPersistenceItem JazzSource::find_jazz_block(const JazzBlockIdentifier *p_id)
 {
 //TODO: Implement find_jazz_block (1)
+
+	return nullptr;
 }
 
 
@@ -309,6 +319,8 @@ pJazzPersistenceItem JazzSource::find_jazz_block(const JazzBlockIdentifier *p_id
 pJazzPersistenceItem JazzSource::find_jazz_block(JazzBlockId64 id64)
 {
 //TODO: Implement find_jazz_block (2)
+
+	return nullptr;
 }
 
 
@@ -327,6 +339,8 @@ void JazzSource::free_jazz_block(pJazzPersistenceItem p_item)
 bool JazzSource::free_jazz_block(const JazzBlockIdentifier *p_id)
 {
 //TODO: Implement free_jazz_block (2)
+
+	return false;
 }
 
 
@@ -336,6 +350,8 @@ bool JazzSource::free_jazz_block(const JazzBlockIdentifier *p_id)
 bool JazzSource::free_jazz_block(JazzBlockId64 id64)
 {
 //TODO: Implement free_jazz_block (3)
+
+	return false;
 }
 
 
@@ -345,6 +361,8 @@ bool JazzSource::free_jazz_block(JazzBlockId64 id64)
 bool JazzSource::alloc_cache(int num_items, int cache_mode)
 {
 //TODO: Implement alloc_cache
+
+	return false;
 }
 
 
@@ -356,6 +374,8 @@ bool JazzSource::copy_to_keepr(JazzBlockKeepr keepr,
 							   int			  num_blocks)
 {
 //TODO: Implement copy_to_keepr
+
+	return false;
 }
 
 
@@ -367,6 +387,8 @@ bool JazzSource::copy_from_keepr(JazzBlockKeepr keepr,
 								 int			num_blocks)
 {
 //TODO: Implement copy_from_keepr
+
+	return false;
 }
 
 
@@ -376,6 +398,8 @@ bool JazzSource::copy_from_keepr(JazzBlockKeepr keepr,
 int JazzSource::open_jazz_file(const char *file_name)
 {
 //TODO: Implement open_jazz_file
+
+	return -1;
 }
 
 
@@ -385,6 +409,8 @@ int JazzSource::open_jazz_file(const char *file_name)
 int JazzSource::flush_jazz_file()
 {
 //TODO: Implement flush_jazz_file
+
+	return -1;
 }
 
 
@@ -394,6 +420,8 @@ int JazzSource::flush_jazz_file()
 int JazzSource::file_errors()
 {
 //TODO: Implement file_errors
+
+	return -1;
 }
 
 
@@ -403,6 +431,8 @@ int JazzSource::file_errors()
 int JazzSource::close_jazz_file()
 {
 //TODO: Implement close_jazz_file
+
+	return -1;
 }
 
 

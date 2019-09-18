@@ -115,6 +115,8 @@ JazzHttpclient::~JazzHttpclient()
 pJazzBlockKeeprItem JazzHttpclient::get_jazz_block (const JazzURL*p_url)
 {
 //TODO: Implement get_jazz_block
+
+	return nullptr;
 }
 
 
@@ -125,6 +127,8 @@ bool JazzHttpclient::put_jazz_block (	  pJazzBlockKeeprItem  p_keepr,
 									 const JazzURL			  *p_url)
 {
 //TODO: Implement put_jazz_block
+
+	return false;
 }
 
 
@@ -134,6 +138,8 @@ bool JazzHttpclient::put_jazz_block (	  pJazzBlockKeeprItem  p_keepr,
 bool JazzHttpclient::delete_jazz_resource (const JazzURL	*p_url)
 {
 //TODO: Implement delete_jazz_resource
+
+	return false;
 }
 
 
@@ -146,6 +152,8 @@ bool JazzHttpclient::get_to_keepr (		 JazzBlockKeepr *p_keepr,
 								   const JazzURL		*p_url_base)
 {
 //TODO: Implement get_to_keepr
+
+	return false;
 }
 
 
@@ -158,6 +166,8 @@ bool JazzHttpclient::put_from_keepr (	   JazzBlockKeepr *p_keepr,
 									 const JazzURL		  *p_url_base)
 {
 //TODO: Implement put_from_keepr
+
+	return false;
 }
 
 
@@ -169,6 +179,8 @@ bool JazzHttpclient::delete_jazz_resources (	  JazzBlockList	 p_id,
 											const JazzURL		*p_url_base)
 {
 //TODO: Implement delete_jazz_resources
+
+	return false;
 }
 
 } // namespace jazz_httpclient
