@@ -14,8 +14,3 @@ you should be able to:
   - cd r_package
   - ./build.sh
 
-  3. Build the Python package
-
-  - cd py_package
-  - ./build.sh
-
