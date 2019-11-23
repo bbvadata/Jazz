@@ -98,24 +98,6 @@ rAPI::~rAPI()
 }
 
 
-/**
-//TODO: Document pyAPI()
-*/
-pyAPI::pyAPI(jazz_utils::pJazzLogger	 a_logger,
-			 jazz_utils::pJazzConfigFile a_config)	: JazzAPI(a_logger, a_config)
-{
-//TODO: Implement pyAPI
-}
-
-
-/**
-//TODO: Document ~pyAPI()
-*/
-pyAPI::~pyAPI()
-{
-//TODO: Implement ~pyAPI
-}
-
 } // namespace jazz_api
 
 

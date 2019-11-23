@@ -36,7 +36,6 @@ The full list of Jazz global variables is.
   - J_BOP a Bebop
   - J_HTTP_SERVER a JazzHttpServer
   - J_R_API a rAPI
-  - J_PYTHON_API a pyAPI
 
 It also contains a signal handler function for SIGTERM and a pointer to a MHD_Daemon controlling the http server daemon.
 */
@@ -60,7 +59,6 @@ extern JazzCluster	  J_CLUSTER;
 extern Bebop		  J_BOP;
 extern JazzHttpServer J_HTTP_SERVER;
 extern rAPI			  J_R_API;
-extern pyAPI		  J_PYTHON_API;
 
 extern pMHD_Daemon	  Jazz_MHD_Daemon;
 

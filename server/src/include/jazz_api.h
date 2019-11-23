@@ -81,45 +81,6 @@
 
 */
 
-
-/* NOTES from the Jazz draft description including tasks for this
-   --------------------------------------------------------------
-
-In Jazz an lvalue is one of:
-
-A chain of keeprs abstracted as block ids starting from root ending with the name of a block. They must all exist except, possibly, the last name. If the last name is new, it is created, if it exists, overridden.
-A data block that will be returned as a Python object, R object or http (GET) resource.
-In Jazz an rvalue is one of:
-
-A block constructor. A constant expression that can be used to build a block from it.
-Chains of keeprs abstracted as existing blocks starting from root. This includes functions and blocks passed as arguments to functions.
-A combination of the previous two.
-A data block that will be passed as a Python object, R object or http (PUT) resource.
-A delete predicate. This deletes the corresponding lvalue.
-Since the API has to be REST compatible and is intended for using over a network.
-
-All rvalue evaluations are safe. They cannot have side effects. Function calls cannot have side effects.
-All lvalue assignments are idempotent. Assigning twice has the same effect than assigning once. There is no += operator.
-
-GET with a valid rvalue. To read from Jazz.
-HEAD with a valid rvalue. Internally the same as GET, but returns the header only.
-PUT with a valid lvalue. To write blocks into a Jazz keepr.
-DELETE with a valid lvalue. To delete blocks or keeprs (even recursively).
-OPTIONS with a string. Parses the string and returns the commands that would accept that string as a URL.
-GET with lvalue=rvalue. Assignment in the server. Similar to “PUT(lvalue, GET(rvalue))” without traffic.
-
-//TODO: Consider these statements when implementing jazz_api
-//TODO: Create explanation on jazz_api for the doxy page and linked from the reference
-
-jazz_get(rvalue)
-jazz_put(object, lvalue)
-jazz_delete(lvalue)
-jazz_assign(lvalue, rvalue)
-
-//TODO: Confirm top-level Python and R interfaces match this.
-
-*/
-
 #include "src/include/jazz.h"
 #include "src/jazz_functional/jazz_bebop.h"
 
@@ -197,19 +158,6 @@ class rAPI: public JazzAPI {
 };
 
 
-/** \brief Same as before, objects are Python vectors, not numpy or Pandas objects, so similar limitations apply.
-
-//TODO: Write the pyAPI description
-*/
-class pyAPI: public JazzAPI {
-
-	public:
-		 pyAPI(jazz_utils::pJazzLogger	   a_logger,
-			   jazz_utils::pJazzConfigFile a_config);
-		~pyAPI();
-
-};
-
-}
+} //namespace jazz_containers;
 
 #endif

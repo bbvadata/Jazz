@@ -41,7 +41,6 @@ JazzCluster	   J_CLUSTER	 (&J_LOGGER, &J_CONFIG);
 Bebop		   J_BOP		 (&J_LOGGER, &J_CONFIG);
 JazzHttpServer J_HTTP_SERVER (&J_LOGGER, &J_CONFIG);
 rAPI		   J_R_API		 (&J_LOGGER, &J_CONFIG);
-pyAPI		   J_PYTHON_API	 (&J_LOGGER, &J_CONFIG);
 
 pMHD_Daemon	   Jazz_MHD_Daemon;
 
