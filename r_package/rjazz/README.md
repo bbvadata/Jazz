@@ -9,7 +9,6 @@ This is the official R Jazz client maintained by the Authors of Jazz.
 
  - [kaalam.ai](http://kaalam.github.io/kaalam/)
  - [Jazz Reference](http://kaalam.github.io/jazz_reference/)
- - [Jazz Python client](http://kaalam.github.io/pyjazz/)
 
 
 ## License
