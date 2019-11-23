@@ -7,7 +7,6 @@ other tasks like bug fixes, ideas for changes or complete stories that don't eve
 
 ### Bugs
 
-  - File issue in the python package build
   - Warnings in R package build_doc
   - (With old R server) And R == 3.6 on the server side:
      106.392668 : 03 :    47 : jzzBLOCKCONV::translate_block_FROM_R() : Wrong signature || format_version.

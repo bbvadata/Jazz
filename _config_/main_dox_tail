@@ -53,8 +53,6 @@ C. Is the folder jazz_main (for the http server only)\n
 F. (not in this repo) Is where front-end developers build, see the [REST API reference](http://kaalam.github.io/jazz_reference/rest_reference.html)\n
 \n
 You will typically use (5) for extending the back-end in C++. (noted as (x))\n
-You will typically use (4) for connect to other languages, other than R & Python.\n
-You will typically use (3) to run R & Python scripts for both local and remote sources.\n
 You will typically use (2) build docker images containing your applications.\n
 \n
 If you use (1), you are the end user, not a developer. ;-)\n
