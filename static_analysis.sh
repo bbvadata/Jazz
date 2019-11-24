@@ -9,7 +9,7 @@
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
 
-pushd server
+pushd server || exit 1
 
 make clean
 
@@ -30,7 +30,7 @@ cppcheck-htmlreport --file=report.xml --title=Jazz --report-dir=static_analysis_
 
 rm -f report.xml
 
-popd
+popd || exit 1
 
 reports=$(find server/static_analysis_reports/ | grep "index.html")
 

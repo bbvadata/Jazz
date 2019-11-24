@@ -11,7 +11,7 @@
 
 rm -rf server/dynamic_analysis_reports/
 
-pushd server
+pushd server || exit 1
 
 make tjazz
 
@@ -20,7 +20,7 @@ mkdir dynamic_analysis_reports
 valgrind --leak-check=yes --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
 #valgrind --tool=callgrind --log-file=dynamic_analysis_reports/callgrind.txt ./tjazz
 
-popd
+popd || exit 1
 
 reports=$(find server/dynamic_analysis_reports/ | grep ".txt")
 
