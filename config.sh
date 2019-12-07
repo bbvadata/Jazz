@@ -83,17 +83,17 @@ vpath=$(echo src/*/ "$testp")
 jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
-objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
+objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
 
 recursive_parse_header ( )
 {
-  dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
+  dep=$(grep -rnw "$1" -e '^#include.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
 
   for dp in $dep; do
     if [ -e "$dp" ]; then
       # shellcheck disable=SC2001
-      short_name=$(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+      short_name=$(echo "$dp" | sed 's/.*\/\(.*h\|test_.*ctest\).*/\1/')
 
       if [[ $recursive_parse_header_result != *"$short_name"* ]]; then
         recursive_parse_header_result="$recursive_parse_header_result $short_name"
@@ -111,13 +111,13 @@ recursive_parse_header ( )
 depends ( )
 {
   for cpp in $cpps; do
-    obj=$(echo "$cpp" | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/')
+    obj=$(echo "$cpp" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/')
     hea="${cpp//cpp/h}"
 
     unset dep
     unset hea_incl
 
-    dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+    dep=$(grep -rnw "$cpp" -e '^#include.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\///g' | sed 's/\"//g')
 
     if [ -e "$hea" ]; then
       unset recursive_parse_header_result
