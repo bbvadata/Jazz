@@ -35,16 +35,22 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_elements/containers.h"
+using namespace jazz_elements;
 
 
-namespace jazz_elements
-{
+// Tests
+// -----
 
+SCENARIO("Testing services") {
 
-} // namespace jazz_elements
+//TODO: Write tests for this!
 
-#if defined CATCH_TEST
-#include "src/jazz_elements/tests/test_containers.ctest"
-#endif
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
 

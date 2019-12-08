@@ -49,7 +49,6 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
 #define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
 
-#include "src/lmdb/lmdb.h"
 
 /**< \brief One liner.
 

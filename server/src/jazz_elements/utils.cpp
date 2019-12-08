@@ -37,7 +37,6 @@
 
 #include "src/jazz_elements/utils.h"
 
-#include "src/jazz_elements/types.h"
 
 namespace jazz_elements
 {
