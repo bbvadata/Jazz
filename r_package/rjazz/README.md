@@ -13,7 +13,7 @@ This is the official R Jazz client maintained by the Authors of Jazz.
 
 ## License
 
-     Jazz (c) 2018-2019 kaalam.ai (The Authors of Jazz), using (under the same license):
+     Jazz (c) 2018-2020 kaalam.ai (The Authors of Jazz), using (under the same license):
 
      BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
