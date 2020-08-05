@@ -35,13 +35,13 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_elements;
+using namespace jazz_relations;
 
 
 // Tests
 // -----
 
-SCENARIO("Testing services") {
+SCENARIO("Testing codebase") {
 
 //TODO: Write tests for this!
 

@@ -35,13 +35,13 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_elements;
+using namespace jazz_fields;
 
 
 // Tests
 // -----
 
-SCENARIO("Testing services") {
+SCENARIO("Testing bebop") {
 
 //TODO: Write tests for this!
 

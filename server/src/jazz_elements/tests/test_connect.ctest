@@ -41,7 +41,7 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-SCENARIO("Testing services") {
+SCENARIO("Testing connect") {
 
 //TODO: Write tests for this!
 
