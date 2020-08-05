@@ -32,7 +32,7 @@
 */
 
 
-// #include <stl_whatever>
+#include <math.h>
 
 
 #include "src/jazz_elements/types.h"
@@ -41,10 +41,22 @@
 namespace jazz_elements
 {
 
+/// Returns an R-compatible numeric NA.
+inline double R_ValueOfNA()
+{
+	union {double d; int i[2];} na;
+
+	na.i[1] = 0x7ff00000;
+	na.i[0] = 1954;
+
+	return na.d;
+}
+
+float  F_NA = nanf("");
+double R_NA = R_ValueOfNA();
 
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
 #include "src/jazz_elements/tests/test_types.ctest"
 #endif
-
