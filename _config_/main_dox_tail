@@ -1,61 +1,19 @@
 Programming Documentation of the Jazz Server
 
-
-You can start with the class <a href="hierarchy.html">hierarchy</a>.
-
-\n
-\section jazz_blocks JazzBlock 101
-
-![Jazz modules](diagrams/jazz_block.png)
-
-This diagram shows the structure of a JazzBlock.\n
-
-1. See jazz_elements/jazz_datablocks.h JazzBlockHeader\n
-2. See jazz_elements/jazz_datablocks.h JazzBlockHeader.tensor[]\n
-3. See jazz_elements/jazz_datablocks.h int * - Address returned by JazzBlock.pAttribute_keys()\n
-4. See jazz_elements/jazz_datablocks.h JazzStringBuffer - Address returned by JazzBlock.pStringBuffer()\n
-
-\n
-\section jazz_keepr JazzBlockKeepr 101
-
-![Jazz modules](diagrams/jazz_block_keeper.png)
-
-By file location:\n
-\n
-A. jazz_elements/jazz_containers.h\n
-B. jazz_elements/jazz_persistence.h\n
-C. jazz_elements/jazz_httpclient.h\n
-D. jazz_elements/jazz_classes.h\n
-E. jazz_functional/jazz_cluster.h\n
-F. jazz_functional/jazz_filesystem.h\n
-G. jazz_functional/jazz_column.h\n
-H. jazz_functional/jazz_dataframe.h\n
-I. jazz_functional/jazz_bebop.h\n
-\n
-
-JazzBlocks can be:\n
-
-1. **One-shot** - Owned by the caller of new_jazz_block()\n
-2. **Volatile** - Owned by some JazzBlockKeepr descendant that is not a JazzPersistence (or descendant)\n
-3. **Persisted** - Owned by a JazzPersistence (or descendant), typically a JazzSource\n
-
-\n
 \section jazz_mods Jazz Modules 101
 
 ![Jazz modules](diagrams/jazz_modules.png)
 
-This diagram shows how the different Jazz modules fit. Everything except the dotted nodes
-is in the repository.\n
+This diagram shows how the different Jazz modules fit. Everything is in the [Jazz repository](https://github.com/kaalam/Jazz).\n
 \n
-A. Is the folder jazz_elements (all the pieces that work on blocks)\n
-B. Is the folder jazz_functional (all the pieces that support higher level abstractions)\n
-C. Is the folder jazz_main (for the http server only)\n
-F. (not in this repo) Is where front-end developers build, see the [REST API reference](http://kaalam.github.io/jazz_reference/rest_reference.html)\n
-\n
-You will typically use (5) for extending the back-end in C++. (noted as (x))\n
-You will typically use (2) build docker images containing your applications.\n
-\n
-If you use (1), you are the end user, not a developer. ;-)\n
+
+There are three C++ namespaces:
+
+1. jazz_elements (all the pieces: blocks, services, communication, storage and containers)\n
+2. jazz_fields (everything to create bebop code, run it and expand it with User Defined Fields (UDFs))\n
+3. jazz_relations (the fundamentals of search, to do agency and expand via User Defined Agents (UDAs))\n
+
+Additionally, (4.), since everything is an http server, front-end developers build on the REST API\n
 
 \n
 \section repo_sec REPOSITORIES
