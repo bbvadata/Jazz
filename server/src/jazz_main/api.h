@@ -34,9 +34,26 @@
 
 // #include <stl_whatever>
 
+// #include "src/jazz_main/xxx.h"
 
-#include "src/jazz_main/instances.h"
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
 
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
+
+
+#ifndef INCLUDED_JAZZ_MAIN_API
+#define INCLUDED_JAZZ_MAIN_API
+
+
+/**< \brief One liner.
+
+//TODO: Write this!
+*/
 
 namespace jazz_main
 {
@@ -44,7 +61,5 @@ namespace jazz_main
 
 } // namespace jazz_main
 
-#if defined CATCH_TEST
-#include "src/jazz_main/tests/test_instances.ctest"
-#endif
+#endif // ifndef INCLUDED_JAZZ_MAIN_API
 

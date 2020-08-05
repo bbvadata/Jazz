@@ -35,7 +35,7 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_main/instances.h"
+#include "src/jazz_main/api.h"
 
 
 namespace jazz_main
@@ -45,6 +45,6 @@ namespace jazz_main
 } // namespace jazz_main
 
 #if defined CATCH_TEST
-#include "src/jazz_main/tests/test_instances.ctest"
+#include "src/jazz_main/tests/test_api.ctest"
 #endif
 
