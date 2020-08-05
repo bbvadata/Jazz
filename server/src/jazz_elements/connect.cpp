@@ -34,26 +34,9 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_elements/xxx.h"
 
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
+#include "src/jazz_elements/connect.h"
 
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-
-
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
 
 namespace jazz_elements
 {
@@ -61,5 +44,7 @@ namespace jazz_elements
 
 } // namespace jazz_elements
 
-#endif // ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_connect.ctest"
+#endif
 

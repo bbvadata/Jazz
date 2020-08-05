@@ -46,8 +46,8 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
-#define INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+#ifndef INCLUDED_JAZZ_ELEMENTS_CONNECT
+#define INCLUDED_JAZZ_ELEMENTS_CONNECT
 
 
 /**< \brief One liner.
@@ -61,5 +61,5 @@ namespace jazz_elements
 
 } // namespace jazz_elements
 
-#endif // ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINERS
+#endif // ifndef INCLUDED_JAZZ_ELEMENTS_CONNECT
 
