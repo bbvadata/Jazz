@@ -41,6 +41,155 @@
 namespace jazz_elements
 {
 
+/*	-----------------------------------------------
+	 jazzService : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** Start a jazzService descendant.
+
+	This is the first method of a jazzService to be called.
+
+	If start() returns true, it MAY get reload() calls and WILL get just one stop() call.
+	If start() returns false, it will never be called again.
+
+	Virtual method to be overridden in all objects implementing the interface. (I.e., descending from jazzService)
+*/
+bool jazzService::start ()
+{
+	return true;
+}
+
+
+/** Stop a jazzService descendant.
+
+	This is the last method of a jazzService to be called.
+
+	It is called only once and only if start() was successful.
+
+	Virtual method to be overridden in all objects implementing the interface. (I.e., descending from jazzService)
+*/
+bool jazzService::stop ()
+{
+	return true;
+}
+
+
+/** Start a jazzService descendant.
+
+	This is the first method of a jazzService to be called.
+
+	If start() returns true, it MAY get reload() calls and WILL get just one stop() call.
+	If start() returns false, it will never be called again.
+
+	Virtual method to be overridden in all objects implementing the interface. (I.e., descending from jazzService)
+*/
+bool jazzService::reload ()
+{
+	return true;
+}
+
+/*	-----------------------------------------------
+	 jazzServices : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** Adds a service to the list of jazzService objects managed by the jazzServices.
+*/
+bool jazzServices::register_service(jazzService * service)
+{
+	if (num_services >= MAX_NUM_JAZZ_SERVICES)
+	{
+		jCommons.log(LOG_MISS, "Too many services in jazzServices::register_service().");
+
+		return false;
+	}
+
+	pService[num_services]	 = service;
+	started [num_services++] = false;
+
+	return true;
+}
+
+
+/** Starts all the registered services that have not been started yet.
+
+	In case of a service failing to start, start_all() aborts not trying to start any other service.
+
+	\return True on success. LOG_MISS and false on abort.
+*/
+bool jazzServices::start_all ()
+{
+	for (int i = 0; i < num_services; i++)
+	{
+		if (!started[i])
+		{
+			if (!pService[i]->start())
+			{
+				jCommons.log(LOG_MISS, "Some service failed to start, start_all() aborting.");
+
+				return false;
+			}
+			started[i] = true;
+		}
+	}
+
+	return true;
+}
+
+
+/** Stops all the registered services that have been started.
+
+	In case of a service failing to stop, stop_all() will still close the rest of the started services.
+
+	\return True on success. LOG_MISS and false on any failure.
+*/
+bool jazzServices::stop_all ()
+{
+	bool st_ok = true;
+
+	for (; num_services >= 0; --num_services)
+	{
+		if (started[num_services])
+		{
+			st_ok = pService[num_services]->stop() & st_ok;
+
+			started[num_services] = true;
+		}
+	}
+
+	if (!st_ok) jCommons.log(LOG_MISS, "Some service(s) failed to stop in stop_all().");
+
+	return st_ok;
+}
+
+
+/** Reloads all the registered services that have been started.
+
+	In case of a service failing to reload, reload_all() aborts not trying to reload any other service.
+
+	\return True on success. LOG_MISS and false on abort.
+*/
+bool jazzServices::reload_all ()
+{
+
+#ifdef DEBUG
+	jCommons.was_reloaded = true;	// Don't check for unused configuration keys if reloaded.
+#endif
+
+	for (int i = 0; i < num_services; i++)
+	{
+		if (started[i])
+		{
+			if (!pService[i]->reload())
+			{
+				jCommons.log(LOG_MISS, "Some service failed to reload, reload_all() aborting.");
+
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
 
 } // namespace jazz_elements
 

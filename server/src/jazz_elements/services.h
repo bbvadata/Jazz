@@ -58,6 +58,39 @@
 namespace jazz_elements
 {
 
+#define MAX_NUM_JAZZ_SERVICES	   8	///< The maximum number of jazzService instances stored in a jazzServices.
+
+/** Ancestor class of all Jazz services requiring start/stop/reload. This is an empty container of virtual methods that should be implemented
+in the descendants.
+*/
+class jazzService {
+
+	public:
+
+		virtual bool start	();
+		virtual bool stop	();
+		virtual bool reload ();
+};
+
+
+/** A collection of jazzService descendants operated through a single point of access.
+*/
+class jazzServices {
+
+	public:
+
+		bool register_service(jazzService * service);
+
+		bool start_all	();
+		bool stop_all	();
+		bool reload_all ();
+
+	private:
+
+		int			 num_services = 0;
+		bool		 started [MAX_NUM_JAZZ_SERVICES];
+		jazzService* pService[MAX_NUM_JAZZ_SERVICES];
+};
 
 } // namespace jazz_elements
 
