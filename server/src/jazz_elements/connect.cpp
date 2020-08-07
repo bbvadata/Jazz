@@ -43,6 +43,54 @@ namespace jazz_elements
 {
 
 
+/** A test write callback.
+
+	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
+*/
+size_t write_callback(char * ptr, size_t size, size_t nmemb, void *userdata)
+{
+	size = size*nmemb;
+
+	// if ((uintptr_t) userdata == 0xbaaadc0ffee)
+
+	printf("\n");
+
+	for (int i = 0; i < size; i++)
+		printf("%c", ptr[i]);
+
+	printf("\n\n");
+
+	return size;
+}
+
+
+bool remote_testing_point ()
+{
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if (!curl) {
+		return false;
+	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, "http://...");
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) 0xbaaadc0ffee);
+
+	res = curl_easy_perform(curl);
+	if (res != CURLE_OK) {
+		return false;
+	}
+
+	curl_easy_cleanup(curl);
+
+	return true;
+}
+
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
