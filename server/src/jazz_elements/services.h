@@ -48,9 +48,13 @@
 #define INCLUDED_JAZZ_ELEMENTS_SERVICES
 
 
-/**< \brief One liner.
+/**< \brief Jazz Service and Services classes.
 
-//TODO: Write this!
+	This module defines Service, as the ancestor of all the Jazz services. A Service is someting that runs and stops, has a configuration
+and (possibly) allocates resources (RAM and CPU threads). Service are a small number (<= MAX_NUM_SERVICES) and are available throughout
+the whole life of the server.
+
+	It also implements Services which is the class containing all services registered to support the start/stop interface.
 */
 
 namespace jazz_elements
@@ -58,8 +62,8 @@ namespace jazz_elements
 
 #define MAX_NUM_SERVICES	   8	///< The maximum number of Service instances stored in a Services.
 
-/** Ancestor class of all Jazz services requiring start/stop/reload. This is an empty container of virtual methods that should be implemented
-in the descendants.
+/** Ancestor class of all Jazz services requiring start/stop/reload. This is an empty container of virtual methods that should be
+implemented in the descendants.
 */
 class Service {
 
