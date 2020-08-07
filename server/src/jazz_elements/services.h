@@ -32,9 +32,7 @@
 */
 
 
-// #include <stl_whatever>
-
-// #include "src/jazz_elements/xxx.h"
+#include "src/jazz_elements/utils.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -58,12 +56,12 @@
 namespace jazz_elements
 {
 
-#define MAX_NUM_JAZZ_SERVICES	   8	///< The maximum number of jazzService instances stored in a jazzServices.
+#define MAX_NUM_SERVICES	   8	///< The maximum number of Service instances stored in a Services.
 
 /** Ancestor class of all Jazz services requiring start/stop/reload. This is an empty container of virtual methods that should be implemented
 in the descendants.
 */
-class jazzService {
+class Service {
 
 	public:
 
@@ -73,13 +71,15 @@ class jazzService {
 };
 
 
-/** A collection of jazzService descendants operated through a single point of access.
+/** A collection of Service descendants operated through a single point of access.
 */
-class jazzServices {
+class Services {
 
 	public:
 
-		bool register_service(jazzService * service);
+		Services(pLogger aLog);
+
+		bool register_service(Service* service);
 
 		bool start_all	();
 		bool stop_all	();
@@ -87,12 +87,12 @@ class jazzServices {
 
 	private:
 
-		int			 num_services = 0;
-		bool		 started [MAX_NUM_JAZZ_SERVICES];
-		jazzService* pService[MAX_NUM_JAZZ_SERVICES];
+		int		 num_services = 0;
+		pLogger	 pLog;
+		bool	 started [MAX_NUM_SERVICES];
+		Service* pService[MAX_NUM_SERVICES];
 };
 
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_SERVICES
-
