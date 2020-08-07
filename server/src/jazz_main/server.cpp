@@ -34,6 +34,7 @@
 
 // #include <stl_whatever>
 
+#include "microhttpd.h"
 
 #include "src/jazz_main/server.h"
 

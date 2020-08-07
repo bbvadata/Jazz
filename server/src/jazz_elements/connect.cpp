@@ -34,6 +34,7 @@
 
 // #include <stl_whatever>
 
+#include "curl/curl.h"
 
 #include "src/jazz_elements/connect.h"
 
