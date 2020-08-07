@@ -43,7 +43,7 @@ using namespace jazz_elements;
 
 SCENARIO("Testing services") {
 
-//TODO: Write tests for this!
+//TODO: Write tests for Service and Services!
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
