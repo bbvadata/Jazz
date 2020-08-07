@@ -375,7 +375,7 @@ ConfigFile::ConfigFile(const char *input_file_name)
 
 	\return true if some keys were read. (There is no systematic error checking.)
 */
-bool ConfigFile::load_config (const char *input_file_name)
+bool ConfigFile::load_config(const char *input_file_name)
 {
 	config.clear();
 
@@ -413,7 +413,7 @@ bool ConfigFile::load_config (const char *input_file_name)
 
 	\return	 The number of configuration keys read from the file when constructing the object. Zero means some failure.
 */
-int ConfigFile::num_keys ()
+int ConfigFile::num_keys()
 {
 	return config.size();
 }
@@ -513,7 +513,7 @@ void ConfigFile::debug_put(const std::string key, const std::string val)
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
-Logger::Logger (const char *output_file_name)
+Logger::Logger(const char *output_file_name)
 {
 	strncpy(file_name, output_file_name, MAX_FILENAME_LENGTH - 1);
 
@@ -526,8 +526,8 @@ Logger::Logger (const char *output_file_name)
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
- Logger::Logger(	  ConfigFile  config,
-						const char			 *config_key)
+ Logger::Logger(ConfigFile  config,
+				const char *config_key)
 {
 	file_name[0] = 0;
 
@@ -568,7 +568,7 @@ void Logger::InitLogger()
 
 	.. and clears the file_name (that can be queried via get_output_file_name())
 */
-Logger::~Logger ()
+Logger::~Logger()
 {
 	if (file_name[0]) f_buff->close();
 
@@ -582,7 +582,7 @@ Logger::~Logger ()
 	\param buff_size Value to be returned only when the function returns true.
 	\return			 Zero if opening the file failed, the length of the name instead.
 */
-int Logger::get_output_file_name (char *buff, int buff_size)
+int Logger::get_output_file_name(char *buff, int buff_size)
 {
 	if (!file_name[0]) return 0;
 
@@ -606,7 +606,7 @@ int Logger::get_output_file_name (char *buff, int buff_size)
 
 	If loglevel >= LOG_WARN, the output also goes to stderr.
 */
-void Logger::log (int loglevel, const char *message)
+void Logger::log(int loglevel, const char *message)
 {
 	double sec = elapsed_us(big_bang)/1000000.0;
 
@@ -647,7 +647,7 @@ void Logger::log (int loglevel, const char *message)
 
 	NOTE: This does not check buffer allocation! Use it for short results.
 */
-void Logger::log_printf	(int loglevel, const char *fmt, ...)
+void Logger::log_printf(int loglevel, const char *fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
@@ -666,7 +666,7 @@ void Logger::log_printf	(int loglevel, const char *fmt, ...)
 
 	NOTE: This does not check buffer allocation! Use it for short results.
 */
-void Logger::log_printf	(int loglevel, const char *fmt, va_list args)
+void Logger::log_printf(int loglevel, const char *fmt, va_list args)
 {
 	char buffer[256];
 
