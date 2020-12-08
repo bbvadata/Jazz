@@ -88,7 +88,7 @@ objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/
 
 recursive_parse_header ( )
 {
-  dep=$(grep -rnw "$1" -e '^#include.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
+  dep=$(grep -rnw "$1" -e '^#include[ ]*\"src.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
 
   for dp in $dep; do
     if [ -e "$dp" ]; then
@@ -117,7 +117,7 @@ depends ( )
     unset dep
     unset hea_incl
 
-    dep=$(grep -rnw "$cpp" -e '^#include.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\///g' | sed 's/\"//g')
+    dep=$(grep -rnw "$cpp" -e '^#include[ ]*\"src.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\///g' | sed 's/\"//g')
 
     if [ -e "$hea" ]; then
       unset recursive_parse_header_result
