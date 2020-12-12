@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2020 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,11 +32,11 @@
 */
 
 
-#include "src/include/jazz_fields.h"
+#include "src/include/jazz_elements.h"
 
 
-#ifndef INCLUDED_JAZZ_RELATIONS
-#define INCLUDED_JAZZ_RELATIONS
+#ifndef INCLUDED_JAZZ_BEBOP
+#define INCLUDED_JAZZ_BEBOP
 
 
 /**< \brief One liner.
@@ -44,10 +44,8 @@
 //TODO: Write this!
 */
 
-#include "src/jazz_relations/agency.h"
-#include "src/jazz_relations/codebase.h"
-#include "src/jazz_relations/search.h"
-#include "src/jazz_relations/UDAs.h"
+#include "__SRC_PATHS__"
 
 
-#endif // ifndef INCLUDED_JAZZ_RELATIONS
+#endif // ifndef INCLUDED_JAZZ_BEBOP
+
