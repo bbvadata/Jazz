@@ -35,7 +35,7 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_elements/services.h"
+#include "src/jazz_elements/service.h"
 
 
 namespace jazz_elements
@@ -200,5 +200,5 @@ bool Services::reload_all ()
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
-#include "src/jazz_elements/tests/test_services.ctest"
+#include "src/jazz_elements/tests/test_service.ctest"
 #endif
