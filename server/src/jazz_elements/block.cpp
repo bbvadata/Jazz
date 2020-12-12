@@ -35,7 +35,7 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_elements/blocks.h"
+#include "src/jazz_elements/block.h"
 
 
 namespace jazz_elements
@@ -225,5 +225,5 @@ int Filter::filter_audit()
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
-#include "src/jazz_elements/tests/test_blocks.ctest"
+#include "src/jazz_elements/tests/test_block.ctest"
 #endif

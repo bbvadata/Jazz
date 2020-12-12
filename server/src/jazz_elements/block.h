@@ -50,8 +50,8 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_ELEMENTS_BLOCKS
-#define INCLUDED_JAZZ_ELEMENTS_BLOCKS
+#ifndef INCLUDED_JAZZ_ELEMENTS_BLOCK
+#define INCLUDED_JAZZ_ELEMENTS_BLOCK
 
 
 /**< \brief The class Block and its descendant Filter.
@@ -396,4 +396,4 @@ public:
 
 } // namespace jazz_elements
 
-#endif // ifndef INCLUDED_JAZZ_ELEMENTS_BLOCKS
+#endif // ifndef INCLUDED_JAZZ_ELEMENTS_BLOCK
