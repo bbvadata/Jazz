@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2020 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -35,22 +35,16 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_fields;
+#include "src/jazz_bebop/core.h"
 
 
-// Tests
-// -----
+namespace jazz_bebop
+{
 
-SCENARIO("Testing kernel") {
 
-//TODO: Write tests for this!
+} // namespace jazz_bebop
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
-}
+#if defined CATCH_TEST
+#include "src/jazz_bebop/tests/test_core.ctest"
+#endif
 

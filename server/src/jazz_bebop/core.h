@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2020 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_fields/xxx.h"
+// #include "src/jazz_bebop/xxx.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -46,8 +46,8 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_FIELDS_FIELDS
-#define INCLUDED_JAZZ_FIELDS_FIELDS
+#ifndef INCLUDED_JAZZ_BEBOP_CORE
+#define INCLUDED_JAZZ_BEBOP_CORE
 
 
 /**< \brief One liner.
@@ -55,11 +55,11 @@
 //TODO: Write this!
 */
 
-namespace jazz_fields
+namespace jazz_bebop
 {
 
 
-} // namespace jazz_fields
+} // namespace jazz_bebop
 
-#endif // ifndef INCLUDED_JAZZ_FIELDS_FIELDS
+#endif // ifndef INCLUDED_JAZZ_BEBOP_CORE
 

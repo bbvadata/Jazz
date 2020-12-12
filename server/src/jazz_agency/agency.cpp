@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2020 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -35,22 +35,16 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_relations;
+#include "src/jazz_agency/agency.h"
 
 
-// Tests
-// -----
+namespace jazz_agency
+{
 
-SCENARIO("Testing agency") {
 
-//TODO: Write tests for this!
+} // namespace jazz_agency
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
-}
+#if defined CATCH_TEST
+#include "src/jazz_agency/tests/test_agency.ctest"
+#endif
 
