@@ -1,24 +1,33 @@
 Programming Documentation of the Jazz Server
 
-\section jazz_mods Jazz Modules 101
+\section jazz_mods Jazz Modules Diagram
+
+This diagram shows how the different Jazz modules fit. \n
 
 ![Jazz modules](diagrams/jazz_modules.png)
 
-This diagram shows how the different Jazz modules fit. Everything is in the [Jazz repository](https://github.com/kaalam/Jazz).\n
+The maturity level of the different modules is:\n
+
+Maturity | Description
+-------- | -----------
+nothing  | Code is complete and tested.
+[PROTO]  | Code under active development, possibly working, but not release quality.
+[DRAFT]  | Code under active development, PoC in Python and API closed, but no working implementation in Jazz.
+[FUTURE] | Code not under active development. Working on PoC.
 \n
 
 There are three C++ namespaces:
 
-1. jazz_elements (all the pieces: blocks, services, communication, storage and containers)\n
-2. jazz_fields (everything to create bebop code, run it and expand it with User Defined Fields (UDFs))\n
-3. jazz_relations (the fundamentals of search, to do agency and expand via User Defined Agents (UDAs))\n
+1. jazz_elements (all the pieces: blocks, tuples, storage, fluxes, communication, services, ...)\n
+2. jazz_bebop (everything to create bebop code, run it and expand Formal Fields)\n
+3. jazz_agency (agency as graphs of fields)\n
 
 Additionally, (4.), since everything is an http server, front-end developers build on the REST API\n
 
 \n
 \section repo_sec REPOSITORIES
 
-  The main repository of the Jazz project: https://github.com/kaalam/Jazz
+Everything is in the [Jazz repository](https://github.com/kaalam/Jazz).\n
 
 \n
 \section license_sec LICENSE
