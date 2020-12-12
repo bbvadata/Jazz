@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2020 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -31,35 +31,66 @@
 	limitations under the License.
 */
 
+#include "curl/curl.h"
 
-// #include <stl_whatever>
+#include "src/jazz_elements/http_client.h"
 
-// #include "src/jazz_elements/xxx.h"
-
-#if defined CATCH_TEST
-#ifndef INCLUDED_JAZZ_CATCH2
-#define INCLUDED_JAZZ_CATCH2
-
-#include "src/catch2/catch.hpp"
-
-#endif
-#endif
-
-
-#ifndef INCLUDED_JAZZ_ELEMENTS_CONNECT
-#define INCLUDED_JAZZ_ELEMENTS_CONNECT
-
-
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
 
 namespace jazz_elements
 {
 
 
+/** A test write callback.
+
+	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
+*/
+size_t write_callback(char * ptr, size_t size, size_t nmemb, void *userdata)
+{
+	size = size*nmemb;
+
+	// if ((uintptr_t) userdata == 0xbaaadc0ffee)
+
+	printf("\n");
+
+	for (int i = 0; i < size; i++)
+		printf("%c", ptr[i]);
+
+	printf("\n\n");
+
+	return size;
+}
+
+
+bool remote_testing_point ()
+{
+	CURL *curl;
+	CURLcode res;
+
+	curl = curl_easy_init();
+	if (!curl) {
+		return false;
+	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, "http://...");
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) 0xbaaadc0ffee);
+
+	res = curl_easy_perform(curl);
+	if (res != CURLE_OK) {
+		return false;
+	}
+
+	curl_easy_cleanup(curl);
+
+	return true;
+}
+
+
 } // namespace jazz_elements
 
-#endif // ifndef INCLUDED_JAZZ_ELEMENTS_CONNECT
+#if defined CATCH_TEST
+#include "src/jazz_elements/tests/test_http_client.ctest"
+#endif
 
