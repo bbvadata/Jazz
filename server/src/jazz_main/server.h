@@ -49,6 +49,8 @@
 #ifndef INCLUDED_JAZZ_MAIN_SERVER
 #define INCLUDED_JAZZ_MAIN_SERVER
 
+#define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
+#include "microhttpd.h"
 
 /**< \brief One liner.
 
@@ -57,6 +59,42 @@
 
 namespace jazz_main
 {
+
+/** Callback function used to handle a POSIX signal.
+*/
+typedef void (*pSignalHandler) (int signum);
+
+
+/** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
+*/
+typedef MHD_Daemon * pMHD_Daemon;
+
+
+/** \brief TODO
+
+The REST API supports standard http commands.
+
+GET with a valid rvalue. To read from Jazz.
+HEAD with a valid rvalue. Internally the same as GET, but returns the header only.
+PUT with a valid lvalue. To write blocks into a Jazz keepr.
+DELETE with a valid lvalue. To delete blocks or keeprs (even recursively).
+OPTIONS with a string. Parses the string and returns the commands that would accept that string as a URL.
+GET with lvalue=rvalue. Assignment in the server. Similar to “PUT(lvalue, GET(rvalue))” without traffic.
+There is no support for POST or TRACE, any functions other than those mentioned return an error.
+
+//TODO: Write the JazzHttpServer description
+*/
+class HttpServer: jazz_elements::Service {
+
+	public:
+		 HttpServer (//jazz_elements::pLogger		a_logger,
+					 //jazz_elements::pConfigFile a_config,
+					 //pSignalHandler				p_sig_handler,
+					 //pMHD_Daemon				&p_daemon
+					 );
+		~HttpServer ();
+
+};
 
 
 } // namespace jazz_main

@@ -42,6 +42,34 @@
 namespace jazz_main
 {
 
+/**
+//TODO: Document HttpServer()
+*/
+HttpServer::HttpServer(//jazz_elements::pLogger	   a_logger,
+					   //jazz_elements::pConfigFile  a_config,
+					   //pSignalHandler			   p_sig_handler,
+					   //pMHD_Daemon				  &p_daemon
+					   )
+{
+#ifdef DEBUG
+	log(LOG_DEBUG, "Entering HttpServer::HttpServer");
+#endif
+
+//TODO: Implement HttpServer
+}
+
+
+/**
+//TODO: Document ~HttpServer()
+*/
+HttpServer::~HttpServer()
+{
+//TODO: Implement ~HttpServer
+
+#ifdef DEBUG
+	log(LOG_DEBUG, "Leaving HttpServer::~HttpServer");
+#endif
+}
 
 } // namespace jazz_main
 
