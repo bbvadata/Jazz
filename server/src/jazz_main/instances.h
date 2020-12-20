@@ -58,8 +58,21 @@
 namespace jazz_main
 {
 
+using namespace jazz_elements;
+
+#define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
+
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+extern ConfigFile  J_CONFIG;
+extern Logger	   J_LOGGER;
+extern HttpServer  J_HTTP_SERVER;
+extern pMHD_Daemon Jazz_MHD_Daemon;
+
+void signalHandler_SIGTERM(int signum);
 
 } // namespace jazz_main
 
 #endif // ifndef INCLUDED_JAZZ_MAIN_INSTANCES
-

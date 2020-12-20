@@ -40,11 +40,51 @@
 
 namespace jazz_main
 {
+	using namespace std;
 
+/*	-----------------------------
+	  I n s t a n t i a t i n g
+--------------------------------- */
+
+ConfigFile	J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+Logger		J_LOGGER(J_CONFIG, "LOGGER_PATH");
+pMHD_Daemon	Jazz_MHD_Daemon;
+HttpServer	J_HTTP_SERVER ( //&J_LOGGER,
+							//&J_CONFIG,
+							//&signalHandler_SIGTERM,
+							//&Jazz_MHD_Daemon
+							);
+
+
+/** Capture SIGTERM. This callback procedure stops a running server.
+
+	See main_server_start() for details on the server's start/stop.
+*/
+void signalHandler_SIGTERM(int signum)
+{
+	cout << "Interrupt signal (" << signum << ") received." << endl;
+
+	cout << "Closing the http server ..." << endl;
+
+	MHD_stop_daemon (Jazz_MHD_Daemon);
+
+	cout << "Stopping HttpServer ..." << endl;
+
+	bool stop_ok = J_HTTP_SERVER.stop();
+
+	// ... Stop other services here.
+
+	if (!stop_ok) {
+		J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
+
+		exit (EXIT_FAILURE);
+	}
+
+	exit (EXIT_SUCCESS);
+}
 
 } // namespace jazz_main
 
 #if defined CATCH_TEST
 #include "src/jazz_main/tests/test_instances.ctest"
 #endif
-
