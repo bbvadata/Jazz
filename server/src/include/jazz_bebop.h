@@ -44,7 +44,7 @@
 //TODO: Write this!
 */
 
-#include "__SRC_PATHS__"
+#include "src/jazz_bebop/core.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP
