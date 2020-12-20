@@ -40,6 +40,34 @@
 #if !defined CATCH_TEST
 
 
+/** Display the Jazz logo message automatically appending JAZZ_VERSION.
+ */
+void show_credits()
+{
+	cout << "\x20 888888" << endl
+		 << "\x20 \x20 `88b" << endl
+		 << " \x20 \x20 888" << endl
+		 << " \x20 \x20 888\x20 8888b.\x20 88888888 88888888" << endl
+		 << " \x20 \x20 888 \x20 \x20 `88b\x20 \x20 d88P \x20 \x20 d88P" << endl
+		 << " \x20 \x20 888 .d888888 \x20 d88P \x20 \x20 d88P" << endl
+		 << " \x20 \x20 88P 888\x20 888\x20 d88P \x20 \x20 d88P" << endl
+		 << " \x20 \x20 888 `Y888888 88888888 88888888" << endl
+		 << " \x20 .d88P" << endl
+		 << " .d88P'" << endl
+		 << "888P'" << endl << endl
+		 << " \x20 \x20 (c)" << JAZZ_YEARS << " - kaalam.ai - The Authors of Jazz" << endl << endl
+		 << " \x20 \x20This product includes software developed at BBVA" << endl
+		 << " \x20 \x20 Licensed under the Apache License, Version 2.0" << endl
+		 << " \x20 \x20 \x20 http://www.apache.org/licenses/LICENSE-2.0" << endl
+		 << " \x20 \x20 \x20 \x20 \x20version: " << JAZZ_VERSION << " (" << LINUX_PLATFORM << ")" << endl
+#ifdef DEBUG
+		 << endl
+		 << " \x20 \x20 \x20 \x20 \x20 \x20 *** D E B U G - B U I L D ***" << endl
+#endif
+		 << endl;
+}
+
+
 int main(int argc, char* argv[])
 {
 
