@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_main/xxx.h"
+#include "src/jazz_main/server.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
