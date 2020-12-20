@@ -61,10 +61,10 @@
 
 // Command line arguments for the Jazz server
 
-#define CMND_HELP		0	///< Command 'help' as a numerical constant (see parse_arg())
-#define CMND_START		1	///< Command 'start' as a numerical constant (see parse_arg())
-#define CMND_STOP		2	///< Command 'stop' as a numerical constant (see parse_arg())
-#define CMND_STATUS		3	///< Command 'status' as a numerical constant (see parse_arg())
+#define CMD_HELP		0	///< Command 'help' as a numerical constant (see parse_arg())
+#define CMD_START		1	///< Command 'start' as a numerical constant (see parse_arg())
+#define CMD_STOP		2	///< Command 'stop' as a numerical constant (see parse_arg())
+#define CMD_STATUS		3	///< Command 'status' as a numerical constant (see parse_arg())
 
 using namespace std;
 
