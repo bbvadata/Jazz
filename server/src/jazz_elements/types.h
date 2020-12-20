@@ -33,6 +33,7 @@
 
 
 #include <chrono>
+#include <stdint.h>
 
 
 #if defined CATCH_TEST
@@ -121,10 +122,10 @@ union TensorDim
 /// A tensor of cell size 1, 4 or 8
 union Tensor
 {
-	u_char	  cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
+	uint8_t	  cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
 	bool	  cell_bool[0];		///< Cell size for CELL_TYPE_BYTE_BOOLEAN
 	int		  cell_int[0];		///< Cell size for CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
-	u_int	  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	uint32_t  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
 	float	  cell_single[0];	///< Cell size for CELL_TYPE_SINGLE
 	long long cell_longint[0];	///< Cell size for CELL_TYPE_LONG_INTEGER and CELL_TYPE_TIME
 	uint64_t  cell_ulongint[0];	///< Cell size for matching CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
