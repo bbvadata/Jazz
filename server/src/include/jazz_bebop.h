@@ -39,13 +39,12 @@
 #define INCLUDED_JAZZ_BEBOP
 
 
-/**< \brief One liner.
+/**< \brief Includes everything in namespace jazz_bebop without using it by default.
 
-//TODO: Write this!
+The namespace jazz_bebop contains everything to make Bebop code compile, link and run. Also, core system libraries.
 */
 
 #include "src/jazz_bebop/core.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP
-
