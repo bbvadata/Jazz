@@ -45,10 +45,8 @@ namespace jazz_main
 /**
 //TODO: Document HttpServer()
 */
-HttpServer::HttpServer(//jazz_elements::pLogger	   a_logger,
-					   //jazz_elements::pConfigFile  a_config,
-					   //pSignalHandler			   p_sig_handler,
-					   //pMHD_Daemon				  &p_daemon
+HttpServer::HttpServer(pLogger	   a_logger,
+					   pConfigFile a_config
 					   )
 {
 #ifdef DEBUG
@@ -76,4 +74,3 @@ HttpServer::~HttpServer()
 #if defined CATCH_TEST
 #include "src/jazz_main/tests/test_server.ctest"
 #endif
-

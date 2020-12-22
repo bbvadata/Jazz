@@ -60,6 +60,8 @@
 namespace jazz_main
 {
 
+using namespace jazz_elements;
+
 /** Callback function used to handle a POSIX signal.
 */
 typedef void (*pSignalHandler) (int signum);
@@ -84,18 +86,14 @@ There is no support for POST or TRACE, any functions other than those mentioned 
 
 //TODO: Write the JazzHttpServer description
 */
-class HttpServer: jazz_elements::Service {
+class HttpServer : Service{
 
 	public:
-		 HttpServer (//jazz_elements::pLogger		a_logger,
-					 //jazz_elements::pConfigFile a_config,
-					 //pSignalHandler				p_sig_handler,
-					 //pMHD_Daemon				&p_daemon
-					 );
+		 HttpServer (pLogger	 a_logger,
+					 pConfigFile a_config);
 		~HttpServer ();
 
 };
-
 
 } // namespace jazz_main
 

@@ -48,12 +48,8 @@ namespace jazz_main
 
 ConfigFile	J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
 Logger		J_LOGGER(J_CONFIG, "LOGGER_PATH");
+HttpServer	J_HTTP_SERVER(&J_LOGGER, &J_CONFIG);
 pMHD_Daemon	Jazz_MHD_Daemon;
-HttpServer	J_HTTP_SERVER ( //&J_LOGGER,
-							//&J_CONFIG,
-							//&signalHandler_SIGTERM,
-							//&Jazz_MHD_Daemon
-							);
 
 
 /** Capture SIGTERM. This callback procedure stops a running server.
@@ -70,15 +66,15 @@ void signalHandler_SIGTERM(int signum)
 
 	cout << "Stopping HttpServer ..." << endl;
 
-	bool stop_ok = J_HTTP_SERVER.stop();
+	// bool stop_ok = J_HTTP_SERVER.stop();
 
 	// ... Stop other services here.
 
-	if (!stop_ok) {
-		J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
+	// if (!stop_ok) {
+	// 	J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
 
-		exit (EXIT_FAILURE);
-	}
+	// 	exit (EXIT_FAILURE);
+	// }
 
 	exit (EXIT_SUCCESS);
 }
