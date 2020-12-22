@@ -48,11 +48,12 @@
 #include "src/jazz_elements/utils.h"
 #include "src/jazz_elements/block.h"
 #include "src/jazz_elements/tuple.h"
-#include "src/jazz_elements/storage.h"
+#include "src/jazz_elements/kind.h"
+#include "src/jazz_elements/field.h"
+#include "src/jazz_elements/volatile.h"
+#include "src/jazz_elements/persisted.h"
+#include "src/jazz_elements/network.h"
 #include "src/jazz_elements/flux.h"
-#include "src/jazz_elements/http_client.h"
-#include "src/jazz_elements/service.h"
-#include "src/jazz_elements/block_alloc.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS
