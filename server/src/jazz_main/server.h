@@ -86,7 +86,7 @@ There is no support for POST or TRACE, any functions other than those mentioned 
 
 //TODO: Write the JazzHttpServer description
 */
-class HttpServer : Service{
+class HttpServer {
 
 	public:
 		 HttpServer (pLogger	 a_logger,

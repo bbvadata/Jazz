@@ -50,7 +50,7 @@ HttpServer::HttpServer(pLogger	   a_logger,
 					   )
 {
 #ifdef DEBUG
-	log(LOG_DEBUG, "Entering HttpServer::HttpServer");
+//	log(LOG_DEBUG, "Entering HttpServer::HttpServer");
 #endif
 
 //TODO: Implement HttpServer
@@ -65,7 +65,7 @@ HttpServer::~HttpServer()
 //TODO: Implement ~HttpServer
 
 #ifdef DEBUG
-	log(LOG_DEBUG, "Leaving HttpServer::~HttpServer");
+//	log(LOG_DEBUG, "Leaving HttpServer::~HttpServer");
 #endif
 }
 
