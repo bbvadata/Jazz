@@ -675,6 +675,57 @@ void Logger::log_printf(int loglevel, const char *fmt, va_list args)
 	return log(loglevel, buffer);
 }
 
+/*	-----------------------------------------------
+	 Service : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** Initialize the Service without starting it.
+
+	\param a_logger	A valid logger (cannot be NULL).
+	\param a_config Possibly a configuration file as a ConfigFile object. NULL is okay if the object does not expect any configuration.
+	.
+*/
+Service::Service(pLogger	 a_logger,
+			     pConfigFile a_config)
+{
+	pLog  = a_logger;
+	pConf = a_config;
+}
+
+/** Start (or restart) the Service
+
+	\return SERVICE_NO_ERROR if successful, some error if not.
+
+	This method should be overriden by something that actually starts the service, possibly using the configuration file in pConf.
+*/
+Service_ErrorCode Service::start()
+{
+#ifdef DEBUG
+	pLog->log(LOG_DEBUG, "Service::start()");
+#endif
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Stop the Service
+
+	\param restarting_service Informs the service that it is a restart. If a restart is error free, all services will be started
+	again. If not, it is a server shutdown.
+
+	\return SERVICE_NO_ERROR if successful, some error if not.
+
+	This method should be overriden by something that actually stops the service, possibly using the configuration file in pConf.
+*/
+Service_ErrorCode Service::shut_down(bool restarting_service)
+{
+#ifdef DEBUG
+	pLog->log_printf(LOG_DEBUG, "Service::shut_down(%i)", restarting_service);
+#endif
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
