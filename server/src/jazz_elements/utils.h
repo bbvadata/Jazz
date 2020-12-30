@@ -207,7 +207,7 @@ class Service {
 		 Service(pLogger	 a_logger,
 			     pConfigFile a_config);
 
-		/// A simple Start/ShutDown interface (Restart is: ShutDown(TRUE):Start())
+		/// A simple start()/shut_down() interface (Restart is: shut_down(TRUE):start())
 		virtual Service_ErrorCode start		();
 		virtual Service_ErrorCode shut_down	(bool restarting_service = false);
 
