@@ -90,6 +90,17 @@ namespace jazz_elements
 	/// Maximum length for file names in ConfigFile and Logger.
 #define MAX_FILENAME_LENGTH	256
 
+/** Constants for Service_ErrorCode values
+*/
+#define SERVICE_NO_ERROR			 0		///< No errors found processing the API call.
+#define SERVICE_ERROR_BAD_CONFIG	-1		///< Generic error related with configuration parsing.
+#define SERVICE_ERROR_STARTING		-2		///< Generic error related with starting a service.
+#define SERVICE_ERROR_NO_MEM		-3		///< Specific error where configured allocation RAM failed.
+#define SERVICE_NOT_IMPLEMENTED		-4		///< Returned by the Service class (only descendents should be called.).
+
+	/// Type returned by the Service API
+typedef int Service_ErrorCode;
+
 
 bool		 FileExists			   (const char* file_name);
 int			 CountBytesFromUtf8	   (char *buff, int length);
