@@ -277,7 +277,6 @@ SCENARIO("Testing ExpandEscapeSequences().") {
 }
 
 
-//TODO: Find a better way to test an existing process by name (creating it?)
 SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
 //	REQUIRE(FindProcessIdByName("/usr/bin/") != 0);
@@ -663,6 +662,3 @@ SCENARIO("Testing class Logger") {
 
 	REQUIRE(strcmp("/tmp/jzz_unit_log.log", file_name) == 0);
 }
-
-
-//TODO: Write test for function FileExists()
