@@ -193,6 +193,32 @@ class Logger {
 		jazz_elements::TimePoint big_bang;
 };
 
+
+/** A Jazz Service logger.
+
+	A service is anything that requires configuration and a logger. Only a service can own (alloc from the system) RAM, anything else
+	allocates RAM from a service. Only Services (and some callback functions) are instantiated in Jazz instances and there is only one
+	of each. The abstract class just defines the API.
+*/
+class Service {
+
+	public:
+
+		 Service(pLogger	 a_logger,
+			     pConfigFile a_config);
+
+		/// A simple Start/ShutDown interface (Restart is: ShutDown(TRUE):Start())
+		virtual Service_ErrorCode start		();
+		virtual Service_ErrorCode shut_down	(bool restarting_service = false);
+
+	private:
+
+		pLogger		pLog;
+		pConfigFile	pConf;
+
+};
+
+
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_UTILS
