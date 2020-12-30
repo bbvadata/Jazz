@@ -118,9 +118,9 @@ inline int TenBitsAtAddress (const char* str) {
 }
 
 
-/** Return the time elapsed in microseconds as a 64 bit integer since a primordial event.
+/** Return server running time in microseconds as a 64 bit integer.
 
-	\param big_bang The primordial event
+	\param big_bang The primordial event (== Jazz server start ;)
 	\return			The time elapsed in microseconds
 */
 inline int64_t elapsed_us(jazz_elements::TimePoint big_bang) {
