@@ -46,9 +46,19 @@ namespace jazz_main
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
-ConfigFile	J_CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
-Logger		J_LOGGER(J_CONFIG, "LOGGER_PATH");
-HttpServer	J_HTTP_SERVER(&J_LOGGER, &J_CONFIG);
+ConfigFile	CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+Logger		LOGGER(CONFIG, "LOGGER_PATH");
+
+// Services
+
+Flux		BEAT (&LOGGER, &CONFIG);
+Bebop		BOP  (&LOGGER, &CONFIG);
+Agency		EPI  (&LOGGER, &CONFIG);
+Api			API  (&LOGGER, &CONFIG);
+HttpServer	HTTP (&LOGGER, &CONFIG);
+
+// Callbacks
+
 pMHD_Daemon	Jazz_MHD_Daemon;
 
 
@@ -60,23 +70,60 @@ void signalHandler_SIGTERM(int signum)
 {
 	cout << "Interrupt signal (" << signum << ") received." << endl;
 
-	cout << "Closing the http server ..." << endl;
+	cout << "Closing the http server ... ok." << endl;
 
 	MHD_stop_daemon (Jazz_MHD_Daemon);
 
-	cout << "Stopping HttpServer ..." << endl;
+	bool stop_ok = true;
 
-	// bool stop_ok = J_HTTP_SERVER.stop();
+	cout << "Stopping HTTP ... ";
 
-	// ... Stop other services here.
+	if (HTTP.shut_down() != SERVICE_NO_ERROR) {
+		cout << "FAILED!" << endl;
+		LOGGER.log(LOG_ERROR, "Errors occurred stopping HTTP.");
 
-	// if (!stop_ok) {
-	// 	J_LOGGER.log(LOG_ERROR, "Errors occurred stopping the server.");
+		stop_ok = false;
+	} else {
+		cout << "ok" << endl;
+	}
 
-	// 	exit (EXIT_FAILURE);
-	// }
+	if (API.shut_down() != SERVICE_NO_ERROR) {
+		cout << "FAILED!" << endl;
+		LOGGER.log(LOG_ERROR, "Errors occurred stopping API.");
 
-	exit (EXIT_SUCCESS);
+		stop_ok = false;
+	} else {
+		cout << "ok" << endl;
+	}
+
+	if (EPI.shut_down() != SERVICE_NO_ERROR) {
+		cout << "FAILED!" << endl;
+		LOGGER.log(LOG_ERROR, "Errors occurred stopping EPI.");
+
+		stop_ok = false;
+	} else {
+		cout << "ok" << endl;
+	}
+
+	if (BOP.shut_down() != SERVICE_NO_ERROR) {
+		cout << "FAILED!" << endl;
+		LOGGER.log(LOG_ERROR, "Errors occurred stopping BOP.");
+
+		stop_ok = false;
+	} else {
+		cout << "ok" << endl;
+	}
+
+	if (BEAT.shut_down() != SERVICE_NO_ERROR) {
+		cout << "FAILED!" << endl;
+		LOGGER.log(LOG_ERROR, "Errors occurred stopping BEAT.");
+
+		stop_ok = false;
+	} else {
+		cout << "ok" << endl;
+	}
+
+	if (stop_ok) exit (EXIT_SUCCESS); else exit (EXIT_FAILURE);
 }
 
 } // namespace jazz_main

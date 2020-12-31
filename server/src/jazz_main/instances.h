@@ -54,6 +54,8 @@ namespace jazz_main
 {
 
 using namespace jazz_elements;
+using namespace jazz_bebop;
+using namespace jazz_agency;
 
 #define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
 
@@ -61,11 +63,22 @@ using namespace jazz_elements;
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
-extern ConfigFile  J_CONFIG;
-extern Logger	   J_LOGGER;
-extern HttpServer  J_HTTP_SERVER;
-extern pMHD_Daemon Jazz_MHD_Daemon;
+// ConfigFile and Logger shared by all services
 
+extern ConfigFile  CONFIG;
+extern Logger	   LOGGER;
+
+// Services
+
+extern Flux		  BEAT;
+extern Bebop	  BOP;
+extern Agency	  EPI;	// As in epistrophy
+extern Api		  API;
+extern HttpServer HTTP;
+
+// Callbacks
+
+extern pMHD_Daemon Jazz_MHD_Daemon;
 void signalHandler_SIGTERM(int signum);
 
 } // namespace jazz_main
