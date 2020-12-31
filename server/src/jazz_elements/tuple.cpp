@@ -61,16 +61,6 @@ Index::Index()
 {
 };
 
-/*	-----------------------------------------------
-	 Kind : I m p l e m e n t a t i o n
---------------------------------------------------- */
-
-/**
-*/
-Kind::Kind()
-{
-};
-
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

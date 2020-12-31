@@ -683,7 +683,7 @@ void Logger::log_printf(int loglevel, const char *fmt, va_list args)
 
 	\param a_logger	A valid logger (cannot be NULL).
 	\param a_config Possibly a configuration file as a ConfigFile object. NULL is okay if the object does not expect any configuration.
-	.
+
 */
 Service::Service(pLogger	 a_logger,
 			     pConfigFile a_config)
