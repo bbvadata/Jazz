@@ -62,8 +62,8 @@ class Volatile : public Service {
 
 	public:
 
-		Volatile (pLogger	   a_logger,
-				   pConfigFile a_config);
+		Volatile (pLogger	  a_logger,
+				  pConfigFile a_config);
 
 		Service_ErrorCode start		();
 		Service_ErrorCode shut_down	(bool restarting_service = false);

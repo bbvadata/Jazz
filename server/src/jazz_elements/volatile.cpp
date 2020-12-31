@@ -41,6 +41,10 @@
 namespace jazz_elements
 {
 
+/*	-----------------------------------------------
+	 Volatile : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
 Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
 
 /**
