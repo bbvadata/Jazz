@@ -41,10 +41,34 @@
 namespace jazz_main
 {
 
+/*	-----------------------------------------------
+	 Api : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Api::Api(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+/**
+//TODO: Document Api::start()
+*/
+Service_ErrorCode Api::start()
+{
+//TODO: Implement Api::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Api::shut_down()
+*/
+Service_ErrorCode Api::shut_down(bool restarting_service = false)
+{
+//TODO: Implement Api::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
 
 } // namespace jazz_main
 
 #if defined CATCH_TEST
 #include "src/jazz_main/tests/test_api.ctest"
 #endif
-

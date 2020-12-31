@@ -58,8 +58,25 @@
 namespace jazz_main
 {
 
+using namespace jazz_elements;
+
+
+/**< \brief Api: A Service to manage the REST API.
+
+*/
+class Api : public Service {
+
+	public:
+
+		Api (pLogger	 a_logger,
+			 pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
+
+};
+
 
 } // namespace jazz_main
 
 #endif // ifndef INCLUDED_JAZZ_MAIN_API
-
