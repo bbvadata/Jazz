@@ -53,7 +53,7 @@
 namespace jazz_elements
 {
 
-/**< \brief Volatile: A Service to manage data object in RAM.
+/**< \brief Volatile: A Service to manage data objects in RAM.
 
 This is the primary API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
 class.
