@@ -62,8 +62,8 @@ class Cluster : public Persisted {
 
 	public:
 
-		Cluster (pLogger	  a_logger,
-				  pConfigFile a_config);
+		Cluster (pLogger	 a_logger,
+				 pConfigFile a_config);
 
 		Service_ErrorCode start		();
 		Service_ErrorCode shut_down	(bool restarting_service = false);

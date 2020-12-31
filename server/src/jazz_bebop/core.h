@@ -69,8 +69,8 @@ class Bebop : public Service {
 
 	public:
 
-		Bebop (pLogger	  a_logger,
-				  pConfigFile a_config);
+		Bebop (pLogger	   a_logger,
+			   pConfigFile a_config);
 
 		Service_ErrorCode start		();
 		Service_ErrorCode shut_down	(bool restarting_service = false);
