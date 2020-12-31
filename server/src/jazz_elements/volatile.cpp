@@ -60,7 +60,7 @@ Service_ErrorCode Volatile::start()
 /**
 //TODO: Document Volatile::shut_down()
 */
-Service_ErrorCode Volatile::shut_down(bool restarting_service = false)
+Service_ErrorCode Volatile::shut_down(bool restarting_service)
 {
 //TODO: Implement Volatile::shut_down()
 

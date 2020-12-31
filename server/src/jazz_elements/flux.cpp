@@ -60,7 +60,7 @@ Service_ErrorCode Flux::start()
 /**
 //TODO: Document Flux::shut_down()
 */
-Service_ErrorCode Flux::shut_down(bool restarting_service = false)
+Service_ErrorCode Flux::shut_down(bool restarting_service)
 {
 //TODO: Implement Flux::shut_down()
 

@@ -60,7 +60,7 @@ Service_ErrorCode Persisted::start()
 /**
 //TODO: Document Persisted::shut_down()
 */
-Service_ErrorCode Persisted::shut_down(bool restarting_service = false)
+Service_ErrorCode Persisted::shut_down(bool restarting_service)
 {
 //TODO: Implement Persisted::shut_down()
 

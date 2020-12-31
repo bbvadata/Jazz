@@ -60,7 +60,7 @@ Service_ErrorCode Api::start()
 /**
 //TODO: Document Api::shut_down()
 */
-Service_ErrorCode Api::shut_down(bool restarting_service = false)
+Service_ErrorCode Api::shut_down(bool restarting_service)
 {
 //TODO: Implement Api::shut_down()
 

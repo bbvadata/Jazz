@@ -60,7 +60,7 @@ Service_ErrorCode Agency::start()
 /**
 //TODO: Document Agency::shut_down()
 */
-Service_ErrorCode Agency::shut_down(bool restarting_service = false)
+Service_ErrorCode Agency::shut_down(bool restarting_service)
 {
 //TODO: Implement Agency::shut_down()
 

@@ -60,7 +60,7 @@ Service_ErrorCode Bebop::start()
 /**
 //TODO: Document Bebop::shut_down()
 */
-Service_ErrorCode Bebop::shut_down(bool restarting_service = false)
+Service_ErrorCode Bebop::shut_down(bool restarting_service)
 {
 //TODO: Implement Bebop::shut_down()
 

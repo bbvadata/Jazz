@@ -61,7 +61,7 @@ Service_ErrorCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p
 /**
 //TODO: Document HttpServer::shut_down()
 */
-Service_ErrorCode HttpServer::shut_down(bool restarting_service = false)
+Service_ErrorCode HttpServer::shut_down(bool restarting_service)
 {
 //TODO: Implement HttpServer::shut_down()
 

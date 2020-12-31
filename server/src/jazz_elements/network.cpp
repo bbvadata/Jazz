@@ -105,7 +105,7 @@ Service_ErrorCode Cluster::start()
 /**
 //TODO: Document Cluster::shut_down()
 */
-Service_ErrorCode Cluster::shut_down(bool restarting_service = false)
+Service_ErrorCode Cluster::shut_down(bool restarting_service)
 {
 //TODO: Implement Cluster::shut_down()
 
