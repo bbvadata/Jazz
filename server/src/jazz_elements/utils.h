@@ -214,10 +214,48 @@ class Service {
 		virtual Service_ErrorCode start		();
 		virtual Service_ErrorCode shut_down	(bool restarting_service = false);
 
+		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
+
+			\param loglevel The trace level.
+			\param message	A message.
+
+			See Logger for details.
+		*/
+		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
+
+		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
+
+			\param loglevel The trace level.
+			\param fmt		The printf-style format string.
+			\param ...		The list of parameters as a variadic list of parameters.
+
+			See Logger for details.
+		*/
+		inline void log_printf (int loglevel, const char *fmt, ...) {
+			if (p_log != nullptr) {
+				va_list args;
+				va_start(args, fmt);
+				p_log->log_printf(loglevel, fmt, args);
+				va_end(args);
+			}
+		}
+
+		/** Wrapper method to get configuration values when the ConfigFile was passed to the constructor of this class.
+
+			\param key	 The configuration key to be searched.
+			\param value Value to be returned only when the function returns true.
+			\return		 True when the key exists and can be returned with the specific (overloaded) type.
+
+			See ConfigFile for details.
+		*/
+		bool get_conf_key (const char *key, int &value) { if (p_conf != nullptr) return p_conf->get_key(key, value); }
+		bool get_conf_key (const char *key, double &value) { if (p_conf != nullptr) return p_conf->get_key(key, value); }
+		bool get_conf_key (const char *key, std::string &value) { if (p_conf != nullptr) return p_conf->get_key(key, value); }
+
 	private:
 
-		pLogger		pLog;
-		pConfigFile	pConf;
+		pLogger		p_log;
+		pConfigFile	p_conf;
 
 };
 
