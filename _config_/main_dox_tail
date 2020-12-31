@@ -16,13 +16,22 @@ nothing  | Code is complete and tested.
 [FUTURE] | Code not under active development. Working on PoC.
 \n
 
-There are three C++ namespaces:
+There are three C++ namespaces, intended for general c++ Jazz programming, possibly using external Jazz servers, but not necessarily as
+implemented as an http server:
 
 1. jazz_elements (all the pieces: blocks, tuples, storage, fluxes, communication, services, ...)\n
 2. jazz_bebop (everything to create bebop code, run it and expand Formal Fields)\n
 3. jazz_agency (agency as graphs of fields)\n
+\n
 
-Additionally, (4.), since everything is an http server, front-end developers build on the REST API\n
+Additionally, there is a namespace for the server:
+\n\n
+
+4. jazz_main (putting it all together, the http API and the server)
+\n
+
+And, of course, Jazz development is about making the server run Bebop code and interfacing via REST using python or any front-end tech via
+the REST API.\n
 
 \n
 \section repo_sec REPOSITORIES
