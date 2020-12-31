@@ -681,15 +681,17 @@ void Logger::log_printf(int loglevel, const char *fmt, va_list args)
 
 /** Initialize the Service without starting it.
 
-	\param a_logger	A valid logger (cannot be NULL).
+	\param a_logger	A Logger.
 	\param a_config Possibly a configuration file as a ConfigFile object. NULL is okay if the object does not expect any configuration.
 
+	Rather than using the private p_log and p_conf pointers, it is recommended to use the inline methods log() and log_printf() for
+	logging and get_conf_key() for acessing the configuration.
 */
 Service::Service(pLogger	 a_logger,
 			     pConfigFile a_config)
 {
-	pLog  = a_logger;
-	pConf = a_config;
+	p_log  = a_logger;
+	p_conf = a_config;
 }
 
 /** Start (or restart) the Service
@@ -701,7 +703,7 @@ Service::Service(pLogger	 a_logger,
 Service_ErrorCode Service::start()
 {
 #ifdef DEBUG
-	pLog->log(LOG_DEBUG, "Service::start()");
+	log(LOG_DEBUG, "Service::start()");
 #endif
 
 	return SERVICE_NOT_IMPLEMENTED;
@@ -720,7 +722,7 @@ Service_ErrorCode Service::start()
 Service_ErrorCode Service::shut_down(bool restarting_service)
 {
 #ifdef DEBUG
-	pLog->log_printf(LOG_DEBUG, "Service::shut_down(%i)", restarting_service);
+	log_printf(LOG_DEBUG, "Service::shut_down(%i)", restarting_service);
 #endif
 
 	return SERVICE_NOT_IMPLEMENTED;
