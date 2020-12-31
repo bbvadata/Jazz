@@ -41,6 +41,27 @@
 namespace jazz_elements
 {
 
+Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+/**
+//TODO: Document Volatile::start()
+*/
+Service_ErrorCode Volatile::start()
+{
+//TODO: Implement Volatile::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Volatile::shut_down()
+*/
+Service_ErrorCode Volatile::shut_down(bool restarting_service = false)
+{
+//TODO: Implement Volatile::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
 
 } // namespace jazz_elements
 

@@ -53,16 +53,20 @@
 namespace jazz_elements
 {
 
-/**< \brief One liner.
+/**< \brief Volatile: A Service to manage data object in RAM.
 
-//TODO: Write this!
+This is the primary API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
+class.
 */
 class Volatile : public Service {
 
 	public:
-		 Volatile (pLogger	   a_logger,
+
+		Volatile (pLogger	   a_logger,
 				   pConfigFile a_config);
-		~Volatile ();
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
 
 };
 
