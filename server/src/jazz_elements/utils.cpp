@@ -500,7 +500,7 @@ bool ConfigFile::get_key(const char *key, std::string &value)
 /** DEBUG ONLY function: Set a config key manually.
 
 	\param key	The configuration key to be set.
-	\param val	New value of the key as a string (also valiud for int and double if the string can be converted).
+	\param val	New value of the key as a string (also valid for int and double if the string can be converted).
 */
 void ConfigFile::debug_put(const std::string key, const std::string val)
 {
