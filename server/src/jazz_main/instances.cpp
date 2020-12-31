@@ -80,7 +80,3 @@ void signalHandler_SIGTERM(int signum)
 }
 
 } // namespace jazz_main
-
-#if defined CATCH_TEST
-#include "src/jazz_main/tests/test_instances.ctest"
-#endif
