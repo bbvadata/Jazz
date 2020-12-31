@@ -42,31 +42,30 @@
 namespace jazz_main
 {
 
-/**
-//TODO: Document HttpServer()
-*/
-HttpServer::HttpServer(pLogger	   a_logger,
-					   pConfigFile a_config
-					   )
-{
-#ifdef DEBUG
-//	log(LOG_DEBUG, "Entering HttpServer::HttpServer");
-#endif
+/*	-----------------------------------------------
+	 HttpServer : I m p l e m e n t a t i o n
+--------------------------------------------------- */
 
-//TODO: Implement HttpServer
+HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+/**
+//TODO: Document HttpServer::start()
+*/
+Service_ErrorCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon)
+{
+//TODO: Implement HttpServer::start()
+
+	return SERVICE_NO_ERROR;
 }
 
-
 /**
-//TODO: Document ~HttpServer()
+//TODO: Document HttpServer::shut_down()
 */
-HttpServer::~HttpServer()
+Service_ErrorCode HttpServer::shut_down(bool restarting_service = false)
 {
-//TODO: Implement ~HttpServer
+//TODO: Implement HttpServer::shut_down()
 
-#ifdef DEBUG
-//	log(LOG_DEBUG, "Leaving HttpServer::~HttpServer");
-#endif
+	return SERVICE_NO_ERROR;
 }
 
 } // namespace jazz_main
