@@ -59,8 +59,24 @@
 namespace jazz_agency
 {
 
+using namespace jazz_elements;
+
+
+/**< \brief Agency: A Service to manage flʌkpilers and agents.
+
+*/
+class Agency : public Service {
+
+	public:
+
+		Agency (pLogger		a_logger,
+				pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
+
+};
 
 } // namespace jazz_agency
 
 #endif // ifndef INCLUDED_JAZZ_AGENCY_AGENCY
-

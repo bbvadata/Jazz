@@ -41,10 +41,34 @@
 namespace jazz_agency
 {
 
+/*	-----------------------------------------------
+	 Agency : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Agency::Agency(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+/**
+//TODO: Document Agency::start()
+*/
+Service_ErrorCode Agency::start()
+{
+//TODO: Implement Agency::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Agency::shut_down()
+*/
+Service_ErrorCode Agency::shut_down(bool restarting_service = false)
+{
+//TODO: Implement Agency::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
 
 } // namespace jazz_agency
 
 #if defined CATCH_TEST
 #include "src/jazz_agency/tests/test_agency.ctest"
 #endif
-
