@@ -66,6 +66,4 @@
 #define CMD_STOP		2	///< Command 'stop' as a numerical constant (see parse_arg())
 #define CMD_STATUS		3	///< Command 'status' as a numerical constant (see parse_arg())
 
-using namespace std;
-
 #endif // ifndef INCLUDED_JAZZ_MAIN_MAIN

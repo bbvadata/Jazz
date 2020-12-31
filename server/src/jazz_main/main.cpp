@@ -39,6 +39,9 @@
 
 #if !defined CATCH_TEST
 
+using namespace std;
+using namespace jazz_main;
+
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
  */
@@ -82,11 +85,201 @@ void show_usage()
 }
 
 
+/** Parse the command line argument (start, stop, ...) into a numeric constant, CMD_START, CMD_STOP, ...
+
+	\param arg The argument as typed.
+	\return the numeric constant and CMD_HELP when not known.
+*/
+int parse_command(const char *arg)
+{
+	if (!strcmp("start",  arg)) return CMD_START;
+	if (!strcmp("stop",	  arg)) return CMD_STOP;
+	if (!strcmp("status", arg)) return CMD_STATUS;
+
+	return CMD_HELP;
+}
+
+
+/** Entry point.
+
+\param argc (Linux) number of arguments, counting the name of the executable.
+\param argv (Linux) each argument, argv[0] being the name of the executable.
+
+\return EXIT_FAILURE or EXIT_SUCCESS
+
+When the command is "start":
+	if running already, message + EXIT_FAILURE
+	if configuration declared, but does no exist, message + EXIT_FAILURE
+	else try to start the server calling main_server_start()
+
+When the command is "stop":
+	if not running already, message + EXIT_FAILURE
+	else send a SIGTERM to the server and wait to check if it closes
+		if the server closes before 20 seconds, message + EXIT_SUCCESS
+		else message + EXIT_FAILURE
+
+When the command is "status":
+	if not running already, message + EXIT_FAILURE
+	else message + EXIT_SUCCESS
+
+When the command is anything else, too many or too few:
+	show help + EXIT_FAILURE
+
+ */
 int main(int argc, char* argv[])
 {
+	int cmd = (argc < 2 || argc > 3) ? CMD_HELP : parse_command(argv[argc - 1]);
 
-	exit(EXIT_FAILURE);
-}
+	if (cmd == CMD_HELP || argc == 3 && cmd != CMD_START) {
+		show_credits();
+		show_usage();
+
+		exit(EXIT_FAILURE);
+	}
+
+#ifdef DEBUG
+	string proc_name ("./djazz");
+
+	pid_t jzzPID;
+#else
+	string proc_name ("./jazz");
+
+	pid_t jzzPID = jazz_elements::FindProcessIdByName(proc_name.c_str());
+
+	if (!jzzPID)
+		proc_name = "/etc/jazz-server/jazz";
+#endif
+
+	jzzPID = jazz_elements::FindProcessIdByName(proc_name.c_str());
+
+	if (!jzzPID) {
+		if (cmd != CMD_START) {
+			cout << "The process \"" << proc_name << "\" is not running." << endl;
+
+			exit(EXIT_FAILURE);
+		}
+
+		if (argc == 3) {
+			if (!jazz_elements::FileExists(argv[1])) {
+				cout << "The file " << argv[1] << " does not exist." << endl;
+
+				exit(EXIT_FAILURE);
+			}
+			if (!CONFIG.load_config(argv[1])) {
+				cout << "The configuration file " << argv[1] << " could not be parsed." << endl;
+
+				exit(EXIT_FAILURE);
+			}
+			cout << endl
+				 << "**NOTE:** The configuration file " << argv[1] << " has been loaded." << endl
+				 << "---------" << endl << endl;
+		}
+
+		show_credits();
+
+		cout << "Starting BEAT ... ";
+
+		if (BEAT.start() != SERVICE_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			LOGGER.log(LOG_ERROR, "Errors occurred starting BEAT.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
+		cout << "Starting BOP ... ";
+
+		if (BOP.start() != SERVICE_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			LOGGER.log(LOG_ERROR, "Errors occurred starting BOP.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
+		cout << "Starting EPI ... ";
+
+		if (EPI.start() != SERVICE_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			LOGGER.log(LOG_ERROR, "Errors occurred starting EPI.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
+		cout << "Starting API ... ";
+
+		if (API.start() != SERVICE_NO_ERROR) {
+			cout << "FAILED!" << endl;
+
+			LOGGER.log(LOG_ERROR, "Errors occurred starting API.");
+
+			exit (EXIT_FAILURE);
+		}
+
+		cout << "ok." << endl;
+
+		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon);
+
+		if (ret_code != EXIT_SUCCESS) {
+			cout << "Stopping API ..." << endl;
+
+			API.shut_down();
+
+			cout << "Stopping EPI ..." << endl;
+
+			EPI.shut_down();
+
+			cout << "Stopping BOP ..." << endl;
+
+			BOP.shut_down();
+
+			cout << "Stopping BEAT ..." << endl;
+
+			BEAT.shut_down();
+		}
+
+		exit(ret_code);
+
+	} else {
+
+		if (cmd == CMD_START) {
+			cout << "The process \"" << proc_name << "\" is already running with pid = " << jzzPID << "." << endl;
+
+			exit(EXIT_FAILURE);
+		}
+
+		if (cmd == CMD_STOP) {
+			kill(jzzPID, SIGTERM);
+
+			cout << "Break signal was sent to process \"" << proc_name << "\" running with pid = " << jzzPID << "." << endl << endl;
+			for (int t = 0; t < 200; t++) {
+				usleep (100000);
+				if (!jazz_elements::FindProcessIdByName(proc_name.c_str())) {
+					cout << "The process \"" << proc_name << "\" was stopped." << endl;
+
+					exit(EXIT_SUCCESS);
+				}
+			}
+
+			cout << "Waiting for \"" << proc_name << "\" to stop timed out." << endl;
+
+			exit(EXIT_FAILURE);
+		}
+
+// (cmd == CMD_STATUS)
+
+		cout << "The process \"" << proc_name << "\" is running with pid = " << jzzPID << "." << endl;
+
+		exit(EXIT_SUCCESS);
+	}
+};
 
 
 #endif
