@@ -41,10 +41,34 @@
 namespace jazz_bebop
 {
 
+/*	-----------------------------------------------
+	 Bebop : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+/**
+//TODO: Document Bebop::start()
+*/
+Service_ErrorCode Bebop::start()
+{
+//TODO: Implement Bebop::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Bebop::shut_down()
+*/
+Service_ErrorCode Bebop::shut_down(bool restarting_service = false)
+{
+//TODO: Implement Bebop::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
 
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
 #include "src/jazz_bebop/tests/test_core.ctest"
 #endif
-

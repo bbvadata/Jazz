@@ -59,8 +59,24 @@
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
+
+/**< \brief Bebop: A Service to manage running cores and code bases.
+
+*/
+class Bebop : public Service {
+
+	public:
+
+		Bebop (pLogger	  a_logger,
+				  pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
+
+};
 
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_CORE
-
