@@ -50,11 +50,12 @@
 #define INCLUDED_JAZZ_BEBOP_CORE
 
 
-/**< \brief One liner.
+/*! \brief Bebop, cores, kernel and extending the language.
 
-//TODO: Write this!
+	This namespace includes anything related with running and implementing Bebop code.
+
+	All together is instanced in the server as the BOP (of Jazz).
 */
-
 namespace jazz_bebop
 {
 

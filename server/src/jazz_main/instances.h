@@ -50,11 +50,6 @@
 #define INCLUDED_JAZZ_MAIN_INSTANCES
 
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_main
 {
 

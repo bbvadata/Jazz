@@ -50,11 +50,6 @@
 #define INCLUDED_JAZZ_ELEMENTS_KIND
 
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 

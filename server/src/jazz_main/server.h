@@ -52,10 +52,6 @@
 #define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
 #include "microhttpd.h"
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
 
 namespace jazz_main
 {

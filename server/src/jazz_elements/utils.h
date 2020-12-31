@@ -62,14 +62,14 @@
 #define INCLUDED_JAZZ_ELEMENTS_UTILS
 
 
-/**< \brief Miscellaneous utility functions for Jazz.
+namespace jazz_elements
+{
+
+/* Miscellaneous utility functions for Jazz.
 
 	This module defines many unrelated functions needed by Jazz. The only rule is: functions and classes
 without global variables.
 */
-
-namespace jazz_elements
-{
 
 #define TENBITS_LUT_SIZE 1024	///< The size of a table indexable by all possible output values of TenBitsAtAddress()
 

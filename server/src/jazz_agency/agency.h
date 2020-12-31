@@ -50,11 +50,12 @@
 #define INCLUDED_JAZZ_AGENCY_AGENCY
 
 
-/**< \brief One liner.
+/*! \brief Agency: learning, building flʌkpilers and graphs of flʌkpilers (== Agents).
 
-//TODO: Write this!
+	This namespace includes the top-level elements in the Jazz ecosystem automating the magic.
+
+	All together is instanced in the server as the EPI (from Epistrophy).
 */
-
 namespace jazz_agency
 {
 

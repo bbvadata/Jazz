@@ -50,6 +50,9 @@
 #define INCLUDED_JAZZ_ELEMENTS_TUPLE
 
 
+namespace jazz_elements
+{
+
 /**< \brief A tuple is a tree of blocks where each edge has a name. A kind is a tuple with indexed dimensions.
 
 A tuple is a tree of blocks where each edge has a name (and no more attributes). The names in the tuple select a specific block
@@ -57,9 +60,6 @@ inside the tuple, somehow like the folder names in a directory tree. A kind is a
 These parameters are indices. This module implements: Tuple, Index and Kind.
 
 */
-
-namespace jazz_elements
-{
 
 class Tuple {
 
@@ -76,16 +76,6 @@ class Index {
 	public:
 
 		Index();
-
-	private:
-
-};
-
-class Kind {
-
-	public:
-
-		Kind();
 
 	private:
 

@@ -54,13 +54,13 @@
 #define INCLUDED_JAZZ_ELEMENTS_BLOCK
 
 
-/**< \brief The class Block and its descendant Filter.
+namespace jazz_elements
+{
+/* \brief The class Block and its descendant Filter.
 
 	This module defines the logic to get/set data from/to Block objects at the simplest level.
 */
 
-namespace jazz_elements
-{
 
 // Forward declarations
 typedef std::map<int, const char *> AllAttributes;

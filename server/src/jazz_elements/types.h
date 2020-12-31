@@ -50,11 +50,13 @@
 #define INCLUDED_JAZZ_ELEMENTS_TYPES
 
 
-/**< \brief Basic Jazz code-less structures and constants.
+/*! \brief Basic Jazz code-less structures and constants.
 
-	This module defines constant and structures used by Block. A Block is a class derived from a structure BlockHeader.
+	This namespace includes utilities, types, constants and structures used by Block, all different block-based data and code structures
+	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Volatile, Persisted, Cluster and Flux).
+
+	All together is instanced in the server as the BEAT (of Jazz).
 */
-
 namespace jazz_elements
 {
 

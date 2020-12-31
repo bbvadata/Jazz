@@ -50,11 +50,11 @@
 #define INCLUDED_JAZZ_MAIN_API
 
 
-/**< \brief One liner.
+/*! \brief The http API, instancing and building the server.
 
-//TODO: Write this!
+	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_agency
+	it is not intended to build other applications than the server.
 */
-
 namespace jazz_main
 {
 
