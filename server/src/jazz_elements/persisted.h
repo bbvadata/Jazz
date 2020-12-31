@@ -73,4 +73,3 @@ class Persisted : public Volatile {
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_PERSISTED
-

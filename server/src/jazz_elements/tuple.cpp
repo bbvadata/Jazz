@@ -66,4 +66,3 @@ Index::Index()
 #if defined CATCH_TEST
 #include "src/jazz_elements/tests/test_tuple.ctest"
 #endif
-

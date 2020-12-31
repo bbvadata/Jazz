@@ -57,4 +57,3 @@ namespace jazz_elements
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_FIELD
-

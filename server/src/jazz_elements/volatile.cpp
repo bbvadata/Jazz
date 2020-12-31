@@ -72,4 +72,3 @@ Service_ErrorCode Volatile::shut_down(bool restarting_service = false)
 #if defined CATCH_TEST
 #include "src/jazz_elements/tests/test_volatile.ctest"
 #endif
-

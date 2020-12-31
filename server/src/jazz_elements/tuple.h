@@ -84,4 +84,3 @@ class Index {
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_TUPLE
-

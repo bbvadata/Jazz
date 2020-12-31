@@ -47,4 +47,3 @@ namespace jazz_elements
 #if defined CATCH_TEST
 #include "src/jazz_elements/tests/test_field.ctest"
 #endif
-
