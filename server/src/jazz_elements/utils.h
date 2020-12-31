@@ -199,6 +199,9 @@ class Logger {
 	A service is anything that requires configuration and a logger. Only a service can own (alloc from the system) RAM, anything else
 	allocates RAM from a service. Only Services (and some callback functions) are instantiated in Jazz instances and there is only one
 	of each. The abstract class just defines the API.
+
+	A Service should NOT read the configuration before its .start() method is called as it may change between construction (at loading)
+	and .start() (at running).
 */
 class Service {
 
