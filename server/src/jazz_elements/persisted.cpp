@@ -41,6 +41,32 @@
 namespace jazz_elements
 {
 
+/*	-----------------------------------------------
+	 Persisted : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Volatile(a_logger, a_config) {}
+
+/**
+//TODO: Document Persisted::start()
+*/
+Service_ErrorCode Persisted::start()
+{
+//TODO: Implement Persisted::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Persisted::shut_down()
+*/
+Service_ErrorCode Persisted::shut_down(bool restarting_service = false)
+{
+//TODO: Implement Persisted::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
+
 
 } // namespace jazz_elements
 

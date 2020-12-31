@@ -50,14 +50,25 @@
 #define INCLUDED_JAZZ_ELEMENTS_PERSISTED
 
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
+/**< \brief Persisted: A Service to manage data objects in LMDB.
+
+This is another API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
+class.
+*/
+class Persisted : public Volatile {
+
+	public:
+
+		Persisted (pLogger	   a_logger,
+				   pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
+
+};
 
 } // namespace jazz_elements
 
