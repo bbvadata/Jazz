@@ -50,16 +50,26 @@
 #define INCLUDED_JAZZ_ELEMENTS_NETWORK
 
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
+/**< \brief Cluster: A Service to manage data objects across a cluster of Jazz servers.
+
+This is another API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
+class.
+*/
+class Cluster : public Persisted {
+
+	public:
+
+		Cluster (pLogger	  a_logger,
+				  pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
+
+};
 
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_NETWORK
-

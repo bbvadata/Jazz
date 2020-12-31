@@ -86,10 +86,35 @@ bool remote_testing_point ()
 	return true;
 }
 
+/*	-----------------------------------------------
+	 Cluster : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Cluster::Cluster(pLogger a_logger, pConfigFile a_config) : Persisted(a_logger, a_config) {}
+
+/**
+//TODO: Document Cluster::start()
+*/
+Service_ErrorCode Cluster::start()
+{
+//TODO: Implement Cluster::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Cluster::shut_down()
+*/
+Service_ErrorCode Cluster::shut_down(bool restarting_service = false)
+{
+//TODO: Implement Cluster::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
+
 
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
 #include "src/jazz_elements/tests/test_network.ctest"
 #endif
-
