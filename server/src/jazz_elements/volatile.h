@@ -50,14 +50,21 @@
 #define INCLUDED_JAZZ_ELEMENTS_VOLATILE
 
 
+namespace jazz_elements
+{
+
 /**< \brief One liner.
 
 //TODO: Write this!
 */
+class Volatile : public Service {
 
-namespace jazz_elements
-{
+	public:
+		 Volatile (pLogger	   a_logger,
+				   pConfigFile a_config);
+		~Volatile ();
 
+};
 
 } // namespace jazz_elements
 
