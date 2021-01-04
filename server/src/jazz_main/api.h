@@ -50,6 +50,10 @@
 #define INCLUDED_JAZZ_MAIN_API
 
 
+#define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
+#include "microhttpd.h"
+
+
 /*! \brief The http API, instancing and building the server.
 
 	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_agency
