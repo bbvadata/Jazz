@@ -65,6 +65,12 @@ namespace jazz_main
 using namespace jazz_elements;
 
 
+// ConfigFile and Logger shared by all services
+
+extern ConfigFile  CONFIG;
+extern Logger	   LOGGER;
+
+
 /**< \brief Api: A Service to manage the REST API.
 
 */

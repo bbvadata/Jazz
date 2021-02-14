@@ -63,11 +63,6 @@ using namespace jazz_agency;
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
-// ConfigFile and Logger shared by all services
-
-extern ConfigFile  CONFIG;
-extern Logger	   LOGGER;
-
 // Services
 
 extern Flux		  BEAT;
