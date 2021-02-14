@@ -77,7 +77,7 @@ On cookies:
 int print_out_key (void *cls, enum MHD_ValueKind kind,
 				   const char *key, const char *value)
 {
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
 	return MHD_YES;
 }
 #endif
@@ -113,13 +113,13 @@ int tenbitDS;							///< The binary ten bits of "//" double-slash to identify we
 	The internal operation of the callback function is subject to change and the remarks in the source code are the description of it.
 */
 int http_request_callback(void *cls,
-							  struct MHD_Connection *connection,
-							  const char *url,
-							  const char *method,
-							  const char *version,
-							  const char *upload_data,
-							  size_t *upload_data_size,
-							  void **con_cls)
+						  struct MHD_Connection *connection,
+						  const char *url,
+						  const char *method,
+						  const char *version,
+						  const char *upload_data,
+						  size_t *upload_data_size,
+						  void **con_cls)
 {
 	// Step 1: First opportunity to end the connection before uploading or getting. Not used. We initialize con_cls for the next call.
 
@@ -129,7 +129,7 @@ int http_request_callback(void *cls,
 
 		return MHD_YES;
 	}
-
+/*
 	// Step 2 : Continue uploads in progress, checking all possible error conditions.
 
 	int imethod;
@@ -196,23 +196,23 @@ int http_request_callback(void *cls,
 	// Step 4 : This point is reached just once per http petition. Parse the query, returns errors and web pages, continue to API.
 
 	struct MHD_Response * response;
-
+*/
 #ifdef DEBUG
-	jCommons.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - cls \x20 \x20 \x20 \x20 \x20 \x20 \x20: %p", cls);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - connection \x20 \x20 \x20 : %p", connection);
+	LOGGER.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - cls \x20 \x20 \x20 \x20 \x20 \x20 \x20: %p", cls);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - connection \x20 \x20 \x20 : %p", connection);
 	MHD_get_connection_values (connection, MHD_HEADER_KIND, &print_out_key, NULL);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - url \x20 \x20 \x20 \x20 \x20 \x20 \x20: %s", url);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - method \x20 \x20 \x20 \x20 \x20 : %s", method);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - version \x20 \x20 \x20 \x20 \x20: %s", version);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - upload_data \x20 \x20 \x20: %p", upload_data);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - upload_data_size : %d", *upload_data_size);
-	jCommons.log_printf(LOG_DEBUG, "| HTTP callback - *con_cls \x20 \x20 \x20 \x20 : %p", *con_cls);
-	jCommons.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - url \x20 \x20 \x20 \x20 \x20 \x20 \x20: %s", url);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - method \x20 \x20 \x20 \x20 \x20 : %s", method);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - version \x20 \x20 \x20 \x20 \x20: %s", version);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - upload_data \x20 \x20 \x20: %p", upload_data);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - upload_data_size : %d", *upload_data_size);
+	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - *con_cls \x20 \x20 \x20 \x20 : %p", *con_cls);
+	LOGGER.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
 
-	response = NULL;	// clang warning
+//	response = NULL;	// clang warning
 #endif
-
+/*
 	switch (imethod)
 	{
 		case HTTP_NOTUSED:
@@ -525,6 +525,7 @@ continue_in_put_ok:
 
 		return MHD_YES;
 	}
+*/
 	return MHD_NO;
 }
 
