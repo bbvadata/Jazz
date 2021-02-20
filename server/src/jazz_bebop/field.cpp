@@ -35,15 +35,15 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_elements/field.h"
+#include "src/jazz_bebop/field.h"
 
 
-namespace jazz_elements
+namespace jazz_bebop
 {
 
 
-} // namespace jazz_elements
+} // namespace jazz_bebop
 
 #if defined CATCH_TEST
-#include "src/jazz_elements/tests/test_field.ctest"
+#include "src/jazz_bebop/tests/test_field.ctest"
 #endif

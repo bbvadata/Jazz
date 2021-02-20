@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_elements/kind.h"
+#include "src/jazz_bebop/core.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -46,14 +46,19 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_ELEMENTS_FIELD
-#define INCLUDED_JAZZ_ELEMENTS_FIELD
+#ifndef INCLUDED_JAZZ_BEBOP_FIELD
+#define INCLUDED_JAZZ_BEBOP_FIELD
 
 
-namespace jazz_elements
+/**< \brief One liner.
+
+//TODO: Write this!
+*/
+
+namespace jazz_bebop
 {
 
 
-} // namespace jazz_elements
+} // namespace jazz_bebop
 
-#endif // ifndef INCLUDED_JAZZ_ELEMENTS_FIELD
+#endif // ifndef INCLUDED_JAZZ_BEBOP_FIELD
