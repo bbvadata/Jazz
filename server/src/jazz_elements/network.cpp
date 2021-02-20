@@ -90,7 +90,7 @@ bool remote_testing_point ()
 	 Cluster : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Cluster::Cluster(pLogger a_logger, pConfigFile a_config) : Persisted(a_logger, a_config) {}
+Cluster::Cluster(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
 
 /**
 //TODO: Document Cluster::start()
