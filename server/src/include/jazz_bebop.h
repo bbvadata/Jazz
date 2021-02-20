@@ -45,6 +45,7 @@ The namespace jazz_bebop contains everything to make Bebop code compile, link an
 */
 
 #include "src/jazz_bebop/core.h"
+#include "src/jazz_bebop/field.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP
