@@ -11,6 +11,7 @@ The maturity level of the different modules is:\n
 Maturity | Description
 -------- | -----------
 nothing  | Code is complete and tested.
+[TEST]   | Code is complete, but testing is not complete.
 [PROTO]  | Code under active development, possibly working, but not release quality.
 [DRAFT]  | Code under active development, PoC in Python and API closed, but no working implementation in Jazz.
 [FUTURE] | Code not under active development. Working on PoC.
