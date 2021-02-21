@@ -58,6 +58,16 @@
 namespace jazz_elements
 {
 
+/**< \brief aaa: aaa.
+
+//TODO: Document this!
+*/
+class Table : public Tuple {
+
+	public:
+
+};
+
 
 } // namespace jazz_elements
 
