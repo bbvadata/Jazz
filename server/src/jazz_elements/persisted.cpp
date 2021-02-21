@@ -45,7 +45,7 @@ namespace jazz_elements
 	 Persisted : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Volatile(a_logger, a_config) {}
+Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 /**
 //TODO: Document Persisted::start()

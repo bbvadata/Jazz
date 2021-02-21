@@ -58,7 +58,7 @@ namespace jazz_elements
 This is another API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
 class.
 */
-class Persisted : public Volatile {
+class Persisted : public Container {
 
 	public:
 
