@@ -58,7 +58,7 @@ namespace jazz_elements
 This is the primary API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
 class.
 */
-class Volatile : public Service {
+class Volatile : public Container {
 
 	public:
 
