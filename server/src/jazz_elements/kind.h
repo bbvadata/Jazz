@@ -53,6 +53,24 @@
 namespace jazz_elements
 {
 
+typedef class Kind *pKind;
+
+/**< \brief Kind: A type definition for complex Jazz objects.
+
+Kind objects contain the metadata only. A Tuple is a data object of a Kind. Kinds define more complex types than (raw) Blocks, even if
+they are blocks. E.g., A Block can store a video of a fixed shape (image only or soundtrack only). A Kind can store both and have
+**dimensions** defining things like: image_width, image_height, number_of_frames and, possibly, a subtitle track as another vector of
+strings.
+
+It is a block with special attributes to store a tree of (primitive type, block, kind). A Kind is a single Block! A kind has **dimensions**
+which are integer variables that are used to define variable shapes.
+*/
+class Kind : public Block {
+
+	public:
+
+};
+
 
 } // namespace jazz_elements
 
