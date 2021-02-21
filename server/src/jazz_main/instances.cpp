@@ -80,7 +80,7 @@ bool start_service(pService service, char* service_name)
 
 		return true;
 	}
-	}
+}
 
 
 bool stop_service(pService service, char* service_name)
@@ -97,34 +97,32 @@ bool stop_service(pService service, char* service_name)
 
 		return true;
 	}
-	}
+}
 
-	if (EPI.shut_down() != SERVICE_NO_ERROR) {
-		cout << "FAILED!" << endl;
-		LOGGER.log(LOG_ERROR, "Errors occurred stopping EPI.");
 
-		stop_ok = false;
-	} else {
-		cout << "ok" << endl;
-	}
+/** Capture SIGTERM. This callback procedure stops a running server.
 
-	if (BOP.shut_down() != SERVICE_NO_ERROR) {
-		cout << "FAILED!" << endl;
-		LOGGER.log(LOG_ERROR, "Errors occurred stopping BOP.");
+	See main_server_start() for details on the server's start/stop.
+*/
+void signalHandler_SIGTERM(int signum)
+{
+	cout << "Interrupt signal (" << signum << ") received." << endl;
 
-		stop_ok = false;
-	} else {
-		cout << "ok" << endl;
-	}
+	cout << "Closing the http server ... ok." << endl;
 
-	if (BEAT.shut_down() != SERVICE_NO_ERROR) {
-		cout << "FAILED!" << endl;
-		LOGGER.log(LOG_ERROR, "Errors occurred stopping BEAT.");
+	MHD_stop_daemon (Jazz_MHD_Daemon);
 
-		stop_ok = false;
-	} else {
-		cout << "ok" << endl;
-	}
+	bool stop_ok = true;
+
+	if (!stop_service(&HTTP,	  "HttpServer")) stop_ok = false;
+	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
+	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
+	if (!stop_service(&REMOTE,	  "Remote"))	 stop_ok = false;
+	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
+	if (!stop_service(&ONE_SHOT,  "Container"))	 stop_ok = false;
+	if (!stop_service(&CLUSTER,	  "Cluster"))	 stop_ok = false;
+	if (!stop_service(&BOP,		  "Bebop"))		 stop_ok = false;
+	if (!stop_service(&EPI,		  "Agency"))	 stop_ok = false;
 
 	if (stop_ok) exit (EXIT_SUCCESS); else exit (EXIT_FAILURE);
 }
