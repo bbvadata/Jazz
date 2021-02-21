@@ -59,6 +59,17 @@ namespace jazz_elements
 {
 
 
+/**< \brief aaa: aaa.
+
+//TODO: Document this!
+*/
+class Column : public Block {
+
+	public:
+
+};
+
+
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_COLUMN
