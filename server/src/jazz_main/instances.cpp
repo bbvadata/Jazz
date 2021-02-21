@@ -51,11 +51,15 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 
 // Services
 
-Flux		BEAT (&LOGGER, &CONFIG);
-Bebop		BOP  (&LOGGER, &CONFIG);
-Agency		EPI  (&LOGGER, &CONFIG);
-Api			API  (&LOGGER, &CONFIG);
-HttpServer	HTTP (&LOGGER, &CONFIG);
+Agency		EPI		  (&LOGGER, &CONFIG);
+Bebop		BOP		  (&LOGGER, &CONFIG);
+Cluster		CLUSTER	  (&LOGGER, &CONFIG);
+Container	ONE_SHOT  (&LOGGER, &CONFIG);
+Persisted	PERSISTED (&LOGGER, &CONFIG);
+Remote		REMOTE	  (&LOGGER, &CONFIG);
+Volatile	VOLATILE  (&LOGGER, &CONFIG);
+Api			API		  (&LOGGER, &CONFIG);
+HttpServer	HTTP	  (&LOGGER, &CONFIG);
 
 // Callbacks
 

@@ -65,11 +65,22 @@ using namespace jazz_agency;
 
 // Services
 
-extern Flux		  BEAT;
-extern Bebop	  BOP;
-extern Agency	  EPI;	// As in epistrophy
-extern Api		  API;
-extern HttpServer HTTP;
+extern Agency	  EPI;			// (As in epistrophy.) The service managing agents.
+extern Bebop	  BOP;			// (as in Bebop.) The service managing cores and fields.
+extern Cluster	  CLUSTER;		// The Jazz cluster configuration service, from which Groups (of nodes) can be used in sharded indices
+								// to build distributed columns and tables.
+
+// Block containers:
+
+extern Container  ONE_SHOT;		// The container allocating one-shot blocks.
+extern Persisted  PERSISTED;	// The container allocating persisted blocks.
+extern Remote	  REMOTE;		// The container getting and putting remote blocks on other Jazz nodes and the web.
+extern Volatile	  VOLATILE;		// The container allocating volatile blocks.
+
+// Http server:
+
+extern Api		  API;			// The API interface
+extern HttpServer HTTP;			// The server
 
 // Callbacks
 
