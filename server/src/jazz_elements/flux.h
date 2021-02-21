@@ -53,19 +53,13 @@
 namespace jazz_elements
 {
 
-/**< \brief Flux: A Service to manage data object streams as fluxes.
+/**< \brief aaa: aaa.
 
-This is the last API supported by the Flux class. This also implements the Volatile, Persisted and Cluster APIs.
+//TODO: Document this!
 */
-class Flux : public Cluster {
+class Flux : public Column {
 
 	public:
-
-		Flux (pLogger	  a_logger,
-			  pConfigFile a_config);
-
-		Service_ErrorCode start		();
-		Service_ErrorCode shut_down	(bool restarting_service = false);
 
 };
 
