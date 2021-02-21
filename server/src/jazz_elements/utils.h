@@ -132,6 +132,7 @@ inline int64_t elapsed_us(jazz_elements::TimePoint big_bang) {
 
 typedef class ConfigFile *pConfigFile;
 typedef class Logger	 *pLogger;
+typedef class Service	 *pService;
 
 
 /** A configuration file as a key/value store.
