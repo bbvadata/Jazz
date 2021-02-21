@@ -53,22 +53,49 @@
 namespace jazz_elements
 {
 
-/**< \brief Cluster: A Service to manage data objects across a cluster of Jazz servers.
+/**< \brief aaa: aaa.
 
-This is another API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
-class.
+//TODO: Document this!
 */
 class Cluster : public Service {
 
 	public:
 
-		Cluster (pLogger	 a_logger,
-				 pConfigFile a_config);
+};
 
-		Service_ErrorCode start		();
-		Service_ErrorCode shut_down	(bool restarting_service = false);
+
+/**< \brief aaa: aaa.
+
+//TODO: Document this!
+*/
+class Remote : public Container {
+
+	public:
 
 };
+
+
+/**< \brief aaa: aaa.
+
+//TODO: Document this!
+*/
+class Group : public Tuple {
+
+	public:
+
+};
+
+
+/**< \brief aaa: aaa.
+
+//TODO: Document this!
+*/
+class Index : public Block {
+
+	public:
+
+};
+
 
 } // namespace jazz_elements
 
