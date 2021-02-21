@@ -61,25 +61,17 @@ These parameters are indices. This module implements: Tuple, Index and Kind.
 
 */
 
-class Tuple {
+/**< \brief Kind: A Jazz data block of a Kind.
+
+An instance of a **Kind**. Physically, like a Kind, it is a single block.
+*/
+class Tuple : public Block {
 
 	public:
 
-		Tuple();
-
-	private:
 
 };
 
-class Index {
-
-	public:
-
-		Index();
-
-	private:
-
-};
 
 } // namespace jazz_elements
 
