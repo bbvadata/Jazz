@@ -87,6 +87,20 @@ extern HttpServer HTTP;			// The server
 extern pMHD_Daemon Jazz_MHD_Daemon;
 void signalHandler_SIGTERM(int signum);
 
+// Start/Stop services
+
+/**< \brief One liner.
+
+//TODO: Write this!
+*/
+bool start_service(pService service, char* service_name);
+
+/**< \brief One liner.
+
+//TODO: Write this!
+*/
+bool stop_service (pService service, char* service_name);
+
 } // namespace jazz_main
 
 #endif // ifndef INCLUDED_JAZZ_MAIN_INSTANCES

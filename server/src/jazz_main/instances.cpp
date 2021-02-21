@@ -66,38 +66,37 @@ HttpServer	HTTP	  (&LOGGER, &CONFIG);
 pMHD_Daemon	Jazz_MHD_Daemon;
 
 
-/** Capture SIGTERM. This callback procedure stops a running server.
-
-	See main_server_start() for details on the server's start/stop.
-*/
-void signalHandler_SIGTERM(int signum)
+bool start_service(pService service, char* service_name)
 {
-	cout << "Interrupt signal (" << signum << ") received." << endl;
+	cout << "Starting " << service_name << " ... ";
 
-	cout << "Closing the http server ... ok." << endl;
-
-	MHD_stop_daemon (Jazz_MHD_Daemon);
-
-	bool stop_ok = true;
-
-	cout << "Stopping HTTP ... ";
-
-	if (HTTP.shut_down() != SERVICE_NO_ERROR) {
+	if (service->start() != SERVICE_NO_ERROR) {
 		cout << "FAILED!" << endl;
-		LOGGER.log(LOG_ERROR, "Errors occurred stopping HTTP.");
+		LOGGER.log_printf(LOG_ERROR, "Errors occurred starting %s.", service_name);
 
-		stop_ok = false;
+		return false;
 	} else {
 		cout << "ok" << endl;
+
+		return true;
+	}
 	}
 
-	if (API.shut_down() != SERVICE_NO_ERROR) {
-		cout << "FAILED!" << endl;
-		LOGGER.log(LOG_ERROR, "Errors occurred stopping API.");
 
-		stop_ok = false;
+bool stop_service(pService service, char* service_name)
+{
+	cout << "Stopping " << service_name << " ... ";
+
+	if (service->shut_down() != SERVICE_NO_ERROR) {
+		cout << "FAILED!" << endl;
+		LOGGER.log_printf(LOG_ERROR, "Errors occurred stopping %s.", service_name);
+
+		return false;
 	} else {
 		cout << "ok" << endl;
+
+		return true;
+	}
 	}
 
 	if (EPI.shut_down() != SERVICE_NO_ERROR) {
