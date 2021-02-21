@@ -177,72 +177,85 @@ int main(int argc, char* argv[])
 
 		show_credits();
 
-		cout << "Starting BEAT ... ";
+		if (!start_service(&EPI, "Agency")) {
+			exit (EXIT_FAILURE);
+		}
 
-		if (BEAT.start() != SERVICE_NO_ERROR) {
-			cout << "FAILED!" << endl;
-
-			LOGGER.log(LOG_ERROR, "Errors occurred starting BEAT.");
+		if (!start_service(&BOP, "Bebop")) {
+			stop_service(&EPI, "Agency");
 
 			exit (EXIT_FAILURE);
 		}
 
-		cout << "ok." << endl;
-
-		cout << "Starting BOP ... ";
-
-		if (BOP.start() != SERVICE_NO_ERROR) {
-			cout << "FAILED!" << endl;
-
-			LOGGER.log(LOG_ERROR, "Errors occurred starting BOP.");
+		if (!start_service(&CLUSTER, "Cluster")) {
+			stop_service(&BOP, "Bebop");
+			stop_service(&EPI, "Agency");
 
 			exit (EXIT_FAILURE);
 		}
 
-		cout << "ok." << endl;
-
-		cout << "Starting EPI ... ";
-
-		if (EPI.start() != SERVICE_NO_ERROR) {
-			cout << "FAILED!" << endl;
-
-			LOGGER.log(LOG_ERROR, "Errors occurred starting EPI.");
+		if (!start_service(&ONE_SHOT, "Container")) {
+			stop_service(&CLUSTER, "Cluster");
+			stop_service(&BOP,	   "Bebop");
+			stop_service(&EPI,	   "Agency");
 
 			exit (EXIT_FAILURE);
 		}
 
-		cout << "ok." << endl;
-
-		cout << "Starting API ... ";
-
-		if (API.start() != SERVICE_NO_ERROR) {
-			cout << "FAILED!" << endl;
-
-			LOGGER.log(LOG_ERROR, "Errors occurred starting API.");
+		if (!start_service(&PERSISTED, "Persisted")) {
+			stop_service(&ONE_SHOT, "Container");
+			stop_service(&CLUSTER,  "Cluster");
+			stop_service(&BOP,		"Bebop");
+			stop_service(&EPI,		"Agency");
 
 			exit (EXIT_FAILURE);
 		}
 
-		cout << "ok." << endl;
+		if (!start_service(&REMOTE, "Remote")) {
+			stop_service(&PERSISTED, "Persisted");
+			stop_service(&ONE_SHOT,  "Container");
+			stop_service(&CLUSTER,	 "Cluster");
+			stop_service(&BOP,		 "Bebop");
+			stop_service(&EPI,		 "Agency");
+
+			exit (EXIT_FAILURE);
+		}
+
+		if (!start_service(&VOLATILE, "Volatile")) {
+			stop_service(&REMOTE,	 "Remote");
+			stop_service(&PERSISTED, "Persisted");
+			stop_service(&ONE_SHOT,  "Container");
+			stop_service(&CLUSTER,	 "Cluster");
+			stop_service(&BOP,		 "Bebop");
+			stop_service(&EPI,		 "Agency");
+
+			exit (EXIT_FAILURE);
+		}
+
+		if (!start_service(&API, "Api")) {
+			stop_service(&VOLATILE,  "Volatile");
+			stop_service(&REMOTE,	 "Remote");
+			stop_service(&PERSISTED, "Persisted");
+			stop_service(&ONE_SHOT,  "Container");
+			stop_service(&CLUSTER,	 "Cluster");
+			stop_service(&BOP,		 "Bebop");
+			stop_service(&EPI,		 "Agency");
+
+			exit (EXIT_FAILURE);
+		}
 
 		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon);
 
 		if (ret_code != EXIT_SUCCESS) {
-			cout << "Stopping API ..." << endl;
-
-			API.shut_down();
-
-			cout << "Stopping EPI ..." << endl;
-
-			EPI.shut_down();
-
-			cout << "Stopping BOP ..." << endl;
-
-			BOP.shut_down();
-
-			cout << "Stopping BEAT ..." << endl;
-
-			BEAT.shut_down();
+			stop_service(&HTTP,		 "HttpServer");
+			stop_service(&API,		 "Api");
+			stop_service(&VOLATILE,  "Volatile");
+			stop_service(&REMOTE,	 "Remote");
+			stop_service(&PERSISTED, "Persisted");
+			stop_service(&ONE_SHOT,  "Container");
+			stop_service(&CLUSTER,	 "Cluster");
+			stop_service(&BOP,		 "Bebop");
+			stop_service(&EPI,		 "Agency");
 		}
 
 		exit(ret_code);
