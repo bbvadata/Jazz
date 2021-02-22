@@ -66,7 +66,7 @@ HttpServer	HTTP	  (&LOGGER, &CONFIG);
 pMHD_Daemon	Jazz_MHD_Daemon;
 
 
-bool start_service(pService service, char* service_name)
+bool start_service(pService service, char const *service_name)
 {
 	cout << "Starting " << service_name << " ... ";
 
@@ -83,7 +83,7 @@ bool start_service(pService service, char* service_name)
 }
 
 
-bool stop_service(pService service, char* service_name)
+bool stop_service(pService service, char const *service_name)
 {
 	cout << "Stopping " << service_name << " ... ";
 

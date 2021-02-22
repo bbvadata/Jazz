@@ -93,13 +93,13 @@ void signalHandler_SIGTERM(int signum);
 
 //TODO: Write this!
 */
-bool start_service(pService service, char* service_name);
+bool start_service(pService service, char const *service_name);
 
 /**< \brief One liner.
 
 //TODO: Write this!
 */
-bool stop_service (pService service, char* service_name);
+bool stop_service (pService service, char const *service_name);
 
 } // namespace jazz_main
 
