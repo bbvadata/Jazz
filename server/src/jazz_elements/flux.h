@@ -57,7 +57,7 @@ namespace jazz_elements
 
 //TODO: Document this!
 */
-class Flux : public Column {
+class Flux : public Tuple {
 
 	public:
 
