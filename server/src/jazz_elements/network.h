@@ -61,6 +61,12 @@ class Cluster : public Service {
 
 	public:
 
+		Cluster (pLogger	 a_logger,
+				 pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
+
 };
 
 
@@ -71,6 +77,12 @@ class Cluster : public Service {
 class Remote : public Container {
 
 	public:
+
+		Remote (pLogger	 a_logger,
+				pConfigFile a_config);
+
+		Service_ErrorCode start		();
+		Service_ErrorCode shut_down	(bool restarting_service = false);
 
 };
 

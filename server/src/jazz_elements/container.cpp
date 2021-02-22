@@ -41,6 +41,32 @@
 namespace jazz_elements
 {
 
+/*	-----------------------------------------------
+	 Container : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+/**
+//TODO: Document Container::start()
+*/
+Service_ErrorCode Container::start()
+{
+//TODO: Implement Container::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Container::shut_down()
+*/
+Service_ErrorCode Container::shut_down(bool restarting_service)
+{
+//TODO: Implement Container::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
+
 
 } // namespace jazz_elements
 

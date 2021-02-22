@@ -113,6 +113,33 @@ Service_ErrorCode Cluster::shut_down(bool restarting_service)
 }
 
 
+/*	-----------------------------------------------
+	 Remote : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Remote::Remote(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+
+/**
+//TODO: Document Remote::start()
+*/
+Service_ErrorCode Remote::start()
+{
+//TODO: Implement Remote::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+/**
+//TODO: Document Remote::shut_down()
+*/
+Service_ErrorCode Remote::shut_down(bool restarting_service)
+{
+//TODO: Implement Remote::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
+
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
