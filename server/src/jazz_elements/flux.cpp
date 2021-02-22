@@ -45,28 +45,6 @@ namespace jazz_elements
 	 Flux : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Flux::Flux(pLogger a_logger, pConfigFile a_config) : Cluster(a_logger, a_config) {}
-
-/**
-//TODO: Document Flux::start()
-*/
-Service_ErrorCode Flux::start()
-{
-//TODO: Implement Flux::start()
-
-	return SERVICE_NO_ERROR;
-}
-
-/**
-//TODO: Document Flux::shut_down()
-*/
-Service_ErrorCode Flux::shut_down(bool restarting_service)
-{
-//TODO: Implement Flux::shut_down()
-
-	return SERVICE_NO_ERROR;
-}
-
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

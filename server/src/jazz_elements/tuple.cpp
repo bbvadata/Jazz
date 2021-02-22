@@ -45,22 +45,6 @@ namespace jazz_elements
 	 Tuple : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/**
-*/
-Tuple::Tuple()
-{
-};
-
-/*	-----------------------------------------------
-	 Index : I m p l e m e n t a t i o n
---------------------------------------------------- */
-
-/**
-*/
-Index::Index()
-{
-};
-
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
