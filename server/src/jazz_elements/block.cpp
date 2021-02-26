@@ -191,7 +191,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *pString)
 
 	\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
 */
-int Filter::filter_audit()
+int Block::filter_audit()
 {
 	switch (filter_type()) {
 

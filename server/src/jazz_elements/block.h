@@ -79,6 +79,28 @@ or stored 'as is', every RAM location in a block is defined by its BlockHeader a
 At this level, you only have the fields BlockHeader that you may read and probably only write through some methods.
 This is the lowest level, it does not even provide support for allocation, at this level you have support for manipulating
 the StringBuffer to read and write strings and the JazzAttributesMap to read and write attributes.
+
+A **Filter** (is not a separate class anymore) is just a Block with a strict structure and extra methods.
+
+The structure of a Filter is strictly:
+
+- .cell_type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER
+- .rank == 1
+- .range.filter.one == 1, .range.filter.length == number of elements in the tensor when cell_type == CELL_TYPE_INTEGER
+- .size == length of the selector
+- .num_attributes == 1	// To prevent set_attributes() being applied to it
+- .total_bytes == as expected
+- .has_NA == false;
+- .created == as expected
+- .hash64 == as expected
+
+Details:
+
+1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
+2. A FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN specifying which rows are selected (cell == true).
+3. A FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .range.filter.length.
+As expected, .range.filter.length == 0 means nothing is selected, .range.filter.length == .size means everything is selected regardless
+of .tensor[]
 */
 class Block: public BlockHeader {
 
@@ -329,69 +351,42 @@ class Block: public BlockHeader {
 		}
 
 		int get_string_offset(pStringBuffer psb, const char *pString);
-};
 
+	// Methods for filtering (selecting).
 
-/** A filter. First: a filter is just a Block with a strict structure and extra methods.
+		/** Check (fast) the validity of a Filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
 
-	The structure of a Filter is strictly:
+			This checks the values in the header, but not the validity of the data in .tensor[]
 
-	.cell_type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER
-	.rank == 1
-	.range.filter.one == 1, .range.filter.length == number of elements in the tensor when cell_type == CELL_TYPE_INTEGER
-	.size == length of the selector
-	.num_attributes == 1	// To prevent set_attributes() being applied to it
-	.total_bytes == as expected
-	.has_NA == false;
-	.created == as expected
-	.hash64 == as expected
+			\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
+		*/
+		inline int filter_type() {
+			if (rank != 1 || range.filter.one != 1 || num_attributes != 1 || has_NA)
+				return FILTER_TYPE_NOTAFILTER;
 
-	Details:
+			if (cell_type == CELL_TYPE_INTEGER)
+				return FILTER_TYPE_INTEGER;
 
-1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
-2. A FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN specifying which rows are selected (cell == true).
-3. A FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .range.filter.length.
-As expected, .range.filter.length == 0 means nothing is selected, .range.filter.length == .size means everything is selected regardless
-of .tensor[]
+			if (cell_type == CELL_TYPE_BYTE_BOOLEAN)
+				return FILTER_TYPE_BOOLEAN;
 
-*/
-class Filter: public Block {
-
-public:
-
-	/** Check (fast) the validity of a Filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
-
-		This checks the values in the header, but not the validity of the data in .tensor[]
-
-		\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
-	*/
-	inline int filter_type() {
-		if (rank != 1 || range.filter.one != 1 || num_attributes != 1 || has_NA)
 			return FILTER_TYPE_NOTAFILTER;
+		}
 
-		if (cell_type == CELL_TYPE_INTEGER)
-			return FILTER_TYPE_INTEGER;
+		int filter_audit();
 
-		if (cell_type == CELL_TYPE_BYTE_BOOLEAN)
-			return FILTER_TYPE_BOOLEAN;
+		/** Check (fast) if a Filter is valid and can be applied to filter inside a specific Block
 
-		return FILTER_TYPE_NOTAFILTER;
-	}
+			This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
 
-	int filter_audit();
+			\return true if it is a valid filter of that type.
+		*/
+		inline bool can_filter(pBlock p_block) {
+			if (p_block->rank < 1 || p_block->range.dim[0] <= 0 || size != p_block->size/p_block->range.dim[0])
+				return false;
 
-	/** Check (fast) if a Filter is valid and can be applied to filter inside a specific Block
-
-		This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
-
-		\return true if it is a valid filter of that type.
-	*/
-	inline bool can_filter(pBlock p_block) {
-		if (p_block->rank < 1 || p_block->range.dim[0] <= 0 || size != p_block->size/p_block->range.dim[0])
-			return false;
-
-		return filter_type() != FILTER_TYPE_NOTAFILTER;
-	}
+			return filter_type() != FILTER_TYPE_NOTAFILTER;
+		}
 };
 
 } // namespace jazz_elements
