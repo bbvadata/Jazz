@@ -69,6 +69,42 @@ class Kind : public Block {
 
 	public:
 
+	inline int num_items() {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
+	inline int num_dimensions() {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
+	inline int as_text(pApiBuffer p_buff) {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
+	inline int dimension_names(pApiBuffer p_buff) {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
+	inline int item_as_text(int i, pApiBuffer p_buff) {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
+	inline int kind_audit() {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
 };
 
 

@@ -69,6 +69,17 @@ class Tuple : public Block {
 
 	public:
 
+	inline int kind(pApiBuffer p_buff) {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
+
+	inline int tuple_audit() {
+//TODO: Implement, test and document this.
+
+		return 0;
+	};
 
 };
 
