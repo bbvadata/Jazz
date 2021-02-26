@@ -105,14 +105,18 @@ namespace jazz_elements
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
-struct FilterSize { int one; int length; };	///< Two names for the first two elements in a TensorDim
+/** Names for elements in a TensorDim to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
+	but has an extra parameter, its length.
+*/
+struct FilterSize {
+	int one;		///< This is dim[0]. Since the Filter is also a block (of rank 1). This is always == 1 (see Block.get_offset()).
+	int length;		///< Since dim[1] is not used (as rank is 1), it is a good place to store the length of the block this can filter.
+};
 
 
 /** The dimension of a tensor.
 
-	The structure is declared as a union to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
-	but has an extra parameter, its length. Since dim[1] is not used (as rank is 1), it is a good place to store the length but remembering
-	that dim[1] is the length is ugly. Therefore, the more elegant filter.length is an alias for dim[1].
+	The structure is declared as a union to make filter operation more elegant.
 */
 union TensorDim
 {
