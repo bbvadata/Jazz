@@ -69,7 +69,6 @@ typedef struct BlockHeader	*pBlockHeader;
 typedef struct StringBuffer	*pStringBuffer;
 
 typedef class Block			*pBlock;
-typedef class Filter		*pFilter;
 
 
 /** A block. Anything in Jazz is a block. A block is a BlockHeader, followed by a tensor, then two arrays of int
