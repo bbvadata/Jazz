@@ -904,8 +904,8 @@ SCENARIO("Testing String and Attribute logic") {
 
 SCENARIO("Testing Filters") {
 	char buf1[4096], buf2[4096];
-	pBlock	pjb = reinterpret_cast<pBlock>(&buf1);
-	pFilter pjf = reinterpret_cast<pFilter>(&buf2);
+	pBlock pjb = reinterpret_cast<pBlock>(&buf1);
+	pBlock pjf = reinterpret_cast<pBlock>(&buf2);
 
 	GIVEN("A block pjb") {
 		int6 d1 = {17, 5, 3, 0, 0, 0};
