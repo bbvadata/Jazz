@@ -725,7 +725,7 @@ SCENARIO("Testing String and Attribute logic") {
 
 		pjb->total_bytes = 64 + 140*4 + 32 + 12 + 4096;
 
-		AllAttributes att;
+		AttributeMap att;
 		static const char* const att_val[] = {"http://www.google.com", "en_us", "This is a stupid sentence", "mp17/hologram"};
 
 		att[4420] = att_val[0];
@@ -859,7 +859,7 @@ SCENARIO("Testing String and Attribute logic") {
 
 		REQUIRE(pjb->find_attribute(123) == nullptr);
 
-		AllAttributes read_att;
+		AttributeMap read_att;
 
 		pjb->get_attributes(&read_att);
 
@@ -919,7 +919,7 @@ SCENARIO("Testing Filters") {
 		pjb->num_attributes = 0;
 		pjb->total_bytes = 64 + 255*8 + 12 + 20;
 
-		AllAttributes att;
+		AttributeMap att;
 		att[666] = nullptr;
 
 		pjb->set_attributes(&att);	// This calls init_string_buffer()
@@ -949,7 +949,7 @@ SCENARIO("Testing Filters") {
 		pjf->num_attributes = 0;
 		pjf->total_bytes = 64 + 17 + 12 + 27;
 
-		AllAttributes att;
+		AttributeMap att;
 		att[666] = nullptr;
 
 		pjf->set_attributes(&att);	// This calls init_string_buffer()
@@ -1015,7 +1015,7 @@ SCENARIO("Testing Filters") {
 		pjf->num_attributes = 0;
 		pjf->total_bytes = 64 + 17*4 + 12 + 24;
 
-		AllAttributes att;
+		AttributeMap att;
 		att[666] = nullptr;
 
 		pjf->set_attributes(&att);	// This calls init_string_buffer()
@@ -1127,7 +1127,7 @@ SCENARIO("Testing Block::find_NAs_in_tensor() checking boundaries") {
 		pjb->num_attributes = 0;
 		pjb->total_bytes = 64 + 315*1 + 12 + 17;
 
-		AllAttributes att;
+		AttributeMap att;
 		att[666] = nullptr;
 
 		pjb->set_attributes(&att);	// This calls init_string_buffer()
@@ -1204,7 +1204,7 @@ SCENARIO("Testing Block::find_NAs_in_tensor() checking boundaries") {
 		pjb->num_attributes = 0;
 		pjb->total_bytes = 64 + 315*4 + 12 + 16;
 
-		AllAttributes att;
+		AttributeMap att;
 		att[666] = nullptr;
 
 		pjb->set_attributes(&att);	// This calls init_string_buffer()
@@ -1445,7 +1445,7 @@ SCENARIO("Testing Block::find_NAs_in_tensor() checking boundaries") {
 		pjb->num_attributes = 0;
 		pjb->total_bytes = 64 + 315*8 + 12 + 20;
 
-		AllAttributes att;
+		AttributeMap att;
 		att[666] = nullptr;
 
 		pjb->set_attributes(&att);	// This calls init_string_buffer()

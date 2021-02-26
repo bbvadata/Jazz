@@ -63,7 +63,7 @@ namespace jazz_elements
 
 
 // Forward declarations
-typedef std::map<int, const char *> AllAttributes;
+typedef std::map<int, const char *> AttributeMap;
 
 typedef struct BlockHeader	*pBlockHeader;
 typedef struct StringBuffer	*pStringBuffer;
@@ -251,7 +251,7 @@ class Block: public BlockHeader {
 			only be called once, so it will do nothing if called after a Block is built. Blocks are near-immutable
 			objects, if you need to change a Block's attributes create a new object using jazz_alloc.h methods.
 		*/
-		inline void set_attributes(AllAttributes *all_att) {
+		inline void set_attributes(AttributeMap *all_att) {
 			if (num_attributes) return;
 
 			num_attributes = all_att->size();
@@ -260,7 +260,7 @@ class Block: public BlockHeader {
 			int i = 0;
 			int *ptk = p_attribute_keys();
 			pStringBuffer psb = p_string_buffer();
-			for (AllAttributes::iterator it = all_att->begin(); it != all_att->end(); ++it) {
+			for (AttributeMap::iterator it = all_att->begin(); it != all_att->end(); ++it) {
 				if (i < num_attributes) {
 					ptk[i] = it->first;
 					ptk[i + num_attributes] = get_string_offset(psb, it->second);
@@ -276,7 +276,7 @@ class Block: public BlockHeader {
 			NOTE: You can use a non-empty map. This will keep existing key/values not found in the Block and create/override
 			those in the Block by using a normal 'map[key] = value' instruction.
 		*/
-		inline void get_attributes(AllAttributes *all_att) {
+		inline void get_attributes(AttributeMap *all_att) {
 			int *ptk = p_attribute_keys();
 			pStringBuffer psb = p_string_buffer();
 			for (int i = 0; i < num_attributes; i++)
