@@ -84,7 +84,7 @@ namespace jazz_elements
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
 
 // 64 bit cell types
-#define CELL_TYPE_TUPLE_ITEM	0x040		///< A tensor of 64-bit signed integers. NA is LONG_INTEGER_NA
+#define CELL_TYPE_TUPLE_ITEM	0x040		///< A vector of TensorDim (in a Kind or Tuple)
 
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
@@ -145,10 +145,10 @@ struct ItemHeader
 {
 	int	cell_type;			///< The type for the cells in the item. See CELL_TYPE_*
 	int	rank;				///< The number of dimensions
-	TensorDim range;		///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
-	int level;				///< The total number of cells in the tensor
-	int name;				///< Number of elements in the JazzAttributesMap
-	TensorDim dimension;	///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+	TensorDim range;		///< The dimensions of the tensor. Just like in a BlockHeader.range but anything 0 is a dimension
+	int level;				///< The 0-based level (== depth of this item in the tree of items)
+	int name;				///< The name of this item as an index in the BlockHeader's string buffer.
+	TensorDim dim_name;		///< The names of the dimensions (anything 0 in rank is non-zero here and viceversa.), again as indices
 };
 
 
