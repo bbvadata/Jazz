@@ -102,6 +102,18 @@ namespace jazz_elements
 #define FILTER_TYPE_BOOLEAN	 	1			///< This Block is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
 #define FILTER_TYPE_INTEGER		2			///< This Block is a vector of CELL_TYPE_INTEGER containing the selected rows.
 
+// Attribute types for Block descendants
+
+#define BLOCK_ATTRIB_
+
+#define BLOCK_ATTRIB_BLOCKTYPE	0			///< The fundamental block type (E.g., all tuples are tuple, filter exists, but table doesn't.)
+#define BLOCK_ATTRIB_TYPE		1			///< The name of the c++ class (Flux, Group, Table, ... but also Block or Kind)
+#define BLOCK_ATTRIB_KIND		2			///< The location of the kind (for tuples and descendants)
+#define BLOCK_ATTRIB_SOURCEKIND	3			///< The location of the source kind (for fields, fluxes and thing with two Kinds)
+#define BLOCK_ATTRIB_DESTKIND	4			///< The location of the destination kind (for fields, fluxes and thing with two Kinds)
+#define BLOCK_ATTRIB_MIMETYPE	5			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
+#define BLOCK_ATTRIB_URL		6			///< A url for the server to expose the file by.
+
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
