@@ -44,6 +44,7 @@ using namespace jazz_elements;
 SCENARIO("Testing structure sizes.") {
 
 	REQUIRE(sizeof(TensorDim)	 == 4*(MAX_TENSOR_RANK));
+	REQUIRE(sizeof(ItemHeader)	 == 64);
 	REQUIRE(sizeof(BlockHeader)	 == 64);
 	REQUIRE(sizeof(StringBuffer) == 12);					// Empty StringBuffer == 16 bytes with min buffer size
 }

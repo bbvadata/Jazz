@@ -83,6 +83,9 @@ namespace jazz_elements
 #define CELL_TYPE_TIME			0x108		///< A tensor of 64-bit TimePoint. NA is TIME_POINT_NA
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
 
+// 64 bit cell types
+#define CELL_TYPE_TUPLE_ITEM	0x040		///< A tensor of 64-bit signed integers. NA is LONG_INTEGER_NA
+
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
 #define BOOLEAN_NA				0x0ff		///< NA for a 32-bit boolean is binary 0xff. This is R compatible.
@@ -137,17 +140,30 @@ union TensorDim
 };
 
 
-/// A tensor of cell size 1, 4 or 8
+/// Header for an item (of a Kind or Tuple)
+struct ItemHeader
+{
+	int	cell_type;			///< The type for the cells in the item. See CELL_TYPE_*
+	int	rank;				///< The number of dimensions
+	TensorDim range;		///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+	int level;				///< The total number of cells in the tensor
+	int name;				///< Number of elements in the JazzAttributesMap
+	TensorDim dimension;	///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+};
+
+
+/// A tensor of cell size 1, 4, 8 or sizeof(BlockHeader)
 union Tensor
 {
-	uint8_t	  cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
-	bool	  cell_bool[0];		///< Cell size for CELL_TYPE_BYTE_BOOLEAN
-	int		  cell_int[0];		///< Cell size for CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
-	uint32_t  cell_uint[0];		///< Cell size for matching CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
-	float	  cell_single[0];	///< Cell size for CELL_TYPE_SINGLE
-	long long cell_longint[0];	///< Cell size for CELL_TYPE_LONG_INTEGER and CELL_TYPE_TIME
-	uint64_t  cell_ulongint[0];	///< Cell size for matching CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
-	double	  cell_double[0];	///< Cell size for CELL_TYPE_DOUBLE
+	uint8_t	   cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
+	bool	   cell_bool[0];		///< .. CELL_TYPE_BYTE_BOOLEAN
+	int		   cell_int[0];			///< .. CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
+	uint32_t   cell_uint[0];		///< .. CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	float	   cell_single[0];		///< .. CELL_TYPE_SINGLE
+	long long  cell_longint[0];		///< .. CELL_TYPE_LONG_INTEGER and CELL_TYPE_TIME
+	uint64_t   cell_ulongint[0];	///< .. CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
+	double	   cell_double[0];		///< .. CELL_TYPE_DOUBLE
+	ItemHeader cell_item[0];		///< .. An array of BlockHeader used by Kinds and Tuples
 };
 
 
