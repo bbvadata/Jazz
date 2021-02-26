@@ -60,6 +60,13 @@
 namespace jazz_elements
 {
 
+/** API buffers limit the size of http API calls, but also anything like lists of item names, dimension names, types, blocktypes, etc.
+Since Blocks do allocate RAM, when they communicate these kind of text operations, they expect the caller to assign a buffer of
+MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limits, that's why it is done by containers and not by blocks.
+*/
+#define MAX_API_BUFF_LENGTH	   1024
+
+
 #define MAX_TENSOR_RANK			6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
 #define MAX_CHECKS_4_MATCH	   25			///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
 
@@ -193,6 +200,11 @@ struct StringBuffer
 	int	 buffer_size;			///< The size in bytes of buffer[]
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
 };
+
+
+// A Buffer for http and Block API calls
+typedef char ApiBuffer[MAX_API_BUFF_LENGTH];
+typedef ApiBuffer *pApiBuffer;
 
 
 extern float  F_NA;		///< NaN in single
