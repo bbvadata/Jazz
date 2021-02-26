@@ -55,7 +55,7 @@ namespace jazz_elements
 
 typedef class Kind *pKind;
 
-/**< \brief Kind: A type definition for complex Jazz objects.
+/** \brief Kind: A type definition for complex Jazz objects.
 
 Kind objects contain the metadata only. A Tuple is a data object of a Kind. Kinds define more complex types than (raw) Blocks, even if
 they are blocks. E.g., A Block can store a video of a fixed shape (image only or soundtrack only). A Kind can store both and have
@@ -64,6 +64,23 @@ strings.
 
 It is a block with special attributes to store a tree of (primitive type, block, kind). A Kind is a single Block! A kind has **dimensions**
 which are integer variables that are used to define variable shapes.
+
+Technically, a kind is a Block of type CELL_TYPE_TUPLE_ITEM. Each item has data (is a Tensor). The way a Kind can include other Kinds is
+by merging them together and that increases the ItemHeader.level by one. E.g, a Kind x is made of tensors (a, b) and a Kind y is made of
+(c, d, e), we can create a kind (f, x, y) as we merge it together we will just have: (f, x_a, x_b, y_c, y_d, y_e) all of them will have
+level 1, except f which will be level 0. The naming convention is what a Container would do by default when merging Kinds together, but
+manually created Kinds do not need to do that. They may have dimensions named length, width, num_items or whatever and any of them
+can use these names to define variable dimensions of their tensors anywhere. They do so by having the names stored as strings and
+referring to the name (by its index) in the ItemHeader.dim_name[·] where that dimension applies.
+
+Also, kinds always define, at least, these attributes.
+
+- BLOCK_ATTRIB_BLOCKTYPE as the const "kind"
+- BLOCK_ATTRIB_TYPE as the const "Kind"
+
+Since Kind blocks keep only metadata, The space is uninterrupted as in a normal block: header a vactor of CELL_TYPE_TUPLE_ITEM, attribute
+keys, String buffer, which is the only difference between a Kind an a tuple (besides BLOCK_ATTRIB_BLOCKTYPE and BLOCK_ATTRIB_TYPE values).
+
 */
 class Kind : public Block {
 
