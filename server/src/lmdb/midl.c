@@ -3,8 +3,8 @@
 /* $OpenLDAP$ */
 /* This work is part of OpenLDAP Software <http://www.openldap.org/>.
  *
- * Copyright 2000-2016 The OpenLDAP Foundation.
- * Portions Copyright 2001-2017 Howard Chu, Symas Corp.
+ * Copyright 2000-2021 The OpenLDAP Foundation.
+ * Portions Copyright 2001-2021 Howard Chu, Symas Corp.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,30 +119,24 @@ void mdb_midl_free(MDB_IDL ids)
 
 void mdb_midl_shrink( MDB_IDL *idp )
 {
-	MDB_IDL next_ids, ids = *idp;
-	if (*(--ids) > MDB_IDL_UM_MAX) {
-		next_ids = realloc(ids, (MDB_IDL_UM_MAX+2) * sizeof(MDB_ID));
-		if (!next_ids) free(ids);
-		else {
-			*next_ids++ = MDB_IDL_UM_MAX;
-			*idp = next_ids;
-		}
+	MDB_IDL ids = *idp;
+	if (*(--ids) > MDB_IDL_UM_MAX &&
+		(ids = realloc(ids, (MDB_IDL_UM_MAX+2) * sizeof(MDB_ID))))
+	{
+		*ids++ = MDB_IDL_UM_MAX;
+		*idp = ids;
 	}
 }
 
 static int mdb_midl_grow( MDB_IDL *idp, int num )
 {
-	MDB_IDL next_idn, idn = *idp-1;
+	MDB_IDL idn = *idp-1;
 	/* grow it */
-	next_idn = realloc(idn, (*idn + num + 2) * sizeof(MDB_ID));
-	if (!next_idn) {
-		free(idn);
+	idn = realloc(idn, (*idn + num + 2) * sizeof(MDB_ID));
+	if (!idn)
 		return ENOMEM;
-	}
-	idn = next_idn;
 	*idn++ += num;
 	*idp = idn;
-
 	return 0;
 }
 
