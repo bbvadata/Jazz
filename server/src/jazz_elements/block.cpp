@@ -185,7 +185,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *pString)
 }
 
 
-/** Check (in depth) the validity of a Filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
+/** Check (in depth) the validity of a filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
 
 	This checks both the values in the header and the validity of the data in .tensor[]
 

@@ -56,7 +56,7 @@
 
 namespace jazz_elements
 {
-/* \brief The class Block and its descendant Filter.
+/* \brief The class Block
 
 	This module defines the logic to get/set data from/to Block objects at the simplest level.
 */
@@ -79,9 +79,9 @@ At this level, you only have the fields BlockHeader that you may read and probab
 This is the lowest level, it does not even provide support for allocation, at this level you have support for manipulating
 the StringBuffer to read and write strings and the JazzAttributesMap to read and write attributes.
 
-A **Filter** (is not a separate class anymore) is just a Block with a strict structure and extra methods.
+A **filter** (is not a separate class anymore) is just a Block with a strict structure and extra methods.
 
-The structure of a Filter is strictly:
+The structure of a filter is strictly:
 
 - .cell_type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER
 - .rank == 1
@@ -353,7 +353,7 @@ class Block: public BlockHeader {
 
 	// Methods for filtering (selecting).
 
-		/** Check (fast) the validity of a Filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
+		/** Check (fast) the validity of a filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
 
 			This checks the values in the header, but not the validity of the data in .tensor[]
 
@@ -374,7 +374,7 @@ class Block: public BlockHeader {
 
 		int filter_audit();
 
-		/** Check (fast) if a Filter is valid and can be applied to filter inside a specific Block
+		/** Check (fast) if a filter is valid and can be applied to filter inside a specific Block
 
 			This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
 

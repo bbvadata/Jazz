@@ -104,7 +104,7 @@ MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limit
 #define TIME_POINT_NA			0			///< NA for a CELL_TYPE_TIME is a 64-bit zero. Type does not exist in R.
 #define DOUBLE_NA				R_NA		///< NA for a double. This is R compatible.
 
-/// Possible return values of Filter.filter_type()
+/// Possible return values of Block.filter_type() and Block.filter_audit()
 
 #define FILTER_TYPE_
 
@@ -139,7 +139,7 @@ typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point store
 	but has an extra parameter, its length.
 */
 struct FilterSize {
-	int one;		///< This is dim[0]. Since the Filter is also a block (of rank 1). This is always == 1 (see Block.get_offset()).
+	int one;		///< This is dim[0]. Since the filter is a block (of rank 1). This is always == 1 (see Block.get_offset()).
 	int length;		///< Since dim[1] is not used (as rank is 1), it is a good place to store the length of the block this can filter.
 };
 
@@ -151,7 +151,7 @@ struct FilterSize {
 union TensorDim
 {
 	int		   dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2 Gb
-	FilterSize filter;					///< When object is a Filter the second element is named filter.length rather than dim[1]
+	FilterSize filter;					///< When object is a filter the second element is named filter.length rather than dim[1]
 };
 
 
