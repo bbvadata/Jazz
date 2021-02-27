@@ -50,18 +50,14 @@
 #define INCLUDED_JAZZ_ELEMENTS_COLUMN
 
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
 
-/**< \brief aaa: aaa.
+/** \brief A list of Tuples of the same Kind.
 
-//TODO: Document this!
+ Each Tuple is stored individually. The Column has an absolute record number and, possibly multiple Index objects to locate
+ individual tuples. Columns may be sharded across a cluster.
 */
 class Column : public Block {
 
