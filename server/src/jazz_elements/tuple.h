@@ -62,6 +62,12 @@ An instance of a **Kind**. Physically, like a Kind, it is a single block with so
   - It has constant values for the dimensions. E.g., all instances of "image_width" across all items where applicable are, say 640.
   - It has different attributes than a Tuple.
 
+Also, tuples always define, at least, these attributes:
+
+- BLOCK_ATTRIB_BLOCKTYPE as the const "tuple"
+- BLOCK_ATTRIB_TYPE as whatever the inherited class name is ("Tuple" for the main class)
+- BLOCK_ATTRIB_KIND as the locator to the definition of the Kind it satisfies. (Can be a \t-separated list.)
+
 */
 class Tuple : public Block {
 
