@@ -53,17 +53,15 @@
 namespace jazz_elements
 {
 
-/**< \brief A tuple is a tree of blocks where each edge has a name. A kind is a tuple with indexed dimensions.
+/** \brief Tuple: A Jazz data block of a Kind.
 
-A tuple is a tree of blocks where each edge has a name (and no more attributes). The names in the tuple select a specific block
-inside the tuple, somehow like the folder names in a directory tree. A kind is an abstract tuple with some dimensions being parameters.
-These parameters are indices. This module implements: Tuple, Index and Kind.
+An instance of a **Kind**. Physically, like a Kind, it is a single block with some differences:
 
-*/
+  - It holds data and metadata. (It has a reference to the kind, but that is only interesting in the context of formal fields. Anything
+  required to understand the data architecture is in the block itself.)
+  - It has constant values for the dimensions. E.g., all instances of "image_width" across all items where applicable are, say 640.
+  - It has different attributes than a Tuple.
 
-/**< \brief Kind: A Jazz data block of a Kind.
-
-An instance of a **Kind**. Physically, like a Kind, it is a single block.
 */
 class Tuple : public Block {
 
