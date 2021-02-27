@@ -41,6 +41,17 @@
 namespace jazz_elements
 {
 
+/** Check the internal validity of a Kind (item structure, dimensions, etc.)
+
+	\return KIND_TYPE_NOTAKIND on error or KIND_TYPE_KIND if every check passes ok.
+*/
+int Kind::kind_audit()
+{
+//TODO: Implement and test this.
+
+	return KIND_TYPE_NOTAKIND;
+}
+
 
 } // namespace jazz_elements
 

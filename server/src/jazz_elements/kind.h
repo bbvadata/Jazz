@@ -86,41 +86,27 @@ class Kind : public Block {
 
 	public:
 
-	inline int num_items() {
-//TODO: Implement, test and document this.
+	/** Returns the number of dimensions in a Kind.
 
-		return 0;
-	};
-
+		\return Number of dimensions
+	*/
 	inline int num_dimensions() {
-//TODO: Implement, test and document this.
+//TODO: Implement and test this.
 
 		return 0;
 	};
 
-	inline int as_text(pApiBuffer p_buff) {
-//TODO: Implement, test and document this.
+	/** Returns the names of the dimensions as a \t (tab separated) list of names.
 
-		return 0;
+		\param p_buff  The address of an ApiBuffer to store the answer.
+	*/
+	inline void dimension_names(pApiBuffer p_buff) {
+//TODO: Implement and test this.
+
+		return;
 	};
 
-	inline int dimension_names(pApiBuffer p_buff) {
-//TODO: Implement, test and document this.
-
-		return 0;
-	};
-
-	inline int item_as_text(int i, pApiBuffer p_buff) {
-//TODO: Implement, test and document this.
-
-		return 0;
-	};
-
-	inline int kind_audit() {
-//TODO: Implement, test and document this.
-
-		return 0;
-	};
+	int kind_audit();
 
 };
 
