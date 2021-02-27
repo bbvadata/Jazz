@@ -50,11 +50,6 @@
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
 
-/**< \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_bebop
 {
 
