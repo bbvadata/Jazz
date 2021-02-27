@@ -96,9 +96,10 @@ class Group : public Tuple {
 };
 
 
-/**< \brief aaa: aaa.
+/** \brief A local, sharded or streaming map from anything (numeric or categorical) to an absolute locator of Tuples.
 
-//TODO: Document this!
+These Tuples form Columns (that may be part of Tables and Fluxes).
+
 */
 class Index : public Block {
 
