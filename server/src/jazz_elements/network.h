@@ -86,9 +86,8 @@ class Remote : public Container {
 };
 
 
-/**< \brief aaa: aaa.
+/** \brief A Group of Jazz nodes (selected from the Cluster) that can own a Table or Column by sharding it across the group.
 
-//TODO: Document this!
 */
 class Group : public Tuple {
 
