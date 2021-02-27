@@ -89,15 +89,28 @@ void signalHandler_SIGTERM(int signum);
 
 // Start/Stop services
 
-/**< \brief One liner.
+/** \brief A little utility to start services writing output to the console.
 
-//TODO: Write this!
+	It also logs errors directly to the LOGGER instance.
+
+	\param service		The address of the Service being started.
+	\param service_name The string with the name of the service to show in the messages and possible log errors.
+
+	\return	True if the service started ok.
+
 */
 bool start_service(pService service, char const *service_name);
 
-/**< \brief One liner.
 
-//TODO: Write this!
+/** \brief A little utility to stop services writing output to the console.
+
+	It also logs errors directly to the LOGGER instance.
+
+	\param service		The address of the Service being stopped.
+	\param service_name The string with the name of the service to show in the messages and possible log errors.
+
+	\return	True if the service stopped ok.
+
 */
 bool stop_service (pService service, char const *service_name);
 
