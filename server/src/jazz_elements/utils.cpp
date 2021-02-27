@@ -63,13 +63,13 @@ bool FileExists(const char* file_name)
 
 The RFC http://www.ietf.org/rfc/rfc3629.txt says:
 
-Char. number range	|		 UTF-8 octet sequence
-(hexadecimal)	|			   (binary)
---------------------+---------------------------------------------
-0000 0000-0000 007F | 0xxxxxxx
-0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+    Char. number range	| UTF-8 octet sequence
+    (hexadecimal)       | (binary)
+    --------------------+---------------------------------------------
+    0000 0000-0000 007F | 0xxxxxxx
+    0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+    0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 */
 int CountBytesFromUtf8(char *buff, int length)
 {
@@ -107,19 +107,19 @@ longer than their translated equivalent, so the string is translated in place an
 
 April 17 tests built and compliant with:
 
-\\a	 07	   Alert (Beep, Bell) (added in C89)[1]
-\\b	 08	   Backspace
-\\f	 0C	   Form-feed
-\\n	 0A	   Newline (Line Feed); see notes below
-\\r	 0D	   Carriage Return
-\\t	 09	   Horizontal Tab
-\\v	 0B	   Vertical Tab
-\\\\ 5C	   Backslash
-\\'	 27	   Single quotation mark
-\\"	 22	   Double quotation mark
-\\?	 3F	   Question mark (used to avoid trigraphs)
-\\nnn	   The byte whose numerical value is given by nnn interpreted as an octal number
-\\xhh	   The byte whose numerical value is given by hh… interpreted as a hexadecimal number
+    \\a	  07  Alert (Beep, Bell) (added in C89)[1]
+    \\b	  08  Backspace
+    \\f	  0C  Form-feed
+    \\n	  0A  Newline (Line Feed); see notes below
+    \\r	  0D  Carriage Return
+    \\t	  09  Horizontal Tab
+    \\v	  0B  Vertical Tab
+    \\\\  5C  Backslash
+    \\'	  27  Single quotation mark
+    \\"	  22  Double quotation mark
+    \\?	  3F  Question mark (used to avoid trigraphs)
+    \\nnn     The byte whose numerical value is given by nnn interpreted as an octal number
+    \\xhh     The byte whose numerical value is given by hh… interpreted as a hexadecimal number
 
 https://en.wikipedia.org/wiki/Escape_sequences_in_C
 */
@@ -278,7 +278,7 @@ pid_t FindProcessIdByName(const char *name)
 
 /** MurmurHash2, 64-bit versions, by Austin Appleby
 
-	(from https://sites.google.com/site/murmurhash/)
+	(from https://sites.google.com/site/murmurhash/) a 64-bit hash for 64-bit platforms
 
 	All code is released to the public domain. For business purposes, Murmurhash is
 	under the MIT license.
@@ -286,7 +286,10 @@ pid_t FindProcessIdByName(const char *name)
 	The same caveats as 32-bit MurmurHash2 apply here - beware of alignment
 	and endian-ness issues if used across multiple platforms.
 
-	// 64-bit hash for 64-bit platforms
+	\param key address of the memory block to hash.
+	\param len Number of bytes to hash.
+	\return	 64-bit hash of the memory block.
+
 */
 uint64_t MurmurHash64A(const void *key, int len)
 {
@@ -334,8 +337,8 @@ uint64_t MurmurHash64A(const void *key, int len)
 /** Remove quotes and (space and tab) outside quotes from a string.
 
 	Removes space and tab characters except inside a string declared with a double quote '"'. After doing that,
-it removes the quotes. This is used by ConfigFile and has obvious limitations but is used for its simplicity
-and easily predictable results.
+	it removes the quotes. This is used by ConfigFile and has obvious limitations but is used for its simplicity
+	and easily predictable results.
 
 	\param s Input string
 	\return	 String without space or tab.

@@ -195,7 +195,7 @@ class Logger {
 };
 
 
-/** A Jazz Service logger.
+/** A Jazz Service.
 
 	A service is anything that requires configuration and a logger. Only a service can own (alloc from the system) RAM, anything else
 	allocates RAM from a service. Only Services (and some callback functions) are instantiated in Jazz instances and there is only one
