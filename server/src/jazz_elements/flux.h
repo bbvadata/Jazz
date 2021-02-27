@@ -53,9 +53,9 @@
 namespace jazz_elements
 {
 
-/**< \brief aaa: aaa.
+/** \brief A table of two columns **source** and **destination**, with only one special index **time**.
 
-//TODO: Document this!
+It has a special streaming API. The past may not be stored.
 */
 class Flux : public Tuple {
 
