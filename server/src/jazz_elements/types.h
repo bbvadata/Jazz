@@ -112,6 +112,14 @@ MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limit
 #define FILTER_TYPE_BOOLEAN	 	1			///< This Block is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
 #define FILTER_TYPE_INTEGER		2			///< This Block is a vector of CELL_TYPE_INTEGER containing the selected rows.
 
+/// Possible return values of Kind.kind_audit() and Tuple.tuple_audit()
+
+#define KIND_TYPE_
+
+#define KIND_TYPE_NOTAKIND		0			///< The kind fails audit (wrong or duplicate item names, wrong dimensions, ...).
+#define KIND_TYPE_KIND		 	1			///< This Block is a valid Kind.
+#define KIND_TYPE_TUPLE			2			///< This Block is a valid Tuple.
+
 // Attribute types for Block descendants
 
 #define BLOCK_ATTRIB_
