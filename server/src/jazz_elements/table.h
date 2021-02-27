@@ -53,9 +53,8 @@
 namespace jazz_elements
 {
 
-/**< \brief aaa: aaa.
+/** \brief A set of Columns sharing the same indices.
 
-//TODO: Document this!
 */
 class Table : public Tuple {
 
