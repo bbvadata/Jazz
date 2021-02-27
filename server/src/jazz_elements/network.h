@@ -70,9 +70,8 @@ class Cluster : public Service {
 };
 
 
-/**< \brief aaa: aaa.
+/** \brief A Container that treats a remote node (mostly a Jazz node, but also a web API) as persistence.
 
-//TODO: Document this!
 */
 class Remote : public Container {
 
