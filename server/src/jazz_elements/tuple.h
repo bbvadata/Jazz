@@ -53,14 +53,16 @@
 namespace jazz_elements
 {
 
+typedef class Tuple *pTuple;
+
 /** \brief Tuple: A Jazz data block of a Kind.
 
 An instance of a **Kind**. Physically, like a Kind, it is a single block with some differences:
 
-  - It holds data and metadata. (It has a reference to the kind, but that is only interesting in the context of formal fields. Anything
+- It holds data and metadata. (It has a reference to the kind, but that is only interesting in the context of formal fields. Anything
   required to understand the data architecture is in the block itself.)
-  - It has constant values for the dimensions. E.g., all instances of "image_width" across all items where applicable are, say 640.
-  - It has different attributes than a Tuple.
+- It has constant values for the dimensions. E.g., all instances of "image_width" across all items where applicable are, say 640.
+- It has different attributes than a Tuple.
 
 Also, tuples always define, at least, these attributes:
 
@@ -73,17 +75,17 @@ class Tuple : public Block {
 
 	public:
 
-	inline int kind(pApiBuffer p_buff) {
+	/** Verifies if a Tuple is of a Kind.
+
+		\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
+	*/
+	inline bool is_a(pKind kind) {
 //TODO: Implement, test and document this.
 
 		return 0;
 	};
 
-	inline int tuple_audit() {
-//TODO: Implement, test and document this.
-
-		return 0;
-	};
+	inline int tuple_audit();
 
 };
 

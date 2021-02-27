@@ -41,9 +41,16 @@
 namespace jazz_elements
 {
 
-/*	-----------------------------------------------
-	 Tuple : I m p l e m e n t a t i o n
---------------------------------------------------- */
+/** Check the internal validity of a Tuple (item structure, dimensions, etc.)
+
+	\return KIND_TYPE_NOTAKIND on error or KIND_TYPE_TUPLE if every check passes ok.
+*/
+int Tuple::tuple_audit()
+{
+//TODO: Implement and test this.
+
+	return KIND_TYPE_NOTAKIND;
+}
 
 } // namespace jazz_elements
 
