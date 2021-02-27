@@ -71,7 +71,7 @@ extern ConfigFile  CONFIG;
 extern Logger	   LOGGER;
 
 
-/**< \brief Api: A Service to manage the REST API.
+/** \brief Api: A Service to manage the REST API.
 
 */
 class Api : public Service {

@@ -62,7 +62,7 @@ namespace jazz_bebop
 using namespace jazz_elements;
 
 
-/**< \brief Bebop: A Service to manage running cores and code bases.
+/** \brief Bebop: A Service to manage running cores and code bases.
 
 */
 class Bebop : public Service {

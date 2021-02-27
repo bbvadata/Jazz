@@ -62,7 +62,7 @@ namespace jazz_agency
 using namespace jazz_elements;
 
 
-/**< \brief Agency: A Service to manage flʌkpilers and agents.
+/** \brief Agency: A Service to manage flʌkpilers and agents.
 
 */
 class Agency : public Service {

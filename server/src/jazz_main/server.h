@@ -64,7 +64,7 @@ typedef void (*pSignalHandler) (int signum);
 typedef MHD_Daemon * pMHD_Daemon;
 
 
-/**< \brief HttpServer: The http server is also a Service.
+/** \brief HttpServer: The http server is also a Service.
 
 */
 class HttpServer : public Service {

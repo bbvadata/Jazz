@@ -39,7 +39,7 @@
 #define INCLUDED_JAZZ_AGENCY
 
 
-/**< \brief Includes everything in namespace jazz_agency without using it by default.
+/** \brief Includes everything in namespace jazz_agency without using it by default.
 
 The namespace jazz_agency contains: The abstract class from which all flʌkpilers descend, the mechanism to extend and manage a
 collection of flʌkpilers. The implementation of an agent, which is a graph of flʌkpilers.

@@ -65,7 +65,7 @@
 //TODO: Implement backend API access control.
 
 
-/**< \brief	 The application entry point.
+/** \brief	 The application entry point.
 
 	Most high level server logic: see the description of main()
 	The entry point is replaced by the catch2 entry point for unit testing.
