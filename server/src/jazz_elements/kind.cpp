@@ -52,7 +52,6 @@ int Kind::kind_audit()
 	return KIND_TYPE_NOTAKIND;
 }
 
-
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
