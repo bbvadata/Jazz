@@ -123,7 +123,7 @@ inline int TenBitsAtAddress (const char* str) {
 	\param big_bang The primordial event (== Jazz server start ;)
 	\return			The time elapsed in microseconds
 */
-inline int64_t elapsed_us(jazz_elements::TimePoint big_bang) {
+inline int64_t elapsed_mu_sec(jazz_elements::TimePoint big_bang) {
 	jazz_elements::TimePoint now = std::chrono::steady_clock::now();
 
 	return std::chrono::duration_cast<std::chrono::microseconds>(now - big_bang).count();
