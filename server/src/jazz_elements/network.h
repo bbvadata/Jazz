@@ -53,9 +53,9 @@
 namespace jazz_elements
 {
 
-/**< \brief aaa: aaa.
+/** \brief A service keeping a configuration of all the Jazz nodes that may be acccessed remotely.
 
-//TODO: Document this!
+These Jazz nodes are all aware of each other and share some root configurations (including identical Cluster configuration).
 */
 class Cluster : public Service {
 
