@@ -56,7 +56,9 @@ namespace jazz_elements
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
-Its descendants are volatile and persisted, completing the three possible block allocations: one-shot, volatile and persisted.
+Its descendants are: Volatile, Remote and Persisted, completing all possible block allocations: one-shot, volatile, remote and persisted.
+
+
 */
 class Container : public Service {
 
