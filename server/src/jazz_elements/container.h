@@ -58,6 +58,20 @@
 namespace jazz_elements
 {
 
+/// Block API (dimensions of structures)
+
+#define NAME_SIZE						32					///< Size of a Name (ending 0 included)
+#define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
+
+/// Block API (syntax related)
+
+#define REGEX_VALIDATE_NAME				"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
+
+/// Block API (method arguments)
+
+/// Block API (error codes)
+
+
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
