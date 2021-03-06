@@ -72,6 +72,56 @@ namespace jazz_elements
 /// Block API (error codes)
 
 
+/** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
+Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
+*/
+struct Name {
+	char name [NAME_SIZE];
+};
+
+/** A binary block identifier internal to the Container. Typically a MurmurHash64A of the Block name.
+*/
+typedef uint64_t BlockId64;
+
+/** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
+*/
+typedef std::atomic<int32_t> Lock32;
+
+// Forward pointer types:
+
+typedef struct BlockKeeper 	*pBlockKeeper;
+typedef class Container		*pContainer;
+
+/** A pair of pointers to manage allocation inside an array of BlockKeeper as a deque.
+*/
+struct OneShotDeque {
+	pBlockKeeper	p_prev, p_next;		///< A pair of pointers to keep this (the descendant) in a double linked list
+};
+
+/** The extra space in a BlockKeeper.
+
+	This union keeps Container specific data.
+*/
+union KeeperData
+{
+	Name		 name;					///< Name of the block (used by Container descendants using locators)
+	OneShotDeque deque;					///< A pair of pointer (used by the root class Container)
+};
+
+/** The minimum struc to keep track of block allocation in a Container.
+The descendants will use classes with more data inheriting from this.
+The caller can **only read** the data from here by using the pBlockKeeper returned by the Container API.
+*/
+struct BlockKeeper {
+	pBlock			p_block;			///< A pointer to the Block (if status == BLOCK_STATUS_READY)
+	pContainer		p_owner;			///< A pointer to the Container instance serving API calls related to this block.
+	BlockId64		block_id;			///< A 64 bit binary block id. Can be a hash of the block locator, but not necessarily.
+	Lock32			lock;				///< An atomically updated int to lock the Keeper (can only be used via p_owner->lock(), ..)
+	int				status;				///< The status of the block request (sync or async errors, wait, ready, etc.)
+	KeeperData		data;				///< Some data used by the Container service
+};
+
+
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
