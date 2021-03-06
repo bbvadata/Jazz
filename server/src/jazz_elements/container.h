@@ -58,6 +58,32 @@ namespace jazz_elements
 This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
 Its descendants are: Volatile, Remote and Persisted, completing all possible block allocations: one-shot, volatile, remote and persisted.
 
+It provides, "rules of the game" for all descendants;
+
+- A Block locator mechanism: Container name, Block name and contracts
+- The struc BlockKeeper to store Blocks
+- Thread safety (and thread specific storage just for this class)
+- An allocation API .new(locked=True), .lock(), .unlock()
+- A crud API .get(), .put(only_if=PUT_ALWAYS), .delete()
+- Support for Block contracts
+- A configuration style that will be honored by all descendants
+
+It provides, specifically for the Container class;
+
+- A deque of BlockKeeper structures: .l_push(), .l_pop(), .l_peek(), .r_push(), .r_pop(), .r_peek()
+
+One-shot Block allocation
+-------------------------
+
+This is the only container providing one-shot Block allocation. This does not mean, unlike in previous versions, the caller owns the
+pointer. One-shot Block allocation is intended for computing intermediate blocks like: blocks generated from constants, from slicing,
+returned by functions, etc. In these blocks, the locator is meaningless, the caller will typically allocate by l_push() and recover
+by l_pop(). A Block returned via l_pop() is still owned by the Container and requires explicit .unlock()-ing by the caller.
+
+This also the only container that is thread specific. Anywhere else, blocks are uniquely identified by their locators in a
+thread-transparent way for the caller. Since blocks here do not have locators, the whole operation happens in the context of a `thread_idx`.
+The `thread_idx` is **not** a thread id as returned by `pthread_self()`, it is an index in the thread pool. Thread-aware services
+(normally API and Bebop cores) have a `thread_idx` valid during the lifetime of whatever operations require call to this Container.
 
 */
 class Container : public Service {
