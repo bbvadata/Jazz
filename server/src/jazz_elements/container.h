@@ -32,7 +32,12 @@
 */
 
 
-// #include <stl_whatever>
+#include <map>
+#include <atomic>
+#include <thread>
+#include <stdarg.h>
+#include <regex>
+
 
 #include "src/jazz_elements/tuple.h"
 
