@@ -62,6 +62,10 @@ namespace jazz_elements
 
 #define NAME_SIZE						32					///< Size of a Name (ending 0 included)
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
+#define MAX_CONTAINERS_IN_LOCATOR		7					///< A locator has (max) this # of container/sub-container names + block name.
+#define MAX_CONTRACTS_IN_RVALUE			6					///< An rvalue operation can apply (max) that many contracts.
+#define QUERY_LENGTH					4096				///< Maximum length of an API query
+
 
 /// Block API (syntax related)
 
