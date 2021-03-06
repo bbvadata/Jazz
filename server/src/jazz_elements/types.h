@@ -68,7 +68,7 @@ MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limit
 
 
 #define MAX_TENSOR_RANK			6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
-#define MAX_CHECKS_4_MATCH	   25			///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
+#define MAX_CHECKS_4_MATCH		25			///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
 
 /// Different values for Block.cell_type
 #define CELL_TYPE__
@@ -109,7 +109,7 @@ MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limit
 #define FILTER_TYPE_
 
 #define FILTER_TYPE_NOTAFILTER	0			///< This Block cannot be used as a filter. A try to use it in new_jazz_block() will fail.
-#define FILTER_TYPE_BOOLEAN	 	1			///< This Block is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
+#define FILTER_TYPE_BOOLEAN		1			///< This Block is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
 #define FILTER_TYPE_INTEGER		2			///< This Block is a vector of CELL_TYPE_INTEGER containing the selected rows.
 
 /// Possible return values of Kind.kind_audit() and Tuple.tuple_audit()
@@ -120,7 +120,7 @@ MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limit
 #define KIND_TYPE_KIND		 	1			///< This Block is a valid Kind.
 #define KIND_TYPE_TUPLE			2			///< This Block is a valid Tuple.
 
-// Attribute types for Block descendants
+/// Attribute types for Block descendants
 
 #define BLOCK_ATTRIB_
 
