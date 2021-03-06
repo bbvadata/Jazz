@@ -123,6 +123,35 @@ struct BlockKeeper {
 	KeeperData		data;				///< Some data used by the Container service
 };
 
+/**
+*/
+struct Locator {
+	Name	container[MAX_CONTAINERS_IN_LOCATOR];		///<
+	Name	block;										///<
+};
+
+/**
+*/
+struct ContractRequest {
+	Name			action;								///<
+	pBlockKeeper	p_args;								///<
+};
+
+/**
+*/
+struct Lvalue {
+	Locator			path;								///<
+	bool			only_if_exists;						///<
+	bool			only_if_new;						///<
+};
+
+
+/**
+*/
+struct Rvalue {
+	Locator			path;								///<
+	ContractRequest contract[MAX_CONTRACTS_IN_RVALUE];	///<
+};
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
