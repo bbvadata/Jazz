@@ -79,9 +79,7 @@ namespace jazz_elements
 /** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
 Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
 */
-struct Name {
-	char name [NAME_SIZE];
-};
+typedef char Name[NAME_SIZE];
 
 /** A binary block identifier internal to the Container. Typically a MurmurHash64A of the Block name.
 */
