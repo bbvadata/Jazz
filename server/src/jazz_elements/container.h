@@ -107,7 +107,7 @@ struct OneShotDeque {
 union KeeperData
 {
 	Name		 name;					///< Name of the block (used by Container descendants using locators)
-	OneShotDeque deque;					///< A pair of pointer (used by the root class Container)
+	OneShotDeque deque;					///< A pair of pointers (used by the root class Container)
 };
 
 /** The minimum struc to keep track of block allocation in a Container.
