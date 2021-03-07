@@ -90,6 +90,64 @@ StatusCode Container::shut_down(bool restarting_service)
 }
 
 
+
+
+/** Bla, bla, bla
+
+//TODO: Document put()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::put (pLocator	  p_where,
+						   pBlock	  p_block,
+						   pContainer p_sender,
+						   BlockId64  block_id)
+{
+//TODO: Implement put()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Bla, bla, bla
+
+//TODO: Document remove()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::remove (pLocator	 p_what,
+							  pContainer p_sender,
+							  BlockId64	 block_id)
+{
+//TODO: Implement remove()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Bla, bla, bla
+
+//TODO: Document get(1)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::get (pBlockKeeper *p_keeper,
+						   pR_value		 p_rvalue,
+						   pContainer	 p_sender,
+						   BlockId64	 block_id)
+{
+//TODO: Implement get(1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
 /** Bla, bla, bla
 
 //TODO: Document sleep()
