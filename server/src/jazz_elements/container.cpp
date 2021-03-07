@@ -45,10 +45,16 @@ namespace jazz_elements
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 
-/**
-//TODO: Document Container::start()
+	num_keepers = max_num_keepers = 0;
+	alloc_bytes = last_alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
+	p_buffer = p_left = p_right = nullptr;
+}
+
+Container::~Container () {
+	destroy_container();
+}
 */
 StatusCode Container::start()
 {
