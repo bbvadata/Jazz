@@ -81,7 +81,6 @@ namespace jazz_elements
 #define BLOCK_STATUS_SYNC_FAIL			-2					///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
 #define BLOCK_STATUS_SYNC_UNLOCKED		-3					///< BlockKeeper.status: block destroying, do nothing, forget the pointer
 
-
 /** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
 Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
 */
@@ -158,8 +157,6 @@ struct ContractRequest {
 */
 struct Lvalue {
 	Locator			path;								///<
-	bool			only_if_exists;						///<
-	bool			only_if_new;						///<
 };
 
 /**
@@ -174,17 +171,22 @@ struct Rvalue {
 This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
 Its descendants are: Volatile, Remote and Persisted, completing all possible block allocations: one-shot, volatile, remote and persisted.
 
-It provides, "rules of the game" for all descendants;
+It follows the "rules of the game" using:
 
-- A Block locator mechanism: Container name, Block name and contracts
-- The struc BlockKeeper to store Blocks
-- Thread safety (and thread specific storage just for this class)
-- An allocation API .new(locked=True), .lock(), .unlock()
-- A crud API .get(), .put(only_if=PUT_ALWAYS), .delete()
-- Support for Block contracts
-- A configuration style that will be honored by all descendants
+- Name, Answer and ContractRequest
+- BlockKeeper, Locator
+- All the constants, error codes, etc.
 
-It provides, specifically for the Container class;
+It provides a neat API for all descendants, including:
+
+- Transparent Thread safety (and thread specific storage just for this class)
+- An API for async calls (Remote): .sleep()
+- Allocation: .new(), .lock(), .unlock()
+- Crud: .put(), .delete()
+- Support for contracts: .get()
+- A configuration style for all descendants
+
+It provides, exposed by the root Container class, but also used internally by descendants;
 
 - A deque of BlockKeeper structures: .l_push(), .l_pop(), .l_peek(), .r_push(), .r_pop(), .r_peek()
 
@@ -200,6 +202,15 @@ This also the only container that is thread specific. Anywhere else, blocks are 
 thread-transparent way for the caller. Since blocks here do not have locators, the whole operation happens in the context of a `thread_idx`.
 The `thread_idx` is **not** a thread id as returned by `pthread_self()`, it is an index in the thread pool. Thread-aware services
 (normally API and Bebop cores) have a `thread_idx` valid during the lifetime of whatever operations require call to this Container.
+
+Instances and inheritance
+-------------------------
+
+Note that the descendants don't inherit each other. E.g., Volatile does not have a Remote implementation, but they all have the basic
+deque mechanism inherited from Container: i.e., they can all allocate new blocks for their own purposes. Configuration-wise the
+allocations set by ONE_SHOT_MAX_KEEPERS, ONE_SHOT_WARN_BLOCK_KBYTES, ... only apply to the instance of the class Container, the
+descendants use their own limits in which they include this allocation combined with whatever other allocations they do. The total
+allocation of the Jazz node is the sum of all (plus some small amount used by libraries, etc. that is not dependant on data size).
 
 */
 class Container : public Service {
