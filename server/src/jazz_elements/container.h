@@ -330,8 +330,8 @@ class Container : public Service {
 
 	private:
 
-		virtual void new_container();
-		virtual void destroy_container();
+		virtual StatusCode new_container();
+		virtual StatusCode destroy_container();
 
 		int num_keepers, max_num_keepers;
 		uint64_t alloc_bytes, last_alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
