@@ -120,6 +120,7 @@ typedef class  Container	*pContainer;
 typedef struct Answer		*pAnswer;
 typedef struct Locator		*pLocator, *pL_value;
 typedef struct R_value		*pR_value;
+typedef struct Items		*pItems;
 
 /** A pair of pointers to manage allocation inside an array of BlockKeeper as a deque.
 */
