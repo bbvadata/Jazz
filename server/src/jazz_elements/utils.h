@@ -249,9 +249,14 @@ class Service {
 
 			See ConfigFile for details.
 		*/
-		bool get_conf_key (const char *key, int &value) { if (p_conf != nullptr) return p_conf->get_key(key, value); }
-		bool get_conf_key (const char *key, double &value) { if (p_conf != nullptr) return p_conf->get_key(key, value); }
-		bool get_conf_key (const char *key, std::string &value) { if (p_conf != nullptr) return p_conf->get_key(key, value); }
+		bool get_conf_key (const char *key, int &value) {
+			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
+
+		bool get_conf_key (const char *key, double &value) {
+			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
+
+		bool get_conf_key (const char *key, std::string &value) {
+			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
 	private:
 
