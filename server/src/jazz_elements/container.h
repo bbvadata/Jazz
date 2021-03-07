@@ -204,7 +204,7 @@ It provides a neat API for all descendants, including:
 
 It provides, exposed by the root Container class, but also used internally by descendants;
 
-- A deque of BlockKeeper structures: .l_push(), .l_pop(), .l_peek(), .r_push(), .r_pop(), .r_peek()
+- A transparent deque of BlockKeeper structures
 
 One-shot Block allocation
 -------------------------
