@@ -134,7 +134,7 @@ struct BlockKeeper {
 	KeeperData		data;				///< Some data used by the Container service
 };
 
-/** A Locator is used by all Containers using block namesThe struc BlockKeeper to store Blocks == all except the root deque. It locates a block (existing or new) and is the
+/** A Locator is used by all Containers using block names == all except the root deque. It locates a block (existing or new) and is the
 base of both lvalues and rvalues.
 */
 struct Locator {
