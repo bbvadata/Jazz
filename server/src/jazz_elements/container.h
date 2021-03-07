@@ -254,6 +254,9 @@ class Container : public Service {
 
 		Container (pLogger	   a_logger,
 				   pConfigFile a_config);
+	   ~Container ();
+
+	   // Service API
 
 		StatusCode start		();
 		StatusCode shut_down	(bool restarting_service = false);
@@ -287,6 +290,52 @@ class Container : public Service {
 		StatusCode new_block   (pBlockKeeper *p_keeper,
 								pItems		  p_items,
 						   		int			  build			  = BUILD_TUPLE);
+
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								pLocator	  p_where,
+						   		pName		  p_name,
+								int			  what			 = NEW_MAP);
+
+		StatusCode lock		   (pBlockKeeper *p_keeper,
+								pLocator	  p_locator,
+								pContainer	  p_sender		 = nullptr,
+								BlockId64	  block_id		 = 0);
+
+		StatusCode unlock	   (pBlockKeeper *p_keeper);
+
+		// Crud: .put(), .remove()
+
+		StatusCode put		   (pLocator	  p_where,
+								pBlock		  p_block,
+								pContainer	  p_sender		 = nullptr,
+								BlockId64	  block_id		 = 0);
+
+		StatusCode remove	   (pLocator	  p_what,
+								pContainer	  p_sender		 = nullptr,
+								BlockId64	  block_id		 = 0);
+
+		// Support for contracts: .get()
+
+		StatusCode get		   (pBlockKeeper *p_keeper,
+								pR_value	  p_rvalue,
+								pContainer	  p_sender		 = nullptr,
+								BlockId64	  block_id		 = 0);
+
+		// Async calls (Remote): .sleep() .callback()
+
+		StatusCode sleep	   (pBlockKeeper *p_keeper);
+
+		virtual void callback  (BlockId64	  block_id,
+								StatusCode	  result);
+
+	private:
+
+		virtual void new_container();
+		virtual void destroy_container();
+
+		int num_keepers, max_num_keepers;
+		uint64_t alloc_bytes, last_alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
+		pBlockKeeper p_buffer, p_left, p_right;
 };
 
 
