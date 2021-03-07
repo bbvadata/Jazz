@@ -64,6 +64,7 @@ namespace jazz_elements
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
 #define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
+#define MAX_ITEMS_IN_TUPLE				64					///< The number of items merged into a tuple (array of BlockKeeper).
 #define QUERY_LENGTH					4096				///< Maximum length of an API query
 #define ANSWER_LENGTH					4096				///< Maximum length of an Answer
 
@@ -181,6 +182,13 @@ struct R_value : Locator {
 /** An std::map containing all the attributes of a block in one structure.
 */
 typedef std::map<int, const char *> Attributes;
+
+/** An array of Items (Blocks and Tuples) to be merged into a new Tuple or an array of Items (BlockHeaders and Kinds) to be merged into
+a new Kind.
+*/
+struct Items {
+	BlockKeeper		item[MAX_ITEMS_IN_TUPLE];			///< The items. First p_block == nullptrs breaks.
+};
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
