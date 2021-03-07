@@ -124,6 +124,7 @@ typedef std::atomic<int32_t> Lock32;
 
 typedef struct BlockKeeper 	*pBlockKeeper;
 typedef class  Container	*pContainer;
+typedef 	   Name			*pName;
 typedef struct Answer		*pAnswer;
 typedef struct Locator		*pLocator, *pL_value;
 typedef struct R_value		*pR_value;
