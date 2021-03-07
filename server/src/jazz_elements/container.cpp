@@ -92,6 +92,39 @@ StatusCode Container::shut_down(bool restarting_service)
 
 /** Bla, bla, bla
 
+//TODO: Document sleep()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::sleep (pBlockKeeper *p_keeper)
+{
+//TODO: Implement sleep()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Bla, bla, bla
+
+//TODO: Document callback()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+void Container::callback (BlockId64	 block_id,
+						  StatusCode result)
+{
+//TODO: Implement callback()
+
+	return;
+}
+
+
+/** Bla, bla, bla
+
 //TODO: Document new_container()
 
 	\param aaa		Bla, bla
