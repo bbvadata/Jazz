@@ -94,6 +94,41 @@ StatusCode Container::shut_down(bool restarting_service)
 
 /** Bla, bla, bla
 
+//TODO: Document lock()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::lock (pBlockKeeper *p_keeper,
+							pLocator	  p_locator,
+							pContainer	  p_sender,
+							BlockId64	  block_id)
+{
+//TODO: Implement lock()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Bla, bla, bla
+
+//TODO: Document unlock()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::unlock (pBlockKeeper *p_keeper)
+{
+//TODO: Implement unlock()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Bla, bla, bla
+
 //TODO: Document put()
 
 	\param aaa		Bla, bla
