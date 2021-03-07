@@ -73,7 +73,13 @@ namespace jazz_elements
 
 /// Block API (method arguments)
 
-/// Block API (error codes)
+/// Block API (error and status codes)
+
+#define BLOCK_STATUS_READY				 0					///< BlockKeeper.status: p_block-> is safe to use
+#define BLOCK_STATUS_ASYNC_WAIT			 1					///< BlockKeeper.status: async content pending, wait or call p_owner->sleep()
+#define BLOCK_STATUS_ASYNC_FAIL			-1					///< BlockKeeper.status: async failed, still locked, call p_owner->unlock()
+#define BLOCK_STATUS_SYNC_FAIL			-2					///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
+#define BLOCK_STATUS_SYNC_UNLOCKED		-3					///< BlockKeeper.status: block destroying, do nothing, forget the pointer
 
 
 /** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
@@ -144,7 +150,6 @@ struct Lvalue {
 	bool			only_if_exists;						///<
 	bool			only_if_new;						///<
 };
-
 
 /**
 */
