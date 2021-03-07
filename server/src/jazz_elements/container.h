@@ -79,6 +79,13 @@ namespace jazz_elements
 #define FILL_NEW_WITH_NA				2		///< Initialize with the appropriate NA for the cell_type.
 #define FILL_WITH_TEXTFILE				3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
 
+#define AS_JSON							1		///< Serialize data as JSON.
+#define AS_BEBOP						2		///< Serialize data and metadata.
+#define AS_CPP							3		///< Serialize metadata as compilable C++ that can be dynamically linked.
+
+#define BUILD_TUPLE						1		///< Build a Tuple out of data items or fail.
+#define BUILD_KIND						2		///< Build a Kind out of metadata items or fail.
+
 /// Block API (error and status codes)
 
 #define BLOCK_STATUS_READY				 0		///< BlockKeeper.status: p_block-> is safe to use
