@@ -90,6 +90,157 @@ StatusCode Container::shut_down(bool restarting_service)
 }
 
 
+/** Create a new Block (1): Create a Block from scratch.
+
+	\param p_keeper			A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+							BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param cell_type		The tensor cell type in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
+	\param dim				This defines both the rank and the dimensions of the tensor. Note that, except for the first position a
+							dimension of 0 and 1 is the same dim = {3, 1} is a vector of 3 elements with rank 1, exactly like {3, 0}.
+							As a matter of convention, dim should always end with a 0 except when it is MAX_TENSOR_RANK long.
+							For the first dimension 1 means one element and 0 means no element. Both have rank 1. The latter is the
+							typical result of a selection where no row matches the condition. Blocks never have rank == 0 and zero-element
+							blocks have the same rank as the block from which they were selected. When 0 rows are selected from a block
+							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
+							If dim == nullptr and p_text != nullptr, dim will be set to the number of lines (see eol) in p_text when
+							cell_type == CELL_TYPE_STRING.
+	\param att				The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+							use the version of new_jazz_block() with parameter p_as_block.
+	\param fill_tensor		How to fill the tensor. When creating anything that is not a filter, p_bool_filter is ignored and the options
+							are: FILL_NEW_DONT_FILL (don't do anything with the tensor), FILL_NEW_WITH_ZERO (fill with binary zero
+							no matter what the cell_type is), FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
+							When creating a filter, p_bool_filter must be a vector of length == size and the filter will be created as
+							boolean (when fill_tensor == CELL_TYPE_BOOLEAN) or integer (when fill_tensor == CELL_TYPE_INTEGER)
+	\param p_bool_filter	The vector of boolean (each true value means the corresponding row is selected) used when fill_tensor ==
+							CELL_TYPE_BOOLEAN and fill_tensor == CELL_TYPE_INTEGER
+	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
+							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
+							only allocate the space and do nothing with it. The caller should assign strings with Block.set_string().
+	\param p_text			The other possible way to allocate space for strings is by declaring p_text. Imagine the content of p_text
+							as a text file with n = size rows that will be pushed into the tensor and the string buffer. The eol character
+							separates the cells. (cell_type == CELL_TYPE_STRING & p_text != nullptr) overrides any setting in fill_tensor.
+							Also, either dim should be nullptr and set automatically or its resulting size must be the same as the number
+							of lines in p_text.
+	\param eol				A single character that separates the cells in p_text and will not be pushed to the string buffer.
+
+	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be
+	changed	only creating a new block with new = new_jazz_block(p_as_block = old, att = new_att). String buffer allocation should only be
+	used for cell_type == CELL_TYPE_STRING and either with stringbuff_size or with p_text (and eol).
+	If stringbuff_size is used, Block.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
+	Block.set_string() **should not** be called after that.
+
+	OWNERSHIP: Remember: the p_keeper returned on success points inside the Container. Use it as read-only and don't forget to unlock() it
+	when done.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
+*/
+StatusCode Container::new_block(pBlockKeeper *p_keeper,
+								int			  cell_type,
+								int			 *dim,
+								Attributes	 *att,
+								int			  fill_tensor,
+								bool		 *p_bool_filter,
+								int			  stringbuff_size,
+								const char	 *p_text,
+								char		  eol)
+{
+//TODO: Implement new_block(1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Create a new Block (2): Create a Block by slicing an existing Block.
+
+//TODO: Document new_block(2)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::new_block(pBlockKeeper *p_keeper,
+								pBlock		  p_as_block,
+						   		pBlock		  p_row_filter,
+								Attributes	 *att)
+{
+//TODO: Implement new_block(2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Create a new Block (3): Create a binary block from text source.
+
+//TODO: Document new_block(3)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::new_block(pBlockKeeper *p_keeper,
+								const char	 *p_text,
+						   		pBlockHeader  p_as_block,
+								Attributes	 *att)
+{
+//TODO: Implement new_block(3)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Create a new Block (4): Create a long text block by sourcing a binary block as some text serialization.
+
+//TODO: Document new_block(4)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::new_block(pBlockKeeper *p_keeper,
+								pBlock		  p_block,
+						   		int			  format)
+{
+//TODO: Implement new_block(4)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Create a new Block (5): Create a Kind or a Tuple by merging Items.
+
+//TODO: Document new_block(5)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::new_block(pBlockKeeper *p_keeper,
+								pItems		  p_items,
+						   		int			  build)
+{
+//TODO: Implement new_block(5)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Create a new Block (6): Create a database or sub-container inside Persisted or Volatile.
+
+//TODO: Document new_block(6)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::new_block(pBlockKeeper *p_keeper,
+								pLocator	  p_where,
+						   		pName		  p_name,
+								int			  what)
+{
+//TODO: Implement new_block(6)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
 
 
 /** Bla, bla, bla
