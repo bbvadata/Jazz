@@ -86,6 +86,13 @@ namespace jazz_elements
 #define BUILD_TUPLE						1		///< Build a Tuple out of data items or fail.
 #define BUILD_KIND						2		///< Build a Kind out of metadata items or fail.
 
+#define NEW_MAP							1		///< Container.new_block(6)(what) constant: Create a new named map inside Volatile.
+#define NEW_DEQUE						2		///< Container.new_block(6)(what) constant: Create a new named deque inside Volatile.
+#define NEW_TREE						3		///< Container.new_block(6)(what) constant: Create a new named tree inside Volatile.
+#define NEW_QUEUE						4		///< Container.new_block(6)(what) constant: Create a new named queue inside Volatile.
+#define NEW_CACHE						5		///< Container.new_block(6)(what) constant: Create a new named cache inside Volatile.
+#define NEW_DATABASE					6		///< Container.new_block(6)(what) constant: Create a new named database inside Persisted.
+
 /// Block API (error and status codes)
 
 #define BLOCK_STATUS_READY				 0		///< BlockKeeper.status: p_block-> is safe to use
