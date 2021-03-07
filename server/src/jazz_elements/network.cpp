@@ -95,7 +95,7 @@ Cluster::Cluster(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_c
 /**
 //TODO: Document Cluster::start()
 */
-Service_ErrorCode Cluster::start()
+StatusCode Cluster::start()
 {
 //TODO: Implement Cluster::start()
 
@@ -105,7 +105,7 @@ Service_ErrorCode Cluster::start()
 /**
 //TODO: Document Cluster::shut_down()
 */
-Service_ErrorCode Cluster::shut_down(bool restarting_service)
+StatusCode Cluster::shut_down(bool restarting_service)
 {
 //TODO: Implement Cluster::shut_down()
 
@@ -122,7 +122,7 @@ Remote::Remote(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_c
 /**
 //TODO: Document Remote::start()
 */
-Service_ErrorCode Remote::start()
+StatusCode Remote::start()
 {
 //TODO: Implement Remote::start()
 
@@ -132,7 +132,7 @@ Service_ErrorCode Remote::start()
 /**
 //TODO: Document Remote::shut_down()
 */
-Service_ErrorCode Remote::shut_down(bool restarting_service)
+StatusCode Remote::shut_down(bool restarting_service)
 {
 //TODO: Implement Remote::shut_down()
 

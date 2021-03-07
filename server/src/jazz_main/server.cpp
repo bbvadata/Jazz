@@ -51,7 +51,7 @@ HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logge
 /**
 //TODO: Document HttpServer::start()
 */
-Service_ErrorCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon)
+StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon)
 {
 //TODO: Implement HttpServer::start()
 
@@ -61,7 +61,7 @@ Service_ErrorCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p
 /**
 //TODO: Document HttpServer::shut_down()
 */
-Service_ErrorCode HttpServer::shut_down(bool restarting_service)
+StatusCode HttpServer::shut_down(bool restarting_service)
 {
 //TODO: Implement HttpServer::shut_down()
 

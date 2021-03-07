@@ -50,7 +50,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 /**
 //TODO: Document Container::start()
 */
-Service_ErrorCode Container::start()
+StatusCode Container::start()
 {
 //TODO: Implement Container::start()
 
@@ -60,7 +60,7 @@ Service_ErrorCode Container::start()
 /**
 //TODO: Document Container::shut_down()
 */
-Service_ErrorCode Container::shut_down(bool restarting_service)
+StatusCode Container::shut_down(bool restarting_service)
 {
 //TODO: Implement Container::shut_down()
 

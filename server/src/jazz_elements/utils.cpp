@@ -703,7 +703,7 @@ Service::Service(pLogger	 a_logger,
 
 	This method should be overriden by something that actually starts the service, possibly using the configuration file in pConf.
 */
-Service_ErrorCode Service::start()
+StatusCode Service::start()
 {
 #ifdef DEBUG
 	log(LOG_DEBUG, "Service::start()");
@@ -722,7 +722,7 @@ Service_ErrorCode Service::start()
 
 	This method should be overriden by something that actually stops the service, possibly using the configuration file in pConf.
 */
-Service_ErrorCode Service::shut_down(bool restarting_service)
+StatusCode Service::shut_down(bool restarting_service)
 {
 #ifdef DEBUG
 	log_printf(LOG_DEBUG, "Service::shut_down(%i)", restarting_service);

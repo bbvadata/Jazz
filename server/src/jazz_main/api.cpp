@@ -538,7 +538,7 @@ Api::Api(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 /**
 //TODO: Document Api::start()
 */
-Service_ErrorCode Api::start()
+StatusCode Api::start()
 {
 //TODO: Implement Api::start()
 
@@ -548,7 +548,7 @@ Service_ErrorCode Api::start()
 /**
 //TODO: Document Api::shut_down()
 */
-Service_ErrorCode Api::shut_down(bool restarting_service)
+StatusCode Api::shut_down(bool restarting_service)
 {
 //TODO: Implement Api::shut_down()
 

@@ -90,7 +90,7 @@ without global variables.
 	/// Maximum length for file names in ConfigFile and Logger.
 #define MAX_FILENAME_LENGTH	256
 
-/** Constants for Service_ErrorCode values
+/** Constants for StatusCode values
 */
 #define SERVICE_NO_ERROR			 0		///< No errors found processing the API call.
 #define SERVICE_ERROR_BAD_CONFIG	-1		///< Generic error related with configuration parsing.
@@ -99,7 +99,7 @@ without global variables.
 #define SERVICE_NOT_IMPLEMENTED		-4		///< Returned by the Service class (only descendents should be called.).
 
 	/// Type returned by the Service API
-typedef int Service_ErrorCode;
+typedef int StatusCode;
 
 
 bool		 FileExists			   (const char* file_name);
@@ -212,8 +212,8 @@ class Service {
 			     pConfigFile a_config);
 
 		/// A simple start()/shut_down() interface (Restart is: shut_down(TRUE):start())
-		virtual Service_ErrorCode start		();
-		virtual Service_ErrorCode shut_down	(bool restarting_service = false);
+		virtual StatusCode start		();
+		virtual StatusCode shut_down	(bool restarting_service = false);
 
 		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
 

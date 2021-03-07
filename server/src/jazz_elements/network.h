@@ -64,8 +64,8 @@ class Cluster : public Service {
 		Cluster (pLogger	 a_logger,
 				 pConfigFile a_config);
 
-		Service_ErrorCode start		();
-		Service_ErrorCode shut_down	(bool restarting_service = false);
+		StatusCode start		();
+		StatusCode shut_down	(bool restarting_service = false);
 
 };
 
@@ -80,8 +80,8 @@ class Remote : public Container {
 		Remote (pLogger	 a_logger,
 				pConfigFile a_config);
 
-		Service_ErrorCode start		();
-		Service_ErrorCode shut_down	(bool restarting_service = false);
+		StatusCode start		();
+		StatusCode shut_down	(bool restarting_service = false);
 
 };
 

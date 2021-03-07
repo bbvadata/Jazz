@@ -50,7 +50,7 @@ Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logge
 /**
 //TODO: Document Persisted::start()
 */
-Service_ErrorCode Persisted::start()
+StatusCode Persisted::start()
 {
 //TODO: Implement Persisted::start()
 
@@ -60,7 +60,7 @@ Service_ErrorCode Persisted::start()
 /**
 //TODO: Document Persisted::shut_down()
 */
-Service_ErrorCode Persisted::shut_down(bool restarting_service)
+StatusCode Persisted::shut_down(bool restarting_service)
 {
 //TODO: Implement Persisted::shut_down()
 

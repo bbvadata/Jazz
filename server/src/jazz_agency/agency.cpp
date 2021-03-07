@@ -50,7 +50,7 @@ Agency::Agency(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_con
 /**
 //TODO: Document Agency::start()
 */
-Service_ErrorCode Agency::start()
+StatusCode Agency::start()
 {
 //TODO: Implement Agency::start()
 
@@ -60,7 +60,7 @@ Service_ErrorCode Agency::start()
 /**
 //TODO: Document Agency::shut_down()
 */
-Service_ErrorCode Agency::shut_down(bool restarting_service)
+StatusCode Agency::shut_down(bool restarting_service)
 {
 //TODO: Implement Agency::shut_down()
 

@@ -74,9 +74,9 @@ class HttpServer : public Service {
 		HttpServer (pLogger		a_logger,
 					pConfigFile a_config);
 
-		Service_ErrorCode start		(pSignalHandler  p_sig_handler,
-						 			 pMHD_Daemon	&p_daemon);
-		Service_ErrorCode shut_down	(bool 			 restarting_service = false);
+		StatusCode start		(pSignalHandler  p_sig_handler,
+						 		 pMHD_Daemon	&p_daemon);
+		StatusCode shut_down	(bool 			 restarting_service = false);
 
 };
 

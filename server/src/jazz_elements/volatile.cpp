@@ -50,7 +50,7 @@ Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 /**
 //TODO: Document Volatile::start()
 */
-Service_ErrorCode Volatile::start()
+StatusCode Volatile::start()
 {
 //TODO: Implement Volatile::start()
 
@@ -60,7 +60,7 @@ Service_ErrorCode Volatile::start()
 /**
 //TODO: Document Volatile::shut_down()
 */
-Service_ErrorCode Volatile::shut_down(bool restarting_service)
+StatusCode Volatile::shut_down(bool restarting_service)
 {
 //TODO: Implement Volatile::shut_down()
 

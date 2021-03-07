@@ -50,7 +50,7 @@ Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_confi
 /**
 //TODO: Document Bebop::start()
 */
-Service_ErrorCode Bebop::start()
+StatusCode Bebop::start()
 {
 //TODO: Implement Bebop::start()
 
@@ -60,7 +60,7 @@ Service_ErrorCode Bebop::start()
 /**
 //TODO: Document Bebop::shut_down()
 */
-Service_ErrorCode Bebop::shut_down(bool restarting_service)
+StatusCode Bebop::shut_down(bool restarting_service)
 {
 //TODO: Implement Bebop::shut_down()
 
