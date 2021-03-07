@@ -65,7 +65,7 @@ namespace jazz_elements
 #define MAX_CONTAINERS_IN_LOCATOR		7					///< A locator has (max) this # of container/sub-container names + block name.
 #define MAX_CONTRACTS_IN_RVALUE			6					///< An rvalue operation can apply (max) that many contracts.
 #define QUERY_LENGTH					4096				///< Maximum length of an API query
-
+#define ANSWER_LENGTH					4096				///< Maximum length of an Answer
 
 /// Block API (syntax related)
 
@@ -86,6 +86,12 @@ namespace jazz_elements
 Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
+
+/** A string possibly returned by a contract. Contracts return either a block or an answer.
+*/
+struct Answer {
+	char	text[ANSWER_LENGTH];		///< A message, metadata, lists of items, columns, etc.
+};
 
 /** A binary block identifier internal to the Container. Typically a MurmurHash64A of the Block name.
 */
