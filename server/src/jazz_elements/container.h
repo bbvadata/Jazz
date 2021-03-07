@@ -268,9 +268,21 @@ class Container : public Service {
 
 		StatusCode new_block   (pBlockKeeper *p_keeper,
 								pBlock		  p_as_block,
-						   		pBlock		  p_row_filter = nullptr,
-								Attributes	 *att		   = nullptr);
+						   		pBlock		  p_row_filter	  = nullptr,
+								Attributes	 *att			  = nullptr);
 
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								const char	 *p_text,
+						   		pBlockHeader  p_as_block	  = nullptr,
+								Attributes	 *att			  = nullptr);
+
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								pBlock		  p_block,
+						   		int			  format		  = AS_JSON);
+
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								pItems		  p_items,
+						   		int			  build			  = BUILD_TUPLE);
 };
 
 
