@@ -41,7 +41,7 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-SCENARIO("Testing structure sizes.") {
+SCENARIO("Testing (types) structure sizes.") {
 
 	REQUIRE(sizeof(TensorDim)	 == 4*(MAX_TENSOR_RANK));
 	REQUIRE(sizeof(ItemHeader)	 == 64);
