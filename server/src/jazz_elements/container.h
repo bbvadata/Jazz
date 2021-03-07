@@ -62,8 +62,8 @@ namespace jazz_elements
 
 #define NAME_SIZE						32					///< Size of a Name (ending 0 included)
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
-#define MAX_NESTED_CONTAINERS			6					///< (max) sub-container names in a locator (base is resolved to a pointer).
-#define MAX_CONTRACTS_IN_R_VALUE		6					///< An rvalue operation can apply (max) that many contracts.
+#define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
+#define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
 #define QUERY_LENGTH					4096				///< Maximum length of an API query
 #define ANSWER_LENGTH					4096				///< Maximum length of an Answer
 
@@ -141,10 +141,6 @@ struct BlockKeeper {
 base of both lvalues and rvalues.
 */
 struct Locator {
-	bool			only_if_exists;						///< For lvalue: fail if the block does not exist.
-	bool			only_if_new;						///< For lvalue: fail if the block already exists.
-	bool			only_if_local;						///< Fail if not in this node (== don't route it if elsewhere)
-	bool			gwp_update;							///< GWP (Group Wide Propagation) message for synching sharded columns and tables
 	Name			container[MAX_NESTED_CONTAINERS];	///< All the sub-container names (the base container is used to route the call)
 	Name			block;								///< The block name
 };
