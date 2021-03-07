@@ -73,13 +73,18 @@ namespace jazz_elements
 
 /// Block API (method arguments)
 
+#define FILL_NEW_DONT_FILL				0		///< Don't initialize at all.
+#define FILL_NEW_WITH_ZERO				1		///< Initialize with binary zero.
+#define FILL_NEW_WITH_NA				2		///< Initialize with the appropriate NA for the cell_type.
+#define FILL_WITH_TEXTFILE				3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
+
 /// Block API (error and status codes)
 
-#define BLOCK_STATUS_READY				 0					///< BlockKeeper.status: p_block-> is safe to use
-#define BLOCK_STATUS_ASYNC_WAIT			 1					///< BlockKeeper.status: async content pending, wait or call p_owner->sleep()
-#define BLOCK_STATUS_ASYNC_FAIL			-1					///< BlockKeeper.status: async failed, still locked, call p_owner->unlock()
-#define BLOCK_STATUS_SYNC_FAIL			-2					///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
-#define BLOCK_STATUS_SYNC_UNLOCKED		-3					///< BlockKeeper.status: block destroying, do nothing, forget the pointer
+#define BLOCK_STATUS_READY				 0		///< BlockKeeper.status: p_block-> is safe to use
+#define BLOCK_STATUS_ASYNC_WAIT			 1		///< BlockKeeper.status: async content pending, wait or call p_owner->sleep()
+#define BLOCK_STATUS_ASYNC_FAIL			-1		///< BlockKeeper.status: async failed, still locked, call p_owner->unlock()
+#define BLOCK_STATUS_SYNC_FAIL			-2		///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
+#define BLOCK_STATUS_SYNC_UNLOCKED		-3		///< BlockKeeper.status: block destroying, do nothing, forget the pointer
 
 /** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
 Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
@@ -173,6 +178,10 @@ struct R_value : Locator {
 	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contratc to be a applied in order. The first empty one breaks.
 };
 
+/** An std::map containing all the attributes of a block in one structure.
+*/
+typedef std::map<int, const char *> Attributes;
+
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
@@ -188,7 +197,7 @@ It provides a neat API for all descendants, including:
 
 - Transparent Thread safety (and thread specific storage just for this class)
 - An API for async calls (Remote): .sleep()
-- Allocation: .new(), .lock(), .unlock()
+- Allocation: .new_block(), .lock(), .unlock()
 - Crud: .put(), .delete()
 - Support for contracts: .get()
 - A configuration style for all descendants
@@ -229,6 +238,24 @@ class Container : public Service {
 
 		StatusCode start		();
 		StatusCode shut_down	(bool restarting_service = false);
+
+		// - Allocation: .new_block(), .lock(), .unlock()
+
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								int			  cell_type,
+								int			 *dim,
+								Attributes	 *att			  = nullptr,
+								int			  fill_tensor	  = FILL_NEW_DONT_FILL,
+								bool		 *p_bool_filter	  = nullptr,
+								int			  stringbuff_size = 0,
+								const char	 *p_text		  = nullptr,
+								char		  eol			  = '\n');
+
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								pBlock		  p_as_block,
+						   		pBlock		  p_row_filter = nullptr,
+								Attributes	 *att		   = nullptr);
+
 };
 
 
