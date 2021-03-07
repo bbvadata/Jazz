@@ -55,8 +55,9 @@
 // F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_main
 // =======================================   -----------------------------
 
-//TODO: Reach [MVP] level in api (Apr 04)
-//TODO: Reach [MVP] level in server (Apr 04)
+//TODO: Reach [MVP] level in api (Mar 17)
+//TODO: Reach [MVP] level in server (Mar 28)
+
 //TODO: Implement cookie-based user state.
 //TODO: Implement static API access control.
 //TODO: Implement server API access control.

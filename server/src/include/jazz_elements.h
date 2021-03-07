@@ -51,19 +51,13 @@ cluster and also includes REST API client) and flux (the fundamental Jazz equiva
 // F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_elements
 // =======================================   ---------------------------------
 
-//TODO: Reach [MVP] level in tuple (Apr 18)
-//TODO: Reach [MVP] level in kind (Apr 18)
-//TODO: Reach [TEST] level in volatile (Feb 28)
-//TODO: Reach [MVP] level in volatile (Apr 18)
-//TODO: Reach [TEST] level in persisted (Mar 07)
-//TODO: Reach [MVP] level in persisted (Apr 18)
-//TODO: Reach [TEST] level in network (Mar 14)
-//TODO: Reach [MVP] level in network (Apr 18)
-//TODO: Reach [TEST] level in flux (Mar 17)
-//TODO: Reach [MVP] level in flux (Apr 18)
-//TODO: Reach [TEST] in column (Apr 25)
-//TODO: Reach [TEST] in table (May 2)
-//TODO: Reach [MVP] in container (Apr 18)
+//TODO: Reach [MVP] level in tuple (Apr 4)
+//TODO: Reach [MVP] level in kind (Apr 4)
+//TODO: Reach [MVP] level in container (Apr 4)
+//TODO: Reach [MVP] level in volatile (Apr 11)
+//TODO: Reach [MVP] level in persisted (Apr 25)
+//TODO: Reach [MVP] level in network (May 9)
+//TODO: Reach [MVP] level in flux (May 16)
 
 
 #include "src/jazz_elements/types.h"
