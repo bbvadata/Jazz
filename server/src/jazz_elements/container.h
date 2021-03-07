@@ -103,7 +103,10 @@ typedef std::atomic<int32_t> Lock32;
 // Forward pointer types:
 
 typedef struct BlockKeeper 	*pBlockKeeper;
-typedef class Container		*pContainer;
+typedef class  Container	*pContainer;
+typedef struct Answer		*pAnswer;
+typedef struct Locator		*pLocator, *pL_value;
+typedef struct R_value		*pR_value;
 
 /** A pair of pointers to manage allocation inside an array of BlockKeeper as a deque.
 */
