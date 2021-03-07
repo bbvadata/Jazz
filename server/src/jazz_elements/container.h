@@ -63,7 +63,7 @@ namespace jazz_elements
 #define NAME_SIZE						32					///< Size of a Name (ending 0 included)
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			6					///< (max) sub-container names in a locator (base is resolved to a pointer).
-#define MAX_CONTRACTS_IN_RVALUE			6					///< An rvalue operation can apply (max) that many contracts.
+#define MAX_CONTRACTS_IN_R_VALUE		6					///< An rvalue operation can apply (max) that many contracts.
 #define QUERY_LENGTH					4096				///< Maximum length of an API query
 #define ANSWER_LENGTH					4096				///< Maximum length of an Answer
 
@@ -146,24 +146,32 @@ struct Locator {
 	Name			block;								///< The block name
 };
 
-/**
+/** A contract is a kernel-API action perfromed on a block. It returns either another block or an Answer. It may use another block as
+an argument. It is only one argument since multiple arguments will be merged into a tuple.
+
+Contracts go from simple things like returning the type to slicing, function calls.
+
+L_values do not have contracts. You cannot assign a[4] = "new value".
+
+R_values can have multiple. E.g., you can a = math/average(weather_data/berlin:temp[1,4]).as_json. Note that the parser will first lock
+"[1,4]" the constant into a new block. Then, it will lock "weather_data/berlin:temp[..]" which has two contracts: <column> "temp" if berlin
+is a table (also possible  <item> "temp" if berlin is a tuple) and <slice> [1,4]. Finally, the call "math/average(..).as_json" on the
+locked block has two contracts, a function call and the .as_json(). No step required more than 2. The total number of contracts is not
+limited other than by query length, but the number of contracts per step is limited by MAX_CONTRACTS_IN_R_VALUE.
 */
-struct ContractRequest {
-	Name			action;								///<
-	pBlockKeeper	p_args;								///<
+struct ContractStep {
+	Name			action;								///< The action performed at that step or an empty
+	pBlockKeeper	p_args;								///< The argument as a locked block or tuple (or nullptr if none)
 };
 
-/**
+/** An L_value is just a Locator
 */
-struct Lvalue {
-	Locator			path;								///<
-};
+typedef Locator L_value;
 
-/**
+/** An R_value is a Locator with a number of contract steps to apply to it.
 */
-struct Rvalue {
-	Locator			path;								///<
-	ContractRequest contract[MAX_CONTRACTS_IN_RVALUE];	///<
+struct R_value : Locator {
+	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contratc to be a applied in order. The first empty one breaks.
 };
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
