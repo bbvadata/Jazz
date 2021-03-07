@@ -219,10 +219,10 @@ It follows the "rules of the game" using:
 
 It provides a neat API for all descendants, including:
 
-- Transparent Thread safety (and thread specific storage just for this class)
-- An API for async calls (Remote): .sleep()
+- Transparent thread safety
+- An API for async calls (Remote): .sleep() .callback()
 - Allocation: .new_block(), .lock(), .unlock()
-- Crud: .put(), .delete()
+- Crud: .put(), .remove()
 - Support for contracts: .get()
 - A configuration style for all descendants
 
@@ -235,13 +235,8 @@ One-shot Block allocation
 
 This is the only container providing one-shot Block allocation. This does not mean, unlike in previous versions, the caller owns the
 pointer. One-shot Block allocation is intended for computing intermediate blocks like: blocks generated from constants, from slicing,
-returned by functions, etc. In these blocks, the locator is meaningless, the caller will typically allocate by l_push() and recover
-by l_pop(). A Block returned via l_pop() is still owned by the Container and requires explicit .unlock()-ing by the caller.
-
-This also the only container that is thread specific. Anywhere else, blocks are uniquely identified by their locators in a
-thread-transparent way for the caller. Since blocks here do not have locators, the whole operation happens in the context of a `thread_idx`.
-The `thread_idx` is **not** a thread id as returned by `pthread_self()`, it is an index in the thread pool. Thread-aware services
-(normally API and Bebop cores) have a `thread_idx` valid during the lifetime of whatever operations require call to this Container.
+returned by functions, etc. In these blocks, the locator is meaningless, the caller will create it by new_block(), use it and call
+unlock() when done.
 
 Instances and inheritance
 -------------------------
