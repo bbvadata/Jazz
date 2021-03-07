@@ -90,9 +90,36 @@ StatusCode Container::shut_down(bool restarting_service)
 }
 
 
-	return SERVICE_NO_ERROR;
+/** Bla, bla, bla
+
+//TODO: Document new_container()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::new_container()
+{
+//TODO: Implement new_container()
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
+
+/** Bla, bla, bla
+
+//TODO: Document destroy_container()
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::destroy_container()
+{
+//TODO: Implement destroy_container()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
 
 } // namespace jazz_elements
 
