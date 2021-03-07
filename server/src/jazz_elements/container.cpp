@@ -55,16 +55,32 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 Container::~Container () {
 	destroy_container();
 }
+
+/** Verifies variables in config and sets private variables accordingly.
 */
 StatusCode Container::start()
 {
-//TODO: Implement Container::start()
+	if (!get_conf_key("ONE_SHOT_MAX_KEEPERS", max_num_keepers)) {
+		log(LOG_ERROR, "Config key ONE_SHOT_MAX_KEEPERS not found in Container::start");
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
 
-	return SERVICE_NO_ERROR;
+	int i = 0;
+
+	if (!get_conf_key("ONE_SHOT_WARN_BLOCK_KBYTES", i)) {
+		log(LOG_ERROR, "Config key ONE_SHOT_WARN_BLOCK_KBYTES not found in Container::start");
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
+
+	if (!get_conf_key("ONE_SHOT_ERROR_BLOCK_KBYTES", i)) {
+		log(LOG_ERROR, "Config key ONE_SHOT_ERROR_BLOCK_KBYTES not found in Container::start");
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+	fail_alloc_bytes = 1024; fail_alloc_bytes *= i;
+
+	return new_container();
 }
-
-/**
-//TODO: Document Container::shut_down()
 */
 StatusCode Container::shut_down(bool restarting_service)
 {
