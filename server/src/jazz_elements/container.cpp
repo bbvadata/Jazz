@@ -81,10 +81,14 @@ StatusCode Container::start()
 
 	return new_container();
 }
+
+/** Destroys everything and zeroes allocation.
 */
 StatusCode Container::shut_down(bool restarting_service)
 {
-//TODO: Implement Container::shut_down()
+	return destroy_container();
+}
+
 
 	return SERVICE_NO_ERROR;
 }
