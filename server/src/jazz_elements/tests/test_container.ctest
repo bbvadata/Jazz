@@ -44,7 +44,7 @@ using namespace jazz_elements;
 SCENARIO("Testing (container) structure sizes.") {
 
 	REQUIRE(sizeof(Name)		 == 32);
-	REQUIRE(sizeof(Answer)		 == 4*1024);
+	REQUIRE(sizeof(Answer)		 == 4096);
 	REQUIRE(sizeof(BlockId64)	 == 8);
 	REQUIRE(sizeof(Lock32)		 == 4);
 	REQUIRE(sizeof(KeeperData)	 == 32);
@@ -52,6 +52,7 @@ SCENARIO("Testing (container) structure sizes.") {
 	REQUIRE(sizeof(Locator)		 == 96);
 	REQUIRE(sizeof(ContractStep) == 40);
 	REQUIRE(sizeof(R_value)		 == 256);
+	REQUIRE(sizeof(Items)		 == 4096);
 }
 
 
