@@ -68,7 +68,7 @@ Also, tuples always define, at least, these attributes:
 
 - BLOCK_ATTRIB_BLOCKTYPE as the const "tuple"
 - BLOCK_ATTRIB_TYPE as whatever the inherited class name is ("Tuple" for the main class)
-- BLOCK_ATTRIB_KIND as the locator to the definition of the Kind it satisfies. (Can be a \t-separated list.)
+- BLOCK_ATTRIB_KIND as the locator to the definition of the Kind it satisfies. (Can be a tab separated list.)
 
 */
 class Tuple : public Block {

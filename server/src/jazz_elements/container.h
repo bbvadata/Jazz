@@ -175,8 +175,8 @@ Contracts go from simple things like returning the type to slicing, function cal
 L_values do not have contracts. You cannot assign a[4] = "new value".
 
 R_values can have multiple. E.g., you can a = math/average(weather_data/berlin:temp[1,4]).as_json. Note that the parser will first lock
-"[1,4]" the constant into a new block. Then, it will lock "weather_data/berlin:temp[..]" which has two contracts: <column> "temp" if berlin
-is a table (also possible  <item> "temp" if berlin is a tuple) and <slice> [1,4]. Finally, the call "math/average(..).as_json" on the
+"[1,4]" the constant into a new block. Then, it will lock "weather_data/berlin:temp[..]" which has two contracts: :column "temp" if berlin
+is a table (also possible  :item "temp" if berlin is a tuple) and slice [1,4]. Finally, the call "math/average(..).as_json" on the
 locked block has two contracts, a function call and the .as_json(). No step required more than 2. The total number of contracts is not
 limited other than by query length, but the number of contracts per step is limited by MAX_CONTRACTS_IN_R_VALUE.
 */

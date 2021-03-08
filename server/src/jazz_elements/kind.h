@@ -96,7 +96,7 @@ class Kind : public Block {
 		return 0;
 	};
 
-	/** Returns the names of the dimensions as a \t (tab separated) list of names.
+	/** Returns the names of the dimensions as a tab separated list of names.
 
 		\param p_buff  The address of an ApiBuffer to store the answer.
 	*/
