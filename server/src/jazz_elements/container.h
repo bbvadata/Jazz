@@ -99,6 +99,14 @@ namespace jazz_elements
 #define BLOCK_STATUS_SYNC_FAIL			-2		///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
 #define BLOCK_STATUS_SYNC_UNLOCKED		-3		///< BlockKeeper.status: block destroying, do nothing, forget the pointer
 
+/// Thread safety
+
+#define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()
+
+/// sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
+#define LOCK_WEIGHT_OF_WRITE			46341
+
+
 /** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
 Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
 */
