@@ -145,7 +145,7 @@ struct BlockKeeper {
 	pBlock			p_block;			///< A pointer to the Block (if status == BLOCK_STATUS_READY)
 	pContainer		p_owner;			///< A pointer to the Container instance serving API calls related to this block.
 	BlockId64		block_id;			///< A 64 bit binary block id. Can be a hash of the block locator, but not necessarily.
-	Lock32			lock;				///< An atomically updated int to lock the Keeper (can only be used via p_owner->lock(), ..)
+	Lock32			_lock_;				///< An atomically updated int to lock the Keeper to support modifying the Block.
 	int				status;				///< The status of the block request (sync or async errors, wait, ready, etc.)
 	KeeperData		data;				///< Some data used by the Container service
 };
@@ -210,7 +210,7 @@ It follows the "rules of the game" using:
 
 It provides a neat API for all descendants, including:
 
-- Transparent thread safety
+- Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - An API for async calls (Remote): .sleep() .callback()
 - Allocation: .new_block(), .lock(), .unlock()
 - Crud: .put(), .remove()
@@ -249,8 +249,15 @@ class Container : public Service {
 
 	   // Service API
 
-		StatusCode start		();
-		StatusCode shut_down	(bool restarting_service = false);
+		StatusCode start	   ();
+		StatusCode shut_down   (bool restarting_service = false);
+
+		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
+
+		void enter_read		   (pBlockKeeper  p_keeper);
+		void enter_write	   (pBlockKeeper  p_keeper);
+		void leave_read		   (pBlockKeeper  p_keeper);
+		void leave_write	   (pBlockKeeper  p_keeper);
 
 		// - Allocation: .new_block(), .lock(), .unlock()
 
@@ -319,7 +326,12 @@ class Container : public Service {
 		virtual void callback  (BlockId64	  block_id,
 								StatusCode	  result);
 
+#ifndef CATCH_TEST
 	private:
+#endif
+
+		void lock_container	  ();
+		void unlock_container ();
 
 		virtual StatusCode new_container();
 		virtual StatusCode destroy_container();
@@ -327,6 +339,7 @@ class Container : public Service {
 		int num_keepers, max_num_keepers;
 		uint64_t alloc_bytes, last_alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
 		pBlockKeeper p_buffer, p_left, p_right;
+		Lock32 _lock_;
 };
 
 
