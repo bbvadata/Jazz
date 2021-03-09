@@ -91,6 +91,31 @@ StatusCode Container::shut_down(bool restarting_service)
 }
 
 
+/** Enter (soft lock) a Block for reading. Many readers are allowed simultaneously, but it is incompatible with writing.
+
+	\param p_keeper		The address of the Block's BlockKeeper.
+
+NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
+in multithreaded algorithms like MCTS.
+
+*/
+void Container::enter_read(pBlockKeeper p_keeper)
+{
+	int retry = 0;
+	while (true) {
+		int32_t lock = p_keeper->_lock_;
+		if (lock >= 0) {
+			int32_t next = lock + 1;
+			if (p_keeper->_lock_.compare_exchange_weak(lock, next))
+				return;
+		}
+		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
+			std::this_thread::yield();
+			retry = 0;
+		}
+	}
+}
+
 /** Create a new Block (1): Create a Block from scratch.
 
 	\param p_keeper			A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
