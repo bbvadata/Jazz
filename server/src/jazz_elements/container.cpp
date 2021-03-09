@@ -150,6 +150,25 @@ void Container::enter_write(pBlockKeeper p_keeper)
 	}
 }
 
+
+/** Release the soft lock of Block after reading. This is mandatory for each enter_read() call or it may result in permanent locking.
+
+	\param p_keeper		The address of the Block's BlockKeeper.
+
+NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
+in multithreaded algorithms like MCTS.
+
+*/
+void Container::leave_read(pBlockKeeper p_keeper)
+{
+	while (true) {
+		int32_t lock = p_keeper->_lock_;
+		int32_t next = lock - 1;
+		if (p_keeper->_lock_.compare_exchange_weak(lock, next))
+			return;
+	}
+}
+
 /** Create a new Block (1): Create a Block from scratch.
 
 	\param p_keeper			A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
