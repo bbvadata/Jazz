@@ -65,8 +65,6 @@ namespace jazz_elements
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
 #define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
 #define MAX_ITEMS_IN_TUPLE				64					///< The number of items merged into a tuple (array of BlockKeeper).
-#define QUERY_LENGTH					4096				///< Maximum length of an API query
-#define ANSWER_LENGTH					4096				///< Maximum length of an Answer
 
 /// Block API (syntax related)
 
@@ -106,12 +104,6 @@ Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAM
 */
 typedef char Name[NAME_SIZE];
 
-/** A string possibly returned by a contract. Contracts return either a block or an answer.
-*/
-struct Answer {
-	char	text[ANSWER_LENGTH];		///< A message, metadata, lists of items, columns, etc.
-};
-
 /** A binary block identifier internal to the Container. Typically a MurmurHash64A of the Block name.
 */
 typedef uint64_t BlockId64;
@@ -125,7 +117,6 @@ typedef std::atomic<int32_t> Lock32;
 typedef struct BlockKeeper 	*pBlockKeeper;
 typedef class  Container	*pContainer;
 typedef 	   Name			*pName;
-typedef struct Answer		*pAnswer;
 typedef struct Locator		*pLocator, *pL_value;
 typedef struct R_value		*pR_value;
 typedef struct Items		*pItems;
