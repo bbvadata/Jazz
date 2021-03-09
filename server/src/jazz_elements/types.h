@@ -62,9 +62,18 @@ namespace jazz_elements
 
 /** API buffers limit the size of http API calls, but also anything like lists of item names, dimension names, types, blocktypes, etc.
 Since Blocks do allocate RAM, when they communicate these kind of text operations, they expect the caller to assign a buffer of
-MAX_API_BUFF_LENGTH chars. Of course, data serialization does not have any limits, that's why it is done by containers and not by blocks.
+ANSWER_LENGTH chars. Of course, data serialization does not have any limits it is done by containers creating new blocks.
 */
-#define MAX_API_BUFF_LENGTH	   1024
+#define ANSWER_LENGTH					4096
+#define SAFE_URL_LENGTH					2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
+
+/** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
+does not normally modify blocks. The few exceptions have a block-specific lock in the BlockKeeper. Services also have a service-specific
+lock. The few services that require full thread awareness (Bebop and API) will allocate a number of Core or APIexecutor objects equal to
+JAZZ_MAX_NUM_THREADS inside the service. This number can be modified down (but not up) via the configuration keys: MHD_THREAD_POOL_SIZE
+and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
+*/
+#define JAZZ_MAX_NUM_THREADS			64
 
 
 #define MAX_TENSOR_RANK			6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
