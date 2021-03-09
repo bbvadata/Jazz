@@ -100,7 +100,7 @@ class Kind : public Block {
 
 		\param p_buff  The address of an ApiBuffer to store the answer.
 	*/
-	inline void dimension_names(pApiBuffer p_buff) {
+	inline void dimension_names(pAnswer p_buff) {
 //TODO: Implement and test this.
 
 		return;
