@@ -50,6 +50,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 	num_keepers = max_num_keepers = 0;
 	alloc_bytes = last_alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
 	p_buffer = p_left = p_right = nullptr;
+	_lock_ = 0;
 }
 
 Container::~Container () {
