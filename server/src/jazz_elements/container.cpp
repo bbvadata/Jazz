@@ -116,6 +116,40 @@ void Container::enter_read(pBlockKeeper p_keeper)
 	}
 }
 
+
+/** Enter (hard lock) a Block for writing. No readers are allowed during writing.
+
+	\param p_keeper		The address of the Block's BlockKeeper.
+
+NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
+in multithreaded algorithms like MCTS.
+
+*/
+void Container::enter_write(pBlockKeeper p_keeper)
+{
+	int retry = 0;
+	while (true) {
+		int32_t lock = p_keeper->_lock_;
+		if (lock >= 0) {
+			int32_t next = lock - LOCK_WEIGHT_OF_WRITE;
+			if (p_keeper->_lock_.compare_exchange_weak(lock, next)) {
+				while (true) {
+					if (p_keeper->_lock_ == -LOCK_WEIGHT_OF_WRITE)
+						return;
+					if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
+						std::this_thread::yield();
+						retry = 0;
+					}
+				}
+			}
+		}
+		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
+			std::this_thread::yield();
+			retry = 0;
+		}
+	}
+}
+
 /** Create a new Block (1): Create a Block from scratch.
 
 	\param p_keeper			A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
