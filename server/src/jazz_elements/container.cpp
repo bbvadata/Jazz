@@ -444,7 +444,7 @@ StatusCode Container::remove (pLocator	 p_what,
 }
 
 
-/** Bla, bla, bla
+/** Get a Block (1) : Complete get() implementing a full R_value with contract and async calls
 
 //TODO: Document get(1)
 
@@ -458,6 +458,23 @@ StatusCode Container::get (pBlockKeeper *p_keeper,
 						   BlockId64	 block_id)
 {
 //TODO: Implement get(1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Get a Block (2) : Simple get() implementing only local, sync, full block "as is" get().
+
+//TODO: Document get(2)
+
+	\param aaa		Bla, bla
+
+	\return	Bla
+*/
+StatusCode Container::get (pBlockKeeper *p_keeper,
+						   pLocator		 p_what)
+{
+//TODO: Implement get(2)
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
