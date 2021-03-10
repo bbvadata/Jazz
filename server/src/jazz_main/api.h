@@ -127,8 +127,37 @@ class Api : public Service {
 
 		// parsing methods
 
-		StatusCode start		();
-		StatusCode shut_down	(bool restarting_service = false);
+		StatusCode parse	   (const char	   *url,
+								int				method,
+								APIParseBuffer &pars,
+								bool			execution = true);
+
+		StatusCode get_static  (const char	   *url,
+								pBlockKeeper   *p_keeper,
+								bool			execution = true);
+
+		// deliver http error pages
+
+		int	return_error_message (struct MHD_Connection * connection, int http_status);
+
+		// Specific execution methods
+
+		bool upload(APIParseBuffer &parse_buff,
+					const char	   *upload,
+					size_t			size,
+					bool			continue_upload);
+		bool remove(APIParseBuffer &parse_buff);
+		bool get   (APIParseBuffer &parse_buff,
+					pMHD_Response  &response);
+
+	private:
+
+		pContainer	p_container;
+		pVolatile	p_volatile;
+		pRemote		p_remote;
+		pPersisted	p_persisted;
+		pCluster	p_cluster;
+		pBebop		p_bebop;
 
 };
 
