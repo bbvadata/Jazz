@@ -64,8 +64,8 @@ namespace jazz_elements
 Since Blocks do allocate RAM, when they communicate these kind of text operations, they expect the caller to assign a buffer of
 ANSWER_LENGTH chars. Of course, data serialization does not have any limits it is done by containers creating new blocks.
 */
-#define ANSWER_LENGTH					4096
-#define SAFE_URL_LENGTH					2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
+#define ANSWER_LENGTH			4096
+#define SAFE_URL_LENGTH			2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
 
 /** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
 does not normally modify blocks. The few exceptions have a block-specific lock in the BlockKeeper. Services also have a service-specific
@@ -73,7 +73,7 @@ lock. The few services that require full thread awareness (Bebop and API) will a
 JAZZ_MAX_NUM_THREADS inside the service. This number can be modified down (but not up) via the configuration keys: MHD_THREAD_POOL_SIZE
 and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
 */
-#define JAZZ_MAX_NUM_THREADS			64
+#define JAZZ_MAX_NUM_THREADS	64
 
 
 #define MAX_TENSOR_RANK			6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
