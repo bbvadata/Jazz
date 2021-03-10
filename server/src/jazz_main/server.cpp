@@ -212,7 +212,3 @@ StatusCode HttpServer::shut_down(bool restarting_service)
 }
 
 } // namespace jazz_main
-
-#if defined CATCH_TEST
-#include "src/jazz_main/tests/test_server.ctest"
-#endif
