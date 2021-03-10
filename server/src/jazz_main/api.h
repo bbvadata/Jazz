@@ -94,6 +94,8 @@ struct APIParseBuffer {
 	R_value r_value[MAX_RECURSION_DEPTH];		///< A stack of R_value used during parsing/executing
 };
 
+typedef struct MHD_Response *pMHD_Response;
+
 // ConfigFile and Logger shared by all services
 
 extern ConfigFile  CONFIG;
