@@ -58,7 +58,7 @@ Container	ONE_SHOT  (&LOGGER, &CONFIG);
 Persisted	PERSISTED (&LOGGER, &CONFIG);
 Remote		REMOTE	  (&LOGGER, &CONFIG);
 Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Api			API		  (&LOGGER, &CONFIG);
+Api			API		  (&LOGGER, &CONFIG, &ONE_SHOT, &VOLATILE, &REMOTE, &PERSISTED, &CLUSTER, &BOP);
 HttpServer	HTTP	  (&LOGGER, &CONFIG);
 
 // Callbacks
