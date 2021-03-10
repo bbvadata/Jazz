@@ -50,6 +50,8 @@ namespace jazz_main
 On cookies:
 -----------
 
+//TODO: Implement cookie-based user state.
+
 1. The idea is explained in https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
 
 	The server, has to check if the request comes with a cookie, if not, it has to send:

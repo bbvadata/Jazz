@@ -173,8 +173,6 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 
 	cout << "Starting server on port : " << http_port << endl;
 
-//TODO: Implement an MHD_AcceptPolicyCallback when security is taken in consideration
-
 	p_daemon = MHD_start_daemon (server_flags, http_port, NULL, NULL, http_request_callback, NULL,
 								 MHD_OPTION_ARRAY, server_options, MHD_OPTION_END);
 

@@ -58,10 +58,7 @@
 //TODO: Reach [MVP] level in api (Mar 17)
 //TODO: Reach [MVP] level in server (Mar 28)
 
-//TODO: Implement cookie-based user state.
-//TODO: Implement static API access control.
-//TODO: Implement server API access control.
-//TODO: Implement backend API access control.
+//TODO: Implement http API access control by defining MHD_AcceptPolicyCallback and pass it to MHD_start_daemon() in HttpServer::start().
 
 
 /** \brief	 The application entry point.
