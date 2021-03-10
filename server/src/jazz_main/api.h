@@ -63,6 +63,7 @@ namespace jazz_main
 {
 
 using namespace jazz_elements;
+using namespace jazz_bebop;
 
 
 // ConfigFile and Logger shared by all services
@@ -84,7 +85,19 @@ class Api : public Service {
 	public:
 
 		Api (pLogger	 a_logger,
-			 pConfigFile a_config);
+			 pConfigFile a_config,
+			 pContainer	 a_container,
+			 pVolatile	 a_volatile,
+			 pRemote	 a_remote,
+			 pPersisted	 a_persisted,
+			 pCluster	 a_cluster,
+			 pBebop		 a_bebop);
+
+		StatusCode start	 ();
+
+		StatusCode shut_down (bool restarting_service = false);
+
+		// parsing methods
 
 		StatusCode start		();
 		StatusCode shut_down	(bool restarting_service = false);
