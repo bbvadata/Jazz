@@ -48,8 +48,32 @@ namespace jazz_main
 
 HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
 
-/**
-//TODO: Document HttpServer::start()
+
+/** Start the Jazz server.
+
+\param p_sig_handler	A function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
+\param p_daemon			Returns by reference the pointer that will be used to control the MHD_Daemon.
+
+\return			On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does
+not return. The application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful
+or with EXIT_FAILURE if not. On failure, the caller is responsible of stopping all started services (see jazz_main.cpp).
+
+Starting logic:
+
+ 1. Get all the MHD server config settings via get_conf_key()
+
+	The default config file is JAZZ_DEFAULT_CONFIG_PATH but that can be changed via command line argument (see jazz_main.cpp).
+
+ 2. Registers the signal handlers for SIGTERM. (See argument p_sig_handler)
+
+ 3. Forks (== The parent exits with EXIT_SUCCESS, the child continues to call MHD_start_daemon().)
+
+ 4. Calls MHD_start_daemon()
+
+	Then calls setsid() This creates a new session if the calling process is not a process group leader. The calling process is the leader of the
+	new session, the process group leader of the new process group, and has no controlling terminal.
+
+	And sleeps forever! (Remember, it is the child of the original caller who exited with EXIT_SUCCESS.)
 */
 StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon)
 {
