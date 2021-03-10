@@ -161,6 +161,7 @@ class Api : public Service {
 
 };
 
+extern Api	API;			// The API interface
 
 } // namespace jazz_main
 
