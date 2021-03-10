@@ -199,13 +199,15 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 	while(true) sleep(60);
 }
 
-/**
-//TODO: Document HttpServer::shut_down()
+
+/** Server closing method.
+
+This overrides the Service shut_down() just to set the return to SERVICE_NO_ERROR.
+
+The true closing mechanism is a: MHD_stop_daemon (Jazz_MHD_Daemon); done by the signalHandler_SIGTERM() callback that captures SIGTERM.
 */
 StatusCode HttpServer::shut_down(bool restarting_service)
 {
-//TODO: Implement HttpServer::shut_down()
-
 	return SERVICE_NO_ERROR;
 }
 
