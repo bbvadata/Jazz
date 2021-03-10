@@ -63,10 +63,13 @@ using namespace jazz_agency;
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
-// Services
+// Higher level Services:
 
 extern Agency	  EPI;			// (As in epistrophy.) The service managing agents.
 extern Bebop	  BOP;			// (as in Bebop.) The service managing cores and fields.
+
+// Cluster Service:
+
 extern Cluster	  CLUSTER;		// The Jazz cluster configuration service, from which Groups (of nodes) can be used in sharded indices
 								// to build distributed columns and tables.
 
@@ -82,12 +85,12 @@ extern Volatile	  VOLATILE;		// The container allocating volatile blocks.
 extern Api		  API;			// The API interface
 extern HttpServer HTTP;			// The server
 
-// Callbacks
+// Callbacks:
 
 extern pMHD_Daemon Jazz_MHD_Daemon;
 void signalHandler_SIGTERM(int signum);
 
-// Start/Stop services
+// Utils for starting and stopping Services:
 
 /** \brief A little utility to start services writing output to the console.
 
