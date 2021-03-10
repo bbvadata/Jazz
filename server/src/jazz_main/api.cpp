@@ -440,6 +440,11 @@ StatusCode Api::shut_down (bool restarting_service)
 
 /**
 //TODO: Document Api::parse()
+
+Parse:
+
+// https://en.wikipedia.org/wiki/Percent-encoding
+
 */
 StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool no_execution)
 {

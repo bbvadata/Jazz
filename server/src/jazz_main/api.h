@@ -114,11 +114,6 @@ extern int http_request_callback   (void *cls,
 
 /** \brief Api: A Service to manage the REST API.
 
-Parse
-
-// https://en.wikipedia.org/wiki/Percent-encoding
-
-
 */
 class Api : public Service {
 
