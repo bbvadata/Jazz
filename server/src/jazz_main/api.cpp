@@ -386,7 +386,33 @@ continue_in_put_ok:
 	 Api : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Api::Api(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Api::Api(pLogger	 a_logger,
+		 pConfigFile a_config,
+		 pContainer	 a_container,
+		 pVolatile	 a_volatile,
+		 pRemote	 a_remote,
+		 pPersisted	 a_persisted,
+		 pCluster	 a_cluster,
+		 pBebop		 a_bebop) : Service(a_logger, a_config) {
+
+	for (int i = 0; i < 1024; i++) http_methods[i] = HTTP_NOTUSED;
+
+	http_methods[TenBitsAtAddress("OPTIONS")] = HTTP_OPTIONS;
+	http_methods[TenBitsAtAddress("HEAD")]	  = HTTP_HEAD;
+	http_methods[TenBitsAtAddress("GET")]	  = HTTP_GET;
+	http_methods[TenBitsAtAddress("PUT")]	  = HTTP_PUT;
+	http_methods[TenBitsAtAddress("DELETE")]  = HTTP_DELETE;
+
+	tenbit_double_slash = TenBitsAtAddress("//");
+
+	p_container	= a_container;
+	p_volatile	= a_volatile;
+	p_remote	= a_remote;
+	p_persisted	= a_persisted;
+	p_cluster	= a_cluster;
+	p_bebop		= a_bebop;
+}
+
 
 /**
 //TODO: Document Api::start()
