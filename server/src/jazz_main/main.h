@@ -55,9 +55,6 @@
 // F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_main
 // =======================================   -----------------------------
 
-//TODO: Reach [MVP] level in api (Mar 17)
-//TODO: Reach [MVP] level in server (Mar 28)
-
 //TODO: Implement http API access control by defining MHD_AcceptPolicyCallback and pass it to MHD_start_daemon() in HttpServer::start().
 
 
