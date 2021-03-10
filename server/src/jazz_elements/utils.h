@@ -76,18 +76,19 @@ without global variables.
 
 /** The trace levels for argument loglevel in Logger.log()
 */
-	/// Just for checking, normally not logged, should not exist in case of NDEBUG. In that case, it becomes a LOG_WARN to force removing it.
+
+/// Just for checking, normally not logged, should not exist in case of NDEBUG. In that case, it becomes a LOG_WARN to force removing it.
 #define LOG_DEBUG			  1
-	/// A good, non trivial, non frequent event to discard trouble. E.g., "Jazz successfully installed on host xxx", "backup completed."
+/// A good, non trivial, non frequent event to discard trouble. E.g., "Jazz successfully installed on host xxx", "backup completed."
 #define LOG_INFO			  2
-	/// A function returned an error status. This may still be normal. E.g., "configuration key xxx cannot be converted to integer."
+/// A function returned an error status. This may still be normal. E.g., "configuration key xxx cannot be converted to integer."
 #define LOG_MISS			  3
-	/// A warning. More serious than the previous. Should not happen. It is desirable to treat the existence of a warning as a bug.
+/// A warning. More serious than the previous. Should not happen. It is desirable to treat the existence of a warning as a bug.
 #define LOG_WARN			  4
-	/// Something known to be a requisite is failing. The program or task halts due to this.
+/// Something known to be a requisite is failing. The program or task halts due to this.
 #define LOG_ERROR			  5
 
-	/// Maximum length for file names in ConfigFile and Logger.
+/// Maximum length for file names in ConfigFile and Logger.
 #define MAX_FILENAME_LENGTH	256
 
 /** Constants for StatusCode values
@@ -98,7 +99,7 @@ without global variables.
 #define SERVICE_ERROR_NO_MEM		-3		///< Specific error where configured allocation RAM failed.
 #define SERVICE_NOT_IMPLEMENTED		-4		///< Returned by the Service class (only descendents should be called.).
 
-	/// Type returned by the Service API
+/// Type returned by the Service API
 typedef int StatusCode;
 
 
