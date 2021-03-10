@@ -85,17 +85,15 @@ int print_out_key (void *cls, enum MHD_ValueKind kind,
 
 /// Pointers to these global variables control the state of a PUT call.
 int	state_new_call				= 0;	///< Default state: connection open for any call
-int	state_upload_in_progress	= 1;	///< Data was uploaded, the function was executed and it returned true.
-int	state_upload_notacceptable	= 2;	///< Data upload failed, the function executed and failed. Will return MHD_HTTP_NOT_ACCEPTABLE
-int	state_upload_unavailable	= 3;	///< Data upload failed, enter_persistence() failed. Must end with MHD_HTTP_SERVICE_UNAVAILABLE.
-int	state_upload_badrequest		= 4;	///< PUT call malformed, Must end with MHD_HTTP_BAD_REQUEST.
+int	state_upload_in_progress	= 1;	///< Data was uploaded, the query executed successfully.
+int	state_upload_notacceptable	= 2;	///< Data upload failed, query execution failed locating tagets. Returns MHD_HTTP_NOT_ACCEPTABLE
+int	state_upload_badrequest		= 3;	///< PUT query is call malformed. Returns MHD_HTTP_BAD_REQUEST.
 
 char response_put_ok[]			= "0";
 char response_put_fail[]		= "1";
 
-bool no_storage, no_webpages;
-
-int tenbitDS;							///< The binary ten bits of "//" double-slash to identify web source interface.
+int tenbit_double_slash;				///< The binary ten bits of "//" double-slash to identify web source interface.
+TenBitsLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
 
 
 /** Callback function for MHD. See: https://www.gnu.org/software/libmicrohttpd/tutorial.html
