@@ -53,6 +53,15 @@
 namespace jazz_elements
 {
 
+
+// Forward pointer types:
+
+typedef class  Cluster	*pCluster;
+typedef class  Remote	*pRemote;
+typedef class  Group	*pGroup;
+typedef class  Index	*pIndex;
+
+
 /** \brief A service keeping a configuration of all the Jazz nodes that may be acccessed remotely.
 
 These Jazz nodes are all aware of each other and share some root configurations (including identical Cluster configuration).

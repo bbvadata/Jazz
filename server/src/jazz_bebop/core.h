@@ -62,6 +62,11 @@ namespace jazz_bebop
 using namespace jazz_elements;
 
 
+// Forward pointer types:
+
+typedef class  Bebop	*pBebop;
+
+
 /** \brief Bebop: A Service to manage running cores and code bases.
 
 */
