@@ -417,21 +417,88 @@ Api::Api(pLogger	 a_logger,
 /**
 //TODO: Document Api::start()
 */
-StatusCode Api::start()
+StatusCode Api::start ()
 {
 //TODO: Implement Api::start()
 
 	return SERVICE_NO_ERROR;
 }
 
+
 /**
 //TODO: Document Api::shut_down()
 */
-StatusCode Api::shut_down(bool restarting_service)
+StatusCode Api::shut_down (bool restarting_service)
 {
 //TODO: Implement Api::shut_down()
 
 	return SERVICE_NO_ERROR;
+}
+
+
+/**
+//TODO: Document Api::parse()
+*/
+StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool no_execution)
+{
+//TODO: Implement Api::parse()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/**
+//TODO: Document Api::get_static()
+*/
+StatusCode Api::get_static (const char *url, pBlockKeeper *p_keeper, bool execution)
+{
+//TODO: Implement Api::get_static()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/**
+//TODO: Document Api::return_error_message()
+*/
+int	Api::return_error_message (struct MHD_Connection * connection, int http_status)
+{
+//TODO: Implement Api::return_error_message()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/**
+//TODO: Document Api::upload()
+*/
+bool Api::upload (APIParseBuffer &pars, const char * upload, size_t size, bool continue_upload)
+{
+//TODO: Implement Api::upload()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::remove()
+*/
+bool Api::remove (APIParseBuffer &parse_buff)
+{
+//TODO: Implement Api::remove()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::get()
+*/
+bool Api::get (APIParseBuffer &parse_buff, pMHD_Response &response)
+{
+//TODO: Implement Api::get()
+
+	return false;
 }
 
 } // namespace jazz_main
