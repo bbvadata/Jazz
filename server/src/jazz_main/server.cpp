@@ -32,7 +32,7 @@
 */
 
 
-// #include <stl_whatever>
+#include <signal.h>
 
 #include "microhttpd.h"
 
@@ -41,6 +41,8 @@
 
 namespace jazz_main
 {
+
+using namespace std;
 
 /*	-----------------------------------------------
 	 HttpServer : I m p l e m e n t a t i o n
