@@ -191,7 +191,7 @@ typedef Locator L_value;
 /** An R_value is a Locator with a number of contract steps to apply to it.
 */
 struct R_value : Locator {
-	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contratc to be a applied in order. The first empty one breaks.
+	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contract to be a applied in order. The first empty one breaks.
 };
 
 /** An std::map containing all the attributes of a block in one structure.
@@ -202,7 +202,7 @@ typedef std::map<int, const char *> Attributes;
 a new Kind.
 */
 struct Items {
-	BlockKeeper		item[MAX_ITEMS_IN_TUPLE];			///< The items. First p_block == nullptrs breaks.
+	BlockKeeper	item[MAX_ITEMS_IN_TUPLE];				///< The items. First p_block == nullptrs breaks.
 };
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
