@@ -327,6 +327,9 @@ class Container : public Service {
 								pContainer	  p_sender		 = nullptr,
 								BlockId64	  block_id		 = 0);
 
+		StatusCode get		   (pBlockKeeper *p_keeper,
+								pLocator	  p_what);
+
 		// Async calls (Remote): .sleep() .callback()
 
 		StatusCode sleep	   (pBlockKeeper *p_keeper);
