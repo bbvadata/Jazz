@@ -77,9 +77,126 @@ Starting logic:
 */
 StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon)
 {
-//TODO: Implement HttpServer::start()
+// 1. Get all the MHD server config settings via get_conf_key()
 
-	return SERVICE_NO_ERROR;
+	int http_port;
+
+	if (!get_conf_key("HTTP_PORT", http_port)) {
+		cout << "Failed to find server port in configuration." << endl;
+
+		log(LOG_ERROR, "JazzHttpServer::server_start() failed to find server port in configuration.");
+
+		return EXIT_FAILURE;
+	}
+
+	int ok, debug, ssl, ipv6, pedantic, supp_date, tcp_fastopen;
+
+	ok =   get_conf_key("MHD_DEBUG", debug)
+		 & get_conf_key("MHD_SSL", ssl)
+		 & get_conf_key("MHD_IPv6", ipv6)
+		 & get_conf_key("MHD_PEDANTIC_CHECKS", pedantic)
+		 & get_conf_key("MHD_SUPPRESS_DATE", supp_date)
+		 & get_conf_key("MHD_USE_TCP_FASTOPEN", tcp_fastopen);
+
+	if ((!ok ) | ((debug | ssl | ipv6 | pedantic | supp_date | tcp_fastopen) & 0xfffffffe)) {
+		cout << "Failed parsing flags block in configuration." << endl;
+
+		log(LOG_ERROR, "JazzHttpServer::server_start() failed config in flags block.");
+
+		return EXIT_FAILURE;
+	}
+	unsigned int server_flags =	  debug*MHD_USE_DEBUG | ssl*MHD_USE_SSL | ipv6*MHD_USE_IPv6 | pedantic*MHD_USE_PEDANTIC_CHECKS
+								| supp_date*MHD_SUPPRESS_DATE_NO_CLOCK | tcp_fastopen*MHD_USE_TCP_FASTOPEN
+								| MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL;							// Only threading model for Jazz.
+
+	MHD_OptionItem server_options[9];	// The variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
+
+	int cml, cmi, ocl, oct, pic, tps, tss, lar;
+
+	ok =   get_conf_key("MHD_CONN_MEMORY_LIMIT", cml)
+		 & get_conf_key("MHD_CONN_MEMORY_INCR", cmi)
+		 & get_conf_key("MHD_CONN_LIMIT", ocl)
+		 & get_conf_key("MHD_CONN_TIMEOUT", oct)
+		 & get_conf_key("MHD_PER_IP_CONN_LIMIT", pic)
+		 & get_conf_key("MHD_THREAD_POOL_SIZE", tps)
+		 & get_conf_key("MHD_THREAD_STACK_SIZE", tss)
+		 & get_conf_key("MHD_LISTEN_ADDR_REUSE", lar);
+
+	if (!ok) {
+		cout << "Failed parsing integers block in configuration." << endl;
+
+		log(LOG_ERROR, "JazzHttpServer::server_start() failed config in integers block.");
+
+		return EXIT_FAILURE;
+	}
+
+	MHD_OptionItem *pop = server_options;
+
+	if (cml) pop[0] = {MHD_OPTION_CONNECTION_MEMORY_LIMIT,	   cml, NULL}; pop++;
+	if (cmi) pop[0] = {MHD_OPTION_CONNECTION_MEMORY_INCREMENT, cmi, NULL}; pop++;
+	if (ocl) pop[0] = {MHD_OPTION_CONNECTION_LIMIT,			   ocl, NULL}; pop++;
+	if (oct) pop[0] = {MHD_OPTION_CONNECTION_TIMEOUT,		   oct, NULL}; pop++;
+	if (pic) pop[0] = {MHD_OPTION_PER_IP_CONNECTION_LIMIT,	   pic, NULL}; pop++;
+	if (tps) pop[0] = {MHD_OPTION_THREAD_POOL_SIZE,			   tps, NULL}; pop++;
+	if (tss) pop[0] = {MHD_OPTION_THREAD_STACK_SIZE,		   tss, NULL}; pop++;
+	if (lar) pop[0] = {MHD_OPTION_LISTENING_ADDRESS_REUSE,	   lar, NULL}; pop++;
+
+	pop[0] = {MHD_OPTION_END, 0, NULL};
+
+// 2. Register the signal handlers for SIGTERM
+
+	int sig_ok = signal(SIGTERM, p_sig_handler) != SIG_ERR;
+
+	if (!sig_ok) {
+		cout << "Failed to register signal handlers." << endl;
+
+		log(LOG_ERROR, "Failed to register signal handlers.");
+
+		return EXIT_FAILURE;
+	}
+
+// 3. Forks
+
+	pid_t pid = fork();
+	if (pid < 0) {
+		cout << "Failed to fork." << endl;
+
+		log(LOG_ERROR, "Failed to fork.");
+
+		return EXIT_FAILURE;
+	}
+	if (pid > 0) return EXIT_SUCCESS; // This is the parent process, exit now.
+
+// 4. Calls MHD_start_daemon()
+
+	cout << "Starting server on port : " << http_port << endl;
+
+//TODO: Implement an MHD_AcceptPolicyCallback when security is taken in consideration
+
+	p_daemon = MHD_start_daemon (server_flags, http_port, NULL, NULL, http_request_callback, NULL,
+								 MHD_OPTION_ARRAY, server_options, MHD_OPTION_END);
+
+	if (p_daemon == NULL) {
+		cout << "Failed to start the server." << endl;
+
+		log(LOG_ERROR, "Failed to start the server.");
+	}
+
+// Creates a new session if the calling process is not a process group leader. The calling process is the leader of the new session,
+// the process group leader of the new process group, and has no controlling terminal.
+
+	setsid();
+
+#ifdef DEBUG
+	cout << endl << "DEBUG MODE: -- Press any key to stop the server. ---" << endl;
+	getchar();
+	cout << endl << "Stopping ..." << endl;
+	kill(getpid(), SIGTERM);
+	sleep(1);
+	cout << endl << "Failed :-(" << endl;
+#endif
+
+	while(true) sleep(60);
 }
 
 /**
