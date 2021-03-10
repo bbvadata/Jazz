@@ -111,6 +111,11 @@ uint64_t	 MurmurHash64A		   (const void *key, int len);
 std::string	 CleanConfigArgument   (std::string s);
 
 
+/** A lookup table for all the possible results of a TenBitsAtAddress() call.
+*/
+typedef int TenBitsLUT[TENBITS_LUT_SIZE];
+
+
 /** Get ten bits taking the least significant 5 of the first two characters of a string.
 	Warning: No pointer validation or length check. Never use on nullptr or "".
 */
