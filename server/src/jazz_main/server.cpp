@@ -77,7 +77,7 @@ Starting logic:
 
 	And sleeps forever! (Remember, it is the child of the original caller who exited with EXIT_SUCCESS.)
 */
-StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon)
+StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon, MHD_AccessHandlerCallback dh)
 {
 // 1. Get all the MHD server config settings via get_conf_key()
 
@@ -111,8 +111,6 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 								| supp_date*MHD_SUPPRESS_DATE_NO_CLOCK | tcp_fastopen*MHD_USE_TCP_FASTOPEN
 								| MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL;							// Only threading model for Jazz.
 
-	MHD_OptionItem server_options[9];	// The variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
-
 	int cml, cmi, ocl, oct, pic, tps, tss, lar;
 
 	ok =   get_conf_key("MHD_CONN_MEMORY_LIMIT", cml)
@@ -132,18 +130,18 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 		return EXIT_FAILURE;
 	}
 
-	MHD_OptionItem *pop = server_options;
+	MHD_OptionItem *p_opt = server_options;
 
-	if (cml) pop[0] = {MHD_OPTION_CONNECTION_MEMORY_LIMIT,	   cml, NULL}; pop++;
-	if (cmi) pop[0] = {MHD_OPTION_CONNECTION_MEMORY_INCREMENT, cmi, NULL}; pop++;
-	if (ocl) pop[0] = {MHD_OPTION_CONNECTION_LIMIT,			   ocl, NULL}; pop++;
-	if (oct) pop[0] = {MHD_OPTION_CONNECTION_TIMEOUT,		   oct, NULL}; pop++;
-	if (pic) pop[0] = {MHD_OPTION_PER_IP_CONNECTION_LIMIT,	   pic, NULL}; pop++;
-	if (tps) pop[0] = {MHD_OPTION_THREAD_POOL_SIZE,			   tps, NULL}; pop++;
-	if (tss) pop[0] = {MHD_OPTION_THREAD_STACK_SIZE,		   tss, NULL}; pop++;
-	if (lar) pop[0] = {MHD_OPTION_LISTENING_ADDRESS_REUSE,	   lar, NULL}; pop++;
+	if (cml) p_opt[0] = {MHD_OPTION_CONNECTION_MEMORY_LIMIT,	 cml, NULL}; p_opt++;
+	if (cmi) p_opt[0] = {MHD_OPTION_CONNECTION_MEMORY_INCREMENT, cmi, NULL}; p_opt++;
+	if (ocl) p_opt[0] = {MHD_OPTION_CONNECTION_LIMIT,			 ocl, NULL}; p_opt++;
+	if (oct) p_opt[0] = {MHD_OPTION_CONNECTION_TIMEOUT,			 oct, NULL}; p_opt++;
+	if (pic) p_opt[0] = {MHD_OPTION_PER_IP_CONNECTION_LIMIT,	 pic, NULL}; p_opt++;
+	if (tps) p_opt[0] = {MHD_OPTION_THREAD_POOL_SIZE,			 tps, NULL}; p_opt++;
+	if (tss) p_opt[0] = {MHD_OPTION_THREAD_STACK_SIZE,			 tss, NULL}; p_opt++;
+	if (lar) p_opt[0] = {MHD_OPTION_LISTENING_ADDRESS_REUSE,	 lar, NULL}; p_opt++;
 
-	pop[0] = {MHD_OPTION_END, 0, NULL};
+	p_opt[0] = {MHD_OPTION_END, 0, NULL};
 
 // 2. Register the signal handlers for SIGTERM
 
@@ -173,8 +171,8 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 
 	cout << "Starting server on port : " << http_port << endl;
 
-	p_daemon = MHD_start_daemon (server_flags, http_port, NULL, NULL, http_request_callback, NULL,
-								 MHD_OPTION_ARRAY, server_options, MHD_OPTION_END);
+	p_daemon = MHD_start_daemon (server_flags, http_port, NULL, NULL, dh, NULL,
+								 MHD_OPTION_ARRAY, &server_options, MHD_OPTION_END);
 
 	if (p_daemon == NULL) {
 		cout << "Failed to start the server." << endl;
