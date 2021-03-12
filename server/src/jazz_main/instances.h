@@ -85,7 +85,7 @@ extern Volatile	  VOLATILE;		// The container allocating volatile blocks.
 extern Api		  API;			// The API interface
 extern HttpServer HTTP;			// The server
 
-// Callbacks:
+// SIGTERM Callback and http server daemon:
 
 extern pMHD_Daemon Jazz_MHD_Daemon;
 void signalHandler_SIGTERM(int signum);
