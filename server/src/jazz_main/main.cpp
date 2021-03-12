@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
 			exit (EXIT_FAILURE);
 		}
 
-		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon);
+		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon, &http_request_callback);
 
 		if (ret_code != EXIT_SUCCESS) {
 			stop_service(&HTTP,		 "HttpServer");
