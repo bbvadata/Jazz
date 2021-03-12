@@ -525,7 +525,7 @@ StatusCode Container::new_container()
 {
 //TODO: Implement new_container()
 
-	return SERVICE_NOT_IMPLEMENTED;
+	return SERVICE_NO_ERROR;
 }
 
 
