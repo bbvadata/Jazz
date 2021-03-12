@@ -74,10 +74,13 @@ class HttpServer : public Service {
 		HttpServer (pLogger		a_logger,
 					pConfigFile a_config);
 
-		StatusCode start		(pSignalHandler  p_sig_handler,
-						 		 pMHD_Daemon	&p_daemon);
-		StatusCode shut_down	(bool 			 restarting_service = false);
+		StatusCode start		(pSignalHandler				p_sig_handler,
+						 		 pMHD_Daemon			   &p_daemon,
+								 MHD_AccessHandlerCallback  dh);
+		StatusCode shut_down	(bool						restarting_service = false);
 
+	private:
+		MHD_OptionItem server_options[9];	// Variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
 };
 
 } // namespace jazz_main
