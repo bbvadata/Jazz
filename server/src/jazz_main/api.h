@@ -154,13 +154,13 @@ class Api : public Container {
 
 		// Specific execution methods
 
-		bool upload(APIParseBuffer &parse_buff,
-					const char	   *upload,
-					size_t			size,
-					bool			continue_upload);
-		bool remove(APIParseBuffer &parse_buff);
-		bool get   (APIParseBuffer &parse_buff,
-					pMHD_Response  &response);
+		bool upload	   (APIParseBuffer &parse_buff,
+						const char	   *upload,
+						size_t			size,
+						bool			continue_upload);
+		bool remove	   (APIParseBuffer &parse_buff);
+		bool http_get  (APIParseBuffer &parse_buff,
+						pMHD_Response  &response);
 
 	private:
 

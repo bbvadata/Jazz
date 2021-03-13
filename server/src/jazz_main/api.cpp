@@ -264,7 +264,7 @@ int http_request_callback(void *cls,
 
 	default:
 
-		status = API.get(parse_buffer, response);
+		status = API.http_get(parse_buffer, response);
 	}
 
 	// Step 6 : The core finished, just distribute the answer as appropriate.
@@ -500,6 +500,17 @@ bool Api::upload (APIParseBuffer &pars, const char * upload, size_t size, bool c
 bool Api::remove (APIParseBuffer &parse_buff)
 {
 //TODO: Implement Api::remove()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::http_get()
+*/
+bool Api::http_get (APIParseBuffer &parse_buff, pMHD_Response &response)
+{
+//TODO: Implement Api::http_get()
 
 	return false;
 }
