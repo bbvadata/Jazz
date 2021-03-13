@@ -519,7 +519,10 @@ bool Api::http_get (APIParseBuffer &parse_buff, pMHD_Response &response)
 /**
 //TODO: Document Api::get()
 */
-bool Api::get (APIParseBuffer &parse_buff, pMHD_Response &response)
+StatusCode Api::get(pBlockKeeper *p_keeper,
+					pR_value	  p_rvalue,
+					pContainer	  p_sender,
+					BlockId64	  block_id)
 {
 //TODO: Implement Api::get()
 

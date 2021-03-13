@@ -162,6 +162,11 @@ class Api : public Container {
 		bool http_get  (APIParseBuffer &parse_buff,
 						pMHD_Response  &response);
 
+		StatusCode get (pBlockKeeper   *p_keeper,
+						pR_value		p_rvalue,
+						pContainer		p_sender = nullptr,
+						BlockId64		block_id = 0);
+
 	private:
 
 		pContainer	p_container;
