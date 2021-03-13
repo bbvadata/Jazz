@@ -80,12 +80,18 @@ using namespace jazz_agency;
 /// Parser limits
 
 #define MAX_RECURSION_DEPTH	16		///< Max number of nested block references in a query.
+#define EIGHT_BIT_LONG		256		///< Length of a CharLUT.
 
 
 /// Parser return codes
 
 #define PARSE_OK			0		///< Success.
 #define GET_OK				0		///< Success.
+
+
+/** A lookup table for all the possible values of a char.
+*/
+typedef bool CharLUT[EIGHT_BIT_LONG];
 
 
 /** A buffer to keep the state while parsing/executing a query
