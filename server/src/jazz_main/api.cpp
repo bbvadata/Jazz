@@ -76,10 +76,10 @@ On cookies:
 #define MHD_HTTP_ANYERROR 400
 
 #ifdef DEBUG
-int print_out_key (void *cls, enum MHD_ValueKind kind,
-				   const char *key, const char *value)
+int print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
 {
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
+
 	return MHD_YES;
 }
 #endif
@@ -202,11 +202,11 @@ int http_request_callback(void *cls,
 
 				allow = allow + "OPTIONS";
 			} else {
-				if (API.parse(url, HTTP_GET, parse_buffer, false))
+				if (API.parse(url, HTTP_GET, parse_buffer, false) == PARSE_OK)
 					allow = "HEAD,GET,";
-				if (API.parse(url, HTTP_PUT, parse_buffer, false))
+				if (API.parse(url, HTTP_PUT, parse_buffer, false) == PARSE_OK)
 					allow = allow + "PUT,";
-				if (API.parse(url, HTTP_DELETE, parse_buffer, false))
+				if (API.parse(url, HTTP_DELETE, parse_buffer, false) == PARSE_OK)
 					allow = allow + "DELETE,";
 
 				allow = allow + "OPTIONS";
@@ -229,7 +229,7 @@ int http_request_callback(void *cls,
 
 			return API.return_error_message(connection, MHD_HTTP_NOT_FOUND);
 		} else {
-			if (!API.parse(url, HTTP_GET, parse_buffer))
+			if (API.parse(url, HTTP_GET, parse_buffer) != PARSE_OK)
 				return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
 		}
 		break;
@@ -238,7 +238,7 @@ int http_request_callback(void *cls,
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 			return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
 		} else {
-			if (!API.parse(url, http_method, parse_buffer)) {
+			if (API.parse(url, http_method, parse_buffer) != PARSE_OK) {
 				if (http_method == HTTP_PUT)
 					goto continue_in_put_badrequest;
 
@@ -449,6 +449,7 @@ Parse:
 StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool no_execution)
 {
 //TODO: Implement Api::parse()
+
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
