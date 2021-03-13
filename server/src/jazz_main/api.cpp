@@ -387,7 +387,7 @@ Api::Api(pLogger	 a_logger,
 		 pRemote	 a_remote,
 		 pPersisted	 a_persisted,
 		 pCluster	 a_cluster,
-		 pBebop		 a_bebop) : Service(a_logger, a_config) {
+		 pBebop		 a_bebop) : Container(a_logger, a_config) {
 
 	for (int i = 0; i < 1024; i++) http_methods[i] = HTTP_NOTUSED;
 

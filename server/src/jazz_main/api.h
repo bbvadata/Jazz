@@ -119,7 +119,7 @@ This service parses and executes http queries. It is aware a redistributes to al
 the http callback http_request_callback().
 
 */
-class Api : public Service {
+class Api : public Container {
 
 	public:
 
