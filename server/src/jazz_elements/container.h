@@ -129,6 +129,10 @@ typedef struct Locator		*pLocator, *pL_value;
 typedef struct R_value		*pR_value;
 typedef struct Items		*pItems;
 
+/** A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
+*/
+typedef std::map<std::string, pContainer> BaseNames;
+
 /** A pair of pointers to manage allocation inside an array of BlockKeeper as a deque.
 */
 struct OneShotDeque {
@@ -223,6 +227,7 @@ It provides a neat API for all descendants, including:
 - Allocation: .new_block(), .lock(), .unlock()
 - Crud: .put(), .remove()
 - Support for contracts: .get()
+- Support for container names in the API .base_names()
 - A configuration style for all descendants
 
 It provides, exposed by the root Container class, but also used internally by descendants;
@@ -329,6 +334,10 @@ class Container : public Service {
 
 		StatusCode get		   (pBlockKeeper *p_keeper,
 								pLocator	  p_what);
+
+		// Support for container names in the API .base_names()
+
+		void base_names		   (BaseNames 	 &base_names);
 
 		// Async calls (Remote): .sleep() .callback()
 
