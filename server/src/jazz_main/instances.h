@@ -57,8 +57,6 @@ using namespace jazz_elements;
 using namespace jazz_bebop;
 using namespace jazz_agency;
 
-#define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
-
 /*	-----------------------------
 	  I n s t a n t i a t i n g
 --------------------------------- */

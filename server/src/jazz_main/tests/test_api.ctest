@@ -38,6 +38,17 @@
 using namespace jazz_main;
 
 
+// Instancing of different containers for API testing:
+// -----
+
+Agency		EPI		  (&LOGGER, &CONFIG);
+Bebop		BOP		  (&LOGGER, &CONFIG);
+Cluster		CLUSTER	  (&LOGGER, &CONFIG);
+Persisted	PERSISTED (&LOGGER, &CONFIG);
+Remote		REMOTE	  (&LOGGER, &CONFIG);
+Volatile	VOLATILE  (&LOGGER, &CONFIG);
+Api			API		  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &CLUSTER, &BOP);
+
 // Tests
 // -----
 

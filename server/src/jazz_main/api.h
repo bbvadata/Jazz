@@ -64,7 +64,9 @@ namespace jazz_main
 
 using namespace jazz_elements;
 using namespace jazz_bebop;
+using namespace jazz_agency;
 
+#define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
 
 /** Http methods
 */
