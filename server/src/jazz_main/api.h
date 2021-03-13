@@ -83,6 +83,7 @@ using namespace jazz_bebop;
 /// Parser return codes
 
 #define PARSE_OK			0		///< Success.
+#define GET_OK				0		///< Success.
 
 
 /** A buffer to keep the state while parsing/executing a query
