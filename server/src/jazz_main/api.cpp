@@ -197,7 +197,7 @@ int http_request_callback(void *cls,
 			if (TenBitsAtAddress(url) != tenbit_double_slash) {
 				pBlockKeeper p_not_executed;
 
-				if (API.get_static(url, &p_not_executed, false))
+				if (API.get_static(url, &p_not_executed, false) == GET_OK)
 					allow = "HEAD,GET,";
 
 				allow = allow + "OPTIONS";
@@ -224,7 +224,7 @@ int http_request_callback(void *cls,
 	case HTTP_GET:
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 
-			if (API.get_static(url, &p_response_block_keeper))
+			if (API.get_static(url, &p_response_block_keeper) == GET_OK)
 				goto answer_http_ok;
 
 			return API.return_error_message(connection, MHD_HTTP_NOT_FOUND);
@@ -269,15 +269,11 @@ int http_request_callback(void *cls,
 
 	// Step 6 : The core finished, just distribute the answer as appropriate.
 
-	if (http_method == HTTP_PUT)
-	{
-		if (status)
-		{
+	if (http_method == HTTP_PUT) {
+		if (status) {
 			if (*upload_data_size) goto continue_in_put_ok;
 			else				   goto create_response_answer_put_ok;
-		}
-		else
-		{
+		} else {
 			if (*upload_data_size) goto continue_in_put_notacceptable;
 			else				   goto create_response_answer_PUT_NOTACCEPTABLE;
 		}
