@@ -75,14 +75,13 @@ extern Cluster	  CLUSTER;		// The Jazz cluster configuration service, from which
 
 // Block containers:
 
-extern Container  ONE_SHOT;		// The container allocating one-shot blocks.
 extern Persisted  PERSISTED;	// The container allocating persisted blocks.
 extern Remote	  REMOTE;		// The container getting and putting remote blocks on other Jazz nodes and the web.
 extern Volatile	  VOLATILE;		// The container allocating volatile blocks.
+extern Api		  API;			// The API interface is also a one-shot container.
 
 // Http server:
 
-extern Api		  API;			// The API interface
 extern HttpServer HTTP;			// The server
 
 // SIGTERM Callback and http server daemon:
