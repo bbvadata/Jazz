@@ -54,11 +54,10 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 Agency		EPI		  (&LOGGER, &CONFIG);
 Bebop		BOP		  (&LOGGER, &CONFIG);
 Cluster		CLUSTER	  (&LOGGER, &CONFIG);
-Container	ONE_SHOT  (&LOGGER, &CONFIG);
 Persisted	PERSISTED (&LOGGER, &CONFIG);
 Remote		REMOTE	  (&LOGGER, &CONFIG);
 Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Api			API		  (&LOGGER, &CONFIG, &ONE_SHOT, &VOLATILE, &REMOTE, &PERSISTED, &CLUSTER, &BOP);
+Api			API		  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &CLUSTER, &BOP);
 HttpServer	HTTP	  (&LOGGER, &CONFIG);
 
 // Callbacks
@@ -119,7 +118,6 @@ void signalHandler_SIGTERM(int signum)
 	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
 	if (!stop_service(&REMOTE,	  "Remote"))	 stop_ok = false;
 	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
-	if (!stop_service(&ONE_SHOT,  "Container"))	 stop_ok = false;
 	if (!stop_service(&CLUSTER,	  "Cluster"))	 stop_ok = false;
 	if (!stop_service(&BOP,		  "Bebop"))		 stop_ok = false;
 	if (!stop_service(&EPI,		  "Agency"))	 stop_ok = false;
