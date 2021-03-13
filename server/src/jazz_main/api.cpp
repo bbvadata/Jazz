@@ -253,7 +253,6 @@ int http_request_callback(void *cls,
 
 	switch (http_method) {
 	case HTTP_PUT:
-
 		status = API.upload(parse_buffer, upload_data, *upload_data_size, false);
 
 		break;
@@ -350,8 +349,7 @@ create_response_answer_PUT_BADREQUEST:
 
 continue_in_put_notacceptable:
 
-	if (*upload_data_size)
-	{
+	if (*upload_data_size) {
 		*upload_data_size = 0;
 		*con_cls		  = &state_upload_notacceptable;
 
@@ -362,8 +360,7 @@ continue_in_put_notacceptable:
 
 continue_in_put_badrequest:
 
-	if (*upload_data_size)
-	{
+	if (*upload_data_size) {
 		*upload_data_size = 0;
 		*con_cls		  = &state_upload_badrequest;
 
@@ -374,8 +371,7 @@ continue_in_put_badrequest:
 
 continue_in_put_ok:
 
-	if (*upload_data_size)
-	{
+	if (*upload_data_size) {
 		*upload_data_size = 0;
 		*con_cls		  = &state_upload_in_progress;
 

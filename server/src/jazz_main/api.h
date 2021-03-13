@@ -148,7 +148,8 @@ class Api : public Service {
 
 		// deliver http error pages
 
-		int	return_error_message (struct MHD_Connection * connection, int http_status);
+		int	return_error_message (struct MHD_Connection *connection,
+								  int					 http_status);
 
 		// Specific execution methods
 

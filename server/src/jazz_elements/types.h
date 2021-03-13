@@ -222,7 +222,7 @@ struct StringBuffer
 /** A string possibly returned by a contract. (Contracts return either a block or an answer.)
 */
 struct Answer {
-	char	text[ANSWER_LENGTH];		///< A message, metadata, lists of items, columns, etc.
+	char text[ANSWER_LENGTH];	///< A message, metadata, lists of items, columns, etc.
 };
 
 typedef struct Answer	*pAnswer;
