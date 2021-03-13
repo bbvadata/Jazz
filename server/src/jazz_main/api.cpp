@@ -354,7 +354,6 @@ continue_in_put_ok:
 
 Api::Api(pLogger	 a_logger,
 		 pConfigFile a_config,
-		 pContainer	 a_container,
 		 pVolatile	 a_volatile,
 		 pRemote	 a_remote,
 		 pPersisted	 a_persisted,
@@ -371,12 +370,13 @@ Api::Api(pLogger	 a_logger,
 
 	tenbit_double_slash = TenBitsAtAddress("//");
 
-	p_container	= a_container;
 	p_volatile	= a_volatile;
 	p_remote	= a_remote;
 	p_persisted	= a_persisted;
 	p_cluster	= a_cluster;
 	p_bebop		= a_bebop;
+
+	base = {};
 }
 
 
@@ -500,6 +500,18 @@ StatusCode Api::get(pBlockKeeper *p_keeper,
 
 	return false;
 }
+
+
+/** Add the base names for this Container.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+*/
+void Api::base_names (BaseNames &base_names)
+{
+	base_names[""] = this;
+}
+
 
 } // namespace jazz_main
 
