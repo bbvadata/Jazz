@@ -175,15 +175,16 @@ class Api : public Container {
 						pContainer		p_sender = nullptr,
 						BlockId64		block_id = 0);
 
+		void base_names(BaseNames	   &base_names);
+
 	private:
 
-		pContainer	p_container;
 		pVolatile	p_volatile;
 		pRemote		p_remote;
 		pPersisted	p_persisted;
 		pCluster	p_cluster;
 		pBebop		p_bebop;
-
+		BaseNames	base;
 };
 
 extern Api	API;			// The API interface
