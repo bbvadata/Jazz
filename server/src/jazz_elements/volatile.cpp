@@ -67,6 +67,21 @@ StatusCode Volatile::shut_down(bool restarting_service)
 	return SERVICE_NO_ERROR;
 }
 
+
+/** Add the base names for this Container.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+*/
+void Volatile::base_names (BaseNames &base_names)
+{
+	base_names["deque"]	= this;
+	base_names["map"]	= this;
+	base_names["tree"]	= this;
+	base_names["queue"] = this;
+}
+
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

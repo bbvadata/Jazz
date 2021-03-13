@@ -68,6 +68,29 @@ StatusCode Persisted::shut_down(bool restarting_service)
 }
 
 
+/** Add the base names for this Container.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+	The Persisted object has used-defined databases containing anything, these databases can have any names as long as they do not
+interfere with existing base names. The Api object will forward names that do not match any base names to Persisted in case they
+are the name of a database (and will fail otherwise).
+
+	Besides these user-defined names, there is a number of reserved databases that keep track of objects. "sys" keeps cluster-level
+config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
+"static" is a database of object with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
+*/
+void Persisted::base_names (BaseNames &base_names)
+{
+	base_names["sys"]	 = this;
+	base_names["group"]  = this;
+	base_names["kind"]	 = this;
+	base_names["field"]  = this;
+	base_names["flux"]	 = this;
+	base_names["agent"]	 = this;
+	base_names["static"] = this;
+}
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

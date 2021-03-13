@@ -140,6 +140,23 @@ StatusCode Remote::shut_down(bool restarting_service)
 }
 
 
+/** Add the base names for this Container.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+*/
+void Remote::base_names (BaseNames &base_names)
+{
+	base_names["jazz_get"] = this;
+	base_names["jazz_put"] = this;
+
+	base_names["jazz_broadcast"] = this;
+
+	base_names["http_get"] = this;
+	base_names["http_put"] = this;
+}
+
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

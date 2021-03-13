@@ -92,6 +92,8 @@ class Remote : public Container {
 		StatusCode start		();
 		StatusCode shut_down	(bool restarting_service = false);
 
+		void base_names (BaseNames &base_names);
+
 };
 
 
