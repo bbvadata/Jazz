@@ -134,7 +134,6 @@ class Api : public Container {
 
 		Api (pLogger	 a_logger,
 			 pConfigFile a_config,
-			 pContainer	 a_container,
 			 pVolatile	 a_volatile,
 			 pRemote	 a_remote,
 			 pPersisted	 a_persisted,
