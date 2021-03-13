@@ -89,7 +89,8 @@ using namespace jazz_bebop;
 /** A buffer to keep the state while parsing/executing a query
 */
 struct APIParseBuffer {
-	int stack_size;								///< The stack size. Avoids having to memset() the whole APIParseBuffer.
+	pContainer p_owner;							///< The "owner" of the block == the Container that can .get() the top-level call.
+	int		   stack_size;						///< The stack size. Avoids having to memset() the whole APIParseBuffer.
 
 	L_value l_value[MAX_RECURSION_DEPTH];		///< A stack of L_value used during parsing/executing
 	R_value r_value[MAX_RECURSION_DEPTH];		///< A stack of R_value used during parsing/executing
