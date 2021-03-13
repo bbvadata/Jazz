@@ -45,34 +45,6 @@ namespace jazz_main
 	 M A I N   H T T P	 E N T R Y	 P O I N T S
 ------------------------------------------------- */
 
-/*
-
-On cookies:
------------
-
-//TODO: Implement cookie-based user state.
-
-1. The idea is explained in https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
-
-	The server, has to check if the request comes with a cookie, if not, it has to send:
-
-	Set-Cookie: jazz_user=a3fWa; Expires=Thu, 31 Oct 2021 07:28:00 GMT;
-
-	After that, all requests will come with:
-
-	GET /sample_page.html HTTP/2.0
-	Host: www.example.org
-	Cookie: jazz_user=a3fWa;
-
-	The server uses the cookie to keep the conversation context persisted.
-
-2. The use via MHD is explained in https://www.gnu.org/software/libmicrohttpd/tutorial.html#Session-management
-
-3. The disclaimer has been added to config/static/cookies.htm
-
-*/
-
-
 #define MHD_HTTP_ANYERROR 400
 
 #ifdef DEBUG
