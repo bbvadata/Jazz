@@ -137,8 +137,8 @@ class Api : public Container {
 			 pVolatile	 a_volatile,
 			 pRemote	 a_remote,
 			 pPersisted	 a_persisted,
-			 pCluster	 a_cluster,
-			 pBebop		 a_bebop);
+			 pBebop		 a_bebop,
+			 pAgency	 a_agency);
 
 		StatusCode start	 ();
 
@@ -182,8 +182,8 @@ class Api : public Container {
 		pVolatile	p_volatile;
 		pRemote		p_remote;
 		pPersisted	p_persisted;
-		pCluster	p_cluster;
 		pBebop		p_bebop;
+		pAgency		p_agency;
 		BaseNames	base;
 };
 
