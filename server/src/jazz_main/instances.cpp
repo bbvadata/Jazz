@@ -76,6 +76,7 @@ bool start_service(pService service, char const *service_name)
 		return false;
 	} else {
 		cout << "ok" << endl;
+		LOGGER.log_printf(LOG_INFO, "Service %s started Ok.", service_name);
 
 		return true;
 	}
@@ -93,6 +94,7 @@ bool stop_service(pService service, char const *service_name)
 		return false;
 	} else {
 		cout << "ok" << endl;
+		LOGGER.log_printf(LOG_INFO, "Service %s stopped Ok.", service_name);
 
 		return true;
 	}
