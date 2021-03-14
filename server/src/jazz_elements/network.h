@@ -57,14 +57,20 @@ namespace jazz_elements
 // Forward pointer types:
 
 typedef class  Cluster	*pCluster;
-typedef class  Remote	*pRemote;
-typedef class  Group	*pGroup;
 typedef class  Index	*pIndex;
+typedef class  Remote	*pRemote;
 
 
 /** \brief A service keeping a configuration of all the Jazz nodes that may be acccessed remotely.
 
 These Jazz nodes are all aware of each other and share some root configurations (including identical Cluster configuration).
+
+This service manages:
+
+-Nodes: A node is a Jazz server in a Cluster of Jazz servers.
+-Groups: A Group of Jazz nodes (selected from the Cluster) that can own a Table or Column by sharding it across the group.
+-Sharding: Distributes the space of names in a sharded resource among the nodes of a group.
+
 */
 class Cluster : public Service {
 
@@ -75,34 +81,6 @@ class Cluster : public Service {
 
 		StatusCode start		();
 		StatusCode shut_down	(bool restarting_service = false);
-
-};
-
-
-/** \brief A Container that treats a remote node (mostly a Jazz node, but also a web API) as persistence.
-
-*/
-class Remote : public Container {
-
-	public:
-
-		Remote (pLogger	 a_logger,
-				pConfigFile a_config);
-
-		StatusCode start		();
-		StatusCode shut_down	(bool restarting_service = false);
-
-		void base_names (BaseNames &base_names);
-
-};
-
-
-/** \brief A Group of Jazz nodes (selected from the Cluster) that can own a Table or Column by sharding it across the group.
-
-*/
-class Group : public Tuple {
-
-	public:
 
 };
 
@@ -118,6 +96,27 @@ class Index : public Block {
 
 };
 
+
+/** \brief A Container that treats a remote node (mostly a Jazz node, but also a web API) as persistence.
+
+*/
+class Remote : public Container {
+
+	public:
+
+		Remote (pLogger		a_logger,
+				pConfigFile a_config,
+				pCluster	a_cluster);
+
+		StatusCode start		();
+		StatusCode shut_down	(bool restarting_service = false);
+
+		void base_names (BaseNames &base_names);
+
+	private:
+
+		pCluster p_cluster;
+};
 
 } // namespace jazz_elements
 
