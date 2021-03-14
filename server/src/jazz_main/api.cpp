@@ -385,7 +385,13 @@ Api::Api(pLogger	 a_logger,
 */
 StatusCode Api::start ()
 {
-//TODO: Implement Api::start()
+	p_volatile->base_names(base);
+	p_remote->base_names(base);
+	p_persisted->base_names(base);
+	p_bebop->base_names(base);
+	p_agency->base_names(base);
+
+	base_names(base);
 
 	return SERVICE_NO_ERROR;
 }
