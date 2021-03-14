@@ -45,7 +45,7 @@ namespace jazz_bebop
 	 Bebop : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 /**
 //TODO: Document Bebop::start()

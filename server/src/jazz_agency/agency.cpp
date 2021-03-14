@@ -45,7 +45,7 @@ namespace jazz_agency
 	 Agency : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Agency::Agency(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Agency::Agency(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 /**
 //TODO: Document Agency::start()

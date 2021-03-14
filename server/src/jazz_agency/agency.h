@@ -70,7 +70,7 @@ typedef class  Agency	*pAgency;
 /** \brief Agency: A Service to manage flʌkpilers and agents.
 
 */
-class Agency : public Service {
+class Agency : public Container {
 
 	public:
 

@@ -70,7 +70,7 @@ typedef class  Bebop	*pBebop;
 /** \brief Bebop: A Service to manage running cores and code bases.
 
 */
-class Bebop : public Service {
+class Bebop : public Container {
 
 	public:
 
