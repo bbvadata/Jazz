@@ -117,7 +117,10 @@ StatusCode Cluster::shut_down(bool restarting_service)
 	 Remote : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Remote::Remote(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+Remote::Remote(pLogger a_logger, pConfigFile a_config, pCluster	a_cluster) : Container(a_logger, a_config)
+{
+	p_cluster = a_cluster;
+}
 
 /**
 //TODO: Document Remote::start()

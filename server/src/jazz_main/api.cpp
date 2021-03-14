@@ -357,8 +357,8 @@ Api::Api(pLogger	 a_logger,
 		 pVolatile	 a_volatile,
 		 pRemote	 a_remote,
 		 pPersisted	 a_persisted,
-		 pCluster	 a_cluster,
-		 pBebop		 a_bebop) : Container(a_logger, a_config) {
+		 pBebop		 a_bebop,
+		 pAgency	 a_agency) : Container(a_logger, a_config) {
 
 	for (int i = 0; i < 1024; i++) http_methods[i] = HTTP_NOTUSED;
 
@@ -373,8 +373,8 @@ Api::Api(pLogger	 a_logger,
 	p_volatile	= a_volatile;
 	p_remote	= a_remote;
 	p_persisted	= a_persisted;
-	p_cluster	= a_cluster;
 	p_bebop		= a_bebop;
+	p_agency	= a_agency;
 
 	base = {};
 }
