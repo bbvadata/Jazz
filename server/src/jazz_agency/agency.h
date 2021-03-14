@@ -62,6 +62,11 @@ namespace jazz_agency
 using namespace jazz_elements;
 
 
+// Forward pointer types:
+
+typedef class  Agency	*pAgency;
+
+
 /** \brief Agency: A Service to manage flʌkpilers and agents.
 
 */
