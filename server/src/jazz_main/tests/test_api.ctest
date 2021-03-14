@@ -38,8 +38,8 @@
 using namespace jazz_main;
 
 
-// Instancing of different containers for API testing:
-// -----
+// Instancing of different containers for API testing
+// --------------------------------------------------
 
 Agency		EPI		  (&LOGGER, &CONFIG);
 Bebop		BOP		  (&LOGGER, &CONFIG);
@@ -47,14 +47,51 @@ Cluster		CLUSTER	  (&LOGGER, &CONFIG);
 Persisted	PERSISTED (&LOGGER, &CONFIG);
 Remote		REMOTE	  (&LOGGER, &CONFIG, &CLUSTER);
 Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Api			API		  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &BOP, &EPI);
+Api			TT_API	  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &BOP, &EPI);
 
 // Tests
 // -----
 
-SCENARIO("Testing api") {
+SCENARIO("Testing api types") {
 
-//TODO: Write tests for this!
+	REQUIRE(sizeof(CharLUT) == 256);
+}
+
+SCENARIO("Testing api initialization") {
+
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(tenbit_double_slash == TenBitsAtAddress("//"));
+
+		REQUIRE(TT_API.p_volatile	== &VOLATILE);
+		REQUIRE(TT_API.p_remote		== &REMOTE);
+		REQUIRE(TT_API.p_persisted	== &PERSISTED);
+		REQUIRE(TT_API.p_bebop		== &BOP);
+		REQUIRE(TT_API.p_agency		== &EPI);
+
+		REQUIRE(TT_API.base.size() == 0);
+	}
+
+	REQUIRE(CLUSTER.start() == 0);
+
+	REQUIRE(VOLATILE.start()  == 0);
+	REQUIRE(PERSISTED.start() == 0);
+	REQUIRE(REMOTE.start()	  == 0);
+
+	REQUIRE(BOP.start() == 0);
+	REQUIRE(EPI.start() == 0);
+
+	REQUIRE(TT_API.start() == 0);
+
+	GIVEN("The instances are started") {
+		REQUIRE(TT_API.base[""]			== &TT_API);
+		REQUIRE(TT_API.base["map"]		== &VOLATILE);
+		REQUIRE(TT_API.base["jazz_get"] == &REMOTE);
+		REQUIRE(TT_API.base["sys"]		== &PERSISTED);
+	}
+}
+
+
+SCENARIO("Testing api.parse") {
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
@@ -65,3 +102,14 @@ SCENARIO("Testing api") {
 	}
 }
 
+
+SCENARIO("Testing api statics") {
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
