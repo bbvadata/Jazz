@@ -78,7 +78,7 @@ are the name of a database (and will fail otherwise).
 
 	Besides these user-defined names, there is a number of reserved databases that keep track of objects. "sys" keeps cluster-level
 config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
-"static" is a database of object with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
+"static" is a database of objects with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
 */
 void Persisted::base_names (BaseNames &base_names)
 {
