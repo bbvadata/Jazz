@@ -113,7 +113,9 @@ class Remote : public Container {
 
 		void base_names (BaseNames &base_names);
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		pCluster p_cluster;
 };

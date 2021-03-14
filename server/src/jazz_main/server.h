@@ -80,6 +80,7 @@ class HttpServer : public Service {
 		StatusCode shut_down	(bool						restarting_service = false);
 
 	private:
+
 		MHD_OptionItem server_options[9];	// Variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
 };
 

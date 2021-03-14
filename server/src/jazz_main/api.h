@@ -177,7 +177,9 @@ class Api : public Container {
 
 		void base_names(BaseNames	   &base_names);
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		pVolatile	p_volatile;
 		pRemote		p_remote;
