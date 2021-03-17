@@ -423,8 +423,14 @@ StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool 
 }
 
 
-/**
-//TODO: Document Api::get_static()
+/** Check a non-API url into and return the static object related with it.
+
+	\param url		 The http url (that has already been checked not to start with //)
+	\param response	 A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
+
+	\return			 Some error code or SERVICE_NO_ERROR if successful.
+
 */
 StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execution)
 {
