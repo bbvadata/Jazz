@@ -442,10 +442,9 @@ HTTP_DELETE | Api.remove()
 HTTP_OPTIONS | Nothing: options calls must call with `execution = false`
 
 */
-StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool no_execution)
+StatusCode Api::parse (const char *url, int method, APIParseBuffer &pars, bool execution)
 {
 //TODO: Implement Api::parse()
-
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
