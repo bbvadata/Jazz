@@ -492,8 +492,21 @@ int	Api::return_error_message (struct MHD_Connection * connection, int http_stat
 }
 
 
-/**
-//TODO: Document Api::upload()
+/**	 Execute a put block using some one-shot block as an intermediate buffer.
+
+	\param parse_buff		The structure containing the parts of the url successfully parsed.
+	\param upload			A pointer to the data uploaded with the http PUT call.
+	\param size				The size of the data uploaded with the http PUT call.
+	\param continue_upload  If true, the upload is added at the end of the already existing block.
+
+	\return					true if successful, log(LOG_MISS, "further details") if not.
+
+	This function performs block PUT incrementally. The first time, continue_upload == false and the block is created, all other times,
+the block is appended at the end on the existing block.
+
+	This function is **only** called after a successfull parse() of an HTTP_PUT query. It is not private because it is called for the
+callback, but it is not intended for any other context.
+
 */
 bool Api::upload (APIParseBuffer &pars, const char * upload, size_t size, bool continue_upload)
 {
