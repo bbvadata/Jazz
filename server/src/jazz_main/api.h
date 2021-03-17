@@ -210,6 +210,7 @@ class Api : public Container {
 									 BlockHeader &hea);
 
 		StatusCode _parse_const_data(pChar 		  &p_url,
+									 BlockHeader  &hea,
 									 pBlockKeeper *p_keeper);
 		pVolatile	p_volatile;
 		pRemote		p_remote;

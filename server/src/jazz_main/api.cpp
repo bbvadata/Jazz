@@ -634,7 +634,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, BlockHeader &hea)
 /**
 //TODO: Document Api::_parse_const_data()
 */
-StatusCode Api::_parse_const_data(pChar &p_url, pBlockKeeper *p_keeper)
+StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pBlockKeeper *p_keeper)
 {
 //TODO: Implement Api::_parse_const_data()
 
