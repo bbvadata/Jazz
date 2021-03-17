@@ -578,6 +578,60 @@ void Api::base_names (BaseNames &base_names)
 }
 
 
+/**
+//TODO: Document Api::_load_statics()
+*/
+StatusCode Api::_load_statics (const char *path)
+{
+//TODO: Implement Api::_load_statics()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::_parse_recurse()
+*/
+StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_value &r_value, bool execution, int rec_level)
+{
+//TODO: Implement Api::_parse_recurse()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::_parse_exec_stage()
+*/
+StatusCode Api::_parse_exec_stage(pChar	&p_url, int method, L_value &l_value, R_value &r_value)
+{
+//TODO: Implement Api::_parse_exec_stage()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::_parse_const_meta()
+*/
+StatusCode Api::_parse_const_meta(pChar &p_url, BlockHeader &hea)
+{
+//TODO: Implement Api::_parse_const_meta()
+
+	return false;
+}
+
+
+/**
+//TODO: Document Api::_parse_const_data()
+*/
+StatusCode Api::_parse_const_data(pChar &p_url, pBlockKeeper *p_keeper)
+{
+//TODO: Implement Api::_parse_const_data()
+
+	return false;
+}
+
 } // namespace jazz_main
 
 #if defined CATCH_TEST
