@@ -508,7 +508,7 @@ the block is appended at the end on the existing block.
 callback, but it is not intended for any other context.
 
 */
-bool Api::upload (APIParseBuffer &pars, const char * upload, size_t size, bool continue_upload)
+bool Api::upload (APIParseBuffer &parse_buff, const char *upload, size_t size, bool continue_upload)
 {
 //TODO: Implement Api::upload()
 
