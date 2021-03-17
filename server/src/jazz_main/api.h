@@ -32,7 +32,7 @@
 */
 
 
-// #include <stl_whatever>
+#include <map>
 
 #include "src/include/jazz_agency.h"
 
@@ -93,6 +93,10 @@ using namespace jazz_agency;
 */
 typedef bool CharLUT[EIGHT_BIT_LONG];
 
+
+/** A map to convert urls to block names (in Persisted //static/).
+*/
+typedef std::map<std::string, std::string> Url2Name;
 
 /** A buffer to keep the state while parsing/executing a query
 */
