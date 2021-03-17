@@ -397,7 +397,18 @@ StatusCode Api::start ()
 
 	base_names(base);
 
-	return SERVICE_NO_ERROR;
+	std::string statics_path;
+
+	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
+		int ret = _load_statics(statics_path.c_str());
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+	}
+
+	if (!get_conf_key("REMOVE_STATICS_ON_CLOSE", remove_statics))
+		remove_statics = false;
+
+	return Container::start();	// This initializes the one-shot functionality.
 }
 
 
