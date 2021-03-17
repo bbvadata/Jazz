@@ -534,8 +534,16 @@ bool Api::remove (APIParseBuffer &parse_buff)
 }
 
 
-/**
-//TODO: Document Api::http_get()
+/** Execute a get block using the instrumental API.
+
+	\param parse_buff The structure containing the parts of the url successfully parsed.
+	\param response	  A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+
+	\return			  true if successful, log(LOG_MISS, "further details") for errors.
+
+	This function is **only** called after a successfull parse() of HTTP_GET and HTTP_HEAD queries. It is not private because it is called
+for the callback, but it is not intended for any other context.
+
 */
 bool Api::http_get (APIParseBuffer &parse_buff, pMHD_Response &response)
 {
