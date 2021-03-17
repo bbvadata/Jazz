@@ -184,9 +184,7 @@ class Api : public Container {
 						pMHD_Response  &response);
 
 		StatusCode get (pBlockKeeper   *p_keeper,
-						pR_value		p_rvalue,
-						pContainer		p_sender = nullptr,
-						BlockId64		block_id = 0);
+						pLocator		p_what);
 
 		void base_names(BaseNames	   &base_names);
 
