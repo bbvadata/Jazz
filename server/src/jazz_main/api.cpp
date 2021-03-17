@@ -628,8 +628,14 @@ StatusCode Api::_parse_exec_stage(pChar	&p_url, int method, L_value &l_value, R_
 }
 
 
-/**
-//TODO: Document Api::_parse_const_meta()
+/** This is a private submethod of parse() parsing constants for syntax checking and retrieving the metadata.
+
+It returns a BlockHeader that is necessary to allocate a block calling _parse_const_data() with it.
+
+	\param p_url A pointer to the first character of the constant.
+	\param hea	 A BlockHeader passed by reference that will be filled of success, possibly partially on failure.
+
+	\return		 Some error code or SERVICE_NO_ERROR if successful.
 */
 StatusCode Api::_parse_const_meta(pChar &p_url, BlockHeader &hea)
 {
