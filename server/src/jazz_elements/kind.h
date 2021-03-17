@@ -68,7 +68,7 @@ which are integer variables that are used to define variable shapes.
 Technically, a kind is a Block of type CELL_TYPE_TUPLE_ITEM. Each item has data (is a Tensor). The way a Kind can include other Kinds is
 by merging them together and that increases the ItemHeader.level by one. E.g, a Kind x is made of tensors (a, b) and a Kind y is made of
 (c, d, e), we can create a kind (f, x, y) as we merge it together we will just have: (f, x_a, x_b, y_c, y_d, y_e) all of them will have
-level 1, except f which will be level 0. The naming convention (mergining with an underscore) is what a Container would do by default when
+level 1, except f which will be level 0. The naming convention (merging with an underscore) is what a Container would do by default when
 merging Kinds, but, in manually created Kinds each item can have arbitrary (but different) names. They may have dimensions named length,
 width, num_items or whatever and any of them can use these names to define variable dimensions of their tensors anywhere. They do so by
 having the names stored as strings and referring to the name (by its index) in the ItemHeader.dim_name[·] where that dimension applies.
