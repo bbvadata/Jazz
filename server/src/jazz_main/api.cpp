@@ -373,7 +373,8 @@ Api::Api(pLogger	 a_logger,
 	p_bebop		= a_bebop;
 	p_agency	= a_agency;
 
-	base = {};
+	base	 = {};
+	url_name = {};
 }
 
 

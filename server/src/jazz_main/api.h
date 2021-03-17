@@ -196,6 +196,8 @@ class Api : public Container {
 		pBebop		p_bebop;
 		pAgency		p_agency;
 		BaseNames	base;
+		Url2Name	url_name;
+		int			remove_statics;
 };
 
 extern Api	API;			// The API interface
