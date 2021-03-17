@@ -516,8 +516,15 @@ bool Api::upload (APIParseBuffer &parse_buff, const char *upload, size_t size, b
 }
 
 
-/**
-//TODO: Document Api::remove()
+/**	 Execute an http DELETE of a block using the block API.
+
+	\param parse_buff The structure containing the parts of the url successfully parsed.
+
+	\return			  true if successful, log(LOG_MISS, "further details") for errors.
+
+	This function is **only** called after a successfull parse() of an HTTP_DELETE query. It is not private because it is called for the
+callback, but it is not intended for any other context.
+
 */
 bool Api::remove (APIParseBuffer &parse_buff)
 {
