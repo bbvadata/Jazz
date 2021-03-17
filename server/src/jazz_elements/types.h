@@ -140,6 +140,7 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define BLOCK_ATTRIB_DESTKIND	4			///< The location of the destination kind (for fields, fluxes and thing with two Kinds)
 #define BLOCK_ATTRIB_MIMETYPE	5			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
 #define BLOCK_ATTRIB_URL		6			///< A url for the server to expose the file by.
+#define BLOCK_ATTRIB_LANGUAGE	7			///< An http language identifier that will be returned in a / interface GET call.
 
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
