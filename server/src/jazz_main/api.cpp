@@ -422,12 +422,24 @@ StatusCode Api::shut_down ()
 }
 
 
-/**
-//TODO: Document Api::parse()
+/** Parse an API url into an APIParseBuffer for later execution.
 
-Parse:
+	\param url		 The http url (that has already been checked to start with //)
+	\param method	 The http method in [HTTP_NOTUSED .. HTTP_DELETE]
+	\param pars		 A structure with the parts the url successfully parsed ready to be executed.
+	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
 
-// https://en.wikipedia.org/wiki/Percent-encoding
+	\return			 Some error code or SERVICE_NO_ERROR if successful.
+
+	When parse() is successful, the content of the APIParseBuffer **must** be executed by a call (that depends on the method) and will
+unlock() all the intermediate blocks.
+
+method | call executed by
+-------|-----------------
+HTTP_GET, HTTP_HEAD | Api.http_get()
+HTTP_PUT | Api.upload()
+HTTP_DELETE | Api.remove()
+HTTP_OPTIONS | Nothing: options calls must call with `execution = false`
 
 */
 StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool no_execution)
