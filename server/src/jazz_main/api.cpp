@@ -476,7 +476,7 @@ StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execu
 
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
-int	Api::return_error_message (struct MHD_Connection * connection, int http_status)
+int	Api::return_error_message (struct MHD_Connection *connection, int http_status)
 {
 	Answer answer;
 
