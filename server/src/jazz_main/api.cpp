@@ -645,8 +645,16 @@ StatusCode Api::_parse_const_meta(pChar &p_url, BlockHeader &hea)
 }
 
 
-/**
-//TODO: Document Api::_parse_const_data()
+/** This is a private submethod of parse() creating blocks with the data of a constant previously checked by _parse_const_meta()
+
+It returns a locked (one shot) block that must be unlocked in the same http query.
+
+	\param p_url	A pointer to the first character of the constant.
+	\param hea		A BlockHeader created in a successful _parse_const_meta.
+	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+
+	\return			Some error code or SERVICE_NO_ERROR if successful.
 */
 StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pBlockKeeper *p_keeper)
 {
