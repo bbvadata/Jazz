@@ -98,6 +98,12 @@ typedef bool CharLUT[EIGHT_BIT_LONG];
 */
 typedef std::map<std::string, std::string> Url2Name;
 
+
+/** A pointer to char.
+*/
+typedef char *pChar;
+
+
 /** A buffer to keep the state while parsing/executing a query
 */
 struct APIParseBuffer {
