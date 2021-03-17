@@ -85,8 +85,12 @@ using namespace jazz_agency;
 
 /// Parser return codes
 
-#define PARSE_OK			0		///< Success.
-#define GET_OK				0		///< Success.
+#define PARSE_OK					0		///< Success.
+#define GET_OK						0		///< Success.
+#define PARSE_ERROR_INVALID_CHAR	1		///< Error unexpected char.
+#define PARSE_ERROR_INVALID_SHAPE	2		///< Sequence of [] is inconsistent with a tensor.
+#define PARSE_ERROR_ENCODING		3
+#define PARSE_ERROR_NOT_A_STRING	4
 
 
 /** A lookup table for all the possible values of a char.
