@@ -587,8 +587,17 @@ void Api::base_names (BaseNames &base_names)
 }
 
 
-/**
-//TODO: Document Api::_load_statics()
+/** Push a copy of all the files in the path (searched recursively) to the Persisted database "static" and index their names
+to be found by get_static().
+
+It also assigns attributes:
+- BLOCK_ATTRIB_URL == same relative path after the root path.
+- BLOCK_ATTRIB_MIMETYPE guessed from the file extension (html, js, png, etc.)
+- BLOCK_ATTRIB_LANGUAGE == en-us
+
+	\param path	The path to the tree of webpage statics.
+
+	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
 StatusCode Api::_load_statics (const char *path)
 {
