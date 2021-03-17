@@ -151,8 +151,7 @@ class Api : public Container {
 			 pAgency	 a_agency);
 
 		StatusCode start	 ();
-
-		StatusCode shut_down (bool restarting_service = false);
+		StatusCode shut_down ();
 
 		// parsing methods
 

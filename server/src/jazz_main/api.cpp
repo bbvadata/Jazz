@@ -395,14 +395,13 @@ StatusCode Api::start ()
 }
 
 
-/**
-//TODO: Document Api::shut_down()
+/** Shuts down the Persisted Service
 */
-StatusCode Api::shut_down (bool restarting_service)
+StatusCode Api::shut_down ()
 {
-//TODO: Implement Api::shut_down()
+	base.clear();
 
-	return SERVICE_NO_ERROR;
+	return Container::shut_down();	// Closes the one-shot functionality.
 }
 
 
