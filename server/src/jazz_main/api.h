@@ -162,7 +162,7 @@ class Api : public Container {
 								bool			execution = true);
 
 		StatusCode get_static  (const char	   *url,
-								pBlockKeeper   *p_keeper,
+								pMHD_Response  &response,
 								bool			execution = true);
 
 		// deliver http error pages

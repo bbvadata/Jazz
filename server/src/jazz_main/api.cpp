@@ -167,9 +167,7 @@ int http_request_callback(void *cls,
 		{ // Tricky: Opens a scope to make "std::string allow" out of scope in the rest to support the goto logic.
 			std::string allow;
 			if (TenBitsAtAddress(url) != tenbit_double_slash) {
-				pBlockKeeper p_not_executed;
-
-				if (API.get_static(url, &p_not_executed, false) == GET_OK)
+				if (API.get_static(url, response, false) == GET_OK)
 					allow = "HEAD,GET,";
 
 				allow = allow + "OPTIONS";
@@ -196,7 +194,7 @@ int http_request_callback(void *cls,
 	case HTTP_GET:
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 
-			if (API.get_static(url, &p_response_block_keeper) == GET_OK)
+			if (API.get_static(url, response) == GET_OK)
 				goto answer_http_ok;
 
 			return API.return_error_message(connection, MHD_HTTP_NOT_FOUND);
@@ -428,7 +426,7 @@ StatusCode Api::parse (const char * url, int method, APIParseBuffer &pars, bool 
 /**
 //TODO: Document Api::get_static()
 */
-StatusCode Api::get_static (const char *url, pBlockKeeper *p_keeper, bool execution)
+StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execution)
 {
 //TODO: Implement Api::get_static()
 
