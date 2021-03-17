@@ -378,8 +378,25 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 //TODO: Document lock()
 
 	\param aaa		Bla, bla
+	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
+	\param block_id	Used by the async interface. (See Async interface below)
 
 	\return	Bla
+
+Async Interface
+---------------
+
+The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
+a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
+
+The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
+operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
+
+A **NOTE for lock()**: The returned p_keeper is owned by the Remote. Before the .callback() event, it will have
+p_keeper->status == BLOCK_STATUS_ASYNC_WAIT. After an error is returned, the caller should forget the p_keeper and not use it.
+After a success is returned, the caller will get: p_keeper->status == BLOCK_STATUS_READY and a valid p_block. In this case, the caller
+**must** .unlock() the p_keeper when done with it.
+
 */
 StatusCode Container::lock (pBlockKeeper *p_keeper,
 							pLocator	  p_locator,
@@ -413,6 +430,22 @@ StatusCode Container::unlock (pBlockKeeper *p_keeper)
 //TODO: Document put()
 
 	\param aaa		Bla, bla
+	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
+	\param block_id	Used by the async interface. (See Async interface below)
+
+	\return	Bla
+
+Async Interface
+---------------
+
+The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
+a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
+
+The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
+operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
+
+A **NOTE for put()**: The callback() will return the completion status for the caller to know (retry, notify, etc.). In either (error or
+success) case, there are no further actions to take.
 
 	\return	Bla
 */
@@ -432,6 +465,22 @@ StatusCode Container::put (pLocator	  p_where,
 //TODO: Document remove()
 
 	\param aaa		Bla, bla
+	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
+	\param block_id	Used by the async interface. (See Async interface below)
+
+	\return	Bla
+
+Async Interface
+---------------
+
+The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
+a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
+
+The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
+operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
+
+A **NOTE for remove()**: The callback() will return the completion status for the caller to know (retry, notify, etc.). In either (error or
+success) case, there are no further actions to take.
 
 	\return	Bla
 */
@@ -450,8 +499,24 @@ StatusCode Container::remove (pLocator	 p_what,
 //TODO: Document get(1)
 
 	\param aaa		Bla, bla
+	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
+	\param block_id	Used by the async interface. (See Async interface below)
 
 	\return	Bla
+
+Async Interface
+---------------
+
+The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
+a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
+
+The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
+operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
+
+A **NOTE for get()**: The returned p_keeper is owned by the Remote. Before the .callback() event, it will have
+p_keeper->status == BLOCK_STATUS_ASYNC_WAIT. After an error is returned, the caller should forget the p_keeper and not use it.
+After a success is returned, the caller will get: p_keeper->status == BLOCK_STATUS_READY and a valid p_block. In this case, the caller
+**must** .unlock() the p_keeper when done with it.
 */
 StatusCode Container::get (pBlockKeeper *p_keeper,
 						   pR_value		 p_rvalue,
