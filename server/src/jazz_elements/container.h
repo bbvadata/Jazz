@@ -143,8 +143,7 @@ struct OneShotDeque {
 
 	This union keeps Container specific data.
 */
-union KeeperData
-{
+union KeeperData {
 	Name		 name;					///< Name of the block (used by Container descendants using locators)
 	OneShotDeque deque;					///< A pair of pointers (used by the root class Container)
 };
