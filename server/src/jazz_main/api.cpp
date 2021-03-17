@@ -378,8 +378,14 @@ Api::Api(pLogger	 a_logger,
 }
 
 
-/**
-//TODO: Document Api::start()
+/** Starts the API service
+
+Configuration-wise the API has just two keys:
+
+- STATIC_HTML_AT_START: which defines a path to a tree of static objects that should be uploaded on start.
+- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
+
+Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
 StatusCode Api::start ()
 {
