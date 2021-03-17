@@ -67,8 +67,6 @@
 // On cookies:
 // -----------
 
-// //TODO: Implement cookie-based user state.
-
 // 1. The idea is explained in https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
 
 // 	The server, has to check if the request comes with a cookie, if not, it has to send:
@@ -86,7 +84,6 @@
 // 2. The use via MHD is explained in https://www.gnu.org/software/libmicrohttpd/tutorial.html#Session-management
 
 // 3. The disclaimer has been added to config/static/cookies.htm
-
 
 
 /** \brief	 The application entry point.
