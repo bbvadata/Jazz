@@ -553,13 +553,22 @@ bool Api::http_get (APIParseBuffer &parse_buff, pMHD_Response &response)
 }
 
 
-/**
-//TODO: Document Api::get()
+/** Implements .get() interface to the Api Container.
+
+The Api is a Container (the root class) and includes all the one shot functionality (6 new block methods) and a deque to lock blocks.
+It does not implement get(), just defines the interface to be inherited. Api needs this extra method for keeping temporary blocks locked
+over possibly more than one http callback query (in uploads) and used by different threads.
+
+This is an implementation of the interface using block names and locators for the only purpose of storing Api-owned Blocks and have some
+mechanism to recall the same blocks across http PUT queries.
+
+	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_what	An L_value (locator) of the block being uploaded, that will be moved to the appropriate Container when upload is done.
+
+	\return			Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::get(pBlockKeeper *p_keeper,
-					pR_value	  p_rvalue,
-					pContainer	  p_sender,
-					BlockId64	  block_id)
+StatusCode Api::get(pBlockKeeper *p_keeper, pLocator p_what)
 {
 //TODO: Implement Api::get()
 
