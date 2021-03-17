@@ -109,13 +109,12 @@ int http_request_callback(void *cls,
 	parse_buffer.stack_size = 0;
 
 	struct MHD_Response *response = nullptr;
-	pBlockKeeper p_response_block_keeper = nullptr;
 
 	if (*con_cls == &state_upload_in_progress) {
 		if (*upload_data_size == 0)
 			goto create_response_answer_put_ok;
 
-		if (http_method != HTTP_PUT || API.parse(url, HTTP_PUT, parse_buffer) != PARSE_OK) {
+		if (http_method != HTTP_PUT || API.parse(url, HTTP_PUT, parse_buffer, false) != PARSE_OK) {
 			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
 
 			return MHD_NO;
