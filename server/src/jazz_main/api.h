@@ -190,6 +190,25 @@ class Api : public Container {
 	private:
 #endif
 
+		StatusCode _load_statics (const char *path);
+
+		StatusCode _parse_recurse  (pChar	&p_url,
+									int		 method,
+									L_value &l_value,
+									R_value &r_value,
+									bool	 execution,
+									int		 rec_level);
+
+		StatusCode _parse_exec_stage(pChar	 &p_url,
+									 int	  method,
+									 L_value &l_value,
+									 R_value &r_value);
+
+		StatusCode _parse_const_meta(pChar 		 &p_url,
+									 BlockHeader &hea);
+
+		StatusCode _parse_const_data(pChar 		  &p_url,
+									 pBlockKeeper *p_keeper);
 		pVolatile	p_volatile;
 		pRemote		p_remote;
 		pPersisted	p_persisted;
