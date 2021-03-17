@@ -263,7 +263,7 @@ class Container : public Service {
 	   // Service API
 
 		StatusCode start	   ();
-		StatusCode shut_down   (bool restarting_service = false);
+		StatusCode shut_down   ();
 
 		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 

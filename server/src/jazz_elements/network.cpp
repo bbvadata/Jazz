@@ -39,6 +39,7 @@
 
 namespace jazz_elements
 {
+
 /** A test write callback.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
@@ -102,16 +103,15 @@ StatusCode Cluster::start()
 	return SERVICE_NO_ERROR;
 }
 
-/**
-//TODO: Document Cluster::shut_down()
+
+/** Shuts down the Cluster Service
 */
-StatusCode Cluster::shut_down(bool restarting_service)
+StatusCode Cluster::shut_down()
 {
 //TODO: Implement Cluster::shut_down()
 
 	return SERVICE_NO_ERROR;
 }
-
 
 /*	-----------------------------------------------
 	 Remote : I m p l e m e n t a t i o n
@@ -132,10 +132,10 @@ StatusCode Remote::start()
 	return SERVICE_NO_ERROR;
 }
 
-/**
-//TODO: Document Remote::shut_down()
+
+/** Shuts down the Remote Service
 */
-StatusCode Remote::shut_down(bool restarting_service)
+StatusCode Remote::shut_down()
 {
 //TODO: Implement Remote::shut_down()
 
@@ -158,7 +158,6 @@ void Remote::base_names (BaseNames &base_names)
 	base_names["http_get"] = this;
 	base_names["http_put"] = this;
 }
-
 
 } // namespace jazz_elements
 

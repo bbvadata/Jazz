@@ -218,8 +218,8 @@ class Service {
 			     pConfigFile a_config);
 
 		/// A simple start()/shut_down() interface (Restart is: shut_down(TRUE):start())
-		virtual StatusCode start		();
-		virtual StatusCode shut_down	(bool restarting_service = false);
+		virtual StatusCode start	 ();
+		virtual StatusCode shut_down ();
 
 		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
 

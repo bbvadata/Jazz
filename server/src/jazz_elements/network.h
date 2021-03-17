@@ -79,8 +79,8 @@ class Cluster : public Service {
 		Cluster (pLogger	 a_logger,
 				 pConfigFile a_config);
 
-		StatusCode start		();
-		StatusCode shut_down	(bool restarting_service = false);
+		StatusCode start	 ();
+		StatusCode shut_down ();
 
 };
 
@@ -108,8 +108,8 @@ class Remote : public Container {
 				pConfigFile a_config,
 				pCluster	a_cluster);
 
-		StatusCode start		();
-		StatusCode shut_down	(bool restarting_service = false);
+		StatusCode start	 ();
+		StatusCode shut_down ();
 
 		void base_names (BaseNames &base_names);
 

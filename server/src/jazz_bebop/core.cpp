@@ -57,10 +57,10 @@ StatusCode Bebop::start()
 	return SERVICE_NO_ERROR;
 }
 
-/**
-//TODO: Document Bebop::shut_down()
+
+/** Shuts down the Bebop Service
 */
-StatusCode Bebop::shut_down(bool restarting_service)
+StatusCode Bebop::shut_down()
 {
 //TODO: Implement Bebop::shut_down()
 

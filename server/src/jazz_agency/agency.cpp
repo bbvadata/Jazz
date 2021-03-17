@@ -57,10 +57,10 @@ StatusCode Agency::start()
 	return SERVICE_NO_ERROR;
 }
 
-/**
-//TODO: Document Agency::shut_down()
+
+/** Shuts down the Agency Service
 */
-StatusCode Agency::shut_down(bool restarting_service)
+StatusCode Agency::shut_down()
 {
 //TODO: Implement Agency::shut_down()
 

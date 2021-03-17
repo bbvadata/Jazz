@@ -57,10 +57,10 @@ StatusCode Persisted::start()
 	return SERVICE_NO_ERROR;
 }
 
-/**
-//TODO: Document Persisted::shut_down()
+
+/** Shuts down the Persisted Service
 */
-StatusCode Persisted::shut_down(bool restarting_service)
+StatusCode Persisted::shut_down()
 {
 //TODO: Implement Persisted::shut_down()
 

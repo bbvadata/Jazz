@@ -205,7 +205,7 @@ This overrides the Service shut_down() just to set the return to SERVICE_NO_ERRO
 
 The true closing mechanism is a: MHD_stop_daemon (Jazz_MHD_Daemon); done by the signalHandler_SIGTERM() callback that captures SIGTERM.
 */
-StatusCode HttpServer::shut_down(bool restarting_service)
+StatusCode HttpServer::shut_down()
 {
 	return SERVICE_NO_ERROR;
 }

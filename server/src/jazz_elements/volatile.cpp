@@ -57,10 +57,10 @@ StatusCode Volatile::start()
 	return SERVICE_NO_ERROR;
 }
 
-/**
-//TODO: Document Volatile::shut_down()
+
+/** Shuts down the Persisted Service
 */
-StatusCode Volatile::shut_down(bool restarting_service)
+StatusCode Volatile::shut_down()
 {
 //TODO: Implement Volatile::shut_down()
 

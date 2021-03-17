@@ -70,8 +70,8 @@ class Volatile : public Container {
 		Volatile (pLogger	  a_logger,
 				  pConfigFile a_config);
 
-		StatusCode start		();
-		StatusCode shut_down	(bool restarting_service = false);
+		StatusCode start	 ();
+		StatusCode shut_down ();
 
 		void base_names (BaseNames &base_names);
 };

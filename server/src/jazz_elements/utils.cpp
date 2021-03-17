@@ -715,17 +715,14 @@ StatusCode Service::start()
 
 /** Stop the Service
 
-	\param restarting_service Informs the service that it is a restart. If a restart is error free, all services will be started
-	again. If not, it is a server shutdown.
-
 	\return SERVICE_NO_ERROR if successful, some error if not.
 
 	This method should be overriden by something that actually stops the service, possibly using the configuration file in pConf.
 */
-StatusCode Service::shut_down(bool restarting_service)
+StatusCode Service::shut_down()
 {
 #ifdef DEBUG
-	log_printf(LOG_DEBUG, "Service::shut_down(%i)", restarting_service);
+	log(LOG_DEBUG, "Service::shut_down(%i)");
 #endif
 
 	return SERVICE_NOT_IMPLEMENTED;
