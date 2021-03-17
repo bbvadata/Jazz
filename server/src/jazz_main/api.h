@@ -134,7 +134,7 @@ extern int http_request_callback   (void *cls,
 
 /** \brief Api: A Service to manage the REST API.
 
-This service parses and executes http queries. It is aware a redistributes to all the appropriate services and is called directly by
+This service parses and executes http queries. It is aware and redistributes to all the appropriate services. It is called directly by
 the http callback http_request_callback().
 
 */
