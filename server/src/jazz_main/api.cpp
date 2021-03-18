@@ -346,6 +346,40 @@ continue_in_put_ok:
 }
 
 /*	-----------------------------------------------
+	 Parser grammar definition
+--------------------------------------------------- */
+
+StateTransitions state_tr = {
+	{PSTATE_INITIAL,		PSTATE_CONST_INT,		"[0-9\\-]"},
+
+	{PSTATE_CONST_INT,		PSTATE_CONST_INT,		"[0-9]"},
+	{PSTATE_CONST_INT,		PSTATE_CONST_SEP_INT,	"[,]"},
+	{PSTATE_CONST_INT,		PSTATE_CONST_END_INT,	"[\\0\\x29\\x5b]"},
+	{PSTATE_CONST_INT,		PSTATE_CONST_REAL,		"[e\\.]"},
+
+	{PSTATE_CONST_REAL,		PSTATE_CONST_REAL,		"[0-9\\-]"},
+	{PSTATE_CONST_REAL,		PSTATE_CONST_SEP_REAL,	"[,]"},
+	{PSTATE_CONST_REAL,		PSTATE_CONST_END_REAL,	"[\\0\\x29\\x5b]"},
+
+	{PSTATE_INITIAL,		PSTATE_CONST_STR,		"[\\x22]"},
+
+	{PSTATE_CONST_STR,		PSTATE_CONST_STR,		"[A-Za-z0-9\\-_\\.~]"},
+	{PSTATE_CONST_STR,		PSTATE_CONST_SEP_STR,	"[\\x22]"},
+	{PSTATE_CONST_STR,		PSTATE_CONST_END_STR,	"[\\0\\x29\\x5b]"},
+	{PSTATE_CONST_STR,		PSTATE_CONST_STR_ENC,	"[0-9\\-]"},
+
+	{PSTATE_CONST_SEP_STR,	PSTATE_CONST_SEP_STR,	"[,]"},
+
+	{PSTATE_CONST_STR_ENC,	PSTATE_CONST_STR_ENC,	"[0-9\\-]"},
+	{PSTATE_CONST_STR_ENC,	PSTATE_CONST_STR,		"[0-9\\-]"},
+
+	{0, 0, ""}
+};
+
+
+StateSwitch parser_state;
+
+/*	-----------------------------------------------
 	 Api : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
