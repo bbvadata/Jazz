@@ -114,8 +114,39 @@ using namespace jazz_agency;
 
 #define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
+
+/** A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
-typedef bool CharLUT[EIGHT_BIT_LONG];
+struct NextStateLUT {
+	char next[EIGHT_BIT_LONG];
+};
+
+
+/** A lookup table for all the possible values of a char mapped into a a bool.
+*/
+typedef bool CharGroupLUT[EIGHT_BIT_LONG];
+
+
+/** A vector of NextStateLUT containing next states for all states and char combinations.
+*/
+struct StateSwitch {
+	NextStateLUT	next[MAX_NUM_PSTATES];
+};
+
+
+/** A way to build constants defining the transtition from one state to the next via a regex.
+*/
+struct StateTransition {
+	int  from;
+	int	 to;
+	char rex[MAX_TRANSITION_REGEX_LEN];
+};
+
+
+/** A vector of StateTransition.l This only runs once, when contruction the API object, initializes the LUTs from a sequence of
+StateTransition constants in the source of api.cpp.
+*/
+typedef StateTransition StateTransitions[NUM_STATE_TRANSITIONS];
 
 
 /** A map to convert urls to block names (in Persisted //static/).
