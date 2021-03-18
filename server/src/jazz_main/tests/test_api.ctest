@@ -54,7 +54,8 @@ Api			TT_API	  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &BOP, &EPI);
 
 SCENARIO("Testing api types") {
 
-	REQUIRE(sizeof(CharLUT) == 256);
+	REQUIRE(sizeof(NextStateLUT) == 256);
+	REQUIRE(sizeof(CharGroupLUT) == 256);
 }
 
 SCENARIO("Testing api initialization") {
