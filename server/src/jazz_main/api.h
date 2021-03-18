@@ -93,7 +93,27 @@ using namespace jazz_agency;
 #define PARSE_ERROR_NOT_A_STRING	4
 
 
-/** A lookup table for all the possible values of a char.
+/// Parsing states
+
+#define MAX_NUM_PSTATES					20		///< Maximum number of non error states the parser can be in
+#define MAX_TRANSITION_REGEX_LEN		32		///< Length of regex for state transitions. Used only in constants for LUT construction.
+#define NUM_STATE_TRANSITIONS			100		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+
+#define PSTATE_INITIAL					0		///< Parser state: Fist char of source string being parsed
+#define PSTATE_CONST_INT				1		///< Parser state: Parsing integers
+#define PSTATE_CONST_REAL				2		///< Parser state: Parsing real numbers
+#define PSTATE_CONST_STR				3		///< Parser state: Parsing strings
+#define PSTATE_CONST_STR_ENC			4		///< Parser state: Parsing url-encoding inside a string
+#define PSTATE_CONST_NAME				5		///< Parser state: Parsing a name
+#define PSTATE_CONST_SEP_INT			6		///< Parser state: Reached a cell separator while parsing integers
+#define PSTATE_CONST_SEP_REAL			7		///< Parser state: Reached a cell separator while parsing real numbers
+#define PSTATE_CONST_SEP_STR			8		///< Parser state: Reached a cell separator while parsing string
+#define PSTATE_CONST_END_INT			9		///< Parser state: Reached end of part or expression while parsing integers
+#define PSTATE_CONST_END_REAL			10		///< Parser state: Reached end of part or expression while parsing real numbers
+#define PSTATE_CONST_END_STR			11		///< Parser state: Reached end of part or expression while parsing string
+
+#define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
+
 */
 typedef bool CharLUT[EIGHT_BIT_LONG];
 
