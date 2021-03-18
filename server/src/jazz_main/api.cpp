@@ -401,6 +401,28 @@ Api::Api(pLogger	 a_logger,
 
 	tenbit_double_slash = TenBitsAtAddress("//");
 
+	memset(&parser_state, -1, sizeof(parser_state));
+
+	StateTransition *p_trans = reinterpret_cast<StateTransition *>(&state_tr);
+	while (true) {
+		if (!p_trans->to)
+			break;
+
+		NextStateLUT *p_next = &parser_state.next[p_trans->from];
+
+		std::regex rex(p_trans->rex);
+
+		char c_buf[4];
+		c_buf[1] = 0;
+
+		for (int i = 0; i < 256; i ++) {
+			c_buf[0] = i;
+			if (std::regex_match(c_buf, rex))
+				p_next->next[i] = p_trans->to;
+		};
+		p_trans++;
+	};
+
 	p_volatile	= a_volatile;
 	p_remote	= a_remote;
 	p_persisted	= a_persisted;
