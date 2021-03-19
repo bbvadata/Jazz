@@ -118,7 +118,7 @@ using namespace jazz_agency;
 /** A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
 struct NextStateLUT {
-	char next[EIGHT_BIT_LONG];
+	unsigned char next[EIGHT_BIT_LONG];
 };
 
 
