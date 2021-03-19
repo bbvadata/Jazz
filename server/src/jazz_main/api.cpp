@@ -464,20 +464,23 @@ Api::Api(pLogger	 a_logger,
 
 	StateTransition *p_trans = reinterpret_cast<StateTransition *>(&state_tr);
 	while (true) {
-		if (!p_trans->to)
+		if (p_trans->from == MAX_NUM_PSTATES)
 			break;
 
 		NextStateLUT *p_next = &parser_state.next[p_trans->from];
 
-		std::regex rex(p_trans->rex);
-
-		char c_buf[4];
-		c_buf[1] = 0;
+		std::regex  rex(p_trans->rex);
+		std::string s("-");
 
 		for (int i = 0; i < 256; i ++) {
-			c_buf[0] = i;
-			if (std::regex_match(c_buf, rex))
+			s[0] = i;
+			if (std::regex_match(s, rex)) {
+#ifdef DEBUG
+				if (p_next->next[i] != PSTATE_INVALID_CHAR)
+					throw 1;
+#endif
 				p_next->next[i] = p_trans->to;
+			}
 		};
 		p_trans++;
 	};
