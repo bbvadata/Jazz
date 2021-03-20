@@ -96,7 +96,7 @@ using namespace jazz_agency;
 
 /// Parsing states
 
-#define MAX_NUM_PSTATES					 38		///< Maximum number of non error states the parser can be in
+#define MAX_NUM_PSTATES					 39		///< Maximum number of non error states the parser can be in
 #define MAX_TRANSITION_REGEX_LEN		 48		///< Length of regex for state transitions. Used only in constants for LUT construction.
 #define NUM_STATE_TRANSITIONS			100		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
@@ -115,29 +115,30 @@ using namespace jazz_agency;
 #define PSTATE_CONST_IN_INT				 12		///< Parser state: Reached "[" (shape in) while parsing integers
 #define PSTATE_CONST_IN_REAL			 13		///< Parser state: Reached "[" (shape in) while parsing real numbers
 #define PSTATE_CONST_IN_STR				 14		///< Parser state: Reached "[" (shape in) while parsing string
-#define PSTATE_CONST_OUT_INT			 15		///< Parser state: Reached "]" (shape out) while parsing integers
-#define PSTATE_CONST_OUT_REAL			 16		///< Parser state: Reached "]" (shape out) while parsing real numbers
-#define PSTATE_CONST_OUT_STR			 17		///< Parser state: Reached "]" (shape out) while parsing string
-#define PSTATE_CONST_END_INT			 18		///< Parser state: Reached end of part or expression while parsing integers
-#define PSTATE_CONST_END_REAL			 19		///< Parser state: Reached end of part or expression while parsing real numbers
-#define PSTATE_CONST_END_STR			 20		///< Parser state: Reached end of part or expression while parsing string
-#define PSTATE_BASE_NAME				 21		///< Parser state: Parsing a base name
-#define PSTATE_CONTAINER_NAME			 22		///< Parser state: Parsing a container name
-#define PSTATE_BLOCK_NAME				 23		///< Parser state: Parsing a block name
-#define PSTATE_CONTRACT_NAME			 24		///< Parser state: Parsing a contract name
-#define PSTATE_KIND_NAME				 25		///< Parser state: Parsing a kind name
-#define PSTATE_ITEM_NAME				 26		///< Parser state: Parsing an item name
-#define PSTATE_DIMENSION_NAME			 27		///< Parser state: Parsing a dimension name
-#define PSTATE_TYPE_NAME				 28		///< Parser state: Parsing a type name
-#define PSTATE_SLICE					 29		///< Parser state: Parsing slicer "[" in a block
-#define PSTATE_BLOCK_CALL				 30		///< Parser state: Parsing call "(" in a block
-#define PSTATE_CONTRACT_CALL			 31		///< Parser state: Parsing call "(" in a contract
-#define PSTATE_END_CALL					 32		///< Parser state: Parsing closing call ")"
-#define PSTATE_LAST_COLON				 33		///< Parser state: A single ":" after and item mane of another ":" followed by [
-#define PSTATE_DOUBLE_COLON				 34		///< Parser state: The first ":" after a knd name
-#define PSTATE_SEP_ITEM					 35		///< Parser state: The "," that separates items
-#define PSTATE_SLASH					 36		///< Parser state: Parsing slash "/"
-#define PSTATE_DOT						 37		///< Parser state: Parsing dor "."
+#define PSTATE_CONST_IN_UNK				 15		///< Parser state: Reached "[" (shape in) before knowing what we are parsing
+#define PSTATE_CONST_OUT_INT			 16		///< Parser state: Reached "]" (shape out) while parsing integers
+#define PSTATE_CONST_OUT_REAL			 17		///< Parser state: Reached "]" (shape out) while parsing real numbers
+#define PSTATE_CONST_OUT_STR			 18		///< Parser state: Reached "]" (shape out) while parsing string
+#define PSTATE_CONST_END_INT			 19		///< Parser state: Reached end of part or expression while parsing integers
+#define PSTATE_CONST_END_REAL			 20		///< Parser state: Reached end of part or expression while parsing real numbers
+#define PSTATE_CONST_END_STR			 21		///< Parser state: Reached end of part or expression while parsing string
+#define PSTATE_BASE_NAME				 22		///< Parser state: Parsing a base name
+#define PSTATE_CONTAINER_NAME			 23		///< Parser state: Parsing a container name
+#define PSTATE_BLOCK_NAME				 24		///< Parser state: Parsing a block name
+#define PSTATE_CONTRACT_NAME			 25		///< Parser state: Parsing a contract name
+#define PSTATE_KIND_NAME				 26		///< Parser state: Parsing a kind name
+#define PSTATE_ITEM_NAME				 27		///< Parser state: Parsing an item name
+#define PSTATE_DIMENSION_NAME			 28		///< Parser state: Parsing a dimension name
+#define PSTATE_TYPE_NAME				 29		///< Parser state: Parsing a type name
+#define PSTATE_SLICE					 30		///< Parser state: Parsing slicer "[" in a block
+#define PSTATE_BLOCK_CALL				 31		///< Parser state: Parsing call "(" in a block
+#define PSTATE_CONTRACT_CALL			 32		///< Parser state: Parsing call "(" in a contract
+#define PSTATE_END_CALL					 33		///< Parser state: Parsing closing call ")"
+#define PSTATE_LAST_COLON				 34		///< Parser state: A single ":" after and item mane of another ":" followed by [
+#define PSTATE_DOUBLE_COLON				 35		///< Parser state: The first ":" after a knd name
+#define PSTATE_SEP_ITEM					 36		///< Parser state: The "," that separates items
+#define PSTATE_SLASH					 37		///< Parser state: Parsing slash "/"
+#define PSTATE_DOT						 38		///< Parser state: Parsing dor "."
 
 #define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
