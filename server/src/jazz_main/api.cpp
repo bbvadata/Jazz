@@ -779,15 +779,14 @@ StatusCode Api::_parse_exec_stage(pChar	&p_url, int method, L_value &l_value, R_
 
 It returns a BlockHeader that is necessary to allocate a block calling _parse_const_data() with it.
 
-	\param p_url A pointer to the first character of the constant.
-	\param hea	 A BlockHeader passed by reference that will be filled of success, possibly partially on failure.
+	\param p_url	A pointer to the first character of the constant.
+	\param p_block	A pointer to a BlockHeader (A Block with no alloc) that will be filled on success.
 
 	\return		 Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::_parse_const_meta(pChar &p_url, BlockHeader &hea)
+StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 {
 	int state = PSTATE_INITIAL;
-	int state_recency, next_state;
 	unsigned char cursor;
 
 	while (true) {

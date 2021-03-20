@@ -285,8 +285,8 @@ class Api : public Container {
 									 L_value &l_value,
 									 R_value &r_value);
 
-		StatusCode _parse_const_meta(pChar 		 &p_url,
-									 BlockHeader &hea);
+		StatusCode _parse_const_meta(pChar	 &p_url,
+									 pBlock	  p_block);
 
 		StatusCode _parse_const_data(pChar 		  &p_url,
 									 BlockHeader  &hea,
