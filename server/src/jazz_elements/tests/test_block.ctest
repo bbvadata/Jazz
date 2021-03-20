@@ -49,6 +49,8 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic") {
 		WHEN("We have a Block") {
 			Block jb;
 
+			REQUIRE(sizeof(Block) == 64);
+
 			THEN("We can check sizes and offsets") {
 				REQUIRE(sizeof(jb.created) == 8);
 				REQUIRE(sizeof(jb.hash64)  == 8);
