@@ -779,9 +779,31 @@ It returns a BlockHeader that is necessary to allocate a block calling _parse_co
 */
 StatusCode Api::_parse_const_meta(pChar &p_url, BlockHeader &hea)
 {
-//TODO: Implement Api::_parse_const_meta()
+	int state = PSTATE_INITIAL;
+	int state_recency, next_state;
+	unsigned char cursor;
 
-	return false;
+	while (true) {
+		cursor		  = p_url++[0];
+		next_state	  = parser_state_switch.state[state].next[cursor];
+		state_recency = next_state == state ? state_recency + 1 : 0;
+		state		  = next_state;
+
+		switch (state) {
+		case PSTATE_CONST_END_INT:
+			/* code */
+			break;
+
+		case PSTATE_CONST_END_REAL:
+			/* code */
+			break;
+
+		case PSTATE_CONST_END_STR:
+			/* code */
+			break;
+
+		}
+	}
 }
 
 
