@@ -85,12 +85,14 @@ using namespace jazz_agency;
 
 /// Parser return codes
 
-#define PARSE_OK					0		///< Success.
-#define GET_OK						0		///< Success.
-#define PARSE_NOT_IMPLEMENTED		-1		// TODO: remove this const
-#define PARSE_ERROR_INVALID_CHAR	1		///< Error unexpected char.
-#define PARSE_ERROR_INVALID_SHAPE	2		///< Sequence of [] is inconsistent with a tensor.
-#define PARSE_ERROR_ENCODING		3		///< Wrong utf8 decoding (length does not match expected length).
+#define PARSE_OK						 0		///< Success.
+#define GET_OK							 0		///< Success.
+#define PARSE_NOT_IMPLEMENTED			-1		// TODO: remove this const
+#define PARSE_ERROR_INVALID_CHAR		 1		///< Error unexpected char.
+#define PARSE_ERROR_INVALID_SHAPE		 2		///< Sequence of [] is inconsistent with a tensor.
+#define PARSE_ERROR_ENCODING			 3		///< Wrong utf8 decoding (length does not match expected length).
+#define PARSE_ERROR_TOO_DEEP			 4		///< Number of shape dimensions exceed MAX_TENSOR_RANK in a constant.
+#define PARSE_BRACKET_MISMATCH			 5		///< Number of [ in constant does not match number of ].
 
 /// Parsing states
 
