@@ -897,9 +897,18 @@ It returns a locked (one shot) block that must be unlocked in the same http quer
 */
 StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pBlockKeeper *p_keeper)
 {
-//TODO: Implement Api::_parse_const_data()
+	int state = PSTATE_INITIAL;
+	int state_recency, next_state;
+	unsigned char cursor;
 
-	return PARSE_NOT_IMPLEMENTED;
+	while (true) {
+		cursor		  = p_url++[0];
+		next_state	  = parser_state_switch.state[state].next[cursor];
+		state_recency = next_state == state ? state_recency + 1 : 0;
+		state		  = next_state;
+
+		return PARSE_NOT_IMPLEMENTED;
+	}
 }
 
 } // namespace jazz_main
