@@ -102,14 +102,14 @@ using namespace jazz_agency;
 #define PSTATE_CONST_INT				  1		///< Parser state: Parsing integers
 #define PSTATE_CONST_REAL				  2		///< Parser state: Parsing real numbers
 #define PSTATE_CONST_STR0				  3		///< Parser state: Parsing strings (first char == ")
-#define PSTATE_CONST_STRn				  4		///< Parser state: Parsing strings (real content)
+#define PSTATE_CONST_STR				  4		///< Parser state: Parsing strings (real content)
 #define PSTATE_CONST_STR_ENC0			  5		///< Parser state: Parsing url-encoding inside a string (after %)
 #define PSTATE_CONST_STR_ENC1			  6		///< Parser state: Parsing url-encoding inside a string (after 1st hex)
 #define PSTATE_CONST_STR_ENC2			  7		///< Parser state: Parsing url-encoding inside a string (after 2nd hex)
 #define PSTATE_CONST_SEP_INT			  8		///< Parser state: Reached a cell separator while parsing integers
 #define PSTATE_CONST_SEP_REAL			  9		///< Parser state: Reached a cell separator while parsing real numbers
 #define PSTATE_CONST_SEP_STR0			 10		///< Parser state: Reached a cell separator while parsing string (first char ")
-#define PSTATE_CONST_SEP_STRn			 11		///< Parser state: Reached a cell separator while parsing string (comma and spaces)
+#define PSTATE_CONST_SEP_STR			 11		///< Parser state: Reached a cell separator while parsing string (comma and spaces)
 #define PSTATE_CONST_IN_INT				 12		///< Parser state: Reached "[" (shape in) while parsing integers
 #define PSTATE_CONST_IN_REAL			 13		///< Parser state: Reached "[" (shape in) while parsing real numbers
 #define PSTATE_CONST_IN_STR				 14		///< Parser state: Reached "[" (shape in) while parsing string
