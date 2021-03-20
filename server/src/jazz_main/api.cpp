@@ -680,9 +680,8 @@ callback, but it is not intended for any other context.
 */
 bool Api::remove (APIParseBuffer &parse_buff)
 {
-//TODO: Implement Api::remove()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -699,9 +698,8 @@ for the callback, but it is not intended for any other context.
 */
 bool Api::http_get (APIParseBuffer &parse_buff, pMHD_Response &response)
 {
-//TODO: Implement Api::http_get()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -722,9 +720,8 @@ mechanism to recall the same blocks across http PUT queries.
 */
 StatusCode Api::get(pBlockKeeper *p_keeper, pLocator p_what)
 {
-//TODO: Implement Api::get()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -755,7 +752,7 @@ StatusCode Api::_load_statics (const char *path)
 {
 //TODO: Implement Api::_load_statics()
 
-	return PARSE_NOT_IMPLEMENTED;
+	return 0;
 }
 
 
@@ -763,7 +760,6 @@ StatusCode Api::_load_statics (const char *path)
 */
 StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_value &r_value, bool execution, int rec_level)
 {
-//TODO: Implement Api::_parse_recurse()
 
 	return PARSE_NOT_IMPLEMENTED;
 }
@@ -774,7 +770,6 @@ execution part (done inside _parse_recurse()). See the documentation of Api.pars
 */
 StatusCode Api::_parse_exec_stage(pChar	&p_url, int method, L_value &l_value, R_value &r_value)
 {
-//TODO: Implement Api::_parse_exec_stage()
 
 	return PARSE_NOT_IMPLEMENTED;
 }
