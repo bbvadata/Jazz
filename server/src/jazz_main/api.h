@@ -155,7 +155,7 @@ typedef bool CharGroupLUT[EIGHT_BIT_LONG];
 /** A vector of NextStateLUT containing next states for all states and char combinations.
 */
 struct StateSwitch {
-	NextStateLUT	next[MAX_NUM_PSTATES];
+	NextStateLUT	state[MAX_NUM_PSTATES];
 };
 
 

@@ -436,7 +436,7 @@ StateTransitions state_tr = {
 };
 
 
-StateSwitch parser_state;
+StateSwitch parser_state_switch;
 
 /*	-----------------------------------------------
 	 Api : I m p l e m e n t a t i o n
@@ -460,14 +460,14 @@ Api::Api(pLogger	 a_logger,
 
 	tenbit_double_slash = TenBitsAtAddress("//");
 
-	memset(&parser_state, -1, sizeof(parser_state));
+	memset(&parser_state_switch, -1, sizeof(parser_state_switch));
 
 	StateTransition *p_trans = reinterpret_cast<StateTransition *>(&state_tr);
 	while (true) {
 		if (p_trans->from == MAX_NUM_PSTATES)
 			break;
 
-		NextStateLUT *p_next = &parser_state.next[p_trans->from];
+		NextStateLUT *p_next = &parser_state_switch.state[p_trans->from];
 
 		std::regex  rex(p_trans->rex);
 		std::string s("-");
