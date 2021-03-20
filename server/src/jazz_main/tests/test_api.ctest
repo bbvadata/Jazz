@@ -94,12 +94,18 @@ SCENARIO("Testing api initialization") {
 
 SCENARIO("Testing api.parse") {
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
+	GIVEN("We test Api::_parse_const_meta") {
+		BlockHeader hea;
+
+		char buff[SAFE_URL_LENGTH];
+
+		pChar p_buff;
+
+		strcpy(buff, "[[1,2,3],[4,5,6]]");
+
+		p_buff = (pChar) &buff;
+		REQUIRE(TT_API._parse_const_meta(p_buff, hea) == 0);
+
 	}
 }
 
