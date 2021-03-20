@@ -789,25 +789,96 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 	int state = PSTATE_INITIAL;
 	unsigned char cursor;
 
+	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
+	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
+
+	int level = -1;
+
 	while (true) {
-		cursor		  = p_url++[0];
-		next_state	  = parser_state_switch.state[state].next[cursor];
-		state_recency = next_state == state ? state_recency + 1 : 0;
-		state		  = next_state;
+		cursor = p_url++[0];
+		state  = parser_state_switch.state[state].next[cursor];
 
 		switch (state) {
 		case PSTATE_CONST_END_INT:
-			/* code */
-			break;
-
 		case PSTATE_CONST_END_REAL:
-			/* code */
-			break;
-
 		case PSTATE_CONST_END_STR:
-			/* code */
+			if (level != 0)
+				return PARSE_BRACKET_MISMATCH;
+
+			if (shape.dim[0] < 0)
+				shape.dim[0] = n_item.dim[0];
+
+			memset(&p_block, 0, sizeof(Block));
+
+			switch (state) {
+			case PSTATE_CONST_END_INT:
+				p_block->cell_type = CELL_TYPE_INTEGER;
+				break;
+			case PSTATE_CONST_END_REAL:
+				p_block->cell_type = CELL_TYPE_DOUBLE;
+				break;
+			case PSTATE_CONST_END_STR:
+				p_block->cell_type = CELL_TYPE_STRING;
+				break;
+			}
+			p_block->set_dimensions(shape.dim);
+
+			return PARSE_OK;
+
+		case PSTATE_CONST_INT:
+		case PSTATE_CONST_REAL:
+		case PSTATE_CONST_STR0:
+			if (level < 0)
+				level = 0;
 			break;
 
+		case PSTATE_CONST_IN_INT:
+		case PSTATE_CONST_IN_REAL:
+		case PSTATE_CONST_IN_STR:
+		case PSTATE_CONST_IN_UNK:
+			if (cursor == '[') {
+				level++;
+				if (level >= MAX_TENSOR_RANK)
+					return PARSE_ERROR_TOO_DEEP;
+				n_item.dim[level] = 0;
+			};
+			break;
+
+		case PSTATE_CONST_OUT_INT:
+		case PSTATE_CONST_OUT_REAL:
+		case PSTATE_CONST_OUT_STR:
+			if (cursor == ']') {
+				n_item.dim[level]++;
+				if (shape.dim[level] < 0) {
+					shape.dim[level] = n_item.dim[level];
+				} else {
+					if (shape.dim[level] != n_item.dim[level])
+						return PARSE_ERROR_INVALID_SHAPE;
+				};
+				level--;
+				if (level < 0)
+					return PARSE_BRACKET_MISMATCH;
+			};
+			break;
+
+		case PSTATE_CONST_SEP_INT:
+		case PSTATE_CONST_SEP_REAL:
+		case PSTATE_CONST_SEP_STR:
+			if (cursor == ',') {
+				n_item.dim[level]++;
+			};
+			break;
+
+		case PSTATE_INITIAL:
+		case PSTATE_CONST_STR:
+		case PSTATE_CONST_SEP_STR0:
+		case PSTATE_CONST_STR_ENC0:
+		case PSTATE_CONST_STR_ENC1:
+		case PSTATE_CONST_STR_ENC2:
+			break;
+
+		default:
+			return PARSE_ERROR_INVALID_CHAR;
 		}
 	}
 }
