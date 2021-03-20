@@ -721,7 +721,7 @@ StatusCode Api::_load_statics (const char *path)
 {
 //TODO: Implement Api::_load_statics()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -731,7 +731,7 @@ StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_va
 {
 //TODO: Implement Api::_parse_recurse()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -742,7 +742,7 @@ StatusCode Api::_parse_exec_stage(pChar	&p_url, int method, L_value &l_value, R_
 {
 //TODO: Implement Api::_parse_exec_stage()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -778,7 +778,7 @@ StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pBlockKeeper *
 {
 //TODO: Implement Api::_parse_const_data()
 
-	return false;
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 } // namespace jazz_main

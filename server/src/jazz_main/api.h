@@ -87,6 +87,7 @@ using namespace jazz_agency;
 
 #define PARSE_OK					0		///< Success.
 #define GET_OK						0		///< Success.
+#define PARSE_NOT_IMPLEMENTED		-1		// TODO: remove this const
 #define PARSE_ERROR_INVALID_CHAR	1		///< Error unexpected char.
 #define PARSE_ERROR_INVALID_SHAPE	2		///< Sequence of [] is inconsistent with a tensor.
 #define PARSE_ERROR_ENCODING		3		///< Wrong utf8 decoding (length does not match expected length).
