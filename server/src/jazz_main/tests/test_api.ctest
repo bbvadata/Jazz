@@ -54,7 +54,7 @@ Api			TT_API	  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &BOP, &EPI);
 // -----------------
 
 bool test_parse_const_meta (const char * p_query,
-							int expected_ret  = 0,
+							int expected_ret,
 							int expected_type = 0,
 							int expected_rank = 0,
 							int expected_dim0 = 0,
@@ -74,8 +74,7 @@ bool test_parse_const_meta (const char * p_query,
 
 	int ret = TT_API._parse_const_meta(p_buff, &block_hea);
 
-	if (expected_ret)
-		REQUIRE(ret == expected_ret);
+	REQUIRE(ret == expected_ret);
 
 	if (expected_type)
 		REQUIRE(block_hea.cell_type == expected_type);
