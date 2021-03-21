@@ -795,7 +795,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
 
-	int level = -1;
+	int level = -1, tot_items = 0, item = 0;
 
 	while (true) {
 		cursor = p_url++[0];
@@ -826,6 +826,9 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			}
 			p_block->set_dimensions(shape.dim);
 
+			if (p_block->size != tot_items)
+				return PARSE_ERROR_INVALID_SHAPE;
+
 			return PARSE_OK;
 
 		case PSTATE_CONST_INT:
@@ -833,6 +836,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_STR0:
 			if (level < 0)
 				level = 0;
+			item = 1;
 			break;
 
 		case PSTATE_CONST_IN_INT:
@@ -843,6 +847,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 				level++;
 				if (level >= MAX_TENSOR_RANK)
 					return PARSE_ERROR_TOO_DEEP;
+
 				n_item.dim[level] = 0;
 			};
 			break;
@@ -852,6 +857,9 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_OUT_STR:
 			if (cursor == ']') {
 				n_item.dim[level]++;
+				tot_items += item;
+				item = 0;
+
 				if (shape.dim[level] < 0) {
 					shape.dim[level] = n_item.dim[level];
 				} else {
@@ -869,6 +877,8 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_SEP_STR:
 			if (cursor == ',') {
 				n_item.dim[level]++;
+				tot_items += item;
+				item = 0;
 			};
 			break;
 
