@@ -49,6 +49,64 @@ Remote		REMOTE	  (&LOGGER, &CONFIG, &CLUSTER);
 Volatile	VOLATILE  (&LOGGER, &CONFIG);
 Api			TT_API	  (&LOGGER, &CONFIG, &VOLATILE, &REMOTE, &PERSISTED, &BOP, &EPI);
 
+
+// Testing utilities
+// -----------------
+
+bool test_parse_const_meta (const char * p_query,
+							int expected_ret  = 0,
+							int expected_type = 0,
+							int expected_rank = 0,
+							int expected_dim0 = 0,
+							int expected_dim1 = 0,
+							int expected_dim2 = 0,
+							int expected_dim3 = 0,
+							int expected_dim4 = 0,
+							int expected_dim5 = 0)
+{
+	Block		block_hea;
+	char		buff[SAFE_URL_LENGTH];
+	TensorDim	td;
+
+	strcpy(buff, p_query);
+
+	pChar p_buff = (pChar) &buff;
+
+	int ret = TT_API._parse_const_meta(p_buff, &block_hea);
+
+	if (expected_ret)
+		REQUIRE(ret == expected_ret);
+
+	if (expected_type)
+		REQUIRE(block_hea.cell_type == expected_type);
+
+	if (expected_rank)
+		REQUIRE(block_hea.rank == expected_rank);
+
+	block_hea.get_dimensions((int *)&td.dim);
+
+	if (expected_dim0)
+		REQUIRE(td.dim[0] == expected_dim0);
+
+	if (expected_dim1)
+		REQUIRE(td.dim[1] == expected_dim1);
+
+	if (expected_dim2)
+		REQUIRE(td.dim[2] == expected_dim2);
+
+	if (expected_dim3)
+		REQUIRE(td.dim[3] == expected_dim3);
+
+	if (expected_dim4)
+		REQUIRE(td.dim[4] == expected_dim4);
+
+	if (expected_dim5)
+		REQUIRE(td.dim[5] == expected_dim5);
+
+	return true;
+}
+
+
 // Tests
 // -----
 
