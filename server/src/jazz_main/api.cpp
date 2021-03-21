@@ -795,7 +795,8 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
 
-	int level = -1, tot_items = 0, item = 0;
+	int level = -1, tot_items = 0, item = 0, max_level = 0;
+	bool no_brackets = true;
 
 	while (true) {
 		cursor = p_url++[0];
@@ -805,11 +806,17 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_END_INT:
 		case PSTATE_CONST_END_REAL:
 		case PSTATE_CONST_END_STR:
+			if (level == 0 & no_brackets) {
+				n_item.dim[0]++;
+				tot_items += item;
+
+				if (shape.dim[0] < 0)
+					shape.dim[0] = n_item.dim[0];
+
+				level--;
+			}
 			if (level != -1)
 				return PARSE_BRACKET_MISMATCH;
-
-			if (shape.dim[0] < 0)
-				shape.dim[0] = n_item.dim[0];
 
 			memset(p_block, 0, sizeof(Block));
 
@@ -848,7 +855,14 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_IN_STR:
 		case PSTATE_CONST_IN_UNK:
 			if (cursor == '[') {
+				no_brackets = false;
 				level++;
+				if (tot_items) {
+					if (level > max_level)
+						return PARSE_ERROR_INVALID_SHAPE;
+				} else {
+					max_level = level;
+				}
 				if (level >= MAX_TENSOR_RANK)
 					return PARSE_ERROR_TOO_DEEP;
 
