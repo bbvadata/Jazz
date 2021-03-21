@@ -811,7 +811,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			if (shape.dim[0] < 0)
 				shape.dim[0] = n_item.dim[0];
 
-			memset(&p_block, 0, sizeof(Block));
+			memset(p_block, 0, sizeof(Block));
 
 			switch (state) {
 			case PSTATE_CONST_END_INT:
