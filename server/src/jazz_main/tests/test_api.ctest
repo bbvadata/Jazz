@@ -153,16 +153,60 @@ SCENARIO("Testing api initialization") {
 SCENARIO("Testing api.parse") {
 
 	GIVEN("We test Api::_parse_const_meta") {
-		Block block_hea;
+		REQUIRE(test_parse_const_meta("[11,22,33]", PARSE_OK, CELL_TYPE_INTEGER, 1, 3));
+		REQUIRE(test_parse_const_meta(" [ 11 , 22 , 33 ] ", PARSE_OK, CELL_TYPE_INTEGER, 1, 3));
+		REQUIRE(test_parse_const_meta(" [ 11 , 2 2 , 33 ] ", PARSE_ERROR_INVALID_CHAR));
 
-		char buff[SAFE_URL_LENGTH];
+		REQUIRE(test_parse_const_meta("[[[1,2,3], [4,5,6]], [[1,-2,-3], [4,5,6]], [[1,2,3], [4,-5,-6]], [[1,2,3], [-4,-5,-6]]]",
+									  PARSE_OK, CELL_TYPE_INTEGER, 3, 4, 2, 3));
 
-		pChar p_buff;
+		REQUIRE(test_parse_const_meta(" [ [ [ 1 , 2 , 3 ]\t ,\t [4 , 5 , 6 ] ] , [ [ 1\t , -2\t, -3], [ 4 , 5 , 6 ] ] ]\t",
+									  PARSE_OK, CELL_TYPE_INTEGER, 3, 2, 2, 3));
+		REQUIRE(test_parse_const_meta(" [ [ [ 1 , 2 , 3 ] , [4 , 5 , 6 ] ] , [ [ 1 , - 2, -3], [ 4 , 5 , 6 ] ] ]",
+									  PARSE_ERROR_INVALID_CHAR));
 
-		strcpy(buff, "[[1,2,3],[4,5,6]]");
+		REQUIRE(test_parse_const_meta("[[[1,2], [3,4], [-5,-6]], [[-1,22], [33,-4], [555,-66]], [[1,2], [3,4], [5,6]]]",
+									  PARSE_OK, CELL_TYPE_INTEGER, 3, 3, 3, 2));
 
-		p_buff = (pChar) &buff;
-		REQUIRE(TT_API._parse_const_meta(p_buff, &block_hea) == 0);
+		REQUIRE(test_parse_const_meta("[[[1,2], [3,4], [-5,-6]], [[-1,22], [33,-4], [555,-66]], 9]", PARSE_ERROR_INVALID_SHAPE));
+
+		REQUIRE(test_parse_const_meta( "[[[[[[1,2,3], [4,5,6]]]]]]",  PARSE_OK, CELL_TYPE_INTEGER, 6, 1, 1, 1, 1, 2, 3));
+		REQUIRE(test_parse_const_meta("[[[[[[[1,2,3], [4,5,6]]]]]]]", PARSE_ERROR_TOO_DEEP));
+		REQUIRE(test_parse_const_meta( "[[[[[[1,2,3], [4,5,6]]]]]",	  PARSE_BRACKET_MISMATCH));
+		REQUIRE(test_parse_const_meta(  "[[[[[1,2,3], [4,5,6]]]]]]",  PARSE_BRACKET_MISMATCH));
+		REQUIRE(test_parse_const_meta( "[[[[[[1,2,3], [4,5]]]]]]",	  PARSE_ERROR_INVALID_SHAPE));
+
+		REQUIRE(test_parse_const_meta( "", PARSE_ERROR_INVALID_CHAR));
+		REQUIRE(test_parse_const_meta( "[]", PARSE_ERROR_INVALID_CHAR));
+		REQUIRE(test_parse_const_meta( "[1,2,3,[]]", PARSE_ERROR_INVALID_CHAR));
+		REQUIRE(test_parse_const_meta( "[1,2,3,[4]]", PARSE_ERROR_INVALID_SHAPE));
+
+		REQUIRE(test_parse_const_meta( "[1,2,3,\"5\"]", PARSE_ERROR_INVALID_CHAR));
+
+		REQUIRE(test_parse_const_meta("[11,22.1,33]", PARSE_OK, CELL_TYPE_DOUBLE, 1, 3));
+
+		REQUIRE(test_parse_const_meta("[[[1e1,2,3], [4,5,6]], [[1,-2,-3], [4,5,6]], [[1,2,3], [4,-5,-6]], [[1,2,3], [-4,-5,-6]]]",
+									  PARSE_OK, CELL_TYPE_DOUBLE, 3, 4, 2, 3));
+		REQUIRE(test_parse_const_meta("[[[1,2,3], [4,5,6]], [[1,-2,-3], [4,5,6]], [[1,2,3], [4,-5.2e-3,-6]], [[1,2,3], [-4,-5,-6]]]",
+									  PARSE_OK, CELL_TYPE_DOUBLE, 3, 4, 2, 3));
+
+		REQUIRE(test_parse_const_meta( "[[[[[[1.0,2,3], [4,5,6]]]]]]",  PARSE_OK, CELL_TYPE_DOUBLE, 6, 1, 1, 1, 1, 2, 3));
+		REQUIRE(test_parse_const_meta("[[[[[[[1.0,2,3], [4,5,6]]]]]]]", PARSE_ERROR_TOO_DEEP));
+		REQUIRE(test_parse_const_meta( "[[[[[[1.0,2,3], [4,5,6]]]]]",	PARSE_BRACKET_MISMATCH));
+		REQUIRE(test_parse_const_meta(  "[[[[[1.0,2,3], [4,5,6]]]]]]",  PARSE_BRACKET_MISMATCH));
+		REQUIRE(test_parse_const_meta( "[[[[[[1.0,2,3], [4,5]]]]]]",	PARSE_ERROR_INVALID_SHAPE));
+
+		REQUIRE(test_parse_const_meta( "[]", PARSE_ERROR_INVALID_CHAR));
+		REQUIRE(test_parse_const_meta( "[1.0,2,3,[]]", PARSE_ERROR_INVALID_CHAR));
+		REQUIRE(test_parse_const_meta( "[1.0,2,3,[4]]", PARSE_ERROR_INVALID_SHAPE));
+
+		REQUIRE(test_parse_const_meta("[[[1,2], [3.,4], [-5,-6]], [[-1,22], [33,-4], [555,-66]], [[1,2], [3,4], [5,6]]]",
+									  PARSE_OK, CELL_TYPE_DOUBLE, 3, 3, 3, 2));
+
+		REQUIRE(test_parse_const_meta("[[[1,2], [.3,4], [-5,-6]], [[-1,22], [33,-4], [555,-66]], [[1,2], [3,4], [5,6]]]",
+									  PARSE_OK, CELL_TYPE_DOUBLE, 3, 3, 3, 2));
+
+		REQUIRE(test_parse_const_meta("[[[1,2], [.3,4], [-5,-6]], [[-1,22], [33,-4], [555,-66]], 9]", PARSE_ERROR_INVALID_SHAPE));
 	}
 }
 
