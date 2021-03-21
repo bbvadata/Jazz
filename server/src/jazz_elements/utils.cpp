@@ -88,7 +88,7 @@ int CountBytesFromUtf8(char *buff, int length)
 			buff  += 2;
 			bytes += 2;
 		}
-		else if ((lb & 0xF8 ) == 0xF0) {	// 1111 0xxx
+		else if ((lb & 0xF8) == 0xF0) {		// 1111 0xxx
 			buff  += 3;
 			bytes += 3;
 		}
