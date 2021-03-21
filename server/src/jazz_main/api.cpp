@@ -805,7 +805,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_END_INT:
 		case PSTATE_CONST_END_REAL:
 		case PSTATE_CONST_END_STR:
-			if (level != 0)
+			if (level != -1)
 				return PARSE_BRACKET_MISMATCH;
 
 			if (shape.dim[0] < 0)
@@ -834,8 +834,12 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_INT:
 		case PSTATE_CONST_REAL:
 		case PSTATE_CONST_STR0:
-			if (level < 0)
+			if (level < 0) {
+				if (tot_items > 0)
+					return PARSE_BRACKET_MISMATCH;
+
 				level = 0;
+			}
 			item = 1;
 			break;
 
@@ -856,6 +860,9 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_OUT_REAL:
 		case PSTATE_CONST_OUT_STR:
 			if (cursor == ']') {
+				if (level < 0)
+					return PARSE_BRACKET_MISMATCH;
+
 				n_item.dim[level]++;
 				tot_items += item;
 				item = 0;
@@ -867,8 +874,6 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 						return PARSE_ERROR_INVALID_SHAPE;
 				};
 				level--;
-				if (level < 0)
-					return PARSE_BRACKET_MISMATCH;
 			};
 			break;
 
