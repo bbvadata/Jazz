@@ -812,12 +812,12 @@ It returns a BlockHeader that is necessary to allocate a block calling _parse_co
 StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 {
 	int state = PSTATE_INITIAL;
-	unsigned char cursor;
+	unsigned char cursor, url_enc_byte;
 
 	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
 
-	int level = -1, tot_items = 0, item = 0, max_level = 0;
+	int level = -1, tot_items = 0, item = 0, max_level = 0, utf8_len = 0;
 	bool no_brackets = true;
 
 	while (true) {
@@ -860,9 +860,12 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 
 			return PARSE_OK;
 
+		case PSTATE_CONST_STR0:
+			if (utf8_len)
+				return PARSE_ERROR_ENCODING;
+
 		case PSTATE_CONST_INT:
 		case PSTATE_CONST_REAL:
-		case PSTATE_CONST_STR0:
 			if (level < 0) {
 				if (tot_items > 0)
 					return PARSE_BRACKET_MISMATCH;
@@ -892,9 +895,12 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			};
 			break;
 
+		case PSTATE_CONST_OUT_STR:
+			if (utf8_len)
+				return PARSE_ERROR_ENCODING;
+
 		case PSTATE_CONST_OUT_INT:
 		case PSTATE_CONST_OUT_REAL:
-		case PSTATE_CONST_OUT_STR:
 			if (cursor == ']') {
 				if (level < 0)
 					return PARSE_BRACKET_MISMATCH;
@@ -913,9 +919,12 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			};
 			break;
 
+		case PSTATE_CONST_SEP_STR:
+			if (utf8_len)
+				return PARSE_ERROR_ENCODING;
+
 		case PSTATE_CONST_SEP_INT:
 		case PSTATE_CONST_SEP_REAL:
-		case PSTATE_CONST_SEP_STR:
 			if (cursor == ',') {
 				n_item.dim[level]++;
 				tot_items += item;
@@ -923,12 +932,36 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			};
 			break;
 
-		case PSTATE_INITIAL:
 		case PSTATE_CONST_STR:
+			if (utf8_len)
+				return PARSE_ERROR_ENCODING;
+
+			break;
+
+		case PSTATE_CONST_STR_ENC1:
+			url_enc_byte = hex_hi_LUT.next[cursor];
+
+			break;
+
+		case PSTATE_CONST_STR_ENC2:
+			if (utf8_len) {
+				utf8_len--;
+			} else {
+				url_enc_byte += hex_lo_LUT.next[cursor];
+
+				if		((url_enc_byte & 0xE0) == 0xC0)	// 110x xxxx
+					utf8_len = 1;
+				else if ((url_enc_byte & 0xF0) == 0xE0)	// 1110 xxxx
+					utf8_len = 2;
+				else if ((url_enc_byte & 0xF8) == 0xF0)	// 1111 0xxx
+					utf8_len = 3;
+			}
+
+			break;
+
+		case PSTATE_INITIAL:
 		case PSTATE_CONST_SEP_STR0:
 		case PSTATE_CONST_STR_ENC0:
-		case PSTATE_CONST_STR_ENC1:
-		case PSTATE_CONST_STR_ENC2:
 			break;
 
 		default:
