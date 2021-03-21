@@ -477,7 +477,8 @@ PSTATE_BASE_NAME
 };
 
 
-StateSwitch parser_state_switch;
+StateSwitch  parser_state_switch;
+NextStateLUT hex_hi_LUT, hex_lo_LUT;
 
 /*	-----------------------------------------------
 	 Api : I m p l e m e n t a t i o n
@@ -524,6 +525,23 @@ Api::Api(pLogger	 a_logger,
 			}
 		};
 		p_trans++;
+	};
+
+	memset(&hex_hi_LUT, 0, sizeof(NextStateLUT));
+	memset(&hex_lo_LUT, 0, sizeof(NextStateLUT));
+
+	int i = 0;
+	for (unsigned char c = '0'; c <= '9'; c++) {
+		hex_hi_LUT.next[c] = 0x10*i;
+		hex_lo_LUT.next[c] = i++;
+	};
+
+	i = 0x0a;
+	for (unsigned char c = 'A'; c <= 'F'; c++) {
+		hex_hi_LUT.next[c + 0x20] = 0x10*i;
+		hex_hi_LUT.next[c]		  = 0x10*i;
+		hex_lo_LUT.next[c + 0x20] = i;
+		hex_lo_LUT.next[c]		  = i++;
 	};
 
 	p_volatile	= a_volatile;
