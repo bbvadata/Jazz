@@ -112,16 +112,14 @@ class Block: public BlockHeader {
 			\param pDim A pointer to the TensorDim containing the dimensions.
 
 			NOTES: 1. This writes: rank, range[] and size.
-				   2. Except in the first position, a dimension 0 is the same as 1, only dimensions >1 count for the rank.
-				   3. Except in the first position, all >1 dimensions must be in the beginning. 3,2,1,4 == 3,2,0,0 has rank == 2
-				   4. All dimensions == 0 (or 1) has rank == 1 and size == 0 or 1 depending on the first dimension being 0 or 1.
-				   5. First dimension == 0 (or 1) and 2nd+ > 1 produce rank > 1 with 0 (or 1) rows.
+				   2. rank counts the number of dimension >0, except, when all dimensions == 0 produces: rank == 1, size == 0
+				   3. size returns the size in number of cells, not bytes.
 		*/
 		inline void set_dimensions(int *pDim) {
 			rank = MAX_TENSOR_RANK;
 			int j = 1;
 			for (int i = MAX_TENSOR_RANK -1; i > 0; i--)
-				if (pDim[i] > 1) { range.dim[i] = j; j *= pDim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
+				if (pDim[i] > 0) { range.dim[i] = j; j *= pDim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
 			range.dim[0] = j;
 			j			*= pDim[0];
 			size		 = j;
