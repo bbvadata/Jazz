@@ -151,7 +151,7 @@ SCENARIO("Testing api initialization") {
 
 SCENARIO("Testing api.parse") {
 
-	GIVEN("We test Api::_parse_const_meta") {
+	GIVEN("We test Api::_parse_const_meta for tensors") {
 		REQUIRE(test_parse_const_meta("[11,22,33]", PARSE_OK, CELL_TYPE_INTEGER, 1, 3));
 		REQUIRE(test_parse_const_meta(" [ 11, 22, 33] ", PARSE_OK, CELL_TYPE_INTEGER, 1, 3));
 		REQUIRE(test_parse_const_meta("   11, 22, 33", PARSE_OK, CELL_TYPE_INTEGER, 1, 3));
@@ -284,7 +284,63 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(test_parse_const_meta("[\"%f0%92%80\", \": %f0%92%80%bb :\"]", PARSE_ERROR_ENCODING));
 		REQUIRE(test_parse_const_meta("[\"%f0%92\", \": %f0%92%80%bb :\"]", PARSE_ERROR_ENCODING));
 		REQUIRE(test_parse_const_meta("[\"%f0\", \": %f0%92%80%bb :\"]", PARSE_ERROR_ENCODING));
+	}
 
+	GIVEN("We test Api::_parse_const_meta for tuples") {
+		REQUIRE(test_parse_const_meta("wave:[2,3,5];encoding:\"json\";volume:3.5", PARSE_OK, CELL_TYPE_TUPLE_ITEM, 1, 3));
+
+		REQUIRE(test_parse_const_meta("wave:[2,3,5];encoding:[\"json\"];volume:[3.5]", PARSE_OK, CELL_TYPE_TUPLE_ITEM, 1, 3));
+
+		REQUIRE(test_parse_const_meta("data:[[[[[[1.0,2,3], [4,5,6]]]]]];names:[\"one\",\"two\",\"three\"]",
+									  PARSE_OK, CELL_TYPE_TUPLE_ITEM, 1, 2));
+
+		REQUIRE(test_parse_const_meta("data:[[[[[[1.0,2,3], [4.4,5,6]]]]]];name:\"me\"]",
+									  PARSE_OK, CELL_TYPE_TUPLE_ITEM, 1, 2));
+
+		REQUIRE(test_parse_const_meta("data:[[[[[[1.0,2,3], [4.4,5,6]]]]];name:\"me\"]", PARSE_BRACKET_MISMATCH));
+
+		REQUIRE(test_parse_const_meta("data:[[[[[[1.0,2,3], [4.4,5,6]]]]]];name::\"me\"]", PARSE_ERROR_INVALID_CHAR));
+	}
+
+	GIVEN("We test Api::_parse_const_meta for kinds") {
+		REQUIRE(test_parse_const_meta("image:: red: BYTE[width, height]; green: BYTE[width, height]; blue: BYTE[width, height]",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 3));
+
+		REQUIRE(test_parse_const_meta("image:: buff: SINGLE[width, height, 3]; title: STRING[1]; category: INTEGER[1]",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 3));
+
+		REQUIRE(test_parse_const_meta("image:: buff: SINGLE[width, height, 3]; title: STRING; category: INTEGER",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 3));
+
+		REQUIRE(test_parse_const_meta("image_mono640x480:: buff: SINGLE[640, 480]; description: BYTE[128]",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 2));
+
+		REQUIRE(test_parse_const_meta("voice::wave:INTEGER[num_channels,num_samples];frames_per_Sec:INTEGER",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 2));
+
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 4));
+
+		REQUIRE(test_parse_const_meta("silly :: a:INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_ERROR_INVALID_CHAR));
+
+		REQUIRE(test_parse_const_meta("silly:: a :INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_ERROR_INVALID_CHAR));
+
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x , 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_ERROR_INVALID_CHAR));
+
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6 , x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_ERROR_INVALID_CHAR));
+
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[[3, x], [6, x]]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_ERROR_INVALID_CHAR));
+
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x, 9, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 4));
+
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x, 9, x, 12]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+									  PARSE_ERROR_INVALID_SHAPE));
 	}
 }
 
