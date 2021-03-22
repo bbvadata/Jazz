@@ -318,28 +318,28 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(test_parse_const_meta("voice::wave:INTEGER[num_channels,num_samples];frames_per_Sec:INTEGER",
 									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 2));
 
-		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 4));
 
-		REQUIRE(test_parse_const_meta("silly :: a:INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly :: a:INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_ERROR_INVALID_CHAR));
 
-		REQUIRE(test_parse_const_meta("silly:: a :INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a :INTEGER[3, x, 6, x]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_ERROR_INVALID_CHAR));
 
-		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x , 6, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x , 6, x]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_ERROR_INVALID_CHAR));
 
-		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6 , x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6 , x]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_ERROR_INVALID_CHAR));
 
-		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[[3, x], [6, x]]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[[3, x], [6, x]]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_ERROR_INVALID_CHAR));
 
-		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x, 9, x]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x, 9, x]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_OK, CELL_TYPE_KIND_ITEM, 1, 4));
 
-		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x, 9, x, 12]; b:DOUBLE[x, y]; c:STRING, d:FACTOR[y, 3]",
+		REQUIRE(test_parse_const_meta("silly:: a:INTEGER[3, x, 6, x, 9, x, 12]; b:DOUBLE[x, y]; c:STRING; d:FACTOR[y, 3]",
 									  PARSE_ERROR_INVALID_SHAPE));
 	}
 }
