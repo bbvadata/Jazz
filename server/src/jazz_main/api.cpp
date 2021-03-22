@@ -848,8 +848,8 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
 
-	int level = -1, tot_cells = 0, cell = 0, max_level = 0, utf8_len = 0;
-	bool no_brackets = true;
+	int level = -1, tot_cells = 0, cell = 0, max_level = 0, utf8_len = 0, num_items = 0, num_dimensions = 0;
+	bool no_brackets = true, is_kind = false;
 
 	while (true) {
 		cursor = p_url++[0];
@@ -859,6 +859,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_END_INT:
 		case PSTATE_CONST_END_REAL:
 		case PSTATE_CONST_END_STR:
+		case PSTATE_CONST_END_KIND:
 			if (level == 0 & no_brackets) {
 				n_item.dim[0]++;
 				tot_cells += cell;
@@ -873,21 +874,34 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 
 			memset(p_block, 0, sizeof(Block));
 
-			switch (state) {
-			case PSTATE_CONST_END_INT:
-				p_block->cell_type = CELL_TYPE_INTEGER;
-				break;
-			case PSTATE_CONST_END_REAL:
-				p_block->cell_type = CELL_TYPE_DOUBLE;
-				break;
-			case PSTATE_CONST_END_STR:
-				p_block->cell_type = CELL_TYPE_STRING;
-				break;
-			}
-			p_block->set_dimensions(shape.dim);
+			if (num_items) {
+				if (state == PSTATE_CONST_END_KIND)
+					p_block->cell_type = CELL_TYPE_KIND_ITEM;
+				else
+					p_block->cell_type = CELL_TYPE_TUPLE_ITEM;
 
-			if (p_block->size != tot_cells)
-				return PARSE_ERROR_INVALID_SHAPE;
+				shape.dim[0] = num_items;
+				shape.dim[1] = 0;
+
+				p_block->set_dimensions(shape.dim);
+
+			} else {
+				switch (state) {
+				case PSTATE_CONST_END_INT:
+					p_block->cell_type = CELL_TYPE_INTEGER;
+					break;
+				case PSTATE_CONST_END_REAL:
+					p_block->cell_type = CELL_TYPE_DOUBLE;
+					break;
+				case PSTATE_CONST_END_STR:
+					p_block->cell_type = CELL_TYPE_STRING;
+					break;
+				}
+				p_block->set_dimensions(shape.dim);
+
+				if (p_block->size != tot_cells)
+					return PARSE_ERROR_INVALID_SHAPE;
+			}
 
 			return PARSE_OK;
 
@@ -990,24 +1004,66 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 
 			break;
 
+		case PSTATE_KIND_COLON0:
+			if (cursor == ':') {
+				num_items--;
+				if (num_items)
+					return PARSE_ERROR_INVALID_CHAR;
+
+				is_kind = true;
+			}
+
+			break;
+
+		case PSTATE_TUPL_COLON:
+		case PSTATE_KIND_COLON:
+			if (cursor == ':')
+				num_items++;
+
+			break;
+
+		case PSTATE_DIMENSION_IN:
+			num_dimensions = 0;
+
+			break;
+
+		case PSTATE_DIMENSION_SEP:
+			if (cursor == ',') {
+				num_dimensions++;
+				if (num_dimensions >= MAX_TENSOR_RANK)
+					return PARSE_ERROR_INVALID_SHAPE;
+			}
+
+			break;
+
+		case PSTATE_TUPL_SEMICOLON:
+			if (cursor == ';') {
+				if (level == 0 & no_brackets)
+					level--;
+
+				if (level != -1)
+					return PARSE_BRACKET_MISMATCH;
+
+				shape  = {-1, -1, -1, -1, -1, -1};
+				n_item = { 0,  0,  0,  0,  0,  0};
+
+				level = -1, tot_cells = 0, cell = 0, max_level = 0, utf8_len = 0;
+				no_brackets = true;
+			}
+
+			break;
+
 		case PSTATE_INITIAL:
 		case PSTATE_CONST_SEP_STR0:
 		case PSTATE_CONST_STR_ENC0:
 		case PSTATE_BASE_NAME:
 		case PSTATE_TUPL_ITEM_NAME:
-		case PSTATE_TUPL_COLON:
-		case PSTATE_TUPL_SEMICOLON:
 		case PSTATE_KIND_ITEM_NAME:
-		case PSTATE_KIND_COLON0:
-		case PSTATE_KIND_COLON:
 		case PSTATE_TYPE_NAME:
-		case PSTATE_DIMENSION_IN:
 		case PSTATE_DIMENSION_NAME:
 		case PSTATE_DIMENSION_INT:
-		case PSTATE_DIMENSION_SEP:
 		case PSTATE_DIMENSION_OUT:
 		case PSTATE_KIND_SEMICOLON:
-		case PSTATE_CONST_END_KIND:
 			break;
 
 		default:
