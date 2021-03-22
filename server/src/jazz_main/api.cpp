@@ -845,7 +845,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
 
-	int level = -1, tot_items = 0, item = 0, max_level = 0, utf8_len = 0;
+	int level = -1, tot_cells = 0, cell = 0, max_level = 0, utf8_len = 0;
 	bool no_brackets = true;
 
 	while (true) {
@@ -858,7 +858,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_END_STR:
 			if (level == 0 & no_brackets) {
 				n_item.dim[0]++;
-				tot_items += item;
+				tot_cells += cell;
 
 				if (shape.dim[0] < 0)
 					shape.dim[0] = n_item.dim[0];
@@ -883,7 +883,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			}
 			p_block->set_dimensions(shape.dim);
 
-			if (p_block->size != tot_items)
+			if (p_block->size != tot_cells)
 				return PARSE_ERROR_INVALID_SHAPE;
 
 			return PARSE_OK;
@@ -895,12 +895,12 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_INT:
 		case PSTATE_CONST_REAL:
 			if (level < 0) {
-				if (tot_items > 0)
+				if (tot_cells > 0)
 					return PARSE_BRACKET_MISMATCH;
 
 				level = 0;
 			}
-			item = 1;
+			cell = 1;
 			break;
 
 		case PSTATE_CONST_IN_INT:
@@ -910,7 +910,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			if (cursor == '[') {
 				no_brackets = false;
 				level++;
-				if (tot_items) {
+				if (tot_cells) {
 					if (level > max_level)
 						return PARSE_ERROR_INVALID_SHAPE;
 				} else {
@@ -934,8 +934,8 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 					return PARSE_BRACKET_MISMATCH;
 
 				n_item.dim[level]++;
-				tot_items += item;
-				item = 0;
+				tot_cells += cell;
+				cell = 0;
 
 				if (shape.dim[level] < 0) {
 					shape.dim[level] = n_item.dim[level];
@@ -955,8 +955,8 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_SEP_REAL:
 			if (cursor == ',') {
 				n_item.dim[level]++;
-				tot_items += item;
-				item = 0;
+				tot_cells += cell;
+				cell = 0;
 			};
 			break;
 
