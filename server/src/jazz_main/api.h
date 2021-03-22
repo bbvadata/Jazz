@@ -96,9 +96,9 @@ using namespace jazz_agency;
 
 /// Parsing states
 
-#define MAX_NUM_PSTATES					 32		///< Maximum number of non error states the parser can be in
+#define MAX_NUM_PSTATES					 33		///< Maximum number of non error states the parser can be in
 #define MAX_TRANSITION_REGEX_LEN		 48		///< Length of regex for state transitions. Used only in constants for LUT construction.
-#define NUM_STATE_TRANSITIONS			100		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define NUM_STATE_TRANSITIONS			110		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 #define PSTATE_INITIAL					  0		///< Parser state: Fist char of source string being parsed
 #define PSTATE_CONST_INT				  1		///< Parser state: Parsing integers
@@ -126,34 +126,23 @@ using namespace jazz_agency;
 #define PSTATE_TUPL_COLON				 21		///< Parser state: Parsing a colon : of a tuple
 #define PSTATE_TUPL_SEMICOLON			 22		///< Parser state: Parsing a semicolon ; of a tuple
 #define PSTATE_KIND_ITEM_NAME			 23		///< Parser state: Parsing a kind name or an item name of a kind
-#define PSTATE_KIND_COLON				 24		///< Parser state: Parsing a colon : of a kind
-#define PSTATE_TYPE_NAME				 25		///< Parser state: Parsing a type name
-#define PSTATE_DIMENSION_IN				 26		///< Parser state: Parsing the inital [ in dimensions
-#define PSTATE_DIMENSION_NAME			 27		///< Parser state: Parsing a dimension name
-#define PSTATE_DIMENSION_INT			 28		///< Parser state: Parsing a dimension constant
-#define PSTATE_DIMENSION_SEP			 29		///< Parser state: Parsing a comma , separating dimensions
+#define PSTATE_KIND_COLON0				 24		///< Parser state: Parsing a second colon : for the first time kind
+#define PSTATE_KIND_COLON				 25		///< Parser state: Parsing a colon : of a kind
+#define PSTATE_TYPE_NAME				 26		///< Parser state: Parsing a type name
+#define PSTATE_DIMENSION_IN				 27		///< Parser state: Parsing the inital [ in dimensions
+#define PSTATE_DIMENSION_NAME			 28		///< Parser state: Parsing a dimension name
+#define PSTATE_DIMENSION_INT			 29		///< Parser state: Parsing a dimension constant
 
-#define PSTATE_DIMENSION_OUT			 30		///< Parser state: Parsing the final ] in dimensions
-#define PSTATE_KIND_SEMICOLON			 31		///< Parser state: Parsing a semicolon ; of a kind
-
-/*
-#define PSTATE_LOCATOR_NAME				 20		///< Parser state: Parsing a container name or a block name (final char will tell which)
-#define PSTATE_DOT						 26		///< Parser state: Parsing dot "."
-#define PSTATE_SLASH					 25		///< Parser state: Parsing slash "/"
-#define PSTATE_CONTRACT_NAME			 25		///< Parser state: Parsing a contract name
-#define PSTATE_SLICE					 30		///< Parser state: Parsing slicer "[" in a block
-#define PSTATE_BLOCK_CALL				 31		///< Parser state: Parsing call "(" in a block
-#define PSTATE_CONTRACT_CALL			 32		///< Parser state: Parsing call "(" in a contract
-#define PSTATE_END_CALL					 33		///< Parser state: Parsing closing call ")"
-#define PSTATE_DOUBLE_COLON				 35		///< Parser state: The first ":" after a knd name
-#define PSTATE_SEP_ITEM					 36		///< Parser state: The "," that separates items
-*/
+#define PSTATE_DIMENSION_SEP			 30		///< Parser state: Parsing a comma , separating dimensions
+#define PSTATE_DIMENSION_OUT			 31		///< Parser state: Parsing the final ] in dimensions
+#define PSTATE_KIND_SEMICOLON			 32		///< Parser state: Parsing a semicolon ; of a kind
 
 // Codes with no source in the StateSwitch (The parser, if necessary, will change the state (E.g., a tensor inside a tuple.))
 
 #define PSTATE_CONST_END_INT			200		///< Parser state: Reached end of part or expression while parsing integers
 #define PSTATE_CONST_END_REAL			201		///< Parser state: Reached end of part or expression while parsing real numbers
 #define PSTATE_CONST_END_STR			202		///< Parser state: Reached end of part or expression while parsing string
+#define PSTATE_CONST_END_KIND			203		///< Parser state: Reached end of part or expression while parsing string
 
 #define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
