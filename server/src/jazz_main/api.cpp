@@ -821,10 +821,8 @@ StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_va
 }
 
 
-/** This is a private submethod of parse() doing the kernel of parsing at a constant level of recursion, without doing the
-execution part (done inside _parse_recurse()). See the documentation of Api.parse() for reference.
 */
-StatusCode Api::_parse_exec_stage(pChar	&p_url, int method, L_value &l_value, R_value &r_value)
+StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_value &r_value, bool execution, int rec_level)
 {
 
 	return PARSE_NOT_IMPLEMENTED;

@@ -283,11 +283,6 @@ class Api : public Container {
 									bool	 execution,
 									int		 rec_level);
 
-		StatusCode _parse_exec_stage(pChar	 &p_url,
-									 int	  method,
-									 L_value &l_value,
-									 R_value &r_value);
-
 		StatusCode _parse_const_meta(pChar	 &p_url,
 									 pBlock	  p_block);
 
