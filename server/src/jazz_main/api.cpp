@@ -813,12 +813,15 @@ StatusCode Api::_load_statics (const char *path)
 
 
 /** This is a private submethod of parse() doing the outer level recursively. See the documentation of Api.parse() for reference.
-*/
-StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_value &r_value, bool execution, int rec_level)
-{
 
-	return PARSE_NOT_IMPLEMENTED;
-}
+	\param p_url	 The url as a pointer passed by reference (that updates and points to the conflicting char on error.)
+	\param method	 The http method in [HTTP_NOTUSED .. HTTP_DELETE]
+	\param l_value		 A structure with the parts the url successfully parsed ready to be executed.
+	\param r_value		 A structure with the parts the url successfully parsed ready to be executed.
+	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
+	\param rec_level The recursion level (starting with 0, breaking with MAX_RECURSION_DEPTH).
+
+	\return			 Some error code or SERVICE_NO_ERROR if successful.
 
 
 */
