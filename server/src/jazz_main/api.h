@@ -68,31 +68,30 @@ using namespace jazz_agency;
 
 #define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
 
-/** Http methods
-*/
-#define HTTP_NOTUSED	0
-#define HTTP_OPTIONS	1
-#define HTTP_HEAD		2
-#define HTTP_GET		3
-#define HTTP_PUT		4
-#define HTTP_DELETE		5
+/// Http methods
+
+#define HTTP_NOTUSED					  0		///< Rogue value to fill the LUTs
+#define HTTP_OPTIONS					  1		///< http predicate OPTIONS
+#define HTTP_HEAD						  2		///< http predicate HEAD
+#define HTTP_GET						  3		///< http predicate GET
+#define HTTP_PUT						  4		///< http predicate PUT
+#define HTTP_DELETE						  5		///< http predicate DELETE
 
 /// Parser limits
 
-#define MAX_RECURSION_DEPTH	16		///< Max number of nested block references in a query.
-#define EIGHT_BIT_LONG		256		///< Length of a CharLUT.
-
+#define MAX_RECURSION_DEPTH				 16		///< Max number of nested block references in a query.
+#define EIGHT_BIT_LONG					256		///< Length of a CharLUT.
 
 /// Parser return codes
 
-#define PARSE_OK						 0		///< Success.
-#define GET_OK							 0		///< Success.
-#define PARSE_NOT_IMPLEMENTED			-1		// TODO: remove this const
-#define PARSE_ERROR_INVALID_CHAR		 1		///< Error unexpected char.
-#define PARSE_ERROR_INVALID_SHAPE		 2		///< Sequence of [] is inconsistent with a tensor.
-#define PARSE_ERROR_ENCODING			 3		///< Wrong utf8 decoding (length does not match expected length).
-#define PARSE_ERROR_TOO_DEEP			 4		///< Number of shape dimensions exceed MAX_TENSOR_RANK in a constant.
-#define PARSE_BRACKET_MISMATCH			 5		///< Number of [ in constant does not match number of ].
+#define PARSE_OK						  0		///< Success.
+#define GET_OK							  0		///< Success.
+#define PARSE_NOT_IMPLEMENTED			 -1		// TODO: remove this const
+#define PARSE_ERROR_INVALID_CHAR		  1		///< Error unexpected char.
+#define PARSE_ERROR_INVALID_SHAPE		  2		///< Sequence of [] is inconsistent with a tensor.
+#define PARSE_ERROR_ENCODING			  3		///< Wrong utf8 decoding (length does not match expected length).
+#define PARSE_ERROR_TOO_DEEP			  4		///< Number of shape dimensions exceed MAX_TENSOR_RANK in a constant.
+#define PARSE_BRACKET_MISMATCH			  5		///< Number of [ in constant does not match number of ].
 
 /// Parsing states
 
