@@ -449,6 +449,120 @@ SCENARIO("Testing TenBitsAtAddress().") {
 }
 
 
+SCENARIO("Testing valid_name().") {
+	REQUIRE( valid_name((char *)""));
+
+	REQUIRE(!valid_name((char *)"7"));
+	REQUIRE(!valid_name((char *)"_"));
+	REQUIRE( valid_name((char *)"d"));
+	REQUIRE( valid_name((char *)"F"));
+
+	REQUIRE( valid_name((char *)"ThisIsOkay"));
+	REQUIRE(!valid_name((char *)"This Is Not"));
+
+	REQUIRE( valid_name((char *)"abcdefghijABCDEFGHIJ0123456789"));
+	REQUIRE( valid_name((char *)"abcdefghijABCDEFGHIJ0123456789a"));
+	REQUIRE(!valid_name((char *)"abcdefghijABCDEFGHIJ0123456789ab"));
+	REQUIRE( valid_name((char *)"abcdefghij_ABCDEFGHIJ_123456789"));
+
+	REQUIRE( valid_name((char *)"abc_is_okay"));
+	REQUIRE( valid_name((char *)"abc_is_okay_123"));
+	REQUIRE( valid_name((char *)"AbcIsOkay"));
+	REQUIRE( valid_name((char *)"AbcIsOkay123"));
+
+	REQUIRE( valid_name((char *)"abc_is_okay_"));
+	REQUIRE(!valid_name((char *)"_abc_is_not_"));
+
+	REQUIRE( valid_name((char *)"abc_123_is_okay_"));
+	REQUIRE(!valid_name((char *)"123_abc_is_not_"));
+	REQUIRE( valid_name((char *)"Z123_abc_is_OK_"));
+	REQUIRE( valid_name((char *)"z_123_abc_is_OK"));
+
+	REQUIRE(!valid_name((char *)"ácido"));
+	REQUIRE(!valid_name((char *)"más"));
+
+	REQUIRE(!valid_name((char *)"abc def"));
+	REQUIRE(!valid_name((char *)"abc!def"));
+	REQUIRE(!valid_name((char *)"abc\"def"));
+	REQUIRE(!valid_name((char *)"abc#def"));
+	REQUIRE(!valid_name((char *)"abc$def"));
+	REQUIRE(!valid_name((char *)"abc%def"));
+	REQUIRE(!valid_name((char *)"abc&def"));
+	REQUIRE(!valid_name((char *)"abc'def"));
+	REQUIRE(!valid_name((char *)"abc(def"));
+	REQUIRE(!valid_name((char *)"abc)def"));
+	REQUIRE(!valid_name((char *)"abc*def"));
+	REQUIRE(!valid_name((char *)"abc+def"));
+	REQUIRE(!valid_name((char *)"abc,def"));
+	REQUIRE(!valid_name((char *)"abc-def"));
+	REQUIRE(!valid_name((char *)"abc.def"));
+	REQUIRE(!valid_name((char *)"abc/def"));
+	REQUIRE( valid_name((char *)"abc0def"));
+	REQUIRE( valid_name((char *)"abc9def"));
+	REQUIRE(!valid_name((char *)"abc:def"));
+	REQUIRE(!valid_name((char *)"abc;def"));
+	REQUIRE(!valid_name((char *)"abc<def"));
+	REQUIRE(!valid_name((char *)"abc=def"));
+	REQUIRE(!valid_name((char *)"abc>def"));
+	REQUIRE(!valid_name((char *)"abc?def"));
+	REQUIRE(!valid_name((char *)"abc@def"));
+	REQUIRE( valid_name((char *)"abcAdef"));
+	REQUIRE( valid_name((char *)"abcZdef"));
+	REQUIRE(!valid_name((char *)"abc[def"));
+	REQUIRE(!valid_name((char *)"abc\\def"));
+	REQUIRE(!valid_name((char *)"abc]def"));
+	REQUIRE(!valid_name((char *)"abc^def"));
+	REQUIRE( valid_name((char *)"abc_def"));
+	REQUIRE(!valid_name((char *)"abc`def"));
+	REQUIRE( valid_name((char *)"abcadef"));
+	REQUIRE( valid_name((char *)"abczdef"));
+	REQUIRE(!valid_name((char *)"abc{def"));
+	REQUIRE(!valid_name((char *)"abc|def"));
+	REQUIRE(!valid_name((char *)"abc}def"));
+	REQUIRE(!valid_name((char *)"abc~def"));
+
+	REQUIRE(!valid_name((char *)" def"));
+	REQUIRE(!valid_name((char *)"!def"));
+	REQUIRE(!valid_name((char *)"\"def"));
+	REQUIRE(!valid_name((char *)"#def"));
+	REQUIRE(!valid_name((char *)"$def"));
+	REQUIRE(!valid_name((char *)"%def"));
+	REQUIRE(!valid_name((char *)"&def"));
+	REQUIRE(!valid_name((char *)"'def"));
+	REQUIRE(!valid_name((char *)"(def"));
+	REQUIRE(!valid_name((char *)")def"));
+	REQUIRE(!valid_name((char *)"*def"));
+	REQUIRE(!valid_name((char *)"+def"));
+	REQUIRE(!valid_name((char *)",def"));
+	REQUIRE(!valid_name((char *)"-def"));
+	REQUIRE(!valid_name((char *)".def"));
+	REQUIRE(!valid_name((char *)"/def"));
+	REQUIRE(!valid_name((char *)"0def"));
+	REQUIRE(!valid_name((char *)"9def"));
+	REQUIRE(!valid_name((char *)":def"));
+	REQUIRE(!valid_name((char *)";def"));
+	REQUIRE(!valid_name((char *)"<def"));
+	REQUIRE(!valid_name((char *)"=def"));
+	REQUIRE(!valid_name((char *)">def"));
+	REQUIRE(!valid_name((char *)"?def"));
+	REQUIRE(!valid_name((char *)"@def"));
+	REQUIRE( valid_name((char *)"Adef"));
+	REQUIRE( valid_name((char *)"Zdef"));
+	REQUIRE(!valid_name((char *)"[def"));
+	REQUIRE(!valid_name((char *)"\\def"));
+	REQUIRE(!valid_name((char *)"]def"));
+	REQUIRE(!valid_name((char *)"^def"));
+	REQUIRE(!valid_name((char *)"_def"));
+	REQUIRE(!valid_name((char *)"`def"));
+	REQUIRE( valid_name((char *)"adef"));
+	REQUIRE( valid_name((char *)"zdef"));
+	REQUIRE(!valid_name((char *)"{def"));
+	REQUIRE(!valid_name((char *)"|def"));
+	REQUIRE(!valid_name((char *)"}def"));
+	REQUIRE(!valid_name((char *)"~def"));
+}
+
+
 SCENARIO("Testing CleanConfigArgument().") {
 	std::string a("This Is\tIt");
 
