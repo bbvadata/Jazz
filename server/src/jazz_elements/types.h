@@ -66,6 +66,11 @@ ANSWER_LENGTH chars. Of course, data serialization does not have any limits it i
 */
 #define ANSWER_LENGTH			4096
 #define SAFE_URL_LENGTH			2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
+#define NAME_SIZE				  32		///< Size of a Name (ending 0 included)
+
+/// Block API (syntax related)
+
+#define REGEX_VALIDATE_NAME				"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
 
 /** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
 does not normally modify blocks. The few exceptions have a block-specific lock in the BlockKeeper. Services also have a service-specific
@@ -74,7 +79,6 @@ JAZZ_MAX_NUM_THREADS inside the service. This number can be modified down (but n
 and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
 */
 #define JAZZ_MAX_NUM_THREADS	64
-
 
 #define MAX_TENSOR_RANK			6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
 #define MAX_CHECKS_4_MATCH		25			///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
@@ -147,9 +151,13 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
 
-/** A pointer to char.
+/** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
+Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
 */
-typedef char *pChar;
+typedef char Name[NAME_SIZE];
+
+typedef char		 *pChar;				///< A pointer to char.
+typedef 	   Name	 *pName;
 
 
 /** Names for elements in a TensorDim to make filter operation more elegant. A filter is a record that always has rank 1 and a size,

@@ -60,15 +60,10 @@ namespace jazz_elements
 
 /// Block API (dimensions of structures)
 
-#define NAME_SIZE						32					///< Size of a Name (ending 0 included)
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
 #define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
 #define MAX_ITEMS_IN_TUPLE				64					///< The number of items merged into a tuple (array of BlockKeeper).
-
-/// Block API (syntax related)
-
-#define REGEX_VALIDATE_NAME				"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
 
 /// Block API (method arguments)
 
@@ -107,11 +102,6 @@ namespace jazz_elements
 #define LOCK_WEIGHT_OF_WRITE			46341
 
 
-/** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
-Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
-*/
-typedef char Name[NAME_SIZE];
-
 /** A binary block identifier internal to the Container. Typically a MurmurHash64A of the Block name.
 */
 typedef uint64_t BlockId64;
@@ -124,10 +114,10 @@ typedef std::atomic<int32_t> Lock32;
 
 typedef struct BlockKeeper 	*pBlockKeeper;
 typedef class  Container	*pContainer;
-typedef 	   Name			*pName;
 typedef struct Locator		*pLocator, *pL_value;
 typedef struct R_value		*pR_value;
 typedef struct Items		*pItems;
+typedef struct Names		*pNames;
 
 /** A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
 */
@@ -206,6 +196,12 @@ a new Kind.
 */
 struct Items {
 	BlockKeeper	item[MAX_ITEMS_IN_TUPLE];				///< The items. First p_block == nullptrs breaks.
+};
+
+/** An array of Item names (used to select items in a Tuple).
+*/
+struct Names {
+	Name	name[MAX_ITEMS_IN_TUPLE];					///< The item names. First zero breaks.
 };
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
