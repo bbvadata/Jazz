@@ -72,8 +72,8 @@ namespace jazz_elements
 #define FILL_NEW_WITH_NA				2		///< Initialize with the appropriate NA for the cell_type.
 #define FILL_WITH_TEXTFILE				3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
 
-#define AS_JSON							1		///< Serialize data as JSON.
-#define AS_BEBOP						2		///< Serialize data and metadata.
+#define AS_BEBOP						1		///< Serialize data and metadata.
+#define AS_JSON							2		///< Serialize data as JSON.
 #define AS_CPP							3		///< Serialize metadata as compilable C++ that can be dynamically linked.
 
 #define BUILD_TUPLE						1		///< Build a Tuple out of data items or fail.
@@ -280,32 +280,30 @@ class Container : public Service {
 								char		  eol			  = '\n');
 
 		StatusCode new_block   (pBlockKeeper *p_keeper,
-								pBlock		  p_as_block,
-						   		pBlock		  p_row_filter	  = nullptr,
-								Attributes	 *att			  = nullptr);
-
-		StatusCode new_block   (pBlockKeeper *p_keeper,
-								const char	 *p_text,
-						   		pBlockHeader  p_as_block	  = nullptr,
+								pItems		  p_item,
+								pNames		  p_item_name,
+						   		int			  build			  = BUILD_TUPLE,
 								Attributes	 *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper *p_keeper,
 								pBlock		  p_block,
-						   		int			  format		  = AS_JSON);
+						   		pBlock		  p_row_filter,
+								Attributes	 *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper *p_keeper,
-								pItems		  p_items,
-						   		int			  build			  = BUILD_TUPLE);
+								pBlock		  p_block,
+								pNames		  p_item_name,
+								Attributes	 *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper *p_keeper,
-								pLocator	  p_where,
-						   		pName		  p_name,
-								int			  what			 = NEW_MAP);
+								pChar		 &p_source,
+						   		pBlock		  p_as_block	  = nullptr,
+								Attributes	 *att			  = nullptr);
 
-		StatusCode lock		   (pBlockKeeper *p_keeper,
-								pLocator	  p_locator,
-								pContainer	  p_sender		 = nullptr,
-								BlockId64	  block_id		 = 0);
+		StatusCode new_block   (pBlockKeeper *p_keeper,
+								pBlock		  p_block,
+						   		int			  format		  = AS_BEBOP,
+								Attributes	 *att			  = nullptr);
 
 		StatusCode unlock	   (pBlockKeeper *p_keeper);
 
