@@ -109,33 +109,33 @@ class Block: public BlockHeader {
 
 		/** Sets the tensor dimensions from a TensorDim array.
 
-			\param pDim A pointer to the TensorDim containing the dimensions.
+			\param p_dim A pointer to the TensorDim containing the dimensions.
 
 			NOTES: 1. This writes: rank, range[] and size.
 				   2. rank counts the number of dimension >0, except, when all dimensions == 0 produces: rank == 1, size == 0
 				   3. size returns the size in number of cells, not bytes.
 		*/
-		inline void set_dimensions(int *pDim) {
+		inline void set_dimensions(int *p_dim) {
 			rank = MAX_TENSOR_RANK;
 			int j = 1;
 			for (int i = MAX_TENSOR_RANK -1; i > 0; i--)
-				if (pDim[i] > 0) { range.dim[i] = j; j *= pDim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
+				if (p_dim[i] > 0) { range.dim[i] = j; j *= p_dim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
 			range.dim[0] = j;
-			j			*= pDim[0];
+			j			*= p_dim[0];
 			size		 = j;
 		}
 
 		/** Returns the tensor dimensions as a TensorDim array.
 
-			\param pDim A pointer to the TensorDim containing the dimensions.
+			\param p_dim A pointer to the TensorDim containing the dimensions.
 
 			NOTES: See notes on set_dimensions() to understand why in case of 0 and 1, it may return different values than those
 			passed when the block was created with a set_dimensions() call.
 		*/
-		inline void get_dimensions(int *pDim) {
+		inline void get_dimensions(int *p_dim) {
 			int j = size;
 			for (int i = 0; i < MAX_TENSOR_RANK; i++)
-				if (i < rank) { pDim[i] = j/range.dim[i]; j = range.dim[i]; } else pDim[i] = 0;
+				if (i < rank) { p_dim[i] = j/range.dim[i]; j = range.dim[i]; } else p_dim[i] = 0;
 		}
 
 		/** Returns if an index (as a TensorDim array) is valid for the tensor.
