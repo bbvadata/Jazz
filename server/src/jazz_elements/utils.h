@@ -158,13 +158,7 @@ inline bool valid_name(pChar p_name) {
 		if (!ch)
 			return true;
 
-		if (ch < '0' | ch > 'z')
-			return false;
-
-		if (ch > '9' & ch < 'A')
-			return false;
-
-		if (ch > 'Z' & ch < '_' | ch == 0x60)
+		if (ch < '0' | ch > 'z' | (ch > '9' & ch < 'A') | (ch > 'Z' & ch < '_') | ch == 0x60)
 			return false;
 	}
 	return false;
