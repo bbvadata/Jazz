@@ -45,7 +45,7 @@ namespace jazz_elements
 
 	\return KIND_TYPE_NOTAKIND on error or KIND_TYPE_TUPLE if every check passes ok.
 */
-int Tuple::tuple_audit()
+int Tuple::audit()
 {
 //TODO: Implement and test this.
 

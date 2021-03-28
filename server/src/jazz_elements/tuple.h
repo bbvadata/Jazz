@@ -85,7 +85,7 @@ class Tuple : public Block {
 		return 0;
 	};
 
-	inline int tuple_audit();
+	inline int audit();
 
 };
 

@@ -42,10 +42,11 @@ namespace jazz_elements
 {
 
 /** Check the internal validity of a Kind (item structure, dimensions, etc.)
+not repeated of invalid item names.
 
 	\return KIND_TYPE_NOTAKIND on error or KIND_TYPE_KIND if every check passes ok.
 */
-int Kind::kind_audit()
+int Kind::audit()
 {
 //TODO: Implement and test this.
 

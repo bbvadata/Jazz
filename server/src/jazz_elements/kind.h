@@ -106,7 +106,7 @@ class Kind : public Block {
 		return;
 	};
 
-	int kind_audit();
+	int audit();
 
 };
 
