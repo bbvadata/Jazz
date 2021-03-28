@@ -338,7 +338,7 @@ class Block: public BlockHeader {
 			values on the upper part.
 		*/
 		inline int *p_attribute_keys() {
-			return align_128bit((uintptr_t) &tensor + (cell_type & 0xf)*size);
+			return align_128bit((uintptr_t) &tensor + (cell_type & 0xff)*size);
 		}
 
 		/** Return the address of the StringBuffer containing the strings in the tensor and the attribute values.
