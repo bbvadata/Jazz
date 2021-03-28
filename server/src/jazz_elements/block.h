@@ -211,7 +211,7 @@ class Block: public BlockHeader {
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
 
 			\param p_idx A pointer to the TensorDim containing the index.
-			\param pString A pointer to a (zero ended) string that will be allocated inside the Block.
+			\param p_str A pointer to a (zero ended) string that will be allocated inside the Block.
 
 			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
 			typically immutable. jazz_alloc.h contains methods that make a Block bigger if that is necessary. This one doesn't.
@@ -219,15 +219,15 @@ class Block: public BlockHeader {
 			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
-		inline void set_string(int *p_idx, const char *pString) {
+		inline void set_string(int *p_idx, const char *p_str) {
 			pStringBuffer psb = p_string_buffer();
-			tensor.cell_int[get_offset(p_idx)] = get_string_offset(psb, pString);
+			tensor.cell_int[get_offset(p_idx)] = get_string_offset(psb, p_str);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
 
 			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
-			\param pString A pointer to a (zero ended) string that will be allocated inside the Block.
+			\param p_str  A pointer to a (zero ended) string that will be allocated inside the Block.
 
 			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
 			typically immutable. jazz_alloc.h contains methods that make a Block bigger if that is necessary. This one doesn't.
@@ -235,9 +235,9 @@ class Block: public BlockHeader {
 			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
-		inline void set_string(int offset, const char *pString) {
+		inline void set_string(int offset, const char *p_str) {
 			pStringBuffer psb = p_string_buffer();
-			tensor.cell_int[offset] = get_string_offset(psb, pString);
+			tensor.cell_int[offset] = get_string_offset(psb, p_str);
 		}
 
 	// Methods on attributes.
@@ -347,7 +347,7 @@ class Block: public BlockHeader {
 			return reinterpret_cast<pStringBuffer>((uintptr_t) p_attribute_keys() + 2*num_attributes*sizeof(int));
 		}
 
-		int get_string_offset(pStringBuffer psb, const char *pString);
+		int get_string_offset(pStringBuffer psb, const char *p_str);
 
 	// Methods for filtering (selecting).
 

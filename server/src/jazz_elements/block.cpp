@@ -121,22 +121,22 @@ bool Block::find_NAs_in_tensor(){
 
 /** Find an existing string in a block, or allocate a new one and return its offset in the StringBuffer.buffer.
 
-	\param psb	   The address of the pStringBuffer (passed to avoid calling p_string_buffer repeatedly).
-	\param pString The string to find or allocate in the StringBuffer.
+	\param psb	 The address of the pStringBuffer (passed to avoid calling p_string_buffer repeatedly).
+	\param p_str The string to find or allocate in the StringBuffer.
 
-	\return		   The offset to the (zero terminated) string inside psb->buffer[] or -1 if allocation failed.
+	\return		 The offset to the (zero terminated) string inside psb->buffer[] or -1 if allocation failed.
 
 	NOTE: This function is private, called by set_attributes() and set_string(). Use these functions instead and read their NOTES.
 */
-int Block::get_string_offset(pStringBuffer psb, const char *pString)
+int Block::get_string_offset(pStringBuffer psb, const char *p_str)
 {
 	if (psb->alloc_failed)
 		return STRING_NA;
 
-	if (pString == nullptr)
+	if (p_str == nullptr)
 		return STRING_NA;
 
-	int len = strlen(pString);
+	int len = strlen(p_str);
 
 	if (!len)
 		return STRING_EMPTY;
@@ -152,7 +152,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *pString)
 		while (pt[0]) {
 			uintptr_t idx = pt - &psb->buffer[0];
 
-			if (!strncmp(pString, pt, len + 1))
+			if (!strncmp(p_str, pt, len + 1))
 				return idx;
 
 			int slen = strlen(pt);
@@ -167,7 +167,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *pString)
 	if (psb->buffer_size >= (uintptr_t) pt - (uintptr_t) &psb->buffer[0] + len + 2) {
 		uintptr_t idx = pt - &psb->buffer[0];
 
-		strncpy(pt, pString, len);
+		strncpy(pt, p_str, len);
 		pt[len] = 0;
 
 		pt += len + 1;
