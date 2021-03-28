@@ -140,14 +140,14 @@ class Block: public BlockHeader {
 
 		/** Returns if an index (as a TensorDim array) is valid for the tensor.
 
-			\param pIndex A pointer to the TensorDim containing the index.
+			\param p_idx A pointer to the TensorDim containing the index.
 
 			\return	True if the index is valid.
 		*/
-		inline bool validate_index(int *pIndex) {
+		inline bool validate_index(int *p_idx) {
 			int j = size;
 			for (int i = 0; i < rank; i++) {
-				if (pIndex[i] < 0 || pIndex[i]*range.dim[i] >= j) return false;
+				if (p_idx[i] < 0 || p_idx[i]*range.dim[i] >= j) return false;
 				j = range.dim[i];
 			}
 			return true;
@@ -163,37 +163,37 @@ class Block: public BlockHeader {
 
 		/** Convert an index (as a TensorDim array) to the corresponding offset without checking its validity.
 
-			\param pIndex A pointer to the TensorDim containing the index.
+			\param p_idx A pointer to the TensorDim containing the index.
 
 			\return	The offset corresponding to the same cell if the index was in a valid range.
 		*/
-		inline int get_offset(int *pIndex) {
+		inline int get_offset(int *p_idx) {
 			int j = 0;
-			for (int i = 0; i < rank; i++) j += pIndex[i]*range.dim[i];
+			for (int i = 0; i < rank; i++) j += p_idx[i]*range.dim[i];
 			return j;
 		}
 
 		/** Convert an offset to a tensor cell into its corresponding index (as a TensorDim array) without checking its validity.
 
-			\param offset the input offset
-			\param pIndex A pointer to the TensorDim to return the result.
+			\param offset The input offset
+			\param p_idx  A pointer to the TensorDim to return the result.
 		*/
-		inline void get_index(int offset, int *pIndex) {
-			for (int i = 0; i < rank; i++) { pIndex[i] = offset/range.dim[i]; offset -= pIndex[i]*range.dim[i]; }
+		inline void get_index(int offset, int *p_idx) {
+			for (int i = 0; i < rank; i++) { p_idx[i] = offset/range.dim[i]; offset -= p_idx[i]*range.dim[i]; }
 		}
 
 	// Methods on strings.
 
 		/** Get a string from the tensor by index without checking index range.
 
-			\param pIndex A pointer to the TensorDim containing the index.
+			\param p_idx A pointer to the TensorDim containing the index.
 
 			\return A pointer to where the (zero ended) string is stored in the Block.
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline char *get_string(int *pIndex) {
-			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[get_offset(pIndex)]]);
+		inline char *get_string(int *p_idx) {
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[get_offset(p_idx)]]);
 		}
 
 		/** Get a string from the tensor by offset without checking offset range.
@@ -210,7 +210,7 @@ class Block: public BlockHeader {
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
 
-			\param pIndex A pointer to the TensorDim containing the index.
+			\param p_idx A pointer to the TensorDim containing the index.
 			\param pString A pointer to a (zero ended) string that will be allocated inside the Block.
 
 			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
@@ -219,9 +219,9 @@ class Block: public BlockHeader {
 			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
 			true, it doesn't even try to allocate.
 		*/
-		inline void set_string(int *pIndex, const char *pString) {
+		inline void set_string(int *p_idx, const char *pString) {
 			pStringBuffer psb = p_string_buffer();
-			tensor.cell_int[get_offset(pIndex)] = get_string_offset(psb, pString);
+			tensor.cell_int[get_offset(p_idx)] = get_string_offset(psb, pString);
 		}
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
