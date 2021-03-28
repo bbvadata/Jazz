@@ -270,7 +270,6 @@ class Service {
 
 		pLogger		p_log;
 		pConfigFile	p_conf;
-
 };
 
 
