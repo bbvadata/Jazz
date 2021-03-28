@@ -38,6 +38,17 @@
 using namespace jazz_elements;
 
 
+// Kind building util
+// ------------------
+
+void add_item (pBlock p_block,
+				pName p_name,
+				int * p_dim,
+				int	  cell_type)
+{
+}
+
+
 // Tests
 // -----
 
