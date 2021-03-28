@@ -86,28 +86,25 @@ class Kind : public Block {
 
 	public:
 
-	/** Returns the number of dimensions in a Kind.
+		/** Returns the number of dimensions in a Kind.
 
-		\return Number of dimensions
-	*/
-	inline int num_dimensions() {
-//TODO: Implement and test this.
+			\return Number of dimensions
+		*/
+		inline int num_dimensions() {
 
-		return 0;
-	};
+			return 0;
+		};
 
-	/** Returns the names of the dimensions as a tab separated list of names.
+		/** Returns the names of the dimensions as a tab separated list of names.
 
-		\param p_buff  The address of an ApiBuffer to store the answer.
-	*/
-	inline void dimension_names(pAnswer p_buff) {
-//TODO: Implement and test this.
+			\param p_buff  The address of an ApiBuffer to store the answer.
+		*/
+		inline void dimension_names(pAnswer p_buff) {
 
-		return;
-	};
+			return;
+		};
 
-	int audit();
-
+		int audit();
 };
 
 
