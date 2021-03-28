@@ -118,7 +118,7 @@ class Block: public BlockHeader {
 		inline void set_dimensions(int *p_dim) {
 			rank = MAX_TENSOR_RANK;
 			int j = 1;
-			for (int i = MAX_TENSOR_RANK -1; i > 0; i--)
+			for (int i = MAX_TENSOR_RANK - 1; i > 0; i--)
 				if (p_dim[i] > 0) { range.dim[i] = j; j *= p_dim[i]; } else { j = 1; range.dim[i] = 0; rank = i; }
 			range.dim[0] = j;
 			j			*= p_dim[0];
