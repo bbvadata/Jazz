@@ -38,16 +38,68 @@
 using namespace jazz_elements;
 
 
-// Kind building util
-// ------------------
+// Kind building utils
+// -------------------
 
-void add_item (pBlock p_block,
-				pName p_name,
-				int * p_dim,
-				int	  cell_type)
+bool add_item (pBlock		 p_block,
+			   int			 idx,
+			   char const	*p_name,
+			   int			*p_dim,
+			   int			 cell_type,
+			   AttributeMap &dims)
 {
+	ItemHeader * p_it_hea = &p_block->tensor.cell_item[idx];
+
+	p_it_hea->cell_type = cell_type;
+
+	int rank = 0, j;
+
+	pStringBuffer psb = p_block->p_string_buffer();
+
+	for (int i = MAX_TENSOR_RANK - 1; i >= 0; i--) {
+		p_it_hea->dim[i] = p_dim[i];
+		if (p_dim[i] == 0) {
+			rank = i + 1;
+		} else {
+			if (p_dim[i] < 0) {
+				j = p_block->get_string_offset(psb, dims[p_dim[i]]);
+				if (j == STRING_NA | j == STRING_EMPTY)
+					return false;
+
+				p_it_hea->dim[i] = -j;
+			}
+		}
+	}
+
+	p_it_hea->rank = rank;
+	p_it_hea->name = p_block->get_string_offset(psb, p_name);
+
+	return p_it_hea->name > STRING_EMPTY;
 }
 
+
+bool new_kind (pBlock		 p_block,
+			   int			 num_items,
+			   int			 num_strings,
+			   AttributeMap	&attr)
+{
+	int total_bytes = sizeof(BlockHeader) + num_items*sizeof(ItemHeader) + (num_strings + attr.size())*sizeof(Name) + sizeof(StringBuffer);
+
+	if (total_bytes >= ANSWER_LENGTH)
+		return false;
+
+	memset(p_block, 0, total_bytes);
+
+	p_block->cell_type		= CELL_TYPE_KIND_ITEM;
+	p_block->rank			= 1;
+	p_block->range.dim[0]	= 1;
+	p_block->size			= num_items;
+	p_block->total_bytes	= total_bytes;
+
+	p_block->set_attributes(&attr);
+
+	return true;
+}
 
 // Tests
 // -----
