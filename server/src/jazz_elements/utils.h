@@ -138,6 +138,39 @@ inline int64_t elapsed_mu_sec(jazz_elements::TimePoint big_bang) {
 }
 
 
+/** Check if a name is valid (Without using the regex).
+
+	\param p_name The name to be checked
+	\return		  True if valid
+*/
+inline bool valid_name(pChar p_name) {
+	char ch = p_name++[0];
+
+	if (!ch)
+		return true;
+
+	if (ch < 'A' | ch > 'z' | (ch > 'Z' & ch < 'a'))
+		return false;
+
+	for (int i = 1; i < NAME_SIZE; i++) {
+		char ch = p_name++[0];
+
+		if (!ch)
+			return true;
+
+		if (ch < '0' | ch > 'z')
+			return false;
+
+		if (ch > '9' & ch < 'A')
+			return false;
+
+		if (ch > 'Z' & ch < '_' | ch == 0x60)
+			return false;
+	}
+	return false;
+}
+
+
 typedef class ConfigFile *pConfigFile;
 typedef class Logger	 *pLogger;
 typedef class Service	 *pService;
