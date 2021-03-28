@@ -49,6 +49,8 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_PERSISTED
 #define INCLUDED_JAZZ_ELEMENTS_PERSISTED
 
+#include "src/lmdb/lmdb.h"
+
 
 namespace jazz_elements
 {
