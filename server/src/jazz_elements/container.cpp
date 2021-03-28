@@ -280,17 +280,38 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 }
 
 
-/** Create a new Block (2): Create a Block by slicing an existing Block.
+/** Create a new Block (2): Create a Kind or a Tuple by merging Items.
 
-//TODO: Document new_block(2)
+	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_item		An array of data blocks (tensors or tuples) merged as a tuple (when build == BUILD_TUPLE) or an array of
+						any blocks (tensors, tuples and kinds) whose metadata will be merged into a kind (build == BUILD_KIND)
+	\param p_item_name	An array of item names. See how Tuples and Kinds merge below.
+	\param build		What should be created, either BUILD_TUPLE or BUILD_KIND.
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_as_block.
 
-	\param aaa		Bla, bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
+
+
+How Tuples and Kinds merge
+--------------------------
+
+The way a Kind can include other Kinds is by merging them together in a tree. That increases the ItemHeader.level by one. E.g, a Kind
+x is made of tensors (a, b), a Kind y is made of (c, d, e) and f is a tensor. We create a kind (f, x, y). As we merge it together we
+will get: (f, x_a, x_b, y_c, y_d, y_e) all of them will have level 1, except f which will be level 0. The naming convention (merging
+with an underscore) is what this method does.
+
+Note that: The "level-trick" makes the structure much simpler by just storing the tensors, the tree is encoded in the levels of each tensor
+but not necessary to match tuples to kinds. The resulting names must all be different or it will return an error.
+
 
 	\return	Bla
 */
 StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pBlock		  p_as_block,
-						   		pBlock		  p_row_filter,
+								pItems		  p_item,
+								pNames		  p_item_name,
+						   		int			  build,
 								Attributes	 *att)
 {
 //TODO: Implement new_block(2)
@@ -299,17 +320,24 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 }
 
 
-/** Create a new Block (3): Create a binary block from text source.
+/** Create a new Block (3): Create a Block by slicing an existing Block.
 
-//TODO: Document new_block(3)
+	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_block		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
+						dimension of the tensor). This can be either a tensor or a Tuple. In the case of a Tuple, all the tensors must
+						have the same first dimension.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
+						p_as_block (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
+						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_as_block.
 
-	\param aaa		Bla, bla
-
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
 StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								const char	 *p_text,
-						   		pBlockHeader  p_as_block,
+								pBlock		  p_block,
+						   		pBlock		  p_row_filter,
 								Attributes	 *att)
 {
 //TODO: Implement new_block(3)
@@ -318,17 +346,22 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 }
 
 
-/** Create a new Block (4): Create a long text block by sourcing a binary block as some text serialization.
+/** Create a new Block (4): Create a Tuple or a Kind by selecting a list of items from another Tuple or Kind.
 
-//TODO: Document new_block(4)
+	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_block		The block we want to filter from. It must be either a Kind or a Tuple and the resulting block will be of the
+						same type.
+	\param p_item_name	The vector of item names to be selected that must exist in p_block.
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_as_block.
 
-	\param aaa		Bla, bla
-
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
 StatusCode Container::new_block(pBlockKeeper *p_keeper,
 								pBlock		  p_block,
-						   		int			  format)
+								pNames		  p_item_name,
+								Attributes	 *att)
 {
 //TODO: Implement new_block(4)
 
@@ -336,17 +369,23 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 }
 
 
-/** Create a new Block (5): Create a Kind or a Tuple by merging Items.
+/** Create a new Block (5): Create a binary block from text source.
 
-//TODO: Document new_block(5)
+	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_source		A pointer to the text source passed by reference. In case of an error, the pointer will be modified to point
+						at the conflicting character.
+	\param p_as_block	Possibly, a the address of a Block of metadata (either a BlockHeader or a Kind) containing and already parsed
+						metadata describing the block. Otherwise, an extra pass will parse the text to build this metadata.
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_as_block.
 
-	\param aaa		Bla, bla
-
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
 StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pItems		  p_items,
-						   		int			  build)
+								pChar		 &p_source,
+						   		pBlock		  p_as_block,
+								Attributes	 *att)
 {
 //TODO: Implement new_block(5)
 
@@ -354,56 +393,24 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 }
 
 
-/** Create a new Block (6): Create a database or sub-container inside Persisted or Volatile.
+/** Create a new Block (6): Create a long text block by sourcing a binary block as some text serialization.
 
-//TODO: Document new_block(6)
+	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_block		The binary block we want to source.
+	\param format		Either AS_BEBOP, AS_JSON or AS_CPP. The latter is only valid to Kind metadata. Tensors of data in AS_BEBOP and
+						AS_JSON are identical. These formats only differ in how they describe metadata.
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_as_block.
 
-	\param aaa		Bla, bla
-
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
 StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pLocator	  p_where,
-						   		pName		  p_name,
-								int			  what)
+								pBlock		  p_block,
+						   		int			  format,
+								Attributes	 *att)
 {
 //TODO: Implement new_block(6)
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-/** Bla, bla, bla
-
-//TODO: Document lock()
-
-	\param aaa		Bla, bla
-	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
-	\param block_id	Used by the async interface. (See Async interface below)
-
-	\return	Bla
-
-Async Interface
----------------
-
-The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
-a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
-
-The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
-operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
-
-A **NOTE for lock()**: The returned p_keeper is owned by the Remote. Before the .callback() event, it will have
-p_keeper->status == BLOCK_STATUS_ASYNC_WAIT. After an error is returned, the caller should forget the p_keeper and not use it.
-After a success is returned, the caller will get: p_keeper->status == BLOCK_STATUS_READY and a valid p_block. In this case, the caller
-**must** .unlock() the p_keeper when done with it.
-
-*/
-StatusCode Container::lock (pBlockKeeper *p_keeper,
-							pLocator	  p_locator,
-							pContainer	  p_sender,
-							BlockId64	  block_id)
-{
-//TODO: Implement lock()
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
