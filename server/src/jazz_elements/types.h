@@ -146,6 +146,12 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
+
+/** A pointer to char.
+*/
+typedef char *pChar;
+
+
 /** Names for elements in a TensorDim to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
 	but has an extra parameter, its length.
 */
