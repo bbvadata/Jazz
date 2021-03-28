@@ -100,8 +100,8 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
 
 // 64 bit cell types
-#define CELL_TYPE_TUPLE_ITEM	0x040		///< A vector of TensorDim (in a Tuple)
-#define CELL_TYPE_KIND_ITEM		0x140		///< A vector of TensorDim (in a Kind)
+#define CELL_TYPE_TUPLE_ITEM	0x030		///< A vector of ItemHeader (in a Tuple)
+#define CELL_TYPE_KIND_ITEM		0x130		///< A vector of ItemHeader (in a Kind)
 
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
@@ -169,12 +169,13 @@ union TensorDim
 /// Header for an item (of a Kind or Tuple)
 struct ItemHeader
 {
-	int	cell_type;			///< The type for the cells in the item. See CELL_TYPE_*
-	int	rank;				///< The number of dimensions
-	TensorDim range;		///< The dimensions of the tensor. Just like in a BlockHeader.range but anything 0 is a dimension
-	int level;				///< The 0-based level (== depth of this item in the tree of items)
-	int name;				///< The name of this item as an index in the BlockHeader's string buffer.
-	TensorDim dim_name;		///< The names of the dimensions (anything 0 in rank is non-zero here and viceversa.), again as indices
+	int	cell_type;				///< The type for the cells in the item. See CELL_TYPE_*
+	int	rank;					///< The number of dimensions
+	int level;					///< The 0-based level (== depth of this item in the tree of items)
+	int name;					///< The name of this item as an offset in StringBuffer.
+	int size;					///< The total number of cells in the item's tensor. (If is is a Tuple.)
+	int data_start;				///< The data start of this tensor as an offset of &BlockHeader.tensor. (If is is a Tuple.)
+	int	dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. For Kind: negative numbers are dimension names as -offset in StringBuffer.
 };
 
 
