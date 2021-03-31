@@ -32,7 +32,7 @@
 */
 
 
-// #include <stl_whatever>
+#include <set>
 
 #include "src/jazz_elements/block.h"
 
