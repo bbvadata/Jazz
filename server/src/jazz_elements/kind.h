@@ -86,6 +86,18 @@ class Kind : public Block {
 
 	public:
 
+		/** Get the name for an item by index without checking index range.
+
+			\param idx The index of the item.
+
+			\return A pointer to where the (zero ended) string is stored in the Block.
+
+			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
+		*/
+		inline char *item_name(int idx)	 {
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
+		}
+
 		/** Returns the number of dimensions in a Kind.
 
 			\return Number of dimensions
