@@ -141,7 +141,7 @@ SCENARIO("Testing kind") {
 
 		image_rgb.dim[0] = -640;
 		dims[-640] = (const char *) &nam_width;
-		image_rgb.dim[0] = -480;
+		image_rgb.dim[1] = -480;
 		dims[-480] = (const char *) &nam_height;
 
 		REQUIRE(add_item(p_kind2, 0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE,	  dims));
