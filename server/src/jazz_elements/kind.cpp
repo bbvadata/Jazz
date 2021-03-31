@@ -48,9 +48,37 @@ not repeated of invalid item names.
 */
 int Kind::audit()
 {
-//TODO: Implement and test this.
+	if (cell_type != CELL_TYPE_KIND_ITEM | size <= 0)
+		return KIND_TYPE_NOTAKIND;
 
-	return KIND_TYPE_NOTAKIND;
+	std::set <int> items;
+
+	for (int i = 0; i < size; i++) {
+		ItemHeader *p_it_hea = &tensor.cell_item[i];
+
+		if (  p_it_hea->cell_type < 0 | p_it_hea->rank < 1 | p_it_hea->rank > MAX_TENSOR_RANK | p_it_hea->level < 0
+		    | p_it_hea->name <= STRING_EMPTY | p_it_hea->size != 0 | p_it_hea->data_start != 0)
+				return KIND_TYPE_NOTAKIND;
+
+		if (items.find(p_it_hea->name) != items.end())
+			return KIND_TYPE_NOTAKIND;
+
+		items.insert(p_it_hea->name);
+	}
+
+	for (int i = 0; i < size; i++) {
+		ItemHeader *p_it_hea = &tensor.cell_item[i];
+
+		for (int j = 0; j < p_it_hea->rank; j++) {
+			int k = p_it_hea->dim[j];
+			if (k < 0) {
+				if (items.find(-k) != items.end())
+					return KIND_TYPE_NOTAKIND;
+			}
+		}
+	}
+
+	return KIND_TYPE_KIND;
 }
 
 } // namespace jazz_elements
