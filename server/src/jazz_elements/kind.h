@@ -103,8 +103,22 @@ class Kind : public Block {
 			\return Number of dimensions
 		*/
 		inline int num_dimensions() {
+			if (cell_type != CELL_TYPE_KIND_ITEM | size <= 0)
+				return 0;
 
-			return 0;
+			std::set <int> dims;
+
+			for (int i = 0; i < size; i++) {
+				ItemHeader *p_it_hea = &tensor.cell_item[i];
+
+				for (int j = 0; j < p_it_hea->rank; j++) {
+					int k = p_it_hea->dim[j];
+					if (k < 0)
+						dims.insert(k);
+				}
+			}
+
+			return dims.size();
 		};
 
 		/** Returns the names of the dimensions as a tab separated list of names.
