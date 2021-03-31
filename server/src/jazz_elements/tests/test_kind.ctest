@@ -172,7 +172,7 @@ SCENARIO("Testing kind") {
 		WHEN("Kind 1 passes .audit()") {
 			REQUIRE(p_kind1->audit() == KIND_TYPE_KIND);
 
-			THEN("We can check a few types") {
+			THEN("We can check a few things") {
 				REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
 				REQUIRE(p_kind1->rank		  == 1);
 				REQUIRE(p_kind1->range.dim[0] == 1);
@@ -182,7 +182,7 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind1->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
 				REQUIRE(p_kind1->tensor.cell_item[0].rank	   == 3);
 
-				REQUIRE(!strcmp(p_kind1->get_string(p_kind1->tensor.cell_item[0].name), "buffer"));
+				REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
 
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
@@ -212,8 +212,8 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
 				REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
 
-				REQUIRE(!strcmp(p_kind2->get_string(p_kind2->tensor.cell_item[0].name), "buffer"));
-				REQUIRE(!strcmp(p_kind2->get_string(p_kind2->tensor.cell_item[1].name), "title"));
+				REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
+				REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
 
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
@@ -246,9 +246,9 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
 				REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
 
-				REQUIRE(!strcmp(p_kind3->get_string(p_kind3->tensor.cell_item[0].name), "buffer"));
-				REQUIRE(!strcmp(p_kind3->get_string(p_kind3->tensor.cell_item[1].name), "wave"));
-				REQUIRE(!strcmp(p_kind3->get_string(p_kind3->tensor.cell_item[2].name), "title"));
+				REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
+				REQUIRE(!strcmp(p_kind3->item_name(1), "wave"));
+				REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
 
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
