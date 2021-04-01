@@ -51,9 +51,6 @@ cluster and also includes REST API client) and flux (the fundamental Jazz equiva
 // F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_elements
 // =======================================   ---------------------------------
 
-//TODO: Reach [MVP] level in tuple (Apr 4)
-//TODO: Reach [MVP] level in kind (Apr 4)
-//TODO: Reach [MVP] level in container (Apr 4)
 //TODO: Reach [MVP] level in volatile (Apr 11)
 //TODO: Reach [MVP] level in persisted (Apr 25)
 //TODO: Reach [MVP] level in network (May 9)
