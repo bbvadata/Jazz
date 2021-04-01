@@ -64,7 +64,7 @@ An instance of a **Kind**. Physically, like a Kind, it is a single block with so
 - It has constant values for the dimensions. E.g., all instances of "image_width" across all items where applicable are, say 640.
 - It has different attributes than a Tuple.
 
-Also, tuples always define, at least, these attributes:
+Also, tuples always define, if the Container sets them as expected, these attributes:
 
 - BLOCK_ATTRIB_BLOCKTYPE as the const "tuple"
 - BLOCK_ATTRIB_TYPE as whatever the inherited class name is ("Tuple" for the main class)
@@ -75,17 +75,74 @@ class Tuple : public Block {
 
 	public:
 
-	/** Verifies if a Tuple is of a Kind.
+		/** Return the address of the vector containing both the attribute keys for a Tuple.
 
-		\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
-	*/
-	inline bool is_a(pKind kind) {
-//TODO: Implement, test and document this.
+			NOTE: The tuple, besides metadata, contains data and therefore, the first tensor of ItemHeader corresponding to each
+			item is followed by the tensors containing the data of each item. This changes the logic
+		*/
+		inline int *p_attribute_keys() {
+			return align_128bit((uintptr_t) &tensor + (cell_type & 0xff)*size);
+		}
 
-		return 0;
-	};
+		/** Get the name for an item of a Tuple by index without checking index range.
 
-	inline int audit();
+			\param idx The index of the item.
+
+			\return A pointer to where the (zero ended) string is stored in the Block.
+
+			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
+		*/
+		inline char *item_name(int idx)	 {
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
+		}
+
+		/** Initializes a Tuple object (step 1): Allocates the space.
+
+			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
+
+			\return			 False on error (insufficient alloc size for a very conservative minimum).
+		*/
+		inline bool new_tuple (int num_bytes) {
+
+			return false;
+		}
+
+		/** Initializes a Tuple object (step 2): Adds an item to the (unfinished) tuple.
+
+			\param p_block A tensor to be copied into the Tuple.
+
+			\return		   False on error (insufficient alloc space or wrong block type).
+		*/
+		inline bool add_item (pBlock p_block) {
+
+			return false;
+		}
+
+		/** Initializes a Tuple object (step 3): Set names, levels and attributes.
+
+			\param p_names	A pointer to the names of all the items.
+			\param attr		The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
+			\param p_levels A pointer to an array with the level of each item. (Allows to create a tree structure. nullptr => All == 0)
+
+			\return		    False on error (insufficient alloc space for the strings).
+		*/
+		inline bool close_tuple (pNames		   p_names,
+								 AttributeMap &attr,
+								 int		  *p_levels = nullptr) {
+
+			return false;
+		}
+
+		/** Verifies if a Tuple is of a Kind.
+
+			\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
+		*/
+		inline bool is_a(pKind kind) {
+
+			return 0;
+		}
+
+		inline int audit();
 
 };
 
