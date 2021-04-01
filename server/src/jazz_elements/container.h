@@ -63,7 +63,8 @@ namespace jazz_elements
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
 #define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
-#define MAX_ITEMS_IN_TUPLE				64					///< The number of items merged into a tuple (array of BlockKeeper).
+#define MAX_ITEMS_IN_KIND				64		///< The number of items merged into a kind or tuple.
+
 
 /// Block API (method arguments)
 
@@ -117,7 +118,6 @@ typedef class  Container	*pContainer;
 typedef struct Locator		*pLocator, *pL_value;
 typedef struct R_value		*pR_value;
 typedef struct Items		*pItems;
-typedef struct Names		*pNames;
 
 /** A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
 */
@@ -195,13 +195,7 @@ typedef std::map<int, const char *> Attributes;
 a new Kind.
 */
 struct Items {
-	BlockKeeper	item[MAX_ITEMS_IN_TUPLE];				///< The items. First p_block == nullptrs breaks.
-};
-
-/** An array of Item names (used to select items in a Tuple).
-*/
-struct Names {
-	Name	name[MAX_ITEMS_IN_TUPLE];					///< The item names. First zero breaks.
+	BlockKeeper	item[MAX_ITEMS_IN_KIND];				///< The items. First p_block == nullptrs breaks.
 };
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.

@@ -53,7 +53,16 @@
 namespace jazz_elements
 {
 
-typedef class Kind *pKind;
+typedef class  Kind	 *pKind;
+typedef struct Names *pNames;
+
+
+/** An array of Item names (used to select items in a Tuple).
+*/
+struct Names {
+	Name name[0];		///< The item names. First zero breaks.
+};
+
 
 /** \brief Kind: A type definition for complex Jazz objects.
 
