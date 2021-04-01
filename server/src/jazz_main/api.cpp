@@ -1088,7 +1088,7 @@ It returns a locked (one shot) block that must be unlocked in the same http quer
 StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pBlockKeeper *p_keeper)
 {
 	int state = PSTATE_INITIAL;
-	int state_recency, next_state;
+	int state_recency = -1, next_state;
 	unsigned char cursor;
 
 	while (true) {
