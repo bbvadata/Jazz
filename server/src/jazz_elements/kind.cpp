@@ -56,7 +56,7 @@ int Kind::audit()
 	for (int i = 0; i < size; i++) {
 		ItemHeader *p_it_hea = &tensor.cell_item[i];
 
-		if (  p_it_hea->cell_type < 0 | p_it_hea->rank < 1 | p_it_hea->rank > MAX_TENSOR_RANK | p_it_hea->level < 0
+		if (  p_it_hea->cell_type <= 0 | p_it_hea->rank < 1 | p_it_hea->rank > MAX_TENSOR_RANK | p_it_hea->level < 0
 		    | p_it_hea->name <= STRING_EMPTY | p_it_hea->size != 0 | p_it_hea->data_start != 0)
 				return KIND_TYPE_NOTAKIND;
 
