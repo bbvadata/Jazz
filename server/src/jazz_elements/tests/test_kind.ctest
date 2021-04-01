@@ -38,71 +38,6 @@
 using namespace jazz_elements;
 
 
-// Kind building utils
-// -------------------
-
-bool add_item (pBlock		 p_block,
-			   int			 idx,
-			   char const	*p_name,
-			   int			*p_dim,
-			   int			 cell_type,
-			   AttributeMap &dims)
-{
-	ItemHeader *p_it_hea = &p_block->tensor.cell_item[idx];
-
-	p_it_hea->cell_type = cell_type;
-
-	int rank = 6, j;
-
-	pStringBuffer psb = p_block->p_string_buffer();
-
-	for (int i = MAX_TENSOR_RANK - 1; i >= 0; i--) {
-		p_it_hea->dim[i] = p_dim[i];
-		if (p_dim[i] == 0) {
-			rank = i;
-			if (!i)
-				return false;
-		} else {
-			if (p_dim[i] < 0) {
-				j = p_block->get_string_offset(psb, dims[p_dim[i]]);
-				if (j == STRING_NA | j == STRING_EMPTY)
-					return false;
-
-				p_it_hea->dim[i] = -j;
-			}
-		}
-	}
-
-	p_it_hea->rank = rank;
-	p_it_hea->name = p_block->get_string_offset(psb, p_name);
-
-	return p_it_hea->name > STRING_EMPTY;
-}
-
-
-bool new_kind (pBlock		 p_block,
-			   int			 num_items,
-			   int			 num_strings,
-			   AttributeMap	&attr)
-{
-	int total_bytes = sizeof(BlockHeader) + num_items*sizeof(ItemHeader) + (num_strings + attr.size())*sizeof(Name) + sizeof(StringBuffer);
-
-	if (total_bytes >= ANSWER_LENGTH)
-		return false;
-
-	memset(p_block, 0, total_bytes);
-
-	p_block->cell_type		= CELL_TYPE_KIND_ITEM;
-	p_block->rank			= 1;
-	p_block->range.dim[0]	= 1;
-	p_block->size			= num_items;
-	p_block->total_bytes	= total_bytes;
-
-	p_block->set_attributes(&attr);
-
-	return true;
-}
-
 // Tests
 // -----
 
@@ -133,41 +68,41 @@ SCENARIO("Testing kind") {
 		attr[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) &nam_bl_type;
 		attr[BLOCK_ATTRIB_TYPE]		 = (pChar) &nam_at_type;
 
-		REQUIRE(new_kind(p_kind1, 1, 3, attr));
+		REQUIRE(p_kind1->new_kind(1, sizeof(Answer), attr));
 
-		REQUIRE(add_item(p_kind1, 0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE, dims));
+		REQUIRE(p_kind1->add_item(0, 0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE, dims));
 
-		REQUIRE(new_kind(p_kind2, 2, 5, attr));
+		REQUIRE(p_kind2->new_kind(2, sizeof(Answer), attr));
 
 		image_rgb.dim[0] = -640;
 		dims[-640] = (const char *) &nam_width;
 		image_rgb.dim[1] = -480;
 		dims[-480] = (const char *) &nam_height;
 
-		REQUIRE(add_item(p_kind2, 0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE,	  dims));
-		REQUIRE(add_item(p_kind2, 1, nam_title,	 one_cell.dim,	CELL_TYPE_STRING, dims));
+		REQUIRE(p_kind2->add_item(0, 0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind2->add_item(1, 0, nam_title,	one_cell.dim,  CELL_TYPE_STRING, dims));
 
-		REQUIRE(new_kind(p_kind3, 3, 7, attr));
+		REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr));
 
 		video_rgb.dim[0] = -999;
 		video_rgb.dim[1] = -640;
 		video_rgb.dim[2] = -480;
 		dims[-999] = (const char *) &nam_frame;
-		REQUIRE(add_item(p_kind3, 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind3->add_item(0, 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
 
 		vector_10.dim[0] = -999;
-		REQUIRE(add_item(p_kind3, 1, nam_wave,	 vector_10.dim, CELL_TYPE_INTEGER, dims));
-		REQUIRE(add_item(p_kind3, 2, nam_title,	 one_cell.dim,	CELL_TYPE_STRING, dims));
+		REQUIRE(p_kind3->add_item(1, 0, nam_wave,  vector_10.dim, CELL_TYPE_INTEGER, dims));
+		REQUIRE(p_kind3->add_item(2, 0, nam_title, one_cell.dim,  CELL_TYPE_STRING, dims));
 
-		REQUIRE(new_kind(p_kind4, 2, 9, attr));
+		REQUIRE(p_kind4->new_kind(2, sizeof(Answer), attr));
 
-		REQUIRE(add_item(p_kind4, 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
-		REQUIRE(add_item(p_kind4, 1, nam_frame,	 one_cell.dim,	CELL_TYPE_STRING, dims));
+		REQUIRE(p_kind4->add_item(0, 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind4->add_item(1, 0, nam_frame,  one_cell.dim,  CELL_TYPE_STRING, dims));
 
-		REQUIRE(new_kind(p_kind5, 2, 9, attr));
+		REQUIRE(p_kind5->new_kind(2, sizeof(Answer), attr));
 
-		REQUIRE(add_item(p_kind5, 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
-		REQUIRE(add_item(p_kind5, 1, nam_buffer, one_cell.dim,	CELL_TYPE_STRING, dims));
+		REQUIRE(p_kind5->add_item(0, 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind5->add_item(1, 0, nam_buffer, one_cell.dim,	CELL_TYPE_STRING, dims));
 
 		WHEN("Kind 1 passes .audit()") {
 			REQUIRE(p_kind1->audit() == KIND_TYPE_KIND);
