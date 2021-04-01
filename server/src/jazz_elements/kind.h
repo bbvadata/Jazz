@@ -99,7 +99,7 @@ class Kind : public Block {
 
 	public:
 
-		/** Get the name for an item by index without checking index range.
+		/** Get the name for an item of a Kind by index without checking index range.
 
 			\param idx The index of the item.
 
@@ -132,7 +132,7 @@ class Kind : public Block {
 			}
 
 			return dims.size();
-		};
+		}
 
 		/** Returns the names of the dimensions as a tab separated list of names.
 
@@ -163,7 +163,7 @@ class Kind : public Block {
 					}
 				}
 			}
-		};
+		}
 
 		/** Initializes a Kind object (step 1): Allocates the space.
 
@@ -171,7 +171,7 @@ class Kind : public Block {
 			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
 			\param attr		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
 
-			\return			 False on error (insufficent alloc size for a very conservative minimum).
+			\return			 False on error (insufficient alloc size for a very conservative minimum).
 		*/
 		inline bool new_kind (int			num_items,
 							  int			num_bytes,
@@ -192,7 +192,7 @@ class Kind : public Block {
 			set_attributes(&attr);
 
 			return true;
-		};
+		}
 
 		/** Initializes a Kind object (step 2): Adds each of the items.
 
@@ -203,7 +203,7 @@ class Kind : public Block {
 			\param cell_type The cell type of the item.
 			\param dims		 Names for the dimensions. See below.
 
-			\return			 False on error (insufficent alloc space, wrong shape, wrong dimension names).
+			\return			 False on error (insufficient alloc space, wrong shape, wrong dimension names).
 
 		How dimensions are defined.
 		---------------------------
