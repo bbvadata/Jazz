@@ -215,8 +215,6 @@ class Kind : public Block {
 
 			ItemHeader *p_it_hea = &tensor.cell_item[idx];
 
-			p_it_hea->cell_type = cell_type;
-
 			int rank = 6, j, k;
 
 			pStringBuffer psb = p_string_buffer();
@@ -240,11 +238,16 @@ class Kind : public Block {
 				}
 			}
 
-			p_it_hea->rank	= rank;
-			p_it_hea->level	= level;
-			p_it_hea->name	= get_string_offset(psb, p_name);
+			p_it_hea->name = get_string_offset(psb, p_name);
 
-			return p_it_hea->name > STRING_EMPTY;
+			if (p_it_hea->name <= STRING_EMPTY)
+				return false;
+
+			p_it_hea->cell_type = cell_type;
+			p_it_hea->rank		= rank;
+			p_it_hea->level		= level;
+
+			return true;
 		}
 
 		int audit();
