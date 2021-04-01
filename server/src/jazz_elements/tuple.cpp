@@ -47,7 +47,6 @@ namespace jazz_elements
 */
 int Tuple::audit()
 {
-//TODO: Implement and test this.
 
 	return KIND_TYPE_NOTAKIND;
 }
