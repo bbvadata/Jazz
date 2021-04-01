@@ -156,6 +156,36 @@ class Kind : public Block {
 			}
 		};
 
+		/** Initializes a Kind object (step 1): Allocates the space.
+
+			\param num_items The number of items the Kind will have. This call must be followed by one add_item() for each of them.
+			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
+			\param attr		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
+
+			\return			 False on error (insufficent alloc size for a very conservative minimum).
+		*/
+		inline bool new_kind (int			num_items,
+							  int			num_bytes,
+			   				  AttributeMap &attr) {
+
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*8;
+			if (num_bytes < rq_sz)
+				return false;
+
+			memset(&cell_type, 0, num_bytes);
+
+			cell_type	 = CELL_TYPE_KIND_ITEM;
+			rank		 = 1;
+			range.dim[0] = 1;
+			size		 = num_items;
+			total_bytes	 = num_bytes;
+
+			set_attributes(&attr);
+
+			return true;
+		};
+
+		/** Initializes a Kind object (step 2): Adds each of the items.
 		int audit();
 };
 
