@@ -76,6 +76,9 @@ bool test_parse_const_meta (const char * p_query,
 
 	REQUIRE(ret == expected_ret);
 
+	if (expected_ret != PARSE_OK)
+		return true;
+
 	if (expected_type)
 		REQUIRE(block_hea.cell_type == expected_type);
 
