@@ -186,6 +186,67 @@ class Kind : public Block {
 		};
 
 		/** Initializes a Kind object (step 2): Adds each of the items.
+
+			\param idx		 The index of the items to add. Must be in range [0..num_items-1] of the previous new_kind() call.
+			\param level	 The level of the item in the Kind (Allows to create a tree structure. All == 0 is okay.)
+			\param p_name	 The name of the item.
+			\param p_dim	 The shape of the item. Rank will be set automatically on the first zero.
+			\param cell_type The cell type of the item.
+			\param dims		 Names for the dimensions. See below.
+
+			\return			 False on error (insufficent alloc space, wrong shape, wrong dimension names).
+
+		How dimensions are defined.
+		---------------------------
+
+		Dimensions are placehoders in the tensor shapes that contain an integer variable such as "width" instade of a constant. They are
+		defined by placing a unique negative number for each dimension in the tensor and giving it a name inside the dims map. E.g.,
+		if an image has shape [-1, -2, 3] and dims[-1] == "width" and dims[-2] == "height", The kind will store these variable dimensions
+		together with their names.
+		*/
+		inline bool add_item (int			idx,
+							  int			level,
+			   				  char const   *p_name,
+							  int		   *p_dim,
+							  int			cell_type,
+							  AttributeMap &dims) {
+			if (idx < 0 | idx >= size)
+				return false;
+
+			ItemHeader *p_it_hea = &tensor.cell_item[idx];
+
+			p_it_hea->cell_type = cell_type;
+
+			int rank = 6, j, k;
+
+			pStringBuffer psb = p_string_buffer();
+
+			for (int i = MAX_TENSOR_RANK - 1; i >= 0; i--) {
+				j = p_dim[i];
+				p_it_hea->dim[i] = j;
+				if (j == 0) {
+					rank = i;
+					if (!i)
+						return false;
+				} else if (j < 0) {
+					if (dims.find(j) == dims.end())
+						return false;
+
+					k = get_string_offset(psb, dims[j]);
+					if (k <= STRING_EMPTY)
+						return false;
+
+					p_it_hea->dim[i] = -k;
+				}
+			}
+
+			p_it_hea->rank	= rank;
+			p_it_hea->level	= level;
+			p_it_hea->name	= get_string_offset(psb, p_name);
+
+			return p_it_hea->name > STRING_EMPTY;
+		}
+
 		int audit();
 };
 
