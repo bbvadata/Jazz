@@ -73,10 +73,14 @@ attribute keys, StringBuffer).
 
 The StringBuffer contains the item names and dimension names. See TensorDim.
 
-Many Kind functionalities (including creating kinds and creating kinds from merging kinds) are done by Containers. This object just has
-a minimum of functionality to check the content of a kind (items, dimesions) anf to source a kind.
+Creating Kinds
+--------------
 
-Also, kinds always define, at least, these attributes:
+Many Kind functionalities (including creating kinds and creating kinds from merging kinds) are done by Containers. This object, nevetheless
+has a minimum of functionality to build by parts: new_kind(), add_item() to do the basic building which will be called by the
+Container. It also has function to check the content and validate a kind.
+
+Also, kinds should define, these attributes, but that it left to the Container:
 
 - BLOCK_ATTRIB_BLOCKTYPE as the const "kind"
 - BLOCK_ATTRIB_TYPE as the const "Kind"
