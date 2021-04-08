@@ -141,6 +141,7 @@ class Tuple : public Block {
 
 		/** Returns the tensor dimensions as a TensorDim array.
 
+			\param item  The index of the tuple item.
 			\param p_dim A pointer to the TensorDim containing the dimensions.
 
 			NOTES: See notes on set_dimensions() to understand why in case of 0 and 1, it may return different values than those
@@ -154,6 +155,7 @@ class Tuple : public Block {
 
 		/** Returns if an index (as a TensorDim array) is valid for the tensor.
 
+			\param item  The index of the tuple item.
 			\param p_idx A pointer to the TensorDim containing the index.
 
 			\return	True if the index is valid.
@@ -169,6 +171,7 @@ class Tuple : public Block {
 
 		/** Returns if an offset (as an integer) is valid for the tensor.
 
+			\param item   The index of the tuple item.
 			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
 
 			\return	True if the offset is valid.
@@ -177,6 +180,7 @@ class Tuple : public Block {
 
 		/** Convert an index (as a TensorDim array) to the corresponding offset without checking its validity.
 
+			\param item  The index of the tuple item.
 			\param p_idx A pointer to the TensorDim containing the index.
 
 			\return	The offset corresponding to the same cell if the index was in a valid range.
@@ -189,6 +193,7 @@ class Tuple : public Block {
 
 		/** Convert an offset to a tensor cell into its corresponding index (as a TensorDim array) without checking its validity.
 
+			\param item	  The index of the tuple item.
 			\param offset The input offset
 			\param p_idx  A pointer to the TensorDim to return the result.
 		*/
@@ -200,6 +205,7 @@ class Tuple : public Block {
 
 		/** Get a string from the tensor by index without checking index range.
 
+			\param item  The index of the tuple item.
 			\param p_idx A pointer to the TensorDim containing the index.
 
 			\return A pointer to where the (zero ended) string is stored in the Block.
@@ -212,6 +218,7 @@ class Tuple : public Block {
 
 		/** Get a string from the tensor by offset without checking offset range.
 
+			\param item   The index of the tuple item.
 			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
 
 			\return A pointer to where the (zero ended) string is stored in the Block.
@@ -224,6 +231,7 @@ class Tuple : public Block {
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
 
+			\param item  The index of the tuple item.
 			\param p_idx A pointer to the TensorDim containing the index.
 			\param p_str A pointer to a (zero ended) string that will be allocated inside the Block.
 
@@ -240,6 +248,7 @@ class Tuple : public Block {
 
 		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
 
+			\param item   The index of the tuple item.
 			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
 			\param p_str  A pointer to a (zero ended) string that will be allocated inside the Block.
 
