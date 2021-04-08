@@ -254,6 +254,8 @@ class Tuple : public Block {
 			tensor.cell_int[offset] = get_string_offset(psb, p_str);
 		}
 
+	// Tuple/Kind specific methods:
+
 		/** Verifies if a Tuple is of a Kind.
 
 			\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
@@ -264,7 +266,6 @@ class Tuple : public Block {
 		}
 
 		inline int audit();
-
 };
 
 
