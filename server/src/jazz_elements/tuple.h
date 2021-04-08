@@ -75,7 +75,45 @@ class Tuple : public Block {
 
 	public:
 
-		/** Return the address of the vector containing both the attribute keys for a Tuple.
+	// Methods to create a Tuple:
+
+		/** Initializes a Tuple object (step 1): Allocates the space.
+
+			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
+
+			\return			 False on error (insufficient alloc size for a very conservative minimum).
+		*/
+		inline bool new_tuple (int num_bytes) {
+
+			return false;
+		}
+
+		/** Initializes a Tuple object (step 2): Adds an item to the (unfinished) tuple.
+
+			\param p_block A tensor to be copied into the Tuple.
+
+			\return		   False on error (insufficient alloc space or wrong block type).
+		*/
+		inline bool add_item (pBlock p_block) {
+
+			return false;
+		}
+
+		/** Initializes a Tuple object (step 3): Set names, levels and attributes.
+
+			\param p_names	A pointer to the names of all the items.
+			\param attr		The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
+			\param p_levels A pointer to an array with the level of each item. (Allows to create a tree structure. nullptr => All == 0)
+
+			\return		    False on error (insufficient alloc space for the strings).
+		*/
+		inline bool close_tuple (pNames		   p_names,
+								 AttributeMap &attr,
+								 int		  *p_levels = nullptr) {
+
+			return false;
+		}
+
 
 			NOTE: The tuple, besides metadata, contains data and therefore, the first tensor of ItemHeader corresponding to each
 			item is followed by the tensors containing the data of each item. This changes the logic
