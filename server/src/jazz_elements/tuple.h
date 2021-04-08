@@ -154,18 +154,47 @@ class Tuple : public Block {
 
 		/** Returns if an index (as a TensorDim array) is valid for the tensor.
 
-			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
+			\param p_idx A pointer to the TensorDim containing the index.
 
-			\return			 False on error (insufficient alloc size for a very conservative minimum).
+			\return	True if the index is valid.
 		*/
-		inline bool new_tuple (int num_bytes) {
-
-			return false;
+		inline bool validate_index(int item, int *p_idx) {
+			int j = size;
+			for (int i = 0; i < rank; i++) {
+				if (p_idx[i] < 0 || p_idx[i]*range.dim[i] >= j) return false;
+				j = range.dim[i];
+			}
+			return true;
 		}
 
-		/** Initializes a Tuple object (step 2): Adds an item to the (unfinished) tuple.
+		/** Returns if an offset (as an integer) is valid for the tensor.
 
-			\param p_block A tensor to be copied into the Tuple.
+			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
+
+			\return	True if the offset is valid.
+		*/
+		inline int validate_offset(int item, int offset) { return offset >=0 & offset < size; }
+
+		/** Convert an index (as a TensorDim array) to the corresponding offset without checking its validity.
+
+			\param p_idx A pointer to the TensorDim containing the index.
+
+			\return	The offset corresponding to the same cell if the index was in a valid range.
+		*/
+		inline int get_offset(int item, int *p_idx) {
+			int j = 0;
+			for (int i = 0; i < rank; i++) j += p_idx[i]*range.dim[i];
+			return j;
+		}
+
+		/** Convert an offset to a tensor cell into its corresponding index (as a TensorDim array) without checking its validity.
+
+			\param offset The input offset
+			\param p_idx  A pointer to the TensorDim to return the result.
+		*/
+		inline void get_index(int item, int offset, int *p_idx) {
+			for (int i = 0; i < rank; i++) { p_idx[i] = offset/range.dim[i]; offset -= p_idx[i]*range.dim[i]; }
+		}
 
 			\return		   False on error (insufficient alloc space or wrong block type).
 		*/
