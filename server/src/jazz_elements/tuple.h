@@ -114,6 +114,9 @@ class Tuple : public Block {
 			return false;
 		}
 
+	// Methods on Tuple items:
+
+		/** Overrides the Block's p_attribute_keys() - Return the address of the vector containing both the attribute keys for a Tuple.
 
 			NOTE: The tuple, besides metadata, contains data and therefore, the first tensor of ItemHeader corresponding to each
 			item is followed by the tensors containing the data of each item. This changes the logic
