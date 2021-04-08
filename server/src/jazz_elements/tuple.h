@@ -137,7 +137,22 @@ class Tuple : public Block {
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
 		}
 
-		/** Initializes a Tuple object (step 1): Allocates the space.
+	// Methods taken for Block to tuple items:
+
+		/** Returns the tensor dimensions as a TensorDim array.
+
+			\param p_dim A pointer to the TensorDim containing the dimensions.
+
+			NOTES: See notes on set_dimensions() to understand why in case of 0 and 1, it may return different values than those
+			passed when the block was created with a set_dimensions() call.
+		*/
+		inline void get_dimensions(int item, int *p_dim) {
+			int j = size;
+			for (int i = 0; i < MAX_TENSOR_RANK; i++)
+				if (i < rank) { p_dim[i] = j/range.dim[i]; j = range.dim[i]; } else p_dim[i] = 0;
+		}
+
+		/** Returns if an index (as a TensorDim array) is valid for the tensor.
 
 			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
 
