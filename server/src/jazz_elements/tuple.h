@@ -196,26 +196,62 @@ class Tuple : public Block {
 			for (int i = 0; i < rank; i++) { p_idx[i] = offset/range.dim[i]; offset -= p_idx[i]*range.dim[i]; }
 		}
 
-			\return		   False on error (insufficient alloc space or wrong block type).
-		*/
-		inline bool add_item (pBlock p_block) {
+	// Methods taken for Block to tuple items of strings:
 
-			return false;
+		/** Get a string from the tensor by index without checking index range.
+
+			\param p_idx A pointer to the TensorDim containing the index.
+
+			\return A pointer to where the (zero ended) string is stored in the Block.
+
+			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
+		*/
+		inline char *get_string(int item, int *p_idx) {
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[get_offset(item, p_idx)]]);
 		}
 
-		/** Initializes a Tuple object (step 3): Set names, levels and attributes.
+		/** Get a string from the tensor by offset without checking offset range.
 
-			\param p_names	A pointer to the names of all the items.
-			\param attr		The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
-			\param p_levels A pointer to an array with the level of each item. (Allows to create a tree structure. nullptr => All == 0)
+			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
 
-			\return		    False on error (insufficient alloc space for the strings).
+			\return A pointer to where the (zero ended) string is stored in the Block.
+
+			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline bool close_tuple (pNames		   p_names,
-								 AttributeMap &attr,
-								 int		  *p_levels = nullptr) {
+		inline char *get_string(int item, int offset)	 {
+			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[offset]]);
+		}
 
-			return false;
+		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
+
+			\param p_idx A pointer to the TensorDim containing the index.
+			\param p_str A pointer to a (zero ended) string that will be allocated inside the Block.
+
+			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
+			typically immutable. jazz_alloc.h contains methods that make a Block bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the immutable one using jazz_alloc.h methods. Otherwise, use at your own
+			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
+			true, it doesn't even try to allocate.
+		*/
+		inline void set_string(int item, int *p_idx, const char *p_str) {
+			pStringBuffer psb = p_string_buffer();
+			tensor.cell_int[get_offset(item, p_idx)] = get_string_offset(psb, p_str);
+		}
+
+		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
+
+			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
+			\param p_str  A pointer to a (zero ended) string that will be allocated inside the Block.
+
+			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
+			typically immutable. jazz_alloc.h contains methods that make a Block bigger if that is necessary. This one doesn't.
+			The 100% safe way is creating a new block from the immutable one using jazz_alloc.h methods. Otherwise, use at your own
+			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
+			true, it doesn't even try to allocate.
+		*/
+		inline void set_string(int item, int offset, const char *p_str) {
+			pStringBuffer psb = p_string_buffer();
+			tensor.cell_int[offset] = get_string_offset(psb, p_str);
 		}
 
 		/** Verifies if a Tuple is of a Kind.
