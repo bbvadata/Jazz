@@ -184,6 +184,26 @@ SCENARIO("Testing tuple") {
 				REQUIRE(!strcmp(ans.text, "num_frames,width,height"));
 			}
 		}
+/*
+		inline bool new_tuple (int num_bytes)
+		inline bool add_item (pBlock p_block)
+		inline bool close_tuple (pNames		   p_names,
+								 AttributeMap &attr,
+								 int		  *p_levels = nullptr)
+		inline int *p_attribute_keys()
+		inline char *item_name(int idx)
+		inline void get_dimensions(int item, int *p_dim)
+		inline bool validate_index(int item, int *p_idx)
+		inline int validate_offset(int item, int offset)
+		inline int get_offset(int item, int *p_idx)
+		inline void get_index(int item, int offset, int *p_idx)
+		inline char *get_string(int item, int *p_idx)
+		inline char *get_string(int item, int offset)
+		inline void set_string(int item, int *p_idx, const char *p_str)
+		inline void set_string(int item, int offset, const char *p_str)
+		inline bool is_a(pKind kind)
+		inline int audit()
+*/
 
 	}
 }
