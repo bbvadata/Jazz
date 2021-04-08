@@ -43,14 +43,148 @@ using namespace jazz_elements;
 
 SCENARIO("Testing tuple") {
 
-//TODO: Write tests for this!
+	GIVEN("We have some kinds and tuples") {
+		Answer k1, k2, k3, k4;
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
+		pKind p_kind1 = (pKind) &k1, p_kind2 = (pKind) &k2, p_kind3 = (pKind) &k3, p_kind4 = (pKind) &k4;
+
+		Answer t1, t2, t3, t4, t5, t6, t7, t8, t9;
+
+		pTuple p_tup1 = (pTuple) &t1, p_tup2 = (pTuple) &t2, p_tup3 = (pTuple) &t3;
+		pTuple p_tup4 = (pTuple) &t4, p_tup5 = (pTuple) &t5, p_tup6 = (pTuple) &t6;
+		pTuple p_tup7 = (pTuple) &t7, p_tup8 = (pTuple) &t8, p_tup9 = (pTuple) &t9;
+
+		AttributeMap attr_kind = {}, attr_tuple = {};
+
+		attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
+		attr_kind[BLOCK_ATTRIB_TYPE]	  = (pChar) "Kind";
+
+		attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "tuple";
+		attr_tuple[BLOCK_ATTRIB_TYPE]	   = (pChar) "Tuple";
+
+		TensorDim image_640x480	= {16, 9, 3, 0, 0, 0};
+		TensorDim image_rgb		= {-640, -480, 3, 0, 0, 0};
+		TensorDim video_rgb		= {-999, -640, -480, 3, 0, 0};
+		TensorDim audio_track	= {-999, 40, 0, 0, 0, 0};
+
+		TensorDim one_cell		= {1, 0, 0, 0, 0, 0};
+
+		AttributeMap empty_dims = {}, dims  = {};
+
+		dims[-640] = (pChar) "width";
+		dims[-480] = (pChar) "height";
+		dims[-999] = (pChar) "num_frames";
+
+		REQUIRE(p_kind1->new_kind(1, sizeof(Answer), attr_kind));
+		REQUIRE(p_kind1->add_item(0, 0, "buffer", image_640x480.dim, CELL_TYPE_BYTE, empty_dims));
+
+		REQUIRE(p_kind2->new_kind(2, sizeof(Answer), attr_kind));
+		REQUIRE(p_kind2->add_item(0, 0, "buffer", image_rgb.dim, CELL_TYPE_BYTE,   dims));
+		REQUIRE(p_kind2->add_item(1, 0, "title",  one_cell.dim,  CELL_TYPE_STRING, dims));
+
+		REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr_kind));
+		REQUIRE(p_kind3->add_item(0, 1, "buffer", video_rgb.dim,   CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind3->add_item(1, 2, "audio",  audio_track.dim, CELL_TYPE_INTEGER, dims));
+		REQUIRE(p_kind3->add_item(2, 2, "title",  one_cell.dim,	   CELL_TYPE_STRING,  dims));
+
+		WHEN("Kind 1 passes .audit()") {
+			REQUIRE(p_kind1->audit() == KIND_TYPE_KIND);
+
+			THEN("We can check a few things") {
+				REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind1->rank		  == 1);
+				REQUIRE(p_kind1->range.dim[0] == 1);
+				REQUIRE(p_kind1->size		  == 1);
+				REQUIRE(p_kind1->has_NA		  == false);
+
+				REQUIRE(p_kind1->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_kind1->tensor.cell_item[0].rank	   == 3);
+
+				REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
+
+				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
+
+				REQUIRE(p_kind1->num_dimensions() == 0);
+
+				Answer ans;
+
+				p_kind1->dimension_names(&ans);
+				REQUIRE(ans.text[0] == 0);
 			}
 		}
+
+		WHEN("Kind 2 passes .audit()") {
+			REQUIRE(p_kind2->audit() == KIND_TYPE_KIND);
+
+			THEN("We can check a few types") {
+				REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind2->rank		  == 1);
+				REQUIRE(p_kind2->range.dim[0] == 1);
+				REQUIRE(p_kind2->size		  == 2);
+				REQUIRE(p_kind2->has_NA		  == false);
+
+				REQUIRE(p_kind2->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_kind2->tensor.cell_item[0].level	   == 0);
+				REQUIRE(p_kind2->tensor.cell_item[0].rank	   == 3);
+
+				REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_kind2->tensor.cell_item[1].level	   == 0);
+				REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
+
+				REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
+				REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
+
+				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
+
+				REQUIRE(p_kind2->num_dimensions() == 2);
+
+				Answer ans;
+
+				p_kind2->dimension_names(&ans);
+				REQUIRE(!strcmp(ans.text, "width,height"));
+			}
+		}
+
+		WHEN("Kind 3 passes .audit()") {
+			REQUIRE(p_kind3->audit() == KIND_TYPE_KIND);
+
+			THEN("We can check a few types") {
+				REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind3->rank		  == 1);
+				REQUIRE(p_kind3->range.dim[0] == 1);
+				REQUIRE(p_kind3->size		  == 3);
+				REQUIRE(p_kind3->has_NA		  == false);
+
+				REQUIRE(p_kind3->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_kind3->tensor.cell_item[0].level	   == 1);
+				REQUIRE(p_kind3->tensor.cell_item[0].rank	   == 4);
+
+				REQUIRE(p_kind3->tensor.cell_item[1].cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(p_kind3->tensor.cell_item[1].level	   == 2);
+				REQUIRE(p_kind3->tensor.cell_item[1].rank	   == 2);
+
+				REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_kind3->tensor.cell_item[2].level	   == 2);
+				REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
+
+				REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
+				REQUIRE(!strcmp(p_kind3->item_name(1), "audio"));
+				REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
+
+				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
+
+				REQUIRE(p_kind3->num_dimensions() == 3);
+
+				Answer ans;
+
+				p_kind3->dimension_names(&ans);
+				REQUIRE(!strcmp(ans.text, "num_frames,width,height"));
+			}
+		}
+
 	}
 }
 
