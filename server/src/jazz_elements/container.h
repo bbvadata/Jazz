@@ -113,6 +113,7 @@ typedef std::atomic<int32_t> Lock32;
 
 // Forward pointer types:
 
+typedef struct Names		*pNames;
 typedef struct BlockKeeper 	*pBlockKeeper;
 typedef class  Container	*pContainer;
 typedef struct Locator		*pLocator, *pL_value;
@@ -127,6 +128,12 @@ typedef std::map<std::string, pContainer> BaseNames;
 */
 struct OneShotDeque {
 	pBlockKeeper	p_prev, p_next;		///< A pair of pointers to keep this (the descendant) in a double linked list
+};
+
+/** An array of Item names (used to select items in a Tuple).
+*/
+struct Names {
+	Name name[0];		///< The item names. First zero breaks.
 };
 
 /** The extra space in a BlockKeeper.
