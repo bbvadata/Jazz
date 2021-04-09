@@ -51,14 +51,21 @@
 #define INCLUDED_JAZZ_ELEMENTS_ABSTRACTION
 
 
-/** \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
+/** \brief An Abstraction is a kind that can include one index to another abstraction.
+
+To clarify, an abstraction can have many indices, but only one at each level of its tree-like navigation. A book (which is an
+abstraction) can have anything a Kind has plus an index to its chapters. Each of the chapters (which are again abstractions) can
+have anything plus an index to its sections, etc.
+
+*/
+class Abstraction : public Block {
+
+	public:
+
+};
 
 } // namespace jazz_elements
 

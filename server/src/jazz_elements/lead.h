@@ -51,14 +51,17 @@
 #define INCLUDED_JAZZ_ELEMENTS_LEAD
 
 
-/** \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
+/** \brief is a map from one (numeric, categorical or string) key to many locators and possibly filters.
+
+*/
+class Lead : public Block {
+
+	public:
+
+};
 
 } // namespace jazz_elements
 

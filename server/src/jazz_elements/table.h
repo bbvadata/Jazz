@@ -54,10 +54,12 @@
 namespace jazz_elements
 {
 
-/** \brief A set of Columns sharing the same indices.
+/** \brief Tables are sets of columns that share exactly the same indexing tree, but have possibly different final data tuples.
+Tables can be ordinary data tables (with just one index: "row number") or complex structures like the same book in many languages
+translated sentence by sentence.
 
 */
-class Table : public Tuple {
+class Table : public Block {
 
 	public:
 

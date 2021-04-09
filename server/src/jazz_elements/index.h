@@ -54,9 +54,9 @@
 namespace jazz_elements
 {
 
-/** \brief A local, sharded or streaming map from anything (numeric or categorical) to an absolute locator of Tuples.
+/** \brief A local, sharded or streaming map from anything (numeric or categorical) to locators.
 
-These Tuples form Columns (that may be part of Tables and Fluxes).
+They are the basis of Columns and Abstractions.
 
 */
 class Index : public Block {

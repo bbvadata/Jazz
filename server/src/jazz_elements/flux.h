@@ -56,9 +56,15 @@ namespace jazz_elements
 
 /** \brief A table of two columns **source** and **destination**, with only one special index **time**.
 
-It has a special streaming API. The past may not be stored.
+A flux is a one-directional communication of tuples using one abstraction. Therefore, tuples (which are exchanged in any flux
+interaction) are indexed in some abstraction (a tree of indices). Different branches of a flux may even have different kinds. It is the
+only mechanism of communication. It includes reading or writing to files (trees of folders are part of abstraction), exploring large
+collections of books, videos, etc. and streaming (where the index is time). In Jazz, "device" is not a precise word as in unix. What counts
+is the flux, its abstraction defines the API. The microphone, camera, motor system, ... are fluxes. We simplify. When both directions
+are required, there are two fluxes up and down, so a QA game has two fluxes. Storage is read/write, but not a flux.
+
 */
-class Flux : public Tuple {
+class Flux : public Block {
 
 	public:
 
