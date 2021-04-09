@@ -34,7 +34,8 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_elements/network.h"
+
+#include "src/jazz_elements/abstraction.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2

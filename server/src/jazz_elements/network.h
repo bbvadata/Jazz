@@ -34,7 +34,8 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_elements/persisted.h"
+
+#include "src/jazz_elements/utils.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
