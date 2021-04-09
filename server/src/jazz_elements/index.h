@@ -51,14 +51,19 @@
 #define INCLUDED_JAZZ_ELEMENTS_INDEX
 
 
-/** \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
+/** \brief A local, sharded or streaming map from anything (numeric or categorical) to an absolute locator of Tuples.
+
+These Tuples form Columns (that may be part of Tables and Fluxes).
+
+*/
+class Index : public Block {
+
+	public:
+
+};
 
 } // namespace jazz_elements
 

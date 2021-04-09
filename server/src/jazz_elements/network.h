@@ -54,12 +54,10 @@
 namespace jazz_elements
 {
 
-
 // Forward pointer types:
 
 typedef class  Cluster	*pCluster;
 typedef class  Index	*pIndex;
-typedef class  Remote	*pRemote;
 
 
 /** \brief A service keeping a configuration of all the Jazz nodes that may be acccessed remotely.
@@ -83,42 +81,6 @@ class Cluster : public Service {
 		StatusCode start	 ();
 		StatusCode shut_down ();
 
-};
-
-
-/** \brief A local, sharded or streaming map from anything (numeric or categorical) to an absolute locator of Tuples.
-
-These Tuples form Columns (that may be part of Tables and Fluxes).
-
-*/
-class Index : public Block {
-
-	public:
-
-};
-
-
-/** \brief A Container that treats a remote node (mostly a Jazz node, but also a web API) as persistence.
-
-*/
-class Remote : public Container {
-
-	public:
-
-		Remote (pLogger		a_logger,
-				pConfigFile a_config,
-				pCluster	a_cluster);
-
-		StatusCode start	 ();
-		StatusCode shut_down ();
-
-		void base_names (BaseNames &base_names);
-
-#ifndef CATCH_TEST
-	private:
-#endif
-
-		pCluster p_cluster;
 };
 
 } // namespace jazz_elements
