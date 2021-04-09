@@ -113,52 +113,6 @@ StatusCode Cluster::shut_down()
 	return SERVICE_NO_ERROR;
 }
 
-/*	-----------------------------------------------
-	 Remote : I m p l e m e n t a t i o n
---------------------------------------------------- */
-
-Remote::Remote(pLogger a_logger, pConfigFile a_config, pCluster	a_cluster) : Container(a_logger, a_config)
-{
-	p_cluster = a_cluster;
-}
-
-/**
-//TODO: Document Remote::start()
-*/
-StatusCode Remote::start()
-{
-//TODO: Implement Remote::start()
-
-	return SERVICE_NO_ERROR;
-}
-
-
-/** Shuts down the Remote Service
-*/
-StatusCode Remote::shut_down()
-{
-//TODO: Implement Remote::shut_down()
-
-	return SERVICE_NO_ERROR;
-}
-
-
-/** Add the base names for this Container.
-
-	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
-
-*/
-void Remote::base_names (BaseNames &base_names)
-{
-	base_names["jazz_get"] = this;
-	base_names["jazz_put"] = this;
-
-	base_names["jazz_broadcast"] = this;
-
-	base_names["http_get"] = this;
-	base_names["http_put"] = this;
-}
-
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

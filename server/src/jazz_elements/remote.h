@@ -51,14 +51,34 @@
 #define INCLUDED_JAZZ_ELEMENTS_REMOTE
 
 
-/** \brief One liner.
-
-//TODO: Write this!
-*/
-
 namespace jazz_elements
 {
 
+typedef class  Remote	*pRemote;
+
+
+/** \brief A Container that treats a remote node (mostly a Jazz node, but also a web API) as persistence.
+
+*/
+class Remote : public Container {
+
+	public:
+
+		Remote (pLogger		a_logger,
+				pConfigFile a_config,
+				pCluster	a_cluster);
+
+		StatusCode start	 ();
+		StatusCode shut_down ();
+
+		void base_names (BaseNames &base_names);
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
+		pCluster p_cluster;
+};
 
 } // namespace jazz_elements
 
