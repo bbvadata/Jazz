@@ -347,15 +347,23 @@ class Container : public Service {
 		void lock_container	  ();
 		void unlock_container ();
 
-		virtual StatusCode new_container();
-		virtual StatusCode destroy_container();
+		StatusCode new_keeper		(pBlockKeeper *p_keeper);
+		StatusCode free_keeper		(pBlockKeeper *p_keeper);
+		StatusCode new_container	();
+		StatusCode destroy_container();
+
+		inline void* malloc (size_t size) {
+			void * ret = std::malloc(size);
+			if (ret != nullptr)
+				alloc_bytes += size;
+			return ret;
+		}
 
 		int num_keepers, max_num_keepers;
 		uint64_t alloc_bytes, last_alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
 		pBlockKeeper p_buffer, p_left, p_right;
 		Lock32 _lock_;
 };
-
 
 } // namespace jazz_elements
 
