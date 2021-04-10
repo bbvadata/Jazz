@@ -53,6 +53,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 	_lock_ = 0;
 }
 
+
 Container::~Container () {
 	destroy_container();
 }
@@ -306,7 +307,7 @@ Note that: The "level-trick" makes the structure much simpler by just storing th
 but not necessary to match tuples to kinds. The resulting names must all be different or it will return an error.
 
 
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
 StatusCode Container::new_block(pBlockKeeper *p_keeper,
 								pItems		  p_item,
