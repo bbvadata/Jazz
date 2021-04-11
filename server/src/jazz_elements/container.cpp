@@ -484,6 +484,8 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;			// No silent fail, fill_tensor is invalid
 		}
 	}
+
+	p_keeper->status = BLOCK_STATUS_READY;
 	return SERVICE_NO_ERROR;
 }
 
@@ -651,6 +653,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 		memcpy(p_nsb, p_osb, p_osb->buffer_size + sizeof(StringBuffer));
 	}
 
+	p_keeper->status = BLOCK_STATUS_READY;
 	return SERVICE_NO_ERROR;
 }
 
