@@ -440,9 +440,13 @@ class Container : public Service {
 			return ret;
 		}
 
-		int num_keepers, max_num_keepers;
-		uint64_t alloc_bytes, last_alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
-		pBlockKeeper p_buffer, p_left, p_right;
+		StatusCode new_container	();
+		StatusCode destroy_container();
+
+		int max_num_keepers;
+		uint64_t alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
+		bool alloc_warning_issued;
+		pBlockKeeper p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
 };
 
