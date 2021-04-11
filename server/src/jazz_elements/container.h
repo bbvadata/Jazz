@@ -273,7 +273,7 @@ class Container : public Service {
 
 		// - Allocation: .new_block(), .unlock()
 
-		StatusCode new_block   (pBlockKeeper *p_keeper,
+		StatusCode new_block   (pBlockKeeper &p_keeper,
 								int			  cell_type,
 								int			 *dim,
 								Attributes	 *att			  = nullptr,
@@ -283,33 +283,33 @@ class Container : public Service {
 								const char	 *p_text		  = nullptr,
 								char		  eol			  = '\n');
 
-		StatusCode new_block   (pBlockKeeper *p_keeper,
+		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pItems		  p_item,
 								pNames		  p_item_name,
 						   		int			  build			  = BUILD_TUPLE,
 								Attributes	 *att			  = nullptr);
 
-		StatusCode new_block   (pBlockKeeper *p_keeper,
-								pBlock		  p_block,
+		StatusCode new_block   (pBlockKeeper &p_keeper,
+								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
 								Attributes	 *att			  = nullptr);
 
-		StatusCode new_block   (pBlockKeeper *p_keeper,
+		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pBlock		  p_block,
 								pNames		  p_item_name,
 								Attributes	 *att			  = nullptr);
 
-		StatusCode new_block   (pBlockKeeper *p_keeper,
+		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pChar		 &p_source,
 						   		pBlock		  p_as_block	  = nullptr,
 								Attributes	 *att			  = nullptr);
 
-		StatusCode new_block   (pBlockKeeper *p_keeper,
+		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pBlock		  p_block,
 						   		int			  format		  = AS_BEBOP,
 								Attributes	 *att			  = nullptr);
 
-		StatusCode unlock	   (pBlockKeeper *p_keeper);
+		void unlock			   (pBlockKeeper &p_keeper);
 
 		// Crud: .put(), .remove()
 
@@ -324,12 +324,12 @@ class Container : public Service {
 
 		// Support for contracts: .get()
 
-		StatusCode get		   (pBlockKeeper *p_keeper,
+		StatusCode get		   (pBlockKeeper &p_keeper,
 								pR_value	  p_rvalue,
 								pContainer	  p_sender		 = nullptr,
 								BlockId64	  block_id		 = 0);
 
-		StatusCode get		   (pBlockKeeper *p_keeper,
+		StatusCode get		   (pBlockKeeper &p_keeper,
 								pLocator	  p_what);
 
 		// Support for container names in the API .base_names()
