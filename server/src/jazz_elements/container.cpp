@@ -385,19 +385,18 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 }
 
 
-/** Bla, bla, bla
 
-//TODO: Document unlock()
+/** Notify the Container that the caller is done with a block.
 
-	\param aaa		Bla, bla
+	\param p_keeper	A pointer to a valid BlockKeeper passed by reference. Once finished, p_keeper is set to nullptr to avoid reusing.
 
-	\return	Bla
+Different Container descendats, will do different things with the original blocks. In the case of this one-shot allocation, the block will
+be freed.
 */
-StatusCode Container::unlock (pBlockKeeper *p_keeper)
+void Container::unlock (pBlockKeeper &p_keeper)
 {
-//TODO: Implement unlock()
-
-	return SERVICE_NOT_IMPLEMENTED;
+	enter_write	   (p_keeper);
+	destroy_keeper (p_keeper);
 }
 
 
