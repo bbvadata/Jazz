@@ -557,33 +557,37 @@ StatusCode Container::sleep (pBlockKeeper *p_keeper)
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some error.
 */
-
-//TODO: Document callback()
-
-	\param aaa		Bla, bla
-
-	\return	Bla
-*/
-void Container::callback (BlockId64	 block_id,
-						  StatusCode result)
-{
-//TODO: Implement callback()
-
-	return;
-}
-
-
-/** Bla, bla, bla
-
-//TODO: Document new_container()
-
-	\param aaa		Bla, bla
-
-	\return	Bla
-*/
 StatusCode Container::new_container()
 {
-//TODO: Implement new_container()
+	if (p_buffer != nullptr | max_num_keepers <= 0)
+#if defined CATCH_TEST
+		destroy_container();
+#else
+		return SERVICE_ERROR_STARTING;
+#endif
+
+	alloc_bytes = 0;
+
+	alloc_warning_issued = false;
+
+	_lock_ = 0;
+
+	p_buffer = (pBlockKeeper) malloc(max_num_keepers*sizeof(BlockKeeper));
+
+	if (p_buffer == nullptr)
+		return SERVICE_ERROR_NO_MEM;
+
+	p_alloc = nullptr;
+	p_free  = &p_buffer[max_num_keepers - 1];
+
+	p_free->data.deque.p_next = nullptr;
+
+	pBlockKeeper pt = p_free;
+	for (int i = 1; i < max_num_keepers; i ++) {
+		p_free--;
+
+		p_free->data.deque.p_next = pt--;
+	}
 
 	return SERVICE_NO_ERROR;
 }
