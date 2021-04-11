@@ -93,13 +93,14 @@ without global variables.
 
 /** Constants for StatusCode values
 */
-#define SERVICE_NO_ERROR			 0		///< No errors found processing the API call.
-#define SERVICE_ONGOING_ASYNC_OP	 1		///< No errors so far, operation continues asynchronously and communicates by .callback().
-#define SERVICE_NOT_IMPLEMENTED		-1		///< Returned by the Service class (only descendents should be called.).
-#define SERVICE_ERROR_BAD_CONFIG	-2		///< Generic error related with configuration parsing.
-#define SERVICE_ERROR_STARTING		-3		///< Generic error related with starting a service.
-#define SERVICE_ERROR_NO_MEM		-4		///< Specific error where configured allocation RAM failed.
-#define SERVICE_ERROR_LOADING_STAT	-5		///< Error happened while loading static resources.
+#define SERVICE_NO_ERROR				 0		///< No errors found processing the API call.
+#define SERVICE_ONGOING_ASYNC_OP		 1		///< No errors so far, operation continues asynchronously and communicates by .callback().
+#define SERVICE_NOT_IMPLEMENTED			-1		///< Returned by the Service class (only descendents should be called.).
+#define SERVICE_ERROR_BAD_CONFIG		-2		///< Generic error related with configuration parsing.
+#define SERVICE_ERROR_STARTING			-3		///< Generic error related with starting a service.
+#define SERVICE_ERROR_NO_MEM			-4		///< Specific error where configured allocation RAM failed.
+#define SERVICE_ERROR_LOADING_STAT		-5		///< Error happened while loading static resources.
+#define SERVICE_ERROR_NEW_BLOCK_ARGS	-6		///< Error with arguments to a new_block() call.
 
 /// Type returned by the Service API
 typedef int StatusCode;
