@@ -190,36 +190,6 @@ void Container::leave_write(pBlockKeeper p_keeper)
 }
 
 
-/** A private hard lock for Container-critical operations. E.g., Adding a new block to the deque.
-
-Needeless to say: Use only for a few clockcycles over the critical part and always unlock_container() no matter what.
-*/
-void Container::lock_container()
-{
-	int		retry = 0;
-	int32_t lock = 0;
-	int32_t next = 1;
-
-	while (true) {
-		if (_lock_.compare_exchange_weak(lock, next))
-			return;
-
-		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
-			std::this_thread::yield();
-			retry = 0;
-		}
-	}
-}
-
-
-/** Release the private hard lock for Container-critical operations.
-*/
-void Container::unlock_container()
-{
-	_lock_ = 0;
-}
-
-
 /** Create a new Block (1): Create a Block from scratch.
 
 	\param p_keeper			A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
