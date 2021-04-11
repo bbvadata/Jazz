@@ -233,7 +233,7 @@ void Container::leave_write(pBlockKeeper p_keeper)
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
-StatusCode Container::new_block(pBlockKeeper *p_keeper,
+StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								int			  cell_type,
 								int			 *dim,
 								Attributes	 *att,
@@ -243,49 +243,248 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 								const char	 *p_text,
 								char		  eol)
 {
-//TODO: Implement new_block(1)
+	StatusCode ret = new_keeper(p_keeper);
 
-	return SERVICE_NOT_IMPLEMENTED;
-}
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
 
+	BlockHeader hea;
 
-/** Create a new Block (2): Create a Kind or a Tuple by merging Items.
+	hea.cell_type = cell_type;
 
-	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_item		An array of data blocks (tensors or tuples) merged as a tuple (when build == BUILD_TUPLE) or an array of
-						any blocks (tensors, tuples and kinds) whose metadata will be merged into a kind (build == BUILD_KIND)
-	\param p_item_name	An array of item names. See how Tuples and Kinds merge below.
-	\param build		What should be created, either BUILD_TUPLE or BUILD_KIND.
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_as_block.
+	int text_length = 0, num_lines = 0;
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
+	if (p_text != nullptr) {
+		if (cell_type != CELL_TYPE_STRING || fill_tensor != FILL_WITH_TEXTFILE) {
+			destroy_keeper(p_keeper);
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+		}
 
+		const char *pt = p_text;
+		while (pt[0]) {
+			if (pt[0] == eol) {
+				if (!pt[1])
+					break;
+				num_lines++;
+			}
+			pt++;
+		}
+		text_length = (uintptr_t) pt - (uintptr_t) p_text - num_lines;
+		num_lines++;
+	}
 
-How Tuples and Kinds merge
---------------------------
+	if (dim == nullptr) {
+		if (p_text == nullptr) {
+			destroy_keeper(p_keeper);
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+		}
 
-The way a Kind can include other Kinds is by merging them together in a tree. That increases the ItemHeader.level by one. E.g, a Kind
-x is made of tensors (a, b), a Kind y is made of (c, d, e) and f is a tensor. We create a kind (f, x, y). As we merge it together we
-will get: (f, x_a, x_b, y_c, y_d, y_e) all of them will have level 1, except f which will be level 0. The naming convention (merging
-with an underscore) is what this method does.
+		TensorDim i_dim;
+		i_dim.dim[0] = num_lines;
+		i_dim.dim[1] = 0;
+#ifdef DEBUG				// Initialize i_dim for Valgrind.
+		i_dim.dim[2] = 0;
+		i_dim.dim[3] = 0;
+		i_dim.dim[4] = 0;
+		i_dim.dim[5] = 0;
+#endif
+		reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
+	} else {
+		reinterpret_cast<pBlock>(&hea)->set_dimensions(dim);
 
-Note that: The "level-trick" makes the structure much simpler by just storing the tensors, the tree is encoded in the levels of each tensor
-but not necessary to match tuples to kinds. The resulting names must all be different or it will return an error.
+		if (num_lines && (num_lines != hea.size)){
+			destroy_keeper(p_keeper);
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+		}
+	}
 
+	hea.num_attributes = 0;
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
-*/
-StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pItems		  p_item,
-								pNames		  p_item_name,
-						   		int			  build,
-								Attributes	 *att)
-{
-//TODO: Implement new_block(2)
+	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if (att	== nullptr) {
+		hea.total_bytes += 2*sizeof(int);
+		hea.num_attributes++;
+	} else {
+		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
+			int len = it->second == nullptr ? 0 : strlen(it->second);
+			if (len) hea.total_bytes += len + 1;
+			hea.num_attributes++;
+		}
+		hea.total_bytes += 2*hea.num_attributes*sizeof(int);
+	}
+
+	hea.total_bytes += stringbuff_size + text_length + num_lines;
+
+	p_keeper->p_block = (pBlock) malloc(hea.total_bytes);
+
+	if (p_keeper->p_block == nullptr) {
+		destroy_keeper(p_keeper);
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	memcpy(p_keeper->p_block, &hea, sizeof(BlockHeader));
+
+	p_keeper->p_block->num_attributes = 0;
+
+	if (att	== nullptr) {
+		AttributeMap void_att;
+		void_att [BLOCK_ATTRIB_EMPTY] = nullptr;
+		p_keeper->p_block->set_attributes(&void_att);
+	} else {
+		p_keeper->p_block->set_attributes(att);
+	}
+
+#ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
+	{
+		char *pt1 = (char *) &p_keeper->p_block->tensor + (p_keeper->p_block->cell_type & 0xf)*p_keeper->p_block->size,
+			 *pt2 = (char *) p_keeper->p_block->align_128bit((uintptr_t) pt1);
+
+		while (pt1 < pt2) {
+			pt1[0] = 0;
+			pt1++;
+		}
+	}
+#endif
+
+	if (p_text != nullptr) {
+		p_keeper->p_block->has_NA = false;
+		pStringBuffer psb = p_keeper->p_block->p_string_buffer();
+
+		int offset = psb->last_idx;
+
+		char *pt_out = &psb->buffer[offset];
+
+		int row = 1, len = 0;
+		const char *pt_in = p_text;
+
+		p_keeper->p_block->tensor.cell_int[0] = offset;
+
+		while (pt_in[0]) {
+			offset++;
+			if (pt_in[0] != eol) {
+				pt_out[0] = pt_in[0];
+				len++;
+			} else {
+				if (!len)
+					p_keeper->p_block->tensor.cell_int[row - 1] = STRING_EMPTY;
+
+				if (!pt_in[1])
+					break;
+
+				pt_out[0] = 0;
+
+				p_keeper->p_block->tensor.cell_int[row] = offset;
+
+				len = 0;
+				row++;
+			}
+			pt_out++;
+			pt_in++;
+		}
+		if (!len)
+			p_keeper->p_block->tensor.cell_int[row - 1] = STRING_EMPTY;
+
+		pt_out[0] = 0;
+
+		psb->last_idx			= offset + (pt_in[0] == 0);
+		psb->stop_check_4_match = true;							// Block::get_string_offset() does not support match with empty strings.
+	} else {
+		switch (fill_tensor) {
+		case FILL_NEW_DONT_FILL:
+			p_keeper->p_block->has_NA = p_keeper->p_block->cell_type != CELL_TYPE_BYTE;
+			break;
+
+		case FILL_NEW_WITH_ZERO:
+			memset(&p_keeper->p_block->tensor, 0, (p_keeper->p_block->cell_type & 0xf)*p_keeper->p_block->size);
+			p_keeper->p_block->has_NA =	  (p_keeper->p_block->cell_type == CELL_TYPE_STRING)
+									   || (p_keeper->p_block->cell_type == CELL_TYPE_TIME);
+			break;
+
+		case FILL_NEW_WITH_NA:
+			p_keeper->p_block->has_NA = true;
+
+			switch (cell_type) {
+			case CELL_TYPE_BYTE_BOOLEAN:
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_byte[i] = BOOLEAN_NA;
+				break;
+
+			case CELL_TYPE_INTEGER:
+			case CELL_TYPE_FACTOR:
+			case CELL_TYPE_GRADE:
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_int[i] = INTEGER_NA;
+				break;
+
+			case CELL_TYPE_BOOLEAN:
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_uint[i] = BOOLEAN_NA;
+				break;
+
+			case CELL_TYPE_SINGLE: {
+				u_int una = reinterpret_cast<u_int*>(&SINGLE_NA)[0];
+
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_uint[i] = una;
+				break; }
+
+			case CELL_TYPE_STRING:
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_int[i] = STRING_NA;
+				break;
+
+			case CELL_TYPE_LONG_INTEGER:
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_longint[i] = LONG_INTEGER_NA;
+				break;
+
+			case CELL_TYPE_TIME:
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_longint[i] = TIME_POINT_NA;
+				break;
+
+			case CELL_TYPE_DOUBLE: {
+				uint64_t una = reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0];
+
+				for (int i = 0; i < p_keeper->p_block->size; i++) p_keeper->p_block->tensor.cell_ulongint[i] = una;
+				break; }
+
+			default:
+				destroy_keeper(p_keeper);
+				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
+			}
+			break;
+
+		case FILL_BOOLEAN_FILTER:
+			p_keeper->p_block->has_NA = false;
+			if (p_bool_filter == nullptr || p_keeper->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
+				destroy_keeper(p_keeper);
+				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
+			}
+			memcpy(&p_keeper->p_block->tensor, p_bool_filter, p_keeper->p_block->size);
+			break;
+
+		case FILL_INTEGER_FILTER: {
+			p_keeper->p_block->has_NA = false;
+			if (p_bool_filter == nullptr || p_keeper->p_block->filter_type() != FILTER_TYPE_INTEGER) {
+				destroy_keeper(p_keeper);
+				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
+			}
+			int j = 0;
+			for (int i = 0; i < p_keeper->p_block->size; i ++) {
+				if (p_bool_filter[i]) {
+					p_keeper->p_block->tensor.cell_int[j] = i;
+					j++;
+				}
+			}
+			p_keeper->p_block->range.filter.length = j;
+
+#ifdef DEBUG												// Initialize the RAM on top of the filter for Valgrind.
+			for (int i = p_keeper->p_block->range.filter.length; i < p_keeper->p_block->size; i ++)
+				p_keeper->p_block->tensor.cell_int[i] = 0;
+#endif
+			break; }
+
+		default:
+			destroy_keeper(p_keeper);
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;			// No silent fail, fill_tensor is invalid
+		}
+	}
+	return SERVICE_NO_ERROR;
 }
 
 
