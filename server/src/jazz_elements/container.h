@@ -402,10 +402,32 @@ class Container : public Service {
 			return SERVICE_NO_ERROR;
 		}
 
-		StatusCode new_keeper		(pBlockKeeper *p_keeper);
-		StatusCode free_keeper		(pBlockKeeper *p_keeper);
-		StatusCode new_container	();
-		StatusCode destroy_container();
+		/** Dealloc the Block in the keeper (if not null) and free the BlockKeeper API.
+		*/
+		inline void destroy_keeper (pBlockKeeper &p_keeper) {
+			if (p_keeper->p_block != nullptr) {
+				alloc_bytes -= p_keeper->p_block->total_bytes;
+				free(p_keeper->p_block);
+				p_keeper->p_block = nullptr;
+			}
+
+			lock_container();
+
+			if (p_keeper->data.deque.p_prev == nullptr)
+				p_alloc = p_keeper->data.deque.p_next;
+			else
+				p_keeper->data.deque.p_prev->data.deque.p_next = p_keeper->data.deque.p_next;
+
+			if (p_keeper->data.deque.p_next != nullptr)
+				p_keeper->data.deque.p_next->data.deque.p_prev = p_keeper->data.deque.p_prev;
+
+			p_keeper->data.deque.p_next = p_free;
+
+			p_free	 = p_keeper;
+			p_keeper = nullptr;
+
+			unlock_container();
+		}
 
 		inline void* malloc (size_t size) {
 			void * ret = std::malloc(size);
