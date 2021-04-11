@@ -401,15 +401,14 @@ StatusCode Container::unlock (pBlockKeeper *p_keeper)
 }
 
 
-/** Bla, bla, bla
+/** Block storing interface: Save a block at a locator inside the Container
 
-//TODO: Document put()
-
-	\param aaa		Bla, bla
+	\param p_where  Under what locator the block has to be stored.
+	\param p_block	A block to be stored.
 	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
 	\param block_id	Used by the async interface. (See Async interface below)
 
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for put.
 
 Async Interface
 ---------------
@@ -436,15 +435,13 @@ StatusCode Container::put (pLocator	  p_where,
 }
 
 
-/** Bla, bla, bla
+/** Block deletion interface: Erase a block at a locator inside the Container
 
-//TODO: Document remove()
-
-	\param aaa		Bla, bla
+	\param p_what	Under what locator the block has to be stored.
 	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
 	\param block_id	Used by the async interface. (See Async interface below)
 
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for remove.
 
 Async Interface
 ---------------
@@ -472,13 +469,16 @@ StatusCode Container::remove (pLocator	 p_what,
 
 /** Get a Block (1) : Complete get() implementing a full R_value with contract and async calls
 
-//TODO: Document get(1)
-
-	\param aaa		Bla, bla
+	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_rvalue	An R_value defining the block and whatever contracts are applied to it.
 	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
 	\param block_id	Used by the async interface. (See Async interface below)
 
-	\return	Bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for get.
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a BlockKeeper that belongs to the Container and must
+be unlock()-ed when the caller is done.
 
 Async Interface
 ---------------
@@ -507,11 +507,14 @@ StatusCode Container::get (pBlockKeeper *p_keeper,
 
 /** Get a Block (2) : Simple get() implementing only local, sync, full block "as is" get().
 
-//TODO: Document get(2)
+	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
+					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_what	A locator defining the block.
 
-	\param aaa		Bla, bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). No Async API here.
 
-	\return	Bla
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a BlockKeeper that belongs to the Container and must
+be unlock()-ed when the caller is done.
 */
 StatusCode Container::get (pBlockKeeper *p_keeper,
 						   pLocator		 p_what)
@@ -532,13 +535,16 @@ StatusCode Container::get (pBlockKeeper *p_keeper,
 void Container::base_names (BaseNames &base_names){}
 
 
-/** Bla, bla, bla
+/** Receive callback calls from services via the Async API.
 
-//TODO: Document sleep()
+	\param block_id	Returns the block_id identifying the transaction (put(), get() or remove())
+	\param result	A code also written to BlockKeeper.status (BLOCK_STATUS_READY or BLOCK_STATUS_ASYNC_FAIL)
 
-	\param aaa		Bla, bla
+The Async API calls are initiated by a call to put(), get() or remove(), by passing the callee a p_sender pointer and a block_id.
+The pointer points to a Container descendant implementing this method. When the result is ready, the callee will call the caller's
+callback() with the block_id to identify the transaction. Besides this call, the callee will update the BlockKeeper passed to return
+the result.
 
-	\return	Bla
 */
 StatusCode Container::sleep (pBlockKeeper *p_keeper)
 {
@@ -547,8 +553,10 @@ StatusCode Container::sleep (pBlockKeeper *p_keeper)
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
+/** Creates the buffers for new_keeper()/free_keeper()
 
-/** Bla, bla, bla
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some error.
+*/
 
 //TODO: Document callback()
 
@@ -581,13 +589,9 @@ StatusCode Container::new_container()
 }
 
 
-/** Bla, bla, bla
+/** Destroys everything: all keepers and the buffer itself
 
-//TODO: Document destroy_container()
-
-	\param aaa		Bla, bla
-
-	\return	Bla
+	\return	SERVICE_NO_ERROR.
 */
 StatusCode Container::destroy_container()
 {
