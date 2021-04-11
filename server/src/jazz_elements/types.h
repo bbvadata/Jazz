@@ -67,6 +67,8 @@ ANSWER_LENGTH chars. Of course, data serialization does not have any limits it i
 #define ANSWER_LENGTH			4096
 #define SAFE_URL_LENGTH			2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
 #define NAME_SIZE				  32		///< Size of a Name (ending 0 included)
+#define ONE_KB					1024
+#define ONE_MB					1024*1024
 
 /// Block API (syntax related)
 
