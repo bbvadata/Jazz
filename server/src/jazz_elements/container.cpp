@@ -546,12 +546,12 @@ callback() with the block_id to identify the transaction. Besides this call, the
 the result.
 
 */
-StatusCode Container::sleep (pBlockKeeper *p_keeper)
+void Container::callback (BlockId64	 block_id,
+						  StatusCode result)
 {
-//TODO: Implement sleep()
-
-	return SERVICE_NOT_IMPLEMENTED;
+// API Only: One-shot container does not support this.
 }
+
 
 /** Creates the buffers for new_keeper()/free_keeper()
 
