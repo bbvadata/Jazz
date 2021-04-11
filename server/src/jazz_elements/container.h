@@ -365,6 +365,12 @@ class Container : public Service {
 			}
 		}
 
+		/** Release the private hard lock for Container-critical operations.
+		*/
+		void unlock_container () {
+			_lock_ = 0;
+		}
+
 
 		StatusCode new_keeper		(pBlockKeeper *p_keeper);
 		StatusCode free_keeper		(pBlockKeeper *p_keeper);
