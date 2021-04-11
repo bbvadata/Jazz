@@ -204,8 +204,7 @@ void Container::leave_write(pBlockKeeper p_keeper)
 							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
 							If dim == nullptr and p_text != nullptr, dim will be set to the number of lines (see eol) in p_text when
 							cell_type == CELL_TYPE_STRING.
-	\param att				The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
-							use the version of new_jazz_block() with parameter p_as_block.
+	\param att				The attributes to set when creating the block. They are be immutable.
 	\param fill_tensor		How to fill the tensor. When creating anything that is not a filter, p_bool_filter is ignored and the options
 							are: FILL_NEW_DONT_FILL (don't do anything with the tensor), FILL_NEW_WITH_ZERO (fill with binary zero
 							no matter what the cell_type is), FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
@@ -224,7 +223,7 @@ void Container::leave_write(pBlockKeeper p_keeper)
 	\param eol				A single character that separates the cells in p_text and will not be pushed to the string buffer.
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be
-	changed	only creating a new block with new = new_jazz_block(p_as_block = old, att = new_att). String buffer allocation should only be
+	changed	only creating a new block with new = new_jazz_block(p_from = old, att = new_att). String buffer allocation should only be
 	used for cell_type == CELL_TYPE_STRING and either with stringbuff_size or with p_text (and eol).
 	If stringbuff_size is used, Block.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
 	Block.set_string() **should not** be called after that.
@@ -294,14 +293,14 @@ StatusCode Container::new_block(pBlockKeeper *p_keeper,
 
 	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
 						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_block		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
+	\param p_from		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
 						dimension of the tensor). This can be either a tensor or a Tuple. In the case of a Tuple, all the tensors must
 						have the same first dimension.
 	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_as_block (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
+						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
 						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
 	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_as_block.
+						use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
