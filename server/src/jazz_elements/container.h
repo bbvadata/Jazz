@@ -371,6 +371,36 @@ class Container : public Service {
 			_lock_ = 0;
 		}
 
+		/** Allocate a BlockKeeper to share a block via the API.
+		*/
+		inline StatusCode new_keeper (pBlockKeeper &p_keeper) {
+			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
+				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
+						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
+				alloc_warning_issued = true;
+			}
+
+			lock_container();
+
+			if (p_free == nullptr)
+				unlock_container();
+				return SERVICE_ERROR_NO_MEM;
+
+			p_keeper = p_free;
+			p_free	 = p_free->data.deque.p_next;
+
+			p_keeper->p_block = nullptr;
+			p_keeper->status  = BLOCK_STATUS_EMPTY;
+			p_keeper->_lock_  = 0;
+
+			p_keeper->data.deque.p_next = p_alloc;
+			p_keeper->data.deque.p_prev = nullptr;
+
+			p_alloc = p_keeper;
+
+			unlock_container();
+			return SERVICE_NO_ERROR;
+		}
 
 		StatusCode new_keeper		(pBlockKeeper *p_keeper);
 		StatusCode free_keeper		(pBlockKeeper *p_keeper);
