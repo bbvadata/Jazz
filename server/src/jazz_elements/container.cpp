@@ -503,86 +503,156 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
-StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pBlock		  p_block,
+StatusCode Container::new_block(pBlockKeeper &p_keeper,
+								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
 								Attributes	 *att)
 {
-//TODO: Implement new_block(3)
+	StatusCode ret = new_keeper(p_keeper);
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+	if (p_from == nullptr || p_from->size < 0 || p_from->range.dim[0] < 1) {
+		destroy_keeper(p_keeper);
+		return SERVICE_ERROR_NEW_BLOCK_ARGS;
+	}
+
+	int tensor_diff		= 0,
+		old_tensor_size = p_from->size*(p_from->cell_type & 0xff),
+		new_tensor_size,
+		bytes_per_row,
+		selected_rows;
+
+	if (p_row_filter != nullptr) {
+		int	tensor_rows = p_from->size/p_from->range.dim[0];
+
+		if (!p_row_filter->can_filter(p_from)){
+			destroy_keeper(p_keeper);
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+		}
+
+		if (p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
+			selected_rows = 0;
+			for (int i = 0; i < p_row_filter->size; i++)
+				if (p_row_filter->tensor.cell_bool[i])
+					selected_rows++;
+		} else {
+			selected_rows = p_row_filter->range.filter.length;
+		}
+		if (p_from->size) {
+			bytes_per_row	= old_tensor_size/tensor_rows;
+			new_tensor_size = selected_rows*bytes_per_row;
+
+			old_tensor_size = (uintptr_t) p_from->align_128bit(old_tensor_size);
+			new_tensor_size = (uintptr_t) p_from->align_128bit(new_tensor_size);
+
+			tensor_diff = new_tensor_size - old_tensor_size;
+		}
+	}
+
+	int attrib_diff		   = 0,
+		new_num_attributes = 0;
+
+	if (att	!= nullptr) {
+		int new_attrib_bytes = 0;
+
+		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
+			int len = it->second == nullptr ? 0 : strlen(it->second);
+			if (len)
+				new_attrib_bytes += len + 1;
+			new_num_attributes++;
+		}
+
+		if (!new_num_attributes) {
+			destroy_keeper(p_keeper);
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+		}
+
+		new_attrib_bytes += new_num_attributes*2*sizeof(int);
+
+		int old_attrib_bytes = p_from->num_attributes*2*sizeof(int);
+
+		if (p_from->cell_type != CELL_TYPE_STRING) {
+			pStringBuffer psb = p_from->p_string_buffer();
+			old_attrib_bytes += std::max(0, psb->buffer_size - 4);
+		}
+
+		attrib_diff = new_attrib_bytes - old_attrib_bytes;
+	}
+
+	int total_bytes = p_from->total_bytes + tensor_diff + attrib_diff;
+
+	p_keeper->p_block = (pBlock) malloc(total_bytes);
+
+	if (p_keeper->p_block == nullptr) {
+		destroy_keeper(p_keeper);
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	memcpy(p_keeper->p_block, p_from, sizeof(BlockHeader));
+
+	p_keeper->p_block->total_bytes = total_bytes;
+
+	if (tensor_diff) {
+		p_keeper->p_block->size = selected_rows*p_from->range.dim[0];
+
+		u_char *p_dest = &p_keeper->p_block->tensor.cell_byte[0],
+			   *p_src  = &p_from->tensor.cell_byte[0];
+
+		if (p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
+			for (int i = 0; i < p_row_filter->size; i++) {
+				if (p_row_filter->tensor.cell_bool[i]) {
+					memcpy(p_dest, p_src, bytes_per_row);
+					p_dest = p_dest + bytes_per_row;
+				}
+				p_src = p_src + bytes_per_row;
+			}
+		} else {
+			for (int i = 0; i < p_row_filter->range.filter.length; i++) {
+				memcpy(p_dest, p_src + p_row_filter->tensor.cell_int[i]*bytes_per_row, bytes_per_row);
+				p_dest = p_dest + bytes_per_row;
+			}
+		}
+	} else {
+		memcpy(&p_keeper->p_block->tensor, &p_from->tensor, old_tensor_size);
+	}
+
+	if (att	!= nullptr)	{
+		if (p_from->cell_type != CELL_TYPE_STRING) {
+			p_keeper->p_block->num_attributes = 0;
+			p_keeper->p_block->set_attributes(att);
+		} else {
+			p_keeper->p_block->num_attributes = new_num_attributes;
+
+			pStringBuffer p_nsb = p_keeper->p_block->p_string_buffer(), p_osb = p_from->p_string_buffer();
+
+			p_keeper->p_block->init_string_buffer();
+
+			memcpy(&p_nsb->buffer, &p_osb->buffer, p_osb->buffer_size);
+
+			p_nsb->last_idx = p_osb->last_idx;
+
+			int i = 0;
+			int *ptk = p_keeper->p_block->p_attribute_keys();
+
+			for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
+				ptk[i] = it->first;
+				ptk[i + new_num_attributes] = p_keeper->p_block->get_string_offset(p_nsb, it->second);
+
+				i++;
+			}
+		}
+	} else {
+		memcpy(p_keeper->p_block->p_attribute_keys(), p_from->p_attribute_keys(), p_from->num_attributes*2*sizeof(int));
+
+		pStringBuffer p_nsb = p_keeper->p_block->p_string_buffer(), p_osb = p_from->p_string_buffer();
+
+		memcpy(p_nsb, p_osb, p_osb->buffer_size + sizeof(StringBuffer));
+	}
+
+	return SERVICE_NO_ERROR;
 }
-
-
-/** Create a new Block (4): Create a Tuple or a Kind by selecting a list of items from another Tuple or Kind.
-
-	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_block		The block we want to filter from. It must be either a Kind or a Tuple and the resulting block will be of the
-						same type.
-	\param p_item_name	The vector of item names to be selected that must exist in p_block.
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_as_block.
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
-*/
-StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pBlock		  p_block,
-								pNames		  p_item_name,
-								Attributes	 *att)
-{
-//TODO: Implement new_block(4)
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-/** Create a new Block (5): Create a binary block from text source.
-
-	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_source		A pointer to the text source passed by reference. In case of an error, the pointer will be modified to point
-						at the conflicting character.
-	\param p_as_block	Possibly, a the address of a Block of metadata (either a BlockHeader or a Kind) containing and already parsed
-						metadata describing the block. Otherwise, an extra pass will parse the text to build this metadata.
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_as_block.
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
-*/
-StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pChar		 &p_source,
-						   		pBlock		  p_as_block,
-								Attributes	 *att)
-{
-//TODO: Implement new_block(5)
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-/** Create a new Block (6): Create a long text block by sourcing a binary block as some text serialization.
-
-	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_block		The binary block we want to source.
-	\param format		Either AS_BEBOP, AS_JSON or AS_CPP. The latter is only valid to Kind metadata. Tensors of data in AS_BEBOP and
-						AS_JSON are identical. These formats only differ in how they describe metadata.
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_as_block.
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
-*/
-StatusCode Container::new_block(pBlockKeeper *p_keeper,
-								pBlock		  p_block,
-						   		int			  format,
-								Attributes	 *att)
-{
-//TODO: Implement new_block(6)
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
 
 
 /** Notify the Container that the caller is done with a block.
