@@ -45,20 +45,19 @@ namespace jazz_elements
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
-
-	num_keepers = max_num_keepers = 0;
-	alloc_bytes = last_alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
-	p_buffer = p_left = p_right = nullptr;
+Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config)
+{
+	max_num_keepers = 0;
+	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
+	p_buffer = p_alloc = p_free = nullptr;
 	_lock_ = 0;
 }
 
 
-Container::~Container () {
-	destroy_container();
-}
+Container::~Container () { destroy_container(); }
 
-/** Verifies variables in config and sets private variables accordingly.
+
+/** Reads variables from config and sets private variables accordingly.
 */
 StatusCode Container::start()
 {
