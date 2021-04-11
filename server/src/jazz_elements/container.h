@@ -429,7 +429,11 @@ class Container : public Service {
 			unlock_container();
 		}
 
+		/** An std::malloc() that increases .alloc_bytes on each call and fails on overcommit.
+		*/
 		inline void* malloc (size_t size) {
+			if (alloc_bytes + size >= fail_alloc_bytes)
+				return nullptr;
 			void * ret = std::malloc(size);
 			if (ret != nullptr)
 				alloc_bytes += size;
