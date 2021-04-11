@@ -422,16 +422,13 @@ operation via the callback(). When a successfull or error completion code is ava
 A **NOTE for put()**: The callback() will return the completion status for the caller to know (retry, notify, etc.). In either (error or
 success) case, there are no further actions to take.
 
-	\return	Bla
 */
 StatusCode Container::put (pLocator	  p_where,
 						   pBlock	  p_block,
 						   pContainer p_sender,
 						   BlockId64  block_id)
 {
-//TODO: Implement put()
-
-	return SERVICE_NOT_IMPLEMENTED;
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
 
@@ -455,15 +452,12 @@ operation via the callback(). When a successfull or error completion code is ava
 A **NOTE for remove()**: The callback() will return the completion status for the caller to know (retry, notify, etc.). In either (error or
 success) case, there are no further actions to take.
 
-	\return	Bla
 */
 StatusCode Container::remove (pLocator	 p_what,
 							  pContainer p_sender,
 							  BlockId64	 block_id)
 {
-//TODO: Implement remove()
-
-	return SERVICE_NOT_IMPLEMENTED;
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
 
@@ -494,14 +488,12 @@ p_keeper->status == BLOCK_STATUS_ASYNC_WAIT. After an error is returned, the cal
 After a success is returned, the caller will get: p_keeper->status == BLOCK_STATUS_READY and a valid p_block. In this case, the caller
 **must** .unlock() the p_keeper when done with it.
 */
-StatusCode Container::get (pBlockKeeper *p_keeper,
+StatusCode Container::get (pBlockKeeper &p_keeper,
 						   pR_value		 p_rvalue,
 						   pContainer	 p_sender,
 						   BlockId64	 block_id)
 {
-//TODO: Implement get(1)
-
-	return SERVICE_NOT_IMPLEMENTED;
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
 
@@ -516,12 +508,10 @@ StatusCode Container::get (pBlockKeeper *p_keeper,
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a BlockKeeper that belongs to the Container and must
 be unlock()-ed when the caller is done.
 */
-StatusCode Container::get (pBlockKeeper *p_keeper,
+StatusCode Container::get (pBlockKeeper &p_keeper,
 						   pLocator		 p_what)
 {
-//TODO: Implement get(2)
-
-	return SERVICE_NOT_IMPLEMENTED;
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
 
@@ -532,7 +522,7 @@ StatusCode Container::get (pBlockKeeper *p_keeper,
 	The root class Container does not add any base names.
 
 */
-void Container::base_names (BaseNames &base_names){}
+void Container::base_names (BaseNames &base_names) {}
 
 
 /** Receive callback calls from services via the Async API.
