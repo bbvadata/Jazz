@@ -66,8 +66,6 @@ using namespace jazz_elements;
 using namespace jazz_bebop;
 using namespace jazz_agency;
 
-#define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
-
 /// Http methods
 
 #define HTTP_NOTUSED					  0		///< Rogue value to fill the LUTs

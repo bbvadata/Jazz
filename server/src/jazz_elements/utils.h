@@ -102,6 +102,10 @@ without global variables.
 #define SERVICE_ERROR_LOADING_STAT		-5		///< Error happened while loading static resources.
 #define SERVICE_ERROR_NEW_BLOCK_ARGS	-6		///< Error with arguments to a new_block() call.
 
+/** Default path to config file
+*/
+#define JAZZ_DEFAULT_CONFIG_PATH "config/jazz_config.ini"
+
 /// Type returned by the Service API
 typedef int StatusCode;
 
