@@ -63,7 +63,7 @@ namespace jazz_elements
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
 #define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
-#define MAX_ITEMS_IN_KIND				64		///< The number of items merged into a kind or tuple.
+#define MAX_ITEMS_IN_KIND				64					///< The number of items merged into a kind or tuple.
 
 
 /// Block API (method arguments)
@@ -72,6 +72,8 @@ namespace jazz_elements
 #define FILL_NEW_WITH_ZERO				1		///< Initialize with binary zero.
 #define FILL_NEW_WITH_NA				2		///< Initialize with the appropriate NA for the cell_type.
 #define FILL_WITH_TEXTFILE				3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
+#define FILL_BOOLEAN_FILTER				4		///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
+#define FILL_INTEGER_FILTER				5		///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
 
 #define AS_BEBOP						1		///< Serialize data and metadata.
 #define AS_JSON							2		///< Serialize data as JSON.
