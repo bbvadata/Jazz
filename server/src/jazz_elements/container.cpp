@@ -595,9 +595,18 @@ StatusCode Container::new_container()
 */
 StatusCode Container::destroy_container()
 {
-//TODO: Implement destroy_container()
+	if (p_buffer != nullptr) {
+		while (p_alloc != nullptr) {
+			pBlockKeeper pt = p_alloc;
+			destroy_keeper(pt);
+		}
+		free (p_buffer);
+	}
+	alloc_bytes = 0;
+	p_buffer = p_alloc = p_free = nullptr;
+	_lock_ = 0;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	return SERVICE_NO_ERROR;
 }
 
 } // namespace jazz_elements
