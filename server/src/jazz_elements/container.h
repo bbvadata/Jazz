@@ -222,8 +222,8 @@ It follows the "rules of the game" using:
 It provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
-- An API for async calls (Remote): .sleep() .callback()
-- Allocation: .new_block(), .lock(), .unlock()
+- An API for async calls (Remote): .callback()
+- Allocation: .new_block(), .unlock()
 - Crud: .put(), .remove()
 - Support for contracts: .get()
 - Support for container names in the API .base_names()
@@ -271,7 +271,7 @@ class Container : public Service {
 		void leave_read		   (pBlockKeeper  p_keeper);
 		void leave_write	   (pBlockKeeper  p_keeper);
 
-		// - Allocation: .new_block(), .lock(), .unlock()
+		// - Allocation: .new_block(), .unlock()
 
 		StatusCode new_block   (pBlockKeeper *p_keeper,
 								int			  cell_type,
@@ -336,9 +336,7 @@ class Container : public Service {
 
 		void base_names		   (BaseNames 	 &base_names);
 
-		// Async calls (Remote): .sleep() .callback()
-
-		StatusCode sleep	   (pBlockKeeper *p_keeper);
+		// Async calls (Remote): .callback()
 
 		virtual void callback  (BlockId64	  block_id,
 								StatusCode	  result);
