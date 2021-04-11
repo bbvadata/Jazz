@@ -92,7 +92,8 @@ namespace jazz_elements
 /// Block API (error and status codes)
 
 #define BLOCK_STATUS_READY				 0		///< BlockKeeper.status: p_block-> is safe to use
-#define BLOCK_STATUS_ASYNC_WAIT			 1		///< BlockKeeper.status: async content pending, wait or call p_owner->sleep()
+#define BLOCK_STATUS_EMPTY				 1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
+#define BLOCK_STATUS_ASYNC_WAIT			 2		///< BlockKeeper.status: async content pending, wait for a .callback() call.
 #define BLOCK_STATUS_ASYNC_FAIL			-1		///< BlockKeeper.status: async failed, still locked, call p_owner->unlock()
 #define BLOCK_STATUS_SYNC_FAIL			-2		///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
 #define BLOCK_STATUS_SYNC_UNLOCKED		-3		///< BlockKeeper.status: block destroying, do nothing, forget the pointer
