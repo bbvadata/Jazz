@@ -384,6 +384,48 @@ class Block: public BlockHeader {
 
 			return filter_type() != FILTER_TYPE_NOTAFILTER;
 		}
+
+		/** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor
+
+			Despite its name, this function does not actually "close" anything. JazzBlock manipulation is based on "good will",
+			after calling close_jazz_block() the owner should not change the content. If you do, you should close_jazz_block() again after.
+
+			close_jazz_block() can be called any number of times on the same block.
+
+			\param p_block The block to be "closed".
+		*/
+		inline void finish_creation(int set_has_NA = SET_HAS_NA_AUTO,
+									bool set_hash = true,
+									bool set_time = true) {
+			switch (set_has_NA) {
+			case SET_HAS_NA_FALSE:
+				has_NA = false;
+				break;
+			case SET_HAS_NA_TRUE:
+				has_NA = cell_type != CELL_TYPE_BYTE;	// CELL_TYPE_BYTE must always be has_NA == FALSE
+				break;
+			default:
+				has_NA = find_NAs_in_tensor();
+			}
+
+#ifdef DEBUG	// Initialize the RAM between the end of the string buffer and last allocated byte for Valgrind.
+			pStringBuffer psb = p_string_buffer();
+
+			char *pt1 = (char *) &psb->buffer[psb->last_idx],
+				 *pt2 = (char *) &cell_type + total_bytes;
+
+			while (pt1 < pt2) {
+				pt1[0] = 0;
+				pt1++;
+			}
+#endif
+			if (set_hash)
+				hash64 = MurmurHash64A(&tensor, total_bytes - sizeof(BlockHeader));
+
+			if (set_time)
+				created = std::chrono::steady_clock::now();
+		}
+
 };
 
 } // namespace jazz_elements
