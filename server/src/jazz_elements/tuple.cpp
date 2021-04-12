@@ -84,7 +84,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								pItems		  p_item,
 								pNames		  p_item_name,
 						   		int			  build,
-								Attributes	 *att)
+								AttributeMap *att)
 {
 //TODO: Implement new_block(2)
 
@@ -107,7 +107,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								pBlock		  p_block,
 								pNames		  p_item_name,
-								Attributes	 *att)
+								AttributeMap *att)
 {
 //TODO: Implement new_block(4)
 
@@ -131,7 +131,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								pChar		 &p_source,
 						   		pBlock		  p_as_block,
-								Attributes	 *att)
+								AttributeMap *att)
 {
 //TODO: Implement new_block(5)
 
@@ -154,7 +154,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								pBlock		  p_block,
 						   		int			  format,
-								Attributes	 *att)
+								AttributeMap *att)
 {
 //TODO: Implement new_block(6)
 

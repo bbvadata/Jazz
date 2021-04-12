@@ -197,10 +197,6 @@ struct R_value : Locator {
 	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contract to be a applied in order. The first empty one breaks.
 };
 
-/** An std::map containing all the attributes of a block in one structure.
-*/
-typedef std::map<int, const char *> Attributes;
-
 /** An array of Items (Blocks and Tuples) to be merged into a new Tuple or an array of Items (BlockHeaders and Kinds) to be merged into
 a new Kind.
 */
@@ -276,7 +272,7 @@ class Container : public Service {
 		StatusCode new_block   (pBlockKeeper &p_keeper,
 								int			  cell_type,
 								int			 *dim,
-								Attributes	 *att			  = nullptr,
+								AttributeMap	 *att			  = nullptr,
 								int			  fill_tensor	  = FILL_NEW_DONT_FILL,
 								bool		 *p_bool_filter	  = nullptr,
 								int			  stringbuff_size = 0,
@@ -287,27 +283,27 @@ class Container : public Service {
 								pItems		  p_item,
 								pNames		  p_item_name,
 						   		int			  build			  = BUILD_TUPLE,
-								Attributes	 *att			  = nullptr);
+								AttributeMap *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
-								Attributes	 *att			  = nullptr);
+								AttributeMap *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pBlock		  p_block,
 								pNames		  p_item_name,
-								Attributes	 *att			  = nullptr);
+								AttributeMap *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pChar		 &p_source,
 						   		pBlock		  p_as_block	  = nullptr,
-								Attributes	 *att			  = nullptr);
+								AttributeMap *att			  = nullptr);
 
 		StatusCode new_block   (pBlockKeeper &p_keeper,
 								pBlock		  p_block,
 						   		int			  format		  = AS_BEBOP,
-								Attributes	 *att			  = nullptr);
+								AttributeMap *att			  = nullptr);
 
 		void unlock			   (pBlockKeeper &p_keeper);
 
