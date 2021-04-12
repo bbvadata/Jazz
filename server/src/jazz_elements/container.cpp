@@ -662,7 +662,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 
 	\param p_keeper	A pointer to a valid BlockKeeper passed by reference. Once finished, p_keeper is set to nullptr to avoid reusing.
 
-Different Container descendats, will do different things with the original blocks. In the case of this one-shot allocation, the block will
+Different Container descendants, will do different things with the original blocks. In the case of this one-shot allocation, the block will
 be freed.
 */
 void Container::unlock (pBlockKeeper &p_keeper)
