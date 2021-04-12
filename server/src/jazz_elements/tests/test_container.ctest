@@ -2309,7 +2309,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	REQUIRE(CNT._lock_	 == 0);
 }
 
-
+/*
 SCENARIO("Testing JazzBlock creation by copying/filtering") {
 	pJazzBlock p_db_r1, p_db_r3, p_db_r6,
 			   p_st_r1, p_st_r3, p_st_r6,
@@ -2319,7 +2319,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 	pJazzFilter p_if_r1, p_if_r3, p_if_r6, p_bf_r1, p_bf_r3, p_bf_r6;
 
-	AllAttributes old_str, new_str, no_str;
+	AttributeMap old_str, new_str, no_str;
 
 	old_str [256] = "Life's but a walking shadow";		// Both old_str and new_str have the same number of chars
 	old_str [313] = "... a poor player";
@@ -2404,9 +2404,9 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		REQUIRE(!strcmp(p_st_r1->get_string(15), "April"));
 		REQUIRE(!p_st_r1->p_string_buffer()->alloc_failed);
 
-		check_and_close_jazz_block(p_db_r1);
-		check_and_close_jazz_block(p_st_r1);
-		check_and_close_jazz_block(p_by_r1);
+		check_and_finish(p_db_r1);
+		check_and_finish(p_st_r1);
+		check_and_finish(p_by_r1);
 
 		for (int i = 0; i < 17; i++) {
 			for (int j = 0; j < 9; j++) {
@@ -2428,9 +2428,9 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		REQUIRE(!strcmp(p_st_r3->get_string(334), "July"));
 		REQUIRE(!p_st_r3->p_string_buffer()->alloc_failed);
 
-		check_and_close_jazz_block(p_db_r3);
-		check_and_close_jazz_block(p_st_r3);
-		check_and_close_jazz_block(p_by_r3);
+		check_and_finish(p_db_r3);
+		check_and_finish(p_st_r3);
+		check_and_finish(p_by_r3);
 
 		for (int i = 0; i < 2; i++) {
 			for (int j = 0; j < 3; j++) {
@@ -2461,9 +2461,9 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		REQUIRE(!strcmp(p_st_r6->get_string(753), "December"));
 		REQUIRE(!p_st_r6->p_string_buffer()->alloc_failed);
 
-		check_and_close_jazz_block(p_db_r6);
-		check_and_close_jazz_block(p_st_r6);
-		check_and_close_jazz_block(p_by_r6);
+		check_and_finish(p_db_r6);
+		check_and_finish(p_st_r6);
+		check_and_finish(p_by_r6);
 
 		dim_r1.dim[1] = 0;
 		dim_r3.dim[1] = 0;
@@ -2553,7 +2553,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 			pcp = new_jazz_block(p_st_r6, p_if_r3);
 			REQUIRE(pcp == nullptr);
 
-			AllAttributes all_att {};
+			AttributeMap all_att {};
 
 			pcp = new_jazz_block(p_db_r1, nullptr, &all_att);
 			REQUIRE(pcp == nullptr);
@@ -2687,7 +2687,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_by_r3->find_attribute(921), "that struts and frets his hour"));
 				REQUIRE(!strcmp(pcp_db_r1->find_attribute(222), "upon the stage and"));
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(321), "then ..."));
-				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
+				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
 				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 				REQUIRE(pcp_st_r6->find_attribute(486)							== nullptr);
 				REQUIRE(pcp_by_r3->find_attribute(487)							== nullptr);
@@ -2695,13 +2695,13 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_db_r3->find_attribute(123), ""));
 				REQUIRE(!strcmp(pcp_st_r1->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
-				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
+				REQUIRE(pcp_db_r3->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
 				REQUIRE(pcp_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 				REQUIRE(pcp_by_r6->find_attribute(487)							== nullptr);
 
-				REQUIRE(!strcmp(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(!strcmp(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
-				REQUIRE(!strcmp(pcp_by_r1->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
+				REQUIRE(!strcmp(pcp_db_r6->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
+				REQUIRE(!strcmp(pcp_st_r3->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
+				REQUIRE(!strcmp(pcp_by_r1->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
 				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 				REQUIRE(pcp_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 				REQUIRE(pcp_by_r1->find_attribute(487)							== nullptr);
@@ -2711,27 +2711,27 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_st_r1->get_string(15), "April"));
 				REQUIRE(!pcp_st_r1->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(pcp_db_r1);
-				check_and_close_jazz_block(pcp_st_r1);
-				check_and_close_jazz_block(pcp_by_r1);
+				check_and_finish(pcp_db_r1);
+				check_and_finish(pcp_st_r1);
+				check_and_finish(pcp_by_r1);
 
 				REQUIRE(pcp_db_r3->tensor.cell_double[334] == 12003001.0);
 				REQUIRE(pcp_by_r3->tensor.cell_byte	 [334] == 102);
 				REQUIRE(!strcmp(pcp_st_r3->get_string(334), "July"));
 				REQUIRE(!pcp_st_r3->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(pcp_db_r3);
-				check_and_close_jazz_block(pcp_st_r3);
-				check_and_close_jazz_block(pcp_by_r3);
+				check_and_finish(pcp_db_r3);
+				check_and_finish(pcp_st_r3);
+				check_and_finish(pcp_by_r3);
 
 				REQUIRE(pcp_db_r6->tensor.cell_double[753] == 120000307.0);
 				REQUIRE(pcp_by_r6->tensor.cell_byte	 [753] == 167);
 				REQUIRE(!strcmp(pcp_st_r6->get_string(753), "December"));
 				REQUIRE(!pcp_st_r6->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(pcp_db_r6);
-				check_and_close_jazz_block(pcp_st_r6);
-				check_and_close_jazz_block(pcp_by_r6);
+				check_and_finish(pcp_db_r6);
+				check_and_finish(pcp_st_r6);
+				check_and_finish(pcp_by_r6);
 			}
 
 			free_jazz_block(pcp_db_r1);
@@ -2845,7 +2845,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_by_r1->find_attribute(358), "told by an idiot.."));
 				REQUIRE(!strcmp(pcp_db_r3->find_attribute(222), "full of sound and fury.."));
 				REQUIRE(!strcmp(pcp_st_r3->find_attribute(676), "signifying .."));
-				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
+				REQUIRE(pcp_by_r3->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
 				REQUIRE(pcp_db_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 				REQUIRE(pcp_st_r1->find_attribute(486)							== nullptr);
 				REQUIRE(pcp_by_r1->find_attribute(487)							== nullptr);
@@ -2853,7 +2853,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 				REQUIRE(!strcmp(pcp_st_r6->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_by_r6->find_attribute(123), ""));
-				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY)	== nullptr);
+				REQUIRE(pcp_db_r6->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
 				REQUIRE(pcp_st_r6->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
 
 				REQUIRE(pcp_db_r1->tensor.cell_double[33] == 3.3);
@@ -2909,27 +2909,27 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 					REQUIRE(pcp_st_r6->tensor.cell_int[i] == p_st_r6->tensor.cell_int[i]);
 				}
 
-				check_and_close_jazz_block(pcp_db_r1);
-				check_and_close_jazz_block(pcp_st_r1);
-				check_and_close_jazz_block(pcp_by_r1);
+				check_and_finish(pcp_db_r1);
+				check_and_finish(pcp_st_r1);
+				check_and_finish(pcp_by_r1);
 
 				REQUIRE(pcp_db_r3->tensor.cell_double[334] == 12003001.0);
 				REQUIRE(pcp_by_r3->tensor.cell_byte	 [334] == 102);
 				REQUIRE(!strcmp(pcp_st_r3->get_string(334), "July"));
 				REQUIRE(!pcp_st_r3->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(pcp_db_r3);
-				check_and_close_jazz_block(pcp_st_r3);
-				check_and_close_jazz_block(pcp_by_r3);
+				check_and_finish(pcp_db_r3);
+				check_and_finish(pcp_st_r3);
+				check_and_finish(pcp_by_r3);
 
 				REQUIRE(pcp_db_r6->tensor.cell_double[753] == 120000307.0);
 				REQUIRE(pcp_by_r6->tensor.cell_byte	 [753] == 167);
 				REQUIRE(!strcmp(pcp_st_r6->get_string(753), "December"));
 				REQUIRE(!pcp_st_r6->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(pcp_db_r6);
-				check_and_close_jazz_block(pcp_st_r6);
-				check_and_close_jazz_block(pcp_by_r6);
+				check_and_finish(pcp_db_r6);
+				check_and_finish(pcp_st_r6);
+				check_and_finish(pcp_by_r6);
 			}
 
 			free_jazz_block(pcp_db_r1);
@@ -3157,7 +3157,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pa_db_r6->find_attribute(456), ""));
 
 				REQUIRE(p_pa_st_r1->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(!strcmp(p_pa_st_r3->find_attribute(BLOCK_ATTR_CONTAINERS_EMPTY), ""));
+				REQUIRE(!strcmp(p_pa_st_r3->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
 
 				REQUIRE(!strcmp(p_pa_st_r6->find_attribute(921), "is heard nomore ..."));
 				REQUIRE(!strcmp(p_pa_st_r6->find_attribute(313), "It's a tale.."));
@@ -3167,22 +3167,22 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pa_st_r1->get_string(15), "April"));
 				REQUIRE(!p_pa_st_r1->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(p_pa_db_r1);
-				check_and_close_jazz_block(p_pa_st_r1);
+				check_and_finish(p_pa_db_r1);
+				check_and_finish(p_pa_st_r1);
 
 				REQUIRE(p_pa_db_r3->tensor.cell_double[334] == 12003001.0);
 				REQUIRE(!strcmp(p_pa_st_r3->get_string(334), "July"));
 				REQUIRE(!p_pa_st_r3->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(p_pa_db_r3);
-				check_and_close_jazz_block(p_pa_st_r3);
+				check_and_finish(p_pa_db_r3);
+				check_and_finish(p_pa_st_r3);
 
 				REQUIRE(p_pa_db_r6->tensor.cell_double[753] == 120000307.0);
 				REQUIRE(!strcmp(p_pa_st_r6->get_string(753), "December"));
 				REQUIRE(!p_pa_st_r6->p_string_buffer()->alloc_failed);
 
-				check_and_close_jazz_block(p_pa_db_r6);
-				check_and_close_jazz_block(p_pa_st_r6);
+				check_and_finish(p_pa_db_r6);
+				check_and_finish(p_pa_st_r6);
 
 				int index[6];
 
@@ -3272,14 +3272,14 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pa_by_r3->find_attribute(313), "It's a tale.."));
 				REQUIRE(!strcmp(p_pa_by_r3->find_attribute(358), "told by an idiot.."));
 
-				check_and_close_jazz_block(p_pb_db_r1);
-				check_and_close_jazz_block(p_pa_by_r1);
+				check_and_finish(p_pb_db_r1);
+				check_and_finish(p_pa_by_r1);
 
-				check_and_close_jazz_block(p_pb_db_r3);
-				check_and_close_jazz_block(p_pa_by_r3);
+				check_and_finish(p_pb_db_r3);
+				check_and_finish(p_pa_by_r3);
 
-				check_and_close_jazz_block(p_pb_db_r6);
-				check_and_close_jazz_block(p_pa_by_r6);
+				check_and_finish(p_pb_db_r6);
+				check_and_finish(p_pa_by_r6);
 
 				REQUIRE(p_pb_by_r1->cell_type	   == p_by_r1->cell_type);
 				REQUIRE(p_pb_st_r6->cell_type	   == p_st_r6->cell_type);
@@ -3334,14 +3334,14 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pb_by_r1->find_attribute(313), "It's a tale.."));
 				REQUIRE(!strcmp(p_pb_by_r1->find_attribute(358), "told by an idiot.."));
 
-				check_and_close_jazz_block(p_pb_st_r1);
-				check_and_close_jazz_block(p_pb_by_r1);
+				check_and_finish(p_pb_st_r1);
+				check_and_finish(p_pb_by_r1);
 
-				check_and_close_jazz_block(p_pb_st_r3);
-				check_and_close_jazz_block(p_pb_by_r3);
+				check_and_finish(p_pb_st_r3);
+				check_and_finish(p_pb_by_r3);
 
-				check_and_close_jazz_block(p_pb_st_r6);
-				check_and_close_jazz_block(p_pb_by_r6);
+				check_and_finish(p_pb_st_r6);
+				check_and_finish(p_pb_by_r6);
 
 				int index_o[6];
 				int i_i = 0, i_b = 0;
