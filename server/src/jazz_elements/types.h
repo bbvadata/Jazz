@@ -150,6 +150,13 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define BLOCK_ATTRIB_URL		7			///< A url for the server to expose the file by.
 #define BLOCK_ATTRIB_LANGUAGE	8			///< An http language identifier that will be returned in a / interface GET call.
 
+/// Values for argument set_has_NA of finish_creation()
+#define SET_HAS_NA_
+
+#define SET_HAS_NA_FALSE		0			///< Set to false without checking
+#define SET_HAS_NA_TRUE			1			///< Set to true without checking
+#define SET_HAS_NA_AUTO			2			///< Check if there are and set accordingly (slowest option when closing, best later)
+
 
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
