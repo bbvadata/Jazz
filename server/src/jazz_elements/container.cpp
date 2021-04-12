@@ -236,7 +236,7 @@ void Container::leave_write(pBlockKeeper p_keeper)
 StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								int			  cell_type,
 								int			 *dim,
-								Attributes	 *att,
+								AttributeMap *att,
 								int			  fill_tensor,
 								bool		 *p_bool_filter,
 								int			  stringbuff_size,
@@ -508,7 +508,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
-								Attributes	 *att)
+								AttributeMap *att)
 {
 	StatusCode ret = new_keeper(p_keeper);
 
