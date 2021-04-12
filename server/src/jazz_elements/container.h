@@ -382,9 +382,10 @@ class Container : public Service {
 
 			lock_container();
 
-			if (p_free == nullptr)
+			if (p_free == nullptr) {
 				unlock_container();
 				return SERVICE_ERROR_NO_MEM;
+			}
 
 			p_keeper = p_free;
 			p_free	 = p_free->data.deque.p_next;
