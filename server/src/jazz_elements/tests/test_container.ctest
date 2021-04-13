@@ -2183,30 +2183,30 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		dim_xx.dim[0] = 11;
 		dim_xx.dim[1] = 0;
 		dim_xx.dim[2] = 0;
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
-							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_keeper == nullptr);
 
 		dim_xx.dim[0] = 13;
 		dim_xx.dim[1] = 0;
 		dim_xx.dim[2] = 0;
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
-							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_keeper == nullptr);
 
 		dim_xx.dim[0] = 5;
 		dim_xx.dim[1] = 2;
 		dim_xx.dim[2] = 0;
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
-							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_keeper == nullptr);
 
 		dim_xx.dim[0] = 6;
 		dim_xx.dim[1] = 2;
 		dim_xx.dim[2] = 0;
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
-							  == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+				== SERVICE_NO_ERROR);
 		REQUIRE(p_keeper != nullptr);
 
 		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
