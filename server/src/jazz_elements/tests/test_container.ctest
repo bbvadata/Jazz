@@ -546,7 +546,7 @@ SCENARIO("Stress-testing new_keeper()/destroy_keeper()") {
 
 SCENARIO("Testing JazzBlock creation from scratch") {
 	TensorDim dim_t1 {{7, 3, 5, 0}}, dim_t2 {{7, 2, 2, 2, 3, 2}}, dim_t3 {{97, 0}}, dim_t4 {{3, 2, 2, 0}};
-	TensorDim dim_t5 {{120, 5, 4, 0}}, dim_t6 {{120, 0}}, dim_t7 {{7, 0}}, dim_read, dim_xx;
+	TensorDim dim_t5 {{120, 5, 4, 0}}, dim_t6 {{120, 0}}, dim_t7 {{7, 0}}, dim_read, dim_xx {{0}};
 
 	pBlockKeeper p_keeper;
 
