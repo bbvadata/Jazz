@@ -380,6 +380,7 @@ class Container : public Service {
 
 			if (p_free == nullptr) {
 				unlock_container();
+				p_keeper = nullptr;
 				return SERVICE_ERROR_NO_MEM;
 			}
 
