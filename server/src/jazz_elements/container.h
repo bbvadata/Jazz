@@ -393,6 +393,9 @@ class Container : public Service {
 			p_keeper->data.deque.p_next = p_alloc;
 			p_keeper->data.deque.p_prev = nullptr;
 
+			if (p_alloc != nullptr)
+				p_alloc->data.deque.p_prev = p_keeper;
+
 			p_alloc = p_keeper;
 
 			unlock_container();
