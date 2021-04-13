@@ -387,12 +387,10 @@ class Block: public BlockHeader {
 
 		/** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor
 
-			Despite its name, this function does not actually "close" anything. JazzBlock manipulation is based on "good will",
-			after calling close_jazz_block() the owner should not change the content. If you do, you should close_jazz_block() again after.
-
-			close_jazz_block() can be called any number of times on the same block.
-
-			\param p_block The block to be "closed".
+			\param set_has_NA	SET_HAS_NA_FALSE (set the attribute as no NA without checking), SET_HAS_NA_TRUE (set it
+								as true which is always safe) or SET_HAS_NA_AUTO (search the whole tensor for NA and set accordingly).
+			\param set_hash		Compute MurmurHash64A and set attribute `hash64` accordinly.
+			\param set_time		Set attribute `created` as the current time.
 		*/
 		inline void finish_creation(int set_has_NA = SET_HAS_NA_AUTO,
 									bool set_hash = true,
