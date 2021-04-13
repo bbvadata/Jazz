@@ -2534,6 +2534,22 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 	bool buff_1k[1024] = {false};
 
+	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.max_num_keepers > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.warn_alloc_bytes > 0);
+	REQUIRE(CNT.fail_alloc_bytes > 0);
+	REQUIRE(CNT.alloc_warning_issued == false);
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == CNT.p_buffer);
+	REQUIRE(CNT.p_free->data.deque.p_next == &CNT.p_buffer[1]);
+	REQUIRE(CNT.p_free->data.deque.p_next->data.deque.p_next == &CNT.p_buffer[2]);
+	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].data.deque.p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].data.deque.p_next == nullptr);
+	REQUIRE(CNT._lock_ == 0);
+
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks") {
 		REQUIRE(CNT.new_block(p_db_r1, CELL_TYPE_DOUBLE, dim_r1.dim, &old_str) == SERVICE_NO_ERROR);
 
@@ -3746,4 +3762,17 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		free_jazz_block(p_by_r6);
 		REQUIRE(p_by_r6 == nullptr);
 	}
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
+
+	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.alloc_bytes == 0);
+	REQUIRE(CNT.p_buffer == nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
 }
