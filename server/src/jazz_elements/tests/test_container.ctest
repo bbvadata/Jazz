@@ -2526,8 +2526,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 	new_str [676] = "signifying ..";
 	new_str [321] = "NULL";
 
-	no_str[123] = (char *) nullptr;
-	no_str[456] = "";
+	no_str [123] = (char *) nullptr;
+	no_str [456] = "";
 
 	const char *month[12] = {"January", "February", "March", "April", "May", "June", "July", "August",
 							 "September", "October", "November", "December"};
@@ -2653,8 +2653,10 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 								index[4] = v;
 								index[5] = w;
 
-								p_db_r6->p_block->tensor.cell_double[p_db_r6->p_block->get_offset((int *) &index)] = 1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w;
-								p_by_r6->p_block->tensor.cell_byte  [p_by_r6->p_block->get_offset((int *) &index)] = 45*i + 34*j + 23*k + 12*u + 6*v + 3*w;
+								p_db_r6->p_block->tensor.cell_double[p_db_r6->p_block->get_offset((int *) &index)]
+									= 1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w;
+								p_by_r6->p_block->tensor.cell_byte  [p_by_r6->p_block->get_offset((int *) &index)]
+									= 45*i + 34*j + 23*k + 12*u + 6*v + 3*w;
 
 								p_st_r6->p_block->set_string((int *) &index, month[(45*i + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]);
 							}
@@ -2722,7 +2724,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		WHEN("I give wrong arguments, I get nullptr.") {
 			pBlockKeeper pcp;
 
-			REQUIRE(CNT.new_block(pcp, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			REQUIRE(CNT.new_block(pcp, (pBlock) nullptr, (pBlock) nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 			REQUIRE(pcp == nullptr);
 
 			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, p_bf_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -2803,117 +2805,117 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		WHEN("I create identical blocks") {
 			pBlockKeeper pcp_db_r1, pcp_db_r3, pcp_db_r6, pcp_st_r1, pcp_st_r3, pcp_st_r6, pcp_by_r1, pcp_by_r3, pcp_by_r6;
 
-			REQUIRE(CNT.new_block(pcp_db_r1, p_db_r1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_db_r1, p_db_r1->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r1 != nullptr);
 			REQUIRE(pcp_db_r1->p_block->size == 107);
 
-			REQUIRE(CNT.new_block(pcp_db_r3, p_db_r3->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_db_r3, p_db_r3->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r3 != nullptr);
 			REQUIRE(pcp_db_r3->p_block->size == 459);
 
-			REQUIRE(CNT.new_block(pcp_db_r6, p_db_r6->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_db_r6, p_db_r6->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r6 != nullptr);
 			REQUIRE(pcp_db_r6->p_block->size == 840);
 
-			REQUIRE(CNT.new_block(pcp_st_r1, p_st_r1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_st_r1, p_st_r1->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r1 != nullptr);
 			REQUIRE(pcp_st_r1->p_block->size == 107);
 
-			REQUIRE(CNT.new_block(pcp_st_r3, p_st_r3->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_st_r3, p_st_r3->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r3 != nullptr);
 			REQUIRE(pcp_st_r3->p_block->size == 459);
 
-			REQUIRE(CNT.new_block(pcp_st_r6, p_st_r6->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_st_r6, p_st_r6->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r6 != nullptr);
 			REQUIRE(pcp_st_r6->p_block->size == 840);
 
-			REQUIRE(CNT.new_block(pcp_by_r1, p_by_r1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_by_r1, p_by_r1->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r1 != nullptr);
 			REQUIRE(pcp_by_r1->p_block->size == 107);
 
-			REQUIRE(CNT.new_block(pcp_by_r3, p_by_r3->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_by_r3, p_by_r3->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r3 != nullptr);
 			REQUIRE(pcp_by_r3->p_block->size == 459);
 
-			REQUIRE(CNT.new_block(pcp_by_r6, p_by_r6->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(pcp_by_r6, p_by_r6->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r6 != nullptr);
 			REQUIRE(pcp_by_r6->p_block->size == 840);
 
 			THEN("Their structure is as expected.") {
-				REQUIRE(pcp_db_r1->p_block->cell_type							 == p_db_r1->p_block->cell_type);
-				REQUIRE(pcp_st_r6->p_block->cell_type							 == p_st_r6->p_block->cell_type);
-				REQUIRE(pcp_by_r3->p_block->rank									 == p_by_r3->p_block->rank);
-				REQUIRE(pcp_db_r1->p_block->rank									 == p_db_r1->p_block->rank);
-				REQUIRE(pcp_st_r6->p_block->range.dim[0]							 == p_st_r6->p_block->range.dim[0]);
+				REQUIRE(pcp_db_r1->p_block->cell_type	 == p_db_r1->p_block->cell_type);
+				REQUIRE(pcp_st_r6->p_block->cell_type	 == p_st_r6->p_block->cell_type);
+				REQUIRE(pcp_by_r3->p_block->rank		 == p_by_r3->p_block->rank);
+				REQUIRE(pcp_db_r1->p_block->rank		 == p_db_r1->p_block->rank);
+				REQUIRE(pcp_st_r6->p_block->range.dim[0] == p_st_r6->p_block->range.dim[0]);
 
-				REQUIRE(pcp_by_r3->p_block->range.dim[2]							 == p_by_r3->p_block->range.dim[2]);
-				REQUIRE(pcp_db_r1->p_block->range.dim[3]							 == p_db_r1->p_block->range.dim[3]);
-				REQUIRE(pcp_st_r6->p_block->size									 == p_st_r6->p_block->size);
-				REQUIRE(pcp_by_r3->p_block->size									 == p_by_r3->p_block->size);
-				REQUIRE(pcp_db_r1->p_block->num_attributes						 == p_db_r1->p_block->num_attributes);
+				REQUIRE(pcp_by_r3->p_block->range.dim[2]   == p_by_r3->p_block->range.dim[2]);
+				REQUIRE(pcp_db_r1->p_block->range.dim[3]   == p_db_r1->p_block->range.dim[3]);
+				REQUIRE(pcp_st_r6->p_block->size		   == p_st_r6->p_block->size);
+				REQUIRE(pcp_by_r3->p_block->size		   == p_by_r3->p_block->size);
+				REQUIRE(pcp_db_r1->p_block->num_attributes == p_db_r1->p_block->num_attributes);
 
-				REQUIRE(pcp_st_r6->p_block->num_attributes						 == p_st_r6->p_block->num_attributes);
-				REQUIRE(pcp_by_r3->p_block->total_bytes							 == p_by_r3->p_block->total_bytes);
-				REQUIRE(pcp_db_r1->p_block->total_bytes							 == p_db_r1->p_block->total_bytes);
-				REQUIRE(pcp_st_r6->p_block->has_NA								 == p_st_r6->p_block->has_NA);
-				REQUIRE(pcp_by_r3->p_block->has_NA								 == p_by_r3->p_block->has_NA);
+				REQUIRE(pcp_st_r6->p_block->num_attributes == p_st_r6->p_block->num_attributes);
+				REQUIRE(pcp_by_r3->p_block->total_bytes	   == p_by_r3->p_block->total_bytes);
+				REQUIRE(pcp_db_r1->p_block->total_bytes	   == p_db_r1->p_block->total_bytes);
+				REQUIRE(pcp_st_r6->p_block->has_NA		   == p_st_r6->p_block->has_NA);
+				REQUIRE(pcp_by_r3->p_block->has_NA		   == p_by_r3->p_block->has_NA);
 
-				REQUIRE(pcp_db_r1->p_block->has_NA								 == p_db_r1->p_block->has_NA);
-				REQUIRE(pcp_st_r6->p_block->tensor.cell_int [67]					 == p_st_r6->p_block->tensor.cell_int [67]);
-				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte[13]					 == p_by_r3->p_block->tensor.cell_byte[13]);
-				REQUIRE(pcp_db_r1->p_block->tensor.cell_double[33]				 == p_db_r1->p_block->tensor.cell_double[33]);
-				REQUIRE(pcp_st_r6->p_block->tensor.cell_int[27]					 == p_st_r6->p_block->tensor.cell_int[27]);
+				REQUIRE(pcp_db_r1->p_block->has_NA				   == p_db_r1->p_block->has_NA);
+				REQUIRE(pcp_st_r6->p_block->tensor.cell_int [67]   == p_st_r6->p_block->tensor.cell_int [67]);
+				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte[13]   == p_by_r3->p_block->tensor.cell_byte[13]);
+				REQUIRE(pcp_db_r1->p_block->tensor.cell_double[33] == p_db_r1->p_block->tensor.cell_double[33]);
+				REQUIRE(pcp_st_r6->p_block->tensor.cell_int[27]	   == p_st_r6->p_block->tensor.cell_int[27]);
 
-				REQUIRE(pcp_by_r3->p_block->p_attribute_keys()[0]				 == p_by_r3->p_block->p_attribute_keys()[0]);
+				REQUIRE(pcp_by_r3->p_block->p_attribute_keys()[0]				  == p_by_r3->p_block->p_attribute_keys()[0]);
 				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->stop_check_4_match == p_db_r1->p_block->p_string_buffer()->stop_check_4_match);
-				REQUIRE(pcp_st_r6->p_block->p_attribute_keys()[0]				 == p_st_r6->p_block->p_attribute_keys()[0]);
-				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->alloc_failed		 == p_by_r3->p_block->p_string_buffer()->alloc_failed);
-				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->last_idx			 == p_db_r1->p_block->p_string_buffer()->last_idx);
+				REQUIRE(pcp_st_r6->p_block->p_attribute_keys()[0]				  == p_st_r6->p_block->p_attribute_keys()[0]);
+				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->alloc_failed		  == p_by_r3->p_block->p_string_buffer()->alloc_failed);
+				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->last_idx			  == p_db_r1->p_block->p_string_buffer()->last_idx);
 
-				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->last_idx			 == p_st_r6->p_block->p_string_buffer()->last_idx);
-				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->last_idx			 == p_by_r3->p_block->p_string_buffer()->last_idx);
-				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->buffer_size		 == p_db_r1->p_block->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->buffer_size		 == p_st_r6->p_block->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->buffer[3]			 == p_by_r3->p_block->p_string_buffer()->buffer[3]);
+				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->last_idx		== p_st_r6->p_block->p_string_buffer()->last_idx);
+				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->last_idx		== p_by_r3->p_block->p_string_buffer()->last_idx);
+				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->buffer_size	== p_db_r1->p_block->p_string_buffer()->buffer_size);
+				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->buffer_size	== p_st_r6->p_block->p_string_buffer()->buffer_size);
+				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->buffer[3]	== p_by_r3->p_block->p_string_buffer()->buffer[3]);
 
-				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->buffer[4]			 == p_db_r1->p_block->p_string_buffer()->buffer[4]);
-				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->buffer[20]		 == p_st_r6->p_block->p_string_buffer()->buffer[20]);
+				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->buffer[4]  == p_db_r1->p_block->p_string_buffer()->buffer[4]);
+				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->buffer[20] == p_st_r6->p_block->p_string_buffer()->buffer[20]);
 
 				REQUIRE(!strcmp(pcp_db_r1->p_block->find_attribute(256), "Life's but a walking shadow"));
 				REQUIRE(!strcmp(pcp_st_r6->p_block->find_attribute(313), "... a poor player"));
 				REQUIRE(!strcmp(pcp_by_r3->p_block->find_attribute(921), "that struts and frets his hour"));
 				REQUIRE(!strcmp(pcp_db_r1->p_block->find_attribute(222), "upon the stage and"));
 				REQUIRE(!strcmp(pcp_st_r6->p_block->find_attribute(321), "then ..."));
-				REQUIRE(pcp_by_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
-				REQUIRE(pcp_db_r1->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r6->p_block->find_attribute(486)							== nullptr);
-				REQUIRE(pcp_by_r3->p_block->find_attribute(487)							== nullptr);
+				REQUIRE(pcp_by_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) == nullptr);
+				REQUIRE(pcp_db_r1->p_block->find_attribute(9999) == nullptr);
+				REQUIRE(pcp_st_r6->p_block->find_attribute(486)	 == nullptr);
+				REQUIRE(pcp_by_r3->p_block->find_attribute(487)	 == nullptr);
 
 				REQUIRE(!strcmp(pcp_db_r3->p_block->find_attribute(123), ""));
 				REQUIRE(!strcmp(pcp_st_r1->p_block->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_by_r6->p_block->find_attribute(123), ""));
-				REQUIRE(pcp_db_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
-				REQUIRE(pcp_st_r1->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r6->p_block->find_attribute(487)							== nullptr);
+				REQUIRE(pcp_db_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) == nullptr);
+				REQUIRE(pcp_st_r1->p_block->find_attribute(9999) == nullptr);
+				REQUIRE(pcp_by_r6->p_block->find_attribute(487)  == nullptr);
 
 				REQUIRE(!strcmp(pcp_db_r6->p_block->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
 				REQUIRE(!strcmp(pcp_st_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
 				REQUIRE(!strcmp(pcp_by_r1->p_block->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
-				REQUIRE(pcp_db_r6->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r3->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_by_r1->p_block->find_attribute(487)							== nullptr);
+				REQUIRE(pcp_db_r6->p_block->find_attribute(9999) == nullptr);
+				REQUIRE(pcp_st_r3->p_block->find_attribute(9999) == nullptr);
+				REQUIRE(pcp_by_r1->p_block->find_attribute(487)	 == nullptr);
 
 				REQUIRE(pcp_db_r1->p_block->tensor.cell_double[33] == 3.3);
-				REQUIRE(pcp_by_r1->p_block->tensor.cell_byte	 [33] == 73);
+				REQUIRE(pcp_by_r1->p_block->tensor.cell_byte  [33] == 73);
 				REQUIRE(!strcmp(pcp_st_r1->p_block->get_string(15), "April"));
 				REQUIRE(!pcp_st_r1->p_block->p_string_buffer()->alloc_failed);
 
@@ -2922,7 +2924,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_finish(pcp_by_r1->p_block);
 
 				REQUIRE(pcp_db_r3->p_block->tensor.cell_double[334] == 12003001.0);
-				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte	 [334] == 102);
+				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte  [334] == 102);
 				REQUIRE(!strcmp(pcp_st_r3->p_block->get_string(334), "July"));
 				REQUIRE(!pcp_st_r3->p_block->p_string_buffer()->alloc_failed);
 
@@ -2931,7 +2933,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_finish(pcp_by_r3->p_block);
 
 				REQUIRE(pcp_db_r6->p_block->tensor.cell_double[753] == 120000307.0);
-				REQUIRE(pcp_by_r6->p_block->tensor.cell_byte	 [753] == 167);
+				REQUIRE(pcp_by_r6->p_block->tensor.cell_byte  [753] == 167);
 				REQUIRE(!strcmp(pcp_st_r6->p_block->get_string(753), "December"));
 				REQUIRE(!pcp_st_r6->p_block->p_string_buffer()->alloc_failed);
 
@@ -2940,137 +2942,135 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				check_and_finish(pcp_by_r6->p_block);
 			}
 
-			free_jazz_block(pcp_db_r1);
+			CNT.unlock(pcp_db_r1);
 			REQUIRE(pcp_db_r1 == nullptr);
 
-			free_jazz_block(pcp_db_r3);
+			CNT.unlock(pcp_db_r3);
 			REQUIRE(pcp_db_r3 == nullptr);
 
-			free_jazz_block(pcp_db_r6);
+			CNT.unlock(pcp_db_r6);
 			REQUIRE(pcp_db_r6 == nullptr);
 
-			free_jazz_block(pcp_st_r1);
+			CNT.unlock(pcp_st_r1);
 			REQUIRE(pcp_st_r1 == nullptr);
 
-			free_jazz_block(pcp_st_r3);
+			CNT.unlock(pcp_st_r3);
 			REQUIRE(pcp_st_r3 == nullptr);
 
-			free_jazz_block(pcp_st_r6);
+			CNT.unlock(pcp_st_r6);
 			REQUIRE(pcp_st_r6 == nullptr);
 
-			free_jazz_block(pcp_by_r1);
+			CNT.unlock(pcp_by_r1);
 			REQUIRE(pcp_by_r1 == nullptr);
 
-			free_jazz_block(pcp_by_r3);
+			CNT.unlock(pcp_by_r3);
 			REQUIRE(pcp_by_r3 == nullptr);
 
-			free_jazz_block(pcp_by_r6);
+			CNT.unlock(pcp_by_r6);
 			REQUIRE(pcp_by_r6 == nullptr);
 		}
 
 		WHEN("I create identical blocks with different attributes") {
-			pJazzBlock pcp_db_r1, pcp_db_r3, pcp_db_r6,
-					   pcp_st_r1, pcp_st_r3, pcp_st_r6,
-					   pcp_by_r1, pcp_by_r3, pcp_by_r6;
+			pBlockKeeper pcp_db_r1, pcp_db_r3, pcp_db_r6, pcp_st_r1, pcp_st_r3, pcp_st_r6, pcp_by_r1, pcp_by_r3, pcp_by_r6;
 
-			pcp_db_r1 = new_jazz_block(p_db_r1, nullptr, &new_str);
+			REQUIRE(CNT.new_block(pcp_db_r1, p_db_r1->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r1 != nullptr);
 			REQUIRE(pcp_db_r1->p_block->size == 107);
 
-			pcp_db_r3 = new_jazz_block(p_db_r3, nullptr, &new_str);
+			REQUIRE(CNT.new_block(pcp_db_r3, p_db_r3->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r3 != nullptr);
 			REQUIRE(pcp_db_r3->p_block->size == 459);
 
-			pcp_db_r6 = new_jazz_block(p_db_r6, nullptr, &no_str);
+			REQUIRE(CNT.new_block(pcp_db_r6, p_db_r6->p_block, (pBlock) nullptr, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r6 != nullptr);
 			REQUIRE(pcp_db_r6->p_block->size == 840);
 
-			pcp_st_r1 = new_jazz_block(p_st_r1, nullptr, &new_str);
+			REQUIRE(CNT.new_block(pcp_st_r1, p_st_r1->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r1 != nullptr);
 			REQUIRE(pcp_st_r1->p_block->size == 107);
 
-			pcp_st_r3 = new_jazz_block(p_st_r3, nullptr, &new_str);
+			REQUIRE(CNT.new_block(pcp_st_r3, p_st_r3->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r3 != nullptr);
 			REQUIRE(pcp_st_r3->p_block->size == 459);
 
-			pcp_st_r6 = new_jazz_block(p_st_r6, nullptr, &no_str);
+			REQUIRE(CNT.new_block(pcp_st_r6, p_st_r6->p_block, (pBlock) nullptr, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r6 != nullptr);
 			REQUIRE(pcp_st_r6->p_block->size == 840);
 
-			pcp_by_r1 = new_jazz_block(p_by_r1, nullptr, &new_str);
+			REQUIRE(CNT.new_block(pcp_by_r1, p_by_r1->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r1 != nullptr);
 			REQUIRE(pcp_by_r1->p_block->size == 107);
 
-			pcp_by_r3 = new_jazz_block(p_by_r3, nullptr, &new_str);
+			REQUIRE(CNT.new_block(pcp_by_r3, p_by_r3->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r3 != nullptr);
 			REQUIRE(pcp_by_r3->p_block->size == 459);
 
-			pcp_by_r6 = new_jazz_block(p_by_r6, nullptr, &no_str);
+			REQUIRE(CNT.new_block(pcp_by_r6, p_by_r6->p_block, (pBlock) nullptr, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r6 != nullptr);
 			REQUIRE(pcp_by_r6->p_block->size == 840);
 
 			THEN("Their structure is as expected.") {
-				REQUIRE(pcp_db_r1->p_block->cell_type							 == p_db_r1->p_block->cell_type);
-				REQUIRE(pcp_st_r6->p_block->cell_type							 == p_st_r6->p_block->cell_type);
-				REQUIRE(pcp_by_r3->p_block->rank									 == p_by_r3->p_block->rank);
-				REQUIRE(pcp_db_r1->p_block->rank									 == p_db_r1->p_block->rank);
-				REQUIRE(pcp_st_r6->p_block->range.dim[0]							 == p_st_r6->p_block->range.dim[0]);
+				REQUIRE(pcp_db_r1->p_block->cell_type	 == p_db_r1->p_block->cell_type);
+				REQUIRE(pcp_st_r6->p_block->cell_type	 == p_st_r6->p_block->cell_type);
+				REQUIRE(pcp_by_r3->p_block->rank		 == p_by_r3->p_block->rank);
+				REQUIRE(pcp_db_r1->p_block->rank		 == p_db_r1->p_block->rank);
+				REQUIRE(pcp_st_r6->p_block->range.dim[0] == p_st_r6->p_block->range.dim[0]);
 
-				REQUIRE(pcp_by_r3->p_block->range.dim[2]							 == p_by_r3->p_block->range.dim[2]);
-				REQUIRE(pcp_db_r1->p_block->range.dim[3]							 == p_db_r1->p_block->range.dim[3]);
-				REQUIRE(pcp_st_r6->p_block->size									 == p_st_r6->p_block->size);
-				REQUIRE(pcp_by_r3->p_block->size									 == p_by_r3->p_block->size);
-				REQUIRE(pcp_db_r1->p_block->num_attributes						 == 6);
+				REQUIRE(pcp_by_r3->p_block->range.dim[2]   == p_by_r3->p_block->range.dim[2]);
+				REQUIRE(pcp_db_r1->p_block->range.dim[3]   == p_db_r1->p_block->range.dim[3]);
+				REQUIRE(pcp_st_r6->p_block->size		   == p_st_r6->p_block->size);
+				REQUIRE(pcp_by_r3->p_block->size		   == p_by_r3->p_block->size);
+				REQUIRE(pcp_db_r1->p_block->num_attributes == 6);
 
-				REQUIRE(pcp_st_r6->p_block->num_attributes						 == 2);
-				REQUIRE(pcp_by_r3->p_block->total_bytes							 == p_by_r3->p_block->total_bytes);
-				REQUIRE(pcp_db_r1->p_block->total_bytes							 == p_db_r1->p_block->total_bytes);	// Same number of chars in old and new
-				REQUIRE(pcp_st_r6->p_block->has_NA								 == p_st_r6->p_block->has_NA);
-				REQUIRE(pcp_by_r3->p_block->has_NA								 == p_by_r3->p_block->has_NA);
+				REQUIRE(pcp_st_r6->p_block->num_attributes == 2);
+				REQUIRE(pcp_by_r3->p_block->total_bytes	   == p_by_r3->p_block->total_bytes);
+				REQUIRE(pcp_db_r1->p_block->total_bytes	   == p_db_r1->p_block->total_bytes);	// Same number of chars in old and new
+				REQUIRE(pcp_st_r6->p_block->has_NA		   == p_st_r6->p_block->has_NA);
+				REQUIRE(pcp_by_r3->p_block->has_NA		   == p_by_r3->p_block->has_NA);
 
-				REQUIRE(pcp_db_r1->p_block->has_NA								 == p_db_r1->p_block->has_NA);
-				REQUIRE(pcp_st_r6->p_block->tensor.cell_int [67]					 == p_st_r6->p_block->tensor.cell_int [67]);
-				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte[13]					 == p_by_r3->p_block->tensor.cell_byte[13]);
-				REQUIRE(pcp_db_r1->p_block->tensor.cell_double[33]				 == p_db_r1->p_block->tensor.cell_double[33]);
-				REQUIRE(pcp_st_r6->p_block->tensor.cell_int[27]					 == p_st_r6->p_block->tensor.cell_int[27]);
+				REQUIRE(pcp_db_r1->p_block->has_NA				   == p_db_r1->p_block->has_NA);
+				REQUIRE(pcp_st_r6->p_block->tensor.cell_int [67]   == p_st_r6->p_block->tensor.cell_int [67]);
+				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte[13]   == p_by_r3->p_block->tensor.cell_byte[13]);
+				REQUIRE(pcp_db_r1->p_block->tensor.cell_double[33] == p_db_r1->p_block->tensor.cell_double[33]);
+				REQUIRE(pcp_st_r6->p_block->tensor.cell_int[27]	   == p_st_r6->p_block->tensor.cell_int[27]);
 
 				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->stop_check_4_match == p_db_r1->p_block->p_string_buffer()->stop_check_4_match);
-				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->alloc_failed		 == p_by_r3->p_block->p_string_buffer()->alloc_failed);
+				REQUIRE(pcp_by_r3->p_block->p_string_buffer()->alloc_failed		  == p_by_r3->p_block->p_string_buffer()->alloc_failed);
 
 				REQUIRE(!strcmp(pcp_db_r1->p_block->find_attribute(921), "is heard nomore ..."));
 				REQUIRE(!strcmp(pcp_st_r1->p_block->find_attribute(313), "It's a tale.."));
 				REQUIRE(!strcmp(pcp_by_r1->p_block->find_attribute(358), "told by an idiot.."));
 				REQUIRE(!strcmp(pcp_db_r3->p_block->find_attribute(222), "full of sound and fury.."));
 				REQUIRE(!strcmp(pcp_st_r3->p_block->find_attribute(676), "signifying .."));
-				REQUIRE(pcp_by_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
-				REQUIRE(pcp_db_r1->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
-				REQUIRE(pcp_st_r1->p_block->find_attribute(486)							== nullptr);
-				REQUIRE(pcp_by_r1->p_block->find_attribute(487)							== nullptr);
+				REQUIRE(pcp_by_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) == nullptr);
+				REQUIRE(pcp_db_r1->p_block->find_attribute(9999) == nullptr);
+				REQUIRE(pcp_st_r1->p_block->find_attribute(486)	 == nullptr);
+				REQUIRE(pcp_by_r1->p_block->find_attribute(487)	 == nullptr);
 				REQUIRE(!strcmp(pcp_db_r3->p_block->find_attribute(321), "NULL"));
 
 				REQUIRE(!strcmp(pcp_st_r6->p_block->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_by_r6->p_block->find_attribute(123), ""));
-				REQUIRE(pcp_db_r6->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)	== nullptr);
-				REQUIRE(pcp_st_r6->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(pcp_db_r6->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) == nullptr);
+				REQUIRE(pcp_st_r6->p_block->find_attribute(9999) == nullptr);
 
 				REQUIRE(pcp_db_r1->p_block->tensor.cell_double[33] == 3.3);
-				REQUIRE(pcp_by_r1->p_block->tensor.cell_byte	 [33] == 73);
+				REQUIRE(pcp_by_r1->p_block->tensor.cell_byte  [33] == 73);
 				REQUIRE(!strcmp(pcp_st_r1->p_block->get_string(15), "April"));
 				REQUIRE(!pcp_st_r1->p_block->p_string_buffer()->alloc_failed);
 
 				// Not a string, from old_str to new_str:
-				REQUIRE(pcp_db_r1->p_block->total_bytes					  == p_db_r1->p_block->total_bytes);
-				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->buffer_size == p_db_r1->p_block->p_string_buffer()->buffer_size - 8);	// 8 bytes == keys 1+ attr
-				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->last_idx	  == p_db_r1->p_block->p_string_buffer()->last_idx - 8);
+				REQUIRE(pcp_db_r1->p_block->total_bytes					   == p_db_r1->p_block->total_bytes);
+				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->buffer_size == p_db_r1->p_block->p_string_buffer()->buffer_size - 8);
+				REQUIRE(pcp_db_r1->p_block->p_string_buffer()->last_idx	   == p_db_r1->p_block->p_string_buffer()->last_idx - 8);
 
 				REQUIRE(!strcmp(pcp_db_r1->p_block->find_attribute(921), "is heard nomore ..."));
 				REQUIRE(!strcmp(pcp_db_r1->p_block->find_attribute(313), "It's a tale.."));
@@ -3080,18 +3080,18 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_db_r1->p_block->find_attribute(321), "NULL"));
 
 				// Not a string, from nullptr to new_str:
-				REQUIRE(pcp_by_r1->p_block->total_bytes					  == p_by_r1->p_block->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_by_r1->p_block->total_bytes					   == p_by_r1->p_block->total_bytes + 8*5 + 97);
 				REQUIRE(pcp_by_r1->p_block->p_string_buffer()->buffer_size == pcp_db_r1->p_block->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_by_r1->p_block->p_string_buffer()->last_idx	  == pcp_db_r1->p_block->p_string_buffer()->last_idx);
+				REQUIRE(pcp_by_r1->p_block->p_string_buffer()->last_idx	   == pcp_db_r1->p_block->p_string_buffer()->last_idx);
 
 				// String, from no_str to new_str:
-				REQUIRE(pcp_st_r1->p_block->total_bytes					  == p_st_r1->p_block->total_bytes + 8*4 + 97);
-				REQUIRE(pcp_st_r1->p_block->num_attributes				  == p_st_r1->p_block->num_attributes + 4);
+				REQUIRE(pcp_st_r1->p_block->total_bytes	   == p_st_r1->p_block->total_bytes + 8*4 + 97);
+				REQUIRE(pcp_st_r1->p_block->num_attributes == p_st_r1->p_block->num_attributes + 4);
 
 				REQUIRE(pcp_st_r1->p_block->p_string_buffer()->buffer_size == p_st_r1->p_block->p_string_buffer()->buffer_size + 97);
 
 				// String, from nullptr to new_str:
-				REQUIRE(pcp_st_r3->p_block->total_bytes					  == p_st_r3->p_block->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_st_r3->p_block->total_bytes					   == p_st_r3->p_block->total_bytes + 8*5 + 97);
 				REQUIRE(pcp_st_r3->p_block->p_string_buffer()->buffer_size == p_st_r3->p_block->p_string_buffer()->buffer_size + 97);
 
 				REQUIRE(!strcmp(pcp_st_r3->p_block->find_attribute(921), "is heard nomore ..."));
@@ -3102,9 +3102,9 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(pcp_st_r3->p_block->find_attribute(321), "NULL"));
 
 				// String, from old_str to no_str:
-				REQUIRE(pcp_st_r6->p_block->total_bytes					  == p_st_r6->p_block->total_bytes - 8*3);
+				REQUIRE(pcp_st_r6->p_block->total_bytes					   == p_st_r6->p_block->total_bytes - 8*3);
 				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->buffer_size == p_st_r6->p_block->p_string_buffer()->buffer_size);
-				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->last_idx	  == p_st_r6->p_block->p_string_buffer()->last_idx);
+				REQUIRE(pcp_st_r6->p_block->p_string_buffer()->last_idx	   == p_st_r6->p_block->p_string_buffer()->last_idx);
 				REQUIRE(!strcmp(pcp_st_r6->p_block->find_attribute(456), ""));
 				REQUIRE(!strcmp(pcp_st_r6->p_block->find_attribute(123), ""));
 				REQUIRE(pcp_st_r6->p_block->find_attribute(654) == nullptr);
@@ -3115,110 +3115,106 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 					REQUIRE(pcp_st_r6->p_block->tensor.cell_int[i] == p_st_r6->p_block->tensor.cell_int[i]);
 				}
 
-				check_and_finish(pcp_db_r1);
-				check_and_finish(pcp_st_r1);
-				check_and_finish(pcp_by_r1);
+				check_and_finish(pcp_db_r1->p_block);
+				check_and_finish(pcp_st_r1->p_block);
+				check_and_finish(pcp_by_r1->p_block);
 
 				REQUIRE(pcp_db_r3->p_block->tensor.cell_double[334] == 12003001.0);
-				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte	 [334] == 102);
+				REQUIRE(pcp_by_r3->p_block->tensor.cell_byte  [334] == 102);
 				REQUIRE(!strcmp(pcp_st_r3->p_block->get_string(334), "July"));
 				REQUIRE(!pcp_st_r3->p_block->p_string_buffer()->alloc_failed);
 
-				check_and_finish(pcp_db_r3);
-				check_and_finish(pcp_st_r3);
-				check_and_finish(pcp_by_r3);
+				check_and_finish(pcp_db_r3->p_block);
+				check_and_finish(pcp_st_r3->p_block);
+				check_and_finish(pcp_by_r3->p_block);
 
 				REQUIRE(pcp_db_r6->p_block->tensor.cell_double[753] == 120000307.0);
-				REQUIRE(pcp_by_r6->p_block->tensor.cell_byte	 [753] == 167);
+				REQUIRE(pcp_by_r6->p_block->tensor.cell_byte  [753] == 167);
 				REQUIRE(!strcmp(pcp_st_r6->p_block->get_string(753), "December"));
 				REQUIRE(!pcp_st_r6->p_block->p_string_buffer()->alloc_failed);
 
-				check_and_finish(pcp_db_r6);
-				check_and_finish(pcp_st_r6);
-				check_and_finish(pcp_by_r6);
+				check_and_finish(pcp_db_r6->p_block);
+				check_and_finish(pcp_st_r6->p_block);
+				check_and_finish(pcp_by_r6->p_block);
 			}
 
-			free_jazz_block(pcp_db_r1);
+			CNT.unlock(pcp_db_r1);
 			REQUIRE(pcp_db_r1 == nullptr);
 
-			free_jazz_block(pcp_db_r3);
+			CNT.unlock(pcp_db_r3);
 			REQUIRE(pcp_db_r3 == nullptr);
 
-			free_jazz_block(pcp_db_r6);
+			CNT.unlock(pcp_db_r6);
 			REQUIRE(pcp_db_r6 == nullptr);
 
-			free_jazz_block(pcp_st_r1);
+			CNT.unlock(pcp_st_r1);
 			REQUIRE(pcp_st_r1 == nullptr);
 
-			free_jazz_block(pcp_st_r3);
+			CNT.unlock(pcp_st_r3);
 			REQUIRE(pcp_st_r3 == nullptr);
 
-			free_jazz_block(pcp_st_r6);
+			CNT.unlock(pcp_st_r6);
 			REQUIRE(pcp_st_r6 == nullptr);
 
-			free_jazz_block(pcp_by_r1);
+			CNT.unlock(pcp_by_r1);
 			REQUIRE(pcp_by_r1 == nullptr);
 
-			free_jazz_block(pcp_by_r3);
+			CNT.unlock(pcp_by_r3);
 			REQUIRE(pcp_by_r3 == nullptr);
 
-			free_jazz_block(pcp_by_r6);
+			CNT.unlock(pcp_by_r6);
 			REQUIRE(pcp_by_r6 == nullptr);
 		}
 
 		WHEN("I filter with all combinations of blocks an filters") {
-			pJazzBlock p_pa_db_r1, p_pa_db_r3, p_pa_db_r6,
-					   p_pa_st_r1, p_pa_st_r3, p_pa_st_r6,
-					   p_pa_by_r1, p_pa_by_r3, p_pa_by_r6,
-					   p_pb_db_r1, p_pb_db_r3, p_pb_db_r6,
-					   p_pb_st_r1, p_pb_st_r3, p_pb_st_r6,
-					   p_pb_by_r1, p_pb_by_r3, p_pb_by_r6;
+			pBlockKeeper p_pa_db_r1, p_pa_db_r3, p_pa_db_r6, p_pa_st_r1, p_pa_st_r3, p_pa_st_r6, p_pa_by_r1, p_pa_by_r3, p_pa_by_r6,
+						 p_pb_db_r1, p_pb_db_r3, p_pb_db_r6, p_pb_st_r1, p_pb_st_r3, p_pb_st_r6, p_pb_by_r1, p_pb_by_r3, p_pb_by_r6;
 
 			// Select all elements with binary, correct, and integer fitting dimension properly
 			for (int i = 0; i < p_if_r1->p_block->size; i++) {
-				p_if_r1->p_block->tensor.cell_int[i]	 = i;
+				p_if_r1->p_block->tensor.cell_int[i]  = i;
 				p_bf_r1->p_block->tensor.cell_bool[i] = true;
 			}
 			p_if_r1->p_block->range.filter.length = p_if_r1->p_block->size;
 
 			for (int i = 0; i < p_if_r3->p_block->size; i++) {
-				p_if_r3->p_block->tensor.cell_int[i]	 = 0;
+				p_if_r3->p_block->tensor.cell_int[i]  = 0;
 				p_bf_r3->p_block->tensor.cell_bool[i] = true;
 			}
 			p_if_r3->p_block->range.filter.length = p_if_r3->p_block->size;
 
 			for (int i = 0; i < p_if_r6->p_block->size; i++) {
-				p_if_r6->p_block->tensor.cell_int[i]	 = -i;
+				p_if_r6->p_block->tensor.cell_int[i]  = -i;
 				p_bf_r6->p_block->tensor.cell_bool[i] = true;
 			}
 			p_if_r6->p_block->range.filter.length = p_if_r6->p_block->size;
 
-			p_pa_db_r1 = new_jazz_block(p_db_r1, p_if_r1);
+			REQUIRE(CNT.new_block(p_pa_db_r1, p_db_r1->p_block, p_if_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_db_r1 != nullptr);
 			REQUIRE(p_pa_db_r1->p_block->size == 107);
 
-			p_pa_db_r3 = new_jazz_block(p_db_r3, p_if_r3);
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_db_r3 != nullptr);
 			REQUIRE(p_pa_db_r3->p_block->size == 459);
 
-			p_pa_db_r6 = new_jazz_block(p_db_r6, p_if_r6, &no_str);
+			REQUIRE(CNT.new_block(p_pa_db_r6, p_db_r6->p_block, p_if_r6->p_block, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_db_r6 != nullptr);
 			REQUIRE(p_pa_db_r6->p_block->size == 840);
 
-			p_pa_st_r1 = new_jazz_block(p_st_r1, p_bf_r1);
+			REQUIRE(CNT.new_block(p_pa_st_r1, p_st_r1->p_block, p_bf_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_st_r1 != nullptr);
 			REQUIRE(p_pa_st_r1->p_block->size == 107);
 
-			p_pa_st_r3 = new_jazz_block(p_st_r3, p_bf_r3);
+			REQUIRE(CNT.new_block(p_pa_st_r3, p_st_r3->p_block, p_bf_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_st_r3 != nullptr);
 			REQUIRE(p_pa_st_r3->p_block->size == 459);
 
-			p_pa_st_r6 = new_jazz_block(p_st_r6, p_bf_r6, &new_str);
+			REQUIRE(CNT.new_block(p_pa_st_r6, p_st_r6->p_block, p_bf_r6->p_block, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_st_r6 != nullptr);
 			REQUIRE(p_pa_st_r6->p_block->size == 840);
@@ -3239,37 +3235,37 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 			}
 			p_if_r6->p_block->range.filter.length = 0;
 
-			p_pa_by_r1 = new_jazz_block(p_by_r1, p_if_r1);
+			REQUIRE(CNT.new_block(p_pa_by_r1, p_by_r1->p_block, p_if_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_by_r1 != nullptr);
 			REQUIRE(p_pa_by_r1->p_block->size == 0);
 			REQUIRE(p_pa_by_r1->p_block->rank == 1);
 
-			p_pa_by_r3 = new_jazz_block(p_by_r3, p_if_r3, &new_str);
+			REQUIRE(CNT.new_block(p_pa_by_r3, p_by_r3->p_block, p_if_r3->p_block, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_by_r3 != nullptr);
 			REQUIRE(p_pa_by_r3->p_block->size == 0);
 			REQUIRE(p_pa_by_r3->p_block->rank == 3);
 
-			p_pa_by_r6 = new_jazz_block(p_by_r6, p_if_r6);
+			REQUIRE(CNT.new_block(p_pa_by_r6, p_by_r6->p_block, p_if_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_by_r6 != nullptr);
 			REQUIRE(p_pa_by_r6->p_block->size == 0);
 			REQUIRE(p_pa_by_r6->p_block->rank == 6);
 
-			p_pb_db_r1 = new_jazz_block(p_db_r1, p_bf_r1);
+			REQUIRE(CNT.new_block(p_pb_db_r1, p_db_r1->p_block, p_bf_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_db_r1 != nullptr);
 			REQUIRE(p_pb_db_r1->p_block->size == 0);
 			REQUIRE(p_pb_db_r1->p_block->rank == 1);
 
-			p_pb_db_r3 = new_jazz_block(p_db_r3, p_bf_r3, &no_str);
+			REQUIRE(CNT.new_block(p_pb_db_r3, p_db_r3->p_block, p_bf_r3->p_block, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_db_r3 != nullptr);
 			REQUIRE(p_pb_db_r3->p_block->size == 0);
 			REQUIRE(p_pb_db_r3->p_block->rank == 3);
 
-			p_pb_db_r6 = new_jazz_block(p_db_r6, p_bf_r6);
+			REQUIRE(CNT.new_block(p_pb_db_r6, p_db_r6->p_block, p_bf_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_db_r6 != nullptr);
 			REQUIRE(p_pb_db_r6->p_block->size == 0);
@@ -3277,92 +3273,91 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 			// Select some elements with binary and integer	 - dim_r1 {{107, 0}}, dim_r3 {{17, 9, 3, 0}}, dim_r6 {{2, 3, 2, 5, 2, 7}};
 			for (int i = 0; i < p_if_r1->p_block->size; i++) {
-				p_if_r1->p_block->tensor.cell_int[i]	 = 3*i + 4;
+				p_if_r1->p_block->tensor.cell_int[i]  = 3*i + 4;
 				p_bf_r1->p_block->tensor.cell_bool[i] = i % 3 == 2;
 			}
 			p_if_r1->p_block->range.filter.length = 17;
 
 			for (int i = 0; i < p_if_r3->p_block->size; i++) {
-				p_if_r3->p_block->tensor.cell_int[i]	 = i;
+				p_if_r3->p_block->tensor.cell_int[i]  = i;
 				p_bf_r3->p_block->tensor.cell_bool[i] = i % 4 == 2;
 			}
 			p_if_r3->p_block->range.filter.length = 7;
 
 			for (int i = 0; i < p_if_r6->p_block->size; i++) {
-				p_if_r6->p_block->tensor.cell_int[i]	 = 1;
+				p_if_r6->p_block->tensor.cell_int[i]  = 1;
 				p_bf_r6->p_block->tensor.cell_bool[i] = i == 0;
 			}
 			p_if_r6->p_block->range.filter.length = 1;
 
-			p_pb_st_r1 = new_jazz_block(p_st_r1, p_if_r1, &no_str);
+			REQUIRE(CNT.new_block(p_pb_st_r1, p_st_r1->p_block, p_if_r1->p_block, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_st_r1 != nullptr);
 			REQUIRE(p_pb_st_r1->p_block->size == 17);
 
-			p_pb_st_r3 = new_jazz_block(p_st_r3, p_if_r3);
+			REQUIRE(CNT.new_block(p_pb_st_r3, p_st_r3->p_block, p_if_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_st_r3 != nullptr);
 			REQUIRE(p_pb_st_r3->p_block->size == 189);
 
-			p_pb_st_r6 = new_jazz_block(p_st_r6, p_if_r6);
+			REQUIRE(CNT.new_block(p_pb_st_r6, p_st_r6->p_block, p_if_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_st_r6 != nullptr);
 			REQUIRE(p_pb_st_r6->p_block->size == 420);
 
-			p_pb_by_r1 = new_jazz_block(p_by_r1, p_bf_r1, &new_str);
+			REQUIRE(CNT.new_block(p_pb_by_r1, p_by_r1->p_block, p_bf_r1->p_block, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_by_r1 != nullptr);
 			REQUIRE(p_pb_by_r1->p_block->size == 35);
 
-			p_pb_by_r3 = new_jazz_block(p_by_r3, p_bf_r3);
+			REQUIRE(CNT.new_block(p_pb_by_r3, p_by_r3->p_block, p_bf_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_by_r3 != nullptr);
 			REQUIRE(p_pb_by_r3->p_block->size == 108);
 
-			p_pb_by_r6 = new_jazz_block(p_by_r6, p_bf_r6);
+			REQUIRE(CNT.new_block(p_pb_by_r6, p_by_r6->p_block, p_bf_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_by_r6 != nullptr);
 			REQUIRE(p_pb_by_r6->p_block->size == 420);
 
 			THEN("Their structure is as expected.") {
-				REQUIRE(p_pa_db_r1->p_block->cell_type							  == p_db_r1->p_block->cell_type);
-				REQUIRE(p_pa_st_r6->p_block->cell_type							  == p_st_r6->p_block->cell_type);
-				REQUIRE(p_pa_db_r3->p_block->rank								  == p_db_r3->p_block->rank);
-				REQUIRE(p_pa_db_r1->p_block->rank								  == p_db_r1->p_block->rank);
-				REQUIRE(p_pa_st_r6->p_block->range.dim[0]						  == p_st_r6->p_block->range.dim[0]);
+				REQUIRE(p_pa_db_r1->p_block->cell_type	  == p_db_r1->p_block->cell_type);
+				REQUIRE(p_pa_st_r6->p_block->cell_type	  == p_st_r6->p_block->cell_type);
+				REQUIRE(p_pa_db_r3->p_block->rank		  == p_db_r3->p_block->rank);
+				REQUIRE(p_pa_db_r1->p_block->rank		  == p_db_r1->p_block->rank);
+				REQUIRE(p_pa_st_r6->p_block->range.dim[0] == p_st_r6->p_block->range.dim[0]);
 
-				REQUIRE(p_pa_db_r3->p_block->range.dim[2]						  == p_db_r3->p_block->range.dim[2]);
-				REQUIRE(p_pa_st_r1->p_block->range.dim[3]						  == p_st_r1->p_block->range.dim[3]);
-				REQUIRE(p_pa_st_r6->p_block->size								  == p_st_r6->p_block->size);
-				REQUIRE(p_pa_db_r3->p_block->size								  == p_db_r3->p_block->size);
-				REQUIRE(p_pa_db_r1->p_block->num_attributes						  == p_db_r1->p_block->num_attributes);
+				REQUIRE(p_pa_db_r3->p_block->range.dim[2]   == p_db_r3->p_block->range.dim[2]);
+				REQUIRE(p_pa_st_r1->p_block->range.dim[3]   == p_st_r1->p_block->range.dim[3]);
+				REQUIRE(p_pa_st_r6->p_block->size		    == p_st_r6->p_block->size);
+				REQUIRE(p_pa_db_r3->p_block->size		    == p_db_r3->p_block->size);
+				REQUIRE(p_pa_db_r1->p_block->num_attributes == p_db_r1->p_block->num_attributes);
 
-				REQUIRE(p_pa_st_r6->p_block->num_attributes						  == 6);
-				REQUIRE(p_pa_st_r3->p_block->total_bytes							  == p_st_r3->p_block->total_bytes);
-				REQUIRE(p_pa_db_r1->p_block->total_bytes							  == p_db_r1->p_block->total_bytes);
-				REQUIRE(p_pa_st_r6->p_block->has_NA								  == p_st_r6->p_block->has_NA);
-				REQUIRE(p_pa_db_r3->p_block->has_NA								  == p_db_r3->p_block->has_NA);
+				REQUIRE(p_pa_st_r6->p_block->num_attributes	== 6);
+				REQUIRE(p_pa_st_r3->p_block->total_bytes	== p_st_r3->p_block->total_bytes);
+				REQUIRE(p_pa_db_r1->p_block->total_bytes	== p_db_r1->p_block->total_bytes);
+				REQUIRE(p_pa_st_r6->p_block->has_NA			== p_st_r6->p_block->has_NA);
+				REQUIRE(p_pa_db_r3->p_block->has_NA			== p_db_r3->p_block->has_NA);
 
-				REQUIRE(p_pa_db_r1->p_block->has_NA								  == p_db_r1->p_block->has_NA);
-				REQUIRE(p_pa_st_r6->p_block->tensor.cell_int [67]				  == p_st_r6->p_block->tensor.cell_int [67]);
-				REQUIRE(p_pa_db_r3->p_block->tensor.cell_byte[13]				  == p_db_r3->p_block->tensor.cell_byte[13]);
-				REQUIRE(p_pa_db_r1->p_block->tensor.cell_double[33]				  == p_db_r1->p_block->tensor.cell_double[33]);
-				REQUIRE(p_pa_st_r6->p_block->tensor.cell_int[27]					  == p_st_r6->p_block->tensor.cell_int[27]);
+				REQUIRE(p_pa_db_r1->p_block->has_NA					== p_db_r1->p_block->has_NA);
+				REQUIRE(p_pa_st_r6->p_block->tensor.cell_int [67]	== p_st_r6->p_block->tensor.cell_int [67]);
+				REQUIRE(p_pa_db_r3->p_block->tensor.cell_byte[13]	== p_db_r3->p_block->tensor.cell_byte[13]);
+				REQUIRE(p_pa_db_r1->p_block->tensor.cell_double[33]	== p_db_r1->p_block->tensor.cell_double[33]);
+				REQUIRE(p_pa_st_r6->p_block->tensor.cell_int[27]	== p_st_r6->p_block->tensor.cell_int[27]);
 
-				REQUIRE(p_pa_db_r3->p_block->p_attribute_keys()[0]				  == p_db_r3->p_attribute_keys()[0]);
+				REQUIRE(p_pa_db_r3->p_block->p_attribute_keys()[0]				   == p_db_r3->p_block->p_attribute_keys()[0]);
 				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->stop_check_4_match == p_db_r1->p_block->p_string_buffer()->stop_check_4_match);
-				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->last_idx			  == p_db_r1->p_block->p_string_buffer()->last_idx);
-				REQUIRE(p_pa_db_r3->p_block->p_string_buffer()->last_idx			  == p_db_r3->p_block->p_string_buffer()->last_idx);
-				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->buffer_size		  == p_db_r1->p_block->p_string_buffer()->buffer_size);
-				REQUIRE(p_pa_db_r3->p_block->p_string_buffer()->buffer[3]		  == p_db_r3->p_block->p_string_buffer()->buffer[3]);
-
-				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->buffer[4]		  == p_db_r1->p_block->p_string_buffer()->buffer[4]);
+				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->last_idx		   == p_db_r1->p_block->p_string_buffer()->last_idx);
+				REQUIRE(p_pa_db_r3->p_block->p_string_buffer()->last_idx		   == p_db_r3->p_block->p_string_buffer()->last_idx);
+				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->buffer_size		   == p_db_r1->p_block->p_string_buffer()->buffer_size);
+				REQUIRE(p_pa_db_r3->p_block->p_string_buffer()->buffer[3]		   == p_db_r3->p_block->p_string_buffer()->buffer[3]);
+				REQUIRE(p_pa_db_r1->p_block->p_string_buffer()->buffer[4]		   == p_db_r1->p_block->p_string_buffer()->buffer[4]);
 
 				REQUIRE(!strcmp(p_pa_db_r1->p_block->find_attribute(256), "Life's but a walking shadow"));
 				REQUIRE(!strcmp(p_pa_db_r3->p_block->find_attribute(123), ""));
 				REQUIRE(!strcmp(p_pa_db_r6->p_block->find_attribute(456), ""));
 
-				REQUIRE(p_pa_st_r1->p_block->find_attribute(BLOCK_ATTR_CONTAINERS_FILTER) == nullptr);
+				REQUIRE(p_pa_st_r1->p_block->find_attribute(9999) == nullptr);
 				REQUIRE(!strcmp(p_pa_st_r3->p_block->find_attribute(BLOCK_ATTRIB_EMPTY), ""));
 
 				REQUIRE(!strcmp(p_pa_st_r6->p_block->find_attribute(921), "is heard nomore ..."));
@@ -3373,22 +3368,22 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pa_st_r1->p_block->get_string(15), "April"));
 				REQUIRE(!p_pa_st_r1->p_block->p_string_buffer()->alloc_failed);
 
-				check_and_finish(p_pa_db_r1);
-				check_and_finish(p_pa_st_r1);
+				check_and_finish(p_pa_db_r1->p_block);
+				check_and_finish(p_pa_st_r1->p_block);
 
 				REQUIRE(p_pa_db_r3->p_block->tensor.cell_double[334] == 12003001.0);
 				REQUIRE(!strcmp(p_pa_st_r3->p_block->get_string(334), "July"));
 				REQUIRE(!p_pa_st_r3->p_block->p_string_buffer()->alloc_failed);
 
-				check_and_finish(p_pa_db_r3);
-				check_and_finish(p_pa_st_r3);
+				check_and_finish(p_pa_db_r3->p_block);
+				check_and_finish(p_pa_st_r3->p_block);
 
 				REQUIRE(p_pa_db_r6->p_block->tensor.cell_double[753] == 120000307.0);
 				REQUIRE(!strcmp(p_pa_st_r6->p_block->get_string(753), "December"));
 				REQUIRE(!p_pa_st_r6->p_block->p_string_buffer()->alloc_failed);
 
-				check_and_finish(p_pa_db_r6);
-				check_and_finish(p_pa_st_r6);
+				check_and_finish(p_pa_db_r6->p_block);
+				check_and_finish(p_pa_st_r6->p_block);
 
 				int index[6];
 
@@ -3398,8 +3393,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 					REQUIRE(p_pa_db_r1->p_block->tensor.cell_double[p_pa_db_r1->p_block->get_offset((int *) &index)] == i/10.0);
 
 					REQUIRE(!strcmp(p_pa_st_r1->p_block->get_string((int *) &index), month[i % 12]));
-					REQUIRE(p_pa_st_r1->p_block->tensor.cell_int[p_pa_st_r1->p_block->get_offset((int *) &index)] ==
-							p_st_r1->p_block->tensor.cell_int[p_st_r1->p_block->get_offset((int *) &index)]);
+					REQUIRE(   p_pa_st_r1->p_block->tensor.cell_int[p_pa_st_r1->p_block->get_offset((int *) &index)]
+							== p_st_r1->p_block->tensor.cell_int[p_st_r1->p_block->get_offset((int *) &index)]);
 				}
 
 				for (int i = 0; i < 17; i++) {
@@ -3412,8 +3407,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 							REQUIRE(p_pa_db_r3->p_block->tensor.cell_double[p_pa_db_r3->p_block->get_offset((int *) &index)] == 1e6*i + 1e3*j + k);
 
 							REQUIRE(!strcmp(p_pa_st_r3->p_block->get_string((int *) &index), month[(7*i + 5*j + 3*k) % 12]));
-							REQUIRE(p_pa_st_r3->p_block->tensor.cell_int[p_pa_st_r3->p_block->get_offset((int *) &index)] ==
-									p_st_r3->p_block->tensor.cell_int[p_st_r3->p_block->get_offset((int *) &index)]);
+							REQUIRE(   p_pa_st_r3->p_block->tensor.cell_int[p_pa_st_r3->p_block->get_offset((int *) &index)]
+									== p_st_r3->p_block->tensor.cell_int[p_st_r3->p_block->get_offset((int *) &index)]);
 						}
 					}
 				}
@@ -3431,13 +3426,13 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 										index[4] = v;
 										index[5] = w;
 
-										REQUIRE(p_pa_db_r6->p_block->tensor.cell_double[p_pa_db_r6->p_block->get_offset((int *) &index)] ==
-												1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w);
+										REQUIRE(   p_pa_db_r6->p_block->tensor.cell_double[p_pa_db_r6->p_block->get_offset((int *) &index)]
+												== 1e8*i + 1e7*j + 1e6*k + 100*u + 11*v - w);
 
 										REQUIRE(!strcmp(p_pa_st_r6->p_block->get_string((int *) &index),
 														month[(45*i + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
-										REQUIRE(p_pa_st_r6->p_block->tensor.cell_int[p_pa_st_r6->p_block->get_offset((int *) &index)] ==
-												p_st_r6->p_block->tensor.cell_int[p_st_r6->p_block->get_offset((int *) &index)]);
+										REQUIRE(   p_pa_st_r6->p_block->tensor.cell_int[p_pa_st_r6->p_block->get_offset((int *) &index)]
+												== p_st_r6->p_block->tensor.cell_int[p_st_r6->p_block->get_offset((int *) &index)]);
 									}
 								}
 							}
@@ -3445,24 +3440,30 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 					}
 				}
 
-				REQUIRE(p_pa_by_r1->p_block->cell_type	   == p_by_r1->p_block->cell_type);
-				REQUIRE(p_pb_db_r6->p_block->cell_type	   == p_db_r6->p_block->cell_type);
-				REQUIRE(p_pa_by_r3->p_block->rank		   == p_by_r3->p_block->rank);
-				REQUIRE(p_pb_db_r1->p_block->rank		   == p_db_r1->p_block->rank);
-				REQUIRE(p_pa_by_r6->p_block->range.dim[0]   == p_by_r6->p_block->range.dim[0]);
-				REQUIRE(p_pa_by_r3->p_block->range.dim[2]   == p_by_r3->p_block->range.dim[2]);
-				REQUIRE(p_pb_db_r1->p_block->range.dim[3]   == p_db_r1->p_block->range.dim[3]);
-				REQUIRE(p_pb_db_r6->p_block->size		   == 0);
-				REQUIRE(p_pa_by_r3->p_block->size		   == 0);
+				REQUIRE(p_pa_by_r1->p_block->cell_type		== p_by_r1->p_block->cell_type);
+				REQUIRE(p_pb_db_r6->p_block->cell_type		== p_db_r6->p_block->cell_type);
+				REQUIRE(p_pa_by_r3->p_block->rank			== p_by_r3->p_block->rank);
+				REQUIRE(p_pb_db_r1->p_block->rank			== p_db_r1->p_block->rank);
+				REQUIRE(p_pa_by_r6->p_block->range.dim[0]	== p_by_r6->p_block->range.dim[0]);
+				REQUIRE(p_pa_by_r3->p_block->range.dim[2]	== p_by_r3->p_block->range.dim[2]);
+				REQUIRE(p_pb_db_r1->p_block->range.dim[3]	== p_db_r1->p_block->range.dim[3]);
+				REQUIRE(p_pb_db_r6->p_block->size			== 0);
+				REQUIRE(p_pa_by_r3->p_block->size			== 0);
 				REQUIRE(p_pb_db_r1->p_block->num_attributes == p_db_r1->p_block->num_attributes);
 				REQUIRE(p_pa_by_r6->p_block->num_attributes == p_by_r6->p_block->num_attributes);
 
-				REQUIRE(p_pa_by_r1->p_block->total_bytes	   == p_by_r1->p_block->total_bytes - (uintptr_t) p_pa_by_r1->align_128bit(p_by_r1->p_block->size));
-				REQUIRE(p_pa_by_r3->p_block->total_bytes	   == p_by_r3->p_block->total_bytes - (uintptr_t) p_pa_by_r3->align_128bit(p_by_r3->p_block->size));
-				REQUIRE(p_pa_by_r6->p_block->total_bytes	   == p_by_r6->p_block->total_bytes - (uintptr_t) p_pa_by_r6->align_128bit(p_by_r6->p_block->size));
-				REQUIRE(p_pb_db_r1->p_block->total_bytes	   == p_db_r1->p_block->total_bytes - (uintptr_t) p_pb_db_r1->align_128bit(8*p_db_r1->p_block->size));
-				REQUIRE(p_pb_db_r3->p_block->total_bytes	   == p_db_r3->p_block->total_bytes - (uintptr_t) p_pb_db_r3->align_128bit(8*p_db_r3->p_block->size));
-				REQUIRE(p_pb_db_r6->p_block->total_bytes	   == p_db_r6->p_block->total_bytes - (uintptr_t) p_pb_db_r6->align_128bit(8*p_db_r6->p_block->size));
+				REQUIRE(   p_pa_by_r1->p_block->total_bytes
+						== p_by_r1->p_block->total_bytes - (uintptr_t) p_pa_by_r1->p_block->align_128bit(p_by_r1->p_block->size));
+				REQUIRE(   p_pa_by_r3->p_block->total_bytes
+						== p_by_r3->p_block->total_bytes - (uintptr_t) p_pa_by_r3->p_block->align_128bit(p_by_r3->p_block->size));
+				REQUIRE(   p_pa_by_r6->p_block->total_bytes
+						== p_by_r6->p_block->total_bytes - (uintptr_t) p_pa_by_r6->p_block->align_128bit(p_by_r6->p_block->size));
+				REQUIRE(   p_pb_db_r1->p_block->total_bytes
+						== p_db_r1->p_block->total_bytes - (uintptr_t) p_pb_db_r1->p_block->align_128bit(8*p_db_r1->p_block->size));
+				REQUIRE(   p_pb_db_r3->p_block->total_bytes
+						== p_db_r3->p_block->total_bytes - (uintptr_t) p_pb_db_r3->p_block->align_128bit(8*p_db_r3->p_block->size));
+				REQUIRE(   p_pb_db_r6->p_block->total_bytes
+						== p_db_r6->p_block->total_bytes - (uintptr_t) p_pb_db_r6->p_block->align_128bit(8*p_db_r6->p_block->size));
 
 				REQUIRE(!p_pa_by_r1->p_block->p_string_buffer()->alloc_failed);
 				REQUIRE(!p_pa_by_r3->p_block->p_string_buffer()->alloc_failed);
@@ -3478,22 +3479,24 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pa_by_r3->p_block->find_attribute(313), "It's a tale.."));
 				REQUIRE(!strcmp(p_pa_by_r3->p_block->find_attribute(358), "told by an idiot.."));
 
-				check_and_finish(p_pb_db_r1);
-				check_and_finish(p_pa_by_r1);
+				check_and_finish(p_pb_db_r1->p_block);
+				check_and_finish(p_pa_by_r1->p_block);
 
-				check_and_finish(p_pb_db_r3);
-				check_and_finish(p_pa_by_r3);
+				check_and_finish(p_pb_db_r3->p_block);
+				check_and_finish(p_pa_by_r3->p_block);
 
-				check_and_finish(p_pb_db_r6);
-				check_and_finish(p_pa_by_r6);
+				check_and_finish(p_pb_db_r6->p_block);
+				check_and_finish(p_pa_by_r6->p_block);
 
-				REQUIRE(p_pb_by_r1->p_block->cell_type	   == p_by_r1->p_block->cell_type);
-				REQUIRE(p_pb_st_r6->p_block->cell_type	   == p_st_r6->p_block->cell_type);
-				REQUIRE(p_pb_by_r3->p_block->rank		   == p_by_r3->p_block->rank);
-				REQUIRE(p_pb_st_r1->p_block->rank		   == p_st_r1->p_block->rank);
-				REQUIRE(p_pb_st_r6->p_block->range.dim[0]   == p_st_r6->p_block->range.dim[0]);
-				REQUIRE(p_pb_by_r3->p_block->range.dim[2]   == p_by_r3->p_block->range.dim[2]);
-				REQUIRE(p_pb_st_r1->p_block->range.dim[3]   == p_st_r1->p_block->range.dim[3]);
+				REQUIRE(p_pb_by_r1->p_block->cell_type == p_by_r1->p_block->cell_type);
+				REQUIRE(p_pb_st_r6->p_block->cell_type == p_st_r6->p_block->cell_type);
+				REQUIRE(p_pb_by_r3->p_block->rank	   == p_by_r3->p_block->rank);
+				REQUIRE(p_pb_st_r1->p_block->rank	   == p_st_r1->p_block->rank);
+
+				REQUIRE(p_pb_st_r6->p_block->range.dim[0] == p_st_r6->p_block->range.dim[0]);
+				REQUIRE(p_pb_by_r3->p_block->range.dim[2] == p_by_r3->p_block->range.dim[2]);
+				REQUIRE(p_pb_st_r1->p_block->range.dim[3] == p_st_r1->p_block->range.dim[3]);
+
 				REQUIRE(p_pb_st_r1->p_block->num_attributes == 2);
 				REQUIRE(p_pb_st_r3->p_block->num_attributes == p_st_r3->p_block->num_attributes);
 				REQUIRE(p_pb_st_r6->p_block->num_attributes == p_st_r6->p_block->num_attributes);
@@ -3503,28 +3506,28 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 				REQUIRE(p_pb_st_r1->p_block->total_bytes ==
 						p_st_r1->p_block->total_bytes
-						- (uintptr_t) p_pb_st_r1->align_128bit(4*(p_st_r1->p_block->size))
-						+ (uintptr_t) p_pb_st_r1->align_128bit(4*(p_pb_st_r1->p_block->size)));
+						- (uintptr_t) p_pb_st_r1->p_block->align_128bit(4*(p_st_r1->p_block->size))
+						+ (uintptr_t) p_pb_st_r1->p_block->align_128bit(4*(p_pb_st_r1->p_block->size)));
 				REQUIRE(p_pb_st_r3->p_block->total_bytes ==
 						p_st_r3->p_block->total_bytes
-						- (uintptr_t) p_pb_st_r3->align_128bit(4*(p_st_r3->p_block->size))
-						+ (uintptr_t) p_pb_st_r3->align_128bit(4*(p_pb_st_r3->p_block->size)));
+						- (uintptr_t) p_pb_st_r3->p_block->align_128bit(4*(p_st_r3->p_block->size))
+						+ (uintptr_t) p_pb_st_r3->p_block->align_128bit(4*(p_pb_st_r3->p_block->size)));
 				REQUIRE(p_pb_st_r6->p_block->total_bytes ==
 						p_st_r6->p_block->total_bytes
-						- (uintptr_t) p_pb_st_r6->align_128bit(4*(p_st_r6->p_block->size))
-						+ (uintptr_t) p_pb_st_r6->align_128bit(4*(p_pb_st_r6->p_block->size)));
+						- (uintptr_t) p_pb_st_r6->p_block->align_128bit(4*(p_st_r6->p_block->size))
+						+ (uintptr_t) p_pb_st_r6->p_block->align_128bit(4*(p_pb_st_r6->p_block->size)));
 				REQUIRE(p_pb_by_r1->p_block->total_bytes ==
 						p_by_r1->p_block->total_bytes + p_pb_by_r1->p_block->p_string_buffer()->buffer_size - 4 + 2*(6 -1)*sizeof(int)
-						- (uintptr_t) p_pb_by_r1->align_128bit(p_by_r1->p_block->size)
-						+ (uintptr_t) p_pb_by_r1->align_128bit(p_pb_by_r1->p_block->size));
+						- (uintptr_t) p_pb_by_r1->p_block->align_128bit(p_by_r1->p_block->size)
+						+ (uintptr_t) p_pb_by_r1->p_block->align_128bit(p_pb_by_r1->p_block->size));
 				REQUIRE(p_pb_by_r3->p_block->total_bytes ==
 						p_by_r3->p_block->total_bytes
-						- (uintptr_t) p_pb_by_r3->align_128bit(p_by_r3->p_block->size)
-						+ (uintptr_t) p_pb_by_r3->align_128bit(p_pb_by_r3->p_block->size));
+						- (uintptr_t) p_pb_by_r3->p_block->align_128bit(p_by_r3->p_block->size)
+						+ (uintptr_t) p_pb_by_r3->p_block->align_128bit(p_pb_by_r3->p_block->size));
 				REQUIRE(p_pb_by_r6->p_block->total_bytes ==
 						p_by_r6->p_block->total_bytes
-						- (uintptr_t) p_pb_by_r6->align_128bit(p_by_r6->p_block->size)
-						+ (uintptr_t) p_pb_by_r6->align_128bit(p_pb_by_r6->p_block->size));
+						- (uintptr_t) p_pb_by_r6->p_block->align_128bit(p_by_r6->p_block->size)
+						+ (uintptr_t) p_pb_by_r6->p_block->align_128bit(p_pb_by_r6->p_block->size));
 
 				REQUIRE(!p_pb_by_r1->p_block->p_string_buffer()->alloc_failed);
 				REQUIRE(!p_pb_by_r3->p_block->p_string_buffer()->alloc_failed);
@@ -3540,14 +3543,14 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				REQUIRE(!strcmp(p_pb_by_r1->p_block->find_attribute(313), "It's a tale.."));
 				REQUIRE(!strcmp(p_pb_by_r1->p_block->find_attribute(358), "told by an idiot.."));
 
-				check_and_finish(p_pb_st_r1);
-				check_and_finish(p_pb_by_r1);
+				check_and_finish(p_pb_st_r1->p_block);
+				check_and_finish(p_pb_by_r1->p_block);
 
-				check_and_finish(p_pb_st_r3);
-				check_and_finish(p_pb_by_r3);
+				check_and_finish(p_pb_st_r3->p_block);
+				check_and_finish(p_pb_by_r3->p_block);
 
-				check_and_finish(p_pb_st_r6);
-				check_and_finish(p_pb_by_r6);
+				check_and_finish(p_pb_st_r6->p_block);
+				check_and_finish(p_pb_by_r6->p_block);
 
 				int index_o[6];
 				int i_i = 0, i_b = 0;
@@ -3583,7 +3586,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 							for (int k = 0; k < 3; k++) {
 								index[2] = index_o[2] = k;
 
-								REQUIRE(p_pb_by_r3->p_block->tensor.cell_byte[p_pb_by_r3->p_block->get_offset((int *) &index)] == 7*i_o + 5*j + 3*k);
+								REQUIRE(   p_pb_by_r3->p_block->tensor.cell_byte[p_pb_by_r3->p_block->get_offset((int *) &index)]
+										== 7*i_o + 5*j + 3*k);
 							}
 						}
 
@@ -3598,8 +3602,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 								index[2] = index_o[2] = k;
 
 								REQUIRE(!strcmp(p_pb_st_r3->p_block->get_string((int *) &index), month[(7*i_o + 5*j + 3*k) % 12]));
-								REQUIRE(p_pb_st_r3->p_block->tensor.cell_int[p_pb_st_r3->p_block->get_offset((int *) &index)] ==
-										p_st_r3->p_block->tensor.cell_int[p_st_r3->p_block->get_offset((int *) &index_o)]);
+								REQUIRE(   p_pb_st_r3->p_block->tensor.cell_int[p_pb_st_r3->p_block->get_offset((int *) &index)]
+										== p_st_r3->p_block->tensor.cell_int[p_st_r3->p_block->get_offset((int *) &index_o)]);
 							}
 						}
 
@@ -3624,8 +3628,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 										for (int w = 0; w < 7; w++) {
 											index[5] = index_o[5] = w;
 
-											REQUIRE(p_pb_by_r6->p_block->tensor.cell_byte[p_pb_by_r6->p_block->get_offset((int *) &index)] ==
-													45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w);
+											REQUIRE(   p_pb_by_r6->p_block->tensor.cell_byte[p_pb_by_r6->p_block->get_offset((int *) &index)]
+													== 45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w);
 										}
 									}
 								}
@@ -3650,8 +3654,8 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 
 											REQUIRE(!strcmp(p_pb_st_r6->p_block->get_string((int *) &index),
 															month[(45*i_o + 34*j + 23*k + 12*u + 6*v + 3*w) % 12]));
-											REQUIRE(p_pb_st_r6->p_block->tensor.cell_int[p_pb_st_r6->p_block->get_offset((int *) &index)] ==
-													p_st_r6->p_block->tensor.cell_int[p_st_r6->p_block->get_offset((int *) &index_o)]);
+											REQUIRE(   p_pb_st_r6->p_block->tensor.cell_int[p_pb_st_r6->p_block->get_offset((int *) &index)]
+													== p_st_r6->p_block->tensor.cell_int[p_st_r6->p_block->get_offset((int *) &index_o)]);
 										}
 									}
 								}
@@ -3662,104 +3666,104 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 				}
 			}
 
-			free_jazz_block(p_pa_db_r1);
+			CNT.unlock(p_pa_db_r1);
 			REQUIRE(p_pa_db_r1 == nullptr);
 
-			free_jazz_block(p_pa_db_r3);
+			CNT.unlock(p_pa_db_r3);
 			REQUIRE(p_pa_db_r3 == nullptr);
 
-			free_jazz_block(p_pa_db_r6);
+			CNT.unlock(p_pa_db_r6);
 			REQUIRE(p_pa_db_r6 == nullptr);
 
-			free_jazz_block(p_pa_st_r1);
+			CNT.unlock(p_pa_st_r1);
 			REQUIRE(p_pa_st_r1 == nullptr);
 
-			free_jazz_block(p_pa_st_r3);
+			CNT.unlock(p_pa_st_r3);
 			REQUIRE(p_pa_st_r3 == nullptr);
 
-			free_jazz_block(p_pa_st_r6);
+			CNT.unlock(p_pa_st_r6);
 			REQUIRE(p_pa_st_r6 == nullptr);
 
-			free_jazz_block(p_pa_by_r1);
+			CNT.unlock(p_pa_by_r1);
 			REQUIRE(p_pa_by_r1 == nullptr);
 
-			free_jazz_block(p_pa_by_r3);
+			CNT.unlock(p_pa_by_r3);
 			REQUIRE(p_pa_by_r3 == nullptr);
 
-			free_jazz_block(p_pa_by_r6);
+			CNT.unlock(p_pa_by_r6);
 			REQUIRE(p_pa_by_r6 == nullptr);
 
-			free_jazz_block(p_pb_db_r1);
+			CNT.unlock(p_pb_db_r1);
 			REQUIRE(p_pb_db_r1 == nullptr);
 
-			free_jazz_block(p_pb_db_r3);
+			CNT.unlock(p_pb_db_r3);
 			REQUIRE(p_pb_db_r3 == nullptr);
 
-			free_jazz_block(p_pb_db_r6);
+			CNT.unlock(p_pb_db_r6);
 			REQUIRE(p_pb_db_r6 == nullptr);
 
-			free_jazz_block(p_pb_st_r1);
+			CNT.unlock(p_pb_st_r1);
 			REQUIRE(p_pb_st_r1 == nullptr);
 
-			free_jazz_block(p_pb_st_r3);
+			CNT.unlock(p_pb_st_r3);
 			REQUIRE(p_pb_st_r3 == nullptr);
 
-			free_jazz_block(p_pb_st_r6);
+			CNT.unlock(p_pb_st_r6);
 			REQUIRE(p_pb_st_r6 == nullptr);
 
-			free_jazz_block(p_pb_by_r1);
+			CNT.unlock(p_pb_by_r1);
 			REQUIRE(p_pb_by_r1 == nullptr);
 
-			free_jazz_block(p_pb_by_r3);
+			CNT.unlock(p_pb_by_r3);
 			REQUIRE(p_pb_by_r3 == nullptr);
 
-			free_jazz_block(p_pb_by_r6);
+			CNT.unlock(p_pb_by_r6);
 			REQUIRE(p_pb_by_r6 == nullptr);
 		}
 
-		free_jazz_block((pJazzBlock &) p_if_r1);
+		CNT.unlock(p_if_r1);
 		REQUIRE(p_if_r1 == nullptr);
 
-		free_jazz_block((pJazzBlock &) p_if_r3);
+		CNT.unlock(p_if_r3);
 		REQUIRE(p_if_r3 == nullptr);
 
-		free_jazz_block((pJazzBlock &) p_if_r6);
+		CNT.unlock(p_if_r6);
 		REQUIRE(p_if_r6 == nullptr);
 
-		free_jazz_block((pJazzBlock &) p_bf_r1);
+		CNT.unlock(p_bf_r1);
 		REQUIRE(p_bf_r1 == nullptr);
 
-		free_jazz_block((pJazzBlock &) p_bf_r3);
+		CNT.unlock(p_bf_r3);
 		REQUIRE(p_bf_r3 == nullptr);
 
-		free_jazz_block((pJazzBlock &) p_bf_r6);
+		CNT.unlock(p_bf_r6);
 		REQUIRE(p_bf_r6 == nullptr);
 
-		free_jazz_block(p_db_r1);
+		CNT.unlock(p_db_r1);
 		REQUIRE(p_db_r1 == nullptr);
 
-		free_jazz_block(p_db_r3);
+		CNT.unlock(p_db_r3);
 		REQUIRE(p_db_r3 == nullptr);
 
-		free_jazz_block(p_db_r6);
+		CNT.unlock(p_db_r6);
 		REQUIRE(p_db_r6 == nullptr);
 
-		free_jazz_block(p_st_r1);
+		CNT.unlock(p_st_r1);
 		REQUIRE(p_st_r1 == nullptr);
 
-		free_jazz_block(p_st_r3);
+		CNT.unlock(p_st_r3);
 		REQUIRE(p_st_r3 == nullptr);
 
-		free_jazz_block(p_st_r6);
+		CNT.unlock(p_st_r6);
 		REQUIRE(p_st_r6 == nullptr);
 
-		free_jazz_block(p_by_r1);
+		CNT.unlock(p_by_r1);
 		REQUIRE(p_by_r1 == nullptr);
 
-		free_jazz_block(p_by_r3);
+		CNT.unlock(p_by_r3);
 		REQUIRE(p_by_r3 == nullptr);
 
-		free_jazz_block(p_by_r6);
+		CNT.unlock(p_by_r6);
 		REQUIRE(p_by_r6 == nullptr);
 	}
 
