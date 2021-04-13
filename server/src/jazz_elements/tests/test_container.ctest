@@ -349,6 +349,201 @@ SCENARIO("Testing threading functions") {
 }
 
 
+SCENARIO("Stress-testing new_keeper()/destroy_keeper()") {
+	pBlockKeeper p_keeper[20];
+
+	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.max_num_keepers > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.warn_alloc_bytes > 0);
+	REQUIRE(CNT.fail_alloc_bytes > 0);
+	REQUIRE(CNT.alloc_warning_issued == false);
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == CNT.p_buffer);
+	REQUIRE(CNT.p_free->data.deque.p_next == &CNT.p_buffer[1]);
+	REQUIRE(CNT.p_free->data.deque.p_next->data.deque.p_next == &CNT.p_buffer[2]);
+	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].data.deque.p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].data.deque.p_next == nullptr);
+	REQUIRE(CNT._lock_ == 0);
+
+	REQUIRE(CNT.destroy_container() == SERVICE_NO_ERROR);
+
+	CNT.max_num_keepers  = 1024;
+	CNT.warn_alloc_bytes = 4096;
+	CNT.fail_alloc_bytes = 8192;
+	REQUIRE(CNT.new_container() == SERVICE_ERROR_NO_MEM);
+
+	CNT.max_num_keepers  = 16;
+	REQUIRE(CNT.new_container() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 != nullptr);
+
+	REQUIRE(CNT.new_keeper(p_keeper[0]) == SERVICE_NO_ERROR);
+	REQUIRE(p_keeper[0] != nullptr);
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.p_alloc != nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+
+	REQUIRE(!CNT.alloc_warning_issued);
+	p_keeper[0]->p_block = (pBlock) CNT.malloc(5000);
+	REQUIRE(p_keeper[0]->p_block != nullptr);
+	p_keeper[0]->p_block->total_bytes = 5000;
+	REQUIRE(!CNT.alloc_warning_issued);
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper) + 5000);
+
+	REQUIRE(CNT.new_keeper(p_keeper[1]) == SERVICE_NO_ERROR);
+	REQUIRE(p_keeper[1] != nullptr);
+	REQUIRE(CNT.alloc_warning_issued);
+
+	CNT.destroy_keeper(p_keeper[1]);
+	CNT.destroy_keeper(p_keeper[0]);
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.p_alloc == nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+
+	REQUIRE(CNT.p_alloc == nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.new_keeper(p_keeper[0]) == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.p_alloc != nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+
+	p_keeper[0]->p_block = (pBlock) CNT.malloc(50000);
+	REQUIRE(p_keeper[0]->p_block == nullptr);
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+
+	CNT.destroy_keeper(p_keeper[0]);
+	REQUIRE(p_keeper[0] == nullptr);
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+	REQUIRE(CNT.p_alloc == nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+
+	for (int t = 1; t < 17; t++) {
+		for (int i = 0; i < t; i++) {
+			REQUIRE(CNT.new_keeper(p_keeper[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_keeper[i] != nullptr);
+		}
+		if (t == 16)
+			REQUIRE(CNT.p_free == nullptr);
+
+		for (int i = 0; i < t; i++) {
+			CNT.destroy_keeper(p_keeper[i]);
+			REQUIRE(p_keeper[i] == nullptr);
+		}
+		REQUIRE(CNT.p_alloc == nullptr);
+		REQUIRE(CNT.p_free	!= nullptr);
+	}
+
+	for (int t = 1; t < 17; t++) {
+		for (int i = 0; i < t; i++) {
+			REQUIRE(CNT.new_keeper(p_keeper[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_keeper[i] != nullptr);
+		}
+		if (t == 16)
+			REQUIRE(CNT.p_free == nullptr);
+
+		for (int i = t - 1; i >= 0; i--) {
+			CNT.destroy_keeper(p_keeper[i]);
+			REQUIRE(p_keeper[i] == nullptr);
+		}
+		REQUIRE(CNT.p_alloc == nullptr);
+		REQUIRE(CNT.p_free	!= nullptr);
+	}
+
+	for (int t = 3; t < 17; t++) {
+		for (int i = 0; i < t; i++) {
+			REQUIRE(CNT.new_keeper(p_keeper[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_keeper[i] != nullptr);
+		}
+		if (t == 16)
+			REQUIRE(CNT.p_free == nullptr);
+
+		for (int i = t - 1; i >= 0; i--) {
+			int j = 3 % t;
+
+			while (p_keeper[j] == nullptr)
+				j = (j + 1) % t;
+
+			CNT.destroy_keeper(p_keeper[j]);
+			REQUIRE(p_keeper[j] == nullptr);
+		}
+		REQUIRE(CNT.p_alloc == nullptr);
+		REQUIRE(CNT.p_free	!= nullptr);
+	}
+
+	for (int i = 0; i < 16; i++) {
+		REQUIRE(CNT.new_keeper(p_keeper[i]) == SERVICE_NO_ERROR);
+		REQUIRE(p_keeper[i] != nullptr);
+	}
+	REQUIRE(CNT.p_free == nullptr);
+
+	REQUIRE(CNT.new_keeper(p_keeper[17]) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(CNT.p_free == nullptr);
+
+	for (int i = 0; i < 16; i++) {
+		CNT.destroy_keeper(p_keeper[i]);
+		REQUIRE(p_keeper[i] == nullptr);
+	}
+	REQUIRE(CNT.p_alloc == nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+
+	TensorDim dim_t1 {{500, 10, 0}}, dim_t2 {{500, 1000, 0}};
+
+	REQUIRE(CNT.new_block(p_keeper[0], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(p_keeper[0] != nullptr);
+
+	REQUIRE(CNT.new_block(p_keeper[1], p_keeper[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_keeper[1] == nullptr);
+
+	CNT.unlock(p_keeper[0]);
+	REQUIRE(p_keeper[0] == nullptr);
+
+	REQUIRE(CNT.new_block(p_keeper[0], CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_keeper[0] == nullptr);
+
+	for (int i = 0; i < 15; i++) {
+		REQUIRE(CNT.new_keeper(p_keeper[i]) == SERVICE_NO_ERROR);
+		REQUIRE(p_keeper[i] != nullptr);
+	}
+	REQUIRE(CNT.new_block(p_keeper[15], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(p_keeper[15] != nullptr);
+
+	REQUIRE(CNT.p_free == nullptr);
+
+	REQUIRE(CNT.new_block(p_keeper[16], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_keeper[16] == nullptr);
+
+	REQUIRE(CNT.new_block(p_keeper[16], p_keeper[15]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_keeper[16] == nullptr);
+
+	for (int i = 0; i < 16; i++) {
+		CNT.destroy_keeper(p_keeper[i]);
+		REQUIRE(p_keeper[i] == nullptr);
+	}
+	REQUIRE(CNT.p_alloc == nullptr);
+	REQUIRE(CNT.p_free	!= nullptr);
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(BlockKeeper));
+
+	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.alloc_bytes == 0);
+	REQUIRE(CNT.p_buffer == nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
+}
+
+
 SCENARIO("Testing JazzBlock creation from scratch") {
 	TensorDim dim_t1 {{7, 3, 5, 0}}, dim_t2 {{7, 2, 2, 2, 3, 2}}, dim_t3 {{97, 0}}, dim_t4 {{3, 2, 2, 0}};
 	TensorDim dim_t5 {{120, 5, 4, 0}}, dim_t6 {{120, 0}}, dim_t7 {{7, 0}}, dim_read, dim_xx;
