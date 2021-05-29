@@ -278,7 +278,6 @@ class Tuple : public Block {
 		inline int audit();
 };
 
-
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_TUPLE
