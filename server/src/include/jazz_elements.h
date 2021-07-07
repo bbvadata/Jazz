@@ -50,20 +50,13 @@ cluster and also includes REST API client) and flux (the fundamental Jazz equiva
 
 #include "src/jazz_elements/types.h"
 #include "src/jazz_elements/utils.h"
-#include "src/jazz_elements/network.h"
 #include "src/jazz_elements/block.h"
+#include "src/jazz_elements/channel.h"
 #include "src/jazz_elements/container.h"
 #include "src/jazz_elements/kind.h"
 #include "src/jazz_elements/tuple.h"
 #include "src/jazz_elements/volatile.h"
 #include "src/jazz_elements/persisted.h"
-#include "src/jazz_elements/index.h"
-#include "src/jazz_elements/lead.h"
-#include "src/jazz_elements/abstraction.h"
-#include "src/jazz_elements/column.h"
-#include "src/jazz_elements/remote.h"
-#include "src/jazz_elements/table.h"
-#include "src/jazz_elements/flux.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS
