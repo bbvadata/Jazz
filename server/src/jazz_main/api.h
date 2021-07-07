@@ -224,7 +224,6 @@ class Api : public Container {
 		Api (pLogger	 a_logger,
 			 pConfigFile a_config,
 			 pVolatile	 a_volatile,
-			 pRemote	 a_remote,
 			 pPersisted	 a_persisted,
 			 pBebop		 a_bebop,
 			 pAgency	 a_agency);
@@ -283,7 +282,6 @@ class Api : public Container {
 									 BlockHeader  &hea,
 									 pBlockKeeper *p_keeper);
 		pVolatile	p_volatile;
-		pRemote		p_remote;
 		pPersisted	p_persisted;
 		pBebop		p_bebop;
 		pAgency		p_agency;

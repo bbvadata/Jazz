@@ -43,8 +43,7 @@
 
 The namespace jazz_elements contains everything to build Jazz except the http server, the agency parts and the details of the Bebop
 language implementation. This is: utilities, implementations of all the data (block, tuple, kind) and code (field) types and the most
-fundamental services: volatile (which allocates blocks in RAM), persisted (which persists block in lmdb), network (extends Jazz to a
-cluster and also includes REST API client) and flux (the fundamental Jazz equivalent to a logical "device").
+fundamental services: volatile (which allocates blocks in RAM) and persisted (which persists block in lmdb).
 */
 
 

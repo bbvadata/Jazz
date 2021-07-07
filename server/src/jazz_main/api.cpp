@@ -518,7 +518,6 @@ NextStateLUT hex_hi_LUT, hex_lo_LUT;
 Api::Api(pLogger	 a_logger,
 		 pConfigFile a_config,
 		 pVolatile	 a_volatile,
-		 pRemote	 a_remote,
 		 pPersisted	 a_persisted,
 		 pBebop		 a_bebop,
 		 pAgency	 a_agency) : Container(a_logger, a_config) {
@@ -576,7 +575,6 @@ Api::Api(pLogger	 a_logger,
 	};
 
 	p_volatile	= a_volatile;
-	p_remote	= a_remote;
 	p_persisted	= a_persisted;
 	p_bebop		= a_bebop;
 	p_agency	= a_agency;
@@ -598,7 +596,6 @@ Besides that, this function initializes global (and object) variables used by th
 StatusCode Api::start ()
 {
 	p_volatile->base_names(base);
-	p_remote->base_names(base);
 	p_persisted->base_names(base);
 	p_bebop->base_names(base);
 	p_agency->base_names(base);

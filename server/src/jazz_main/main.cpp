@@ -187,34 +187,15 @@ int main(int argc, char* argv[])
 			exit (EXIT_FAILURE);
 		}
 
-		if (!start_service(&CLUSTER, "Cluster")) {
-			stop_service(&BOP, "Bebop");
-			stop_service(&EPI, "Agency");
-
-			exit (EXIT_FAILURE);
-		}
-
 		if (!start_service(&PERSISTED, "Persisted")) {
-			stop_service(&CLUSTER,  "Cluster");
 			stop_service(&BOP,		"Bebop");
 			stop_service(&EPI,		"Agency");
 
 			exit (EXIT_FAILURE);
 		}
 
-		if (!start_service(&REMOTE, "Remote")) {
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&CLUSTER,	 "Cluster");
-			stop_service(&BOP,		 "Bebop");
-			stop_service(&EPI,		 "Agency");
-
-			exit (EXIT_FAILURE);
-		}
-
 		if (!start_service(&VOLATILE, "Volatile")) {
-			stop_service(&REMOTE,	 "Remote");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&CLUSTER,	 "Cluster");
 			stop_service(&BOP,		 "Bebop");
 			stop_service(&EPI,		 "Agency");
 
@@ -223,9 +204,7 @@ int main(int argc, char* argv[])
 
 		if (!start_service(&API, "Api")) {
 			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&REMOTE,	 "Remote");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&CLUSTER,	 "Cluster");
 			stop_service(&BOP,		 "Bebop");
 			stop_service(&EPI,		 "Agency");
 
@@ -238,9 +217,7 @@ int main(int argc, char* argv[])
 			stop_service(&HTTP,		 "HttpServer");
 			stop_service(&API,		 "Api");
 			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&REMOTE,	 "Remote");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&CLUSTER,	 "Cluster");
 			stop_service(&BOP,		 "Bebop");
 			stop_service(&EPI,		 "Agency");
 		}

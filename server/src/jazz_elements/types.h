@@ -53,7 +53,7 @@
 /*! \brief Basic Jazz code-less structures and constants.
 
 	This namespace includes utilities, types, constants and structures used by Block, all different block-based data and code structures
-	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Volatile, Persisted, Cluster and Flux).
+	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Volatile, Persisted, ..).
 
 	All together is instanced in the server as the BEAT (of Jazz).
 */
