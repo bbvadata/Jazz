@@ -77,6 +77,7 @@ using namespace jazz_agency;
 
 /// Parser limits
 
+#define SAFE_URL_LENGTH				   2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
 #define MAX_RECURSION_DEPTH				 16		///< Max number of nested block references in a query.
 #define EIGHT_BIT_LONG					256		///< Length of a CharLUT.
 

@@ -50,12 +50,10 @@
 #define INCLUDED_JAZZ_ELEMENTS_TYPES
 
 
-/*! \brief Basic Jazz code-less structures and constants.
+/*! \brief The namespace for Jazz Utils, Blocks, Kinds, Tuples, Containers, etc.
 
 	This namespace includes utilities, types, constants and structures used by Block, all different block-based data and code structures
 	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Volatile, Persisted, ..).
-
-	All together is instanced in the server as the BEAT (of Jazz).
 */
 namespace jazz_elements
 {
@@ -64,10 +62,8 @@ namespace jazz_elements
 Since Blocks do allocate RAM, when they communicate these kind of text operations, they expect the caller to assign a buffer of
 ANSWER_LENGTH chars. Of course, data serialization does not have any limits it is done by containers creating new blocks.
 */
-#define ANSWER_LENGTH			4096
-#define SAFE_URL_LENGTH			2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
+#define ANSWER_LENGTH			4096		///< Size of an Answer buffer
 #define NAME_SIZE				  32		///< Size of a Name (ending 0 included)
-#define ONE_KB					1024
 #define ONE_MB					(1024*1024)
 
 /// Block API (syntax related)
@@ -170,7 +166,9 @@ typedef char		 *pChar;				///< A pointer to char.
 typedef 	   Name	 *pName;
 
 
-/** Names for elements in a TensorDim to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
+/** \brief Another way to describe a TensorDim to make filtering syntactically nicer.
+
+	Names for elements in a TensorDim to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
 	but has an extra parameter, its length.
 */
 struct FilterSize {
@@ -179,7 +177,7 @@ struct FilterSize {
 };
 
 
-/** The dimension of a tensor.
+/** \brief The dimension of a tensor.
 
 	The structure is declared as a union to make filter operation more elegant.
 */
@@ -246,17 +244,19 @@ struct StringBuffer
 };
 
 
-/** A string possibly returned by a contract. (Contracts return either a block or an answer.)
+/** \brief A string possibly returned by a contract.
+
+Some methods of Kinds an Tuples returning dimension names, etc. expect their buffers to fit the size of an Answer.
 */
 struct Answer {
 	char text[ANSWER_LENGTH];	///< A message, metadata, lists of items, columns, etc.
 };
 
-typedef struct Answer	*pAnswer;
+typedef Answer	*pAnswer;
 
 
 extern float  F_NA;		///< NaN in single
-extern double R_NA;		///< NaN in double
+extern double R_NA;		///< NaN in double (binary R-compatible)
 
 } // namespace jazz_elements
 
