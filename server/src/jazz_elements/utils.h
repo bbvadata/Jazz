@@ -118,12 +118,12 @@ uint64_t	 MurmurHash64A		   (const void *key, int len);
 std::string	 CleanConfigArgument   (std::string s);
 
 
-/** A lookup table for all the possible results of a TenBitsAtAddress() call.
-*/
+/// A lookup table for all the possible results of a TenBitsAtAddress() call.
 typedef int TenBitsLUT[TENBITS_LUT_SIZE];
 
 
-/** Get ten bits taking the least significant 5 of the first two characters of a string.
+/** \brief Get ten bits taking the least significant 5 of the first two characters of a string.
+
 	Warning: No pointer validation or length check. Never use on nullptr or "".
 */
 inline int TenBitsAtAddress (const char* str) {
@@ -131,7 +131,7 @@ inline int TenBitsAtAddress (const char* str) {
 }
 
 
-/** Return server running time in microseconds as a 64 bit integer.
+/** \brief Return server running time in microseconds as a 64 bit integer.
 
 	\param big_bang The primordial event (== Jazz server start ;)
 	\return			The time elapsed in microseconds
@@ -143,7 +143,7 @@ inline int64_t elapsed_mu_sec(jazz_elements::TimePoint big_bang) {
 }
 
 
-/** Check if a name is valid (Without using the regex).
+/** \brief Check if a name is valid (Without using the regex).
 
 	\param p_name The name to be checked
 	\return		  True if valid
@@ -170,12 +170,7 @@ inline bool valid_name(pChar p_name) {
 }
 
 
-typedef class ConfigFile *pConfigFile;
-typedef class Logger	 *pLogger;
-typedef class Service	 *pService;
-
-
-/** A configuration file as a key/value store.
+/** \brief A configuration file as a key/value store.
 
 	The configuration is loaded when constructing the object and available for reading as int, double or string via get_key().
 
@@ -202,9 +197,10 @@ class ConfigFile {
 
 		std::map<std::string, std::string> config;
 };
+typedef ConfigFile *pConfigFile;
 
 
-/** A simple logger.
+/** \brief A simple logger.
 
 	This objects logs events one line per event. It prefixes the time since the logger was created, the trace level and the thread id as
 in "   0.224036 : 02 :	2872 : jzzAPI started.".  A printf style version supports printing variables using variadic arguments.
@@ -233,9 +229,10 @@ class Logger {
 		std::filebuf *f_buff;
 		jazz_elements::TimePoint big_bang;
 };
+typedef Logger	   *pLogger;
 
 
-/** A Jazz Service.
+/** \brief A Jazz Service is a globally instanced configurable object that may allocate RAM.
 
 	A service is anything that requires configuration and a logger. Only a service can own (alloc from the system) RAM, anything else
 	allocates RAM from a service. Only Services (and some callback functions) are instantiated in Jazz instances and there is only one
@@ -303,7 +300,7 @@ class Service {
 		pLogger		p_log;
 		pConfigFile	p_conf;
 };
-
+typedef Service	   *pService;
 
 } // namespace jazz_elements
 
