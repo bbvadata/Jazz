@@ -56,11 +56,6 @@
 
 namespace jazz_elements
 {
-/* \brief The class Block
-
-	This module defines the logic to get/set data from/to Block objects at the simplest level.
-*/
-
 
 // Forward declarations
 typedef std::map<int, const char *> AttributeMap;
@@ -71,7 +66,9 @@ typedef struct StringBuffer	*pStringBuffer;
 typedef class Block			*pBlock;
 
 
-/** A block. Anything in Jazz is a block. A block is a BlockHeader, followed by a tensor, then two arrays of int
+/** \brief A block is a moveable BlockHeader followed by a Tensor and a StringBuffer
+
+A block. Anything in Jazz is a block. A block is a BlockHeader, followed by a tensor, then two arrays of int
 of length == num_attributes, then a StringBuffer. Nothing in a Block is a pointer, Blocks can be copied
 or stored 'as is', every RAM location in a block is defined by its BlockHeader and computed by the methods in Block.
 
