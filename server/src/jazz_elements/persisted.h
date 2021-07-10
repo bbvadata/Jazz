@@ -63,8 +63,6 @@ typedef class  Persisted	*pPersisted;
 
 /** \brief Persisted: A Service to manage data objects in LMDB.
 
-This is another API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
-class.
 */
 class Persisted : public Container {
 

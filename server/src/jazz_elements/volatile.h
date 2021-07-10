@@ -61,8 +61,6 @@ typedef class  Volatile	*pVolatile;
 
 /** \brief Volatile: A Service to manage data objects in RAM.
 
-This is the primary API supported by the Flux class. For clarity, we implement each interface as a new class inheriting from the previous
-class.
 */
 class Volatile : public Container {
 
