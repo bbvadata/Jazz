@@ -272,7 +272,7 @@ class Container : public Service {
 		StatusCode new_block   (pBlockKeeper &p_keeper,
 								int			  cell_type,
 								int			 *dim,
-								AttributeMap	 *att			  = nullptr,
+								AttributeMap *att			  = nullptr,
 								int			  fill_tensor	  = FILL_NEW_DONT_FILL,
 								bool		 *p_bool_filter	  = nullptr,
 								int			  stringbuff_size = 0,
