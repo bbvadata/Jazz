@@ -54,6 +54,26 @@
 namespace jazz_elements
 {
 
+// Forward pointer types:
+
+typedef class  Channels	*pChannels;
+
+
+/** \brief Channels: A Service to manage Channel objects.
+
+*/
+class Channels : public Container {
+
+	public:
+
+		Channels (pLogger	  a_logger,
+				  pConfigFile a_config);
+
+		StatusCode start	 ();
+		StatusCode shut_down ();
+
+		void base_names (BaseNames &base_names);
+};
 
 } // namespace jazz_elements
 
