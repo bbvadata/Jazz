@@ -39,7 +39,7 @@
 #include <regex>
 
 
-#include "src/jazz_elements/channel.h"
+#include "src/jazz_elements/block.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2

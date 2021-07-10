@@ -35,7 +35,7 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_elements/tuple.h"
+#include "src/jazz_elements/channel.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
