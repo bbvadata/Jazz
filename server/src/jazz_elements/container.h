@@ -79,7 +79,8 @@ namespace jazz_elements
 
 /// Block API (error and status codes)
 
-#define BLOCK_STATUS_READY				 0		///< BlockKeeper.status: p_block-> is safe to use
+#define BLOCK_STATUS_READY				 0		///< Transaction.status: p_block-> is safe to use
+#define BLOCK_STATUS_EMPTY				 1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
 
 /// Thread safety
 
@@ -89,13 +90,16 @@ namespace jazz_elements
 #define LOCK_WEIGHT_OF_WRITE			46341
 
 
-/** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
-*/
+/// An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
 typedef std::atomic<int32_t> Lock32;
 
 
 /// A (forward defined) pointer to a Container
 typedef class Container *pContainer;
+
+
+/// A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
+typedef std::map<std::string, pContainer> BaseNames;
 
 
 /** \brief Transaction: A wrapper over a Block that defines the communication of a block over some Channel.
@@ -115,30 +119,33 @@ struct Transaction {
 typedef Transaction *pTransaction;
 
 
+/// An internal (for Container) Transaction with pointers for a deque
+struct StoredTransaction: Transaction {
+	StoredTransaction *p_prev, *p_next;
+};
+typedef StoredTransaction *pStoredTransaction;
+
+
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
-This is the root class for all containers. It has memory alloc for one-shot block allocation and methods for filtering and serialization.
-Its descendants are: Volatile, Remote and Persisted, completing all possible block allocations: one-shot, volatile and persisted.
+This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
+Its descendants are: Channels, Volatile and Persisted, completing all possible block allocations: volatile, persisted and anything else
+is done by Channels.
 
-It follows the "rules of the game" using:
-
-- Name, Answer and ContractRequest
-- BlockKeeper, Locator
-- All the constants, error codes, etc.
+There is no class Channel (in singular), Channels does all the block transactions that are "done when complete" vs. Volatile and Persisted
+which store "long lived" objects.
 
 It provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
-- An API for async calls (Remote): .callback()
-- Allocation: .new_block(), .unlock()
-- Crud: .put(), .remove()
-- Support for contracts: .get()
+- Allocation: .new_block(), .destroy()
+- Crud: .get(), .put(), .remove()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
 
 It provides, exposed by the root Container class, but also used internally by descendants;
 
-- A transparent deque of BlockKeeper structures
+- A transparent deque of Transaction structures
 
 One-shot Block allocation
 -------------------------
@@ -146,16 +153,16 @@ One-shot Block allocation
 This is the only container providing one-shot Block allocation. This does not mean, unlike in previous versions, the caller owns the
 pointer. One-shot Block allocation is intended for computing intermediate blocks like: blocks generated from constants, from slicing,
 returned by functions, etc. In these blocks, the locator is meaningless, the caller will create it by new_block(), use it and call
-unlock() when done.
+destroy() when done.
 
 Instances and inheritance
 -------------------------
 
-Note that the descendants don't inherit each other. E.g., Volatile does not have a Remote implementation, but they all have the basic
-deque mechanism inherited from Container: i.e., they can all allocate new blocks for their own purposes. Configuration-wise the
-allocations set by ONE_SHOT_MAX_KEEPERS, ONE_SHOT_WARN_BLOCK_KBYTES, ... only apply to the instance of the class Container, the
-descendants use their own limits in which they include this allocation combined with whatever other allocations they do. The total
-allocation of the Jazz node is the sum of all (plus some small amount used by libraries, etc. that is not dependant on data size).
+Note that the descendants don't inherit each other, but they all have the basic deque mechanism inherited from Container: i.e., they
+can all allocate new blocks for their own purposes. Configuration-wise the allocations set by ONE_SHOT_MAX_KEEPERS,
+ONE_SHOT_WARN_BLOCK_KBYTES, ... only apply to the instance of the class Container, the descendants use their own limits in which they
+include this allocation combined with whatever other allocations they do. The total allocation of the Jazz node is the sum of all (plus
+some small amount used by libraries, etc. that is not dependant on data size).
 
 */
 class Container : public Service {
@@ -173,14 +180,14 @@ class Container : public Service {
 
 		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 
-		void enter_read		   (pBlockKeeper  p_keeper);
-		void enter_write	   (pBlockKeeper  p_keeper);
-		void leave_read		   (pBlockKeeper  p_keeper);
-		void leave_write	   (pBlockKeeper  p_keeper);
+		void enter_read		   (pTransaction  p_keeper);
+		void enter_write	   (pTransaction  p_keeper);
+		void leave_read		   (pTransaction  p_keeper);
+		void leave_write	   (pTransaction  p_keeper);
 
-		// - Allocation: .new_block(), .unlock()
+		// - Allocation: .new_block(), .destroy()
 
-		StatusCode new_block   (pBlockKeeper &p_keeper,
+		StatusCode new_block   (pTransaction &p_keeper,
 								int			  cell_type,
 								int			 *dim,
 								AttributeMap *att			  = nullptr,
@@ -190,63 +197,26 @@ class Container : public Service {
 								const char	 *p_text		  = nullptr,
 								char		  eol			  = '\n');
 
-		StatusCode new_block   (pBlockKeeper &p_keeper,
-								pItems		  p_item,
-								pNames		  p_item_name,
-						   		int			  build			  = BUILD_TUPLE,
-								AttributeMap *att			  = nullptr);
-
-		StatusCode new_block   (pBlockKeeper &p_keeper,
+		StatusCode new_block   (pTransaction &p_keeper,
 								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
 								AttributeMap *att			  = nullptr);
 
-		StatusCode new_block   (pBlockKeeper &p_keeper,
-								pBlock		  p_block,
-								pNames		  p_item_name,
-								AttributeMap *att			  = nullptr);
+		void destroy		   (pTransaction &p_keeper);
 
-		StatusCode new_block   (pBlockKeeper &p_keeper,
-								pChar		 &p_source,
-						   		pBlock		  p_as_block	  = nullptr,
-								AttributeMap *att			  = nullptr);
+		// Crud: .get(), .put(), .remove()
 
-		StatusCode new_block   (pBlockKeeper &p_keeper,
-								pBlock		  p_block,
-						   		int			  format		  = AS_BEBOP,
-								AttributeMap *att			  = nullptr);
+		StatusCode get		   (pTransaction &p_keeper,
+								pChar		  p_what);
 
-		void unlock			   (pBlockKeeper &p_keeper);
+		StatusCode put		   (pChar		  p_where,
+								pBlock		  p_block);
 
-		// Crud: .put(), .remove()
-
-		StatusCode put		   (pLocator	  p_where,
-								pBlock		  p_block,
-								pContainer	  p_sender		 = nullptr,
-								BlockId64	  block_id		 = 0);
-
-		StatusCode remove	   (pLocator	  p_what,
-								pContainer	  p_sender		 = nullptr,
-								BlockId64	  block_id		 = 0);
-
-		// Support for contracts: .get()
-
-		StatusCode get		   (pBlockKeeper &p_keeper,
-								pR_value	  p_rvalue,
-								pContainer	  p_sender		 = nullptr,
-								BlockId64	  block_id		 = 0);
-
-		StatusCode get		   (pBlockKeeper &p_keeper,
-								pLocator	  p_what);
+		StatusCode remove	   (pChar		  p_what);
 
 		// Support for container names in the API .base_names()
 
 		void base_names		   (BaseNames 	 &base_names);
-
-		// Async calls (Remote): .callback()
-
-		virtual void callback  (BlockId64	  block_id,
-								StatusCode	  result);
 
 #ifndef CATCH_TEST
 	private:
@@ -278,9 +248,9 @@ class Container : public Service {
 			_lock_ = 0;
 		}
 
-		/** Allocate a BlockKeeper to share a block via the API.
+		/** Allocate a Transaction to share a block via the API.
 		*/
-		inline StatusCode new_keeper (pBlockKeeper &p_keeper) {
+		inline StatusCode new_transaction (pTransaction &p_keeper) {
 			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
 				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
 						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
@@ -296,27 +266,27 @@ class Container : public Service {
 			}
 
 			p_keeper = p_free;
-			p_free	 = p_free->data.deque.p_next;
+			p_free	 = p_free->p_next;
 
 			p_keeper->p_block = nullptr;
 			p_keeper->status  = BLOCK_STATUS_EMPTY;
 			p_keeper->_lock_  = 0;
 
-			p_keeper->data.deque.p_next = p_alloc;
-			p_keeper->data.deque.p_prev = nullptr;
+			pStoredTransaction(p_keeper)->p_next = p_alloc;
+			pStoredTransaction(p_keeper)->p_prev = nullptr;
 
 			if (p_alloc != nullptr)
-				p_alloc->data.deque.p_prev = p_keeper;
+				p_alloc->p_prev = pStoredTransaction(p_keeper);
 
-			p_alloc = p_keeper;
+			p_alloc = pStoredTransaction(p_keeper);
 
 			unlock_container();
 			return SERVICE_NO_ERROR;
 		}
 
-		/** Dealloc the Block in the keeper (if not null) and free the BlockKeeper API.
+		/** Dealloc the Block in the keeper (if not null) and free the Transaction API.
 		*/
-		inline void destroy_keeper (pBlockKeeper &p_keeper) {
+		inline void destroy_transaction (pTransaction &p_keeper) {
 			if (p_keeper->p_block != nullptr) {
 				alloc_bytes -= p_keeper->p_block->total_bytes;
 				free(p_keeper->p_block);
@@ -325,17 +295,17 @@ class Container : public Service {
 
 			lock_container();
 
-			if (p_keeper->data.deque.p_prev == nullptr)
-				p_alloc = p_keeper->data.deque.p_next;
+			if (pStoredTransaction(p_keeper)->p_prev == nullptr)
+				p_alloc = pStoredTransaction(p_keeper)->p_next;
 			else
-				p_keeper->data.deque.p_prev->data.deque.p_next = p_keeper->data.deque.p_next;
+				pStoredTransaction(p_keeper)->p_prev->p_next = pStoredTransaction(p_keeper)->p_next;
 
-			if (p_keeper->data.deque.p_next != nullptr)
-				p_keeper->data.deque.p_next->data.deque.p_prev = p_keeper->data.deque.p_prev;
+			if (pStoredTransaction(p_keeper)->p_next != nullptr)
+				pStoredTransaction(p_keeper)->p_next->p_prev = pStoredTransaction(p_keeper)->p_prev;
 
-			p_keeper->data.deque.p_next = p_free;
+			pStoredTransaction(p_keeper)->p_next = p_free;
 
-			p_free	 = p_keeper;
+			p_free	 = pStoredTransaction(p_keeper);
 			p_keeper = nullptr;
 
 			unlock_container();
@@ -358,7 +328,7 @@ class Container : public Service {
 		int max_num_keepers;
 		uint64_t alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
 		bool alloc_warning_issued;
-		pBlockKeeper p_buffer, p_alloc, p_free;
+		pStoredTransaction p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
 };
 
