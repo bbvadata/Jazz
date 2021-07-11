@@ -236,6 +236,7 @@ struct BlockHeader
 
 	Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
 };
+typedef BlockHeader	*pBlockHeader;
 
 
 /// Structure at the end of a Block, initially created with init_string_buffer()
@@ -247,6 +248,7 @@ struct StringBuffer
 	int	 buffer_size;			///< The size in bytes of buffer[]
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
 };
+typedef StringBuffer *pStringBuffer;
 
 
 /** \brief A string returned by some methods in jazz_elements and also by some API calls.
