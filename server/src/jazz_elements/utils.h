@@ -229,7 +229,7 @@ class Logger {
 		std::filebuf *f_buff;
 		jazz_elements::TimePoint big_bang;
 };
-typedef Logger	   *pLogger;
+typedef Logger *pLogger;
 
 
 /** \brief A Jazz Service is a globally instanced configurable object that may allocate RAM.
@@ -300,7 +300,7 @@ class Service {
 		pLogger		p_log;
 		pConfigFile	p_conf;
 };
-typedef Service	   *pService;
+typedef Service *pService;
 
 } // namespace jazz_elements
 
