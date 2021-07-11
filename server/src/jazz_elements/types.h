@@ -71,7 +71,7 @@ ANSWER_LENGTH chars. Of course, data serialization does not have any limits it i
 #define REGEX_VALIDATE_NAME				"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
 
 /** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
-does not normally modify blocks. The few exceptions have a block-specific lock in the BlockKeeper. Services also have a service-specific
+does not normally modify blocks. The few exceptions have a block-specific lock in the Transaction. Services also have a service-specific
 lock. The few services that require full thread awareness (Bebop and API) will allocate a number of Core or APIexecutor objects equal to
 JAZZ_MAX_NUM_THREADS inside the service. This number can be modified down (but not up) via the configuration keys: MHD_THREAD_POOL_SIZE
 and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
