@@ -41,7 +41,7 @@
 namespace jazz_elements
 {
 
-/** A test write callback.
+/** \brief A test write callback (libCURL stuff to be modified).
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
@@ -62,6 +62,10 @@ size_t write_callback(char * ptr, size_t size, size_t nmemb, void *userdata)
 }
 
 
+/** \brief A remote testing point (libCURL stuff to be modified).
+
+	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
+*/
 bool remote_testing_point ()
 {
 	CURL *curl;
