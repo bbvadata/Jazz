@@ -92,6 +92,45 @@ bool remote_testing_point ()
 	return true;
 }
 
+/*	-----------------------------------------------
+	 Channels : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+
+/**
+//TODO: Document Channels::start()
+*/
+StatusCode Channels::start()
+{
+//TODO: Implement Channels::start()
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Channels::shut_down()
+{
+//TODO: Implement Channels::shut_down()
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Add the base names for this Container.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+*/
+void Channels::base_names (BaseNames &base_names)
+{
+	base_names["file"]	= this;
+	base_names["http"]	= this;
+	base_names["index"]	= this;
+}
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST
