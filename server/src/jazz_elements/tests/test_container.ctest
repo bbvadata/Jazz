@@ -350,7 +350,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -379,7 +379,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.new_transaction(p_keeper[0]) == SERVICE_NO_ERROR);
 	REQUIRE(p_keeper[0] != nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
@@ -388,7 +388,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(p_keeper[0]->p_block != nullptr);
 	p_keeper[0]->p_block->total_bytes = 5000;
 	REQUIRE(!CNT.alloc_warning_issued);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction) + 5000);
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction) + 5000);
 
 	REQUIRE(CNT.new_transaction(p_keeper[1]) == SERVICE_NO_ERROR);
 	REQUIRE(p_keeper[1] != nullptr);
@@ -397,7 +397,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	CNT.destroy_transaction(p_keeper[1]);
 	CNT.destroy_transaction(p_keeper[0]);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
@@ -405,18 +405,18 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.p_free	!= nullptr);
 	REQUIRE(CNT.new_transaction(p_keeper[0]) == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
 	p_keeper[0]->p_block = (pBlock) CNT.malloc(50000);
 	REQUIRE(p_keeper[0]->p_block == nullptr);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 
 	CNT.destroy_transaction(p_keeper[0]);
 	REQUIRE(p_keeper[0] == nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
@@ -489,7 +489,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 
 	TensorDim dim_t1 {{500, 10, 0}}, dim_t2 {{500, 1000, 0}};
 
@@ -527,7 +527,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
@@ -548,7 +548,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -2485,7 +2485,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	CNT.destroy(p_keeper);
 	REQUIRE(p_keeper == nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
@@ -2532,7 +2532,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -3762,7 +3762,7 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		REQUIRE(p_by_r6 == nullptr);
 	}
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(Transaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
