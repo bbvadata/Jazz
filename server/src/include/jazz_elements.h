@@ -50,10 +50,10 @@ fundamental services: volatile (which allocates blocks in RAM) and persisted (wh
 #include "src/jazz_elements/types.h"
 #include "src/jazz_elements/utils.h"
 #include "src/jazz_elements/block.h"
-#include "src/jazz_elements/channel.h"
-#include "src/jazz_elements/container.h"
 #include "src/jazz_elements/kind.h"
 #include "src/jazz_elements/tuple.h"
+#include "src/jazz_elements/container.h"
+#include "src/jazz_elements/channel.h"
 #include "src/jazz_elements/volatile.h"
 #include "src/jazz_elements/persisted.h"
 
