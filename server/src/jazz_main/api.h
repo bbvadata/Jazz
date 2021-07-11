@@ -224,6 +224,7 @@ class Api : public Container {
 
 		Api (pLogger	 a_logger,
 			 pConfigFile a_config,
+			 pChannels	 a_channels,
 			 pVolatile	 a_volatile,
 			 pPersisted	 a_persisted,
 			 pBebop		 a_bebop,
@@ -282,6 +283,8 @@ class Api : public Container {
 		StatusCode _parse_const_data(pChar 		  &p_url,
 									 BlockHeader  &hea,
 									 pBlockKeeper *p_keeper);
+
+		pChannels	p_channels;
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
 		pBebop		p_bebop;

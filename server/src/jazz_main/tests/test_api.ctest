@@ -41,11 +41,13 @@ using namespace jazz_main;
 // Instancing of different containers for API testing
 // --------------------------------------------------
 
-Agency		EPI		  (&LOGGER, &CONFIG);
-Bebop		BOP		  (&LOGGER, &CONFIG);
-Persisted	PERSISTED (&LOGGER, &CONFIG);
+Channels	CHANNELS  (&LOGGER, &CONFIG);
 Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Api			TT_API	  (&LOGGER, &CONFIG, &VOLATILE, &PERSISTED, &BOP, &EPI);
+Persisted	PERSISTED (&LOGGER, &CONFIG);
+Bebop		BOP		  (&LOGGER, &CONFIG);
+Agency		EPI		  (&LOGGER, &CONFIG);
+
+Api			TT_API	  (&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
 
 
 // Testing utilities
@@ -137,6 +139,7 @@ SCENARIO("Testing api initialization") {
 	GIVEN("The instances are constructed, but not yet started") {
 		REQUIRE(tenbit_double_slash == TenBitsAtAddress("//"));
 
+		REQUIRE(TT_API.p_channels	== &CHANNELS);
 		REQUIRE(TT_API.p_volatile	== &VOLATILE);
 		REQUIRE(TT_API.p_persisted	== &PERSISTED);
 		REQUIRE(TT_API.p_bebop		== &BOP);
@@ -145,6 +148,7 @@ SCENARIO("Testing api initialization") {
 		REQUIRE(TT_API.base.size() == 0);
 	}
 
+	REQUIRE(CHANNELS.start()  == 0);
 	REQUIRE(VOLATILE.start()  == 0);
 	REQUIRE(PERSISTED.start() == 0);
 

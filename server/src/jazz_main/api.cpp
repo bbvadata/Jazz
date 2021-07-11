@@ -517,6 +517,7 @@ NextStateLUT hex_hi_LUT, hex_lo_LUT;
 
 Api::Api(pLogger	 a_logger,
 		 pConfigFile a_config,
+		 pChannels	 a_channels,
 		 pVolatile	 a_volatile,
 		 pPersisted	 a_persisted,
 		 pBebop		 a_bebop,
@@ -574,6 +575,7 @@ Api::Api(pLogger	 a_logger,
 		hex_lo_LUT.next[c]		  = i++;
 	};
 
+	p_channels	= a_channels;
 	p_volatile	= a_volatile;
 	p_persisted	= a_persisted;
 	p_bebop		= a_bebop;
@@ -595,6 +597,7 @@ Besides that, this function initializes global (and object) variables used by th
 */
 StatusCode Api::start ()
 {
+	p_channels->base_names(base);
 	p_volatile->base_names(base);
 	p_persisted->base_names(base);
 	p_bebop->base_names(base);
