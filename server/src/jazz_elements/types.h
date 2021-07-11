@@ -157,13 +157,18 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point stored as 8 bytes
 
 
-/** The identifier of a Container type, a container inside another container, a Block descendant in a container, a field in a Tuple or
-Kind, or the name of a contract. It must be a string matching REGEX_VALIDATE_NAME.
+/** \brief A short identifier used in Blocks, Containers and API
+
+Names are used in may contexts including: identifying a Container in an API query, a Container inside another Container, a Block in a
+Container, a field in a Tuple or a Kind and some API query arguments (e.g., as_json).
+
+Names are vanilla ASCII NAME_SIZE - 1 long string starting with a letter and containing just letters, numbers and the underscore.
+They can be validated using the function valid_name() or the regex REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
 
-typedef char		 *pChar;				///< A pointer to char.
-typedef 	   Name	 *pName;
+typedef char *pChar;
+typedef Name *pName;
 
 
 /** \brief Another way to describe a TensorDim to make filtering syntactically nicer.
@@ -244,7 +249,7 @@ struct StringBuffer
 };
 
 
-/** \brief A string possibly returned by a contract.
+/** \brief A string returned by some methods in jazz_elements and also by some API calls.
 
 Some methods of Kinds an Tuples returning dimension names, etc. expect their buffers to fit the size of an Answer.
 */
