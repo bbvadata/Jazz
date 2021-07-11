@@ -94,13 +94,13 @@ StatusCode Container::shut_down()
 
 /** Enter (soft lock) a Block for reading. Many readers are allowed simultaneously, but it is incompatible with writing.
 
-	\param p_keeper		The address of the Block's BlockKeeper.
+	\param p_keeper		The address of the Block's Transaction.
 
 NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
 in multithreaded algorithms like MCTS.
 
 */
-void Container::enter_read(pBlockKeeper p_keeper)
+void Container::enter_read(pTransaction p_keeper)
 {
 	int retry = 0;
 	while (true) {
@@ -120,13 +120,13 @@ void Container::enter_read(pBlockKeeper p_keeper)
 
 /** Enter (hard lock) a Block for writing. No readers are allowed during writing.
 
-	\param p_keeper		The address of the Block's BlockKeeper.
+	\param p_keeper		The address of the Block's Transaction.
 
 NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
 in multithreaded algorithms like MCTS.
 
 */
-void Container::enter_write(pBlockKeeper p_keeper)
+void Container::enter_write(pTransaction p_keeper)
 {
 	int retry = 0;
 	while (true) {
@@ -154,13 +154,13 @@ void Container::enter_write(pBlockKeeper p_keeper)
 
 /** Release the soft lock of Block after reading. This is mandatory for each enter_read() call or it may result in permanent locking.
 
-	\param p_keeper		The address of the Block's BlockKeeper.
+	\param p_keeper		The address of the Block's Transaction.
 
 NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
 in multithreaded algorithms like MCTS.
 
 */
-void Container::leave_read(pBlockKeeper p_keeper)
+void Container::leave_read(pTransaction p_keeper)
 {
 	while (true) {
 		int32_t lock = p_keeper->_lock_;
@@ -173,13 +173,13 @@ void Container::leave_read(pBlockKeeper p_keeper)
 
 /** Release the hard lock of Block after writing. This is mandatory for each enter_write() call or it may result in permanent locking.
 
-	\param p_keeper		The address of the Block's BlockKeeper.
+	\param p_keeper		The address of the Block's Transaction.
 
 NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
 in multithreaded algorithms like MCTS.
 
 */
-void Container::leave_write(pBlockKeeper p_keeper)
+void Container::leave_write(pTransaction p_keeper)
 {
 	while (true) {
 		int32_t lock = p_keeper->_lock_;
@@ -192,8 +192,8 @@ void Container::leave_write(pBlockKeeper p_keeper)
 
 /** Create a new Block (1): Create a Block from scratch.
 
-	\param p_keeper			A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-							BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_keeper			A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+							Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
 	\param cell_type		The tensor cell type in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
 	\param dim				This defines both the rank and the dimensions of the tensor. Note that, except for the first position a
 							dimension of 0 and 1 is the same dim = {3, 1} is a vector of 3 elements with rank 1, exactly like {3, 0}.
@@ -228,12 +228,12 @@ void Container::leave_write(pBlockKeeper p_keeper)
 	If stringbuff_size is used, Block.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
 	Block.set_string() **should not** be called after that.
 
-	OWNERSHIP: Remember: the p_keeper returned on success points inside the Container. Use it as read-only and don't forget to unlock() it
+	OWNERSHIP: Remember: the p_keeper returned on success points inside the Container. Use it as read-only and don't forget to destroy() it
 	when done.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
-StatusCode Container::new_block(pBlockKeeper &p_keeper,
+StatusCode Container::new_block(pTransaction &p_keeper,
 								int			  cell_type,
 								int			 *dim,
 								AttributeMap *att,
@@ -243,7 +243,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 								const char	 *p_text,
 								char		  eol)
 {
-	StatusCode ret = new_keeper(p_keeper);
+	StatusCode ret = new_transaction(p_keeper);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -256,7 +256,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 
 	if (p_text != nullptr) {
 		if (cell_type != CELL_TYPE_STRING || fill_tensor != FILL_WITH_TEXTFILE) {
-			destroy_keeper(p_keeper);
+			destroy_transaction(p_keeper);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -275,7 +275,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 
 	if (dim == nullptr) {
 		if (p_text == nullptr) {
-			destroy_keeper(p_keeper);
+			destroy_transaction(p_keeper);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -293,7 +293,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 		reinterpret_cast<pBlock>(&hea)->set_dimensions(dim);
 
 		if (num_lines && (num_lines != hea.size)){
-			destroy_keeper(p_keeper);
+			destroy_transaction(p_keeper);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 	}
@@ -319,7 +319,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 	p_keeper->p_block = (pBlock) malloc(hea.total_bytes);
 
 	if (p_keeper->p_block == nullptr) {
-		destroy_keeper(p_keeper);
+		destroy_transaction(p_keeper);
 		return SERVICE_ERROR_NO_MEM;
 	}
 
@@ -444,7 +444,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 				break; }
 
 			default:
-				destroy_keeper(p_keeper);
+				destroy_transaction(p_keeper);
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
 			break;
@@ -452,7 +452,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 		case FILL_BOOLEAN_FILTER:
 			p_keeper->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_keeper->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
-				destroy_keeper(p_keeper);
+				destroy_transaction(p_keeper);
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			memcpy(&p_keeper->p_block->tensor, p_bool_filter, p_keeper->p_block->size);
@@ -461,7 +461,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 		case FILL_INTEGER_FILTER: {
 			p_keeper->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_keeper->p_block->filter_type() != FILTER_TYPE_INTEGER) {
-				destroy_keeper(p_keeper);
+				destroy_transaction(p_keeper);
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			int j = 0;
@@ -480,7 +480,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 			break; }
 
 		default:
-			destroy_keeper(p_keeper);
+			destroy_transaction(p_keeper);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;			// No silent fail, fill_tensor is invalid
 		}
 	}
@@ -490,10 +490,10 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 }
 
 
-/** Create a new Block (3): Create a Block by slicing an existing Block.
+/** Create a new Block (2): Create a Block by slicing an existing Block.
 
-	\param p_keeper		A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-						BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_keeper		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
 	\param p_from		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
 						dimension of the tensor). This can be either a tensor or a Tuple. In the case of a Tuple, all the tensors must
 						have the same first dimension.
@@ -505,18 +505,18 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). There is no async interface in this method.
 */
-StatusCode Container::new_block(pBlockKeeper &p_keeper,
+StatusCode Container::new_block(pTransaction &p_keeper,
 								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
 								AttributeMap *att)
 {
-	StatusCode ret = new_keeper(p_keeper);
+	StatusCode ret = new_transaction(p_keeper);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
 	if (p_from == nullptr || p_from->size < 0 || p_from->range.dim[0] < 1) {
-		destroy_keeper(p_keeper);
+		destroy_transaction(p_keeper);
 		return SERVICE_ERROR_NEW_BLOCK_ARGS;
 	}
 
@@ -530,7 +530,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 		int	tensor_rows = p_from->size/p_from->range.dim[0];
 
 		if (!p_row_filter->can_filter(p_from)){
-			destroy_keeper(p_keeper);
+			destroy_transaction(p_keeper);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -567,7 +567,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 		}
 
 		if (!new_num_attributes) {
-			destroy_keeper(p_keeper);
+			destroy_transaction(p_keeper);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -588,7 +588,7 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 	p_keeper->p_block = (pBlock) malloc(total_bytes);
 
 	if (p_keeper->p_block == nullptr) {
-		destroy_keeper(p_keeper);
+		destroy_transaction(p_keeper);
 		return SERVICE_ERROR_NO_MEM;
 	}
 
@@ -660,44 +660,46 @@ StatusCode Container::new_block(pBlockKeeper &p_keeper,
 
 /** Notify the Container that the caller is done with a block.
 
-	\param p_keeper	A pointer to a valid BlockKeeper passed by reference. Once finished, p_keeper is set to nullptr to avoid reusing.
+	\param p_keeper	A pointer to a valid Transaction passed by reference. Once finished, p_keeper is set to nullptr to avoid reusing.
 
 Different Container descendants, will do different things with the original blocks. In the case of this one-shot allocation, the block will
 be freed.
 */
-void Container::unlock (pBlockKeeper &p_keeper)
+void Container::destroy (pTransaction &p_keeper)
 {
 	enter_write	   (p_keeper);
-	destroy_keeper (p_keeper);
+	destroy_transaction (p_keeper);
 }
 
 
-/** Block storing interface: Save a block at a locator inside the Container
+/** Block retrieving interface: A general API to be inherited (and possibly extended)
 
-	\param p_where  Under what locator the block has to be stored.
-	\param p_block	A block to be stored.
-	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
-	\param block_id	Used by the async interface. (See Async interface below)
+	\param p_keeper	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param p_what	Some string with a locator that the Container can handle.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for put.
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error).
 
-Async Interface
----------------
-
-The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
-a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
-
-The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
-operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
-
-A **NOTE for put()**: The callback() will return the completion status for the caller to know (retry, notify, etc.). In either (error or
-success) case, there are no further actions to take.
-
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
 */
-StatusCode Container::put (pLocator	  p_where,
-						   pBlock	  p_block,
-						   pContainer p_sender,
-						   BlockId64  block_id)
+StatusCode Container::get (pTransaction &p_keeper,
+						   pChar		 p_what)
+{
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** Block storing interface: A general API to be inherited (and possibly extended)
+
+	\param p_where Some string with a locator that the Container can handle.
+	\param p_block A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
+				   disc, PUT it via http, etc. The container does not own the pointer in any way.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error).
+*/
+StatusCode Container::put (pChar		  p_where,
+						   pBlock		  p_block)
 {
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -705,82 +707,11 @@ StatusCode Container::put (pLocator	  p_where,
 
 /** Block deletion interface: Erase a block at a locator inside the Container
 
-	\param p_what	Under what locator the block has to be stored.
-	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
-	\param block_id	Used by the async interface. (See Async interface below)
+	\param p_what Some string with a locator that the Container can handle.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for remove.
-
-Async Interface
----------------
-
-The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
-a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
-
-The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
-operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
-
-A **NOTE for remove()**: The callback() will return the completion status for the caller to know (retry, notify, etc.). In either (error or
-success) case, there are no further actions to take.
-
 */
-StatusCode Container::remove (pLocator	 p_what,
-							  pContainer p_sender,
-							  BlockId64	 block_id)
-{
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
-}
-
-
-/** Get a Block (1) : Complete get() implementing a full R_value with contract and async calls
-
-	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_rvalue	An R_value defining the block and whatever contracts are applied to it.
-	\param p_sender	This argument, together with block_id, enables the async interface, used by Remote only. (See Async interface below)
-	\param block_id	Used by the async interface. (See Async interface below)
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for get.
-
-Usage-wise, this is equivalent to a new_block() call. On success, it will return a BlockKeeper that belongs to the Container and must
-be unlock()-ed when the caller is done.
-
-Async Interface
----------------
-
-The async interface is used by Remote to track delayed operations. The call itself, when no immediate error applies, returns
-a SERVICE_ONGOING_ASYNC_OP code and continues via a .callback() call.
-
-The caller must be a Container descendant and pass its own address as p_sender. It must also provide some block_id used to track the
-operation via the callback(). When a successfull or error completion code is available, the Container will receive a .callback() call.
-
-A **NOTE for get()**: The returned p_keeper is owned by the Remote. Before the .callback() event, it will have
-p_keeper->status == BLOCK_STATUS_ASYNC_WAIT. After an error is returned, the caller should forget the p_keeper and not use it.
-After a success is returned, the caller will get: p_keeper->status == BLOCK_STATUS_READY and a valid p_block. In this case, the caller
-**must** .unlock() the p_keeper when done with it.
-*/
-StatusCode Container::get (pBlockKeeper &p_keeper,
-						   pR_value		 p_rvalue,
-						   pContainer	 p_sender,
-						   BlockId64	 block_id)
-{
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
-}
-
-
-/** Get a Block (2) : Simple get() implementing only local, sync, full block "as is" get().
-
-	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_what	A locator defining the block.
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). No Async API here.
-
-Usage-wise, this is equivalent to a new_block() call. On success, it will return a BlockKeeper that belongs to the Container and must
-be unlock()-ed when the caller is done.
-*/
-StatusCode Container::get (pBlockKeeper &p_keeper,
-						   pLocator		 p_what)
+StatusCode Container::remove (pChar p_what)
 {
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -796,25 +727,7 @@ StatusCode Container::get (pBlockKeeper &p_keeper,
 void Container::base_names (BaseNames &base_names) {}
 
 
-/** Receive callback calls from services via the Async API.
-
-	\param block_id	Returns the block_id identifying the transaction (put(), get() or remove())
-	\param result	A code also written to BlockKeeper.status (BLOCK_STATUS_READY or BLOCK_STATUS_ASYNC_FAIL)
-
-The Async API calls are initiated by a call to put(), get() or remove(), by passing the callee a p_sender pointer and a block_id.
-The pointer points to a Container descendant implementing this method. When the result is ready, the callee will call the caller's
-callback() with the block_id to identify the transaction. Besides this call, the callee will update the BlockKeeper passed to return
-the result.
-
-*/
-void Container::callback (BlockId64	 block_id,
-						  StatusCode result)
-{
-// API Only: One-shot container does not support this.
-}
-
-
-/** Creates the buffers for new_keeper()/free_keeper()
+/** Creates the buffers for new_transaction()/free_keeper()
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some error.
 */
@@ -833,7 +746,7 @@ StatusCode Container::new_container()
 
 	_lock_ = 0;
 
-	p_buffer = (pBlockKeeper) malloc(max_num_keepers*sizeof(BlockKeeper));
+	p_buffer = (pStoredTransaction) malloc(max_num_keepers*sizeof(StoredTransaction));
 
 	if (p_buffer == nullptr)
 		return SERVICE_ERROR_NO_MEM;
@@ -841,13 +754,13 @@ StatusCode Container::new_container()
 	p_alloc = nullptr;
 	p_free  = &p_buffer[max_num_keepers - 1];
 
-	p_free->data.deque.p_next = nullptr;
+	p_free->p_next = nullptr;
 
-	pBlockKeeper pt = p_free;
+	pStoredTransaction pt = p_free;
 	for (int i = 1; i < max_num_keepers; i ++) {
 		p_free--;
 
-		p_free->data.deque.p_next = pt--;
+		p_free->p_next = pt--;
 	}
 
 	return SERVICE_NO_ERROR;
@@ -862,8 +775,8 @@ StatusCode Container::destroy_container()
 {
 	if (p_buffer != nullptr) {
 		while (p_alloc != nullptr) {
-			pBlockKeeper pt = p_alloc;
-			destroy_keeper(pt);
+			pTransaction pt = p_alloc;
+			destroy_transaction(pt);
 		}
 		free (p_buffer);
 	}
