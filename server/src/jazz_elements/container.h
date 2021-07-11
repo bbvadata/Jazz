@@ -89,38 +89,16 @@ namespace jazz_elements
 #define LOCK_WEIGHT_OF_WRITE			46341
 
 
-/** A binary block identifier internal to the Container. Typically a MurmurHash64A of the Block name.
-*/
-typedef uint64_t BlockId64;
-
 /** An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
 */
 typedef std::atomic<int32_t> Lock32;
 
-// Forward pointer types:
 
-typedef struct Names		*pNames;
-typedef struct BlockKeeper 	*pBlockKeeper;
-typedef class  Container	*pContainer;
-typedef struct Locator		*pLocator, *pL_value;
-typedef struct R_value		*pR_value;
-typedef struct Items		*pItems;
+/// A (forward defined) pointer to a Container
+typedef class Container *pContainer;
 
-/** A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
-*/
-typedef std::map<std::string, pContainer> BaseNames;
 
-/** A pair of pointers to manage allocation inside an array of BlockKeeper as a deque.
-*/
-struct OneShotDeque {
-	pBlockKeeper	p_prev, p_next;		///< A pair of pointers to keep this (the descendant) in a double linked list
-};
-
-/** An array of Item names (used to select items in a Tuple).
-*/
-struct Names {
-	Name name[0];		///< The item names. First zero breaks.
-};
+/** \brief Transaction: A wrapper over a Block that defines the communication of a block over some Channel.
 
 This minimalist struc is the only block wrapper across anything. Anything is: file I/O, http client CRUD, http server GET and PUT, shell
 commands, Volatile, Persisted and Index objects (an stdlib map that serializes to and from a block).
