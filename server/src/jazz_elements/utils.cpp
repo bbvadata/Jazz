@@ -41,7 +41,7 @@
 namespace jazz_elements
 {
 
-/** Check if a file exists.
+/** \brief Check if a file exists.
 
 	\param file_name The file name.
 	\return True if the file exists
@@ -54,7 +54,7 @@ bool FileExists(const char* file_name)
 }
 
 
-/** Count the number of bytes required by an utf-8 string of length characters.
+/** \brief Count the number of bytes required by an utf-8 string of length characters.
 
 \param buff	  The string (not necessarily null-terminated)
 \param length The number of characters in the string
@@ -98,7 +98,7 @@ int CountBytesFromUtf8(char *buff, int length)
 }
 
 
-/** Expand escaped strings at run-time.
+/** \brief Expand escaped strings at run-time.
 
 Public Domain by Jerry Coffin.
 
@@ -215,7 +215,7 @@ char *ExpandEscapeSequences(char *buff)
 }
 
 
-/** Find the pid of a process given its name.
+/** \brief Find the pid of a process given its name.
 
 	It does NOT find itself as it is intended to find other processes of the same name.
 
@@ -276,7 +276,7 @@ pid_t FindProcessIdByName(const char *name)
 
 #define MURMUR_SEED	  76493		///< Just a 5 digit prime
 
-/** MurmurHash2, 64-bit versions, by Austin Appleby
+/** \brief MurmurHash2, 64-bit versions, by Austin Appleby
 
 	(from https://sites.google.com/site/murmurhash/) a 64-bit hash for 64-bit platforms
 
@@ -334,7 +334,7 @@ uint64_t MurmurHash64A(const void *key, int len)
 }
 
 
-/** Remove quotes and (space and tab) outside quotes from a string.
+/** \brief Remove quotes and (space and tab) outside quotes from a string.
 
 	Removes space and tab characters except inside a string declared with a double quote '"'. After doing that,
 	it removes the quotes. This is used by ConfigFile and has obvious limitations but is used for its simplicity
