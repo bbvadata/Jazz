@@ -53,7 +53,7 @@
 /*! \brief The namespace for Jazz Utils, Blocks, Kinds, Tuples, Containers, etc.
 
 	This namespace includes utilities, types, constants and structures used by Block, all different block-based data and code structures
-	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Volatile, Persisted, ..).
+	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Channels, Volatile, Persisted, ..).
 */
 namespace jazz_elements
 {
