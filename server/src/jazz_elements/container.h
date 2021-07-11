@@ -139,70 +139,20 @@ struct Names {
 	Name name[0];		///< The item names. First zero breaks.
 };
 
-/** The extra space in a BlockKeeper.
+This minimalist struc is the only block wrapper across anything. Anything is: file I/O, http client CRUD, http server GET and PUT, shell
+commands, Volatile, Persisted and Index objects (an stdlib map that serializes to and from a block).
 
-	This union keeps Container specific data.
+Transaction allocation is only handled by the owner.
 */
-union KeeperData {
-	Name		 name;					///< Name of the block (used by Container descendants using locators)
-	OneShotDeque deque;					///< A pair of pointers (used by the root class Container)
+struct Transaction {
+	pBlock			p_block;	///< A pointer to the Block (if status == BLOCK_STATUS_READY)
+	pBlock			p_route;	///< Anything defining the transaction as a (fixed sized) block allocated in an array inside the owner
+	Lock32			_lock_;		///< An atomically updated int to lock the Keeper to support modifying the Block
+	int				status;		///< The status of the block transaction
+	pContainer		p_owner;	///< A pointer to the Container instance serving API calls related to this block
 };
+typedef Transaction *pTransaction;
 
-/** The minimum struc to keep track of block allocation in a Container.
-The descendants will use classes with more data inheriting from this.
-The caller can **only read** the data from here by using the pBlockKeeper returned by the Container API.
-*/
-struct BlockKeeper {
-	pBlock			p_block;			///< A pointer to the Block (if status == BLOCK_STATUS_READY)
-	pContainer		p_owner;			///< A pointer to the Container instance serving API calls related to this block.
-	BlockId64		block_id;			///< A 64 bit binary block id. Can be a hash of the block locator, but not necessarily.
-	Lock32			_lock_;				///< An atomically updated int to lock the Keeper to support modifying the Block.
-	int				status;				///< The status of the block request (sync or async errors, wait, ready, etc.)
-	KeeperData		data;				///< Some data used by the Container service
-};
-
-/** A Locator is used by all Containers using block names == all except the root deque. It locates a block (existing or new) and is the
-base of both lvalues and rvalues.
-*/
-struct Locator {
-	Name			container[MAX_NESTED_CONTAINERS];	///< All the sub-container names (the base container is used to route the call)
-	Name			block;								///< The block name
-};
-
-/** A contract is a kernel-API action perfromed on a block. It returns either another block or an Answer. It may use another block as
-an argument. It is only one argument since multiple arguments will be merged into a tuple.
-
-Contracts go from simple things like returning the type to slicing, function calls.
-
-L_values do not have contracts. You cannot assign a[4] = "new value".
-
-R_values can have multiple. E.g., you can a = math/average(weather_data/berlin:temp[1,4]).as_json. Note that the parser will first lock
-"[1,4]" the constant into a new block. Then, it will lock "weather_data/berlin:temp[..]" which has two contracts: :column "temp" if berlin
-is a table (also possible  :item "temp" if berlin is a tuple) and slice [1,4]. Finally, the call "math/average(..).as_json" on the
-locked block has two contracts, a function call and the .as_json(). No step required more than 2. The total number of contracts is not
-limited other than by query length, but the number of contracts per step is limited by MAX_CONTRACTS_IN_R_VALUE.
-*/
-struct ContractStep {
-	Name			action;								///< The action performed at that step or an empty
-	pBlockKeeper	p_args;								///< The argument as a locked block or tuple (or nullptr if none)
-};
-
-/** An L_value is just a Locator
-*/
-typedef Locator L_value;
-
-/** An R_value is a Locator with a number of contract steps to apply to it.
-*/
-struct R_value : Locator {
-	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contract to be a applied in order. The first empty one breaks.
-};
-
-/** An array of Items (Blocks and Tuples) to be merged into a new Tuple or an array of Items (BlockHeaders and Kinds) to be merged into
-a new Kind.
-*/
-struct Items {
-	BlockKeeper	item[MAX_ITEMS_IN_KIND];				///< The items. First p_block == nullptrs breaks.
-};
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
