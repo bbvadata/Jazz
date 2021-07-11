@@ -420,7 +420,6 @@ class Block: public BlockHeader {
 			if (set_time)
 				created = std::chrono::steady_clock::now();
 		}
-
 };
 
 } // namespace jazz_elements
