@@ -768,13 +768,13 @@ over possibly more than one http callback query (in uploads) and used by differe
 This is an implementation of the interface using block names and locators for the only purpose of storing Api-owned Blocks and have some
 mechanism to recall the same blocks across http PUT queries.
 
-	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_keeper	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The caller can only use it read-only and **must** unlock() it when done.
 	\param p_what	An L_value (locator) of the block being uploaded, that will be moved to the appropriate Container when upload is done.
 
 	\return			Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::get(pBlockKeeper *p_keeper, pLocator p_what)
+StatusCode Api::get(pTransaction *p_keeper, pLocator p_what)
 {
 
 	return PARSE_NOT_IMPLEMENTED;
@@ -1080,12 +1080,12 @@ It returns a locked (one shot) block that must be unlocked in the same http quer
 
 	\param p_url	A pointer to the first character of the constant.
 	\param hea		A BlockHeader created in a successful _parse_const_meta.
-	\param p_keeper	A pointer to a BlockKeeper passed by reference. If successful, the Container will return a pointer to a
-					BlockKeeper inside the Container. The caller can only use it read-only and **must** unlock() it when done.
+	\param p_keeper	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The caller can only use it read-only and **must** unlock() it when done.
 
 	\return			Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pBlockKeeper *p_keeper)
+StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pTransaction *p_keeper)
 {
 	int state = PSTATE_INITIAL;
 	int state_recency = -1, next_state;
