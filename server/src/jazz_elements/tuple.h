@@ -54,8 +54,6 @@
 namespace jazz_elements
 {
 
-typedef class Tuple *pTuple;
-
 /** \brief Tuple: A Jazz data block of a Kind.
 
 An instance of a **Kind**. Physically, like a Kind, it is a single block with some differences:
@@ -277,6 +275,7 @@ class Tuple : public Block {
 
 		inline int audit();
 };
+typedef Tuple *pTuple;
 
 } // namespace jazz_elements
 

@@ -54,9 +54,6 @@
 namespace jazz_elements
 {
 
-typedef class  Kind	 *pKind;
-
-
 /** \brief Kind: A type definition for complex Jazz objects.
 
 Kind objects contain the metadata only. A Tuple is a data object of a Kind. Kinds define more complex types than (raw) Blocks, even if
@@ -254,7 +251,7 @@ class Kind : public Block {
 
 		int audit();
 };
-
+typedef Kind *pKind;
 
 } // namespace jazz_elements
 
