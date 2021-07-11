@@ -54,11 +54,6 @@
 namespace jazz_elements
 {
 
-// Forward pointer types:
-
-typedef class  Volatile	*pVolatile;
-
-
 /** \brief Volatile: A Service to manage data objects in RAM.
 
 */
@@ -74,6 +69,7 @@ class Volatile : public Container {
 
 		void base_names (BaseNames &base_names);
 };
+typedef Volatile *pVolatile;
 
 } // namespace jazz_elements
 

@@ -56,11 +56,6 @@
 namespace jazz_elements
 {
 
-// Forward pointer types:
-
-typedef class  Persisted	*pPersisted;
-
-
 /** \brief Persisted: A Service to manage data objects in LMDB.
 
 */
@@ -76,6 +71,7 @@ class Persisted : public Container {
 
 		void base_names (BaseNames &base_names);
 };
+typedef Persisted *pPersisted;
 
 } // namespace jazz_elements
 
