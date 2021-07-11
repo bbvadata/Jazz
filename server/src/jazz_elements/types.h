@@ -167,8 +167,14 @@ They can be validated using the function valid_name() or the regex REGEX_VALIDAT
 */
 typedef char Name[NAME_SIZE];
 
-typedef char *pChar;
-typedef Name *pName;
+/// An array of Item names (used to select items in a Tuple).
+struct Names {
+	Name name[0];		///< The item names. First zero breaks.
+};
+
+typedef char  *pChar;
+typedef Name  *pName;
+typedef Names *pNames;
 
 
 /** \brief Another way to describe a TensorDim to make filtering syntactically nicer.
