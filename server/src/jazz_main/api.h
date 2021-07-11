@@ -184,6 +184,50 @@ typedef StateTransition StateTransitions[NUM_STATE_TRANSITIONS];
 typedef std::map<std::string, std::string> Url2Name;
 
 
+// ------------------------------ Remove all this ------------------------------------------------------------------------------------------
+//TODO: remove Locator, pLocator, ContractStep, L_value and R_value
+/** A Locator is used by all Containers using block names == all except the root deque. It locates a block (existing or new) and is the
+base of both lvalues and rvalues.
+*/
+struct Locator {
+	Name			container[MAX_NESTED_CONTAINERS];	///< All the sub-container names (the base container is used to route the call)
+	Name			block;								///< The block name
+};
+
+typedef Locator *pLocator;
+
+/** A contract is a kernel-API action perfromed on a block. It returns either another block or an Answer. It may use another block as
+an argument. It is only one argument since multiple arguments will be merged into a tuple.
+
+Contracts go from simple things like returning the type to slicing, function calls.
+
+L_values do not have contracts. You cannot assign a[4] = "new value".
+
+R_values can have multiple. E.g., you can a = math/average(weather_data/berlin:temp[1,4]).as_json. Note that the parser will first lock
+"[1,4]" the constant into a new block. Then, it will lock "weather_data/berlin:temp[..]" which has two contracts: :column "temp" if berlin
+is a table (also possible  :item "temp" if berlin is a tuple) and slice [1,4]. Finally, the call "math/average(..).as_json" on the
+locked block has two contracts, a function call and the .as_json(). No step required more than 2. The total number of contracts is not
+limited other than by query length, but the number of contracts per step is limited by MAX_CONTRACTS_IN_R_VALUE.
+*/
+struct ContractStep {
+	Name			action;								///< The action performed at that step or an empty
+	pTransaction	p_args;								///< The argument as a locked block or tuple (or nullptr if none)
+};
+
+/** An L_value is just a Locator
+*/
+typedef Locator L_value;
+
+#define MAX_CONTRACTS_IN_R_VALUE   4
+
+/** An R_value is a Locator with a number of contract steps to apply to it.
+*/
+struct R_value : Locator {
+	ContractStep contract[MAX_CONTRACTS_IN_R_VALUE];	///< The contract to be a applied in order. The first empty one breaks.
+};
+// ------------------------------ Remove all this ------------------------------------------------------------------------------------------
+
+
 /** A buffer to keep the state while parsing/executing a query
 */
 struct APIParseBuffer {
@@ -259,7 +303,7 @@ class Api : public Container {
 		bool http_get  (APIParseBuffer &parse_buff,
 						pMHD_Response  &response);
 
-		StatusCode get (pBlockKeeper   *p_keeper,
+		StatusCode get (pTransaction   *p_keeper,
 						pLocator		p_what);
 
 		void base_names(BaseNames	   &base_names);
@@ -282,7 +326,7 @@ class Api : public Container {
 
 		StatusCode _parse_const_data(pChar 		  &p_url,
 									 BlockHeader  &hea,
-									 pBlockKeeper *p_keeper);
+									 pTransaction *p_keeper);
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;
