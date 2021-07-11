@@ -62,7 +62,6 @@ namespace jazz_elements
 
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
-#define MAX_CONTRACTS_IN_R_VALUE		4					///< An rvalue operation can apply (max) that many contracts.
 #define MAX_ITEMS_IN_KIND				64					///< The number of items merged into a kind or tuple.
 
 
@@ -75,28 +74,12 @@ namespace jazz_elements
 #define FILL_BOOLEAN_FILTER				4		///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
 #define FILL_INTEGER_FILTER				5		///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
 
-#define AS_BEBOP						1		///< Serialize data and metadata.
-#define AS_JSON							2		///< Serialize data as JSON.
-#define AS_CPP							3		///< Serialize metadata as compilable C++ that can be dynamically linked.
-
 #define BUILD_TUPLE						1		///< Build a Tuple out of data items or fail.
 #define BUILD_KIND						2		///< Build a Kind out of metadata items or fail.
-
-#define NEW_MAP							1		///< Container.new_block(6)(what) constant: Create a new named map inside Volatile.
-#define NEW_DEQUE						2		///< Container.new_block(6)(what) constant: Create a new named deque inside Volatile.
-#define NEW_TREE						3		///< Container.new_block(6)(what) constant: Create a new named tree inside Volatile.
-#define NEW_QUEUE						4		///< Container.new_block(6)(what) constant: Create a new named queue inside Volatile.
-#define NEW_CACHE						5		///< Container.new_block(6)(what) constant: Create a new named cache inside Volatile.
-#define NEW_DATABASE					6		///< Container.new_block(6)(what) constant: Create a new named database inside Persisted.
 
 /// Block API (error and status codes)
 
 #define BLOCK_STATUS_READY				 0		///< BlockKeeper.status: p_block-> is safe to use
-#define BLOCK_STATUS_EMPTY				 1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
-#define BLOCK_STATUS_ASYNC_WAIT			 2		///< BlockKeeper.status: async content pending, wait for a .callback() call.
-#define BLOCK_STATUS_ASYNC_FAIL			-1		///< BlockKeeper.status: async failed, still locked, call p_owner->unlock()
-#define BLOCK_STATUS_SYNC_FAIL			-2		///< BlockKeeper.status: sync failed, still locked, call p_owner->unlock()
-#define BLOCK_STATUS_SYNC_UNLOCKED		-3		///< BlockKeeper.status: block destroying, do nothing, forget the pointer
 
 /// Thread safety
 
