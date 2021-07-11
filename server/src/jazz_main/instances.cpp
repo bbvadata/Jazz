@@ -51,11 +51,13 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 
 // Services
 
-Agency		EPI		  (&LOGGER, &CONFIG);
-Bebop		BOP		  (&LOGGER, &CONFIG);
-Persisted	PERSISTED (&LOGGER, &CONFIG);
+Channels	CHANNELS  (&LOGGER, &CONFIG);
 Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Api			API		  (&LOGGER, &CONFIG, &VOLATILE, &PERSISTED, &BOP, &EPI);
+Persisted	PERSISTED (&LOGGER, &CONFIG);
+Bebop		BOP		  (&LOGGER, &CONFIG);
+Agency		EPI		  (&LOGGER, &CONFIG);
+
+Api			API		  (&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
 HttpServer	HTTP	  (&LOGGER, &CONFIG);
 
 // Callbacks
@@ -115,10 +117,11 @@ void signalHandler_SIGTERM(int signum)
 
 	if (!stop_service(&HTTP,	  "HttpServer")) stop_ok = false;
 	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
-	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
-	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
-	if (!stop_service(&BOP,		  "Bebop"))		 stop_ok = false;
 	if (!stop_service(&EPI,		  "Agency"))	 stop_ok = false;
+	if (!stop_service(&BOP,		  "Bebop"))		 stop_ok = false;
+	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
+	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
+	if (!stop_service(&CHANNELS,  "Channels"))	 stop_ok = false;
 
 	if (stop_ok) exit (EXIT_SUCCESS); else exit (EXIT_FAILURE);
 }

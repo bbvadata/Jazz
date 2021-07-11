@@ -68,8 +68,9 @@ extern Bebop	  BOP;			// (as in Bebop.) The service managing cores and fields.
 
 // Block containers:
 
-extern Persisted  PERSISTED;	// The container allocating persisted blocks.
+extern Channels	  CHANNELS;		// The container channeling blocks.
 extern Volatile	  VOLATILE;		// The container allocating volatile blocks.
+extern Persisted  PERSISTED;	// The container allocating persisted blocks.
 extern Api		  API;			// The API interface is also a one-shot container.
 
 // Http server:
