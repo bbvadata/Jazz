@@ -58,12 +58,12 @@ namespace jazz_elements
 {
 
 // Forward declarations
+
+/// An stdlib map to store all the attributes of a Block at the same time used by the some Block methods
 typedef std::map<int, const char *> AttributeMap;
 
-typedef struct BlockHeader	*pBlockHeader;
-typedef struct StringBuffer	*pStringBuffer;
-
-typedef class Block			*pBlock;
+/// A (forward defined) pointer to a Block
+typedef class Block *pBlock;
 
 
 /** \brief A block is a moveable BlockHeader followed by a Tensor and a StringBuffer
