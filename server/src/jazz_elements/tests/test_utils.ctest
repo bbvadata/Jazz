@@ -32,9 +32,6 @@
 */
 
 
-// #include <stl_whatever>
-
-
 using namespace jazz_elements;
 
 
@@ -450,7 +447,7 @@ SCENARIO("Testing TenBitsAtAddress().") {
 
 
 SCENARIO("Testing valid_name().") {
-	REQUIRE( valid_name((char *)""));
+	REQUIRE(!valid_name((char *)""));
 
 	REQUIRE(!valid_name((char *)"7"));
 	REQUIRE(!valid_name((char *)"_"));

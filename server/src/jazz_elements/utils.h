@@ -155,7 +155,7 @@ inline bool valid_name(pChar p_name) {
 	char ch = p_name++[0];
 
 	if (!ch)
-		return true;
+		return false;
 
 	if (ch < 'A' | ch > 'z' | (ch > 'Z' & ch < 'a'))
 		return false;
