@@ -101,6 +101,9 @@ without global variables.
 #define SERVICE_ERROR_NO_MEM			-4		///< Specific error where configured allocation RAM failed.
 #define SERVICE_ERROR_LOADING_STAT		-5		///< Error happened while loading static resources.
 #define SERVICE_ERROR_NEW_BLOCK_ARGS	-6		///< Error with arguments to a new_block() call.
+#define SERVICE_ERROR_WRONG_TYPE		-7		///< Error with block type (used by new_tuple()).
+#define SERVICE_ERROR_WRONG_NAME		-8		///< Error with block/item names (used by new_tuple()).
+#define SERVICE_ERROR_WRONG_ARGUMENTS	-9		///< Error with arguments any call.
 
 /** Default path to config file
 */
