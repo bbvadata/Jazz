@@ -101,41 +101,21 @@ class Tuple : public Block {
 
 	// Methods to create a Tuple:
 
-		/** Initializes a Tuple object (step 1): Allocates the space.
+		/** Initializes a Tuple object (step 1): Initializes the space.
 
+			\param num_items The number of items the Tuple will have == size of the p_blocks-> and p_names->
+			\param p_blocks  An array of pointer to the blocks to be included in the Tuple.
+			\param p_names   An array of Name by which the items will go.
 			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
+			\param attr		 The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
 
-			\return			 False on error (insufficient alloc size for a very conservative minimum).
+			\return			 0, SERVICE_ERROR_NO_MEM, SERVICE_ERROR_WRONG_TYPE, SERVICE_ERROR_WRONG_NAME, SERVICE_ERROR_WRONG_ARGUMENTS
 		*/
-		inline bool new_tuple (int num_bytes) {
-
-			return false;
-		}
-
-		/** Initializes a Tuple object (step 2): Adds an item to the (unfinished) tuple.
-
-			\param p_block A tensor to be copied into the Tuple.
-
-			\return		   False on error (insufficient alloc space or wrong block type).
-		*/
-		inline bool add_item (pBlock p_block) {
-
-			return false;
-		}
-
-		/** Initializes a Tuple object (step 3): Set names, levels and attributes.
-
-			\param p_names	A pointer to the names of all the items.
-			\param attr		The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
-			\param p_levels A pointer to an array with the level of each item. (Allows to create a tree structure. nullptr => All == 0)
-
-			\return		    False on error (insufficient alloc space for the strings).
-		*/
-		inline bool close_tuple (pNames		   p_names,
-								 AttributeMap &attr,
-								 int		  *p_levels = nullptr) {
-
-			return false;
+		inline StatusCode new_tuple (int	 num_items,
+									 Blocks *p_blocks,
+									 pNames  p_names,
+									 int	 num_bytes,
+									 AttributeMap &attr) {
 		}
 
 	// Methods on Tuple items:
