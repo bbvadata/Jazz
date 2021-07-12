@@ -201,12 +201,10 @@ union TensorDim
 struct ItemHeader
 {
 	int	cell_type;				///< The type for the cells in the item. See CELL_TYPE_*
-	int	rank;					///< The number of dimensions
-	int level;					///< The 0-based level (== depth of this item in the tree of items)
 	int name;					///< The name of this item as an offset in StringBuffer.
-	int size;					///< The total number of cells in the item's tensor. (If is is a Tuple.)
-	int data_start;				///< The data start of this tensor as an offset of &BlockHeader.tensor. (If is is a Tuple.)
+	int	rank;					///< The number of dimensions
 	int	dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. For Kind: negative numbers are dimension names as -offset in StringBuffer.
+	int data_start;				///< The data start of this tensor as an offset of &BlockHeader.tensor. (If is is a Tuple.)
 };
 
 
