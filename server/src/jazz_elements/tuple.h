@@ -58,16 +58,41 @@ namespace jazz_elements
 typedef pBlock Blocks[0];
 
 
-- It holds data and metadata. (It has a reference to the kind, but that is only interesting in the context of formal fields. Anything
-  required to understand the data architecture is in the block itself.)
-- It has constant values for the dimensions. E.g., all instances of "image_width" across all items where applicable are, say 640.
-- It has different attributes than a Tuple.
+/** \brief Tuple: A Jazz Block with multiple Tensors.
 
-Also, tuples always define, if the Container sets them as expected, these attributes:
+Can be simplified as "An instance of a **Kind**" allthough that is not exactly what it is. It is an array of Tensors and it can match
+one or more Kinds if its .is_a(<kind>) method returns true.
 
-- BLOCK_ATTRIB_BLOCKTYPE as the const "tuple"
-- BLOCK_ATTRIB_TYPE as whatever the inherited class name is ("Tuple" for the main class)
-- BLOCK_ATTRIB_KIND as the locator to the definition of the Kind it satisfies. (Can be a tab separated list.)
+Physically, like a Kind, it is a single block with some differences:
+
+- It holds data and metadata.
+- It has constant values for the dimensions.
+- It has a one step creation process: new_tuple().
+- It also stores all the Blocks "as is" in the same space (after its header, vector of CELL_TYPE_KIND_ITEM, attribute keys and StringBuffer)
+- The data stored @tensor is the metadata (like in a Kind) and the method .block(item) returns a pointer to each Block.
+- A Tuple is a Block of type CELL_TYPE_TUPLE_ITEM (instead of CELL_TYPE_KIND_ITEM).
+- The StringBuffer contains the item names and Tuple attributes. Blocks may have their own StringBuffers
+
+Also, Tuples should define, if the Container sets them as expected, the attribute:
+
+- BLOCK_ATTRIB_BLOCKTYPE as the const "Tuple"
+
+Creating Tuples
+---------------
+
+More advanced Tuple functionalities (including other ways of creating tuples) can be done by Containers. This class, has a minimum
+functionality to build Tuples: new_tuple() to do the basic building. It includes creating Tuples from other Tuples by appending the names.
+
+Using Tuples
+------------
+
+Like any Block, it is a moveble structure that can be edited by this class. Channel-wise, Volatile, Persistenc or via the http API, it is
+just a Block. Note:
+
+- It has a new method, .block(item), that returns the address of an item.
+- It has an is_a() method that verifies if it satisfies a Kind.
+- It has an audit() method to check validity.
+- Besides that, it is just a "big Block" whose header has a `total_bytes` that includes all the metadata and data.
 
 */
 class Tuple : public Block {
