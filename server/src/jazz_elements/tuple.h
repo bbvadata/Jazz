@@ -69,7 +69,7 @@ Physically, like a Kind, it is a single block with some differences:
 - It has constant values for the dimensions.
 - It has a one step creation process: new_tuple().
 - It also stores all the Blocks "as is" in the same space (after its header, vector of CELL_TYPE_KIND_ITEM, attribute keys and StringBuffer)
-- The data stored @tensor is the metadata (like in a Kind) and the method .block(item) returns a pointer to each Block.
+- The data stored &tensor is the metadata (like in a Kind) and the method .block(item) returns a pointer to each Block.
 - A Tuple is a Block of type CELL_TYPE_TUPLE_ITEM (instead of CELL_TYPE_KIND_ITEM).
 - The StringBuffer contains the item names and Tuple attributes. Blocks may have their own StringBuffers
 
@@ -104,7 +104,7 @@ class Tuple : public Block {
 		/** Initializes a Tuple object (step 1): Initializes the space.
 
 			\param num_items The number of items the Tuple will have == size of the p_blocks-> and p_names->
-			\param p_blocks  An array of pointer to the blocks to be included in the Tuple.
+			\param blocks	 An array of pointers to the blocks to be included in the Tuple.
 			\param p_names   An array of Name by which the items will go.
 			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
 			\param attr		 The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
