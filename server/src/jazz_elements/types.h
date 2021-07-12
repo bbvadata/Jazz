@@ -102,8 +102,8 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
 
 // 64 bit cell types
-#define CELL_TYPE_TUPLE_ITEM	0x030		///< A vector of ItemHeader (in a Tuple)
-#define CELL_TYPE_KIND_ITEM		0x130		///< A vector of ItemHeader (in a Kind)
+#define CELL_TYPE_TUPLE_ITEM	0x028		///< A vector of ItemHeader (in a Tuple)
+#define CELL_TYPE_KIND_ITEM		0x128		///< A vector of ItemHeader (in a Kind)
 
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
