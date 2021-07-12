@@ -40,12 +40,12 @@ namespace jazz_elements
 
 /** Check the internal validity of a Tuple (item structure, dimensions, etc.)
 
-	\return KIND_TYPE_NOTAKIND on error or KIND_TYPE_TUPLE if every check passes ok.
+	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_TUPLE if every check passes ok.
 */
 int Tuple::audit()
 {
 
-	return KIND_TYPE_NOTAKIND;
+	return MIXED_TYPE_INVALID;
 }
 
 } // namespace jazz_elements

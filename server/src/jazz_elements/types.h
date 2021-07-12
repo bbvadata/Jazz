@@ -126,11 +126,11 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 
 /// Possible return values of Kind.kind_audit() and Tuple.tuple_audit()
 
-#define KIND_TYPE_
+#define MIXED_TYPE_
 
-#define KIND_TYPE_NOTAKIND		0			///< The kind fails audit (wrong or duplicate item names, wrong dimensions, ...).
-#define KIND_TYPE_KIND		 	1			///< This Block is a valid Kind.
-#define KIND_TYPE_TUPLE			2			///< This Block is a valid Tuple.
+#define MIXED_TYPE_INVALID		0			///< The kind fails audit (wrong or duplicate item names, wrong dimensions, ...).
+#define MIXED_TYPE_KIND		 	1			///< This Block is a valid Kind.
+#define MIXED_TYPE_TUPLE		2			///< This Block is a valid Tuple.
 
 /// Attribute types for Block descendants
 

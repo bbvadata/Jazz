@@ -41,12 +41,12 @@ namespace jazz_elements
 /** Check the internal validity of a Kind (item structure, dimensions, etc.)
 not repeated of invalid item names.
 
-	\return KIND_TYPE_NOTAKIND on error or KIND_TYPE_KIND if every check passes ok.
+	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */
 int Kind::audit()
 {
 	if (cell_type != CELL_TYPE_KIND_ITEM | size <= 0)
-		return KIND_TYPE_NOTAKIND;
+		return MIXED_TYPE_INVALID;
 
 	std::set <int> items;
 
@@ -55,10 +55,10 @@ int Kind::audit()
 
 		if (  p_it_hea->cell_type <= 0 | p_it_hea->rank < 1 | p_it_hea->rank > MAX_TENSOR_RANK
 		    | p_it_hea->name <= STRING_EMPTY | p_it_hea->data_start != 0)
-				return KIND_TYPE_NOTAKIND;
+				return MIXED_TYPE_INVALID;
 
 		if (items.find(p_it_hea->name) != items.end())
-			return KIND_TYPE_NOTAKIND;
+			return MIXED_TYPE_INVALID;
 
 		items.insert(p_it_hea->name);
 	}
@@ -70,12 +70,12 @@ int Kind::audit()
 			int k = p_it_hea->dim[j];
 			if (k < 0) {
 				if (items.find(-k) != items.end())
-					return KIND_TYPE_NOTAKIND;
+					return MIXED_TYPE_INVALID;
 			}
 		}
 	}
 
-	return KIND_TYPE_KIND;
+	return MIXED_TYPE_KIND;
 }
 
 } // namespace jazz_elements
