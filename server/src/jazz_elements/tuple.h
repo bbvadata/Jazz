@@ -181,153 +181,32 @@ class Tuple : public Block {
 			return SERVICE_NO_ERROR;
 		}
 
-	// Methods on Tuple items:
-
-		/** Overrides the Block's p_attribute_keys() - Return the address of the vector containing both the attribute keys for a Tuple.
-
-			NOTE: The tuple, besides metadata, contains data and therefore, the first tensor of ItemHeader corresponding to each
-			item is followed by the tensors containing the data of each item. This changes the logic
-		*/
-		inline int *p_attribute_keys() {
-			return align_128bit((uintptr_t) &tensor + (cell_type & 0xff)*size);
-		}
-
 		/** Get the name for an item of a Tuple by index without checking index range.
 
 			\param idx The index of the item.
 
-			\return A pointer to where the (zero ended) string is stored in the Block.
+			\return A pointer to where the (zero ended) string is stored in the Block or nullptr for an invalid index.
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *item_name(int idx)	 {
+			if (idx < 0 | idx >= size)
+				return nullptr;
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
 		}
 
-	// Methods taken for Block to tuple items:
+		/** Get a Block from a tuple by item index.
 
-		/** Returns the tensor dimensions as a TensorDim array.
+			\param idx The index of the item.
 
-			\param item  The index of the tuple item.
-			\param p_dim A pointer to the TensorDim containing the dimensions.
-
-			NOTES: See notes on set_dimensions() to understand why in case of 0 and 1, it may return different values than those
-			passed when the block was created with a set_dimensions() call.
-		*/
-		inline void get_dimensions(int item, int *p_dim) {
-			int j = size;
-			for (int i = 0; i < MAX_TENSOR_RANK; i++)
-				if (i < rank) { p_dim[i] = j/range.dim[i]; j = range.dim[i]; } else p_dim[i] = 0;
-		}
-
-		/** Returns if an index (as a TensorDim array) is valid for the tensor.
-
-			\param item  The index of the tuple item.
-			\param p_idx A pointer to the TensorDim containing the index.
-
-			\return	True if the index is valid.
-		*/
-		inline bool validate_index(int item, int *p_idx) {
-			int j = size;
-			for (int i = 0; i < rank; i++) {
-				if (p_idx[i] < 0 || p_idx[i]*range.dim[i] >= j) return false;
-				j = range.dim[i];
-			}
-			return true;
-		}
-
-		/** Returns if an offset (as an integer) is valid for the tensor.
-
-			\param item   The index of the tuple item.
-			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
-
-			\return	True if the offset is valid.
-		*/
-		inline int validate_offset(int item, int offset) { return offset >=0 & offset < size; }
-
-		/** Convert an index (as a TensorDim array) to the corresponding offset without checking its validity.
-
-			\param item  The index of the tuple item.
-			\param p_idx A pointer to the TensorDim containing the index.
-
-			\return	The offset corresponding to the same cell if the index was in a valid range.
-		*/
-		inline int get_offset(int item, int *p_idx) {
-			int j = 0;
-			for (int i = 0; i < rank; i++) j += p_idx[i]*range.dim[i];
-			return j;
-		}
-
-		/** Convert an offset to a tensor cell into its corresponding index (as a TensorDim array) without checking its validity.
-
-			\param item	  The index of the tuple item.
-			\param offset The input offset
-			\param p_idx  A pointer to the TensorDim to return the result.
-		*/
-		inline void get_index(int item, int offset, int *p_idx) {
-			for (int i = 0; i < rank; i++) { p_idx[i] = offset/range.dim[i]; offset -= p_idx[i]*range.dim[i]; }
-		}
-
-	// Methods taken for Block to tuple items of strings:
-
-		/** Get a string from the tensor by index without checking index range.
-
-			\param item  The index of the tuple item.
-			\param p_idx A pointer to the TensorDim containing the index.
-
-			\return A pointer to where the (zero ended) string is stored in the Block.
+			\return The block stored in the tuple or nullptr for an invalid index.
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline char *get_string(int item, int *p_idx) {
-			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[get_offset(item, p_idx)]]);
-		}
-
-		/** Get a string from the tensor by offset without checking offset range.
-
-			\param item   The index of the tuple item.
-			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
-
-			\return A pointer to where the (zero ended) string is stored in the Block.
-
-			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
-		*/
-		inline char *get_string(int item, int offset)	 {
-			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_int[offset]]);
-		}
-
-		/** Set a string in the tensor, if there is enough allocation space to contain it, by index without checking index range.
-
-			\param item  The index of the tuple item.
-			\param p_idx A pointer to the TensorDim containing the index.
-			\param p_str A pointer to a (zero ended) string that will be allocated inside the Block.
-
-			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
-			typically immutable. jazz_alloc.h contains methods that make a Block bigger if that is necessary. This one doesn't.
-			The 100% safe way is creating a new block from the immutable one using jazz_alloc.h methods. Otherwise, use at your own
-			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
-			true, it doesn't even try to allocate.
-		*/
-		inline void set_string(int item, int *p_idx, const char *p_str) {
-			pStringBuffer psb = p_string_buffer();
-			tensor.cell_int[get_offset(item, p_idx)] = get_string_offset(psb, p_str);
-		}
-
-		/** Set a string in the tensor, if there is enough allocation space to contain it, by offset without checking offset range.
-
-			\param item   The index of the tuple item.
-			\param offset An offset corresponding to the cell as if the tensor was a linear vector.
-			\param p_str  A pointer to a (zero ended) string that will be allocated inside the Block.
-
-			NOTE: Allocation inside a Block is typically hard since they are created with "just enough space", a Block is
-			typically immutable. jazz_alloc.h contains methods that make a Block bigger if that is necessary. This one doesn't.
-			The 100% safe way is creating a new block from the immutable one using jazz_alloc.h methods. Otherwise, use at your own
-			risk or not at all. When this fails, it sets the variable alloc_failed in the StringBuffer. When alloc_failed is
-			true, it doesn't even try to allocate.
-		*/
-		inline void set_string(int item, int offset, const char *p_str) {
-			pStringBuffer psb = p_string_buffer();
-			tensor.cell_int[offset] = get_string_offset(psb, p_str);
+		inline pBlock block(int idx)	 {
+			if (idx < 0 | idx >= size)
+				return nullptr;
+			return (pBlock) ((uintptr_t) &tensor + tensor.cell_item[idx].data_start);
 		}
 
 	// Tuple/Kind specific methods:
