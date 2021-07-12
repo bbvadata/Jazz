@@ -137,14 +137,12 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define BLOCK_ATTRIB_
 
 #define BLOCK_ATTRIB_EMPTY		0			///< The block has no attributes
-#define BLOCK_ATTRIB_BLOCKTYPE	1			///< The fundamental block type (E.g., all tuples are tuple, filter exists, but table doesn't.)
-#define BLOCK_ATTRIB_TYPE		2			///< The name of the c++ class (Flux, Group, Table, ... but also Block or Kind)
-#define BLOCK_ATTRIB_KIND		3			///< The location of the kind (for tuples and descendants)
-#define BLOCK_ATTRIB_SOURCEKIND	4			///< The location of the source kind (for fields, fluxes and thing with two Kinds)
-#define BLOCK_ATTRIB_DESTKIND	5			///< The location of the destination kind (for fields, fluxes and thing with two Kinds)
-#define BLOCK_ATTRIB_MIMETYPE	6			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
-#define BLOCK_ATTRIB_URL		7			///< A url for the server to expose the file by.
-#define BLOCK_ATTRIB_LANGUAGE	8			///< An http language identifier that will be returned in a / interface GET call.
+#define BLOCK_ATTRIB_BLOCKTYPE	1			///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
+#define BLOCK_ATTRIB_SOURCE		2			///< The location of the source set by Channels, also Source of a Kind in Persisted
+#define BLOCK_ATTRIB_DEST		3			///< The location of the destination. Less frequent, but may help Channels for a PUT.
+#define BLOCK_ATTRIB_MIMETYPE	4			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
+#define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
+#define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
 
 /// Values for argument set_has_NA of finish_creation()
 #define SET_HAS_NA_
