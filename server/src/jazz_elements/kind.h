@@ -91,11 +91,13 @@ class Kind : public Block {
 
 			\param idx The index of the item.
 
-			\return A pointer to where the (zero ended) string is stored in the Block.
+			\return A pointer to where the (zero ended) string is stored in the Block or nullptr for an invalid index.
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *item_name(int idx)	 {
+			if (idx < 0 | idx >= size)
+				return nullptr;
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
 		}
 
