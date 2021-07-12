@@ -32,8 +32,6 @@
 */
 
 
-// #include <stl_whatever>
-
 #include "src/jazz_main/server.h"
 
 #if defined CATCH_TEST
