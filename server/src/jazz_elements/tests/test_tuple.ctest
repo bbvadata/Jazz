@@ -57,10 +57,10 @@ SCENARIO("Testing tuple") {
 		AttributeMap attr_kind = {}, attr_tuple = {};
 
 		attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
-		attr_kind[BLOCK_ATTRIB_TYPE]	  = (pChar) "Kind";
+		attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
 
 		attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "tuple";
-		attr_tuple[BLOCK_ATTRIB_TYPE]	   = (pChar) "Tuple";
+		attr_tuple[BLOCK_ATTRIB_SOURCE]	   = (pChar) "ThisTuple";
 
 		TensorDim image_640x480	= {16, 9, 3, 0, 0, 0};
 		TensorDim image_rgb		= {-640, -480, 3, 0, 0, 0};
@@ -76,16 +76,16 @@ SCENARIO("Testing tuple") {
 		dims[-999] = (pChar) "num_frames";
 
 		REQUIRE(p_kind1->new_kind(1, sizeof(Answer), attr_kind));
-		REQUIRE(p_kind1->add_item(0, 0, "buffer", image_640x480.dim, CELL_TYPE_BYTE, empty_dims));
+		REQUIRE(p_kind1->add_item(0, "buffer", image_640x480.dim, CELL_TYPE_BYTE, empty_dims));
 
 		REQUIRE(p_kind2->new_kind(2, sizeof(Answer), attr_kind));
-		REQUIRE(p_kind2->add_item(0, 0, "buffer", image_rgb.dim, CELL_TYPE_BYTE,   dims));
-		REQUIRE(p_kind2->add_item(1, 0, "title",  one_cell.dim,  CELL_TYPE_STRING, dims));
+		REQUIRE(p_kind2->add_item(0, "buffer", image_rgb.dim, CELL_TYPE_BYTE,   dims));
+		REQUIRE(p_kind2->add_item(1, "title",  one_cell.dim,  CELL_TYPE_STRING, dims));
 
 		REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr_kind));
-		REQUIRE(p_kind3->add_item(0, 1, "buffer", video_rgb.dim,   CELL_TYPE_BYTE,	  dims));
-		REQUIRE(p_kind3->add_item(1, 2, "audio",  audio_track.dim, CELL_TYPE_INTEGER, dims));
-		REQUIRE(p_kind3->add_item(2, 2, "title",  one_cell.dim,	   CELL_TYPE_STRING,  dims));
+		REQUIRE(p_kind3->add_item(0, "buffer", video_rgb.dim,   CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind3->add_item(1, "audio",  audio_track.dim, CELL_TYPE_INTEGER, dims));
+		REQUIRE(p_kind3->add_item(2, "title",  one_cell.dim,	   CELL_TYPE_STRING,  dims));
 
 		WHEN("Kind 1 passes .audit()") {
 			REQUIRE(p_kind1->audit() == KIND_TYPE_KIND);
@@ -103,7 +103,7 @@ SCENARIO("Testing tuple") {
 				REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
 
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
+				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
 				REQUIRE(p_kind1->num_dimensions() == 0);
 
@@ -125,18 +125,16 @@ SCENARIO("Testing tuple") {
 				REQUIRE(p_kind2->has_NA		  == false);
 
 				REQUIRE(p_kind2->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
-				REQUIRE(p_kind2->tensor.cell_item[0].level	   == 0);
 				REQUIRE(p_kind2->tensor.cell_item[0].rank	   == 3);
 
 				REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_kind2->tensor.cell_item[1].level	   == 0);
 				REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
 
 				REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
 				REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
 
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
+				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
 				REQUIRE(p_kind2->num_dimensions() == 2);
 
@@ -158,15 +156,12 @@ SCENARIO("Testing tuple") {
 				REQUIRE(p_kind3->has_NA		  == false);
 
 				REQUIRE(p_kind3->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
-				REQUIRE(p_kind3->tensor.cell_item[0].level	   == 1);
 				REQUIRE(p_kind3->tensor.cell_item[0].rank	   == 4);
 
 				REQUIRE(p_kind3->tensor.cell_item[1].cell_type == CELL_TYPE_INTEGER);
-				REQUIRE(p_kind3->tensor.cell_item[1].level	   == 2);
 				REQUIRE(p_kind3->tensor.cell_item[1].rank	   == 2);
 
 				REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_kind3->tensor.cell_item[2].level	   == 2);
 				REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
 
 				REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
@@ -174,7 +169,7 @@ SCENARIO("Testing tuple") {
 				REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
 
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_TYPE),		 "Kind"));
+				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
 				REQUIRE(p_kind3->num_dimensions() == 3);
 
