@@ -81,7 +81,7 @@ Creating Tuples
 ---------------
 
 More advanced Tuple functionalities (including other ways of creating tuples) can be done by Containers. This class, has a minimum
-functionality to build Tuples: new_tuple() to do the basic building. It includes creating Tuples from other Tuples by appending the names.
+functionality to build Tuples: new_tuple() to do the basic building. It does not includes creating Tuples from other Tuples by appending the names.
 
 Using Tuples
 ------------
@@ -112,10 +112,73 @@ class Tuple : public Block {
 			\return			 0, SERVICE_ERROR_NO_MEM, SERVICE_ERROR_WRONG_TYPE, SERVICE_ERROR_WRONG_NAME, SERVICE_ERROR_WRONG_ARGUMENTS
 		*/
 		inline StatusCode new_tuple (int	 num_items,
-									 Blocks *p_blocks,
+									 Blocks &blocks,
 									 pNames  p_names,
 									 int	 num_bytes,
 									 AttributeMap &attr) {
+
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*8;
+
+			if (num_bytes < rq_sz)
+				return SERVICE_ERROR_NO_MEM;
+
+			memset(&cell_type, 0, rq_sz);
+
+			cell_type	 = CELL_TYPE_TUPLE_ITEM;
+			rank		 = 1;
+			range.dim[0] = 1;
+			size		 = num_items;
+			total_bytes	 = num_bytes;
+
+			set_attributes(&attr);
+
+			pStringBuffer psb = p_string_buffer();
+
+			for (int i = 0; i < num_items; i++) {
+				pBlock p_block = blocks[i];
+				if (p_block == nullptr) return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				ItemHeader *p_it_hea = &tensor.cell_item[i];
+
+				if (p_block->cell_type && 0xff > 8)
+					return SERVICE_ERROR_WRONG_TYPE;
+
+				pChar p_name = (pChar) &p_names->name[i];
+
+				if (!valid_name(p_name))
+					return SERVICE_ERROR_WRONG_NAME;
+
+				p_it_hea->cell_type = p_block->cell_type;
+				p_it_hea->name		= get_string_offset(psb, p_name);
+				p_it_hea->rank		= p_block->rank;
+				memcpy(p_it_hea->dim, p_block->range.dim, sizeof(TensorDim));
+
+				if (p_it_hea->name <= STRING_EMPTY)
+					return SERVICE_ERROR_NO_MEM;
+			}
+
+			int *p_dest = align_128bit((uintptr_t) &psb->buffer[psb->last_idx]);
+
+			if ((uintptr_t) p_dest - (uintptr_t) &cell_type > num_bytes)
+				return SERVICE_ERROR_NO_MEM;
+
+			psb->buffer_size = (uintptr_t) p_dest - ((uintptr_t) &psb->buffer[0]);
+
+			for (int i = 0; i < num_items; i++) {
+				pBlock p_block = blocks[i];
+				ItemHeader *p_it_hea = &tensor.cell_item[i];
+
+				p_it_hea->data_start = (uintptr_t) p_dest - (uintptr_t) &tensor;
+
+				if ((uintptr_t) p_dest - (uintptr_t) &cell_type + p_block->total_bytes > num_bytes)
+					return SERVICE_ERROR_NO_MEM;
+
+				memcpy(p_dest, p_block, p_block->total_bytes);
+
+				p_dest = align_128bit((uintptr_t) p_dest + p_block->total_bytes);
+			}
+
+			return SERVICE_NO_ERROR;
 		}
 
 	// Methods on Tuple items:
