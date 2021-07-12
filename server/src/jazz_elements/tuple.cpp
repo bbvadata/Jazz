@@ -44,8 +44,26 @@ namespace jazz_elements
 */
 int Tuple::audit()
 {
+	if (cell_type != CELL_TYPE_TUPLE_ITEM | size <= 0)
+		return MIXED_TYPE_INVALID;
 
-	return MIXED_TYPE_INVALID;
+	for (int i = 0; i < size; i++) {
+		ItemHeader *p_it_hea = &tensor.cell_item[i];
+
+		if (  p_it_hea->cell_type <= 0 | p_it_hea->rank < 1 | p_it_hea->rank > MAX_TENSOR_RANK
+		    | p_it_hea->name <= STRING_EMPTY | p_it_hea->data_start <= 0)
+				return MIXED_TYPE_INVALID;
+
+		if (!valid_name(&p_string_buffer()->buffer[p_it_hea->name]))
+			return MIXED_TYPE_INVALID;
+
+		for (int j = 0; j < p_it_hea->rank; j++) {
+			if (p_it_hea->dim[j] < 0)
+				return MIXED_TYPE_INVALID;
+		}
+	}
+
+	return MIXED_TYPE_KIND;
 }
 
 } // namespace jazz_elements
