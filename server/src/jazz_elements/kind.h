@@ -54,7 +54,7 @@
 namespace jazz_elements
 {
 
-/** \brief Kind: A type definition for complex Jazz objects.
+/** \brief Kind: A type definition for Jazz Blocks and Tuples.
 
 Kind objects contain the metadata only. A Tuple is a data object of a Kind. Kinds define more complex types than (raw) Blocks, even if
 they are blocks. E.g., A Block can store a video of a fixed shape (image only or soundtrack only). A Kind can store both and have
@@ -64,7 +64,7 @@ strings.
 It is a block with special attributes to store an array of Tensor. A Kind is a single Block! A kind has **dimensions** which are integer
 variables that are used to define variable shapes.
 
-Technically, a kind is a Block of type CELL_TYPE_KIND_ITEM. Each item contains data (is a Tensor).
+Technically, a Kind is a Block of type CELL_TYPE_KIND_ITEM. Each item contains the Tensor metadata.
 
 Since kinds keep only metadata, the space, unlike in Tuples, is uninterrupted as in a normal block: (header, vector of CELL_TYPE_KIND_ITEM,
 attribute keys, StringBuffer).
@@ -79,7 +79,7 @@ build by parts: new_kind(), add_item() to do the basic building. It also has fun
 
 Also, kinds should define, these attributes, but that is left to the Container:
 
-- BLOCK_ATTRIB_BLOCKTYPE as the const "kind"
+- BLOCK_ATTRIB_BLOCKTYPE as the const "Kind"
 - BLOCK_ATTRIB_SOURCE as the location where the definition of the Kind can be found. Kind names are global.
 
 */
@@ -153,7 +153,7 @@ class Kind : public Block {
 			}
 		}
 
-		/** Initializes a Kind object (step 1): Allocates the space.
+		/** Initializes a Kind object (step 1): Initializes the space.
 
 			\param num_items The number of items the Kind will have. This call must be followed by one add_item() for each of them.
 			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
