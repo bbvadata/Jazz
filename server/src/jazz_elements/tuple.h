@@ -32,7 +32,7 @@
 */
 
 
-// #include <stl_whatever>
+#include <map>
 
 
 #include "src/jazz_elements/kind.h"
@@ -216,8 +216,38 @@ class Tuple : public Block {
 			\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
 		*/
 		inline bool is_a(pKind kind) {
+			if (kind->cell_type != CELL_TYPE_KIND_ITEM | kind->size != size)
+				return false;
 
-			return 0;
+			std::map<std::string, int> dimension;
+
+			for (int i = 0; i < size; i++) {
+				if (  kind->tensor.cell_item[i].cell_type != tensor.cell_item[i].cell_type
+					| kind->tensor.cell_item[i].rank	  != tensor.cell_item[i].rank)
+					return false;
+
+				if (strcmp(kind->item_name(i), item_name(i)))
+					return false;
+
+				for (int j = 0; j < tensor.cell_item[i].rank; j++) {
+					int d_k = kind->tensor.cell_item[i].dim[j];
+
+					if (d_k < 0) {
+						std::string dim_name(kind->get_string(-d_k));
+						if (dimension.count(dim_name)) {
+							if (dimension[dim_name] != tensor.cell_item[i].dim[j])
+								return false;
+						} else {
+							dimension[dim_name] = tensor.cell_item[i].dim[j];
+						}
+					} else {
+						if (d_k != tensor.cell_item[i].dim[j])
+							return false;
+					}
+				}
+			}
+
+			return true;
 		}
 
 		inline int audit();
