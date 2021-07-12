@@ -61,6 +61,9 @@ int Kind::audit()
 			return MIXED_TYPE_INVALID;
 
 		items.insert(p_it_hea->name);
+
+		if (!valid_name(&p_string_buffer()->buffer[p_it_hea->name]))
+			return MIXED_TYPE_INVALID;
 	}
 
 	for (int i = 0; i < size; i++) {
@@ -70,6 +73,9 @@ int Kind::audit()
 			int k = p_it_hea->dim[j];
 			if (k < 0) {
 				if (items.find(-k) != items.end())
+					return MIXED_TYPE_INVALID;
+
+				if (!valid_name(&p_string_buffer()->buffer[-k]))
 					return MIXED_TYPE_INVALID;
 			}
 		}

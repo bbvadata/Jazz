@@ -53,8 +53,9 @@ SCENARIO("Testing kind") {
 		Name nam_height	= "height";
 		Name nam_buffer	= "buffer";
 		Name nam_title	= "title";
+		Name nam_title_	= "_title";
 		Name nam_wave	= "wave";
-		Name nam_frame	= "frame";
+		Name nam_frame	= "frame.2";
 
 		TensorDim one_cell	= {1, 0, 0, 0, 0, 0};
 		TensorDim vector_10	= {10, 0, 0, 0, 0, 0};
@@ -78,7 +79,7 @@ SCENARIO("Testing kind") {
 		dims[-480] = (const char *) &nam_height;
 
 		REQUIRE(p_kind2->add_item(0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE,	  dims));
-		REQUIRE(p_kind2->add_item(1, nam_title,	one_cell.dim,  CELL_TYPE_STRING, dims));
+		REQUIRE(p_kind2->add_item(1, nam_title_, one_cell.dim,  CELL_TYPE_STRING, dims));
 
 		REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr));
 
@@ -144,7 +145,7 @@ SCENARIO("Testing kind") {
 		}
 
 		WHEN("Kind 2 passes .audit()") {
-			REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
+			REQUIRE(p_kind2->audit() == MIXED_TYPE_INVALID);
 
 			THEN("We can check a few types") {
 				REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
@@ -160,7 +161,7 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
 
 				REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
-				REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
+				REQUIRE(!strcmp(p_kind2->item_name(1), "_title"));
 				REQUIRE(p_kind2->item_name( 2) == nullptr);
 				REQUIRE(p_kind2->item_name(-1) == nullptr);
 
@@ -177,7 +178,7 @@ SCENARIO("Testing kind") {
 		}
 
 		WHEN("Kind 3 passes .audit()") {
-			REQUIRE(p_kind3->audit() == MIXED_TYPE_KIND);
+			REQUIRE(p_kind3->audit() == MIXED_TYPE_INVALID);
 
 			THEN("We can check a few types") {
 				REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
@@ -210,7 +211,7 @@ SCENARIO("Testing kind") {
 				Answer ans;
 
 				p_kind3->dimension_names(&ans);
-				REQUIRE(!strcmp(ans.text, "frame,width,height"));
+				REQUIRE(!strcmp(ans.text, "frame.2,width,height"));
 			}
 		}
 
