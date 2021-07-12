@@ -61,28 +61,26 @@ they are blocks. E.g., A Block can store a video of a fixed shape (image only or
 **dimensions** defining things like: image_width, image_height, number_of_frames and, possibly, a subtitle track as another vector of
 strings.
 
-It is a block with special attributes to store a tree of (primitive type, block, kind). A Kind is a single Block! A kind has **dimensions**
-which are integer variables that are used to define variable shapes.
+It is a block with special attributes to store an array of Tensor. A Kind is a single Block! A kind has **dimensions** which are integer
+variables that are used to define variable shapes.
 
-Technically, a kind is a Block of type CELL_TYPE_KIND_ITEM. Each item contains data (is a Tensor). Even if kinds extend other kinds, only
-the leaves of the tree (the tensors) are included in the resulting kind with the appropriate level. See TensorDim.
+Technically, a kind is a Block of type CELL_TYPE_KIND_ITEM. Each item contains data (is a Tensor).
 
 Since kinds keep only metadata, the space, unlike in Tuples, is uninterrupted as in a normal block: (header, vector of CELL_TYPE_KIND_ITEM,
 attribute keys, StringBuffer).
 
-The StringBuffer contains the item names and dimension names. See TensorDim.
+The StringBuffer contains the item names and dimension names.
 
 Creating Kinds
 --------------
 
-Many Kind functionalities (including creating kinds and creating kinds from merging kinds) are done by Containers. This object, nevetheless
-has a minimum of functionality to build by parts: new_kind(), add_item() to do the basic building which will be called by the
-Container. It also has function to check the content and validate a kind.
+More advanced Kind functionalities (including creating kinds) can be done by Containers. This object, has a minimum of functionality to
+build by parts: new_kind(), add_item() to do the basic building. It also has function to check the content and validate a Kind.
 
-Also, kinds should define, these attributes, but that it left to the Container:
+Also, kinds should define, these attributes, but that is left to the Container:
 
 - BLOCK_ATTRIB_BLOCKTYPE as the const "kind"
-- BLOCK_ATTRIB_TYPE as the const "Kind"
+- BLOCK_ATTRIB_SOURCE as the location where the definition of the Kind can be found. Kind names are global.
 
 */
 class Kind : public Block {
@@ -159,7 +157,7 @@ class Kind : public Block {
 
 			\param num_items The number of items the Kind will have. This call must be followed by one add_item() for each of them.
 			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
-			\param attr		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or BLOCK_ATTRIB_TYPE.
+			\param attr		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
 
 			\return			 False on error (insufficient alloc size for a very conservative minimum).
 		*/
@@ -187,7 +185,6 @@ class Kind : public Block {
 		/** Initializes a Kind object (step 2): Adds each of the items.
 
 			\param idx		 The index of the items to add. Must be in range [0..num_items-1] of the previous new_kind() call.
-			\param level	 The level of the item in the Kind (Allows to create a tree structure. All == 0 is okay.)
 			\param p_name	 The name of the item.
 			\param p_dim	 The shape of the item. Rank will be set automatically on the first zero.
 			\param cell_type The cell type of the item.
@@ -204,7 +201,6 @@ class Kind : public Block {
 		together with their names.
 		*/
 		inline bool add_item (int			idx,
-							  int			level,
 			   				  char const   *p_name,
 							  int		   *p_dim,
 							  int			cell_type,
@@ -244,7 +240,6 @@ class Kind : public Block {
 
 			p_it_hea->cell_type = cell_type;
 			p_it_hea->rank		= rank;
-			p_it_hea->level		= level;
 
 			return true;
 		}
