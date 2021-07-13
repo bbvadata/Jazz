@@ -40,142 +40,345 @@ using namespace jazz_elements;
 
 SCENARIO("Testing tuple") {
 
-	GIVEN("We have some kinds and tuples") {
-		Answer k1, k2, k3, k4;
+	char buff0[16384], buff1[16384], buff2[16384], buff3[16384], buff4[16384];
 
-		pKind p_kind1 = (pKind) &k1, p_kind2 = (pKind) &k2, p_kind3 = (pKind) &k3, p_kind4 = (pKind) &k4;
+	pBlock p_bl1 = (pBlock) &buff0, p_bl2 = (pBlock) &buff1, p_bl3 = (pBlock) &buff2, p_bl4 = (pBlock) &buff3, p_bl5 = (pBlock) &buff4;
 
-		Answer t1, t2, t3, t4, t5, t6, t7, t8, t9;
+	char buff5[65536], buff6[65536], buff7[65536], buff8[65536], buff9[65536], buff10[65536];
 
-		pTuple p_tup1 = (pTuple) &t1, p_tup2 = (pTuple) &t2, p_tup3 = (pTuple) &t3;
-		pTuple p_tup4 = (pTuple) &t4, p_tup5 = (pTuple) &t5, p_tup6 = (pTuple) &t6;
-		pTuple p_tup7 = (pTuple) &t7, p_tup8 = (pTuple) &t8, p_tup9 = (pTuple) &t9;
+	pTuple p_tup1 = (pTuple) &buff5, p_tup2 = (pTuple) &buff6, p_tup3 = (pTuple) &buff7;
+	pTuple p_tup4 = (pTuple) &buff8, p_tup5 = (pTuple) &buff9, p_tup6 = (pTuple) &buff10;
 
-		AttributeMap attr_kind = {}, attr_tuple = {};
+	Answer k1, k2, k3;
 
-		attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
-		attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
+	pKind p_kind1 = (pKind) &k1, p_kind2 = (pKind) &k2, p_kind3 = (pKind) &k3;
 
-		attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "tuple";
-		attr_tuple[BLOCK_ATTRIB_SOURCE]	   = (pChar) "ThisTuple";
+	TensorDim image_fixed = {16, 9, 3, 0, 0, 0};
+	TensorDim image_var	  = {-640, -480, 3, 0, 0, 0};
+	TensorDim image_sol1  = {32, 16, 3, 0, 0, 0};
+	TensorDim video_var	  = {-999, -640, -480, 3, 0, 0};
+	TensorDim video_sol1  = {21, 17, 11, 3, 0, 0};
+	TensorDim audio_var	  = {-999, 40, 0, 0, 0, 0};
+	TensorDim audio_sol1  = {21, 40, 0, 0, 0, 0};
+	TensorDim title		  = {1, 0, 0, 0, 0, 0};
 
-		TensorDim image_640x480	= {16, 9, 3, 0, 0, 0};
-		TensorDim image_rgb		= {-640, -480, 3, 0, 0, 0};
-		TensorDim video_rgb		= {-999, -640, -480, 3, 0, 0};
-		TensorDim audio_track	= {-999, 40, 0, 0, 0, 0};
+	AttributeMap dims  = {};
 
-		TensorDim one_cell		= {1, 0, 0, 0, 0, 0};
+	dims[-640] = (pChar) "width";
+	dims[-480] = (pChar) "height";
+	dims[-999] = (pChar) "num_frames";
 
-		AttributeMap empty_dims = {}, dims  = {};
+	// Build the blocks
 
-		dims[-640] = (pChar) "width";
-		dims[-480] = (pChar) "height";
-		dims[-999] = (pChar) "num_frames";
+	AttributeMap attr_block = {}, attr_title = {};
 
-		REQUIRE(p_kind1->new_kind(1, sizeof(Answer), attr_kind));
-		REQUIRE(p_kind1->add_item(0, "buffer", image_640x480.dim, CELL_TYPE_BYTE, empty_dims));
+	attr_block[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "Tensor";
+	attr_block[BLOCK_ATTRIB_MIMETYPE]  = (pChar) "Small pic";
 
-		REQUIRE(p_kind2->new_kind(2, sizeof(Answer), attr_kind));
-		REQUIRE(p_kind2->add_item(0, "buffer", image_rgb.dim, CELL_TYPE_BYTE,   dims));
-		REQUIRE(p_kind2->add_item(1, "title",  one_cell.dim,  CELL_TYPE_STRING, dims));
+	attr_title[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "Tensor";
+	attr_title[BLOCK_ATTRIB_MIMETYPE]  = (pChar) "UTF8 text";
+	attr_title[BLOCK_ATTRIB_LANGUAGE]  = (pChar) "en-us";
 
-		REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr_kind));
-		REQUIRE(p_kind3->add_item(0, "buffer", video_rgb.dim,   CELL_TYPE_BYTE,	  dims));
-		REQUIRE(p_kind3->add_item(1, "audio",  audio_track.dim, CELL_TYPE_INTEGER, dims));
-		REQUIRE(p_kind3->add_item(2, "title",  one_cell.dim,	   CELL_TYPE_STRING,  dims));
+	p_bl1->cell_type = CELL_TYPE_BYTE;
 
-		WHEN("Kind 1 passes .audit()") {
-			REQUIRE(p_kind1->audit() == MIXED_TYPE_KIND);
+	p_bl1->size			  = 0;
+	p_bl1->num_attributes = 0;
+	p_bl1->total_bytes	  = 8192;
 
-			THEN("We can check a few things") {
-				REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
-				REQUIRE(p_kind1->rank		  == 1);
-				REQUIRE(p_kind1->range.dim[0] == 1);
-				REQUIRE(p_kind1->size		  == 1);
-				REQUIRE(p_kind1->has_NA		  == false);
+	p_bl1->set_dimensions(image_fixed.dim);
 
-				REQUIRE(p_kind1->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
-				REQUIRE(p_kind1->tensor.cell_item[0].rank	   == 3);
+	p_bl1->tensor.cell_byte[0]	 = 0xCA;
+	p_bl1->tensor.cell_byte[431] = 0xFE;
 
-				REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
+	p_bl1->set_attributes(&attr_block);
 
-				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+	p_bl2->cell_type = CELL_TYPE_BYTE;
 
-				REQUIRE(p_kind1->num_dimensions() == 0);
+	p_bl2->size			  = 0;
+	p_bl2->num_attributes = 0;
+	p_bl2->total_bytes	  = 8192;
 
-				Answer ans;
+	p_bl2->set_dimensions(image_sol1.dim);
 
-				p_kind1->dimension_names(&ans);
-				REQUIRE(ans.text[0] == 0);
-			}
-		}
+	p_bl2->tensor.cell_byte[0]	  = 0xCA;
+	p_bl2->tensor.cell_byte[431]  = 0xBA;
+	p_bl2->tensor.cell_byte[1535] = 0xFE;
 
-		WHEN("Kind 2 passes .audit()") {
-			REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
+	p_bl2->set_attributes(&attr_block);
 
-			THEN("We can check a few types") {
-				REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
-				REQUIRE(p_kind2->rank		  == 1);
-				REQUIRE(p_kind2->range.dim[0] == 1);
-				REQUIRE(p_kind2->size		  == 2);
-				REQUIRE(p_kind2->has_NA		  == false);
+	p_bl3->cell_type = CELL_TYPE_BYTE;
 
-				REQUIRE(p_kind2->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
-				REQUIRE(p_kind2->tensor.cell_item[0].rank	   == 3);
+	p_bl3->size			  = 0;
+	p_bl3->num_attributes = 0;
+	p_bl3->total_bytes	  = 16384;
 
-				REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
+	p_bl3->set_dimensions(video_sol1.dim);
 
-				REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
-				REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
+	p_bl3->tensor.cell_byte[0]	   = 0xCA;
+	p_bl3->tensor.cell_byte[431]   = 0xBA;
+	p_bl3->tensor.cell_byte[1535]  = 0xBE;
+	p_bl3->tensor.cell_byte[11780] = 0xFE;
 
-				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+	p_bl3->init_string_buffer();
 
-				REQUIRE(p_kind2->num_dimensions() == 2);
+	p_bl4->cell_type = CELL_TYPE_INTEGER;
 
-				Answer ans;
+	p_bl4->size			  = 0;
+	p_bl4->num_attributes = 0;
+	p_bl4->total_bytes	  = 2048;
 
-				p_kind2->dimension_names(&ans);
-				REQUIRE(!strcmp(ans.text, "width,height"));
-			}
-		}
+	p_bl4->set_dimensions(audio_sol1.dim);
 
-		WHEN("Kind 3 passes .audit()") {
-			REQUIRE(p_kind3->audit() == MIXED_TYPE_KIND);
+	p_bl4->tensor.cell_int[0]	= 0xCAFE;
+	p_bl4->tensor.cell_int[839]	= 0xBABE;
 
-			THEN("We can check a few types") {
-				REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
-				REQUIRE(p_kind3->rank		  == 1);
-				REQUIRE(p_kind3->range.dim[0] == 1);
-				REQUIRE(p_kind3->size		  == 3);
-				REQUIRE(p_kind3->has_NA		  == false);
+	p_bl4->init_string_buffer();
 
-				REQUIRE(p_kind3->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
-				REQUIRE(p_kind3->tensor.cell_item[0].rank	   == 4);
+	p_bl5->cell_type = CELL_TYPE_STRING;
 
-				REQUIRE(p_kind3->tensor.cell_item[1].cell_type == CELL_TYPE_INTEGER);
-				REQUIRE(p_kind3->tensor.cell_item[1].rank	   == 2);
+	p_bl5->size			  = 0;
+	p_bl5->num_attributes = 0;
+	p_bl5->total_bytes	  = 4096;
 
-				REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
+	p_bl5->set_dimensions(title.dim);
 
-				REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
-				REQUIRE(!strcmp(p_kind3->item_name(1), "audio"));
-				REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
+	p_bl5->set_attributes(&attr_title);
+	p_bl5->set_string(0, "[PIRATE COPY] Game of Thrones");
 
-				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+	// Check the blocks
 
-				REQUIRE(p_kind3->num_dimensions() == 3);
+	REQUIRE(p_bl1->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_bl1->rank == 3);
+	REQUIRE(p_bl1->size == 432);
+	REQUIRE(p_bl1->total_bytes == 8192);
+	REQUIRE(p_bl1->num_attributes == 2);
+	REQUIRE(p_bl1->tensor.cell_byte[0]	 == 0xCA);
+	REQUIRE(p_bl1->tensor.cell_byte[431] == 0xFE);
+	REQUIRE(!strcmp(p_bl1->find_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
 
-				Answer ans;
+	REQUIRE(p_bl2->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_bl2->rank == 3);
+	REQUIRE(p_bl2->size == 1536);
+	REQUIRE(p_bl2->total_bytes == 8192);
+	REQUIRE(p_bl2->num_attributes == 2);
+	REQUIRE(p_bl2->tensor.cell_byte[0]	  == 0xCA);
+	REQUIRE(p_bl2->tensor.cell_byte[431]  == 0xBA);
+	REQUIRE(p_bl2->tensor.cell_byte[1535] == 0xFE);
+	REQUIRE(!strcmp(p_bl2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
 
-				p_kind3->dimension_names(&ans);
-				REQUIRE(!strcmp(ans.text, "num_frames,width,height"));
-			}
-		}
-	}
+	REQUIRE(p_bl3->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_bl3->rank == 4);
+	REQUIRE(p_bl3->size == 11781);
+	REQUIRE(p_bl3->total_bytes == 16384);
+	REQUIRE(p_bl3->num_attributes == 0);
+	REQUIRE(p_bl3->tensor.cell_byte[0]	   == 0xCA);
+	REQUIRE(p_bl3->tensor.cell_byte[431]   == 0xBA);
+	REQUIRE(p_bl3->tensor.cell_byte[1535]  == 0xBE);
+	REQUIRE(p_bl3->tensor.cell_byte[11780] == 0xFE);
+
+	REQUIRE(p_bl4->cell_type == CELL_TYPE_INTEGER);
+	REQUIRE(p_bl4->rank == 2);
+	REQUIRE(p_bl4->size == 840);
+	REQUIRE(p_bl4->total_bytes == 2048);
+	REQUIRE(p_bl4->num_attributes == 0);
+	REQUIRE(p_bl4->tensor.cell_int[0]	== 0xCAFE);
+	REQUIRE(p_bl4->tensor.cell_int[839] == 0xBABE);
+
+	REQUIRE(p_bl5->cell_type == CELL_TYPE_STRING);
+	REQUIRE(p_bl5->rank == 1);
+	REQUIRE(p_bl5->size == 1);
+	REQUIRE(p_bl5->total_bytes == 4096);
+	REQUIRE(p_bl5->num_attributes == 3);
+	REQUIRE(!strcmp(p_bl5->find_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(p_bl5->find_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(p_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
+
+	// Build the kinds
+
+	AttributeMap attr_kind = {}, empty_map = {};
+
+	attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
+	attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
+
+	REQUIRE(p_kind1->new_kind(1, sizeof(Answer), attr_kind));
+	REQUIRE(p_kind1->add_item(0, "buffer", image_fixed.dim, CELL_TYPE_BYTE, empty_map));
+
+	REQUIRE(p_kind2->new_kind(2, sizeof(Answer), attr_kind));
+	REQUIRE(p_kind2->add_item(0, "buffer", image_var.dim, CELL_TYPE_BYTE,	dims));
+	REQUIRE(p_kind2->add_item(1, "title",  title.dim,	  CELL_TYPE_STRING, dims));
+
+	REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr_kind));
+	REQUIRE(p_kind3->add_item(0, "buffer", video_var.dim, CELL_TYPE_BYTE,	 dims));
+	REQUIRE(p_kind3->add_item(1, "audio",  audio_var.dim, CELL_TYPE_INTEGER, dims));
+	REQUIRE(p_kind3->add_item(2, "title",  title.dim,	  CELL_TYPE_STRING,  dims));
+
+	// Check the kinds
+
+	REQUIRE(p_kind1->audit() == MIXED_TYPE_KIND);
+
+	REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind1->rank		  == 1);
+	REQUIRE(p_kind1->range.dim[0] == 1);
+	REQUIRE(p_kind1->size		  == 1);
+	REQUIRE(p_kind1->has_NA		  == false);
+
+	REQUIRE(p_kind1->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_kind1->tensor.cell_item[0].rank	   == 3);
+
+	REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
+
+	REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+
+	REQUIRE(p_kind1->num_dimensions() == 0);
+
+	REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
+
+	REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind2->rank		  == 1);
+	REQUIRE(p_kind2->range.dim[0] == 1);
+	REQUIRE(p_kind2->size		  == 2);
+	REQUIRE(p_kind2->has_NA		  == false);
+
+	REQUIRE(p_kind2->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_kind2->tensor.cell_item[0].rank	   == 3);
+
+	REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+	REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
+
+	REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
+
+	REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+
+	REQUIRE(p_kind2->num_dimensions() == 2);
+
+	REQUIRE(p_kind3->audit() == MIXED_TYPE_KIND);
+
+	REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind3->rank		  == 1);
+	REQUIRE(p_kind3->range.dim[0] == 1);
+	REQUIRE(p_kind3->size		  == 3);
+	REQUIRE(p_kind3->has_NA		  == false);
+
+	REQUIRE(p_kind3->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_kind3->tensor.cell_item[0].rank	   == 4);
+
+	REQUIRE(p_kind3->tensor.cell_item[1].cell_type == CELL_TYPE_INTEGER);
+	REQUIRE(p_kind3->tensor.cell_item[1].rank	   == 2);
+
+	REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
+	REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
+
+	REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_kind3->item_name(1), "audio"));
+	REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
+
+	REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+
+	REQUIRE(p_kind3->num_dimensions() == 3);
+
+	// Build the tuples
+
+	Name tup_fix[] = {"buffer"};
+	Name tup_pic[] = {"buffer", "title"};
+	Name tup_pcc[] = {"buffer", "title", "more"};
+	Name tup_vid[] = {"buffer", "audio", "title"};
+	Name tup_oth[] = {"pic", "buffer", "audio", "title"};
+	pBlock blocks[4];
+
+	AttributeMap attr_tuple = {};
+
+	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "tuple";
+	attr_tuple[BLOCK_ATTRIB_SOURCE]	   = (pChar) "ThisTuple";
+
+	// p_bl1->set_dimensions(image_fixed.dim);
+	// p_bl2->set_dimensions(image_sol1.dim);
+	// p_bl3->set_dimensions(video_sol1.dim);
+	// p_bl4->set_dimensions(audio_sol1.dim);
+	// p_bl5->set_dimensions(title.dim);
+
+	blocks[0] = p_bl1;
+	REQUIRE(p_tup1->new_tuple(1, blocks, tup_fix, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup1->item_name(0), "buffer"));
+	REQUIRE(p_tup1->item_name( 1) == nullptr);
+	REQUIRE(p_tup1->item_name(-1) == nullptr);
+	REQUIRE(p_tup1->block( 1) == nullptr);
+	REQUIRE(p_tup1->block(-1) == nullptr);
+	REQUIRE(p_tup1->is_a(p_kind1));
+	REQUIRE(p_tup1->audit() == MIXED_TYPE_KIND);
+
+	blocks[0] = p_bl2;
+	REQUIRE(p_tup2->new_tuple(1, blocks, tup_fix, 65536, empty_map) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup2->item_name(0), "buffer"));
+	REQUIRE(p_tup2->item_name( 1) == nullptr);
+	REQUIRE(p_tup2->item_name(-1) == nullptr);
+	REQUIRE(p_tup2->block( 1) == nullptr);
+	REQUIRE(p_tup2->block(-1) == nullptr);
+	REQUIRE(!p_tup2->is_a(p_kind1));
+	REQUIRE(p_tup2->audit() == MIXED_TYPE_KIND);
+
+	blocks[1] = p_bl5;
+	REQUIRE(p_tup3->new_tuple(2, blocks, tup_pic, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup3->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_tup3->item_name(1), "title"));
+	REQUIRE(p_tup3->item_name( 2) == nullptr);
+	REQUIRE(p_tup3->item_name(-1) == nullptr);
+	REQUIRE(p_tup3->block( 2) == nullptr);
+	REQUIRE(p_tup3->block(-1) == nullptr);
+	REQUIRE(p_tup3->is_a(p_kind2));
+	REQUIRE(p_tup3->audit() == MIXED_TYPE_KIND);
+
+	blocks[2] = p_bl5;
+	REQUIRE(p_tup4->new_tuple(3, blocks, tup_pcc, 65536, empty_map) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup4->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_tup4->item_name(1), "title"));
+	REQUIRE(!strcmp(p_tup4->item_name(2), "more"));
+	REQUIRE(p_tup4->item_name( 3) == nullptr);
+	REQUIRE(p_tup4->item_name(-1) == nullptr);
+	REQUIRE(p_tup4->block( 3) == nullptr);
+	REQUIRE(p_tup4->block(-1) == nullptr);
+	REQUIRE(!p_tup4->is_a(p_kind2));
+	REQUIRE(p_tup4->audit() == MIXED_TYPE_KIND);
+
+	blocks[0] = p_bl3;
+	blocks[1] = p_bl4;
+	blocks[2] = p_bl5;
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup5->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_tup5->item_name(1), "audio"));
+	REQUIRE(!strcmp(p_tup5->item_name(2), "title"));
+	REQUIRE(p_tup5->item_name( 3) == nullptr);
+	REQUIRE(p_tup5->item_name(-1) == nullptr);
+	REQUIRE(p_tup5->block( 3) == nullptr);
+	REQUIRE(p_tup5->block(-1) == nullptr);
+	REQUIRE(p_tup5->is_a(p_kind3));
+	REQUIRE(p_tup5->audit() == MIXED_TYPE_KIND);
+
+	blocks[0] = p_bl2;
+	blocks[1] = p_bl3;
+	blocks[2] = p_bl4;
+	blocks[3] = p_bl5;
+	REQUIRE(p_tup6->new_tuple(4, blocks, tup_oth, 65536, empty_map) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup6->item_name(0), "pic"));
+	REQUIRE(!strcmp(p_tup6->item_name(1), "buffer"));
+	REQUIRE(!strcmp(p_tup6->item_name(2), "audio"));
+	REQUIRE(!strcmp(p_tup6->item_name(3), "title"));
+	REQUIRE(p_tup6->item_name( 4) == nullptr);
+	REQUIRE(p_tup6->item_name(-1) == nullptr);
+	REQUIRE(p_tup6->block( 4) == nullptr);
+	REQUIRE(p_tup6->block(-1) == nullptr);
+	REQUIRE(!p_tup6->is_a(p_kind3));
+	REQUIRE(p_tup6->audit() == MIXED_TYPE_KIND);
+
+
+
 }
-
