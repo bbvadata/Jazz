@@ -101,7 +101,7 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define CELL_TYPE_TIME			0x108		///< A tensor of 64-bit TimePoint. NA is TIME_POINT_NA
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
 
-// 64 bit cell types
+// 40 byte cell types
 #define CELL_TYPE_TUPLE_ITEM	0x028		///< A vector of ItemHeader (in a Tuple)
 #define CELL_TYPE_KIND_ITEM		0x128		///< A vector of ItemHeader (in a Kind)
 
@@ -164,15 +164,7 @@ Names are vanilla ASCII NAME_SIZE - 1 long string starting with a letter and con
 They can be validated using the function valid_name() or the regex REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
-
-/// An array of Item names (used to select items in a Tuple).
-struct Names {
-	Name name[0];		///< The item names. First zero breaks.
-};
-
-typedef char  *pChar;
-typedef Name  *pName;
-typedef Names *pNames;
+typedef char *pChar;
 
 
 /** \brief Another way to describe a TensorDim to make filtering syntactically nicer.
