@@ -147,7 +147,7 @@ class Tuple : public Block {
 				p_it_hea->cell_type = p_block->cell_type;
 				p_it_hea->name		= get_string_offset(psb, p_name);
 				p_it_hea->rank		= p_block->rank;
-				memcpy(p_it_hea->dim, p_block->range.dim, sizeof(TensorDim));
+				p_block->get_dimensions((int *) &p_it_hea->dim);
 
 				if (p_it_hea->name <= STRING_EMPTY)
 					return SERVICE_ERROR_NO_MEM;
