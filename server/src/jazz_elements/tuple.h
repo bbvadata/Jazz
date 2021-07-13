@@ -54,10 +54,6 @@
 namespace jazz_elements
 {
 
-/// An array of pointers to Blocks to create Tuples in one call
-typedef pBlock Blocks[0];
-
-
 /** \brief Tuple: A Jazz Block with multiple Tensors.
 
 Can be simplified as "An instance of a **Kind**" allthough that is not exactly what it is. It is an array of Tensors and it can match
@@ -111,10 +107,10 @@ class Tuple : public Block {
 
 			\return			 0, SERVICE_ERROR_NO_MEM, SERVICE_ERROR_WRONG_TYPE, SERVICE_ERROR_WRONG_NAME, SERVICE_ERROR_WRONG_ARGUMENTS
 		*/
-		inline StatusCode new_tuple (int	 num_items,
-									 Blocks &blocks,
-									 pNames  p_names,
-									 int	 num_bytes,
+		inline StatusCode new_tuple (int	num_items,
+									 pBlock blocks[],
+									 Name	p_names[],
+									 int	num_bytes,
 									 AttributeMap &attr) {
 
 			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*8;
@@ -143,7 +139,7 @@ class Tuple : public Block {
 				if (p_block->cell_type && 0xff > 8)
 					return SERVICE_ERROR_WRONG_TYPE;
 
-				pChar p_name = (pChar) &p_names->name[i];
+				pChar p_name = (pChar) &p_names[i];
 
 				if (!valid_name(p_name))
 					return SERVICE_ERROR_WRONG_NAME;
