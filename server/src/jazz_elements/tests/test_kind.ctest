@@ -95,7 +95,7 @@ SCENARIO("Testing kind") {
 
 		REQUIRE(p_kind4->new_kind(2, sizeof(Answer), attr));
 
-		REQUIRE(p_kind4->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	 dims));
+		REQUIRE(p_kind4->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
 		REQUIRE(p_kind4->add_item(1, nam_frame,  one_cell.dim,  CELL_TYPE_STRING, dims));
 
 		REQUIRE(!p_kind5->new_kind(2, sizeof(BlockHeader) + 4, attr));
@@ -108,7 +108,7 @@ SCENARIO("Testing kind") {
 
 		REQUIRE(p_kind6->new_kind(3, sizeof(Answer), attr));
 
-		REQUIRE( p_kind6->add_item( 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	dims));
+		REQUIRE( p_kind6->add_item( 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	 dims));
 		REQUIRE(!p_kind6->add_item(-1, nam_wave,   vector_10.dim, CELL_TYPE_INTEGER, dims));
 		REQUIRE(!p_kind6->add_item( 3, nam_title,  one_cell.dim,  CELL_TYPE_STRING,  dims));
 		vector_10.dim[0] = -888;
