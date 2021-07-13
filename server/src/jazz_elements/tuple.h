@@ -136,7 +136,7 @@ class Tuple : public Block {
 
 				ItemHeader *p_it_hea = &tensor.cell_item[i];
 
-				if (p_block->cell_type && 0xff > 8)
+				if ((p_block->cell_type & 0xff) > 8)
 					return SERVICE_ERROR_WRONG_TYPE;
 
 				pChar p_name = (pChar) &p_names[i];
