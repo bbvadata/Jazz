@@ -38,8 +38,60 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-typedef int int6[MAX_TENSOR_RANK];
+SCENARIO("Testing Cell Sizes") {
+	Block jb_byt, jb_byb, jb_int, jb_fac, jb_gra, jb_boo, jb_sin, jb_str, jb_lin, jb_tim, jb_dob, jb_tup, jb_kin;
+	int sizes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
 
+	WHEN("We set prime sizes of all tensors") {
+		jb_byt.cell_type = CELL_TYPE_BYTE;
+		jb_byb.cell_type = CELL_TYPE_BYTE_BOOLEAN;
+		jb_int.cell_type = CELL_TYPE_INTEGER;
+		jb_fac.cell_type = CELL_TYPE_FACTOR;
+		jb_gra.cell_type = CELL_TYPE_GRADE;
+		jb_boo.cell_type = CELL_TYPE_BOOLEAN;
+		jb_sin.cell_type = CELL_TYPE_SINGLE;
+		jb_str.cell_type = CELL_TYPE_STRING;
+		jb_lin.cell_type = CELL_TYPE_LONG_INTEGER;
+		jb_tim.cell_type = CELL_TYPE_TIME;
+		jb_dob.cell_type = CELL_TYPE_DOUBLE;
+		jb_tup.cell_type = CELL_TYPE_TUPLE_ITEM;
+		jb_kin.cell_type = CELL_TYPE_KIND_ITEM;
+
+		for (int i = 0; i < 10; i++) {
+			int siz = sizes[i];
+
+			jb_byt.size = siz;
+			jb_byb.size = siz;
+			jb_int.size = siz;
+			jb_fac.size = siz;
+			jb_gra.size = siz;
+			jb_boo.size = siz;
+			jb_sin.size = siz;
+			jb_str.size = siz;
+			jb_lin.size = siz;
+			jb_tim.size = siz;
+			jb_dob.size = siz;
+			jb_tup.size = siz;
+			jb_kin.size = siz;
+
+			REQUIRE(jb_byt.p_attribute_keys() == jb_byt.align_128bit((uintptr_t) &jb_byt.tensor + siz*sizeof(uint8_t)));
+			REQUIRE(jb_byb.p_attribute_keys() == jb_byb.align_128bit((uintptr_t) &jb_byb.tensor + siz*sizeof(bool)));
+			REQUIRE(jb_int.p_attribute_keys() == jb_int.align_128bit((uintptr_t) &jb_int.tensor + siz*sizeof(int)));
+			REQUIRE(jb_fac.p_attribute_keys() == jb_fac.align_128bit((uintptr_t) &jb_fac.tensor + siz*sizeof(int)));
+			REQUIRE(jb_gra.p_attribute_keys() == jb_gra.align_128bit((uintptr_t) &jb_gra.tensor + siz*sizeof(int)));
+			REQUIRE(jb_boo.p_attribute_keys() == jb_boo.align_128bit((uintptr_t) &jb_boo.tensor + siz*sizeof(uint32_t)));
+			REQUIRE(jb_sin.p_attribute_keys() == jb_sin.align_128bit((uintptr_t) &jb_sin.tensor + siz*sizeof(float)));
+			REQUIRE(jb_str.p_attribute_keys() == jb_str.align_128bit((uintptr_t) &jb_str.tensor + siz*sizeof(uint32_t)));
+			REQUIRE(jb_lin.p_attribute_keys() == jb_lin.align_128bit((uintptr_t) &jb_lin.tensor + siz*sizeof(long long)));
+			REQUIRE(jb_tim.p_attribute_keys() == jb_tim.align_128bit((uintptr_t) &jb_tim.tensor + siz*sizeof(uint64_t)));
+			REQUIRE(jb_dob.p_attribute_keys() == jb_dob.align_128bit((uintptr_t) &jb_dob.tensor + siz*sizeof(double)));
+			REQUIRE(jb_tup.p_attribute_keys() == jb_tup.align_128bit((uintptr_t) &jb_tup.tensor + siz*sizeof(ItemHeader)));
+			REQUIRE(jb_kin.p_attribute_keys() == jb_kin.align_128bit((uintptr_t) &jb_kin.tensor + siz*sizeof(ItemHeader)));
+		}
+	}
+}
+
+typedef int int6[MAX_TENSOR_RANK];
 
 SCENARIO("Testing Block Sizes, NAs and indexing logic") {
 	GIVEN("We want to check absolute sizes and offsets") {
