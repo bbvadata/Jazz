@@ -223,6 +223,10 @@ class Logger {
 		void log_printf	(int loglevel, const char *fmt, ...);
 		void log_printf	(int loglevel, const char *fmt, va_list args);
 
+#if defined CATCH_TEST
+		bool SkipLogOnce;
+#endif
+
 	private:
 
 		void InitLogger();

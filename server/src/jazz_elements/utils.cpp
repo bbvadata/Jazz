@@ -548,6 +548,10 @@ Logger::Logger(const char *output_file_name)
 */
 void Logger::InitLogger()
 {
+#if defined CATCH_TEST
+	SkipLogOnce = false;
+#endif
+
 	f_buff = f_stream.rdbuf();
 
 	f_buff->open (file_name, std::ios::out | std::ios::app);
@@ -608,6 +612,13 @@ int Logger::get_output_file_name(char *buff, int buff_size)
 */
 void Logger::log(int loglevel, const char *message)
 {
+#if defined CATCH_TEST
+	if (SkipLogOnce) {
+		SkipLogOnce = false;
+		return;
+	}
+#endif
+
 	double sec = elapsed_mu_sec(big_bang)/1000000.0;
 
 #ifdef NDEBUG
