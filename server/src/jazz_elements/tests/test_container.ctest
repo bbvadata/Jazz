@@ -390,7 +390,10 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(!CNT.alloc_warning_issued);
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction) + 5000);
 
+	LOGGER.SkipLogOnce = true;
 	REQUIRE(CNT.new_transaction(p_keeper[1]) == SERVICE_NO_ERROR);
+	REQUIRE(!LOGGER.SkipLogOnce);
+
 	REQUIRE(p_keeper[1] != nullptr);
 	REQUIRE(CNT.alloc_warning_issued);
 
