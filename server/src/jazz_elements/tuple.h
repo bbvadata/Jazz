@@ -230,7 +230,7 @@ class Tuple : public Block {
 					int d_k = kind->tensor.cell_item[i].dim[j];
 
 					if (d_k < 0) {
-						std::string dim_name(reinterpret_cast<char *>(&p_string_buffer()->buffer[-d_k]));
+						std::string dim_name(reinterpret_cast<char *>(&kind->p_string_buffer()->buffer[-d_k]));
 						if (dimension.count(dim_name)) {
 							if (dimension[dim_name] != tensor.cell_item[i].dim[j])
 								return false;
