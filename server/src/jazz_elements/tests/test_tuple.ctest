@@ -125,7 +125,7 @@ SCENARIO("Testing tuple") {
 
 	p_bl4->size			  = 0;
 	p_bl4->num_attributes = 0;
-	p_bl4->total_bytes	  = 2048;
+	p_bl4->total_bytes	  = 6144;
 
 	p_bl4->set_dimensions(audio_sol1.dim);
 
@@ -179,7 +179,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_bl4->cell_type == CELL_TYPE_INTEGER);
 	REQUIRE(p_bl4->rank == 2);
 	REQUIRE(p_bl4->size == 840);
-	REQUIRE(p_bl4->total_bytes == 2048);
+	REQUIRE(p_bl4->total_bytes == 6144);
 	REQUIRE(p_bl4->num_attributes == 0);
 	REQUIRE(p_bl4->tensor.cell_int[0]	== 0xCAFE);
 	REQUIRE(p_bl4->tensor.cell_int[839] == 0xBABE);
