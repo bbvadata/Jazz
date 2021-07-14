@@ -44,6 +44,8 @@ namespace jazz_elements
 */
 int Tuple::audit()
 {
+	int dims[MAX_TENSOR_RANK];
+
 	if (cell_type != CELL_TYPE_TUPLE_ITEM | size <= 0)
 		return MIXED_TYPE_INVALID;
 
@@ -57,8 +59,15 @@ int Tuple::audit()
 		if (!valid_name(&p_string_buffer()->buffer[p_it_hea->name]))
 			return MIXED_TYPE_INVALID;
 
+		pBlock p_block = block(i);
+
+		if (p_it_hea->rank != p_block->rank | p_it_hea->cell_type != p_block->cell_type)
+			return MIXED_TYPE_INVALID;
+
+		p_block->get_dimensions(dims);
+
 		for (int j = 0; j < p_it_hea->rank; j++) {
-			if (p_it_hea->dim[j] < 0)
+			if (p_it_hea->dim[j] != dims[j])
 				return MIXED_TYPE_INVALID;
 		}
 	}
