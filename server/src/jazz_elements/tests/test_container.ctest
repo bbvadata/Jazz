@@ -379,6 +379,12 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.new_transaction(p_keeper[0]) == SERVICE_NO_ERROR);
 	REQUIRE(p_keeper[0] != nullptr);
 
+	REQUIRE(p_keeper[0]->p_block == nullptr);
+	REQUIRE(p_keeper[0]->p_route == nullptr);
+	REQUIRE(p_keeper[0]->_lock_  == 0);
+	REQUIRE(p_keeper[0]->status  == BLOCK_STATUS_EMPTY);
+	REQUIRE(p_keeper[0]->p_owner == &CNT);
+
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
@@ -427,6 +433,12 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 		for (int i = 0; i < t; i++) {
 			REQUIRE(CNT.new_transaction(p_keeper[i]) == SERVICE_NO_ERROR);
 			REQUIRE(p_keeper[i] != nullptr);
+
+			REQUIRE(p_keeper[i]->p_block == nullptr);
+			REQUIRE(p_keeper[i]->p_route == nullptr);
+			REQUIRE(p_keeper[i]->_lock_  == 0);
+			REQUIRE(p_keeper[i]->status  == BLOCK_STATUS_EMPTY);
+			REQUIRE(p_keeper[i]->p_owner == &CNT);
 		}
 		if (t == 16)
 			REQUIRE(CNT.p_free == nullptr);
