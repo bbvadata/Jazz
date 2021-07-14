@@ -157,7 +157,7 @@ class Tuple : public Block {
 			int *p_dest = align_128bit((uintptr_t) &psb->buffer[psb->last_idx]);
 
 			if ((uintptr_t) p_dest - (uintptr_t) &cell_type > num_bytes)
-				return SERVICE_ERROR_NO_MEM;
+				return SERVICE_ERROR_NO_MEM;					// May never happen. "(p_it_hea->name <= STRING_EMPTY)" catches it first.
 
 			psb->buffer_size = (uintptr_t) p_dest - ((uintptr_t) &psb->buffer[0]);
 
