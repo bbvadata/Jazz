@@ -132,7 +132,8 @@ class Tuple : public Block {
 
 			for (int i = 0; i < num_items; i++) {
 				pBlock p_block = blocks[i];
-				if (p_block == nullptr) return SERVICE_ERROR_WRONG_ARGUMENTS;
+				if (p_block == nullptr)
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 				ItemHeader *p_it_hea = &tensor.cell_item[i];
 
