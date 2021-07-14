@@ -269,8 +269,10 @@ class Container : public Service {
 			p_free	 = p_free->p_next;
 
 			p_keeper->p_block = nullptr;
+			p_keeper->p_route = nullptr;
 			p_keeper->status  = BLOCK_STATUS_EMPTY;
 			p_keeper->_lock_  = 0;
+			p_keeper->p_owner = this;
 
 			pStoredTransaction(p_keeper)->p_next = p_alloc;
 			pStoredTransaction(p_keeper)->p_prev = nullptr;
