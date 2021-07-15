@@ -35,7 +35,6 @@
 #include <map>
 #include <atomic>
 #include <thread>
-#include <stdarg.h>
 #include <regex>
 
 
