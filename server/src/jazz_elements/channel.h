@@ -54,6 +54,41 @@
 namespace jazz_elements
 {
 
+/// Different values for Block.cell_type
+#define CHANNEL__
+
+// Anything -> Block
+
+#define CHANNEL_FILE_READ			0x0001		///< A channel reading from a file into a Tensor of byte
+#define CHANNEL_FOLDER_READ			0x0002		///< A channel reading from a folder into a Tensor of strings
+#define CHANNEL_DISK_READ			0x0003		///< A channel reading from a file path either as a CHANNEL_FILE_RD or a CHANNEL_FOLDER_RD
+#define CHANNEL_URL_GET				0x0004		///< A channel reading via a libcurl GET into a Tensor
+#define CHANNEL_URL_BLOCK_GET		0x0008		///< A channel reading (from Jazz) via a libcurl GET a complete Block, Kind or Tuple
+#define CHANNEL_INDEX_II_SAVE		0x0010		///< A channel serializing an IndexII into a Tuple of (int, int)
+#define CHANNEL_INDEX_IS_SAVE		0x0020		///< A channel serializing an IndexIS into a Tuple of (int, string)
+#define CHANNEL_INDEX_SI_SAVE		0x0040		///< A channel serializing an IndexSI into a Tuple of (string, int)
+#define CHANNEL_INDEX_SS_SAVE		0x0080		///< A channel serializing an IndexSS into a Tuple of (string, string)
+#define CHANNEL_CONTAINER_GET		0x0100		///< A channel reading any Block, Kind or Tuple from a Container or descendant
+#define CHANNEL_SHELL_EXEC			0x0200		///< A channel reading the output of a shell command into a Tensor of strings
+
+// Block -> Anything
+
+#define CHANNEL_FILE_WRITE			0x1001		///< A channel writing the tensor inside a Tensor to a binary file
+#define CHANNEL_URL_PUT				0x1004		///< A channel writing the tensor inside a Tensor via a libcurl PUT
+#define CHANNEL_URL_BLOCK_PUT		0x1008		///< A channel writing any complete Block, Kind or Tuple via a libcurl PUT to a Jazz server
+#define CHANNEL_INDEX_II_LOAD		0x1010		///< A channel serializing a Tuple of (int, int) into an IndexII
+#define CHANNEL_INDEX_IS_LOAD		0x1020		///< A channel serializing a Tuple of (int, string) into an IndexIS
+#define CHANNEL_INDEX_SI_LOAD		0x1040		///< A channel serializing a Tuple of (string, int) into an IndexSI
+#define CHANNEL_INDEX_SS_LOAD		0x1080		///< A channel serializing a Tuple of (string, string) into an IndexSS
+#define CHANNEL_CONTAINER_PUT		0x1100		///< A channel writing any Block, Kind or Tuple from any Container or descendant
+
+// Delete anything
+
+#define CHANNEL_FILE_UNLINK			0x2001		///< A channel deleting a file
+#define CHANNEL_FOLDER_REMOVE_ALL	0x2002		///< A channel deleting a folder with anything in it
+#define CHANNEL_URL_DELETE			0x2004		///< A channel deleting via a libcurl DELETE
+#define CHANNEL_CONTAINER_REMOVE	0x2100		///< A channel deleting any Block, Kind or Tuple inside a Container or descendant
+
 /** \brief Channels: A Service to manage Channel objects.
 
 */
