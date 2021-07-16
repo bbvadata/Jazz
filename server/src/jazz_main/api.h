@@ -246,14 +246,14 @@ extern ConfigFile  CONFIG;
 extern Logger	   LOGGER;
 
 
-extern int http_request_callback   (void *cls,
-									struct MHD_Connection *connection,
-									const char *url,
-									const char *method,
-									const char *version,
-									const char *upload_data,
-									size_t *upload_data_size,
-									void **con_cls);
+extern MHD_Result http_request_callback(void *cls,
+										struct MHD_Connection *connection,
+										const char *url,
+										const char *method,
+										const char *version,
+										const char *upload_data,
+										size_t *upload_data_size,
+										void **con_cls);
 
 
 /** \brief Api: A Service to manage the REST API.
@@ -290,7 +290,7 @@ class Api : public Container {
 
 		// deliver http error pages
 
-		int	return_error_message (struct MHD_Connection *connection,
+		MHD_Result	return_error_message (struct MHD_Connection *connection,
 								  int					 http_status);
 
 		// Specific execution methods

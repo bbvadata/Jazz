@@ -45,7 +45,7 @@ namespace jazz_main
 #define MHD_HTTP_ANYERROR 400
 
 #ifdef DEBUG
-int print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
+MHD_Result print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
 {
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
 
@@ -81,14 +81,14 @@ TenBitsLUT http_methods;				///< A LUT to convert argument const char *method in
 
 	The internal operation of the callback function is subject to change and the remarks in the source code are the description of it.
 */
-int http_request_callback(void *cls,
-						  struct MHD_Connection *connection,
-						  const char *url,
-						  const char *method,
-						  const char *version,
-						  const char *upload_data,
-						  size_t *upload_data_size,
-						  void **con_cls)
+MHD_Result http_request_callback(void *cls,
+								 struct MHD_Connection *connection,
+								 const char *url,
+								 const char *method,
+								 const char *version,
+								 const char *upload_data,
+								 size_t *upload_data_size,
+								 void **con_cls)
 {
 	// Step 1: First opportunity to end the connection before uploading or getting. Not used. We initialize con_cls for the next call.
 
@@ -251,7 +251,7 @@ int http_request_callback(void *cls,
 	if (http_method == HTTP_DELETE)
 		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
-	int ret;
+	MHD_Result ret;
 
 answer_status:
 
@@ -681,7 +681,7 @@ StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execu
 
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
-int	Api::return_error_message (struct MHD_Connection *connection, int http_status)
+MHD_Result Api::return_error_message (struct MHD_Connection *connection, int http_status)
 {
 	Answer answer;
 
@@ -689,7 +689,7 @@ int	Api::return_error_message (struct MHD_Connection *connection, int http_statu
 
 	struct MHD_Response *response = MHD_create_response_from_buffer (strlen(answer.text), answer.text, MHD_RESPMEM_MUST_COPY);
 
-	int ret = MHD_queue_response (connection, http_status, response);
+	MHD_Result ret = MHD_queue_response (connection, http_status, response);
 
 	MHD_destroy_response (response);
 
