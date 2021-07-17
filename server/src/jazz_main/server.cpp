@@ -34,8 +34,6 @@
 
 #include <signal.h>
 
-#include "microhttpd.h"
-
 #include "src/jazz_main/server.h"
 
 
