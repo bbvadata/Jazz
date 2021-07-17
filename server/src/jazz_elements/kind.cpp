@@ -45,7 +45,7 @@ not repeated of invalid item names.
 */
 int Kind::audit()
 {
-	if (cell_type != CELL_TYPE_KIND_ITEM | size <= 0)
+	if (cell_type != CELL_TYPE_KIND_ITEM || size <= 0)
 		return MIXED_TYPE_INVALID;
 
 	std::set <int> items;
@@ -53,8 +53,8 @@ int Kind::audit()
 	for (int i = 0; i < size; i++) {
 		ItemHeader *p_it_hea = &tensor.cell_item[i];
 
-		if (  p_it_hea->cell_type <= 0 | p_it_hea->rank < 1 | p_it_hea->rank > MAX_TENSOR_RANK
-		    | p_it_hea->name <= STRING_EMPTY | p_it_hea->data_start != 0)
+		if (   p_it_hea->cell_type <= 0 || p_it_hea->rank < 1 || p_it_hea->rank > MAX_TENSOR_RANK
+		    || p_it_hea->name <= STRING_EMPTY || p_it_hea->data_start != 0)
 				return MIXED_TYPE_INVALID;
 
 		if (items.find(p_it_hea->name) != items.end())
