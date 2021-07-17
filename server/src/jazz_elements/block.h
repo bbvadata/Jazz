@@ -98,7 +98,7 @@ Details:
 As expected, .range.filter.length == 0 means nothing is selected, .range.filter.length == .size means everything is selected regardless
 of .tensor[]
 */
-class Block: public BlockHeader {
+class Block: public StaticBlockHeader {
 
 	public:
 
