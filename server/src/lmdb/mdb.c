@@ -4214,7 +4214,7 @@ static int ESECT
 mdb_env_init_meta(MDB_env *env, MDB_meta *meta)
 {
 	MDB_page *p, *q;
-	int rc;
+	int rc = 0;
 	unsigned int	 psize;
 #ifdef _WIN32
 	DWORD len;
