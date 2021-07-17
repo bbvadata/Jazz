@@ -52,6 +52,10 @@
 
 #define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
 
+
+#include "microhttpd.h"
+
+#if MHD_VERSION < 0x00097000
 /*! \brief Replacement type for the future (libmicrohttpd-dev 0.9.72-2)
 
 In a version somewhere between > 0.9.66-1 and <= 0.9.72-2 libmicrohttpd changed the return type of int MHD_YES and MHD_NO to a:
@@ -60,9 +64,7 @@ enum MHD_Result {MHD_NO = 0, MHD_YES = 1};
 
 */
 typedef int MHD_Result;
-
-#include "microhttpd.h"
-
+#endif
 
 /*! \brief The http API, instancing and building the server.
 
