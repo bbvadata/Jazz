@@ -32,6 +32,7 @@
 */
 
 
+#include <map>
 #include <chrono>
 #include <stdint.h>
 
@@ -68,7 +69,7 @@ ANSWER_LENGTH chars. Of course, data serialization does not have any limits it i
 
 /// Block API (syntax related)
 
-#define REGEX_VALIDATE_NAME				"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
+#define REGEX_VALIDATE_NAME		"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
 
 /** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
 does not normally modify blocks. The few exceptions have a block-specific lock in the Transaction. Services also have a service-specific
@@ -182,16 +183,14 @@ struct FilterSize {
 
 	The structure is declared as a union to make filter operation more elegant.
 */
-union TensorDim
-{
+union TensorDim {
 	int		   dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2 Gb
 	FilterSize filter;					///< When object is a filter the second element is named filter.length rather than dim[1]
 };
 
 
 /// Header for an item (of a Kind or Tuple)
-struct ItemHeader
-{
+struct ItemHeader {
 	int	cell_type;				///< The type for the cells in the item. See CELL_TYPE_*
 	int name;					///< The name of this item as an offset in StringBuffer.
 	int	rank;					///< The number of dimensions
@@ -201,8 +200,7 @@ struct ItemHeader
 
 
 /// A tensor of cell size 1, 4, 8 or sizeof(BlockHeader)
-union Tensor
-{
+union Tensor {
 	uint8_t	   cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
 	bool	   cell_bool[0];		///< .. CELL_TYPE_BYTE_BOOLEAN
 	int		   cell_int[0];			///< .. CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
@@ -215,27 +213,62 @@ union Tensor
 };
 
 
-/// Header for a Block
-struct BlockHeader
-{
-	int	cell_type;				///< The type for the cells in the tensor. See CELL_TYPE_*
-	int	rank;					///< The number of dimensions
-	TensorDim range;			///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
-	int size;					///< The total number of cells in the tensor
-	int num_attributes;			///< Number of elements in the JazzAttributesMap
-	int total_bytes;			///< Total size of the block everything included
-	bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
-	TimePoint created;			///< Timestamp when the block was created
-	uint64_t hash64;			///< Hash of everything but the header
+typedef std::map<int, int>					IndexII;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, int)
+typedef std::map<int, std::string>			IndexIS;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, string)
+typedef std::map<std::string, int>			IndexSI;	///< An Index kept in RAM by Volatile implemented as an stdlib map (string, int)
+typedef std::map<std::string, std::string>	IndexSS;	///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
 
-	Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
+
+/// A union abstracting all the individual Index types
+union Index {
+	IndexII index_ii;
+	IndexIS index_is;
+	IndexSI index_si;
+	IndexSS index_ss;
+};
+
+
+/// Header for a Movable Block (Tensor, Kind or Tuple) or a Dynamic Block (Index)
+struct BlockHeader {
+	int	cell_type;						///< The type for the cells in the tensor. See CELL_TYPE_*
+	int size;							///< The total number of cells in the tensor
+	TimePoint created;					///< Timestamp when the block was created
+	union {
+		struct {
+			int	rank;					///< The number of dimensions
+			TensorDim range;			///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+			int num_attributes;			///< Number of elements in the JazzAttributesMap
+			int total_bytes;			///< Total size of the block everything included
+			bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
+			uint64_t hash64;			///< Hash of everything but the header
+
+			Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
+
+		};
+		Index index;					///< Any kind of Index
+	};
 };
 typedef BlockHeader	*pBlockHeader;
 
 
+/// A Binary Compatible BlockHeader without Index (and therefore constructors/destructors)
+struct StaticBlockHeader {
+	int	cell_type;						///< The type for the cells in the tensor. See CELL_TYPE_*
+	int size;							///< The total number of cells in the tensor
+	TimePoint created;					///< Timestamp when the block was created
+			int	rank;					///< The number of dimensions
+			TensorDim range;			///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+			int num_attributes;			///< Number of elements in the JazzAttributesMap
+			int total_bytes;			///< Total size of the block everything included
+			bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
+			uint64_t hash64;			///< Hash of everything but the header
+
+			Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
+};
+
+
 /// Structure at the end of a Block, initially created with init_string_buffer()
-struct StringBuffer
-{
+struct StringBuffer {
 	bool stop_check_4_match;	///< When the StringBuffer is small, try to match existing indices of the same string to save RAM
 	bool alloc_failed;			///< A previous call to get_string_offset() failed to alloc space for a string
 	int	 last_idx;				///< The index to the first free space after the last stored string
