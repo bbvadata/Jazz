@@ -858,7 +858,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 		case PSTATE_CONST_END_REAL:
 		case PSTATE_CONST_END_STR:
 		case PSTATE_CONST_END_KIND:
-			if (level == 0 & no_brackets) {
+			if (level == 0 && no_brackets) {
 				n_item.dim[0]++;
 				tot_cells += cell;
 
@@ -1036,7 +1036,7 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 
 		case PSTATE_TUPL_SEMICOLON:
 			if (cursor == ';') {
-				if (level == 0 & no_brackets)
+				if (level == 0 && no_brackets)
 					level--;
 
 				if (level != -1)
