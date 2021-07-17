@@ -245,7 +245,7 @@ StatusCode Container::new_block(pTransaction &p_keeper,
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-	BlockHeader hea;
+	StaticBlockHeader hea;
 
 	hea.cell_type = cell_type;
 
