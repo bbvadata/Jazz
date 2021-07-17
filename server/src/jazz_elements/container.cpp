@@ -729,7 +729,7 @@ void Container::base_names (BaseNames &base_names) {}
 */
 StatusCode Container::new_container()
 {
-	if (p_buffer != nullptr | max_num_keepers <= 0)
+	if (p_buffer != nullptr || max_num_keepers <= 0)
 #if defined CATCH_TEST
 		destroy_container();
 #else
