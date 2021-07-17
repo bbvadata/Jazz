@@ -25,8 +25,13 @@ then
   exit 1
 fi
 
-cppcheck src/ -i src/catch2/ -i src/curl/ --force --inline-suppr --xml 2>report.xml
-cppcheck-htmlreport --file=report.xml --title=Jazz --report-dir=static_analysis_reports --source-dir=.
+cppcheck src/ -i src/catch2/ -i src/curl/ --enable=all --inconclusive --library=posix --xml 2>report.xml
+cppcheck-htmlreport --file=report.xml --title="Jazz (inconclusive)" --report-dir=static_analysis_reports/inconclusive --source-dir=.
+
+rm -f report.xml
+
+cppcheck src/ -i src/catch2/ -i src/curl/ --max-configs=4 --inline-suppr --xml 2>report.xml
+cppcheck-htmlreport --file=report.xml --title="Jazz (mandatory)" --report-dir=static_analysis_reports/mandatory --source-dir=.
 
 rm -f report.xml
 
