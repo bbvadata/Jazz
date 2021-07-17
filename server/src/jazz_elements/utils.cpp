@@ -622,7 +622,7 @@ void Logger::log(int loglevel, const char *message)
 	double sec = elapsed_mu_sec(big_bang)/1000000.0;
 
 #ifdef NDEBUG
-	if (loglevel == LOG_DEBUG) loglevel == LOG_WARN;	// Should not exist in case of NDEBUG. It becomes a LOG_WARN to force removing it.
+	if (loglevel == LOG_DEBUG) loglevel = LOG_WARN;		// Should not exist in case of NDEBUG. It becomes a LOG_WARN to force removing it.
 #endif
 
 	char buffer [256];
