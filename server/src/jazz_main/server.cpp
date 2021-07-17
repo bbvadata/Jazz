@@ -99,7 +99,7 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 		 & get_conf_key("MHD_SUPPRESS_DATE", supp_date)
 		 & get_conf_key("MHD_USE_TCP_FASTOPEN", tcp_fastopen);
 
-	if ((!ok ) | ((debug | ssl | ipv6 | pedantic | supp_date | tcp_fastopen) & 0xfffffffe)) {
+	if ((!ok ) || ((debug | ssl | ipv6 | pedantic | supp_date | tcp_fastopen) & 0xfffffffe)) {
 		cout << "Failed parsing flags block in configuration." << endl;
 
 		log(LOG_ERROR, "JazzHttpServer::server_start() failed config in flags block.");
