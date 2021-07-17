@@ -90,12 +90,6 @@ namespace jazz_elements
 #define CHANNEL_CONTAINER_REMOVE	0x2100		///< A channel deleting any Block, Kind or Tuple inside a Container or descendant
 
 
-typedef std::map<int, int>					IndexII;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, int)
-typedef std::map<int, std::string>			IndexIS;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, string)
-typedef std::map<std::string, int>			IndexSI;	///< An Index kept in RAM by Volatile implemented as an stdlib map (string, int)
-typedef std::map<std::string, std::string>	IndexSS;	///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
-
-
 /** \brief Channels: A Service to manage Channel objects.
 
 */
