@@ -519,7 +519,6 @@ StatusCode Container::new_block(pTransaction &p_keeper,
 
 	int tensor_diff		= 0,
 		old_tensor_size = p_from->size*(p_from->cell_type & 0xff),
-		new_tensor_size,
 		bytes_per_row,
 		selected_rows;
 
@@ -540,8 +539,8 @@ StatusCode Container::new_block(pTransaction &p_keeper,
 			selected_rows = p_row_filter->range.filter.length;
 		}
 		if (p_from->size) {
-			bytes_per_row	= old_tensor_size/tensor_rows;
-			new_tensor_size = selected_rows*bytes_per_row;
+			bytes_per_row		= old_tensor_size/tensor_rows;
+			int new_tensor_size = selected_rows*bytes_per_row;
 
 			old_tensor_size = (uintptr_t) p_from->align_128bit(old_tensor_size);
 			new_tensor_size = (uintptr_t) p_from->align_128bit(new_tensor_size);
