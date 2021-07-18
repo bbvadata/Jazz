@@ -670,11 +670,11 @@ void Container::destroy (pTransaction &p_keeper)
 
 /** Block retrieving interface: A general API to be inherited (and possibly extended)
 
-	\param p_keeper	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container.
 	\param p_what	Some string with a locator that the Container can handle.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error).
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
@@ -688,11 +688,11 @@ StatusCode Container::get (pChar		 p_what,
 
 /** Block storing interface: A general API to be inherited (and possibly extended)
 
-	\param p_where Some string with a locator that the Container can handle.
-	\param p_block A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
-				   disc, PUT it via http, etc. The container does not own the pointer in any way.
+	\param p_block	A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
+					disc, PUT it via http, etc. The container does not own the pointer in any way.
+	\param p_where	Some string with a locator that the Container can handle.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error).
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Container::put (pBlock	p_block,
 						   pChar	p_where)
@@ -705,7 +705,7 @@ StatusCode Container::put (pBlock	p_block,
 
 	\param p_what Some string with a locator that the Container can handle.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error). Only Remote supports Async for remove.
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Container::remove (pChar p_what)
 {
