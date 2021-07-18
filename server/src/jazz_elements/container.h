@@ -101,7 +101,7 @@ typedef class Container *pContainer;
 typedef std::map<std::string, pContainer> BaseNames;
 
 
-/** \brief Transaction: A wrapper over a Block that defines the communication of a block over get/put/remove/channel.
+/** \brief Transaction: A wrapper over a Block that defines the communication of a block over get/put/remove/copy.
 
 This minimalist struc is the only block wrapper across anything. Anything is: file I/O, http client CRUD, http server GET and PUT, shell
 commands, Volatile, Persisted and Index objects (an stdlib map that serializes to and from a block).
@@ -133,14 +133,14 @@ typedef StoredTransaction *pStoredTransaction;
 This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
 Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, Bebop, Agency, and the Api.
 
-There is no class Channel (in singular), channel() is a method that copies blocks across Containers (or different media in Channels).
+There is no class Channel (in singular), copy() is a method that copies blocks across Containers (or different media in Channels).
 Channels does all the block transactions across media (files, folders, shell, urls, other Containers, ...).
 
 Container provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - Allocation: .new_block(), .destroy()
-- Crud: .get(), .put(), .remove(), .channel()
+- Crud: .get(), .put(), .remove(), .copy()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
 
@@ -224,7 +224,7 @@ class Container : public Service {
 		StatusCode put		   (pBlock		  p_block,
 								pChar		  p_where);
 		StatusCode remove	   (pChar		  p_what);
-		StatusCode channel	   (pChar		  p_what,
+		StatusCode copy		   (pChar		  p_what,
 								pChar		  p_where);
 
 		// Support for container names in the API .base_names()

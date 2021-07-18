@@ -736,8 +736,8 @@ StatusCode Container::remove (pChar p_what)
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::channel (pChar  p_what,
-							   pChar  p_where)
+StatusCode Container::copy (pChar  p_what,
+							pChar  p_where)
 {
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
