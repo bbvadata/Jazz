@@ -713,6 +713,23 @@ StatusCode Container::remove (pChar p_what)
 }
 
 
+/** Block copying interface: A general API to be inherited (and possibly extended)
+
+	\param p_what	Some string with a locator that the Container can handle.
+	\param p_where	Some string with a locator that the Container can handle.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
+*/
+StatusCode Container::channel (pChar  p_what,
+							   pChar  p_where)
+{
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
 /** Add the base names for this Container.
 
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
