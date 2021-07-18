@@ -306,6 +306,9 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_tup1->item_name(0), "buffer"));
 	REQUIRE(p_tup1->item_name( 1) == nullptr);
 	REQUIRE(p_tup1->item_name(-1) == nullptr);
+	REQUIRE(p_tup1->index((pChar) "buffer")	 ==  0);
+	REQUIRE(p_tup1->index((pChar) "buffe")	 == -1);
+	REQUIRE(p_tup1->index((pChar) "buffer ") == -1);
 	REQUIRE(p_tup1->block( 1) == nullptr);
 	REQUIRE(p_tup1->block(-1) == nullptr);
 	REQUIRE(p_tup1->is_a(p_kind1));
@@ -317,6 +320,9 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_tup2->item_name(0), "buffer"));
 	REQUIRE(p_tup2->item_name( 1) == nullptr);
 	REQUIRE(p_tup2->item_name(-1) == nullptr);
+	REQUIRE(p_tup2->index((pChar) "buffer")	 ==  0);
+	REQUIRE(p_tup2->index((pChar) "buffe")	 == -1);
+	REQUIRE(p_tup2->index((pChar) "buffer ") == -1);
 	REQUIRE(p_tup2->block( 1) == nullptr);
 	REQUIRE(p_tup2->block(-1) == nullptr);
 	REQUIRE(!p_tup2->is_a(p_kind1));
@@ -329,6 +335,10 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_tup3->item_name(1), "title"));
 	REQUIRE(p_tup3->item_name( 2) == nullptr);
 	REQUIRE(p_tup3->item_name(-1) == nullptr);
+	REQUIRE(p_tup3->index((pChar) "buffer")	 ==  0);
+	REQUIRE(p_tup3->index((pChar) "title")	 ==  1);
+	REQUIRE(p_tup3->index((pChar) "titl")	 == -1);
+	REQUIRE(p_tup3->index((pChar) "buffer ") == -1);
 	REQUIRE(p_tup3->block( 2) == nullptr);
 	REQUIRE(p_tup3->block(-1) == nullptr);
 	REQUIRE(p_tup3->is_a(p_kind2));
@@ -342,6 +352,11 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_tup4->item_name(2), "more"));
 	REQUIRE(p_tup4->item_name( 3) == nullptr);
 	REQUIRE(p_tup4->item_name(-1) == nullptr);
+	REQUIRE(p_tup4->index((pChar) "buffer")	==  0);
+	REQUIRE(p_tup4->index((pChar) "title")	==  1);
+	REQUIRE(p_tup4->index((pChar) "more")	==  2);
+	REQUIRE(p_tup4->index((pChar) "titl")	== -1);
+	REQUIRE(p_tup4->index((pChar) "more ")	== -1);
 	REQUIRE(p_tup4->block( 3) == nullptr);
 	REQUIRE(p_tup4->block(-1) == nullptr);
 	REQUIRE(!p_tup4->is_a(p_kind2));
@@ -357,6 +372,11 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_tup5->item_name(2), "title"));
 	REQUIRE(p_tup5->item_name( 3) == nullptr);
 	REQUIRE(p_tup5->item_name(-1) == nullptr);
+	REQUIRE(p_tup5->index((pChar) "buffer")	==  0);
+	REQUIRE(p_tup5->index((pChar) "audio")	==  1);
+	REQUIRE(p_tup5->index((pChar) "title")	==  2);
+	REQUIRE(p_tup5->index((pChar) "titl")	== -1);
+	REQUIRE(p_tup5->index((pChar) "Audio")	== -1);
 	REQUIRE(p_tup5->block( 3) == nullptr);
 	REQUIRE(p_tup5->block(-1) == nullptr);
 	REQUIRE(p_tup5->is_a(p_kind3));
@@ -374,6 +394,12 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_tup6->item_name(3), "title"));
 	REQUIRE(p_tup6->item_name( 4) == nullptr);
 	REQUIRE(p_tup6->item_name(-1) == nullptr);
+	REQUIRE(p_tup6->index((pChar) "pic")	==  0);
+	REQUIRE(p_tup6->index((pChar) "buffer")	==  1);
+	REQUIRE(p_tup6->index((pChar) "audio")	==  2);
+	REQUIRE(p_tup6->index((pChar) "title")	==  3);
+	REQUIRE(p_tup6->index((pChar) "titl")	== -1);
+	REQUIRE(p_tup6->index((pChar) "Audio")	== -1);
 	REQUIRE(p_tup6->block( 4) == nullptr);
 	REQUIRE(p_tup6->block(-1) == nullptr);
 	REQUIRE(!p_tup6->is_a(p_kind3));
