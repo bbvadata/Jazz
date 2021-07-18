@@ -679,8 +679,8 @@ void Container::destroy (pTransaction &p_keeper)
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::get (pTransaction &p_keeper,
-						   pChar		 p_what)
+StatusCode Container::get (pChar		 p_what,
+						   pTransaction &p_txn)
 {
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -694,8 +694,8 @@ StatusCode Container::get (pTransaction &p_keeper,
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_keeper), or some negative value (error).
 */
-StatusCode Container::put (pChar		  p_where,
-						   pBlock		  p_block)
+StatusCode Container::put (pBlock	p_block,
+						   pChar	p_where)
 {
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
