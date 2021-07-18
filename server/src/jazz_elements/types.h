@@ -106,6 +106,12 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define CELL_TYPE_TUPLE_ITEM	0x028		///< A vector of ItemHeader (in a Tuple)
 #define CELL_TYPE_KIND_ITEM		0x128		///< A vector of ItemHeader (in a Kind)
 
+// 48 byte cell types
+#define CELL_TYPE_INDEX_II		0x030		///< An IndexII (accessed via a pBlockHeader instead of a pBlock)
+#define CELL_TYPE_INDEX_IS		0x130		///< An IndexIS (accessed via a pBlockHeader instead of a pBlock)
+#define CELL_TYPE_INDEX_SI		0x230		///< An IndexSI (accessed via a pBlockHeader instead of a pBlock)
+#define CELL_TYPE_INDEX_SS		0x330		///< An IndexSS (accessed via a pBlockHeader instead of a pBlock)
+
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
 #define BOOLEAN_NA				0x0ff		///< NA for a 32-bit boolean is binary 0xff. This is R compatible.
