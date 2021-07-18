@@ -101,12 +101,12 @@ typedef class Container *pContainer;
 typedef std::map<std::string, pContainer> BaseNames;
 
 
-/** \brief Transaction: A wrapper over a Block that defines the communication of a block over some Channel.
+/** \brief Transaction: A wrapper over a Block that defines the communication of a block over get/put/remove/channel.
 
 This minimalist struc is the only block wrapper across anything. Anything is: file I/O, http client CRUD, http server GET and PUT, shell
 commands, Volatile, Persisted and Index objects (an stdlib map that serializes to and from a block).
 
-Transaction allocation is only handled by the owner.
+Transaction allocation is only handled by the owner, a Container or descendant.
 */
 struct Transaction {
 	union {
@@ -131,17 +131,16 @@ typedef StoredTransaction *pStoredTransaction;
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
-Its descendants are: Channels, Volatile and Persisted, completing all possible block allocations: volatile, persisted and anything else
-is done by Channels.
+Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, Bebop, Agency, and the Api.
 
-There is no class Channel (in singular), Channels does all the block transactions that are "done when complete" vs. Volatile and Persisted
-which store "long lived" objects.
+There is no class Channel (in singular), channel() is a method that copies blocks across Containers (or different media in Channels).
+Channels does all the block transactions across media (files, folders, shell, urls, other Containers, ...).
 
-It provides a neat API for all descendants, including:
+Container provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - Allocation: .new_block(), .destroy()
-- Crud: .get(), .put(), .remove()
+- Crud: .get(), .put(), .remove(), .channel()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
 
@@ -166,6 +165,18 @@ ONE_SHOT_WARN_BLOCK_KBYTES, ... only apply to the instance of the class Containe
 include this allocation combined with whatever other allocations they do. The total allocation of the Jazz node is the sum of all (plus
 some small amount used by libraries, etc. that is not dependant on data size).
 
+Container descendants
+---------------------
+
+Note that Continers own their Transactions and may allocate p_route blocks including all kinds of things like session cookies or
+credentials for libcurl calls. Any container will reroute a destroy() call to its owner.
+
+Scope of jazz_elements
+----------------------
+
+Everything works at binary level, operations on blocks at this level are very simple, just copying, deleting, filtering a Tensor by
+(int or bool) indices, filtering a Tuple by item name and support every medium in the more conceivably efficient way.
+Serialization (to and from text) is done at the Api level, running code in jazz_bebop and agency (yomi) at jazz_agency.
 */
 class Container : public Service {
 
