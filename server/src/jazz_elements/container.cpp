@@ -654,12 +654,14 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
-/** Notify the Container that the caller is done with a block.
+/** Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction inside a Container.
 
-	\param p_keeper	A pointer to a valid Transaction passed by reference. Once finished, p_keeper is set to nullptr to avoid reusing.
+	\param p_txn	A pointer to a valid Transaction passed by reference. Once finished, p_txn is set to nullptr to avoid reusing.
 
-Different Container descendants, will do different things with the original blocks. In the case of this one-shot allocation, the block will
-be freed.
+NOTE: Different Container descendants, may do different things with blocks inside the transaction. In the case of this one-shot
+allocation, the p_block will be freed and the p_route ignored (since this Container does not allocate anything here).
+Persisted or Volatile Blocks will not be destroyed when a Transaction referring to them is destroyed. If the descentant allocates
+a p_route, it should also free it when the Transaction is destroyed.
 */
 void Container::destroy (pTransaction &p_keeper)
 {

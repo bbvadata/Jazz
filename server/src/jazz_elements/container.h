@@ -288,7 +288,10 @@ class Container : public Service {
 			return SERVICE_NO_ERROR;
 		}
 
-		/** Dealloc the Block in the keeper (if not null) and free the Transaction API.
+		/** \brief (UNSAFE) Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction API.
+
+			This (faster) method assumes the Container owns the Transaction and nobody else is using it. Use destroy() as a safer
+			alternative.
 		*/
 		inline void destroy_internal (pTransaction &p_txn) {
 			if (p_txn->p_block != nullptr) {
