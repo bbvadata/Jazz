@@ -663,10 +663,21 @@ allocation, the p_block will be freed and the p_route ignored (since this Contai
 Persisted or Volatile Blocks will not be destroyed when a Transaction referring to them is destroyed. If the descentant allocates
 a p_route, it should also free it when the Transaction is destroyed.
 */
-void Container::destroy (pTransaction &p_keeper)
+void Container::destroy (pTransaction &p_txn)
 {
-	enter_write	   (p_keeper);
-	destroy_transaction (p_keeper);
+	if (p_txn->p_owner == nullptr) {
+		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
+
+		return;
+	}
+	if (p_txn->p_owner != this) {
+		p_txn->p_owner->destroy(p_txn);
+
+		return;
+	}
+
+	enter_write		 (p_txn);
+	destroy_internal (p_txn);
 }
 
 
