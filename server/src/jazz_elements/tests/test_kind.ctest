@@ -132,6 +132,10 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind1->item_name( 1) == nullptr);
 				REQUIRE(p_kind1->item_name(-1) == nullptr);
 
+				REQUIRE(p_kind1->index((pChar) "buffer")   ==  0);
+				REQUIRE(p_kind1->index((pChar) "buffe")	   == -1);
+				REQUIRE(p_kind1->index((pChar) "buffer ")  == -1);
+
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
@@ -164,6 +168,11 @@ SCENARIO("Testing kind") {
 				REQUIRE(!strcmp(p_kind2->item_name(1), "_title"));
 				REQUIRE(p_kind2->item_name( 2) == nullptr);
 				REQUIRE(p_kind2->item_name(-1) == nullptr);
+
+				REQUIRE(p_kind2->index((pChar) "buffer")  ==  0);
+				REQUIRE(p_kind2->index((pChar) "_title")  ==  1);
+				REQUIRE(p_kind2->index((pChar) "_titl")   == -1);
+				REQUIRE(p_kind2->index((pChar) "_titlee") == -1);
 
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
@@ -202,6 +211,11 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind3->item_name( 3) == nullptr);
 				REQUIRE(p_kind3->item_name(-1) == nullptr);
 
+				REQUIRE(p_kind3->index((pChar) "buffer") ==  0);
+				REQUIRE(p_kind3->index((pChar) "wave")	 ==  1);
+				REQUIRE(p_kind3->index((pChar) "title")  ==  2);
+				REQUIRE(p_kind3->index((pChar) "wav")	 == -1);
+				REQUIRE(p_kind3->index((pChar) "wave ")  == -1);
 
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));

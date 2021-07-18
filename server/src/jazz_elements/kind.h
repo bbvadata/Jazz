@@ -101,6 +101,20 @@ class Kind : public Block {
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
 		}
 
+		/** Get the index for an item of a Kind by name.
+
+			\param name The name of the item.
+
+			\return A invalid index or -1 for "not found".
+		*/
+		inline int index(pChar name)	 {
+			for (int idx = 0; idx < size; idx++) {
+				if (strcmp(reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]), name) == 0)
+					return idx;
+			}
+			return -1;
+		}
+
 		/** Returns the number of dimensions in a Kind.
 
 			\return Number of dimensions
