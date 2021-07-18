@@ -179,14 +179,14 @@ class Container : public Service {
 
 		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 
-		void enter_read		   (pTransaction  p_keeper);
-		void enter_write	   (pTransaction  p_keeper);
-		void leave_read		   (pTransaction  p_keeper);
-		void leave_write	   (pTransaction  p_keeper);
+		void enter_read		   (pTransaction  p_txn);
+		void enter_write	   (pTransaction  p_txn);
+		void leave_read		   (pTransaction  p_txn);
+		void leave_write	   (pTransaction  p_txn);
 
 		// - Allocation: .new_block(), .destroy()
 
-		StatusCode new_block   (pTransaction &p_keeper,
+		StatusCode new_block   (pTransaction &p_txn,
 								int			  cell_type,
 								int			 *dim,
 								AttributeMap *att			  = nullptr,
@@ -196,12 +196,12 @@ class Container : public Service {
 								const char	 *p_text		  = nullptr,
 								char		  eol			  = '\n');
 
-		StatusCode new_block   (pTransaction &p_keeper,
+		StatusCode new_block   (pTransaction &p_txn,
 								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
 								AttributeMap *att			  = nullptr);
 
-		void destroy		   (pTransaction &p_keeper);
+		void destroy		   (pTransaction &p_txn);
 
 		// Crud: .get(), .put(), .remove()
 
@@ -249,7 +249,7 @@ class Container : public Service {
 
 		/** Allocate a Transaction to share a block via the API.
 		*/
-		inline StatusCode new_transaction (pTransaction &p_keeper) {
+		inline StatusCode new_transaction (pTransaction &p_txn) {
 			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
 				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
 						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
@@ -260,26 +260,26 @@ class Container : public Service {
 
 			if (p_free == nullptr) {
 				unlock_container();
-				p_keeper = nullptr;
+				p_txn = nullptr;
 				return SERVICE_ERROR_NO_MEM;
 			}
 
-			p_keeper = p_free;
-			p_free	 = p_free->p_next;
+			p_txn  = p_free;
+			p_free = p_free->p_next;
 
-			p_keeper->p_block = nullptr;
-			p_keeper->p_route = nullptr;
-			p_keeper->status  = BLOCK_STATUS_EMPTY;
-			p_keeper->_lock_  = 0;
-			p_keeper->p_owner = this;
+			p_txn->p_block = nullptr;
+			p_txn->p_route = nullptr;
+			p_txn->status  = BLOCK_STATUS_EMPTY;
+			p_txn->_lock_  = 0;
+			p_txn->p_owner = this;
 
-			pStoredTransaction(p_keeper)->p_next = p_alloc;
-			pStoredTransaction(p_keeper)->p_prev = nullptr;
+			pStoredTransaction(p_txn)->p_next = p_alloc;
+			pStoredTransaction(p_txn)->p_prev = nullptr;
 
 			if (p_alloc != nullptr)
-				p_alloc->p_prev = pStoredTransaction(p_keeper);
+				p_alloc->p_prev = pStoredTransaction(p_txn);
 
-			p_alloc = pStoredTransaction(p_keeper);
+			p_alloc = pStoredTransaction(p_txn);
 
 			unlock_container();
 			return SERVICE_NO_ERROR;
@@ -287,27 +287,27 @@ class Container : public Service {
 
 		/** Dealloc the Block in the keeper (if not null) and free the Transaction API.
 		*/
-		inline void destroy_transaction (pTransaction &p_keeper) {
-			if (p_keeper->p_block != nullptr) {
-				alloc_bytes -= p_keeper->p_block->total_bytes;
-				free(p_keeper->p_block);
-				p_keeper->p_block = nullptr;
+		inline void destroy_transaction (pTransaction &p_txn) {
+			if (p_txn->p_block != nullptr) {
+				alloc_bytes -= p_txn->p_block->total_bytes;
+				free(p_txn->p_block);
+				p_txn->p_block = nullptr;
 			}
 
 			lock_container();
 
-			if (pStoredTransaction(p_keeper)->p_prev == nullptr)
-				p_alloc = pStoredTransaction(p_keeper)->p_next;
+			if (pStoredTransaction(p_txn)->p_prev == nullptr)
+				p_alloc = pStoredTransaction(p_txn)->p_next;
 			else
-				pStoredTransaction(p_keeper)->p_prev->p_next = pStoredTransaction(p_keeper)->p_next;
+				pStoredTransaction(p_txn)->p_prev->p_next = pStoredTransaction(p_txn)->p_next;
 
-			if (pStoredTransaction(p_keeper)->p_next != nullptr)
-				pStoredTransaction(p_keeper)->p_next->p_prev = pStoredTransaction(p_keeper)->p_prev;
+			if (pStoredTransaction(p_txn)->p_next != nullptr)
+				pStoredTransaction(p_txn)->p_next->p_prev = pStoredTransaction(p_txn)->p_prev;
 
-			pStoredTransaction(p_keeper)->p_next = p_free;
+			pStoredTransaction(p_txn)->p_next = p_free;
 
-			p_free	 = pStoredTransaction(p_keeper);
-			p_keeper = nullptr;
+			p_free = pStoredTransaction(p_txn);
+			p_txn  = nullptr;
 
 			unlock_container();
 		}

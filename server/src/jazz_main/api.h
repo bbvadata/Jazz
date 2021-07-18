@@ -315,7 +315,7 @@ class Api : public Container {
 		bool http_get  (APIParseBuffer &parse_buff,
 						pMHD_Response  &response);
 
-		StatusCode get (pTransaction   *p_keeper,
+		StatusCode get (pTransaction   *p_txn,
 						pLocator		p_what);
 
 		void base_names(BaseNames	   &base_names);
@@ -338,7 +338,7 @@ class Api : public Container {
 
 		StatusCode _parse_const_data(pChar 		  &p_url,
 									 BlockHeader  &hea,
-									 pTransaction *p_keeper);
+									 pTransaction *p_txn);
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;

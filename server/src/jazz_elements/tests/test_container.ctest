@@ -345,7 +345,7 @@ SCENARIO("Testing threading functions") {
 
 
 SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
-	pTransaction p_keeper[20];
+	pTransaction p_txn[20];
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
@@ -376,35 +376,35 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 != nullptr);
 
-	REQUIRE(CNT.new_transaction(p_keeper[0]) == SERVICE_NO_ERROR);
-	REQUIRE(p_keeper[0] != nullptr);
+	REQUIRE(CNT.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn[0] != nullptr);
 
-	REQUIRE(p_keeper[0]->p_block == nullptr);
-	REQUIRE(p_keeper[0]->p_route == nullptr);
-	REQUIRE(p_keeper[0]->_lock_  == 0);
-	REQUIRE(p_keeper[0]->status  == BLOCK_STATUS_EMPTY);
-	REQUIRE(p_keeper[0]->p_owner == &CNT);
+	REQUIRE(p_txn[0]->p_block == nullptr);
+	REQUIRE(p_txn[0]->p_route == nullptr);
+	REQUIRE(p_txn[0]->_lock_  == 0);
+	REQUIRE(p_txn[0]->status  == BLOCK_STATUS_EMPTY);
+	REQUIRE(p_txn[0]->p_owner == &CNT);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
 	REQUIRE(!CNT.alloc_warning_issued);
-	p_keeper[0]->p_block = (pBlock) CNT.malloc(5000);
-	REQUIRE(p_keeper[0]->p_block != nullptr);
-	p_keeper[0]->p_block->total_bytes = 5000;
+	p_txn[0]->p_block = (pBlock) CNT.malloc(5000);
+	REQUIRE(p_txn[0]->p_block != nullptr);
+	p_txn[0]->p_block->total_bytes = 5000;
 	REQUIRE(!CNT.alloc_warning_issued);
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction) + 5000);
 
 	LOGGER.SkipLogOnce = true;
-	REQUIRE(CNT.new_transaction(p_keeper[1]) == SERVICE_NO_ERROR);
+	REQUIRE(CNT.new_transaction(p_txn[1]) == SERVICE_NO_ERROR);
 	REQUIRE(!LOGGER.SkipLogOnce);
 
-	REQUIRE(p_keeper[1] != nullptr);
+	REQUIRE(p_txn[1] != nullptr);
 	REQUIRE(CNT.alloc_warning_issued);
 
-	CNT.destroy_transaction(p_keeper[1]);
-	CNT.destroy_transaction(p_keeper[0]);
+	CNT.destroy_transaction(p_txn[1]);
+	CNT.destroy_transaction(p_txn[0]);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -412,18 +412,18 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
-	REQUIRE(CNT.new_transaction(p_keeper[0]) == SERVICE_NO_ERROR);
+	REQUIRE(CNT.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
-	p_keeper[0]->p_block = (pBlock) CNT.malloc(50000);
-	REQUIRE(p_keeper[0]->p_block == nullptr);
+	p_txn[0]->p_block = (pBlock) CNT.malloc(50000);
+	REQUIRE(p_txn[0]->p_block == nullptr);
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 
-	CNT.destroy_transaction(p_keeper[0]);
-	REQUIRE(p_keeper[0] == nullptr);
+	CNT.destroy_transaction(p_txn[0]);
+	REQUIRE(p_txn[0] == nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -431,21 +431,21 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 
 	for (int t = 1; t < 17; t++) {
 		for (int i = 0; i < t; i++) {
-			REQUIRE(CNT.new_transaction(p_keeper[i]) == SERVICE_NO_ERROR);
-			REQUIRE(p_keeper[i] != nullptr);
+			REQUIRE(CNT.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn[i] != nullptr);
 
-			REQUIRE(p_keeper[i]->p_block == nullptr);
-			REQUIRE(p_keeper[i]->p_route == nullptr);
-			REQUIRE(p_keeper[i]->_lock_  == 0);
-			REQUIRE(p_keeper[i]->status  == BLOCK_STATUS_EMPTY);
-			REQUIRE(p_keeper[i]->p_owner == &CNT);
+			REQUIRE(p_txn[i]->p_block == nullptr);
+			REQUIRE(p_txn[i]->p_route == nullptr);
+			REQUIRE(p_txn[i]->_lock_  == 0);
+			REQUIRE(p_txn[i]->status  == BLOCK_STATUS_EMPTY);
+			REQUIRE(p_txn[i]->p_owner == &CNT);
 		}
 		if (t == 16)
 			REQUIRE(CNT.p_free == nullptr);
 
 		for (int i = 0; i < t; i++) {
-			CNT.destroy_transaction(p_keeper[i]);
-			REQUIRE(p_keeper[i] == nullptr);
+			CNT.destroy_transaction(p_txn[i]);
+			REQUIRE(p_txn[i] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
 		REQUIRE(CNT.p_free	!= nullptr);
@@ -453,15 +453,15 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 
 	for (int t = 1; t < 17; t++) {
 		for (int i = 0; i < t; i++) {
-			REQUIRE(CNT.new_transaction(p_keeper[i]) == SERVICE_NO_ERROR);
-			REQUIRE(p_keeper[i] != nullptr);
+			REQUIRE(CNT.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn[i] != nullptr);
 		}
 		if (t == 16)
 			REQUIRE(CNT.p_free == nullptr);
 
 		for (int i = t - 1; i >= 0; i--) {
-			CNT.destroy_transaction(p_keeper[i]);
-			REQUIRE(p_keeper[i] == nullptr);
+			CNT.destroy_transaction(p_txn[i]);
+			REQUIRE(p_txn[i] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
 		REQUIRE(CNT.p_free	!= nullptr);
@@ -469,8 +469,8 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 
 	for (int t = 3; t < 17; t++) {
 		for (int i = 0; i < t; i++) {
-			REQUIRE(CNT.new_transaction(p_keeper[i]) == SERVICE_NO_ERROR);
-			REQUIRE(p_keeper[i] != nullptr);
+			REQUIRE(CNT.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn[i] != nullptr);
 		}
 		if (t == 16)
 			REQUIRE(CNT.p_free == nullptr);
@@ -478,28 +478,28 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 		for (int i = t - 1; i >= 0; i--) {
 			int j = 3 % t;
 
-			while (p_keeper[j] == nullptr)
+			while (p_txn[j] == nullptr)
 				j = (j + 1) % t;
 
-			CNT.destroy_transaction(p_keeper[j]);
-			REQUIRE(p_keeper[j] == nullptr);
+			CNT.destroy_transaction(p_txn[j]);
+			REQUIRE(p_txn[j] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
 		REQUIRE(CNT.p_free	!= nullptr);
 	}
 
 	for (int i = 0; i < 16; i++) {
-		REQUIRE(CNT.new_transaction(p_keeper[i]) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper[i] != nullptr);
+		REQUIRE(CNT.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn[i] != nullptr);
 	}
 	REQUIRE(CNT.p_free == nullptr);
 
-	REQUIRE(CNT.new_transaction(p_keeper[17]) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(CNT.new_transaction(p_txn[17]) == SERVICE_ERROR_NO_MEM);
 	REQUIRE(CNT.p_free == nullptr);
 
 	for (int i = 0; i < 16; i++) {
-		CNT.destroy_transaction(p_keeper[i]);
-		REQUIRE(p_keeper[i] == nullptr);
+		CNT.destroy_transaction(p_txn[i]);
+		REQUIRE(p_txn[i] == nullptr);
 	}
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
@@ -508,36 +508,36 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 
 	TensorDim dim_t1 {{500, 10, 0}}, dim_t2 {{500, 1000, 0}};
 
-	REQUIRE(CNT.new_block(p_keeper[0], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-	REQUIRE(p_keeper[0] != nullptr);
+	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn[0] != nullptr);
 
-	REQUIRE(CNT.new_block(p_keeper[1], p_keeper[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
-	REQUIRE(p_keeper[1] == nullptr);
+	REQUIRE(CNT.new_block(p_txn[1], p_txn[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[1] == nullptr);
 
-	CNT.destroy(p_keeper[0]);
-	REQUIRE(p_keeper[0] == nullptr);
+	CNT.destroy(p_txn[0]);
+	REQUIRE(p_txn[0] == nullptr);
 
-	REQUIRE(CNT.new_block(p_keeper[0], CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
-	REQUIRE(p_keeper[0] == nullptr);
+	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[0] == nullptr);
 
 	for (int i = 0; i < 15; i++) {
-		REQUIRE(CNT.new_transaction(p_keeper[i]) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper[i] != nullptr);
+		REQUIRE(CNT.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn[i] != nullptr);
 	}
-	REQUIRE(CNT.new_block(p_keeper[15], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-	REQUIRE(p_keeper[15] != nullptr);
+	REQUIRE(CNT.new_block(p_txn[15], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn[15] != nullptr);
 
 	REQUIRE(CNT.p_free == nullptr);
 
-	REQUIRE(CNT.new_block(p_keeper[16], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
-	REQUIRE(p_keeper[16] == nullptr);
+	REQUIRE(CNT.new_block(p_txn[16], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[16] == nullptr);
 
-	REQUIRE(CNT.new_block(p_keeper[16], p_keeper[15]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
-	REQUIRE(p_keeper[16] == nullptr);
+	REQUIRE(CNT.new_block(p_txn[16], p_txn[15]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[16] == nullptr);
 
 	for (int i = 0; i < 16; i++) {
-		CNT.destroy_transaction(p_keeper[i]);
-		REQUIRE(p_keeper[i] == nullptr);
+		CNT.destroy_transaction(p_txn[i]);
+		REQUIRE(p_txn[i] == nullptr);
 	}
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
@@ -558,7 +558,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	TensorDim dim_t1 {{7, 3, 5, 0}}, dim_t2 {{7, 2, 2, 2, 3, 2}}, dim_t3 {{97, 0}}, dim_t4 {{3, 2, 2, 0}};
 	TensorDim dim_t5 {{120, 5, 4, 0}}, dim_t6 {{120, 0}}, dim_t7 {{7, 0}}, dim_read, dim_xx {{0}};
 
-	pTransaction p_keeper;
+	pTransaction p_txn;
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
@@ -576,185 +576,185 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
-	REQUIRE(CNT.new_transaction(p_keeper) == SERVICE_NO_ERROR);
-	REQUIRE(p_keeper != nullptr);
-	REQUIRE(p_keeper->p_block == nullptr);
-	REQUIRE(p_keeper->status  == BLOCK_STATUS_EMPTY);
-	REQUIRE(p_keeper->_lock_  == 0);
+	REQUIRE(CNT.new_transaction(p_txn) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn != nullptr);
+	REQUIRE(p_txn->p_block == nullptr);
+	REQUIRE(p_txn->status  == BLOCK_STATUS_EMPTY);
+	REQUIRE(p_txn->_lock_  == 0);
 
 	REQUIRE(CNT.p_alloc != nullptr);
-	CNT.destroy_transaction(p_keeper);
+	CNT.destroy_transaction(p_txn);
 	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(p_keeper	== nullptr);
+	REQUIRE(p_txn		== nullptr);
 
 	WHEN("I force all the possible error conditions, I get nullptr.") {
 		char const *buffer	= "One Two Three Four Five Six Seven";
 		char const *buffer6 = "One Two Three Four Five Six";
 		bool filter[7];
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_NA, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_NA, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_INTEGER_FILTER, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_INTEGER_FILTER, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BOOLEAN, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_DOUBLE, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_DOUBLE, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ')
 				== SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
-		REQUIRE(p_keeper->p_block != nullptr);
-		REQUIRE(p_keeper->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t7.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ')
 				== SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
-		REQUIRE(p_keeper->p_block != nullptr);
-		REQUIRE(p_keeper->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t7.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, 0x201, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, 0x201, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, 0x604, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, 0x604, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, 0x308, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, 0x308, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, 2, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, 2, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
-		REQUIRE(p_keeper->p_block != nullptr);
-		REQUIRE(p_keeper->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
-		REQUIRE(p_keeper->p_block != nullptr);
-		REQUIRE(p_keeper->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BOOLEAN, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_INTEGER_FILTER)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_INTEGER_FILTER)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
-		REQUIRE(p_keeper->p_block != nullptr);
-		REQUIRE(p_keeper->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL - 1)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL - 1)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE + 1)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE + 1)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BYTE);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -763,39 +763,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*7 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[0] == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[104] == 0);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*7 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[0] == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[104] == 0);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*7 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*7 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -804,42 +804,42 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*7 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[0]   == BYTE_BOOLEAN_NA);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[104] == BYTE_BOOLEAN_NA);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*7 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[0]   == BYTE_BOOLEAN_NA);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[104] == BYTE_BOOLEAN_NA);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*7 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*7 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
-			REQUIRE(CNT.new_block(p_keeper, cell_types[i], dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-			REQUIRE(p_keeper != nullptr);
+			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn != nullptr);
 
-			REQUIRE(p_keeper->p_block->cell_type == cell_types[i]);
-			REQUIRE(p_keeper->p_block->rank == 3);
+			REQUIRE(p_txn->p_block->cell_type == cell_types[i]);
+			REQUIRE(p_txn->p_block->rank == 3);
 
 			memset(&dim_read, 1, sizeof(dim_read));
 
-			p_keeper->p_block->get_dimensions(dim_read.dim);
+			p_txn->p_block->get_dimensions(dim_read.dim);
 
 			REQUIRE(dim_read.dim[0] == 7);
 			REQUIRE(dim_read.dim[1] == 3);
@@ -848,40 +848,40 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			REQUIRE(dim_read.dim[4] == 0);
 			REQUIRE(dim_read.dim[5] == 0);
 
-			REQUIRE(p_keeper->p_block->size == 105);
-			REQUIRE(p_keeper->p_block->num_attributes == 1);
-			REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*27 + 8 + 16);
-			REQUIRE(p_keeper->p_block->has_NA == true);
-			REQUIRE(p_keeper->p_block->tensor.cell_int[0]	== INTEGER_NA);
-			REQUIRE(p_keeper->p_block->tensor.cell_int[104] == INTEGER_NA);
+			REQUIRE(p_txn->p_block->size == 105);
+			REQUIRE(p_txn->p_block->num_attributes == 1);
+			REQUIRE(p_txn->p_block->total_bytes == 64 + 16*27 + 8 + 16);
+			REQUIRE(p_txn->p_block->has_NA == true);
+			REQUIRE(p_txn->p_block->tensor.cell_int[0]	== INTEGER_NA);
+			REQUIRE(p_txn->p_block->tensor.cell_int[104] == INTEGER_NA);
 
-			check_and_finish(p_keeper->p_block);
+			check_and_finish(p_txn->p_block);
 
-			REQUIRE(p_keeper != nullptr);
+			REQUIRE(p_txn != nullptr);
 
-			REQUIRE(p_keeper->p_block->has_NA == true);
-			REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-			REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*27 + 8 + 16));
+			REQUIRE(p_txn->p_block->has_NA == true);
+			REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*27 + 8 + 16));
 
-			REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-			REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-			REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+			REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+			REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+			REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-			CNT.destroy(p_keeper);
-			REQUIRE(p_keeper == nullptr);
+			CNT.destroy(p_txn);
+			REQUIRE(p_txn == nullptr);
 		}
 	}
 
 	GIVEN("A block of CELL_TYPE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BOOLEAN, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BOOLEAN);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BOOLEAN);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -890,39 +890,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*27 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0]	== BOOLEAN_NA);
-		REQUIRE(p_keeper->p_block->tensor.cell_int[104] == BOOLEAN_NA);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*27 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_int[0]	== BOOLEAN_NA);
+		REQUIRE(p_txn->p_block->tensor.cell_int[104] == BOOLEAN_NA);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*27 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*27 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_SINGLE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_SINGLE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_SINGLE);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_SINGLE);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -931,39 +931,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*27 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[0]   == reinterpret_cast<u_int*>(&SINGLE_NA)[0]);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[104] == reinterpret_cast<u_int*>(&SINGLE_NA)[0]);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*27 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == reinterpret_cast<u_int*>(&SINGLE_NA)[0]);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[104] == reinterpret_cast<u_int*>(&SINGLE_NA)[0]);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*27 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*27 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -972,39 +972,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*27 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[0]   == STRING_NA);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[104] == STRING_NA);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*27 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == STRING_NA);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[104] == STRING_NA);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*27 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*27 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_LONG_INTEGER, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -1013,39 +1013,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*53 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[0]	== LONG_INTEGER_NA);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[104] == LONG_INTEGER_NA);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*53 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	== LONG_INTEGER_NA);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[104] == LONG_INTEGER_NA);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*53 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*53 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_TIME") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_TIME, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_TIME);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -1054,39 +1054,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*53 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[0]	== TIME_POINT_NA);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[104] == TIME_POINT_NA);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*53 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	== TIME_POINT_NA);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[104] == TIME_POINT_NA);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*53 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*53 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_DOUBLE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_DOUBLE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_DOUBLE);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_txn->p_block->rank == 3);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 3);
@@ -1095,39 +1095,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 105);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*53 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_ulongint[0]   == reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0]);
-		REQUIRE(p_keeper->p_block->tensor.cell_ulongint[104] == reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0]);
+		REQUIRE(p_txn->p_block->size == 105);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*53 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_ulongint[0]   == reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0]);
+		REQUIRE(p_txn->p_block->tensor.cell_ulongint[104] == reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0]);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*53 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*53 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BYTE);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1136,39 +1136,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*21 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[0]   == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*21 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[0]   == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*21 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*21 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1177,42 +1177,42 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*21 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[0]   == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_byte[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*21 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[0]   == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_byte[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*21 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*21 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
-			REQUIRE(CNT.new_block(p_keeper, cell_types[i], dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-			REQUIRE(p_keeper != nullptr);
+			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn != nullptr);
 
-			REQUIRE(p_keeper->p_block->cell_type == cell_types[i]);
-			REQUIRE(p_keeper->p_block->rank == 6);
+			REQUIRE(p_txn->p_block->cell_type == cell_types[i]);
+			REQUIRE(p_txn->p_block->rank == 6);
 
 			memset(&dim_read, 1, sizeof(dim_read));
 
-			p_keeper->p_block->get_dimensions(dim_read.dim);
+			p_txn->p_block->get_dimensions(dim_read.dim);
 
 			REQUIRE(dim_read.dim[0] == 7);
 			REQUIRE(dim_read.dim[1] == 2);
@@ -1221,40 +1221,40 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			REQUIRE(dim_read.dim[4] == 3);
 			REQUIRE(dim_read.dim[5] == 2);
 
-			REQUIRE(p_keeper->p_block->size == 336);
-			REQUIRE(p_keeper->p_block->num_attributes == 1);
-			REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*84 + 8 + 16);
-			REQUIRE(p_keeper->p_block->has_NA == false);
-			REQUIRE(p_keeper->p_block->tensor.cell_int[0]	  == 0);
-			REQUIRE(p_keeper->p_block->tensor.cell_int[335] == 0);
+			REQUIRE(p_txn->p_block->size == 336);
+			REQUIRE(p_txn->p_block->num_attributes == 1);
+			REQUIRE(p_txn->p_block->total_bytes == 64 + 16*84 + 8 + 16);
+			REQUIRE(p_txn->p_block->has_NA == false);
+			REQUIRE(p_txn->p_block->tensor.cell_int[0]	  == 0);
+			REQUIRE(p_txn->p_block->tensor.cell_int[335] == 0);
 
-			check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+			check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-			REQUIRE(p_keeper != nullptr);
+			REQUIRE(p_txn != nullptr);
 
-			REQUIRE(p_keeper->p_block->has_NA == true);
-			REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-			REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*84 + 8 + 16));
+			REQUIRE(p_txn->p_block->has_NA == true);
+			REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*84 + 8 + 16));
 
-			REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-			REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-			REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+			REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+			REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+			REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-			CNT.destroy(p_keeper);
-			REQUIRE(p_keeper == nullptr);
+			CNT.destroy(p_txn);
+			REQUIRE(p_txn == nullptr);
 		}
 	}
 
 	GIVEN("A block of CELL_TYPE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BOOLEAN, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BOOLEAN);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BOOLEAN);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1263,39 +1263,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*84 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0]	  == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_int[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*84 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_int[0]	  == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_int[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*84 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*84 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_SINGLE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_SINGLE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_SINGLE);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_SINGLE);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1304,39 +1304,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*84 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[0]   == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*84 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*84 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*84 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1345,39 +1345,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*84 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[0]   == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_uint[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*84 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_uint[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*84 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*84 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_LONG_INTEGER, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1386,39 +1386,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*168 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[0]	  == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*168 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	 == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*168 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*168 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_TIME") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_TIME, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_TIME);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1427,39 +1427,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*168 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[0]	  == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_longint[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*168 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	 == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_longint[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*168 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*168 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_DOUBLE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_DOUBLE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_DOUBLE);
-		REQUIRE(p_keeper->p_block->rank == 6);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_txn->p_block->rank == 6);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 7);
 		REQUIRE(dim_read.dim[1] == 2);
@@ -1468,27 +1468,27 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 3);
 		REQUIRE(dim_read.dim[5] == 2);
 
-		REQUIRE(p_keeper->p_block->size == 336);
-		REQUIRE(p_keeper->p_block->num_attributes == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*168 + 8 + 16);
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(p_keeper->p_block->tensor.cell_ulongint[0]   == 0);
-		REQUIRE(p_keeper->p_block->tensor.cell_ulongint[335] == 0);
+		REQUIRE(p_txn->p_block->size == 336);
+		REQUIRE(p_txn->p_block->num_attributes == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*168 + 8 + 16);
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->tensor.cell_ulongint[0]   == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_ulongint[335] == 0);
 
-		check_and_finish(p_keeper->p_block, SET_HAS_NA_TRUE);
+		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*168 + 8 + 16));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*168 + 8 + 16));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
-		REQUIRE(strlen(p_keeper->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
+		REQUIRE(strlen(p_txn->p_block->find_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	AttributeMap block_att;
@@ -1497,15 +1497,15 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	block_att [222]	 = "123.";
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BYTE);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1514,43 +1514,43 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*7 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*7 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_byte[j] = j;
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_byte[j] = j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*7 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*7 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BYTE_BOOLEAN, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1559,45 +1559,45 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*7 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_byte[j] = j;
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*7 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_byte[j] = j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*7 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*7 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
-			REQUIRE(CNT.new_block(p_keeper,  cell_types[i], dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-			REQUIRE(p_keeper != nullptr);
+			REQUIRE(CNT.new_block(p_txn,  cell_types[i], dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn != nullptr);
 
-			REQUIRE(p_keeper->p_block->cell_type == cell_types[i]);
-			REQUIRE(p_keeper->p_block->rank == 1);
+			REQUIRE(p_txn->p_block->cell_type == cell_types[i]);
+			REQUIRE(p_txn->p_block->rank == 1);
 
 			memset(&dim_read, 1, sizeof(dim_read));
 
-			p_keeper->p_block->get_dimensions(dim_read.dim);
+			p_txn->p_block->get_dimensions(dim_read.dim);
 
 			REQUIRE(dim_read.dim[0] == 97);
 			REQUIRE(dim_read.dim[1] == 0);
@@ -1606,43 +1606,43 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			REQUIRE(dim_read.dim[4] == 0);
 			REQUIRE(dim_read.dim[5] == 0);
 
-			REQUIRE(p_keeper->p_block->size == 97);
-			REQUIRE(p_keeper->p_block->num_attributes == 3);
-			REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22);
-			REQUIRE(p_keeper->p_block->has_NA == true);
-			for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_int[j] = j;
+			REQUIRE(p_txn->p_block->size == 97);
+			REQUIRE(p_txn->p_block->num_attributes == 3);
+			REQUIRE(p_txn->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22);
+			REQUIRE(p_txn->p_block->has_NA == true);
+			for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_int[j] = j;
 
-			check_and_finish(p_keeper->p_block);
+			check_and_finish(p_txn->p_block);
 
-			REQUIRE(p_keeper != nullptr);
+			REQUIRE(p_txn != nullptr);
 
-			REQUIRE(p_keeper->p_block->has_NA == false);
-			REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-			REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*25 + 8*3 + 16 + 22));
+			REQUIRE(p_txn->p_block->has_NA == false);
+			REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*25 + 8*3 + 16 + 22));
 
-			REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-			REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-			REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-			REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-			REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-			REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-			REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+			REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+			REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+			REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+			REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+			REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+			REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+			REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-			CNT.destroy(p_keeper);
-			REQUIRE(p_keeper == nullptr);
+			CNT.destroy(p_txn);
+			REQUIRE(p_txn == nullptr);
 		}
 	}
 
 	GIVEN("A block of CELL_TYPE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_BOOLEAN, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_BOOLEAN);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BOOLEAN);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1651,42 +1651,42 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_int[j] = j;
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_int[j] = j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*25 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*25 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_SINGLE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_SINGLE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_SINGLE);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_SINGLE);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1695,44 +1695,44 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_single[j] = 0.123*j;
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_single[j] = 0.123*j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*25 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*25 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	char const *monday = "Monday", *tuesday = "Tuesday", *nope = "";
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1741,61 +1741,61 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22 + 256);
-		REQUIRE(p_keeper->p_block->has_NA == true);
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*25 + 8*3 + 16 + 22 + 256);
+		REQUIRE(p_txn->p_block->has_NA == true);
 		for (int j = 0; j < 97; j++) {
 			switch (j % 3) {
 			case 1:
-				p_keeper->p_block->set_string(j, monday);
+				p_txn->p_block->set_string(j, monday);
 				break;
 			case 2:
-				p_keeper->p_block->set_string(j, tuesday);
+				p_txn->p_block->set_string(j, tuesday);
 				break;
 			default:
-				p_keeper->p_block->set_string(j, nope);
+				p_txn->p_block->set_string(j, nope);
 				break;
 			}
 		}
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*25 + 8*3 + 16 + 22 + 256));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*25 + 8*3 + 16 + 22 + 256));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string( 0), ""));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string( 1), "Monday"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string( 2), "Tuesday"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(94), "Monday"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(95), "Tuesday"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(96), ""));
+		REQUIRE(!strcmp(p_txn->p_block->get_string( 0), ""));
+		REQUIRE(!strcmp(p_txn->p_block->get_string( 1), "Monday"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string( 2), "Tuesday"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(94), "Monday"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(95), "Tuesday"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(96), ""));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_LONG_INTEGER, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1804,43 +1804,43 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*49 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_longint[j] = j;
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*49 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_longint[j] = j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*49 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*49 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_TIME") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_TIME, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_TIME);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1849,43 +1849,43 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*49 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_longint[j] = j;
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*49 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_longint[j] = j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*49 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == true);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*49 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_DOUBLE") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_DOUBLE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_DOUBLE);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+		REQUIRE(p_txn->p_block->rank == 1);
 
 		memset(&dim_read, 1, sizeof(dim_read));
 
-		p_keeper->p_block->get_dimensions(dim_read.dim);
+		p_txn->p_block->get_dimensions(dim_read.dim);
 
 		REQUIRE(dim_read.dim[0] == 97);
 		REQUIRE(dim_read.dim[1] == 0);
@@ -1894,30 +1894,30 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(dim_read.dim[4] == 0);
 		REQUIRE(dim_read.dim[5] == 0);
 
-		REQUIRE(p_keeper->p_block->size == 97);
-		REQUIRE(p_keeper->p_block->num_attributes == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*49 + 8*3 + 16 + 22);
-		REQUIRE(p_keeper->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_keeper->p_block->tensor.cell_double[j] = -0.1234567890123*j;
+		REQUIRE(p_txn->p_block->size == 97);
+		REQUIRE(p_txn->p_block->num_attributes == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*49 + 8*3 + 16 + 22);
+		REQUIRE(p_txn->p_block->has_NA == true);
+		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_double[j] = -0.1234567890123*j;
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
-		REQUIRE(elapsed_mu_sec(p_keeper->p_block->created) < 3e6);
-		REQUIRE(p_keeper->p_block->hash64 == MurmurHash64A(&p_keeper->p_block->tensor, 16*49 + 8*3 + 16 + 22));
+		REQUIRE(p_txn->p_block->has_NA == false);
+		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 16*49 + 8*3 + 16 + 22));
 
-		REQUIRE(p_keeper->p_block->find_attribute(976555311) == nullptr);
-		REQUIRE(p_keeper->p_block->find_attribute(1357) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(1357), "Hello world!"));
-		REQUIRE(p_keeper->p_block->find_attribute(222) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(222), "123."));
-		REQUIRE(p_keeper->p_block->find_attribute(468) != nullptr);
-		REQUIRE(!strcmp(p_keeper->p_block->find_attribute(468), "Hi!"));
+		REQUIRE(p_txn->p_block->find_attribute(976555311) == nullptr);
+		REQUIRE(p_txn->p_block->find_attribute(1357) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(1357), "Hello world!"));
+		REQUIRE(p_txn->p_block->find_attribute(222) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(222), "123."));
+		REQUIRE(p_txn->p_block->find_attribute(468) != nullptr);
+		REQUIRE(!strcmp(p_txn->p_block->find_attribute(468), "Hi!"));
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	char const *text_file_0 = "",
@@ -1932,445 +1932,445 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			   *text_file_9 = "\n\n\nMon\n\nTue\nWed\n\n\n";
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, nullptr, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, text_file_0)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, text_file_0)
 							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, nullptr, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, text_file_0)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, text_file_0)
 							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, nullptr, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, text_file_0)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, text_file_0)
 							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_0)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_0)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 1);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 1);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == STRING_EMPTY);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 3);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "Q") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 3);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "Q") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_1)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_1)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 1);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 1);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 1);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 1);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == STRING_EMPTY);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 3);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "#") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 3);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "#") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_2)
+		REQUIRE(CNT.new_block(p_txn,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_2)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 3);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 3);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[2] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[2] == STRING_EMPTY);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 5);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "A") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 5);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_3)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_3)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 2);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 2);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 2);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 2);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), "abc"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == 2);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), "def"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == 6);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), "abc"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == 2);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), "def"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == 6);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 10);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "A") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 10);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_4)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_4)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 2);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 2);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 2);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 2);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), "abc"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == 2);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), "def"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == 6);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), "abc"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == 2);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), "def"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == 6);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 10);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "A") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 10);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_5)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_5)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 3);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 3);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 3);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), "abc"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == 2);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), "def"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == 6);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[2] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), "abc"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == 2);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), "def"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == 6);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[2] == STRING_EMPTY);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 11);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "A") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 11);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_6)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_6)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 2);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16 + 8 + 16 + 25 + 2);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 2);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 25 + 2);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), "This is a common"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == 2);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), "text file"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == 19);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), "This is a common"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == 2);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), "text file"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == 19);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 29);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "A") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 29);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_7)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_7)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 5);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*2 + 8 + 16 + 31 + 5);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 5);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*2 + 8 + 16 + 31 + 5);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), "This is another"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == 3);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[2] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(3), "common"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[3] == 20);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(4), "text file."));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[4] == 27);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), "This is another"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == 3);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[2] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(3), "common"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[3] == 20);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(4), "text file."));
+		REQUIRE(p_txn->p_block->tensor.cell_int[4] == 27);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 38);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "S") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 38);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "S") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 11;
 		dim_xx.dim[1] = 0;
 		dim_xx.dim[2] = 0;
-		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 13;
 		dim_xx.dim[1] = 0;
 		dim_xx.dim[2] = 0;
-		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 5;
 		dim_xx.dim[1] = 2;
 		dim_xx.dim[2] = 0;
-		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_keeper == nullptr);
+		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 6;
 		dim_xx.dim[1] = 2;
 		dim_xx.dim[2] = 0;
 
-		REQUIRE(   CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 2);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 2);
 
-		REQUIRE(p_keeper->p_block->size == 12);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 12);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0),  "January"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1),  "February"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2),  "March"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(3),  "April"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(4),  "May"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(5),  "June"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(6),  "July"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(7),  "August"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(8),  "September"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(9),  "October"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(10), "November"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(11), "December"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0),  "January"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1),  "February"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2),  "March"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(3),  "April"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(4),  "May"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(5),  "June"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(6),  "July"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(7),  "August"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(8),  "September"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(9),  "October"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(10), "November"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(11), "December"));
 
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "-") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "-") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, dim_t4.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t4.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 3);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 3);
 
-		REQUIRE(p_keeper->p_block->size == 12);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 12);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0),  "January"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1),  "February"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2),  "March"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(3),  "April"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(4),  "May"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(5),  "June"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(6),  "July"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(7),  "August"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(8),  "September"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(9),  "October"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(10), "November"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(11), "December"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0),  "January"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1),  "February"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2),  "March"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(3),  "April"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(4),  "May"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(5),  "June"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(6),  "July"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(7),  "August"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(8),  "September"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(9),  "October"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(10), "November"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(11), "December"));
 
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "@") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "@") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 							  == SERVICE_NO_ERROR);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 12);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 12);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 75 + 11);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0),  "January"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1),  "February"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2),  "March"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(3),  "April"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(4),  "May"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(5),  "June"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(6),  "July"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(7),  "August"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(8),  "September"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(9),  "October"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(10), "November"));
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(11), "December"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0),  "January"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1),  "February"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2),  "March"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(3),  "April"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(4),  "May"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(5),  "June"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(6),  "July"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(7),  "August"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(8),  "September"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(9),  "October"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(10), "November"));
+		REQUIRE(!strcmp(p_txn->p_block->get_string(11), "December"));
 
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "T") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "T") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_keeper,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_9)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_9)
 							  == SERVICE_NO_ERROR);
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_STRING);
-		REQUIRE(p_keeper->p_block->rank == 1);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_txn->p_block->rank == 1);
 
-		REQUIRE(p_keeper->p_block->size == 9);
-		REQUIRE(p_keeper->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 9 + 9);
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->size == 9);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16*3 + 8 + 16 + 9 + 9);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		check_and_finish(p_keeper->p_block);
+		check_and_finish(p_txn->p_block);
 
-		REQUIRE(p_keeper != nullptr);
+		REQUIRE(p_txn != nullptr);
 
-		REQUIRE(p_keeper->p_block->has_NA == false);
+		REQUIRE(p_txn->p_block->has_NA == false);
 
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(0), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[0] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(1), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[1] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(2), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[2] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(3), "Mon"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[3] == 5);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(4), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[4] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(5), "Tue"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[5] == 10);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(6), "Wed"));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[6] == 14);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(7), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[7] == STRING_EMPTY);
-		REQUIRE(!strcmp(p_keeper->p_block->get_string(8), ""));
-		REQUIRE(p_keeper->p_block->tensor.cell_int[8] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(0), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[0] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(1), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[1] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(2), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[2] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(3), "Mon"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[3] == 5);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(4), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[4] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(5), "Tue"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[5] == 10);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(6), "Wed"));
+		REQUIRE(p_txn->p_block->tensor.cell_int[6] == 14);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(7), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[7] == STRING_EMPTY);
+		REQUIRE(!strcmp(p_txn->p_block->get_string(8), ""));
+		REQUIRE(p_txn->p_block->tensor.cell_int[8] == STRING_EMPTY);
 
-		REQUIRE(p_keeper->p_block->p_string_buffer()->last_idx == 20);
-		REQUIRE(!p_keeper->p_block->p_string_buffer()->alloc_failed);
-		REQUIRE(p_keeper->p_block->get_string_offset(p_keeper->p_block->p_string_buffer(), "p") == STRING_NA);
-		REQUIRE(p_keeper->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->p_string_buffer()->last_idx == 20);
+		REQUIRE(!p_txn->p_block->p_string_buffer()->alloc_failed);
+		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "p") == STRING_NA);
+		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_keeper);
-		REQUIRE(p_keeper == nullptr);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
 	}
 
 	bool filter_v_z[120], filter_v_1[120], filter_v_n[120];
@@ -2381,13 +2381,13 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		filter_v_n[i] = (i % 7) == 2;
 	}
 
-	REQUIRE(CNT.new_block(p_keeper, CELL_TYPE_DOUBLE, dim_t5.dim) == SERVICE_NO_ERROR);
+	REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t5.dim) == SERVICE_NO_ERROR);
 
-	REQUIRE(p_keeper != nullptr);
+	REQUIRE(p_txn != nullptr);
 
-	REQUIRE(p_keeper->p_block->cell_type == CELL_TYPE_DOUBLE);
-	REQUIRE(p_keeper->p_block->rank == 3);
-	REQUIRE(p_keeper->p_block->size == 2400);
+	REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+	REQUIRE(p_txn->p_block->rank == 3);
+	REQUIRE(p_txn->p_block->size == 2400);
 
 	pTransaction p_filter_kpr;
 
@@ -2413,7 +2413,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(p_filter_kpr->p_block != nullptr);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_BOOLEAN);
-		REQUIRE(p_filter_kpr->p_block->can_filter(p_keeper->p_block));
+		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
 		CNT.destroy(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
@@ -2443,7 +2443,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(p_filter_kpr->p_block != nullptr);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_INTEGER);
-		REQUIRE(p_filter_kpr->p_block->can_filter(p_keeper->p_block));
+		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
 		CNT.destroy(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
@@ -2466,7 +2466,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(p_filter_kpr->p_block != nullptr);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_INTEGER);
-		REQUIRE(p_filter_kpr->p_block->can_filter(p_keeper->p_block));
+		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
 		CNT.destroy(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
@@ -2491,14 +2491,14 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(p_filter_kpr->p_block != nullptr);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_INTEGER);
-		REQUIRE(p_filter_kpr->p_block->can_filter(p_keeper->p_block));
+		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
 		CNT.destroy(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 	}
 
-	CNT.destroy(p_keeper);
-	REQUIRE(p_keeper == nullptr);
+	CNT.destroy(p_txn);
+	REQUIRE(p_txn == nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
