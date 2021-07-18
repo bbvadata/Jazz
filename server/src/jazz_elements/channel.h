@@ -90,7 +90,8 @@ namespace jazz_elements
 #define CHANNEL_CONTAINER_REMOVE	0x2100		///< A channel deleting any Block, Kind or Tuple inside a Container or descendant
 
 
-/** \brief Channels: A Service to manage Channel objects.
+/** \brief Channels: A Container doing block transactions across media (files, folders, shell, urls, other Containers, ..)
+
 
 */
 class Channels : public Container {
@@ -102,6 +103,113 @@ class Channels : public Container {
 
 		StatusCode start	 ();
 		StatusCode shut_down ();
+
+		// The "verbose" interface (which overrides the same method in Container, but requires parsing the strings.)
+		StatusCode get		   (pChar		  p_what,
+								pTransaction &p_txn);
+		StatusCode put		   (pBlock		  p_block,
+								pChar		  p_where);
+		StatusCode remove	   (pChar		  p_what);
+		StatusCode copy		   (pChar		  p_what,
+								pChar		  p_where);
+
+		// The "native" interface (which does the job).)
+		StatusCode get		   (int			  channel,
+								pChar		  p_locator,
+								pTransaction &p_txn);
+		StatusCode put		   (int			  channel,
+								pBlock		  p_block,
+								pChar		  p_locator);
+		StatusCode remove	   (int			  channel,
+								pChar		  p_what);
+		StatusCode copy		   (int			  channel,
+								pChar		  p_what,
+								pChar		  p_where);
+
+		// The parsers
+		StatusCode parse_rvalue(pChar		  p_what);
+		StatusCode parse_lvalue(pChar		  p_where);
+
+		// Libcurl
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// https://curl.se/libcurl/c/libcurl.html
+
+// The basic rule for constructing a program that uses libcurl is this: Call curl_global_init, with a CURL_GLOBAL_ALL argument, immediately after the program starts, while it is still only one thread and before it uses libcurl at all. Call curl_global_cleanup immediately before the program exits, when the program is again only one thread and after its last use of libcurl.
+
+// You can call both of these multiple times, as long as all calls meet these requirements and the number of calls to each is the same.
+
+// It isn't actually required that the functions be called at the beginning and end of the program -- that's just usually the easiest way to do it. It is required that the functions be called when no other thread in the program is running.
+
+// These global constant functions are not thread safe, so you must not call them when any other thread in the program is running. It isn't good enough that no other thread is using libcurl at the time, because these functions internally call similar functions of other libraries, and those functions are similarly thread-unsafe. You can't generally know what these libraries are, or whether other threads are using them.
+
+// The global constant situation merits special consideration when the code you are writing to use libcurl is not the main program, but rather a modular piece of a program, e.g. another library. As a module, your code doesn't know about other parts of the program -- it doesn't know whether they use libcurl or not. And its code doesn't necessarily run at the start and end of the whole program.
+
+// A module like this must have global constant functions of its own, just like curl_global_init and curl_global_cleanup. The module thus has control at the beginning and end of the program and has a place to call the libcurl functions. Note that if multiple modules in the program use libcurl, they all will separately call the libcurl functions, and that's OK because only the first curl_global_init and the last curl_global_cleanup in a program change anything. (libcurl uses a reference count in static memory).
+
+// In a C++ module, it is common to deal with the global constant situation by defining a special class that represents the global constant environment of the module. A program always has exactly one object of the class, in static storage. That way, the program automatically calls the constructor of the object as the program starts up and the destructor as it terminates. As the author of this libcurl-using module, you can make the constructor call curl_global_init and the destructor call curl_global_cleanup and satisfy libcurl's requirements without your user having to think about it. (Caveat: If you are initializing libcurl from a Windows DLL you should not initialize it from DllMain or a static initializer because Windows holds the loader lock during that time and it could cause a deadlock.)
+
+// curl_global_init has an argument that tells what particular parts of the global constant environment to set up. In order to successfully use any value except CURL_GLOBAL_ALL (which says to set up the whole thing), you must have specific knowledge of internal workings of libcurl and all other parts of the program of which it is part.
+
+// A special part of the global constant environment is the identity of the memory allocator. curl_global_init selects the system default memory allocator, but you can use curl_global_init_mem to supply one of your own. However, there is no way to use curl_global_init_mem in a modular program -- all modules in the program that might use libcurl would have to agree on one allocator.
+
+// There is a failsafe in libcurl that makes it usable in simple situations without you having to worry about the global constant environment at all: curl_easy_init sets up the environment itself if it hasn't been done yet. The resources it acquires to do so get released by the operating system automatically when the program exits.
+
+// This failsafe feature exists mainly for backward compatibility because there was a time when the global functions didn't exist. Because it is sufficient only in the simplest of programs, it is not recommended for any program to rely on it.
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// https://curl.se/libcurl/c/libcurl-tutorial.html
+
+// The name might make it seem that the multi interface is for multi-threaded programs, but the truth is almost the reverse. The multi interface allows a single-threaded application to perform the same kinds of multiple, simultaneous transfers that multi-threaded programs can perform. It allows many of the benefits of multi-threaded transfers without the complexity of managing and synchronizing many threads.
+
+// To use this interface, you are better off if you first understand the basics of how to use the easy interface. The multi interface is simply a way to make multiple transfers at the same time by adding up multiple easy handles into a "multi stack".
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// https://curl.se/libcurl/c/threadsafe.html
+
+// libcurl is thread safe but has no internal thread synchronization. You may have to provide your own locking should you meet any of the thread safety exceptions below.
+
+// Handles. You must never share the same handle in multiple threads. You can pass the handles around among threads, but you must never use a single handle from more than one thread at any given time.
+
+// Shared objects. You can share certain data between multiple handles by using the share interface but you must provide your own locking and set curl_share_setopt CURLSHOPT_LOCKFUNC and CURLSHOPT_UNLOCKFUNC.
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+// https://curl.se/libcurl/c/example.html
+
+// libcurl - small example snippets
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+		StatusCode url_put	   ();
+		StatusCode url_get	   ();
+		StatusCode url_delete  ();
+
+		// The shell
+
+// https://stackoverflow.com/questions/478898/how-do-i-execute-a-command-and-get-the-output-of-the-command-within-c-using-po
+
+// #include <cstdio>
+// #include <iostream>
+// #include <memory>
+// #include <stdexcept>
+// #include <string>
+// #include <array>
+
+// std::string exec(const char* cmd) {
+//     std::array<char, 128> buffer;
+//     std::string result;
+//     std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+//     if (!pipe) {
+//         throw std::runtime_error("popen() failed!");
+//     }
+//     while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+//         result += buffer.data();
+//     }
+//     return result;
+// }
+
+		StatusCode shell_exec  ();
+
+		// Base names
 
 		void base_names (BaseNames &base_names);
 };
