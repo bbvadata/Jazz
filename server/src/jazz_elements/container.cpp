@@ -253,7 +253,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (p_text != nullptr) {
 		if (cell_type != CELL_TYPE_STRING || fill_tensor != FILL_WITH_TEXTFILE) {
-			destroy_transaction(p_txn);
+			destroy_internal(p_txn);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -272,7 +272,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (dim == nullptr) {
 		if (p_text == nullptr) {
-			destroy_transaction(p_txn);
+			destroy_internal(p_txn);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -290,7 +290,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		reinterpret_cast<pBlock>(&hea)->set_dimensions(dim);
 
 		if (num_lines && (num_lines != hea.size)){
-			destroy_transaction(p_txn);
+			destroy_internal(p_txn);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 	}
@@ -316,7 +316,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	p_txn->p_block = (pBlock) malloc(hea.total_bytes);
 
 	if (p_txn->p_block == nullptr) {
-		destroy_transaction(p_txn);
+		destroy_internal(p_txn);
 		return SERVICE_ERROR_NO_MEM;
 	}
 
@@ -441,7 +441,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				break; }
 
 			default:
-				destroy_transaction(p_txn);
+				destroy_internal(p_txn);
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
 			break;
@@ -449,7 +449,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		case FILL_BOOLEAN_FILTER:
 			p_txn->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
-				destroy_transaction(p_txn);
+				destroy_internal(p_txn);
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			memcpy(&p_txn->p_block->tensor, p_bool_filter, p_txn->p_block->size);
@@ -458,7 +458,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		case FILL_INTEGER_FILTER: {
 			p_txn->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_INTEGER) {
-				destroy_transaction(p_txn);
+				destroy_internal(p_txn);
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			int j = 0;
@@ -477,7 +477,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			break; }
 
 		default:
-			destroy_transaction(p_txn);
+			destroy_internal(p_txn);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;			// No silent fail, fill_tensor is invalid
 		}
 	}
@@ -513,7 +513,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return ret;
 
 	if (p_from == nullptr || p_from->size < 0 || p_from->range.dim[0] < 1) {
-		destroy_transaction(p_txn);
+		destroy_internal(p_txn);
 		return SERVICE_ERROR_NEW_BLOCK_ARGS;
 	}
 
@@ -526,7 +526,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		int	tensor_rows = p_from->size/p_from->range.dim[0];
 
 		if (!p_row_filter->can_filter(p_from)){
-			destroy_transaction(p_txn);
+			destroy_internal(p_txn);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -563,7 +563,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		}
 
 		if (!new_num_attributes) {
-			destroy_transaction(p_txn);
+			destroy_internal(p_txn);
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -584,7 +584,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	p_txn->p_block = (pBlock) malloc(total_bytes);
 
 	if (p_txn->p_block == nullptr) {
-		destroy_transaction(p_txn);
+		destroy_internal(p_txn);
 		return SERVICE_ERROR_NO_MEM;
 	}
 
@@ -789,7 +789,7 @@ StatusCode Container::destroy_container()
 	if (p_buffer != nullptr) {
 		while (p_alloc != nullptr) {
 			pTransaction pt = p_alloc;
-			destroy_transaction(pt);
+			destroy_internal(pt);
 		}
 		free (p_buffer);
 	}

@@ -290,7 +290,7 @@ class Container : public Service {
 
 		/** Dealloc the Block in the keeper (if not null) and free the Transaction API.
 		*/
-		inline void destroy_transaction (pTransaction &p_txn) {
+		inline void destroy_internal (pTransaction &p_txn) {
 			if (p_txn->p_block != nullptr) {
 				switch (p_txn->p_block->cell_type) {
 				case CELL_TYPE_INDEX_II:

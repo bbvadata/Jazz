@@ -344,7 +344,7 @@ SCENARIO("Testing threading functions") {
 }
 
 
-SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
+SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	pTransaction p_txn[20];
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
@@ -403,8 +403,8 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[1] != nullptr);
 	REQUIRE(CNT.alloc_warning_issued);
 
-	CNT.destroy_transaction(p_txn[1]);
-	CNT.destroy_transaction(p_txn[0]);
+	CNT.destroy_internal(p_txn[1]);
+	CNT.destroy_internal(p_txn[0]);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -422,7 +422,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[0]->p_block == nullptr);
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
 
-	CNT.destroy_transaction(p_txn[0]);
+	CNT.destroy_internal(p_txn[0]);
 	REQUIRE(p_txn[0] == nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
@@ -444,7 +444,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 			REQUIRE(CNT.p_free == nullptr);
 
 		for (int i = 0; i < t; i++) {
-			CNT.destroy_transaction(p_txn[i]);
+			CNT.destroy_internal(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
@@ -460,7 +460,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 			REQUIRE(CNT.p_free == nullptr);
 
 		for (int i = t - 1; i >= 0; i--) {
-			CNT.destroy_transaction(p_txn[i]);
+			CNT.destroy_internal(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
@@ -481,7 +481,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 			while (p_txn[j] == nullptr)
 				j = (j + 1) % t;
 
-			CNT.destroy_transaction(p_txn[j]);
+			CNT.destroy_internal(p_txn[j]);
 			REQUIRE(p_txn[j] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
@@ -498,7 +498,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.p_free == nullptr);
 
 	for (int i = 0; i < 16; i++) {
-		CNT.destroy_transaction(p_txn[i]);
+		CNT.destroy_internal(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -536,7 +536,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[16] == nullptr);
 
 	for (int i = 0; i < 16; i++) {
-		CNT.destroy_transaction(p_txn[i]);
+		CNT.destroy_internal(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -583,7 +583,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	REQUIRE(p_txn->_lock_  == 0);
 
 	REQUIRE(CNT.p_alloc != nullptr);
-	CNT.destroy_transaction(p_txn);
+	CNT.destroy_internal(p_txn);
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(p_txn		== nullptr);
 
