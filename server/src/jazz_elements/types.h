@@ -35,6 +35,7 @@
 #include <map>
 #include <chrono>
 #include <stdint.h>
+#include <string>
 
 
 #if defined CATCH_TEST
