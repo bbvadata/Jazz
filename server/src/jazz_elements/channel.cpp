@@ -32,7 +32,8 @@
 */
 
 
-#include "curl/curl.h"
+#include <curl/curl.h>
+#include <zmq.h>
 
 
 #include "src/jazz_elements/channel.h"

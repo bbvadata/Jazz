@@ -53,7 +53,7 @@
 #define MHD_PLATFORM_H					// Following recommendation in: 1.5 Including the microhttpd.h header
 
 
-#include "microhttpd.h"
+#include <microhttpd.h>
 
 #if MHD_VERSION < 0x00097000
 /*! \brief Replacement type for the future (libmicrohttpd-dev 0.9.72-2)
