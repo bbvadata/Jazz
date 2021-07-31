@@ -76,6 +76,25 @@ if [ ! -e "$curl_libpath/libcurl.so" ]; then
   exit 1
 fi
 
+if [ -e '_config_/zmq_include_path' ]; then zmq_inclpath=$(cat _config_/zmq_include_path); else zmq_inclpath='/usr/local/include'; fi
+
+if [ ! -e "$zmq_inclpath/zmq.h" ]; then
+  echo "** File $zmq_inclpath/zmq.h was not found. **"
+  cat _config_/help_zmq_not_found.txt
+  exit
+fi
+
+if [ -e '_config_/zmq_library_path' ]; then zmq_libpath=$(cat _config_/zmq_library_path)
+else
+  if [ -e '/usr/local/lib/libzmq.so' ]; then zmq_libpath='/usr/local/lib'; else zmq_libpath='/usr/lib/x86_64-linux-gnu'; fi
+fi
+
+if [ ! -e "$zmq_libpath/libzmq.so" ]; then
+  echo "** File $zmq_libpath/libzmq.so was not found. **"
+  cat _config_/help_zmq_not_found.txt
+  exit 1
+fi
+
 cd server || return 1
 
 testp=$(echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' ')
@@ -146,6 +165,8 @@ if [[ $mode =~ 'DEBUG' ]]; then
   echo "mhd_libpath   = $mhd_libpath"
   echo "curl_inclpath = $curl_inclpath"
   echo "curl_libpath  = $curl_libpath"
+  echo "zmq_inclpath  = $zmq_inclpath"
+  echo "zmq_libpath   = $zmq_libpath"
   echo "vpath         = $vpath"
   echo "jzpat         = $jzpat"
   echo "cpps          = $cpps"
@@ -193,12 +214,13 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath
+CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version
 mhd_libpath  := $mhd_libpath
 curl_libpath := $curl_libpath
+zmq_libpath  := $zmq_libpath
 
 VPATH = $vpath
 

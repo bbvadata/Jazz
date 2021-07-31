@@ -1,0 +1,34 @@
+
+The Jazz server requires libzmq (development version)!
+
+1. If you haven't yet installed libzmq:
+
+  You have to compile it from source.
+
+  First download it (you can search for the latest version, 4.3.4 is okay):
+
+    wget https://github.com/zeromq/libzmq/releases/download/v4.3.4/zeromq-4.3.4.tar.gz
+
+  Extract it, change to the folder and autogen (to prepare it for installation)
+
+	tar -xvf zeromq-4.3.4.tar.gz
+	cd zeromq-4.3.4
+	./autogen.sh
+
+  Compile it (passing the tests is slower but recommended)
+
+	./configure
+	make check
+
+  Install it
+
+	sudo make install
+
+2. If you know where to find the library (libzmq.so) and the header (zmq.h):
+
+  You can set the paths (ONLY the paths, no extra characters) in _config_ as follows:
+
+    echo '/home/me/my_lib/include' > _config_/zmq_include_path
+    echo '/home/me/my_lib/libs'    > _config_/zmq_library_path
+
+  and run ./config.sh again. It will use these paths instead of trying to guess.
