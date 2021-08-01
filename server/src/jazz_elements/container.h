@@ -62,7 +62,11 @@ namespace jazz_elements
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
 #define MAX_ITEMS_IN_KIND				64					///< The number of items merged into a kind or tuple.
+#define MAX_SIZE_OF_CELL_AS_TEXT		48					///< What an integer, bool, float or date can take as text
 
+/// Serialization CONST
+#define NA_AS_TEXT						{"NA\0"}			///< A constant representing NA in all types supporting it.
+#define LENGTH_NA_AS_TEXT				2					///< The length of the sequence NA without the trailing zero.
 
 /// Block API (method arguments)
 
