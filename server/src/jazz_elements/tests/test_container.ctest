@@ -159,6 +159,7 @@ SCENARIO("Testing (container) structure sizes.") {
 	REQUIRE(sizeof(StoredTransaction) == 48);
 }
 
+
 SCENARIO("Testing threading functions") {
 	WHEN("We check basic assumptions, we get expected results") {
 		REQUIRE(JBK._lock_ == 0);
@@ -554,7 +555,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 }
 
 
-SCENARIO("Testing JazzBlock creation from scratch") {
+SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying everything from scratch.") {
 	TensorDim dim_t1 {{7, 3, 5, 0}}, dim_t2 {{7, 2, 2, 2, 3, 2}}, dim_t3 {{97, 0}}, dim_t4 {{3, 2, 2, 0}};
 	TensorDim dim_t5 {{120, 5, 4, 0}}, dim_t6 {{120, 0}}, dim_t7 {{7, 0}}, dim_read, dim_xx {{0}};
 
@@ -2509,7 +2510,22 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 }
 
 
-SCENARIO("Testing JazzBlock creation by copying/filtering") {
+SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+
+SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) from another Tensor.") {
 	pTransaction p_db_r1, p_db_r3, p_db_r6, p_st_r1, p_st_r3, p_st_r6, p_by_r1, p_by_r3, p_by_r6;
 	pTransaction p_if_r1, p_if_r3, p_if_r6, p_bf_r1, p_bf_r3, p_bf_r6;
 
@@ -3790,3 +3806,60 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
+
+
+SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tuple.") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing new_block() (5) Create a Tensor, Kind or Tuple from a Text block.") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing new_block() (6) Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization.") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing new_block() (7) Create an empty Index block.") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
