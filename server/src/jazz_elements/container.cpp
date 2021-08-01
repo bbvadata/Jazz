@@ -714,6 +714,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (p_txn->p_block == nullptr) {
 		destroy_internal(p_txn);
+
 		return SERVICE_ERROR_NO_MEM;
 	}
 
@@ -802,14 +803,17 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  name,
 								AttributeMap *att) {
 
-	StatusCode ret = new_transaction(p_txn);
+	if (p_from->cell_type != CELL_TYPE_TUPLE_ITEM)
+		return SERVICE_ERROR_WRONG_TYPE;
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	int idx = reinterpret_cast<pTuple>(p_from)->index(name);
 
-//TODO: Implement new Block (4)
+	if (idx < 0)
+		return SERVICE_ERROR_WRONG_NAME;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	pBlock block = reinterpret_cast<pTuple>(p_from)->block(idx);
+
+	return new_block(p_txn, block, (pBlock) nullptr, att);	// This manages the alloc issues of att and possible strings already.
 }
 
 
