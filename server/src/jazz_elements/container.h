@@ -438,6 +438,26 @@ class Container : public Service {
 			p_ret[0] = 0;
 		}
 
+		inline void separator(int rank_1, int shape[], int idx[], pChar &p_ret) {
+			for (int i = rank_1; i >= 0; i --) {
+				idx[i]++;
+
+				if (idx[i] == shape[i]) {
+					idx[i] = 0;
+					(p_ret++)[0] = ']';
+				} else {
+					(p_ret++)[0] = ',';
+					(p_ret++)[0] = ' ';
+
+					for (int j = 0; j < rank_1 - i; j++)
+						(p_ret++)[0] = '[';
+
+					break;
+				}
+			}
+			p_ret[0] = 0;
+		}
+
 };
 
 } // namespace jazz_elements
