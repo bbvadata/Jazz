@@ -756,6 +756,18 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
+/** Create a new Block (6): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
+
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param p_from_raw	The block to be serialized
+	\param p_fmt		An optional numerical precision format specifier. In the case of Tuples, if this is used all items with numerical
+						tensors will use it. (This may imply converting integer to double depending on the specifier.)
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_from.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+*/
 StatusCode Container::new_block(pTransaction &p_txn,
 								pBlock		  p_from_raw,
 						   		pChar		  p_fmt,
