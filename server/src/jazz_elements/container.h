@@ -233,6 +233,7 @@ class Container : public Service {
 								pStaticBlockHeader	p_hea[],
 								Name				p_names[],
 								pBlock				p_block[],
+								AttributeMap	   *dims			= nullptr,
 								AttributeMap	   *att				= nullptr);
 
 		// 3. new_block(): Create a Tensor by selecting rows (filtering) from another Tensor.
