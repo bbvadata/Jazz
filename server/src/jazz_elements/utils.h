@@ -106,6 +106,7 @@ without global variables.
 #define SERVICE_ERROR_WRONG_ARGUMENTS	-9		///< Error with arguments any call.
 #define SERVICE_ERROR_BAD_KIND			-10		///< Kind.new_kind() or Kind.add_item() failed in new_block().
 #define SERVICE_ERROR_BAD_TUPLE			-11		///< Tuple.new_tuple() failed in new_block().
+#define SERVICE_ERROR_BAD_BLOCK			-12		///< A general error when Blocks cannot be serialized for whatever reason.
 
 /** Default path to config file
 */
