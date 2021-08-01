@@ -878,11 +878,17 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_LONG_INTEGER:
 		total_bytes = tensor_int_as_text(p_from_raw, nullptr, p_fmt);
 
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
+
 		break;
 
 	case CELL_TYPE_BYTE_BOOLEAN:
 	case CELL_TYPE_BOOLEAN:
 		total_bytes = tensor_bool_as_text(p_from_raw, nullptr, p_fmt);
+
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
@@ -890,25 +896,40 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_DOUBLE:
 		total_bytes = tensor_float_as_text(p_from_raw, nullptr, p_fmt);
 
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
+
 		break;
 
 	case CELL_TYPE_STRING:
 		total_bytes = tensor_string_as_text(p_from_raw, nullptr);
+
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
 	case CELL_TYPE_TIME:
 		total_bytes = tensor_time_as_text(p_from_raw, nullptr, p_fmt);
 
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
+
 		break;
 
 	case CELL_TYPE_TUPLE_ITEM:
 		total_bytes = tensor_tuple_as_text(p_from_raw, nullptr, p_fmt);
 
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
+
 		break;
 
 	case CELL_TYPE_KIND_ITEM:
 		total_bytes = tensor_kind_as_text(p_from_raw, nullptr);
+
+		if (total_bytes == 0)
+			return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
