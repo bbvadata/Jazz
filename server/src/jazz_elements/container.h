@@ -177,6 +177,22 @@ Scope of jazz_elements
 Everything works at binary level, operations on blocks at this level are very simple, just copying, deleting, filtering a Tensor by
 (int or bool) indices, filtering a Tuple by item name and support every medium in the more conceivably efficient way.
 Serialization (to and from text) is done at the Api level, running code in jazz_bebop and agency (yomi) at jazz_agency.
+
+new_block()
+-----------
+
+**NOTE** that new_block() has 7 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
+sharing a pointer to an existing one). Therefore, the container allocates and owns it an requires a destroy() call when no longer needed.
+The forms cover all the supported ways to do basic operations like filtering and serializing.
+
+   -# new_block(): Create a Tensor from raw data specifying everything from scratch.
+   -# new_block(): Create a Kind or Tuple from arrays of StaticBlockHeader, names, and, in the case of a tuple, Tensors.
+   -# new_block(): Create a Tensor by selecting rows (filtering) from another Tensor.
+   -# new_block(): Create a Tensor by selecting an item from a Tuple.
+   -# new_block(): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
+   -# new_block(): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
+   -# new_block(): Create an empty Index block. It is dynamically allocated, it contains an std:map, and destroy()-ed just like the others.
+
 */
 class Container : public Service {
 
