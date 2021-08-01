@@ -358,16 +358,22 @@ class Container : public Service {
 			if (p_txn->p_block != nullptr) {
 				switch (p_txn->p_block->cell_type) {
 				case CELL_TYPE_INDEX_II:
-					reinterpret_cast<pBlockHeader>(p_txn->p_block)->index.index_ii.~map();
+					p_txn->p_hea->index.index_ii.~map();
+
 					break;
+
 				case CELL_TYPE_INDEX_IS:
-					reinterpret_cast<pBlockHeader>(p_txn->p_block)->index.index_is.~map();
+					p_txn->p_hea->index.index_is.~map();
+
 					break;
+
 				case CELL_TYPE_INDEX_SI:
-					reinterpret_cast<pBlockHeader>(p_txn->p_block)->index.index_si.~map();
+					p_txn->p_hea->index.index_si.~map();
+
 					break;
+
 				case CELL_TYPE_INDEX_SS:
-					reinterpret_cast<pBlockHeader>(p_txn->p_block)->index.index_ss.~map();
+					p_txn->p_hea->index.index_ss.~map();
 				};
 
 				alloc_bytes -= p_txn->p_block->total_bytes;
