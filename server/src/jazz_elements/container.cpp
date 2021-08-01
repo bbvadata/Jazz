@@ -893,7 +893,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_STRING:
-		total_bytes = tensor_string_as_text(p_from_raw, nullptr, p_fmt);
+		total_bytes = tensor_string_as_text(p_from_raw, nullptr);
 
 		break;
 
@@ -908,7 +908,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_KIND_ITEM:
-		total_bytes = tensor_kind_as_text(p_from_raw, nullptr, p_fmt);
+		total_bytes = tensor_kind_as_text(p_from_raw, nullptr);
 
 		break;
 
@@ -955,7 +955,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_STRING:
-		tensor_string_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+		tensor_string_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor);
 
 		break;
 
@@ -970,7 +970,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	default:
-		tensor_kind_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+		tensor_kind_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor);
 
 	}
 
