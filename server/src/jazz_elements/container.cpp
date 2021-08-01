@@ -493,7 +493,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
-/** Create a new Block (2): Create a Block by slicing an existing Block.
+/** Create a new Block (3): Create a Tensor by selecting rows (filtering) from another Tensor.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
@@ -506,13 +506,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error). There is no async interface in this method.
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
 StatusCode Container::new_block(pTransaction &p_txn,
 								pBlock		  p_from,
 						   		pBlock		  p_row_filter,
-								AttributeMap *att)
-{
+								AttributeMap *att) {
+
 	StatusCode ret = new_transaction(p_txn);
 
 	if (ret != SERVICE_NO_ERROR)
