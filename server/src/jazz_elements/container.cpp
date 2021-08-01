@@ -489,6 +489,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	}
 
 	p_txn->status = BLOCK_STATUS_READY;
+
 	return SERVICE_NO_ERROR;
 }
 
@@ -503,6 +504,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_block		The data, only for tuples. It will normally be the same as p_hea but that will not be checked. The data is
 						simply assumed to have the exact shape and type defined in p_hea. If it is nullptr, a Kind will be created,
 						otherwise a Tuple will be created and data will be copied from here.
+	\param p_dims		For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
+						like when Kinds are built using Kind.new_kind() followed by Kind.add_item()
 	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
@@ -513,6 +516,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 								pStaticBlockHeader	p_hea[],
 								Name				p_names[],
 								pBlock				p_block[],
+								AttributeMap	   *p_dims,
 								AttributeMap	   *att) {
 
 	StatusCode ret = new_transaction(p_txn);
