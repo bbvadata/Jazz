@@ -693,6 +693,20 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
+/** Create a new Block (4): Create a Tensor by selecting an item from a Tuple.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param p_from	The Tuple from which the item is selected.
+	\param name		The name of the item to be selected.
+	\param att		The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+					use the version of new_jazz_block() with parameter p_from.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+The Tuple already has a method .block() that does this, the difference is the .block() method returns a pointer inside the Tuple
+while this makes a copy to a new block, possibly with attributes.
+*/
 StatusCode Container::new_block(pTransaction &p_txn,
 								pTuple		  p_from,
 						   		pChar		  name,
