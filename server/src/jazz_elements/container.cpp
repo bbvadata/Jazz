@@ -1206,10 +1206,155 @@ StatusCode Container::destroy_container() {
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+	char fmt [4] = {"%i\0"};
+	char na [4]	 = NA_AS_TEXT;
 
-//TODO: Implement this
+	if (p_fmt == nullptr)
+		p_fmt = (pChar) &fmt;
 
-	return 0;
+	int shape[MAX_TENSOR_RANK];
+	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+	int rank_1 = p_block->rank - 1;
+
+	p_block->get_dimensions((int *) &shape);
+
+	if (p_dest == nullptr) {
+		int total_len = p_block->rank;	// Length of opening_brackets()
+
+		switch (p_block->cell_type) {
+		case CELL_TYPE_BYTE: {
+			uint8_t *p_t = &p_block->tensor.cell_byte[0];
+
+			for (int i = 0; i < p_block->size; i++) {
+				sprintf(cell, p_fmt, p_t[0]);
+				total_len += strlen(cell) + separator_len(rank_1, shape, idx);
+				p_t++;
+			}
+
+			return total_len + 1;
+		}
+
+		case CELL_TYPE_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE: {
+			int *p_t = &p_block->tensor.cell_int[0];
+
+			for (int i = 0; i < p_block->size; i++) {
+				if (p_t[0] == INTEGER_NA) {
+					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
+					p_t++;
+
+				} else {
+					sprintf(cell, p_fmt, p_t[0]);
+					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
+					p_t++;
+				}
+			}
+
+			return total_len + 1;
+		}
+
+		case CELL_TYPE_LONG_INTEGER: {
+			long long *p_t = &p_block->tensor.cell_longint[0];
+
+			for (int i = 0; i < p_block->size; i++) {
+				if (p_t[0] == LONG_INTEGER_NA) {
+					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
+					p_t++;
+
+				} else {
+					sprintf(cell, p_fmt, p_t[0]);
+					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
+					p_t++;
+				}
+			}
+			return total_len + 1;
+		}
+
+		default:
+			total_len = 0;
+		}
+	}
+
+	opening_brackets(p_block->rank, p_dest);
+
+	switch (p_block->cell_type) {
+	case CELL_TYPE_BYTE: {
+		uint8_t *p_t = &p_block->tensor.cell_byte[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			int len = sprintf(p_dest, p_fmt, p_t[0]);
+			p_dest += len;
+
+			separator(rank_1, shape, idx, p_dest);
+
+			p_t++;
+		}
+
+		p_dest[0] = 0;
+
+		return 0;
+	}
+
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE: {
+		int *p_t = &p_block->tensor.cell_int[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			if (p_t[0] == INTEGER_NA) {
+				strcpy(p_dest, na);
+				p_dest += LENGTH_NA_AS_TEXT;
+
+				separator(rank_1, shape, idx, p_dest);
+
+				p_t++;
+			} else {
+				int len = sprintf(p_dest, p_fmt, p_t[0]);
+				p_dest += len;
+
+				separator(rank_1, shape, idx, p_dest);
+
+				p_t++;
+			}
+		}
+
+		p_dest[0] = 0;
+
+		return 0;
+	}
+
+	case CELL_TYPE_LONG_INTEGER: {
+		long long *p_t = &p_block->tensor.cell_longint[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			if (p_t[0] == LONG_INTEGER_NA) {
+				strcpy(p_dest, na);
+				p_dest += LENGTH_NA_AS_TEXT;
+
+				separator(rank_1, shape, idx, p_dest);
+
+				p_t++;
+			} else {
+				int len = sprintf(p_dest, p_fmt, p_t[0]);
+				p_dest += len;
+
+				separator(rank_1, shape, idx, p_dest);
+
+				p_t++;
+			}
+		}
+
+		p_dest[0] = 0;
+
+		return 0;
+	}
+
+	default:
+
+		return 0;
+	}
 }
 
 
