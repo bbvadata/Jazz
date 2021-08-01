@@ -894,14 +894,49 @@ will take care of freeing the std::map before destroying the transaction.
 */
 StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
+	if (cell_type & 0xff != CELL_TYPE_INDEX_II)
+		return SERVICE_ERROR_WRONG_TYPE;
+
 	StatusCode ret = new_transaction(p_txn);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-//TODO: Implement new Block (7)
+	p_txn->p_hea = (pBlockHeader) malloc(sizeof(BlockHeader));
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if (p_txn->p_block == nullptr) {
+		destroy_internal(p_txn);
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	p_txn->p_hea->cell_type = cell_type;
+	p_txn->p_hea->size	    = 0;
+
+	switch (cell_type)
+	{
+	case CELL_TYPE_INDEX_II:
+		p_txn->p_hea->index.index_ii = IndexII();
+
+		break;
+
+	case CELL_TYPE_INDEX_IS:
+		p_txn->p_hea->index.index_is = IndexIS();
+
+		break;
+
+	case CELL_TYPE_INDEX_SI:
+		p_txn->p_hea->index.index_si = IndexSI();
+
+		break;
+
+	default:
+		p_txn->p_hea->index.index_ss = IndexSS();
+
+		break;
+	}
+
+	return SERVICE_NO_ERROR;
 }
 
 
