@@ -524,9 +524,95 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-//TODO: Implement new Block (2)
+	StaticBlockHeader hea;
+	TensorDim i_dim;
+	i_dim.dim[0] = num_items;
+	i_dim.dim[1] = 0;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if (p_block == nullptr)
+		hea.cell_type = CELL_TYPE_KIND_ITEM;
+	else
+		hea.cell_type = CELL_TYPE_TUPLE_ITEM;
+
+	reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
+
+	hea.num_attributes = 0;
+
+	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
+
+	if (att	== nullptr) {
+		hea.total_bytes += 2*sizeof(int);
+		hea.num_attributes++;
+	} else {
+		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
+			int len = it->second == nullptr ? 0 : strlen(it->second);
+
+			if (len)
+				hea.total_bytes += len + 1;
+
+			hea.num_attributes++;
+		}
+		hea.total_bytes += 2*hea.num_attributes*sizeof(int);
+	}
+
+	for (int i = 0; i < num_items; i++) {
+		pChar p_name = (pChar) &p_names[i];
+
+		hea.total_bytes += sizeof(ItemHeader) + strlen(p_name) + 1;
+
+		if (p_block != nullptr)
+			hea.total_bytes += p_block[i]->total_bytes + 15;	// 15 == worst case of align 128-bit
+	}
+
+	p_txn->p_block = (pBlock) malloc(hea.total_bytes);
+
+	if (p_txn->p_block == nullptr) {
+		destroy_internal(p_txn);
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	if (p_block == nullptr) {
+		if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
+			destroy_internal(p_txn);
+
+			return SERVICE_ERROR_BAD_KIND;
+		}
+		if (p_dims == nullptr) {
+			AttributeMap void_dim = {};
+
+			for (int i = 0; i < num_items; i++) {
+				pChar p_name = (pChar) &p_names[i];
+
+				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i]->range.dim, p_hea[i]->cell_type, void_dim)) {
+					destroy_internal(p_txn);
+
+					return SERVICE_ERROR_BAD_KIND;
+				}
+			}
+		} else {
+			for (int i = 0; i < num_items; i++) {
+				pChar p_name = (pChar) &p_names[i];
+
+				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i]->range.dim, p_hea[i]->cell_type, *p_dims)) {
+					destroy_internal(p_txn);
+
+					return SERVICE_ERROR_BAD_KIND;
+				}
+			}
+		}
+	} else {
+		if (!reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att)) {
+			destroy_internal(p_txn);
+
+			return SERVICE_ERROR_BAD_TUPLE;
+		}
+
+	}
+
+	p_txn->status = BLOCK_STATUS_READY;
+
+	return SERVICE_NO_ERROR;
 }
 
 
