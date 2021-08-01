@@ -181,7 +181,8 @@ class Kind : public Block {
 							  int			num_bytes,
 			   				  AttributeMap &attr) {
 
-			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*8;
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*2;
+
 			if (num_bytes < rq_sz)
 				return false;
 
