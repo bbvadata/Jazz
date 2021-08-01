@@ -508,7 +508,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 
 	TensorDim dim_t1 {{500, 10, 0}}, dim_t2 {{500, 1000, 0}};
 
-	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 	REQUIRE(p_txn[0] != nullptr);
 
 	REQUIRE(CNT.new_block(p_txn[1], p_txn[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
@@ -517,19 +517,19 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	CNT.destroy(p_txn[0]);
 	REQUIRE(p_txn[0] == nullptr);
 
-	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
 	REQUIRE(p_txn[0] == nullptr);
 
 	for (int i = 0; i < 15; i++) {
 		REQUIRE(CNT.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn[i] != nullptr);
 	}
-	REQUIRE(CNT.new_block(p_txn[15], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(CNT.new_block(p_txn[15], CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 	REQUIRE(p_txn[15] != nullptr);
 
 	REQUIRE(CNT.p_free == nullptr);
 
-	REQUIRE(CNT.new_block(p_txn[16], CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(CNT.new_block(p_txn[16], CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
 	REQUIRE(p_txn[16] == nullptr);
 
 	REQUIRE(CNT.new_block(p_txn[16], p_txn[15]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
@@ -592,39 +592,39 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		char const *buffer6 = "One Two Three Four Five Six";
 		bool filter[7];
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_DONT_FILL, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_ZERO, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_NA, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_NA, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_BOOLEAN_FILTER, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_INTEGER_FILTER, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_INTEGER_FILTER, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
@@ -634,7 +634,40 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ') == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ') == SERVICE_NO_ERROR);
+		REQUIRE(p_txn != nullptr);
+		REQUIRE(p_txn->p_block != nullptr);
+		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
+		CNT.destroy(p_txn);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, 0x201, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, 0x604, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, 0x308, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, 2, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
@@ -642,111 +675,67 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ')
-				== SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, 0x201, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_INTEGER_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, 0x604, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, FILL_INTEGER_FILTER) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, 0x308, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, 2, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_NEW_DONT_FILL - 1) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_BOOLEAN_FILTER)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
-				== SERVICE_NO_ERROR);
-		REQUIRE(p_txn != nullptr);
-		REQUIRE(p_txn->p_block != nullptr);
-		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, nullptr, FILL_INTEGER_FILTER)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_txn != nullptr);
-		REQUIRE(p_txn->p_block != nullptr);
-		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_NEW_DONT_FILL - 1)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, nullptr, FILL_WITH_TEXTFILE + 1)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_WITH_TEXTFILE + 1) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
@@ -787,7 +776,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
@@ -831,7 +820,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
-			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn != nullptr);
 
 			REQUIRE(p_txn->p_block->cell_type == cell_types[i]);
@@ -873,7 +862,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BOOLEAN);
@@ -914,7 +903,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_SINGLE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_SINGLE);
@@ -955,7 +944,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -996,7 +985,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
@@ -1037,7 +1026,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_TIME") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
@@ -1078,7 +1067,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_DOUBLE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, nullptr, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
@@ -1119,7 +1108,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
@@ -1160,7 +1149,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
@@ -1204,7 +1193,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
-			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn != nullptr);
 
 			REQUIRE(p_txn->p_block->cell_type == cell_types[i]);
@@ -1246,7 +1235,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BOOLEAN);
@@ -1287,7 +1276,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_SINGLE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_SINGLE);
@@ -1328,7 +1317,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1369,7 +1358,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
@@ -1410,7 +1399,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_TIME") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
@@ -1451,7 +1440,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_DOUBLE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t2.dim, nullptr, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
@@ -1497,7 +1486,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	block_att [222]	 = "123.";
 
 	GIVEN("A block of CELL_TYPE_BYTE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
@@ -1542,7 +1533,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BYTE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
@@ -1589,7 +1582,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
 		for (int i = 0; i < 3; i ++) {
-			REQUIRE(CNT.new_block(p_txn,  cell_types[i], dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+			REQUIRE(   CNT.new_block(p_txn,  cell_types[i], dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+					== SERVICE_NO_ERROR);
+
 			REQUIRE(p_txn != nullptr);
 
 			REQUIRE(p_txn->p_block->cell_type == cell_types[i]);
@@ -1634,7 +1629,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_BOOLEAN") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BOOLEAN);
@@ -1678,7 +1675,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_SINGLE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_SINGLE, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_SINGLE);
@@ -1724,7 +1723,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	char const *monday = "Monday", *tuesday = "Tuesday", *nope = "";
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 256, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1787,7 +1788,9 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_LONG_INTEGER") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_LONG_INTEGER, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
@@ -1831,7 +1834,8 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_TIME") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_txn != nullptr);
 
@@ -1876,7 +1880,8 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("A block of CELL_TYPE_DOUBLE") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t3.dim, &block_att, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_txn != nullptr);
 
@@ -1932,20 +1937,19 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 			   *text_file_9 = "\n\n\nMon\n\nTue\nWed\n\n\n";
 
 	GIVEN("A block of CELL_TYPE_STRING") {
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, text_file_0)
-							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_NEW_DONT_FILL, nullptr, 0, text_file_0)
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, text_file_0)
-							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_NEW_WITH_ZERO, nullptr, 0, text_file_0)
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, text_file_0)
-							  == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_BOOLEAN_FILTER, nullptr, 0, text_file_0)
+				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_0)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_0) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1972,8 +1976,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_1)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_1) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2000,8 +2003,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn,  CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_2)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_2) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2032,8 +2034,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_3)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_3) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2062,8 +2063,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_4)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_4) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2092,8 +2092,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_5)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_5) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2124,8 +2123,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_6)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_6) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2154,8 +2152,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_7)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_7) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2193,21 +2190,21 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		dim_xx.dim[0] = 11;
 		dim_xx.dim[1] = 0;
 		dim_xx.dim[2] = 0;
-		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 13;
 		dim_xx.dim[1] = 0;
 		dim_xx.dim[2] = 0;
-		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 5;
 		dim_xx.dim[1] = 2;
 		dim_xx.dim[2] = 0;
-		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
@@ -2215,7 +2212,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		dim_xx.dim[1] = 2;
 		dim_xx.dim[2] = 0;
 
-		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_xx.dim, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
 				== SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
@@ -2253,8 +2250,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		REQUIRE(p_txn == nullptr);
 
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t4.dim, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t4.dim, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2290,8 +2286,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ')
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ') == SERVICE_NO_ERROR);
 
 		REQUIRE(p_txn != nullptr);
 
@@ -2328,8 +2323,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_9)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_9) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 
 		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -2392,11 +2386,12 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	pTransaction p_filter_kpr;
 
 	GIVEN("A filter of boolean") {
-		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_BYTE_BOOLEAN, dim_t6.dim, nullptr, FILL_BOOLEAN_FILTER) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_BYTE_BOOLEAN, dim_t6.dim, FILL_BOOLEAN_FILTER) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_filter_kpr == nullptr);
 
-		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_BYTE_BOOLEAN, dim_t6.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &filter_v_n)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_filter_kpr, CELL_TYPE_BYTE_BOOLEAN, dim_t6.dim, FILL_BOOLEAN_FILTER, (bool *) &filter_v_n)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_filter_kpr != nullptr);
 
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
@@ -2420,11 +2415,12 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 	}
 
 	GIVEN("Three filters of integer") {
-		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, nullptr, FILL_INTEGER_FILTER) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, FILL_INTEGER_FILTER) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_filter_kpr == nullptr);
 
-		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter_v_n)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, FILL_INTEGER_FILTER, (bool *) &filter_v_n)
+				== SERVICE_NO_ERROR);
+
 		REQUIRE(p_filter_kpr != nullptr);
 
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_INTEGER);
@@ -2448,8 +2444,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 
-		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter_v_z)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, FILL_INTEGER_FILTER, (bool *) &filter_v_z) == SERVICE_NO_ERROR);
 		REQUIRE(p_filter_kpr != nullptr);
 
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_INTEGER);
@@ -2471,8 +2466,7 @@ SCENARIO("Testing JazzBlock creation from scratch") {
 		CNT.destroy(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 
-		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &filter_v_1)
-							  == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, FILL_INTEGER_FILTER, (bool *) &filter_v_1) == SERVICE_NO_ERROR);
 		REQUIRE(p_filter_kpr != nullptr);
 
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_INTEGER);
@@ -2561,47 +2555,53 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks") {
-		REQUIRE(CNT.new_block(p_db_r1, CELL_TYPE_DOUBLE, dim_r1.dim, &old_str) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_db_r1, CELL_TYPE_DOUBLE, dim_r1.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &old_str)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_db_r1 != nullptr);
 		REQUIRE(p_db_r1->p_block->size == 107);
 
-		REQUIRE(CNT.new_block(p_db_r3, CELL_TYPE_DOUBLE, dim_r3.dim, &no_str) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_db_r3, CELL_TYPE_DOUBLE, dim_r3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n',  &no_str)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_db_r3 != nullptr);
 		REQUIRE(p_db_r3->p_block->size == 459);
 
-		REQUIRE(CNT.new_block(p_db_r6, CELL_TYPE_DOUBLE, dim_r6.dim, nullptr) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_db_r6, CELL_TYPE_DOUBLE, dim_r6.dim) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_db_r6 != nullptr);
 		REQUIRE(p_db_r6->p_block->size == 840);
 
-		REQUIRE(CNT.new_block(p_st_r1, CELL_TYPE_STRING, dim_r1.dim, &no_str, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_st_r1, CELL_TYPE_STRING, dim_r1.dim, FILL_NEW_DONT_FILL, nullptr, 256, nullptr, '\n', &no_str)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_st_r1 != nullptr);
 		REQUIRE(p_st_r1->p_block->size == 107);
 
-		REQUIRE(CNT.new_block(p_st_r3, CELL_TYPE_STRING, dim_r3.dim, nullptr, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_st_r3, CELL_TYPE_STRING, dim_r3.dim, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_st_r3 != nullptr);
 		REQUIRE(p_st_r3->p_block->size == 459);
 
-		REQUIRE(CNT.new_block(p_st_r6, CELL_TYPE_STRING, dim_r6.dim, &old_str, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_st_r6, CELL_TYPE_STRING, dim_r6.dim, FILL_NEW_DONT_FILL, nullptr, 256, nullptr, '\n', &old_str)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_st_r6 != nullptr);
 		REQUIRE(p_st_r6->p_block->size == 840);
 
-		REQUIRE(CNT.new_block(p_by_r1, CELL_TYPE_BYTE, dim_r1.dim, nullptr, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_by_r1, CELL_TYPE_BYTE, dim_r1.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_by_r1 != nullptr);
 		REQUIRE(p_by_r1->p_block->size == 107);
 
-		REQUIRE(CNT.new_block(p_by_r3, CELL_TYPE_BYTE, dim_r3.dim, &old_str, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_by_r3, CELL_TYPE_BYTE, dim_r3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &old_str)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_by_r3 != nullptr);
 		REQUIRE(p_by_r3->p_block->size == 459);
 
-		REQUIRE(CNT.new_block(p_by_r6, CELL_TYPE_BYTE, dim_r6.dim, &no_str, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_by_r6, CELL_TYPE_BYTE, dim_r6.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &no_str)
+				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_by_r6 != nullptr);
 		REQUIRE(p_by_r6->p_block->size == 840);
@@ -2689,42 +2689,42 @@ SCENARIO("Testing JazzBlock creation by copying/filtering") {
 		dim_r3.dim[1] = 0;
 		dim_r6.dim[1] = 0;
 
-		REQUIRE(CNT.new_block(p_if_r1, CELL_TYPE_INTEGER, dim_r1.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_if_r1, CELL_TYPE_INTEGER, dim_r1.dim, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_if_r1 != nullptr);
 		REQUIRE(p_if_r1->p_block->can_filter(p_db_r1->p_block));
 		REQUIRE(p_if_r1->p_block->can_filter(p_st_r1->p_block));
 		REQUIRE(p_if_r1->p_block->can_filter(p_by_r1->p_block));
 
-		REQUIRE(CNT.new_block(p_if_r3, CELL_TYPE_INTEGER, dim_r3.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_if_r3, CELL_TYPE_INTEGER, dim_r3.dim, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_if_r3 != nullptr);
 		REQUIRE(p_if_r3->p_block->can_filter(p_db_r3->p_block));
 		REQUIRE(p_if_r3->p_block->can_filter(p_st_r3->p_block));
 		REQUIRE(p_if_r3->p_block->can_filter(p_by_r3->p_block));
 
-		REQUIRE(CNT.new_block(p_if_r6, CELL_TYPE_INTEGER, dim_r6.dim, nullptr, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_if_r6, CELL_TYPE_INTEGER, dim_r6.dim, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_if_r6 != nullptr);
 		REQUIRE(p_if_r6->p_block->can_filter(p_db_r6->p_block));
 		REQUIRE(p_if_r6->p_block->can_filter(p_st_r6->p_block));
 		REQUIRE(p_if_r6->p_block->can_filter(p_by_r6->p_block));
 
-		REQUIRE(CNT.new_block(p_bf_r1, CELL_TYPE_BYTE_BOOLEAN, dim_r1.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_bf_r1, CELL_TYPE_BYTE_BOOLEAN, dim_r1.dim, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_bf_r1 != nullptr);
 		REQUIRE(p_bf_r1->p_block->can_filter(p_db_r1->p_block));
 		REQUIRE(p_bf_r1->p_block->can_filter(p_st_r1->p_block));
 		REQUIRE(p_bf_r1->p_block->can_filter(p_by_r1->p_block));
 
-		REQUIRE(CNT.new_block(p_bf_r3, CELL_TYPE_BYTE_BOOLEAN, dim_r3.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_bf_r3, CELL_TYPE_BYTE_BOOLEAN, dim_r3.dim, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_bf_r3 != nullptr);
 		REQUIRE(p_bf_r3->p_block->can_filter(p_db_r3->p_block));
 		REQUIRE(p_bf_r3->p_block->can_filter(p_st_r3->p_block));
 		REQUIRE(p_bf_r3->p_block->can_filter(p_by_r3->p_block));
 
-		REQUIRE(CNT.new_block(p_bf_r6, CELL_TYPE_BYTE_BOOLEAN, dim_r6.dim, nullptr, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_bf_r6, CELL_TYPE_BYTE_BOOLEAN, dim_r6.dim, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_bf_r6 != nullptr);
 		REQUIRE(p_bf_r6->p_block->can_filter(p_db_r6->p_block));

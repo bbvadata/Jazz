@@ -239,13 +239,13 @@ void Container::leave_write(pTransaction p_txn) {
 StatusCode Container::new_block(pTransaction &p_txn,
 								int			  cell_type,
 								int			 *dim,
-								AttributeMap *att,
 								int			  fill_tensor,
 								bool		 *p_bool_filter,
 								int			  stringbuff_size,
 								const char	 *p_text,
-								char		  eol)
-{
+								char		  eol,
+								AttributeMap *att) {
+
 	StatusCode ret = new_transaction(p_txn);
 
 	if (ret != SERVICE_NO_ERROR)

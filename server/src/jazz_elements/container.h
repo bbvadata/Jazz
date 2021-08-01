@@ -200,15 +200,16 @@ class Container : public Service {
 
 		// - Allocation: .new_block(), .destroy()
 
-		StatusCode new_block   (pTransaction &p_txn,
-								int			  cell_type,
-								int			 *dim,
-								AttributeMap *att			  = nullptr,
-								int			  fill_tensor	  = FILL_NEW_DONT_FILL,
-								bool		 *p_bool_filter	  = nullptr,
-								int			  stringbuff_size = 0,
-								const char	 *p_text		  = nullptr,
-								char		  eol			  = '\n');
+		StatusCode new_block   (pTransaction	   &p_txn,
+								int					cell_type,
+								int				   *dim,
+								int					fill_tensor		= FILL_NEW_DONT_FILL,
+								bool			   *p_bool_filter	= nullptr,
+								int					stringbuff_size	= 0,
+								const char		   *p_text			= nullptr,
+								char				eol				= '\n',
+								AttributeMap	   *att				= nullptr);
+
 
 		StatusCode new_block   (pTransaction &p_txn,
 								pBlock		  p_from,
