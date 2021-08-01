@@ -430,6 +430,14 @@ class Container : public Service {
 		int tensor_time_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_tuple_as_text (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_kind_as_text	 (pBlock p_block, pChar p_dest);
+
+		inline void opening_brackets(int rank, pChar &p_ret) {
+			for (int i = 0; i < rank; i++)
+				(p_ret++)[0] = '[';
+
+			p_ret[0] = 0;
+		}
+
 };
 
 } // namespace jazz_elements
