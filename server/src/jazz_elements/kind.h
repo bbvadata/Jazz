@@ -98,6 +98,7 @@ class Kind : public Block {
 		inline char *item_name(int idx)	{
 			if (idx < 0 | idx >= size)
 				return nullptr;
+
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
 		}
 
@@ -130,6 +131,7 @@ class Kind : public Block {
 
 				for (int j = 0; j < p_it_hea->rank; j++) {
 					int k = p_it_hea->dim[j];
+
 					if (k < 0)
 						dims.insert(k);
 				}
@@ -155,6 +157,7 @@ class Kind : public Block {
 
 				for (int j = 0; j < p_it_hea->rank; j++) {
 					int k = p_it_hea->dim[j];
+
 					if (k < 0 & dims.find(k) == dims.end()) {
 						if (dims.size() > 0)
 							strcat(p_buff->text, ",");
@@ -237,13 +240,16 @@ class Kind : public Block {
 				p_it_hea->dim[i] = j;
 				if (j == 0) {
 					rank = i;
+
 					if (!i)
 						return false;
+
 				} else if (j < 0) {
 					if (dims.find(j) == dims.end())
 						return false;
 
 					k = get_string_offset(psb, dims[j]);
+
 					if (k <= STRING_EMPTY)
 						return false;
 
