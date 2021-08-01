@@ -272,6 +272,7 @@ struct StaticBlockHeader {
 
 			Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
 };
+typedef StaticBlockHeader *pStaticBlockHeader;
 
 
 /// Structure at the end of a Block, initially created with init_string_buffer()
