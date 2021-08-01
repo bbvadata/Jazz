@@ -216,6 +216,7 @@ class Container : public Service {
 
 		// - Allocation: .new_block(), .destroy()
 
+		// 1. new_block(): Create a Tensor from raw data specifying everything from scratch.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								int					cell_type,
 								int				   *dim,
@@ -226,11 +227,42 @@ class Container : public Service {
 								char				eol				= '\n',
 								AttributeMap	   *att				= nullptr);
 
+		// 2. new_block(): Create a Kind or Tuple from arrays of StaticBlockHeader, names, and, in the case of a tuple, Tensors.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								int					num_items,
+								pStaticBlockHeader	p_hea[],
+								Name				p_names[],
+								pBlock				p_block[],
+								AttributeMap	   *att				= nullptr);
 
-		StatusCode new_block   (pTransaction &p_txn,
-								pBlock		  p_from,
-						   		pBlock		  p_row_filter,
-								AttributeMap *att			  = nullptr);
+		// 3. new_block(): Create a Tensor by selecting rows (filtering) from another Tensor.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								pBlock				p_from,
+						   		pBlock				p_row_filter,
+								AttributeMap	   *att				= nullptr);
+
+		// 4. new_block(): Create a Tensor by selecting an item from a Tuple.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								pTuple				p_from,
+						   		pChar				name,
+								AttributeMap	   *att				= nullptr);
+
+		// 5. new_block(): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								pBlock				p_from_text,
+						   		int					cell_type,
+								pKind				p_as_kind		= nullptr,
+								AttributeMap	   *att				= nullptr);
+
+		// 6. new_block(): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								pBlock				p_from_raw,
+						   		pChar				p_fmt			= nullptr,
+								AttributeMap	   *att				= nullptr);
+
+		// 7. new_block(): Create an empty Index block.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								int					cell_type);
 
 		void destroy		   (pTransaction &p_txn);
 
