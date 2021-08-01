@@ -867,14 +867,114 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  p_fmt,
 								AttributeMap *att) {
 
+	int total_bytes;
+
+	switch (p_from_raw->cell_type)
+	{
+	case CELL_TYPE_BYTE:
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE:
+	case CELL_TYPE_LONG_INTEGER:
+		total_bytes = tensor_int_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	case CELL_TYPE_BYTE_BOOLEAN:
+	case CELL_TYPE_BOOLEAN:
+		total_bytes = tensor_bool_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	case CELL_TYPE_SINGLE:
+	case CELL_TYPE_DOUBLE:
+		total_bytes = tensor_float_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	case CELL_TYPE_STRING:
+		total_bytes = tensor_string_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	case CELL_TYPE_TIME:
+		total_bytes = tensor_time_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	case CELL_TYPE_TUPLE_ITEM:
+		total_bytes = tensor_tuple_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	case CELL_TYPE_KIND_ITEM:
+		total_bytes = tensor_kind_as_text(p_from_raw, nullptr, p_fmt);
+
+		break;
+
+	default:
+		return SERVICE_ERROR_WRONG_TYPE;
+	}
+
 	StatusCode ret = new_transaction(p_txn);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-//TODO: Implement new Block (6)
+	total_bytes += sizeof(BlockHeader);
 
-	return SERVICE_NOT_IMPLEMENTED;
+	p_txn->p_block = (pBlock) malloc(total_bytes);
+
+	if (p_txn->p_block == nullptr) {
+		destroy_internal(p_txn);
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	switch (p_from_raw->cell_type)
+	{
+	case CELL_TYPE_BYTE:
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE:
+	case CELL_TYPE_LONG_INTEGER:
+		tensor_int_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+		break;
+
+	case CELL_TYPE_BYTE_BOOLEAN:
+	case CELL_TYPE_BOOLEAN:
+		tensor_bool_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+		break;
+
+	case CELL_TYPE_SINGLE:
+	case CELL_TYPE_DOUBLE:
+		tensor_float_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+		break;
+
+	case CELL_TYPE_STRING:
+		tensor_string_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+		break;
+
+	case CELL_TYPE_TIME:
+		tensor_time_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+		break;
+
+	case CELL_TYPE_TUPLE_ITEM:
+		tensor_tuple_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+		break;
+
+	default:
+		tensor_kind_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+
+	}
+
+	return SERVICE_NO_ERROR;
 }
 
 
