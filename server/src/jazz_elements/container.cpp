@@ -193,7 +193,7 @@ void Container::leave_write(pTransaction p_txn) {
 }
 
 
-/** Create a new Block (1): Create a Block from scratch.
+/** Create a new Block (1): Create a Tensor from raw data specifying everything from scratch.
 
 	\param p_txn			A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 							Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
@@ -234,7 +234,7 @@ void Container::leave_write(pTransaction p_txn) {
 	OWNERSHIP: Remember: the p_txn returned on success points inside the Container. Use it as read-only and don't forget to destroy() it
 	when done.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error). There is no async interface in this method.
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
 StatusCode Container::new_block(pTransaction &p_txn,
 								int			  cell_type,
