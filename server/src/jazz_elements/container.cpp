@@ -493,6 +493,21 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
+/** Create a new Block (2): Create a Kind or Tuple from arrays of StaticBlockHeader, names, and, in the case of a tuple, Tensors.
+
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param num_items	The number of items the Kind or Tuple will have.
+	\param p_hea		A vector of num_items pointers to StaticBlockHeaders defining the Kind or Tuple.
+	\param p_names		An array of num_items Name structures by which the items will go.
+	\param p_block		The data, only for tuples. It will normally be the same as p_hea but that will not be checked. The data is
+						simply assumed to have the exact shape and type defined in p_hea. If it is nullptr, a Kind will be created,
+						otherwise a Tuple will be created and data will be copied from here.
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_from.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+*/
 StatusCode Container::new_block(pTransaction	   &p_txn,
 								int					num_items,
 								pStaticBlockHeader	p_hea[],
