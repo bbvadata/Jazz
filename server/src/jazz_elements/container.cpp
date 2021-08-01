@@ -723,6 +723,22 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
+/** Create a new Block (5): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
+
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param p_from_text	The block containing a valid serialization of Tensor, Kind or Tuple.
+	\param cell_type	The expected output type.
+	\param p_as_kind	For Tuples only, the definition of the exact types of each item. The serialization contains names, but not types
+						to make it JSON-like. E.g., "[temperature:[[20,21][22,22], sensation:["cold", "mild"]]" This can be skipped
+						by passing a nullptr. In that case, the items will be guessed only as CELL_TYPE_INTEGER, CELL_TYPE_DOUBLE or
+						CELL_TYPE_STRING. The serialization of a Kind includes types and does not use this.
+						E.g. "[temperature:(INTEGER[num_places,2]),sensation:(STRING[num_places])]"
+	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+						use the version of new_jazz_block() with parameter p_from.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+*/
 StatusCode Container::new_block(pTransaction &p_txn,
 								pBlock		  p_from_text,
 						   		int			  cell_type,
