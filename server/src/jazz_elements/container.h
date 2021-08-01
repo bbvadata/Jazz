@@ -458,6 +458,28 @@ class Container : public Service {
 			p_ret[0] = 0;
 		}
 
+		inline int separator_len(int rank_1, int shape[], int idx[]) {
+			int ret = 0;
+
+			for (int i = rank_1; i >= 0; i --) {
+				idx[i]++;
+
+				if (idx[i] == shape[i]) {
+					idx[i] = 0;
+					ret++;
+				} else {
+					ret += 2;
+
+					if (i == rank_1)
+						return ret;
+
+					ret += rank_1 - i;
+
+					return ret;
+				}
+			}
+			return ret;
+		}
 };
 
 } // namespace jazz_elements
