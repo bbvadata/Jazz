@@ -784,6 +784,20 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
+/** Create a new Block (7): Create an empty Index block.
+
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param cell_type	The type of index (from CELL_TYPE_INDEX_II to CELL_TYPE_INDEX_SS)
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Unlike all the other blocks, Tensor, Kind and Tuple, this returns a header with an std::map. Thefore, it is dynamically allocated,
+by just using it. As such, it is not movable and cannot be used in any transactions other that Channels serializing it as a
+Tuple(key, value). When no longer needed, it has to be destroy()-ed just like the other Blocks created with new_block() and the Container
+will take care of freeing the std::map before destroying the transaction.
+
+*/
 StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
 	StatusCode ret = new_transaction(p_txn);
