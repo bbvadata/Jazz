@@ -422,10 +422,10 @@ class Container : public Service {
 		int tensor_int_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_bool_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt);
-		int tensor_string_as_text(pBlock p_block, pChar p_dest, pChar p_fmt);
+		int tensor_string_as_text(pBlock p_block, pChar p_dest);
 		int tensor_time_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_tuple_as_text (pBlock p_block, pChar p_dest, pChar p_fmt);
-		int tensor_kind_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
+		int tensor_kind_as_text	 (pBlock p_block, pChar p_dest);
 };
 
 } // namespace jazz_elements
