@@ -493,6 +493,24 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
+StatusCode Container::new_block(pTransaction	   &p_txn,
+								int					num_items,
+								pStaticBlockHeader	p_hea[],
+								Name				p_names[],
+								pBlock				p_block[],
+								AttributeMap	   *att) {
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement new Block (2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
 /** Create a new Block (3): Create a Tensor by selecting rows (filtering) from another Tensor.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
@@ -657,6 +675,68 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	p_txn->status = BLOCK_STATUS_READY;
 	return SERVICE_NO_ERROR;
+}
+
+
+StatusCode Container::new_block(pTransaction &p_txn,
+								pTuple		  p_from,
+						   		pChar		  name,
+								AttributeMap *att) {
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement new Block (4)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Container::new_block(pTransaction &p_txn,
+								pBlock		  p_from_text,
+						   		int			  cell_type,
+								pKind		  p_as_kind,
+								AttributeMap *att) {
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement new Block (5)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Container::new_block(pTransaction &p_txn,
+								pBlock		  p_from_raw,
+						   		pChar		  p_fmt,
+								AttributeMap *att) {
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement new Block (6)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement new Block (7)
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
 
