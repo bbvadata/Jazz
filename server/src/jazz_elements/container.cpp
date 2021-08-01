@@ -42,8 +42,8 @@ namespace jazz_elements
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config)
-{
+Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
+
 	max_num_keepers = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
 	p_buffer = p_alloc = p_free = nullptr;
@@ -56,8 +56,8 @@ Container::~Container () { destroy_container(); }
 
 /** Reads variables from config and sets private variables accordingly.
 */
-StatusCode Container::start()
-{
+StatusCode Container::start() {
+
 	if (!get_conf_key("ONE_SHOT_MAX_KEEPERS", max_num_keepers)) {
 		log(LOG_ERROR, "Config key ONE_SHOT_MAX_KEEPERS not found in Container::start");
 		return SERVICE_ERROR_BAD_CONFIG;
@@ -83,8 +83,8 @@ StatusCode Container::start()
 
 /** Destroys everything and zeroes allocation.
 */
-StatusCode Container::shut_down()
-{
+StatusCode Container::shut_down() {
+
 	return destroy_container();
 }
 
@@ -97,16 +97,19 @@ NOTE: This is not used in API queries or normal Bop execution. In those cases, B
 in multithreaded algorithms like MCTS.
 
 */
-void Container::enter_read(pTransaction p_txn)
-{
+void Container::enter_read(pTransaction p_txn) {
 	int retry = 0;
+
 	while (true) {
 		int32_t lock = p_txn->_lock_;
+
 		if (lock >= 0) {
 			int32_t next = lock + 1;
+
 			if (p_txn->_lock_.compare_exchange_weak(lock, next))
 				return;
 		}
+
 		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 			std::this_thread::yield();
 			retry = 0;
@@ -123,13 +126,15 @@ NOTE: This is not used in API queries or normal Bop execution. In those cases, B
 in multithreaded algorithms like MCTS.
 
 */
-void Container::enter_write(pTransaction p_txn)
-{
+void Container::enter_write(pTransaction p_txn) {
 	int retry = 0;
+
 	while (true) {
 		int32_t lock = p_txn->_lock_;
+
 		if (lock >= 0) {
 			int32_t next = lock - LOCK_WEIGHT_OF_WRITE;
+
 			if (p_txn->_lock_.compare_exchange_weak(lock, next)) {
 				while (true) {
 					if (p_txn->_lock_ == -LOCK_WEIGHT_OF_WRITE)
@@ -141,6 +146,7 @@ void Container::enter_write(pTransaction p_txn)
 				}
 			}
 		}
+
 		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 			std::this_thread::yield();
 			retry = 0;
@@ -157,11 +163,11 @@ NOTE: This is not used in API queries or normal Bop execution. In those cases, B
 in multithreaded algorithms like MCTS.
 
 */
-void Container::leave_read(pTransaction p_txn)
-{
+void Container::leave_read(pTransaction p_txn) {
 	while (true) {
 		int32_t lock = p_txn->_lock_;
 		int32_t next = lock - 1;
+
 		if (p_txn->_lock_.compare_exchange_weak(lock, next))
 			return;
 	}
@@ -176,11 +182,11 @@ NOTE: This is not used in API queries or normal Bop execution. In those cases, B
 in multithreaded algorithms like MCTS.
 
 */
-void Container::leave_write(pTransaction p_txn)
-{
+void Container::leave_write(pTransaction p_txn) {
 	while (true) {
 		int32_t lock = p_txn->_lock_;
 		int32_t next = lock + LOCK_WEIGHT_OF_WRITE;
+
 		if (p_txn->_lock_.compare_exchange_weak(lock, next))
 			return;
 	}
@@ -663,8 +669,8 @@ allocation, the p_block will be freed and the p_route ignored (since this Contai
 Persisted or Volatile Blocks will not be destroyed when a Transaction referring to them is destroyed. If the descentant allocates
 a p_route, it should also free it when the Transaction is destroyed.
 */
-void Container::destroy (pTransaction &p_txn)
-{
+void Container::destroy (pTransaction &p_txn) {
+
 	if (p_txn->p_owner == nullptr) {
 		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
 
@@ -692,9 +698,8 @@ void Container::destroy (pTransaction &p_txn)
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::get (pChar		 p_what,
-						   pTransaction &p_txn)
-{
+StatusCode Container::get (pChar p_what, pTransaction &p_txn) {
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -707,9 +712,8 @@ StatusCode Container::get (pChar		 p_what,
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Container::put (pBlock	p_block,
-						   pChar	p_where)
-{
+StatusCode Container::put (pBlock p_block, pChar p_where) {
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -720,8 +724,8 @@ StatusCode Container::put (pBlock	p_block,
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Container::remove (pChar p_what)
-{
+StatusCode Container::remove (pChar p_what) {
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -736,9 +740,7 @@ StatusCode Container::remove (pChar p_what)
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::copy (pChar  p_what,
-							pChar  p_where)
-{
+StatusCode Container::copy (pChar  p_what, pChar  p_where) {
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -757,8 +759,7 @@ void Container::base_names (BaseNames &base_names) {}
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
 */
-StatusCode Container::new_container()
-{
+StatusCode Container::new_container() {
 	if (p_buffer != nullptr || max_num_keepers <= 0)
 #if defined CATCH_TEST
 		destroy_container();
@@ -797,13 +798,13 @@ StatusCode Container::new_container()
 
 	\return	SERVICE_NO_ERROR.
 */
-StatusCode Container::destroy_container()
-{
+StatusCode Container::destroy_container() {
 	if (p_buffer != nullptr) {
 		while (p_alloc != nullptr) {
 			pTransaction pt = p_alloc;
 			destroy_internal(pt);
 		}
+
 		free (p_buffer);
 	}
 	alloc_bytes = 0;

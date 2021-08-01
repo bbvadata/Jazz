@@ -46,7 +46,7 @@ namespace jazz_elements
 	Note: For floating point types, only binary identity with F_NA or R_NA counts as NA
 
 */
-bool Block::find_NAs_in_tensor(){
+bool Block::find_NAs_in_tensor() {
 	switch (cell_type) {
 	case CELL_TYPE_BYTE_BOOLEAN: {
 		for (int i = 0; i < size; i++) {
@@ -125,8 +125,7 @@ bool Block::find_NAs_in_tensor(){
 
 	NOTE: This function is private, called by set_attributes() and set_string(). Use these functions instead and read their NOTES.
 */
-int Block::get_string_offset(pStringBuffer psb, const char *p_str)
-{
+int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 	if (psb->alloc_failed)
 		return STRING_NA;
 
@@ -188,8 +187,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str)
 
 	\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
 */
-int Block::filter_audit()
-{
+int Block::filter_audit() {
 	switch (filter_type()) {
 
 	case FILTER_TYPE_INTEGER: {

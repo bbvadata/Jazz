@@ -43,8 +43,7 @@ namespace jazz_elements
 	\param file_name The file name.
 	\return True if the file exists
  */
-bool FileExists(const char* file_name)
-{
+bool FileExists(const char* file_name) {
 	std::ifstream ff(file_name);
 
 	return ff.good();
@@ -68,8 +67,7 @@ The RFC http://www.ietf.org/rfc/rfc3629.txt says:
     0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
     0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 */
-int CountBytesFromUtf8(char *buff, int length)
-{
+int CountBytesFromUtf8(char *buff, int length) {
 	int bytes = 0;
 
 	while (length > 0)	{
@@ -120,8 +118,7 @@ April 17 tests built and compliant with:
 
 https://en.wikipedia.org/wiki/Escape_sequences_in_C
 */
-char *ExpandEscapeSequences(char *buff)
-{
+char *ExpandEscapeSequences(char *buff) {
 	char		*pt	 = buff;
 	size_t		 len = strlen(buff);
 	unsigned int num, any;
@@ -221,8 +218,7 @@ char *ExpandEscapeSequences(char *buff)
 
 	\return The pid of the process if found, 0 if not.
  */
-pid_t FindProcessIdByName(const char *name)
-{
+pid_t FindProcessIdByName(const char *name) {
 	DIR			  *dir;
 	struct dirent *ent;
 	char		  *endptr;
@@ -288,8 +284,7 @@ pid_t FindProcessIdByName(const char *name)
 	\return	 64-bit hash of the memory block.
 
 */
-uint64_t MurmurHash64A(const void *key, int len)
-{
+uint64_t MurmurHash64A(const void *key, int len) {
 	const uint64_t m = 0xc6a4a7935bd1e995;
 	const int	   r = 47;
 
@@ -340,8 +335,7 @@ uint64_t MurmurHash64A(const void *key, int len)
 	\param s Input string
 	\return	 String without space or tab.
 */
-std::string CleanConfigArgument(std::string s)
-{
+std::string CleanConfigArgument(std::string s) {
 	bool in_quote = false;
 
 	for (int i = s.length() - 1; i >= 0; i--) {
@@ -361,8 +355,7 @@ std::string CleanConfigArgument(std::string s)
 
 	\return Nothing. Check num_keys() for errors.
 */
-ConfigFile::ConfigFile(const char *input_file_name)
-{
+ConfigFile::ConfigFile(const char *input_file_name) {
 	load_config(input_file_name);
 }
 
@@ -375,8 +368,7 @@ ConfigFile::ConfigFile(const char *input_file_name)
 
 	\return true if some keys were read. (There is no systematic error checking.)
 */
-bool ConfigFile::load_config(const char *input_file_name)
-{
+bool ConfigFile::load_config(const char *input_file_name) {
 	config.clear();
 
 	std::ifstream fh (input_file_name);
@@ -413,8 +405,7 @@ bool ConfigFile::load_config(const char *input_file_name)
 
 	\return	 The number of configuration keys read from the file when constructing the object. Zero means some failure.
 */
-int ConfigFile::num_keys()
-{
+int ConfigFile::num_keys() {
 	return config.size();
 }
 
@@ -425,8 +416,7 @@ int ConfigFile::num_keys()
 	\param value Value to be returned only when the function returns true.
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
-bool ConfigFile::get_key(const char *key, int &value)
-{
+bool ConfigFile::get_key(const char *key, int &value) {
 	std::string keys (key);
 
 	try	{
@@ -454,8 +444,7 @@ bool ConfigFile::get_key(const char *key, int &value)
 	\param value Value to be returned only when the function returns true.
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
-bool ConfigFile::get_key(const char *key, double &value)
-{
+bool ConfigFile::get_key(const char *key, double &value) {
 	std::string keys (key);
 
 	try {
@@ -483,8 +472,7 @@ bool ConfigFile::get_key(const char *key, double &value)
 	\param value Value to be returned only when the function returns true.
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
-bool ConfigFile::get_key(const char *key, std::string &value)
-{
+bool ConfigFile::get_key(const char *key, std::string &value) {
 	std::string keys (key);
 
 	std::string s = config[keys];
@@ -502,8 +490,7 @@ bool ConfigFile::get_key(const char *key, std::string &value)
 	\param key	The configuration key to be set.
 	\param val	New value of the key as a string (also valid for int and double if the string can be converted).
 */
-void ConfigFile::debug_put(const std::string key, const std::string val)
-{
+void ConfigFile::debug_put(const std::string key, const std::string val) {
 	config[key] = val;
 }
 
@@ -513,8 +500,7 @@ void ConfigFile::debug_put(const std::string key, const std::string val)
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
-Logger::Logger(const char *output_file_name)
-{
+Logger::Logger(const char *output_file_name) {
 	strncpy(file_name, output_file_name, MAX_FILENAME_LENGTH - 1);
 
 	InitLogger();
@@ -526,9 +512,7 @@ Logger::Logger(const char *output_file_name)
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
- Logger::Logger(ConfigFile  config,
-				const char *config_key)
-{
+ Logger::Logger(ConfigFile  config, const char *config_key) {
 	file_name[0] = 0;
 
 	std::string log_name;
@@ -546,8 +530,7 @@ Logger::Logger(const char *output_file_name)
 	.. if successful, logs out a new execution message with level LOG_INFO
 	.. if failed, clears the file_name (that can be queried via get_output_file_name())
 */
-void Logger::InitLogger()
-{
+void Logger::InitLogger() {
 #if defined CATCH_TEST
 	SkipLogOnce = false;
 #endif
@@ -572,8 +555,7 @@ void Logger::InitLogger()
 
 	.. and clears the file_name (that can be queried via get_output_file_name())
 */
-Logger::~Logger()
-{
+Logger::~Logger() {
 	if (file_name[0]) f_buff->close();
 
 	file_name[0] = 0;
@@ -586,8 +568,7 @@ Logger::~Logger()
 	\param buff_size Value to be returned only when the function returns true.
 	\return			 Zero if opening the file failed, the length of the name instead.
 */
-int Logger::get_output_file_name(char *buff, int buff_size)
-{
+int Logger::get_output_file_name(char *buff, int buff_size) {
 	if (!file_name[0]) return 0;
 
 	strncpy(buff, file_name, buff_size);
@@ -610,8 +591,7 @@ int Logger::get_output_file_name(char *buff, int buff_size)
 
 	If loglevel >= LOG_WARN, the output also goes to stderr.
 */
-void Logger::log(int loglevel, const char *message)
-{
+void Logger::log(int loglevel, const char *message) {
 #if defined CATCH_TEST
 	if (SkipLogOnce) {
 		SkipLogOnce = false;
@@ -658,8 +638,7 @@ void Logger::log(int loglevel, const char *message)
 
 	NOTE: This does not check buffer allocation! Use it for short results.
 */
-void Logger::log_printf(int loglevel, const char *fmt, ...)
-{
+void Logger::log_printf(int loglevel, const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	log_printf(loglevel, fmt, args);
@@ -677,8 +656,7 @@ void Logger::log_printf(int loglevel, const char *fmt, ...)
 
 	NOTE: This does not check buffer allocation! Use it for short results.
 */
-void Logger::log_printf(int loglevel, const char *fmt, va_list args)
-{
+void Logger::log_printf(int loglevel, const char *fmt, va_list args) {
 	char buffer[256];
 
 	vsnprintf(buffer, sizeof(buffer), fmt, args);
@@ -698,9 +676,7 @@ void Logger::log_printf(int loglevel, const char *fmt, va_list args)
 	Rather than using the private p_log and p_conf pointers, it is recommended to use the inline methods log() and log_printf() for
 	logging and get_conf_key() for acessing the configuration.
 */
-Service::Service(pLogger	 a_logger,
-			     pConfigFile a_config)
-{
+Service::Service(pLogger a_logger, pConfigFile a_config) {
 	p_log  = a_logger;
 	p_conf = a_config;
 }
@@ -711,8 +687,7 @@ Service::Service(pLogger	 a_logger,
 
 	This method should be overriden by something that actually starts the service, possibly using the configuration file in pConf.
 */
-StatusCode Service::start()
-{
+StatusCode Service::start() {
 #ifdef DEBUG
 	log(LOG_DEBUG, "Service::start()");
 #endif
@@ -727,8 +702,7 @@ StatusCode Service::start()
 
 	This method should be overriden by something that actually stops the service, possibly using the configuration file in pConf.
 */
-StatusCode Service::shut_down()
-{
+StatusCode Service::shut_down() {
 #ifdef DEBUG
 	log(LOG_DEBUG, "Service::shut_down(%i)");
 #endif

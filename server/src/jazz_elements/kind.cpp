@@ -43,8 +43,7 @@ not repeated of invalid item names.
 
 	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */
-int Kind::audit()
-{
+int Kind::audit() {
 	if (cell_type != CELL_TYPE_KIND_ITEM || size <= 0)
 		return MIXED_TYPE_INVALID;
 

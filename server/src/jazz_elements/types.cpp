@@ -42,8 +42,7 @@ namespace jazz_elements
 {
 
 /// Returns an R-compatible numeric NA.
-inline double R_ValueOfNA()
-{
+inline double R_ValueOfNA() {
 	union {double d; int i[2];} na;
 
 	na.i[1] = 0x7ff00000;
