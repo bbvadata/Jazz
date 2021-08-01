@@ -3826,6 +3826,8 @@ SCENARIO("Testing new_block() (5) Create a Tensor, Kind or Tuple from a Text blo
 
 //TODO: Write tests for this!
 
+	REQUIRE(2*MAX_TENSOR_RANK + 3 < MAX_SIZE_OF_CELL_AS_TEXT);
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
