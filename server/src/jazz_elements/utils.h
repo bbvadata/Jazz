@@ -104,6 +104,8 @@ without global variables.
 #define SERVICE_ERROR_WRONG_TYPE		-7		///< Error with block type (used by new_tuple()).
 #define SERVICE_ERROR_WRONG_NAME		-8		///< Error with block/item names (used by new_tuple()).
 #define SERVICE_ERROR_WRONG_ARGUMENTS	-9		///< Error with arguments any call.
+#define SERVICE_ERROR_BAD_KIND			-10		///< Kind.new_kind() or Kind.add_item() failed in new_block().
+#define SERVICE_ERROR_BAD_TUPLE			-11		///< Tuple.new_tuple() failed in new_block().
 
 /** Default path to config file
 */
