@@ -1293,7 +1293,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		}
 
 		default:
-			total_len = 0;
+			return 0;
 		}
 	}
 
@@ -1422,7 +1422,7 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 		}
 
 		default:
-			total_len = 0;
+			return 0;
 		}
 	}
 
