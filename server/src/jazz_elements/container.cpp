@@ -46,6 +46,7 @@ char NA [4]				 = NA_AS_TEXT;
 char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};
 char DEF_INT_FMT [4]	 = {"%i\0"};
 char DEF_FLOAT_FMT [4]	 = {"%f\0"};
+char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 
 /*	-----------------------------------------------
 	 Container : I m p l e m e n t a t i o n
