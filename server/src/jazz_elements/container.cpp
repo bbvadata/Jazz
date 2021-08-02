@@ -1775,8 +1775,60 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-//TODO: Implement this
+	if (p_fmt == nullptr)
+		p_fmt = (pChar) &DEF_FLOAT_TIME;
+
+	int shape[MAX_TENSOR_RANK];
+	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+	int rank_1 = p_block->rank - 1;
+
+	p_block->get_dimensions((int *) &shape);
+
+	struct tm * timeinfo;
+
+	if (p_dest == nullptr) {
+		int total_len = p_block->rank;	// Length of opening_brackets()
+
+		time_t *p_t = &p_block->tensor.cell_time[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			if (p_t[0] == TIME_POINT_NA)
+				total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
+
+			else {
+				timeinfo = gmtime (p_t);
+
+				total_len += strftime(cell, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, timeinfo) + separator_len(rank_1, shape, idx);
+			}
+			p_t++;
+		}
+
+		return total_len + 1;
+	}
+
+	opening_brackets(p_block->rank, p_dest);
+
+	time_t *p_t = &p_block->tensor.cell_time[0];
+
+	for (int i = 0; i < p_block->size; i++) {
+		if (p_t[0] == TIME_POINT_NA) {
+			strcpy(p_dest, NA);
+			p_dest += LENGTH_NA_AS_TEXT;
+
+		} else {
+			timeinfo = gmtime (p_t);
+
+			int len = strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, timeinfo);
+			p_dest += len;
+		}
+
+		separator(rank_1, shape, idx, p_dest);
+		p_t++;
+	}
+
+	p_dest[0] = 0;
 
 	return 0;
 }
