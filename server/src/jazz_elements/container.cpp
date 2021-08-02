@@ -1326,17 +1326,13 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				strcpy(p_dest, na);
 				p_dest += LENGTH_NA_AS_TEXT;
 
-				separator(rank_1, shape, idx, p_dest);
-
-				p_t++;
 			} else {
 				int len = sprintf(p_dest, p_fmt, p_t[0]);
 				p_dest += len;
-
-				separator(rank_1, shape, idx, p_dest);
-
-				p_t++;
 			}
+
+			separator(rank_1, shape, idx, p_dest);
+			p_t++;
 		}
 
 		p_dest[0] = 0;
@@ -1352,17 +1348,13 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				strcpy(p_dest, na);
 				p_dest += LENGTH_NA_AS_TEXT;
 
-				separator(rank_1, shape, idx, p_dest);
-
-				p_t++;
 			} else {
 				int len = sprintf(p_dest, p_fmt, p_t[0]);
 				p_dest += len;
-
-				separator(rank_1, shape, idx, p_dest);
-
-				p_t++;
 			}
+
+			separator(rank_1, shape, idx, p_dest);
+			p_t++;
 		}
 
 		p_dest[0] = 0;
