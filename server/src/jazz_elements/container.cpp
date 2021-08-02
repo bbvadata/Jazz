@@ -1618,8 +1618,146 @@ The serialization includes NA identification, double quotes, commas spaces an sq
 **NOTE** that this escapes all non-vanilla ASCI characters, non printable (below 32), the blackslash and the double quote.
 */
 int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
+	int shape[MAX_TENSOR_RANK];
+	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+	int rank_1 = p_block->rank - 1;
 
-//TODO: Implement this
+	p_block->get_dimensions((int *) &shape);
+
+	if (p_dest == nullptr) {
+		int total_len = p_block->rank;	// Length of opening_brackets()
+
+		char *p_string;
+		int  *p_t = &p_block->tensor.cell_int[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			if (p_t[0] == STRING_NA)
+				total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
+			else if (p_t[0] == STRING_EMPTY)
+				total_len += 2 + separator_len(rank_1, shape, idx);	// 2 for two double quotes
+			else {
+				int str_len = 2;
+				p_string = p_block->get_string(i);
+
+				while (true) {
+					char lb = *p_string++;
+
+					if (lb == 0)
+						break;
+
+					if (lb < 7)
+						str_len += 4;					// Will serialize as \xHH
+					else if (lb < 14)
+						str_len += 2;					// Will serialize as \a, \b, \t, \n, \v, \f or \r
+					else if (lb < 32)
+						str_len += 4;					// Will serialize as \xHH
+					else if (lb < 34)
+						str_len++;
+					else if (lb < 35)
+						str_len += 2;					// Will serialize as \"
+					else if (lb < 92)
+						str_len++;
+					else if (lb < 93)
+						str_len += 2;					// Will serialize as \\ .
+					else if (lb < 127)
+						str_len++;
+					else if ((lb & 0xE0) == 0xC0) {		// utf-8 double char will serialize as \xHH\xHH
+						p_string++;
+						str_len += 8;
+					} else if ((lb & 0xF0) == 0xE0) {	// utf-8 triple char will serialize as \xHH\xHH\xHH
+						p_string += 2;
+						str_len  += 12;
+					} else if ((lb & 0xF8) == 0xF0) {	// utf-8 quad char will serialize as \xHH\xHH\xHH\xHH
+						p_string += 3;
+						str_len  += 16;
+					} else
+						str_len += 4;					// Will serialize as \xHH
+				}
+
+				total_len += str_len + separator_len(rank_1, shape, idx);
+			}
+			p_t++;
+		}
+
+		return total_len + 1;
+	}
+
+	opening_brackets(p_block->rank, p_dest);
+
+	char *p_string;
+	int  *p_t = &p_block->tensor.cell_int[0];
+
+	for (int i = 0; i < p_block->size; i++) {
+		if (p_t[0] == STRING_NA) {
+			strcpy(p_dest, NA);
+			p_dest += LENGTH_NA_AS_TEXT;
+		} else if (p_t[0] == STRING_EMPTY) {
+			(p_dest++)[0] = '"';
+			(p_dest++)[0] = '"';
+		} else {
+			(p_dest++)[0] = '"';
+			p_string = p_block->get_string(i);
+
+			while (true) {
+				char lb = *p_string++;
+
+				if (lb == 0)
+					break;
+
+				if (lb < 7)
+					as_hex(p_dest, lb);
+				else if (lb < 14) {
+					(p_dest++)[0] = '\\';
+					(p_dest++)[0] = ESCAPE_LOW_ASCII[lb - 7];
+				} else if (lb < 32)
+					as_hex(p_dest, lb);
+				else if (lb < 34)
+					(p_dest++)[0] = lb;
+				else if (lb < 35) {
+					(p_dest++)[0] = '\\';
+					(p_dest++)[0] = '"';
+				} else if (lb < 92)
+					(p_dest++)[0] = lb;
+				else if (lb < 93) {
+					(p_dest++)[0] = '\\';
+					(p_dest++)[0] = '\\';
+				} else if (lb < 127)
+					(p_dest++)[0] = lb;
+				else if ((lb & 0xE0) == 0xC0) {		// utf-8 double char will serialize as \xHH\xHH
+					as_hex(p_dest, lb);
+
+					lb = *p_string++;
+					as_hex(p_dest, lb);
+				} else if ((lb & 0xF0) == 0xE0) {	// utf-8 triple char will serialize as \xHH\xHH\xHH
+					as_hex(p_dest, lb);
+
+					lb = *p_string++;
+					as_hex(p_dest, lb);
+
+					lb = *p_string++;
+					as_hex(p_dest, lb);
+				} else if ((lb & 0xF8) == 0xF0) {	// utf-8 quad char will serialize as \xHH\xHH\xHH\xHH
+					as_hex(p_dest, lb);
+
+					lb = *p_string++;
+					as_hex(p_dest, lb);
+
+					lb = *p_string++;
+					as_hex(p_dest, lb);
+
+					lb = *p_string++;
+					as_hex(p_dest, lb);
+				} else
+					as_hex(p_dest, lb);
+			}
+
+			(p_dest++)[0] = '"';
+		}
+		separator(rank_1, shape, idx, p_dest);
+		p_t++;
+	}
+
+	p_dest[0] = 0;
 
 	return 0;
 }
