@@ -289,6 +289,8 @@ class Container : public Service {
 	private:
 #endif
 
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
 		/** A private hard lock for Container-critical operations. E.g., Adding a new block to the deque.
 
 			Needeless to say: Use only for a few clockcycles over the critical part and always unlock_container() no matter what.
@@ -436,6 +438,13 @@ class Container : public Service {
 				(p_ret++)[0] = '[';
 
 			p_ret[0] = 0;
+		}
+
+		inline void as_hex(pChar &p_dest, char bl) {
+			(p_dest++)[0] = '\\';
+			(p_dest++)[0] = 'x';
+			(p_dest++)[0] = HEX[bl & 0xf0 >> 4];
+			(p_dest++)[0] = HEX[bl & 0x0f];
 		}
 
 		inline void separator(int rank_1, int shape[], int idx[], pChar &p_ret) {
