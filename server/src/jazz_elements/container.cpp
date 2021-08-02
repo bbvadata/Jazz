@@ -321,7 +321,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	} else {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = it->second == nullptr ? 0 : strlen(it->second);
-			if (len) hea.total_bytes += len + 1;
+
+			if (len)
+				hea.total_bytes += len + 1;
+
 			hea.num_attributes++;
 		}
 		hea.total_bytes += 2*hea.num_attributes*sizeof(int);
@@ -696,8 +699,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = it->second == nullptr ? 0 : strlen(it->second);
+
 			if (len)
 				new_attrib_bytes += len + 1;
+
 			new_num_attributes++;
 		}
 
