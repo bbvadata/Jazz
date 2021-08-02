@@ -1262,15 +1262,14 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			int *p_t = &p_block->tensor.cell_int[0];
 
 			for (int i = 0; i < p_block->size; i++) {
-				if (p_t[0] == INTEGER_NA) {
+				if (p_t[0] == INTEGER_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
-					p_t++;
 
-				} else {
+				else {
 					sprintf(cell, p_fmt, p_t[0]);
 					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
-					p_t++;
 				}
+				p_t++;
 			}
 
 			return total_len + 1;
@@ -1280,16 +1279,16 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			long long *p_t = &p_block->tensor.cell_longint[0];
 
 			for (int i = 0; i < p_block->size; i++) {
-				if (p_t[0] == LONG_INTEGER_NA) {
+				if (p_t[0] == LONG_INTEGER_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
-					p_t++;
 
-				} else {
+				else {
 					sprintf(cell, p_fmt, p_t[0]);
 					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
-					p_t++;
 				}
+				p_t++;
 			}
+
 			return total_len + 1;
 		}
 
@@ -1309,7 +1308,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_dest += len;
 
 			separator(rank_1, shape, idx, p_dest);
-
 			p_t++;
 		}
 
