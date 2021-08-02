@@ -1261,8 +1261,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 			for (int i = 0; i < p_block->size; i++) {
-				sprintf(cell, p_fmt, p_t[0]);
-				total_len += strlen(cell) + separator_len(rank_1, shape, idx);
+				total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
 				p_t++;
 			}
 
@@ -1278,10 +1277,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				if (p_t[0] == INTEGER_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else {
-					sprintf(cell, p_fmt, p_t[0]);
-					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
-				}
+				else
+					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+
 				p_t++;
 			}
 
@@ -1295,10 +1293,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				if (p_t[0] == LONG_INTEGER_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else {
-					sprintf(cell, p_fmt, p_t[0]);
-					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
-				}
+				else
+					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+
 				p_t++;
 			}
 
@@ -1526,10 +1523,9 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 				if (p_t[0] == SINGLE_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else {
-					sprintf(cell, p_fmt, p_t[0]);
-					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
-				}
+				else
+					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+
 				p_t++;
 			}
 
@@ -1543,10 +1539,9 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 				if (p_t[0] == DOUBLE_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else {
-					sprintf(cell, p_fmt, p_t[0]);
-					total_len += strlen(cell) + separator_len(rank_1, shape, idx);
-				}
+				else
+					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+
 				p_t++;
 			}
 
