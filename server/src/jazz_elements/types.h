@@ -213,7 +213,8 @@ union Tensor {
 	int		   cell_int[0];			///< .. CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
 	uint32_t   cell_uint[0];		///< .. CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
 	float	   cell_single[0];		///< .. CELL_TYPE_SINGLE
-	long long  cell_longint[0];		///< .. CELL_TYPE_LONG_INTEGER and CELL_TYPE_TIME
+	long long  cell_longint[0];		///< .. CELL_TYPE_LONG_INTEGER
+	time_t	   cell_time[0];		///< .. CELL_TYPE_TIME
 	uint64_t   cell_ulongint[0];	///< .. CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
 	double	   cell_double[0];		///< .. CELL_TYPE_DOUBLE
 	ItemHeader cell_item[0];		///< .. An array of BlockHeader used by Kinds and Tuples
