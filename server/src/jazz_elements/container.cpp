@@ -38,6 +38,15 @@
 namespace jazz_elements
 {
 
+/*	-------------------------------------------------------------
+	 Global const (to avoid local initialization at each call)
+---------------------------------------------------------------- */
+
+char NA [4]				 = NA_AS_TEXT;
+char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};
+char DEF_INT_FMT [4]	 = {"%i\0"};
+char DEF_FLOAT_FMT [4]	 = {"%f\0"};
+
 /*	-----------------------------------------------
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
@@ -1228,11 +1237,9 @@ The serialization includes NA identification, commas spaces an square brackets t
 */
 int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
-	char fmt [4] = {"%i\0"};
-	char na [4]	 = NA_AS_TEXT;
 
 	if (p_fmt == nullptr)
-		p_fmt = (pChar) &fmt;
+		p_fmt = (pChar) &DEF_INT_FMT;
 
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
@@ -1323,7 +1330,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0] == INTEGER_NA) {
-				strcpy(p_dest, na);
+				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
 			} else {
@@ -1345,7 +1352,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0] == LONG_INTEGER_NA) {
-				strcpy(p_dest, na);
+				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
 			} else {
@@ -1379,8 +1386,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
-	char na [4]	 = NA_AS_TEXT;
-
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -1435,7 +1440,7 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0]) {
 				if (p_t[0] == BYTE_BOOLEAN_NA) {
-					strcpy(p_dest, na);
+					strcpy(p_dest, NA);
 					p_dest += LENGTH_NA_AS_TEXT;
 				} else
 					(p_dest++)[0] = '1';
@@ -1458,7 +1463,7 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0]) {
 				if (p_t[0] == BOOLEAN_NA) {
-					strcpy(p_dest, na);
+					strcpy(p_dest, NA);
 					p_dest += LENGTH_NA_AS_TEXT;
 				} else
 					(p_dest++)[0] = '1';
@@ -1494,11 +1499,9 @@ The serialization includes NA identification, commas spaces an square brackets t
 */
 int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
-	char fmt [4] = {"%f\0"};
-	char na [4]	 = NA_AS_TEXT;
 
 	if (p_fmt == nullptr)
-		p_fmt = (pChar) &fmt;
+		p_fmt = (pChar) &DEF_FLOAT_FMT;
 
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
@@ -1557,7 +1560,7 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0] == SINGLE_NA) {
-				strcpy(p_dest, na);
+				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
 			} else {
@@ -1579,7 +1582,7 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0] == DOUBLE_NA) {
-				strcpy(p_dest, na);
+				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
 			} else {
