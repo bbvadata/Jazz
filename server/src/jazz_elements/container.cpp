@@ -885,7 +885,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	case CELL_TYPE_BYTE_BOOLEAN:
 	case CELL_TYPE_BOOLEAN:
-		total_bytes = tensor_bool_as_text(p_from_raw, nullptr, p_fmt);
+		total_bytes = tensor_bool_as_text(p_from_raw, nullptr);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
@@ -965,7 +965,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	case CELL_TYPE_BYTE_BOOLEAN:
 	case CELL_TYPE_BOOLEAN:
-		tensor_bool_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+		tensor_bool_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor);
 
 		break;
 
@@ -1383,13 +1383,12 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 	\param p_block	The raw block to be serialized as text (must have one of the types above).
 	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
-	\param p_fmt	Optionally, format specifier that is understood by sprintf (default prints T or F)
 
 	\return	The length in bytes required to store the output if p_dest == nullptr
 
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
-int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 //TODO: Implement this
 
