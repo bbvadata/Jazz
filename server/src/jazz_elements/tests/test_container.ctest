@@ -3828,6 +3828,27 @@ SCENARIO("Testing new_block() (5) Create a Tensor, Kind or Tuple from a Text blo
 
 	REQUIRE(2*MAX_TENSOR_RANK + 3 < MAX_SIZE_OF_CELL_AS_TEXT);
 
+	long long now64;
+	jazz_elements::TimePoint big_bang;
+	time_t nowXX;
+
+	// char buffer [80];
+
+	REQUIRE(sizeof(now64)	 == 8);
+	REQUIRE(sizeof(big_bang) == 8);
+	REQUIRE(sizeof(nowXX)	 == 8);
+
+	// time (&nowXX);
+
+	// struct tm * timeinfo;
+	// timeinfo = gmtime (&nowXX);
+
+	// strftime (buffer, 80, "It's %Y-%m-%d at %H:%M:%S!", timeinfo);
+
+	// printf ("%s\n", buffer);
+
+	// REQUIRE(strcmp(buffer, "Bla") == 0);
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
