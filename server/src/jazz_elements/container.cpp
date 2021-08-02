@@ -1379,10 +1379,106 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
+	char na [4]	 = NA_AS_TEXT;
 
-//TODO: Implement this
+	int shape[MAX_TENSOR_RANK];
+	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+	int rank_1 = p_block->rank - 1;
 
-	return 0;
+	p_block->get_dimensions((int *) &shape);
+
+	if (p_dest == nullptr) {
+		int total_len = p_block->rank;	// Length of opening_brackets()
+
+		switch (p_block->cell_type) {
+		case CELL_TYPE_BYTE_BOOLEAN: {
+			bool *p_t = &p_block->tensor.cell_bool[0];
+
+			for (int i = 0; i < p_block->size; i++) {
+				if (p_t[0] == BYTE_BOOLEAN_NA)
+					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
+				else
+					total_len += 1 + separator_len(rank_1, shape, idx);
+
+				p_t++;
+			}
+
+			return total_len + 1;
+		}
+
+		case CELL_TYPE_BOOLEAN: {
+			uint32_t *p_t = &p_block->tensor.cell_uint[0];
+
+			for (int i = 0; i < p_block->size; i++) {
+				if (p_t[0] == BOOLEAN_NA)
+					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
+				else
+					total_len += 1 + separator_len(rank_1, shape, idx);
+
+				p_t++;
+			}
+
+			return total_len + 1;
+		}
+
+		default:
+			total_len = 0;
+		}
+	}
+
+	opening_brackets(p_block->rank, p_dest);
+
+	switch (p_block->cell_type) {
+	case CELL_TYPE_BYTE_BOOLEAN: {
+		bool *p_t = &p_block->tensor.cell_bool[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			if (p_t[0]) {
+				if (p_t[0] == BYTE_BOOLEAN_NA) {
+					strcpy(p_dest, na);
+					p_dest += LENGTH_NA_AS_TEXT;
+				} else
+					(p_dest++)[0] = '1';
+			} else
+				(p_dest++)[0] = '0';
+
+			separator(rank_1, shape, idx, p_dest);
+
+			p_t++;
+		}
+
+		p_dest[0] = 0;
+
+		return 0;
+	}
+
+	case CELL_TYPE_BOOLEAN: {
+		uint32_t *p_t = &p_block->tensor.cell_uint[0];
+
+		for (int i = 0; i < p_block->size; i++) {
+			if (p_t[0]) {
+				if (p_t[0] == BOOLEAN_NA) {
+					strcpy(p_dest, na);
+					p_dest += LENGTH_NA_AS_TEXT;
+				} else
+					(p_dest++)[0] = '1';
+			} else
+				(p_dest++)[0] = '0';
+
+			separator(rank_1, shape, idx, p_dest);
+
+			p_t++;
+		}
+
+		p_dest[0] = 0;
+
+		return 0;
+	}
+
+	default:
+
+		return 0;
+	}
 }
 
 
