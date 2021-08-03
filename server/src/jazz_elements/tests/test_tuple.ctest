@@ -250,7 +250,9 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 	REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
-	REQUIRE(p_kind2->num_dimensions() == 2);
+	Dimensions kdims = {};
+	p_kind2->dimensions(kdims);
+	REQUIRE(kdims.size() == 2);
 
 	REQUIRE(p_kind3->audit() == MIXED_TYPE_KIND);
 
@@ -276,7 +278,9 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 	REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
-	REQUIRE(p_kind3->num_dimensions() == 3);
+	Dimensions kdims2 = {};
+	p_kind3->dimensions(kdims2);
+	REQUIRE(kdims2.size() == 3);
 
 	// Build the tuples
 

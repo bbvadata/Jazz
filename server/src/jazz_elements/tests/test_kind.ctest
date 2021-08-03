@@ -139,12 +139,10 @@ SCENARIO("Testing kind") {
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
-				REQUIRE(p_kind1->num_dimensions() == 0);
+				Dimensions dims = {};
+				p_kind1->dimensions(dims);
 
-				Answer ans;
-
-				p_kind1->dimension_names(&ans);
-				REQUIRE(ans.text[0] == 0);
+				REQUIRE(dims.size() == 0);
 			}
 		}
 
@@ -177,12 +175,13 @@ SCENARIO("Testing kind") {
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
-				REQUIRE(p_kind2->num_dimensions() == 2);
+				Dimensions dims = {};
+				p_kind2->dimensions(dims);
 
-				Answer ans;
+				REQUIRE(dims.size() == 2);
 
-				p_kind2->dimension_names(&ans);
-				REQUIRE(!strcmp(ans.text, "width,height"));
+				REQUIRE(dims.find("height")	!= dims.end());
+				REQUIRE(dims.find("width")	!= dims.end());
 			}
 		}
 
@@ -220,12 +219,14 @@ SCENARIO("Testing kind") {
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
 
-				REQUIRE(p_kind3->num_dimensions() == 3);
+				Dimensions dims = {};
+				p_kind3->dimensions(dims);
 
-				Answer ans;
+				REQUIRE(dims.size() == 3);
 
-				p_kind3->dimension_names(&ans);
-				REQUIRE(!strcmp(ans.text, "frame.2,width,height"));
+				REQUIRE(dims.find("frame.2") != dims.end());
+				REQUIRE(dims.find("width")	 != dims.end());
+				REQUIRE(dims.find("height")	 != dims.end());
 			}
 		}
 
