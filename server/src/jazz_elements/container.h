@@ -66,15 +66,17 @@ namespace jazz_elements
 #define LENGTH_NA_AS_TEXT				2					///< The length of the sequence NA without the trailing zero.
 
 /// Serialization: parser error codes
-#define PARSE_ERROR_UNEXPECTED_EOF		  101		///< Parsing error, end of input buffer found before complete parsing.
-#define PARSE_ERROR_UNEXPECTED_CHAR		  102		///< Parsing error, mandatory character mismatch.
-#define PARSE_ERROR_ITEM_NAME			  103		///< Parsing error, failed to get an item name.
-#define PARSE_ERROR_ITEM_NAME_MISMATCH	  104		///< Parsing error, item name does not match name in p_as_kind.
-#define PARSE_ERROR_TENSOR_EXPLORATION	  105		///< Parsing error, parsing shape and size of a tensor failed.
+#define PARSE_ERROR_UNEXPECTED_EOF		101		///< Parsing error, end of input buffer found before complete parsing.
+#define PARSE_ERROR_UNEXPECTED_CHAR		102		///< Parsing error, mandatory character mismatch.
+#define PARSE_ERROR_ITEM_NAME			103		///< Parsing error, failed to get an item name.
+#define PARSE_ERROR_ITEM_NAME_MISMATCH	104		///< Parsing error, item name does not match name in p_as_kind.
+#define PARSE_ERROR_TENSOR_EXPLORATION	105		///< Parsing error, parsing shape and size of a tensor failed.
 
-#define PARSE_ERROR_KIND_EXPLORATION	  106		///< Parsing error, parsing type and shape of a kind failed.
-#define PARSE_ERROR_TOO_MANY_ITEMS		  107		///< Parsing error, kind of tuple have too many items.
-#define PARSE_ERROR_EXPECTED_EOF		  108		///< Parsing error, non-space characters found after complete parsing.
+#define PARSE_ERROR_KIND_EXPLORATION	106		///< Parsing error, parsing type and shape of a kind failed.
+#define PARSE_ERROR_TOO_MANY_ITEMS		107		///< Parsing error, kind of tuple have too many items.
+#define PARSE_ERROR_EXPECTED_EOF		108		///< Parsing error, non-space characters found after complete parsing.
+#define PARSE_ERROR_TENSOR_FILLING		109		///< Parsing error, while filling a tensor.
+#define PARSE_ERROR_TEXT_FILLING		110		///< Parsing error, while deserializing a tensor of text.
 
 /// Block API (method arguments)
 #define FILL_NEW_DONT_FILL				0		///< Don't initialize at all.
