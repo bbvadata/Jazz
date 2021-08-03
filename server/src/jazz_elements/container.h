@@ -435,6 +435,11 @@ class Container : public Service {
 		pStoredTransaction p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
 
+		/** Bla,
+
+//TODO: Document this
+
+		*/
 		inline int skip_space(pChar &p_in, int &num_bytes) {
 			while (num_bytes > 0) {
 				if (p_in[0] == ' ' || p_in[0] == '\t') {
@@ -447,6 +452,11 @@ class Container : public Service {
 			return num_bytes;
 		}
 
+		/** Bla,
+
+//TODO: Document this
+
+		*/
 		inline char get_char(pChar &p_in, int &num_bytes) {
 			if (num_bytes < 1)
 				return 0;
@@ -455,6 +465,11 @@ class Container : public Service {
 			return (p_in++)[0];
 		}
 
+		/** Bla,
+
+//TODO: Document this
+
+		*/
 		inline bool get_item_name(pChar &p_in, int &num_bytes, pChar p_out) {
 			if (skip_space(p_in, num_bytes) <= 0)
 				return false;
@@ -493,6 +508,11 @@ class Container : public Service {
 			return true;
 		}
 
+		/** Bla,
+
+//TODO: Document this
+
+		*/
 		inline int buff_size(ItemHeader &item_hea) {
 			int ret = item_hea.dim[0];
 
