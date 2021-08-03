@@ -1300,7 +1300,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 			return total_len + 1;
 		}
-
 		default:
 			return 0;
 		}
@@ -1313,8 +1312,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 		for (int i = 0; i < p_block->size; i++) {
-			int len = sprintf(p_dest, p_fmt, p_t[0]);
-			p_dest += len;
+			p_dest += sprintf(p_dest, p_fmt, p_t[0]);
 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
@@ -1334,10 +1332,8 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
-			} else {
-				int len = sprintf(p_dest, p_fmt, p_t[0]);
-				p_dest += len;
-			}
+			} else
+				p_dest += sprintf(p_dest, p_fmt, p_t[0]);
 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
@@ -1355,10 +1351,8 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
-			} else {
-				int len = sprintf(p_dest, p_fmt, p_t[0]);
-				p_dest += len;
-			}
+			} else
+				p_dest += sprintf(p_dest, p_fmt, p_t[0]);
 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
@@ -1554,10 +1548,8 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
-			} else {
-				int len = sprintf(p_dest, p_fmt, p_t[0]);
-				p_dest += len;
-			}
+			} else
+				p_dest += sprintf(p_dest, p_fmt, p_t[0]);
 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
@@ -1575,10 +1567,8 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
-			} else {
-				int len = sprintf(p_dest, p_fmt, p_t[0]);
-				p_dest += len;
-			}
+			} else
+				p_dest += sprintf(p_dest, p_fmt, p_t[0]);
 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
@@ -1808,8 +1798,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		} else {
 			timeinfo = gmtime (p_t);
 
-			int len = strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, timeinfo);
-			p_dest += len;
+			p_dest += strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, timeinfo);
 		}
 
 		separator(rank_1, shape, idx, p_dest);
