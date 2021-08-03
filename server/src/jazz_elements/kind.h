@@ -32,9 +32,6 @@
 */
 
 
-#include <set>
-
-
 #include "src/jazz_elements/block.h"
 
 #if defined CATCH_TEST
@@ -116,57 +113,19 @@ class Kind : public Block {
 			return -1;
 		}
 
-		/** Returns the number of dimensions in a Kind.
-
-			\return Number of dimensions
+		/** Pushes the Kind's dimension names into an std::set.
 		*/
-		inline int num_dimensions() {
-			if (cell_type != CELL_TYPE_KIND_ITEM | size <= 0)
-				return 0;
-
-			std::set <int> dims;
-
+		inline void dimensions(Dimensions &dims) {
 			for (int i = 0; i < size; i++) {
 				ItemHeader *p_it_hea = &tensor.cell_item[i];
 
 				for (int j = 0; j < p_it_hea->rank; j++) {
 					int k = p_it_hea->dim[j];
 
-					if (k < 0)
-						dims.insert(k);
-				}
-			}
+					if (k < 0) {
+						char *pt = (&p_string_buffer()->buffer[-k]);
 
-			return dims.size();
-		}
-
-		/** Returns the names of the dimensions as a tab separated list of names.
-
-			\param p_buff  The address of an ApiBuffer to store the answer.
-		*/
-		inline void dimension_names(pAnswer p_buff) {
-			p_buff->text[0] = 0;
-
-			if (cell_type != CELL_TYPE_KIND_ITEM | size <= 0)
-				return;
-
-			std::set <int> dims;
-
-			for (int i = 0; i < size; i++) {
-				ItemHeader *p_it_hea = &tensor.cell_item[i];
-
-				for (int j = 0; j < p_it_hea->rank; j++) {
-					int k = p_it_hea->dim[j];
-
-					if (k < 0 & dims.find(k) == dims.end()) {
-						if (dims.size() > 0)
-							strcat(p_buff->text, ",");
-
-						char * pt = (&p_string_buffer()->buffer[-k]);
-
-						strcat(p_buff->text, pt);
-
-						dims.insert(k);
+						dims.insert(std::string(pt));
 					}
 				}
 			}
