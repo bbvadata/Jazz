@@ -83,6 +83,7 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 
 #define MAX_TENSOR_RANK			6			///< Maximum rank = 6, E.g. a 2D array of raw videos (row, column, frame, x, y, color)
 #define MAX_CHECKS_4_MATCH		25			///< Maximum number of tries to match in get_string_offset() before setting stop_check_4_match
+#define MAX_ITEMS_IN_KIND		64			///< The number of items merged into a kind or tuple.
 
 /// Different values for Block.cell_type
 #define CELL_TYPE__
