@@ -160,7 +160,7 @@ inline bool valid_name(pChar p_name) {
 	if (!ch)
 		return false;
 
-	if (ch < 'A' | ch > 'z' | (ch > 'Z' & ch < 'a'))
+	if (ch < 'A' || ch > 'z' || (ch > 'Z' && ch < 'a'))
 		return false;
 
 	for (int i = 1; i < NAME_SIZE; i++) {
@@ -169,7 +169,7 @@ inline bool valid_name(pChar p_name) {
 		if (!ch)
 			return true;
 
-		if (ch < '0' | ch > 'z' | (ch > '9' & ch < 'A') | (ch > 'Z' & ch < '_') | ch == 0x60)
+		if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
 			return false;
 	}
 	return false;
