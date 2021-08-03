@@ -49,7 +49,7 @@ SCENARIO("Testing tuple") {
 	pTuple p_tup1 = (pTuple) &buff5, p_tup2 = (pTuple) &buff6, p_tup3 = (pTuple) &buff7;
 	pTuple p_tup4 = (pTuple) &buff8, p_tup5 = (pTuple) &buff9, p_tup6 = (pTuple) &buff10;
 
-	Answer k1, k2, k3;
+	char k1[4096], k2[4096], k3[4096];
 
 	pKind p_kind1 = (pKind) &k1, p_kind2 = (pKind) &k2, p_kind3 = (pKind) &k3;
 
@@ -200,14 +200,14 @@ SCENARIO("Testing tuple") {
 	attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
 	attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
 
-	REQUIRE(p_kind1->new_kind(1, sizeof(Answer), attr_kind));
+	REQUIRE(p_kind1->new_kind(1, 4096, attr_kind));
 	REQUIRE(p_kind1->add_item(0, "buffer", image_fixed.dim, CELL_TYPE_BYTE, empty_map));
 
-	REQUIRE(p_kind2->new_kind(2, sizeof(Answer), attr_kind));
+	REQUIRE(p_kind2->new_kind(2, 4096, attr_kind));
 	REQUIRE(p_kind2->add_item(0, "buffer", image_var.dim, CELL_TYPE_BYTE,	dims));
 	REQUIRE(p_kind2->add_item(1, "title",  title.dim,	  CELL_TYPE_STRING, dims));
 
-	REQUIRE(p_kind3->new_kind(3, sizeof(Answer), attr_kind));
+	REQUIRE(p_kind3->new_kind(3, 4096, attr_kind));
 	REQUIRE(p_kind3->add_item(0, "buffer", video_var.dim, CELL_TYPE_BYTE,	 dims));
 	REQUIRE(p_kind3->add_item(1, "audio",  audio_var.dim, CELL_TYPE_INTEGER, dims));
 	REQUIRE(p_kind3->add_item(2, "title",  title.dim,	  CELL_TYPE_STRING,  dims));
@@ -229,8 +229,6 @@ SCENARIO("Testing tuple") {
 
 	REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
 	REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
-
-	REQUIRE(p_kind1->num_dimensions() == 0);
 
 	REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
 

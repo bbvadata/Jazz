@@ -198,6 +198,24 @@ typedef std::map<std::string, std::string> Url2Name;
 
 // ------------------------------ Remove all this ------------------------------------------------------------------------------------------
 //TODO: remove Locator, pLocator, ContractStep, L_value and R_value
+#define MAX_NESTED_CONTAINERS			2					///< (max) sub-container names in a locator (base is resolved to a pointer).
+
+/** API buffers limit the size of http API calls, but also anything like lists of item names, dimension names, types, blocktypes, etc.
+Since Blocks do allocate RAM, when they communicate these kind of text operations, they expect the caller to assign a buffer of
+ANSWER_LENGTH chars. Of course, data serialization does not have any limits it is done by containers creating new blocks.
+*/
+#define ANSWER_LENGTH			4096		///< Size of an Answer buffer
+
+/** \brief A string returned by some methods in jazz_elements and also by some API calls.
+
+Some methods of Kinds an Tuples returning dimension names, etc. expect their buffers to fit the size of an Answer.
+*/
+struct Answer {
+	char text[ANSWER_LENGTH];	///< A message, metadata, lists of items, columns, etc.
+};
+
+typedef Answer *pAnswer;
+
 /** A Locator is used by all Containers using block names == all except the root deque. It locates a block (existing or new) and is the
 base of both lvalues and rvalues.
 */

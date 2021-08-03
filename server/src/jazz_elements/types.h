@@ -61,11 +61,6 @@
 namespace jazz_elements
 {
 
-/** API buffers limit the size of http API calls, but also anything like lists of item names, dimension names, types, blocktypes, etc.
-Since Blocks do allocate RAM, when they communicate these kind of text operations, they expect the caller to assign a buffer of
-ANSWER_LENGTH chars. Of course, data serialization does not have any limits it is done by containers creating new blocks.
-*/
-#define ANSWER_LENGTH			4096		///< Size of an Answer buffer
 #define NAME_SIZE				  32		///< Size of a Name (ending 0 included)
 #define ONE_MB					(1024*1024)
 
@@ -290,17 +285,6 @@ struct StringBuffer {
 	char buffer[];				///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
 };
 typedef StringBuffer *pStringBuffer;
-
-
-/** \brief A string returned by some methods in jazz_elements and also by some API calls.
-
-Some methods of Kinds an Tuples returning dimension names, etc. expect their buffers to fit the size of an Answer.
-*/
-struct Answer {
-	char text[ANSWER_LENGTH];	///< A message, metadata, lists of items, columns, etc.
-};
-
-typedef Answer	*pAnswer;
 
 
 extern float  F_NA;		///< NaN in single
