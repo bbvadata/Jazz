@@ -83,6 +83,8 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 /// Different values for Block.cell_type
 #define CELL_TYPE__
 
+#define CELL_TYPE_UNDEFINED		0x000		///< A cell_type value to be set by a text parser
+
 // 8 bit cell types
 #define CELL_TYPE_BYTE			0x001		///< A tensor of unsigned 8-bit binaries. NA is not defined for this type
 #define CELL_TYPE_BYTE_BOOLEAN	0x101		///< A tensor 8-bit booleans: 0, 1, BYTE_BOOLEAN_NA = NA
