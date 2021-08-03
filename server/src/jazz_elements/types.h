@@ -201,7 +201,10 @@ struct ItemHeader {
 	int name;					///< The name of this item as an offset in StringBuffer.
 	int	rank;					///< The number of dimensions
 	int	dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. For Kind: negative numbers are dimension names as -offset in StringBuffer.
-	int data_start;				///< The data start of this tensor as an offset of &BlockHeader.tensor. (If is is a Tuple.)
+	union {
+		int data_start;			///< The data start of this tensor as an offset of &BlockHeader.tensor. (If is is a Tuple.)
+		int item_size;			///< During parsing of text blocks, this field is named item_size to temporarily hold the item size.
+	};
 };
 
 
