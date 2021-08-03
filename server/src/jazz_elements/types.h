@@ -62,7 +62,7 @@ namespace jazz_elements
 {
 
 #define NAME_SIZE				  32		///< Size of a Name (ending 0 included)
-#define ONE_MB					(1024*1024)
+#define ONE_MB					(1024*1024)	///< Is used in log_printf() of error/warning messages
 
 /// Block API (syntax related)
 
