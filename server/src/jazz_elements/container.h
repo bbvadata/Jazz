@@ -435,6 +435,73 @@ class Container : public Service {
 		pStoredTransaction p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
 
+		inline int skip_space(pChar &p_in, int &num_bytes) {
+			while (num_bytes > 0) {
+				if (p_in[0] == ' ' || p_in[0] == '\t') {
+					p_in++;
+					num_bytes--;
+				} else
+					break;
+			}
+
+			return num_bytes;
+		}
+
+		inline char get_char(pChar &p_in, int &num_bytes) {
+			if (num_bytes < 1)
+				return 0;
+
+			num_bytes--;
+			return (p_in++)[0];
+		}
+
+		inline bool get_item_name(pChar &p_in, int &num_bytes, pChar p_out) {
+			if (skip_space(p_in, num_bytes) <= 0)
+				return false;
+
+			if (get_char(p_in, num_bytes) != '"')
+				return false;
+
+			char ch = get_char(p_in, num_bytes);
+
+			if (ch < 'A' || ch > 'z' || (ch > 'Z' && ch < 'a'))
+				return false;
+
+			(p_out++)[0] = ch;
+
+			for (int i = 1; i < NAME_SIZE; i++) {
+				ch = get_char(p_in, num_bytes);
+
+				if (ch == '"')
+					break;
+
+				if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
+					return false;
+
+				(p_out++)[0] = ch;
+			}
+
+			if (ch != '"' && (get_char(p_in, num_bytes) != '"'))
+				return false;
+
+			if (skip_space(p_in, num_bytes) <= 0)
+				return false;
+
+			if (get_char(p_in, num_bytes) != ':')
+				return false;
+
+			return true;
+		}
+
+		inline int buff_size(ItemHeader &item_hea) {
+			int ret = item_hea.dim[0];
+
+			for (int i = 1; i < item_hea.rank; i++)
+				ret *= item_hea.dim[i];
+
+			return ret + item_hea.item_size + 1;
+		}
+
 		int tensor_int_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_bool_as_text	 (pBlock p_block, pChar p_dest);
 		int tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt);
