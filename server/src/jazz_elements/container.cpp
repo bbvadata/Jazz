@@ -1473,6 +1473,58 @@ StatusCode Container::destroy_container() {
 }
 
 
+/** Bla,
+
+//TODO: Document this
+
+*/
+bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea) {
+
+//TODO: Implement this
+
+	return false;
+}
+
+
+/** Bla,
+
+//TODO: Document this
+
+*/
+bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, AttributeMap *dims) {
+
+//TODO: Implement this
+
+	return false;
+}
+
+
+/** Bla,
+
+//TODO: Document this
+
+*/
+bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
+
+//TODO: Implement this
+
+	return false;
+}
+
+
+/** Bla,
+
+//TODO: Document this
+
+*/
+bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
+
+//TODO: Implement this
+
+		return false;
+}
+
+
 /** Serializes a Tensor of CELL_TYPE_BYTE, CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE or CELL_TYPE_LONG_INTEGER as a string.
 
 	\param p_block	The raw block to be serialized as text (must have one of the types above).
