@@ -1155,6 +1155,7 @@ Usage-wise, this is equivalent to a new_block() call. On success, it will return
 be destroy()-ed when the caller is done.
 */
 StatusCode Container::copy (pChar  p_what, pChar  p_where) {
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -1174,6 +1175,7 @@ void Container::base_names (BaseNames &base_names) {}
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
 */
 StatusCode Container::new_container() {
+
 	if (p_buffer != nullptr || max_num_keepers <= 0)
 #if defined CATCH_TEST
 		destroy_container();
@@ -1213,6 +1215,7 @@ StatusCode Container::new_container() {
 	\return	SERVICE_NO_ERROR.
 */
 StatusCode Container::destroy_container() {
+
 	if (p_buffer != nullptr) {
 		while (p_alloc != nullptr) {
 			pTransaction pt = p_alloc;
@@ -1265,7 +1268,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 			return total_len + 1;
 		}
-
 		case CELL_TYPE_INTEGER:
 		case CELL_TYPE_FACTOR:
 		case CELL_TYPE_GRADE: {
@@ -1283,7 +1285,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 			return total_len + 1;
 		}
-
 		case CELL_TYPE_LONG_INTEGER: {
 			long long *p_t = &p_block->tensor.cell_longint[0];
 
@@ -1323,7 +1324,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 		return 0;
 	}
-
 	case CELL_TYPE_INTEGER:
 	case CELL_TYPE_FACTOR:
 	case CELL_TYPE_GRADE: {
@@ -1347,7 +1347,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 		return 0;
 	}
-
 	case CELL_TYPE_LONG_INTEGER: {
 		long long *p_t = &p_block->tensor.cell_longint[0];
 
@@ -1369,7 +1368,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 		return 0;
 	}
-
 	default:
 
 		return 0;
@@ -1411,7 +1409,6 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 			return total_len + 1;
 		}
-
 		case CELL_TYPE_BOOLEAN: {
 			uint32_t *p_t = &p_block->tensor.cell_uint[0];
 
@@ -1426,7 +1423,6 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 			return total_len + 1;
 		}
-
 		default:
 			return 0;
 		}
@@ -1457,7 +1453,6 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 		return 0;
 	}
-
 	case CELL_TYPE_BOOLEAN: {
 		uint32_t *p_t = &p_block->tensor.cell_uint[0];
 
@@ -1480,7 +1475,6 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 		return 0;
 	}
-
 	default:
 
 		return 0;
@@ -1529,7 +1523,6 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 			return total_len + 1;
 		}
-
 		case CELL_TYPE_DOUBLE: {
 			double *p_t = &p_block->tensor.cell_double[0];
 
@@ -1545,7 +1538,6 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 			return total_len + 1;
 		}
-
 		default:
 			return 0;
 		}
@@ -1575,7 +1567,6 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 		return 0;
 	}
-
 	case CELL_TYPE_DOUBLE: {
 		double *p_t = &p_block->tensor.cell_double[0];
 
@@ -1597,7 +1588,6 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 		return 0;
 	}
-
 	default:
 
 		return 0;
