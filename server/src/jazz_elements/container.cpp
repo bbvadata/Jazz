@@ -1942,8 +1942,140 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 The serialization includes item names, types and shapes.
 */
 int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
+	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-//TODO: Implement this
+	if (p_dest == nullptr) {
+		int total_len = 1;		// 3 for opening and closing {} + /0 - 2 (for the last item not having final ', ')
+
+		ItemHeader *p_t = &p_kind->tensor.cell_item[0];
+
+		for (int i = 0; i < p_kind->size; i++) {
+			as_shape(p_t[0].rank, cell, p_t[0].dim, p_kind);
+
+			total_len += 7 + strlen(p_kind->item_name(i)) + strlen(cell);		// 7 == length('"" : , ')
+
+			switch (p_t[0].cell_type) {
+			case CELL_TYPE_BYTE:
+			case CELL_TYPE_TIME:
+				total_len += 4;
+				break;
+
+			case CELL_TYPE_GRADE:
+				total_len += 5;
+				break;
+
+			case CELL_TYPE_FACTOR:
+			case CELL_TYPE_SINGLE:
+			case CELL_TYPE_DOUBLE:
+			case CELL_TYPE_STRING:
+				total_len += 6;
+				break;
+
+			case CELL_TYPE_INTEGER:
+			case CELL_TYPE_BOOLEAN:
+				total_len += 7;
+				break;
+
+			case CELL_TYPE_LONG_INTEGER:
+			case CELL_TYPE_BYTE_BOOLEAN:
+				total_len += 12;
+				break;
+
+			default:
+				return 0;
+			}
+
+			p_t++;
+		}
+
+		return total_len;
+	}
+
+	ItemHeader *p_t = &p_kind->tensor.cell_item[0];
+
+	(p_dest++)[0] = '{';
+	for (int i = 0; i < p_kind->size; i++) {
+		p_dest += sprintf(p_dest, "\"%s\" : ", p_kind->item_name(i));
+
+		switch (p_t[0].cell_type) {
+		case CELL_TYPE_BYTE:
+			strcpy(p_dest, "BYTE");
+			p_dest += 4;
+
+			break;
+
+		case CELL_TYPE_TIME:
+			strcpy(p_dest, "TIME");
+			p_dest += 4;
+
+			break;
+
+		case CELL_TYPE_GRADE:
+			strcpy(p_dest, "GRADE");
+			p_dest += 5;
+
+			break;
+
+		case CELL_TYPE_FACTOR:
+			strcpy(p_dest, "FACTOR");
+			p_dest += 6;
+
+			break;
+
+		case CELL_TYPE_SINGLE:
+			strcpy(p_dest, "SINGLE");
+			p_dest += 6;
+
+			break;
+
+		case CELL_TYPE_DOUBLE:
+			strcpy(p_dest, "DOUBLE");
+			p_dest += 6;
+
+			break;
+
+		case CELL_TYPE_STRING:
+			strcpy(p_dest, "STRING");
+			p_dest += 6;
+
+			break;
+
+		case CELL_TYPE_INTEGER:
+			strcpy(p_dest, "INTEGER");
+			p_dest += 7;
+
+			break;
+
+		case CELL_TYPE_BOOLEAN:
+			strcpy(p_dest, "BOOLEAN");
+			p_dest += 7;
+
+			break;
+
+		case CELL_TYPE_LONG_INTEGER:
+			strcpy(p_dest, "LONG_INTEGER");
+			p_dest += 12;
+
+			break;
+
+		case CELL_TYPE_BYTE_BOOLEAN:
+			strcpy(p_dest, "BYTE_BOOLEAN");
+			p_dest += 12;
+
+			break;
+		}
+		as_shape(p_t[0].rank, p_dest, p_t[0].dim, p_kind);
+
+		if (i < p_kind->size - 1) {
+			(p_dest++)[0] = ',';
+			(p_dest++)[0] = ' ';
+		}
+		p_t++;
+	}
+
+	(p_dest++)[0] = '}';
+
+	p_dest[0] = 0;
 
 	return 0;
 }

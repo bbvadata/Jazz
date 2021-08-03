@@ -438,6 +438,29 @@ class Container : public Service {
 			p_ret[0] = 0;
 		}
 
+		inline void as_shape(int rank, pChar p_ret, int dim[], pKind p_kind) {
+			(p_ret++)[0] = '[';
+
+			for (int i = 0; i < rank; i++) {
+				int k = dim[i];
+				if (k < 0) {
+					char *p_dim = &p_kind->p_string_buffer()->buffer[-k];
+					p_ret += sprintf(p_ret, "%i", k);
+
+				} else
+					p_ret += sprintf(p_ret, "%i", k);
+
+				if (i < rank - 1) {
+					(p_ret++)[0] = ',';
+					(p_ret++)[0] = ' ';
+				}
+			}
+
+			(p_ret++)[0] = ']';
+
+			p_ret[0] = 0;
+		}
+
 		inline void as_hex(pChar &p_dest, char bl) {
 			(p_dest++)[0] = '\\';
 			(p_dest++)[0] = 'x';
