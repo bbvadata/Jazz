@@ -58,7 +58,6 @@ namespace jazz_elements
 {
 
 /// Block API (dimensions of structures)
-
 #define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_SIZE_OF_CELL_AS_TEXT		48					///< What an integer, bool, float or date can take as text
 
@@ -66,8 +65,18 @@ namespace jazz_elements
 #define NA_AS_TEXT						{"NA\0"}			///< A constant representing NA in all types supporting it.
 #define LENGTH_NA_AS_TEXT				2					///< The length of the sequence NA without the trailing zero.
 
-/// Block API (method arguments)
+/// Serialization: parser error codes
+#define PARSE_ERROR_UNEXPECTED_EOF		  101		///< Parsing error, end of input buffer found before complete parsing.
+#define PARSE_ERROR_UNEXPECTED_CHAR		  102		///< Parsing error, mandatory character mismatch.
+#define PARSE_ERROR_ITEM_NAME			  103		///< Parsing error, failed to get an item name.
+#define PARSE_ERROR_ITEM_NAME_MISMATCH	  104		///< Parsing error, item name does not match name in p_as_kind.
+#define PARSE_ERROR_TENSOR_EXPLORATION	  105		///< Parsing error, parsing shape and size of a tensor failed.
 
+#define PARSE_ERROR_KIND_EXPLORATION	  106		///< Parsing error, parsing type and shape of a kind failed.
+#define PARSE_ERROR_TOO_MANY_ITEMS		  107		///< Parsing error, kind of tuple have too many items.
+#define PARSE_ERROR_EXPECTED_EOF		  108		///< Parsing error, non-space characters found after complete parsing.
+
+/// Block API (method arguments)
 #define FILL_NEW_DONT_FILL				0		///< Don't initialize at all.
 #define FILL_NEW_WITH_ZERO				1		///< Initialize with binary zero.
 #define FILL_NEW_WITH_NA				2		///< Initialize with the appropriate NA for the cell_type.
@@ -79,12 +88,10 @@ namespace jazz_elements
 #define BUILD_KIND						2		///< Build a Kind out of metadata items or fail.
 
 /// Block API (error and status codes)
-
 #define BLOCK_STATUS_READY				 0		///< Transaction.status: p_block-> is safe to use
 #define BLOCK_STATUS_EMPTY				 1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
 
 /// Thread safety
-
 #define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()
 
 /// sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
