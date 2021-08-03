@@ -1843,8 +1843,111 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 The serialization includes item names and the content of each tensor as written by the tensor methods.
 */
 int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
+	if (p_dest == nullptr) {
+		int total_len = 1;		// 3 for opening and closing () + /0 - 2 (for the last item not having final ', ')
 
-//TODO: Implement this
+		ItemHeader *p_t = &p_tuple->tensor.cell_item[0];
+
+		for (int i = 0; i < p_tuple->size; i++) {
+			total_len += 7 + strlen(p_tuple->item_name(i));		// 7 == length('"" : , ')
+
+			switch (p_t[0].cell_type) {
+			case CELL_TYPE_BYTE:
+			case CELL_TYPE_INTEGER:
+			case CELL_TYPE_FACTOR:
+			case CELL_TYPE_GRADE:
+			case CELL_TYPE_LONG_INTEGER:
+				total_len += item_len[i] = tensor_int_as_text(p_tuple->block(i), nullptr, p_fmt);
+
+				break;
+
+			case CELL_TYPE_BYTE_BOOLEAN:
+			case CELL_TYPE_BOOLEAN:
+				total_len += item_len[i] = tensor_bool_as_text(p_tuple->block(i), nullptr);
+
+				break;
+
+			case CELL_TYPE_SINGLE:
+			case CELL_TYPE_DOUBLE:
+				total_len += item_len[i] = tensor_float_as_text(p_tuple->block(i), nullptr, p_fmt);
+
+				break;
+
+			case CELL_TYPE_STRING:
+				total_len += item_len[i] = tensor_string_as_text(p_tuple->block(i), nullptr);
+
+				break;
+
+			case CELL_TYPE_TIME:
+				total_len += item_len[i] = tensor_time_as_text(p_tuple->block(i), nullptr, p_fmt);
+
+				break;
+
+			default:
+				return 0;
+			}
+
+			p_t++;
+		}
+
+		return total_len;
+	}
+
+	ItemHeader *p_t = &p_tuple->tensor.cell_item[0];
+
+	(p_dest++)[0] = '(';
+	for (int i = 0; i < p_tuple->size; i++) {
+		p_dest += sprintf(p_dest, "\"%s\" : ", p_tuple->item_name(i));
+
+		switch (p_t[0].cell_type) {
+		case CELL_TYPE_BYTE:
+		case CELL_TYPE_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_LONG_INTEGER:
+			tensor_int_as_text(p_tuple->block(i), p_dest, p_fmt);
+			p_dest += item_len[i];
+
+			break;
+
+		case CELL_TYPE_BYTE_BOOLEAN:
+		case CELL_TYPE_BOOLEAN:
+			tensor_bool_as_text(p_tuple->block(i), p_dest);
+			p_dest += item_len[i];
+
+			break;
+
+		case CELL_TYPE_SINGLE:
+		case CELL_TYPE_DOUBLE:
+			tensor_float_as_text(p_tuple->block(i), p_dest, p_fmt);
+			p_dest += item_len[i];
+
+			break;
+
+		case CELL_TYPE_STRING:
+			tensor_string_as_text(p_tuple->block(i), p_dest);
+			p_dest += item_len[i];
+
+			break;
+
+		case CELL_TYPE_TIME:
+			tensor_time_as_text(p_tuple->block(i), p_dest, p_fmt);
+			p_dest += item_len[i];
+
+			break;
+		}
+
+		if (i < p_tuple->size - 1) {
+			(p_dest++)[0] = ',';
+			(p_dest++)[0] = ' ';
+		}
+
+		p_t++;
+	}
+
+	(p_dest++)[0] = ')';
+
+	p_dest[0] = 0;
 
 	return 0;
 }
