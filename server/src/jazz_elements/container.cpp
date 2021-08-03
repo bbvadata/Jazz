@@ -854,14 +854,255 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								pKind		  p_as_kind,
 								AttributeMap *att) {
 
-	StatusCode ret = new_transaction(p_txn);
+	ItemHeader item_hea[MAX_ITEMS_IN_KIND];
+	Name item_name[MAX_ITEMS_IN_KIND];
+	int num_bytes = p_from_text->size;
+	int num_items;
+	pChar p_in = (pChar) &p_from_text->tensor.cell_byte[0];
+
+	switch (cell_type) {
+	case CELL_TYPE_TUPLE_ITEM: {
+		if (skip_space(p_in, num_bytes) <= 0)
+			return PARSE_ERROR_UNEXPECTED_EOF;
+
+		if (get_char(p_in, num_bytes) != '(')
+			return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		int item_idx = 0;
+		while (true) {
+			if (!get_item_name(p_in, num_bytes, item_name[item_idx]))
+				return PARSE_ERROR_ITEM_NAME;
+
+			int item_type;
+			if (p_as_kind != nullptr) {
+				if (item_idx >= p_as_kind->size)
+					return PARSE_ERROR_TOO_MANY_ITEMS;
+
+				if (strcmp(p_as_kind->item_name(item_idx), item_name[item_idx]) != 0)
+					return PARSE_ERROR_ITEM_NAME_MISMATCH;
+
+				item_type = p_as_kind->tensor.cell_item[item_idx].cell_type;
+			} else
+				item_type = CELL_TYPE_UNDEFINED;
+
+			if (!get_shape_and_size(p_in, num_bytes, item_type, &item_hea[item_idx]))
+				return PARSE_ERROR_TENSOR_EXPLORATION;
+
+			if (skip_space(p_in, num_bytes) <= 0)
+				return PARSE_ERROR_UNEXPECTED_EOF;
+
+			if (p_in[0] != ')')
+				break;
+
+			if (get_char(p_in, num_bytes) != ',')
+				return PARSE_ERROR_UNEXPECTED_CHAR;
+
+			item_idx++;
+
+			if (item_idx >= MAX_ITEMS_IN_KIND)
+				return PARSE_ERROR_TOO_MANY_ITEMS;
+		}
+
+		num_items = item_idx;
+
+		if (skip_space(p_in, num_bytes) != 0)
+			return PARSE_ERROR_EXPECTED_EOF;
+
+		break;
+	}
+	case CELL_TYPE_KIND_ITEM: {
+		if (skip_space(p_in, num_bytes) <= 0)
+			return PARSE_ERROR_UNEXPECTED_EOF;
+
+		if (get_char(p_in, num_bytes) != '{')
+			return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		int item_idx = 0;
+		while (true) {
+			if (!get_item_name(p_in, num_bytes, item_name[item_idx]))
+				return PARSE_ERROR_ITEM_NAME;
+
+			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], nullptr))
+				return PARSE_ERROR_KIND_EXPLORATION;
+
+			if (skip_space(p_in, num_bytes) <= 0)
+				return PARSE_ERROR_UNEXPECTED_EOF;
+
+			if (p_in[0] != '}')
+				break;
+
+			if (get_char(p_in, num_bytes) != ',')
+				return PARSE_ERROR_UNEXPECTED_CHAR;
+
+			item_idx++;
+
+			if (item_idx >= MAX_ITEMS_IN_KIND)
+				return PARSE_ERROR_TOO_MANY_ITEMS;
+		}
+
+		num_items = item_idx;
+
+		if (skip_space(p_in, num_bytes) != 0)
+			return PARSE_ERROR_EXPECTED_EOF;
+
+		break;
+	}
+	default:
+		if (!get_shape_and_size(p_in, num_bytes, cell_type, &item_hea[0]))
+			return PARSE_ERROR_TENSOR_EXPLORATION;
+
+		if (skip_space(p_in, num_bytes) != 0)
+			return PARSE_ERROR_EXPECTED_EOF;
+
+		break;
+	}
+
+	num_bytes = p_from_text->size;
+	p_in	  = (pChar) &p_from_text->tensor.cell_byte[0];
+
+	switch (cell_type) {
+	case CELL_TYPE_TUPLE_ITEM: {
+		pTransaction p_aux_txn[MAX_ITEMS_IN_KIND];
+
+		skip_space(p_in, num_bytes);
+		get_char(p_in, num_bytes);		// '(')
+
+		for (int i = 0; i < num_items; i++) {
+			Name item_name;
+			get_item_name(p_in, num_bytes, item_name);
+
+			if (item_hea[i].cell_type == CELL_TYPE_STRING) {
+				int bf_size = buff_size(item_hea[i]);
+
+				pChar p_txt = (pChar) malloc(bf_size);
+
+				if (p_txt == nullptr) {
+					for (int j = i - 1; j >= 0; j --)
+						destroy_internal(p_aux_txn[j]);
+
+					return SERVICE_ERROR_NO_MEM;
+				}
+
+				if (!fill_text_buffer(p_in, num_bytes, p_txt)) {
+					for (int j = i - 1; j >= 0; j --)
+						destroy_internal(p_aux_txn[j]);
+
+					return PARSE_ERROR_TEXT_FILLING;
+				}
+
+				int ret = new_block(p_aux_txn[i], CELL_TYPE_STRING, item_hea[i].dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt);
+
+				alloc_bytes -= bf_size;
+				free(p_txt);
+
+				if (ret != SERVICE_NO_ERROR) {
+					for (int j = i - 1; j >= 0; j --)
+						destroy_internal(p_aux_txn[j]);
+
+					return ret;
+				}
+			} else {
+				int ret = new_block(p_aux_txn[i], item_hea[i].cell_type, item_hea[i].dim, FILL_NEW_DONT_FILL);
+
+				if (ret != SERVICE_NO_ERROR) {
+					for (int j = i - 1; j >= 0; j --)
+						destroy_internal(p_aux_txn[j]);
+
+					return ret;
+				}
+
+				if (!fill_tensor(p_in, num_bytes, p_aux_txn[i]->p_block)) {
+					for (int j = i; j >= 0; j --)
+						destroy_internal(p_aux_txn[j]);
+
+					return PARSE_ERROR_TENSOR_FILLING;
+				}
+			}
+
+			skip_space(p_in, num_bytes);
+			if (p_in[0] != ')')
+				get_char(p_in, num_bytes);
+		}
+
+		pBlock p_item_blck[MAX_ITEMS_IN_KIND];
+		for (int i = 0; i < num_items; i++)
+			p_item_blck[i] = p_aux_txn[i]->p_block;
+
+		int ret = new_block (p_txn, num_items, p_item_blck, item_name, p_item_blck, nullptr, att);
+
+		for (int i = 0; i < num_items; i++)
+			destroy_internal(p_aux_txn[i]);
+
+		return ret;
+	}
+	case CELL_TYPE_KIND_ITEM: {
+		if (skip_space(p_in, num_bytes) <= 0)
+			return PARSE_ERROR_UNEXPECTED_EOF;
+
+		if (get_char(p_in, num_bytes) != '{')
+			return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		// Name item_name;
+		// int item_idx = 0;
+		// while (true) {
+		// 	if (!get_item_name(p_in, num_bytes, item_name))
+		// 		return PARSE_ERROR_ITEM_NAME;
+
+		// 	if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], nullptr))
+		// 		return PARSE_ERROR_KIND_EXPLORATION;
+
+		// 	if (skip_space(p_in, num_bytes) <= 0)
+		// 		return PARSE_ERROR_UNEXPECTED_EOF;
+
+		// 	if (p_in[0] != '}')
+		// 		break;
+
+		// 	if (get_char(p_in, num_bytes) != ',')
+		// 		return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		// 	item_idx++;
+
+		// 	if (item_idx >= MAX_ITEMS_IN_KIND)
+		// 		return PARSE_ERROR_TOO_MANY_ITEMS;
+		// }
+
+//TODO: Finish this
+
+		int ret = 222;
+
+		return ret;
+	}
+	case CELL_TYPE_STRING:
+		int bf_size = buff_size(item_hea[0]);
+
+		pChar p_txt = (pChar) malloc(bf_size);
+
+		if (p_txt == nullptr)
+			return SERVICE_ERROR_NO_MEM;
+
+		if (!fill_text_buffer(p_in, num_bytes, p_txt))
+			return PARSE_ERROR_TEXT_FILLING;
+
+		int ret = new_block(p_txn, CELL_TYPE_STRING, item_hea[0].dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt, '\n', att);
+
+		alloc_bytes -= bf_size;
+		free(p_txt);
+
+		return ret;
+	}
+
+	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', att);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-//TODO: Implement new Block (5)
+	if (!fill_tensor(p_in, num_bytes, p_txn->p_block)) {
+		destroy_internal(p_txn);
 
-	return SERVICE_NOT_IMPLEMENTED;
+		return PARSE_ERROR_TENSOR_FILLING;
+	}
+
+	return SERVICE_NO_ERROR;
 }
 
 
