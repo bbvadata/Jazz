@@ -882,10 +882,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  p_fmt,
 								AttributeMap *att) {
 
+	int item_len[MAX_ITEMS_IN_KIND];
 	int total_bytes;
 
-	switch (p_from_raw->cell_type)
-	{
+	switch (p_from_raw->cell_type) {
 	case CELL_TYPE_BYTE:
 	case CELL_TYPE_INTEGER:
 	case CELL_TYPE_FACTOR:
@@ -933,7 +933,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_TUPLE_ITEM:
-		total_bytes = tensor_tuple_as_text(p_from_raw, nullptr, p_fmt);
+		total_bytes = tensor_tuple_as_text((pTuple) p_from_raw, nullptr, p_fmt, item_len);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
@@ -967,8 +967,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_NO_MEM;
 	}
 
-	switch (p_from_raw->cell_type)
-	{
+	switch (p_from_raw->cell_type) {
 	case CELL_TYPE_BYTE:
 	case CELL_TYPE_INTEGER:
 	case CELL_TYPE_FACTOR:
@@ -1001,7 +1000,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_TUPLE_ITEM:
-		tensor_tuple_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt);
+		tensor_tuple_as_text((pTuple) p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt, item_len);
 
 		break;
 
@@ -1049,8 +1048,7 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 	p_txn->p_hea->cell_type = cell_type;
 	p_txn->p_hea->size	    = 0;
 
-	switch (cell_type)
-	{
+	switch (cell_type) {
 	case CELL_TYPE_INDEX_II:
 		p_txn->p_hea->index.index_ii = IndexII();
 
@@ -1844,7 +1842,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 The serialization includes item names and the content of each tensor as written by the tensor methods.
 */
-int Container::tensor_tuple_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
 
 //TODO: Implement this
 
