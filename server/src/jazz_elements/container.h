@@ -429,6 +429,7 @@ class Container : public Service {
 		int tensor_string_as_text(pBlock p_block, pChar p_dest);
 		int tensor_time_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]);
+		int tensor_kind_as_text	 (pKind  p_kind,  pChar p_dest);
 
 		inline void opening_brackets(int rank, pChar &p_ret) {
 			for (int i = 0; i < rank; i++)

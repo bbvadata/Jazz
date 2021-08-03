@@ -941,7 +941,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_KIND_ITEM:
-		total_bytes = tensor_kind_as_text(p_from_raw, nullptr);
+		total_bytes = tensor_kind_as_text((pKind) p_from_raw, nullptr);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
@@ -1005,7 +1005,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	default:
-		tensor_kind_as_text(p_from_raw, (pChar) &p_txn->p_block->tensor);
+		tensor_kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
 
 	}
 
@@ -1941,7 +1941,7 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 
 The serialization includes item names, types and shapes.
 */
-int Container::tensor_kind_as_text (pBlock p_block, pChar p_dest) {
+int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 
 //TODO: Implement this
 
