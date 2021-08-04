@@ -274,10 +274,11 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		}
 
 		const char *pt = p_text;
-		while (pt[0]) {
-			if (pt[0] == eol) {
+		while (*pt) {
+			if (*pt == eol) {
 				if (!pt[1])
 					break;
+
 				num_lines++;
 			}
 			pt++;
@@ -357,8 +358,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			 *pt2 = (char *) p_txn->p_block->align_128bit((uintptr_t) pt1);
 
 		while (pt1 < pt2) {
-			pt1[0] = 0;
-			pt1++;
+			*(pt1++) = 0;
 		}
 	}
 #endif
@@ -376,10 +376,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		p_txn->p_block->tensor.cell_int[0] = offset;
 
-		while (pt_in[0]) {
+		while (*pt_in) {
 			offset++;
-			if (pt_in[0] != eol) {
-				pt_out[0] = pt_in[0];
+			if (*pt_in != eol) {
+				*pt_out = *pt_in;
 				len++;
 			} else {
 				if (!len)
@@ -388,7 +388,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				if (!pt_in[1])
 					break;
 
-				pt_out[0] = 0;
+				*pt_out = 0;
 
 				p_txn->p_block->tensor.cell_int[row] = offset;
 
@@ -401,9 +401,9 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		if (!len)
 			p_txn->p_block->tensor.cell_int[row - 1] = STRING_EMPTY;
 
-		pt_out[0] = 0;
+		*pt_out = 0;
 
-		psb->last_idx			= offset + (pt_in[0] == 0);
+		psb->last_idx			= offset + (*pt_in == 0);
 		psb->stop_check_4_match = true;							// Block::get_string_offset() does not support match with empty strings.
 	} else {
 		switch (fill_tensor) {
@@ -891,7 +891,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (skip_space(p_in, num_bytes) <= 0)
 				return PARSE_ERROR_UNEXPECTED_EOF;
 
-			if (p_in[0] != ')')
+			if (*p_in != ')')
 				break;
 
 			if (get_char(p_in, num_bytes) != ',')
@@ -930,7 +930,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (skip_space(p_in, num_bytes) <= 0)
 				return PARSE_ERROR_UNEXPECTED_EOF;
 
-			if (p_in[0] != '}')
+			if (*p_in != '}')
 				break;
 
 			if (get_char(p_in, num_bytes) != ',')
@@ -1022,7 +1022,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			}
 
 			skip_space(p_in, num_bytes);
-			if (p_in[0] != ')')
+			if (*p_in != ')')
 				get_char(p_in, num_bytes);
 		}
 
@@ -1054,7 +1054,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 			skip_space(p_in, num_bytes);
 
-			if (p_in[0] != '}')
+			if (*p_in != '}')
 				get_char(p_in, num_bytes);
 		}
 
@@ -1636,7 +1636,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1657,7 +1657,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1676,7 +1676,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1752,16 +1752,16 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 					strcpy(p_dest, NA);
 					p_dest += LENGTH_NA_AS_TEXT;
 				} else
-					(p_dest++)[0] = '1';
+					*(p_dest++) = '1';
 			} else
-				(p_dest++)[0] = '0';
+				*(p_dest++) = '0';
 
 			separator(rank_1, shape, idx, p_dest);
 
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1774,16 +1774,16 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 					strcpy(p_dest, NA);
 					p_dest += LENGTH_NA_AS_TEXT;
 				} else
-					(p_dest++)[0] = '1';
+					*(p_dest++) = '1';
 			} else
-				(p_dest++)[0] = '0';
+				*(p_dest++) = '0';
 
 			separator(rank_1, shape, idx, p_dest);
 
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1873,7 +1873,7 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1892,7 +1892,7 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			p_t++;
 		}
 
-		p_dest[0] = 0;
+		*p_dest = 0;
 
 		return 0;
 	}
@@ -1989,10 +1989,10 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 			strcpy(p_dest, NA);
 			p_dest += LENGTH_NA_AS_TEXT;
 		} else if (p_t[0] == STRING_EMPTY) {
-			(p_dest++)[0] = '"';
-			(p_dest++)[0] = '"';
+			*(p_dest++) = '"';
+			*(p_dest++) = '"';
 		} else {
-			(p_dest++)[0] = '"';
+			*(p_dest++) = '"';
 			p_string = p_block->get_string(i);
 
 			while (true) {
@@ -2004,22 +2004,22 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 				if (lb < 7)
 					as_hex(p_dest, lb);
 				else if (lb < 14) {
-					(p_dest++)[0] = '\\';
-					(p_dest++)[0] = ESCAPE_LOW_ASCII[lb - 7];
+					*(p_dest++) = '\\';
+					*(p_dest++) = ESCAPE_LOW_ASCII[lb - 7];
 				} else if (lb < 32)
 					as_hex(p_dest, lb);
 				else if (lb < 34)
-					(p_dest++)[0] = lb;
+					*(p_dest++) = lb;
 				else if (lb < 35) {
-					(p_dest++)[0] = '\\';
-					(p_dest++)[0] = '"';
+					*(p_dest++) = '\\';
+					*(p_dest++) = '"';
 				} else if (lb < 92)
-					(p_dest++)[0] = lb;
+					*(p_dest++) = lb;
 				else if (lb < 93) {
-					(p_dest++)[0] = '\\';
-					(p_dest++)[0] = '\\';
+					*(p_dest++) = '\\';
+					*(p_dest++) = '\\';
 				} else if (lb < 127)
-					(p_dest++)[0] = lb;
+					*(p_dest++) = lb;
 				else if ((lb & 0xE0) == 0xC0) {		// utf-8 double char will serialize as \xHH\xHH
 					as_hex(p_dest, lb);
 
@@ -2048,13 +2048,13 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 					as_hex(p_dest, lb);
 			}
 
-			(p_dest++)[0] = '"';
+			*(p_dest++) = '"';
 		}
 		separator(rank_1, shape, idx, p_dest);
 		p_t++;
 	}
 
-	p_dest[0] = 0;
+	*p_dest = 0;
 
 	return 0;
 }
@@ -2123,7 +2123,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		p_t++;
 	}
 
-	p_dest[0] = 0;
+	*p_dest = 0;
 
 	return 0;
 }
@@ -2192,7 +2192,8 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 
 	ItemHeader *p_t = &p_tuple->tensor.cell_item[0];
 
-	(p_dest++)[0] = '(';
+	*(p_dest++) = '(';
+
 	for (int i = 0; i < p_tuple->size; i++) {
 		p_dest += sprintf(p_dest, "\"%s\" : ", p_tuple->item_name(i));
 
@@ -2235,16 +2236,16 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 		}
 
 		if (i < p_tuple->size - 1) {
-			(p_dest++)[0] = ',';
-			(p_dest++)[0] = ' ';
+			*(p_dest++) = ',';
+			*(p_dest++) = ' ';
 		}
 
 		p_t++;
 	}
 
-	(p_dest++)[0] = ')';
+	*(p_dest++) = ')';
 
-	p_dest[0] = 0;
+	*p_dest = 0;
 
 	return 0;
 }
@@ -2311,7 +2312,8 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 
 	ItemHeader *p_t = &p_kind->tensor.cell_item[0];
 
-	(p_dest++)[0] = '{';
+	*(p_dest++) = '{';
+
 	for (int i = 0; i < p_kind->size; i++) {
 		p_dest += sprintf(p_dest, "\"%s\" : ", p_kind->item_name(i));
 
@@ -2385,15 +2387,15 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 		as_shape(p_t[0].rank, p_t[0].dim, p_dest, p_kind);
 
 		if (i < p_kind->size - 1) {
-			(p_dest++)[0] = ',';
-			(p_dest++)[0] = ' ';
+			*(p_dest++) = ',';
+			*(p_dest++) = ' ';
 		}
 		p_t++;
 	}
 
-	(p_dest++)[0] = '}';
+	*(p_dest++) = '}';
 
-	p_dest[0] = 0;
+	*p_dest = 0;
 
 	return 0;
 }
