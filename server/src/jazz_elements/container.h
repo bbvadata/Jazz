@@ -555,6 +555,13 @@ class Container : public Service {
 			p_ret[0] = 0;
 		}
 
+		/** Writes the shape of a Tensor in a Kind
+
+			\param rank		The tensor rank
+			\param p_ret	The cursor to the output buffer
+			\param dim		The shape
+			\param p_kind	The kind from which dimension names should be read
+		*/
 		inline void as_shape(int rank, pChar p_ret, int dim[], pKind p_kind) {
 			(p_ret++)[0] = '[';
 
