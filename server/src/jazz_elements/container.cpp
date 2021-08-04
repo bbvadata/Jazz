@@ -1491,9 +1491,93 @@ StatusCode Container::destroy_container() {
 */
 bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims) {
 
-//TODO: Implement this
+	if (skip_space(p_in, num_bytes) < 7)
+		return false;
 
-	return false;
+	if (strncmp(p_in, "INTEGER", 7)) {
+		item_hea->cell_type = CELL_TYPE_INTEGER;
+		p_in += 7;
+	} else if (strncmp(p_in, "DOUBLE", 6)) {
+		item_hea->cell_type = CELL_TYPE_DOUBLE;
+		p_in += 6;
+	} else if (strncmp(p_in, "BYTE", 4)) {
+		item_hea->cell_type = CELL_TYPE_BYTE;
+		p_in += 4;
+	} else if (strncmp(p_in, "STRING", 6)) {
+		item_hea->cell_type = CELL_TYPE_STRING;
+		p_in += 6;
+	} else if (strncmp(p_in, "BOOLEAN", 7)) {
+		item_hea->cell_type = CELL_TYPE_BOOLEAN;
+		p_in += 7;
+	} else if (strncmp(p_in, "SINGLE", 6)) {
+		item_hea->cell_type = CELL_TYPE_SINGLE;
+		p_in += 6;
+	} else if (strncmp(p_in, "TIME", 4)) {
+		item_hea->cell_type = CELL_TYPE_TIME;
+		p_in += 4;
+	} else if (strncmp(p_in, "LONG_INTEGER", 12)) {
+		item_hea->cell_type = CELL_TYPE_LONG_INTEGER;
+		p_in += 12;
+	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12)) {
+		item_hea->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+		p_in += 12;
+	} else if (strncmp(p_in, "FACTOR", 6)) {
+		item_hea->cell_type = CELL_TYPE_FACTOR;
+		p_in += 6;
+	} else if (strncmp(p_in, "GRADE", 5)) {
+		item_hea->cell_type = CELL_TYPE_GRADE;
+		p_in += 5;
+	} else
+		return false;
+
+	if (skip_space(p_in, num_bytes) < 3)
+		return false;
+
+	if (get_char(p_in, num_bytes) != '[')
+		return false;
+
+	item_hea->rank = 0;
+
+	memset(&item_hea->dim, 0, sizeof(TensorDim));
+
+	while (true) {
+		Name dim_name;
+		if (skip_space(p_in, num_bytes) < 2)
+			return false;
+
+		char cl = *p_in;
+
+		if (cl >= '0' && cl <= '9') {
+			if (!sscanf_int32(p_in, num_bytes, item_hea->dim[item_hea->rank]) || item_hea->dim[item_hea->rank] < 1)
+				return false;
+
+		} else if ((cl >= 'A' && cl <= 'Z') || (cl >= 'a' && cl <= 'z')) {
+			if (!get_item_name(p_in, num_bytes, dim_name, false, false))
+				return false;
+
+			if (dims.find(dim_name) == dims.end()) {
+				int ix = -(dims.size() + 1);
+
+				dims[dim_name] = ix;
+
+				item_hea->dim[item_hea->rank] = ix;
+			} else
+				item_hea->dim[item_hea->rank] = dims[dim_name];
+		}
+		if (skip_space(p_in, num_bytes) < 1)
+			return false;
+
+		cl = get_char(p_in, num_bytes);
+
+		if (item_hea->rank++ >= MAX_TENSOR_RANK)
+			return false;
+
+		if (cl == ']')
+			return true;
+
+		if (cl != ',')
+			return false;
+	}
 }
 
 
