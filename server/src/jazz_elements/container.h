@@ -435,10 +435,12 @@ class Container : public Service {
 		pStoredTransaction p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
 
-		/** Bla,
+		/** Skip space or tab characterr while parsing
 
-//TODO: Document this
+			\param p_in			The input char stream cursor.
+			\param num_bytes	The number of bytes with data above *p_in
 
+			\return	The number of bytes still to be read after skipping
 		*/
 		inline int skip_space(pChar &p_in, int &num_bytes) {
 			while (num_bytes > 0) {
