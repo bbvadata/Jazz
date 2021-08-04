@@ -911,6 +911,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 	case CELL_TYPE_KIND_ITEM: {
+		IndexSI idx_dims = {};
+
 		if (skip_space(p_in, num_bytes) <= 0)
 			return PARSE_ERROR_UNEXPECTED_EOF;
 
@@ -922,7 +924,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (!get_item_name(p_in, num_bytes, item_name[item_idx]))
 				return PARSE_ERROR_ITEM_NAME;
 
-			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], nullptr))
+			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], idx_dims))
 				return PARSE_ERROR_KIND_EXPLORATION;
 
 			if (skip_space(p_in, num_bytes) <= 0)
@@ -1036,41 +1038,46 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return ret;
 	}
 	case CELL_TYPE_KIND_ITEM: {
+		IndexSI idx_dims = {};
+
 		if (skip_space(p_in, num_bytes) <= 0)
 			return PARSE_ERROR_UNEXPECTED_EOF;
 
 		if (get_char(p_in, num_bytes) != '{')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
 
-		// Name item_name;
-		// int item_idx = 0;
-		// while (true) {
-		// 	if (!get_item_name(p_in, num_bytes, item_name))
-		// 		return PARSE_ERROR_ITEM_NAME;
+		for (int i = 0; i < num_items; i++) {
+			Name item_name;
+			get_item_name(p_in, num_bytes, item_name);
 
-		// 	if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], nullptr))
-		// 		return PARSE_ERROR_KIND_EXPLORATION;
+			get_type_and_shape(p_in, num_bytes, &item_hea[i], idx_dims);
 
-		// 	if (skip_space(p_in, num_bytes) <= 0)
-		// 		return PARSE_ERROR_UNEXPECTED_EOF;
+			skip_space(p_in, num_bytes);
 
-		// 	if (p_in[0] != '}')
-		// 		break;
+			if (p_in[0] != '}')
+				get_char(p_in, num_bytes);
+		}
 
-		// 	if (get_char(p_in, num_bytes) != ',')
-		// 		return PARSE_ERROR_UNEXPECTED_CHAR;
+		StaticBlockHeader hea		  [MAX_ITEMS_IN_KIND];
+		pBlock			  p_item_blck [MAX_ITEMS_IN_KIND];
 
-		// 	item_idx++;
+		for (int i = 0; i < num_items; i++) {
+			p_item_blck[i] = (pBlock) &hea[i];
 
-		// 	if (item_idx >= MAX_ITEMS_IN_KIND)
-		// 		return PARSE_ERROR_TOO_MANY_ITEMS;
-		// }
+			hea[i].cell_type = item_hea[i].cell_type;
+			hea[i].rank		 = item_hea[i].rank;
 
-//TODO: Finish this
+			memcpy(&hea[i].range, &hea[i].range, sizeof(TensorDim));
+		}
 
-		int ret = 222;
+		AttributeMap dims = {};
 
-		return ret;
+		IndexSI::iterator it;
+
+		for (it = idx_dims.begin(); it != idx_dims.end(); it++)
+			dims[it->second] = it->first.c_str();
+
+		return new_block (p_txn, num_items, p_item_blck, item_name, nullptr, &dims, att);
 	}
 	case CELL_TYPE_STRING:
 		int bf_size = buff_size(item_hea[0]);
