@@ -515,10 +515,11 @@ class Container : public Service {
 			return true;
 		}
 
-		/** Bla,
+		/** Computes buffer size required to store the text in a tensor of string serialized including newlines between fields.
 
-//TODO: Document this
+			\param item_hea	An ItemHeader that contains the fields computed by a previous get_shape_and_size() call
 
+			\return	The buffer size
 		*/
 		inline int buff_size(ItemHeader &item_hea) {
 			int ret = item_hea.dim[0];
