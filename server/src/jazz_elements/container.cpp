@@ -1480,6 +1480,23 @@ StatusCode Container::destroy_container() {
 }
 
 
+/** Parse a source definition of an item in a Kind, possibly with dimensions.
+
+	\param p_in			The input char stream cursor.
+	\param num_bytes	The number of bytes with data above *p_in
+	\param item_hea		The structure that receives the resulting cell_type, rank and shape.
+	\param dims			An optional AttributeMap to retrieve the dimension names.
+
+	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
+*/
+bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims) {
+
+//TODO: Implement this
+
+	return false;
+}
+
+
 /** Parse a tensor, measure it and fail on inconsistent shape
 
 	\param p_in			The input char stream cursor.
@@ -1492,23 +1509,6 @@ StatusCode Container::destroy_container() {
 In the case of CELL_TYPE_STRING, item_size will return the serialized total size of all the strings.
 */
 bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea) {
-
-//TODO: Implement this
-
-	return false;
-}
-
-
-/** Parse a source definition of an item in a Kind, possibly with dimensions.
-
-	\param p_in			The input char stream cursor.
-	\param num_bytes	The number of bytes with data above *p_in
-	\param item_hea		The structure that receives the resulting cell_type, rank and shape.
-	\param dims			An optional AttributeMap to retrieve the dimension names.
-
-	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
-*/
-bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims) {
 
 //TODO: Implement this
 
