@@ -1509,10 +1509,15 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 }
 
 
-/** Bla,
+/** Parse a tensor of CELL_TYPE_STRING by serializing it into a buffer compatible with a new_block(1).p_text
 
-//TODO: Document this
+	\param p_in			The input char stream cursor.
+	\param num_bytes	The number of bytes with data above *p_in
+	\param p_out		A pointer to a buffer that has enough size for the serialized output.
 
+	\return	True on success
+
+**Note**: Cells are separated by a \\n character (not escaped) which is not confused with a \\n inside the string which becomes escaped.
 */
 bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 
