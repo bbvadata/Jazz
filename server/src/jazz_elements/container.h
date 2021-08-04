@@ -585,6 +585,11 @@ class Container : public Service {
 			p_ret[0] = 0;
 		}
 
+		/** Writes a char as 0xFF
+
+			\param p_ret	The cursor to the output buffer
+			\param bl		The character
+		*/
 		inline void as_hex(pChar &p_dest, char bl) {
 			(p_dest++)[0] = '\\';
 			(p_dest++)[0] = 'x';
