@@ -565,7 +565,7 @@ class Container : public Service {
 			\param dim		The shape
 			\param p_kind	The kind from which dimension names should be read
 		*/
-		inline void as_shape(int rank, pChar p_ret, int dim[], pKind p_kind) {
+		inline void as_shape(int rank, int dim[], pChar p_ret, pKind p_kind) {
 			*(p_ret++) = '[';
 
 			for (int i = 0; i < rank; i++) {

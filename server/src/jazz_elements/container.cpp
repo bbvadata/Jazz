@@ -2243,7 +2243,7 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 		ItemHeader *p_t = &p_kind->tensor.cell_item[0];
 
 		for (int i = 0; i < p_kind->size; i++) {
-			as_shape(p_t[0].rank, cell, p_t[0].dim, p_kind);
+			as_shape(p_t[0].rank, p_t[0].dim, cell, p_kind);
 
 			total_len += 7 + strlen(p_kind->item_name(i)) + strlen(cell);		// 7 == length('"" : , ')
 
@@ -2357,7 +2357,7 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 
 			break;
 		}
-		as_shape(p_t[0].rank, p_dest, p_t[0].dim, p_kind);
+		as_shape(p_t[0].rank, p_t[0].dim, p_dest, p_kind);
 
 		if (i < p_kind->size - 1) {
 			(p_dest++)[0] = ',';
