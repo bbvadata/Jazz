@@ -624,7 +624,15 @@ class Container : public Service {
 			p_ret[0] = 0;
 		}
 
-		inline int separator_len(int rank_1, int shape[], int idx[]) {
+		/** Computes the length of the separator between two cells in a tensor (counting brackets, comma, ..)
+
+			\param rank_1	The tensor rank - 1
+			\param dim		The shape
+			\param idx		The current index expressed inside the shape
+
+			\return	The length taken by the separator
+		*/
+		inline int separator_len(int rank_1, int dim[], int idx[]) {
 			int ret = 0;
 
 			for (int i = rank_1; i >= 0; i --) {
