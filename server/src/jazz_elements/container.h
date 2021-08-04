@@ -480,9 +480,10 @@ class Container : public Service {
 			\return	True on success
 		*/
 		inline bool get_item_name(pChar &p_in, int &num_bytes, pChar p_out, bool check_quotes = true, bool check_colon = true) {
+			if (skip_space(p_in, num_bytes) <= 1)
 				return false;
 
-			if (get_char(p_in, num_bytes) != '"')
+			if (check_quotes && (get_char(p_in, num_bytes) != '"'))
 				return false;
 
 			char ch = get_char(p_in, num_bytes);
@@ -492,11 +493,16 @@ class Container : public Service {
 
 			*(p_out++) = ch;
 
-			for (int i = 1; i < NAME_SIZE; i++) {
+			for (int i = 1; i < NAME_LENGTH; i++) {
 				ch = get_char(p_in, num_bytes);
 
-				if (ch == '"')
-					break;
+				if (check_quotes) {
+					if (ch == '"')
+						break;
+				} else {
+					if (ch == ' ' || ch == ',' || ch == ']')
+						break;
+				}
 
 				if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
 					return false;
@@ -504,16 +510,18 @@ class Container : public Service {
 				*(p_out++) = ch;
 			}
 
-			if (ch != '"' && (get_char(p_in, num_bytes) != '"'))
+			*p_out = 0;
+
+			if (check_quotes && (ch != '"') && (get_char(p_in, num_bytes) != '"'))
 				return false;
 
-			if (skip_space(p_in, num_bytes) <= 0)
-				return false;
+			if (check_colon) {
+				if (skip_space(p_in, num_bytes) <= 1)
+					return false;
 
-			if (get_char(p_in, num_bytes) != ':')
-				return false;
-
-			*p_out++ = 0;
+				if (get_char(p_in, num_bytes) != ':')
+					return false;
+			}
 
 			return true;
 		}
