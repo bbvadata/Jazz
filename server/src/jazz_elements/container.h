@@ -444,7 +444,7 @@ class Container : public Service {
 		*/
 		inline int skip_space(pChar &p_in, int &num_bytes) {
 			while (num_bytes > 0) {
-				if (p_in[0] == ' ' || p_in[0] == '\t') {
+				if (*p_in == ' ' || *p_in == '\t') {
 					p_in++;
 					num_bytes--;
 				} else
@@ -466,7 +466,8 @@ class Container : public Service {
 				return 0;
 
 			num_bytes--;
-			return (p_in++)[0];
+
+			return *(p_in++);
 		}
 
 		/** Returns the char at input cursor shifting the cursor by one or zero if there are no mor characters to be read.
@@ -489,7 +490,7 @@ class Container : public Service {
 			if (ch < 'A' || ch > 'z' || (ch > 'Z' && ch < 'a'))
 				return false;
 
-			(p_out++)[0] = ch;
+			*(p_out++) = ch;
 
 			for (int i = 1; i < NAME_SIZE; i++) {
 				ch = get_char(p_in, num_bytes);
@@ -500,7 +501,7 @@ class Container : public Service {
 				if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
 					return false;
 
-				(p_out++)[0] = ch;
+				*(p_out++) = ch;
 			}
 
 			if (ch != '"' && (get_char(p_in, num_bytes) != '"'))
@@ -550,9 +551,9 @@ class Container : public Service {
 		*/
 		inline void opening_brackets(int rank, pChar &p_ret) {
 			for (int i = 0; i < rank; i++)
-				(p_ret++)[0] = '[';
+				*(p_ret++) = '[';
 
-			p_ret[0] = 0;
+			*p_ret = 0;
 		}
 
 		/** Writes the shape of a Tensor in a Kind
@@ -563,7 +564,7 @@ class Container : public Service {
 			\param p_kind	The kind from which dimension names should be read
 		*/
 		inline void as_shape(int rank, pChar p_ret, int dim[], pKind p_kind) {
-			(p_ret++)[0] = '[';
+			*(p_ret++) = '[';
 
 			for (int i = 0; i < rank; i++) {
 				int k = dim[i];
@@ -575,14 +576,14 @@ class Container : public Service {
 					p_ret += sprintf(p_ret, "%i", k);
 
 				if (i < rank - 1) {
-					(p_ret++)[0] = ',';
-					(p_ret++)[0] = ' ';
+					*(p_ret++) = ',';
+					*(p_ret++) = ' ';
 				}
 			}
 
-			(p_ret++)[0] = ']';
+			*(p_ret++) = ']';
 
-			p_ret[0] = 0;
+			*p_ret = 0;
 		}
 
 		/** Writes a char as 0xFF
@@ -591,10 +592,10 @@ class Container : public Service {
 			\param bl		The character
 		*/
 		inline void as_hex(pChar &p_dest, char bl) {
-			(p_dest++)[0] = '\\';
-			(p_dest++)[0] = 'x';
-			(p_dest++)[0] = HEX[bl & 0xf0 >> 4];
-			(p_dest++)[0] = HEX[bl & 0x0f];
+			*(p_dest++) = '\\';
+			*(p_dest++) = 'x';
+			*(p_dest++) = HEX[bl & 0xf0 >> 4];
+			*(p_dest++) = HEX[bl & 0x0f];
 		}
 
 		/** Writes the separator between two cells in a tensor (counting brackets, comma, ..)
@@ -610,18 +611,18 @@ class Container : public Service {
 
 				if (idx[i] == shape[i]) {
 					idx[i] = 0;
-					(p_ret++)[0] = ']';
+					*(p_ret++) = ']';
 				} else {
-					(p_ret++)[0] = ',';
-					(p_ret++)[0] = ' ';
+					*(p_ret++) = ',';
+					*(p_ret++) = ' ';
 
 					for (int j = 0; j < rank_1 - i; j++)
-						(p_ret++)[0] = '[';
+						*(p_ret++) = '[';
 
 					break;
 				}
 			}
-			p_ret[0] = 0;
+			*p_ret = 0;
 		}
 
 		/** Computes the length of the separator between two cells in a tensor (counting brackets, comma, ..)
