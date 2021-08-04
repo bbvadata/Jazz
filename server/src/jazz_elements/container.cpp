@@ -1492,10 +1492,14 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 }
 
 
-/** Bla,
+/** Parse a source definition of an item in a Kind, possibly with dimensions.
 
-//TODO: Document this
+	\param p_in			The input char stream cursor.
+	\param num_bytes	The number of bytes with data above *p_in
+	\param item_hea		The structure that receives the resulting cell_type, rank and shape.
+	\param dims			An optional AttributeMap to retrieve the dimension names.
 
+	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
 */
 bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, AttributeMap *dims) {
 
