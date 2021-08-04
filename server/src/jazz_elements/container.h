@@ -541,6 +541,26 @@ class Container : public Service {
 			return ret + item_hea.item_size + 1;
 		}
 
+		/** Read an integer from the input cursor
+
+			\param p_in			The input char stream cursor.
+			\param num_bytes	The number of bytes with data above *p_in
+			\param result		The result
+
+			\return	True on success
+		*/
+		inline bool sscanf_int32(pChar &p_in, int &num_bytes, int &result) {
+			int r_len;
+
+			if (sscanf(p_in, "%i%n", &result, &r_len) > 0) {
+				p_in	  += r_len;
+				num_bytes -= r_len;
+
+				return num_bytes >= 0;
+			} else
+				return false;
+		}
+
 		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims);
 		bool get_shape_and_size	 (pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea);
 		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out);
