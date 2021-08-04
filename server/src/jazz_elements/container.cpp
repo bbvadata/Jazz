@@ -1527,10 +1527,13 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 }
 
 
-/** Bla,
+/** Parse a tensor of anything other than CELL_TYPE_STRING into a binary (allocated but not initialized) Block.
 
-//TODO: Document this
+	\param p_in			The input char stream cursor.
+	\param num_bytes	The number of bytes with data above *p_in
+	\param p_block		The allocated block. Already has anything, (cell type, shape, etc.), except the data.
 
+	\return	True on success
 */
 bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
