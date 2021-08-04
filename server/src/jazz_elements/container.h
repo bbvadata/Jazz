@@ -609,7 +609,7 @@ class Container : public Service {
 			for (int i = rank_1; i >= 0; i --) {
 				idx[i]++;
 
-				if (idx[i] == shape[i]) {
+				if (idx[i] == dim[i]) {
 					idx[i] = 0;
 					*(p_ret++) = ']';
 				} else {
@@ -639,7 +639,7 @@ class Container : public Service {
 			for (int i = rank_1; i >= 0; i --) {
 				idx[i]++;
 
-				if (idx[i] == shape[i]) {
+				if (idx[i] == dim[i]) {
 					idx[i] = 0;
 					ret++;
 				} else {
