@@ -454,10 +454,12 @@ class Container : public Service {
 			return num_bytes;
 		}
 
-		/** Bla,
+		/** Returns the char at input cursor shifting the cursor by one or zero if there are no mor characters to be read.
 
-//TODO: Document this
+			\param p_in			The input char stream cursor.
+			\param num_bytes	The number of bytes with data above *p_in
 
+			\return	The char read
 		*/
 		inline char get_char(pChar &p_in, int &num_bytes) {
 			if (num_bytes < 1)
