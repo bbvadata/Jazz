@@ -1473,10 +1473,16 @@ StatusCode Container::destroy_container() {
 }
 
 
-/** Bla,
+/** Parse a tensor, measure it and fail on inconsistent shape
 
-//TODO: Document this
+	\param p_in			The input char stream cursor.
+	\param num_bytes	The number of bytes with data above *p_in
+	\param cell_type	The type of the tensor being parsed (if CELL_TYPE_UNDEFINED, it will be detected)
+	\param item_hea		The structure that receives the resulting cell_type, rank, shape and item_size.
 
+	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
+
+In the case of CELL_TYPE_STRING, item_size will return the serialized total size of all the strings.
 */
 bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea) {
 
