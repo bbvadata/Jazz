@@ -469,10 +469,13 @@ class Container : public Service {
 			return (p_in++)[0];
 		}
 
-		/** Bla,
+		/** Returns the char at input cursor shifting the cursor by one or zero if there are no mor characters to be read.
 
-//TODO: Document this
+			\param p_in			The input char stream cursor.
+			\param num_bytes	The number of bytes with data above *p_in
+			\param p_out		The Name buffer that gets the answer if no error was found
 
+			\return	True of success
 		*/
 		inline bool get_item_name(pChar &p_in, int &num_bytes, pChar p_out) {
 			if (skip_space(p_in, num_bytes) <= 0)
