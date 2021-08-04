@@ -597,7 +597,14 @@ class Container : public Service {
 			(p_dest++)[0] = HEX[bl & 0x0f];
 		}
 
-		inline void separator(int rank_1, int shape[], int idx[], pChar &p_ret) {
+		/** Writes the separator between two cells in a tensor (counting brackets, comma, ..)
+
+			\param rank_1	The tensor rank - 1
+			\param dim		The shape
+			\param idx		The current index expressed inside the shape
+			\param p_ret	The cursor to the output buffer
+		*/
+		inline void separator(int rank_1, int dim[], int idx[], pChar &p_ret) {
 			for (int i = rank_1; i >= 0; i --) {
 				idx[i]++;
 
