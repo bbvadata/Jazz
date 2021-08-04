@@ -58,7 +58,6 @@ namespace jazz_elements
 {
 
 /// Block API (dimensions of structures)
-#define NAME_LENGTH						NAME_SIZE - 1		///< Maximum length of a Name.name
 #define MAX_SIZE_OF_CELL_AS_TEXT		48					///< What an integer, bool, float or date can take as text
 
 /// Serialization CONST

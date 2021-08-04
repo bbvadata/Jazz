@@ -61,8 +61,9 @@
 namespace jazz_elements
 {
 
-#define NAME_SIZE				  32		///< Size of a Name (ending 0 included)
-#define ONE_MB					(1024*1024)	///< Is used in log_printf() of error/warning messages
+#define NAME_SIZE				32				///< Size of a Name (ending 0 included)
+#define NAME_LENGTH				NAME_SIZE - 1	///< Maximum length of a Name.name
+#define ONE_MB					(1024*1024)		///< Is used in log_printf() of error/warning messages
 
 /// Block API (syntax related)
 
@@ -167,7 +168,7 @@ typedef std::chrono::steady_clock::time_point TimePoint;	///< A time point store
 Names are used in may contexts including: identifying a Container in an API query, a Container inside another Container, a Block in a
 Container, a field in a Tuple or a Kind and some API query arguments (e.g., as_json).
 
-Names are vanilla ASCII NAME_SIZE - 1 long string starting with a letter and containing just letters, numbers and the underscore.
+Names are vanilla ASCII NAME_LENGTH long string starting with a letter and containing just letters, numbers and the underscore.
 They can be validated using the function valid_name() or the regex REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
