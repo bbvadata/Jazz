@@ -513,6 +513,8 @@ class Container : public Service {
 			if (get_char(p_in, num_bytes) != ':')
 				return false;
 
+			*p_out++ = 0;
+
 			return true;
 		}
 
