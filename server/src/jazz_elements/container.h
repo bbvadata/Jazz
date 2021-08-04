@@ -543,6 +543,11 @@ class Container : public Service {
 		int tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]);
 		int tensor_kind_as_text	 (pKind  p_kind,  pChar p_dest);
 
+		/** Writes opening brackets for a tensor
+
+			\param rank		The tensor rank
+			\param p_ret	The cursor to the output buffer
+		*/
 		inline void opening_brackets(int rank, pChar &p_ret) {
 			for (int i = 0; i < rank; i++)
 				(p_ret++)[0] = '[';
