@@ -1501,7 +1501,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
 */
-bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, AttributeMap *dims) {
+bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims) {
 
 //TODO: Implement this
 

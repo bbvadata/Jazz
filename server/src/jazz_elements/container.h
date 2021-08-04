@@ -534,7 +534,7 @@ class Container : public Service {
 		}
 
 		bool get_shape_and_size	 (pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea);
-		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, AttributeMap *dims);
+		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims);
 		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out);
 		bool fill_tensor		 (pChar &p_in, int &num_bytes, pBlock p_block);
 
