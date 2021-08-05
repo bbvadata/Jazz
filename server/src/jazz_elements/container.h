@@ -98,6 +98,26 @@ namespace jazz_elements
 /// sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
 #define LOCK_WEIGHT_OF_WRITE			46341
 
+// State based parser types:
+#define EIGHT_BIT_LONG					256		///< Length of a NextStateLUT.
+#define MAX_TRANSITION_REGEX_LEN		 32		///< Length of regex for state transitions. Used only in constants for LUT construction.
+
+
+/** A lookup table for all the possible values of a char mapped into an 8-bit state.
+*/
+struct ParseNextStateLUT {
+	unsigned char next[EIGHT_BIT_LONG];
+};
+
+
+/** A way to build constants defining the transtition from one state to the next via a regex.
+*/
+struct ParseStateTransition {
+	int  from;
+	int	 to;
+	char rex[MAX_TRANSITION_REGEX_LEN];
+};
+
 
 /// An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
 typedef std::atomic<int32_t> Lock32;
