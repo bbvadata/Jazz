@@ -1783,9 +1783,144 @@ In the case of CELL_TYPE_STRING, item_size will return the serialized total size
 */
 bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea) {
 
-//TODO: Implement this
+	int state;
 
-	return false;
+	switch (cell_type) {
+	case CELL_TYPE_UNDEFINED:
+		state = PSTATE_IN_AUTO;
+		break;
+	case CELL_TYPE_BYTE:
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE:
+	case CELL_TYPE_LONG_INTEGER:
+		state = PSTATE_IN_INT;
+		break;
+	case CELL_TYPE_BYTE_BOOLEAN:
+	case CELL_TYPE_BOOLEAN:
+		state = PSTATE_IN_BOOL;
+		break;
+	case CELL_TYPE_SINGLE:
+	case CELL_TYPE_DOUBLE:
+		state = PSTATE_IN_REAL;
+		break;
+	case CELL_TYPE_STRING:
+		state = PSTATE_IN_STRING;
+		break;
+	case CELL_TYPE_TIME:
+		state = PSTATE_IN_TIME;
+		break;
+	default:
+		return false;
+	}
+
+	item_hea->cell_type = cell_type;
+	item_hea->item_size = 0;
+
+	unsigned char cursor;
+
+	memset(item_hea->dim, -1, sizeof(TensorDim));		// == {-1, -1, -1, -1, -1, -1};
+	TensorDim n_item = {0,  0,  0,  0,  0,  0};
+
+	int level = 0;
+	bool first_row = true;
+
+	while (true) {
+		if (num_bytes == 0)
+			return false;
+
+		cursor = get_char(p_in, num_bytes);
+		state  = parser_state_switch[state].next[cursor];
+
+		switch (state) {
+		case PSTATE_OUT_INT:
+			if (item_hea->cell_type == CELL_TYPE_UNDEFINED)
+				item_hea->cell_type = CELL_TYPE_INTEGER;
+
+		case PSTATE_OUT_REAL:
+			if (item_hea->cell_type == CELL_TYPE_UNDEFINED)
+				item_hea->cell_type = CELL_TYPE_DOUBLE;
+
+		case PSTATE_OUT_STRING:
+			if (item_hea->cell_type == CELL_TYPE_UNDEFINED)
+				item_hea->cell_type = CELL_TYPE_STRING;
+
+		case PSTATE_OUT_BOOL:
+		case PSTATE_OUT_TIME:
+			if (cursor == ']') {
+				n_item.dim[level]++;
+
+				if (item_hea->dim[level] < 0) {
+					item_hea->dim[level] = n_item.dim[level];
+				} else {
+					if (item_hea->dim[level] != n_item.dim[level])
+						return false;
+				};
+				level--;
+
+				if (level == 0) {
+					for (int i = item_hea->rank; i < MAX_TENSOR_RANK; i++)
+						item_hea->dim[i] = 0;
+
+					return true;
+				}
+			}
+			break;
+
+		case PSTATE_IN_AUTO:
+		case PSTATE_IN_INT:
+		case PSTATE_IN_BOOL:
+		case PSTATE_IN_REAL:
+		case PSTATE_IN_STRING:
+		case PSTATE_IN_TIME:
+			if (cursor == '[') {
+				level++;
+				if (first_row) {
+					item_hea->rank = level;
+
+					first_row = false;
+				} else {
+					if (level != item_hea->rank)
+						return false;
+				}
+				if (level >= MAX_TENSOR_RANK)
+					return false;
+
+				n_item.dim[level] = 0;
+			};
+			break;
+
+		case PSTATE_SEP_INT:
+		case PSTATE_SEP_BOOL:
+		case PSTATE_SEP_REAL:
+		case PSTATE_SEP_STRING:
+		case PSTATE_SEP_TIME:
+			if (cursor == ',')
+				n_item.dim[level]++;
+
+			break;
+
+		case PSTATE_CONST_STRING_E0:
+		case PSTATE_CONST_STRING_N:
+			item_hea->item_size++;
+			break;
+
+		case PSTATE_CONST_AUTO:
+		case PSTATE_CONST_INT:
+		case PSTATE_CONST_BOOL:
+		case PSTATE_CONST_REAL:
+		case PSTATE_CONST_STRING0:
+		case PSTATE_CONST_STRING_E1:
+		case PSTATE_CONST_STRING_E2:
+		case PSTATE_CONST_TIME:
+		case PSTATE_SEP_STRING0:
+			break;
+
+		default:
+
+			return false;
+		}
+	}
 }
 
 
