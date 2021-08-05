@@ -2018,10 +2018,14 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 
 			break;
 
+		case PSTATE_SEP_STRING0:
+			*(p_out++) = '\n';
+
+			break;
+
 		case PSTATE_CONST_STRING0:
 		case PSTATE_CONST_STRING_E1:
 		case PSTATE_CONST_STRING_E2:
-		case PSTATE_SEP_STRING0:
 		case PSTATE_SEP_STRING:
 			break;
 
