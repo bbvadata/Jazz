@@ -345,7 +345,7 @@ continue_in_put_ok:
 /*	-----------------------------------------------
 	 Parser grammar definition
 --------------------------------------------------- */
-
+/*
 #define REX_ALL_SPACES		"[ \\t]"
 #define REX_COLON			"[:]"
 #define REX_COMMA			"[,]"
@@ -504,7 +504,6 @@ StateTransitions state_tr = {
 	{MAX_NUM_PSTATES}
 };
 
-
 StateSwitch  parser_state_switch;
 NextStateLUT hex_hi_LUT, hex_lo_LUT;
 
@@ -529,7 +528,7 @@ Api::Api(pLogger	 a_logger,
 	http_methods[TenBitsAtAddress("DELETE")]  = HTTP_DELETE;
 
 	tenbit_double_slash = TenBitsAtAddress("//");
-
+/*
 	memset(&parser_state_switch, -1, sizeof(parser_state_switch));
 
 	StateTransition *p_trans = reinterpret_cast<StateTransition *>(&state_tr);
@@ -571,7 +570,7 @@ Api::Api(pLogger	 a_logger,
 		hex_lo_LUT.next[c + 0x20] = i;
 		hex_lo_LUT.next[c]		  = i++;
 	};
-
+*/
 	p_channels	= a_channels;
 	p_volatile	= a_volatile;
 	p_persisted	= a_persisted;
@@ -840,6 +839,7 @@ It returns a BlockHeader that is necessary to allocate a block calling _parse_co
 */
 StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 {
+/*
 	int state = PSTATE_INITIAL;
 	unsigned char cursor, url_enc_byte;
 
@@ -1068,6 +1068,8 @@ StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
 			return PARSE_ERROR_INVALID_CHAR;
 		}
 	}
+*/
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 
@@ -1084,6 +1086,7 @@ It returns a locked (one shot) block that must be unlocked in the same http quer
 */
 StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pTransaction *p_txn)
 {
+/*
 	int state = PSTATE_INITIAL;
 	int state_recency = -1, next_state;
 	unsigned char cursor;
@@ -1094,8 +1097,9 @@ StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pTransaction *
 		state_recency = next_state == state ? state_recency + 1 : 0;
 		state		  = next_state;
 
-		return PARSE_NOT_IMPLEMENTED;
 	}
+*/
+	return PARSE_NOT_IMPLEMENTED;
 }
 
 } // namespace jazz_main

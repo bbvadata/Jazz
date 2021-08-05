@@ -91,7 +91,6 @@ using namespace jazz_agency;
 
 #define SAFE_URL_LENGTH				   2048		///< Maximum safe assumption of URL length for both parsing and forwarding.
 #define MAX_RECURSION_DEPTH				 16		///< Max number of nested block references in a query.
-#define EIGHT_BIT_LONG					256		///< Length of a CharLUT.
 
 /// Parser return codes
 
@@ -104,49 +103,6 @@ using namespace jazz_agency;
 #define PARSE_ERROR_TOO_DEEP			  4		///< Number of shape dimensions exceed MAX_TENSOR_RANK in a constant.
 #define PARSE_BRACKET_MISMATCH			  5		///< Number of [ in constant does not match number of ].
 
-/// Parsing states
-
-#define MAX_NUM_PSTATES					 33		///< Maximum number of non error states the parser can be in
-#define MAX_TRANSITION_REGEX_LEN		 48		///< Length of regex for state transitions. Used only in constants for LUT construction.
-#define NUM_STATE_TRANSITIONS			110		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
-
-#define PSTATE_INITIAL					  0		///< Parser state: Fist char of source string being parsed
-#define PSTATE_CONST_INT				  1		///< Parser state: Parsing integers
-#define PSTATE_CONST_REAL				  2		///< Parser state: Parsing real numbers
-#define PSTATE_CONST_STR0				  3		///< Parser state: Parsing strings (first char == ")
-#define PSTATE_CONST_STR				  4		///< Parser state: Parsing strings (real content)
-#define PSTATE_CONST_STR_ENC0			  5		///< Parser state: Parsing url-encoding inside a string (after %)
-#define PSTATE_CONST_STR_ENC1			  6		///< Parser state: Parsing url-encoding inside a string (after 1st hex)
-#define PSTATE_CONST_STR_ENC2			  7		///< Parser state: Parsing url-encoding inside a string (after 2nd hex)
-#define PSTATE_CONST_SEP_INT			  8		///< Parser state: Reached a cell separator while parsing integers
-#define PSTATE_CONST_SEP_REAL			  9		///< Parser state: Reached a cell separator while parsing real numbers
-
-#define PSTATE_CONST_SEP_STR0			 10		///< Parser state: Reached a cell separator while parsing string (first char ")
-#define PSTATE_CONST_SEP_STR			 11		///< Parser state: Reached a cell separator while parsing string (comma and spaces)
-#define PSTATE_CONST_IN_INT				 12		///< Parser state: Reached "[" (shape in) while parsing integers
-#define PSTATE_CONST_IN_REAL			 13		///< Parser state: Reached "[" (shape in) while parsing real numbers
-#define PSTATE_CONST_IN_STR				 14		///< Parser state: Reached "[" (shape in) while parsing string
-#define PSTATE_CONST_IN_UNK				 15		///< Parser state: Reached "[" (shape in) before knowing what we are parsing
-#define PSTATE_CONST_OUT_INT			 16		///< Parser state: Reached "]" (shape out) while parsing integers
-#define PSTATE_CONST_OUT_REAL			 17		///< Parser state: Reached "]" (shape out) while parsing real numbers
-#define PSTATE_CONST_OUT_STR			 18		///< Parser state: Reached "]" (shape out) while parsing string
-#define PSTATE_BASE_NAME				 19		///< Parser state: Parsing a base name (possibly a kind or tuple before knowing which)
-
-#define PSTATE_TUPL_ITEM_NAME			 20		///< Parser state: Parsing an item name of a tuple
-#define PSTATE_TUPL_COLON				 21		///< Parser state: Parsing a colon : of a tuple
-#define PSTATE_TUPL_SEMICOLON			 22		///< Parser state: Parsing a semicolon ; of a tuple
-#define PSTATE_KIND_ITEM_NAME			 23		///< Parser state: Parsing a kind name or an item name of a kind
-#define PSTATE_KIND_COLON0				 24		///< Parser state: Parsing a second colon : for the first time kind
-#define PSTATE_KIND_COLON				 25		///< Parser state: Parsing a colon : of a kind
-#define PSTATE_TYPE_NAME				 26		///< Parser state: Parsing a type name
-#define PSTATE_DIMENSION_IN				 27		///< Parser state: Parsing the inital [ in dimensions
-#define PSTATE_DIMENSION_NAME			 28		///< Parser state: Parsing a dimension name
-#define PSTATE_DIMENSION_INT			 29		///< Parser state: Parsing a dimension constant
-
-#define PSTATE_DIMENSION_SEP			 30		///< Parser state: Parsing a comma , separating dimensions
-#define PSTATE_DIMENSION_OUT			 31		///< Parser state: Parsing the final ] in dimensions
-#define PSTATE_KIND_SEMICOLON			 32		///< Parser state: Parsing a semicolon ; of a kind
-
 // Codes with no source in the StateSwitch (The parser, if necessary, will change the state (E.g., a tensor inside a tuple.))
 
 #define PSTATE_CONST_END_INT			200		///< Parser state: Reached end of part or expression while parsing integers
@@ -155,40 +111,6 @@ using namespace jazz_agency;
 #define PSTATE_CONST_END_KIND			203		///< Parser state: Reached end of part or expression while parsing string
 
 #define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
-
-
-/** A lookup table for all the possible values of a char mapped into an 8-bit state.
-*/
-struct NextStateLUT {
-	unsigned char next[EIGHT_BIT_LONG];
-};
-
-
-/** A lookup table for all the possible values of a char mapped into a a bool.
-*/
-typedef bool CharGroupLUT[EIGHT_BIT_LONG];
-
-
-/** A vector of NextStateLUT containing next states for all states and char combinations.
-*/
-struct StateSwitch {
-	NextStateLUT	state[MAX_NUM_PSTATES];
-};
-
-
-/** A way to build constants defining the transtition from one state to the next via a regex.
-*/
-struct StateTransition {
-	int  from;
-	int	 to;
-	char rex[MAX_TRANSITION_REGEX_LEN];
-};
-
-
-/** A vector of StateTransition.l This only runs once, when contruction the API object, initializes the LUTs from a sequence of
-StateTransition constants in the source of api.cpp.
-*/
-typedef StateTransition StateTransitions[NUM_STATE_TRANSITIONS];
 
 
 /** A map to convert urls to block names (in Persisted //static/).
