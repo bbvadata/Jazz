@@ -78,19 +78,19 @@ namespace jazz_elements
 #define PARSE_ERROR_TEXT_FILLING		110		///< Parsing error, while deserializing a tensor of text.
 
 /// Block API (method arguments)
-#define FILL_NEW_DONT_FILL				0		///< Don't initialize at all.
-#define FILL_NEW_WITH_ZERO				1		///< Initialize with binary zero.
-#define FILL_NEW_WITH_NA				2		///< Initialize with the appropriate NA for the cell_type.
-#define FILL_WITH_TEXTFILE				3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
-#define FILL_BOOLEAN_FILTER				4		///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
-#define FILL_INTEGER_FILTER				5		///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
+#define FILL_NEW_DONT_FILL				  0		///< Don't initialize at all.
+#define FILL_NEW_WITH_ZERO				  1		///< Initialize with binary zero.
+#define FILL_NEW_WITH_NA				  2		///< Initialize with the appropriate NA for the cell_type.
+#define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
+#define FILL_BOOLEAN_FILTER				  4		///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
+#define FILL_INTEGER_FILTER				  5		///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
 
-#define BUILD_TUPLE						1		///< Build a Tuple out of data items or fail.
-#define BUILD_KIND						2		///< Build a Kind out of metadata items or fail.
+#define BUILD_TUPLE						  1		///< Build a Tuple out of data items or fail.
+#define BUILD_KIND						  2		///< Build a Kind out of metadata items or fail.
 
 /// Block API (error and status codes)
-#define BLOCK_STATUS_READY				 0		///< Transaction.status: p_block-> is safe to use
-#define BLOCK_STATUS_EMPTY				 1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
+#define BLOCK_STATUS_READY				  0		///< Transaction.status: p_block-> is safe to use
+#define BLOCK_STATUS_EMPTY				  1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
 
 /// Thread safety
 #define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()
