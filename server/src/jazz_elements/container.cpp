@@ -212,6 +212,37 @@ ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
 Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 
+	memset(&parser_state_switch, -1, sizeof(parser_state_switch));
+
+	ParseStateTransition *p_trans = (ParseStateTransition *) &state_tr;
+	while (true) {
+		if (p_trans->from == MAX_NUM_PSTATES)
+			break;
+
+		ParseNextStateLUT *p_next = &parser_state_switch[p_trans->from];
+
+		std::regex  rex(p_trans->rex);
+		std::string s("-");
+
+//		printf("from: %2i, to: %2i, rex: %s\n", p_trans->from, p_trans->to, p_trans->rex);
+
+		for (int i = 0; i < 256; i ++) {
+			s[0] = i;
+			if (std::regex_match(s, rex)) {
+#ifdef DEBUG
+				if (p_next->next[i] != PSTATE_INVALID_CHAR) {
+//					printf("  i = %i\n", i);
+
+					throw 1;
+				}
+#endif
+				p_next->next[i] = p_trans->to;
+			}
+		}
+
+		p_trans++;
+	}
+
 	max_num_keepers = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
 	p_buffer = p_alloc = p_free = nullptr;
