@@ -1783,7 +1783,7 @@ In the case of CELL_TYPE_STRING, item_size will return the serialized total size
 */
 bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea) {
 
-	int state;
+	char state;
 
 	switch (cell_type) {
 	case CELL_TYPE_UNDEFINED:
