@@ -49,6 +49,164 @@ char DEF_FLOAT_FMT [4]	 = {"%f\0"};
 char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 
 /*	-----------------------------------------------
+	 Parser grammar definition
+--------------------------------------------------- */
+
+#define REX_ALL_SPACES			"[ \\t]"
+#define REX_ALL_SPACES_LEFT_BR	"[ \\t\\[]"
+#define REX_ALL_SPACES_RIGHT_BR	"[ \\t\\]]"
+#define REX_COMMA				"[,]"
+#define REX_DOUBLEQUOTE			"[\"]"
+#define REX_RIGHT_BR			"[\\]]"
+#define REX_BACKSLASH			"[\\\\]"
+#define REX_NUMBER_FIRST		"[0-9\\-]"
+#define REX_DOT_FIRST			"[\\.]"
+#define REX_INT_ANY				"[0-9]"
+#define REX_REAL_ANY			"[e0-9\\-\\.]"
+#define REX_INT_REAL_SWITCH		"[e\\.]"
+#define REX_BOOL_ONLY			"[01]"
+#define REX_STRING_NOT_ESC		"[\\x20-\\x21\\x23-\\[\\]-\\x7e]"	// Anything from 32 to 126, except \ and "
+#define REX_STRING_FIRST_ESC	"[abtnvfr\"\\\\]"					// Anything immediately after a \ (except x)
+#define REX_STRING_HEX			"[0-9a-fA-F]"						// Anything immediately after a \x (twice)
+#define REX_X					"[x]"								// x after a \ leads to hex
+#define REX_TIME				"[0-9a-zA-Z :\\-]"					// Enforces DEF_FLOAT_TIME = "%Y-%m-%d %H:%M:%S"
+
+#define MAX_NUM_PSTATES			27		///< Maximum number of non error states the parser can be in
+#define NUM_STATE_TRANSITIONS	61		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define PSTATE_INVALID_CHAR		255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
+
+#define PSTATE_IN_AUTO			 0		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_UNDEFINED
+#define PSTATE_IN_INT			 1		///< Parser state: Reached "[" (shape in), cell type is any integer
+#define PSTATE_IN_BOOL			 2		///< Parser state: Reached "[" (shape in), cell type is any boolean
+#define PSTATE_IN_REAL			 3		///< Parser state: Reached "[" (shape in), cell type is any float
+#define PSTATE_IN_STRING		 4		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_STRING
+#define PSTATE_IN_TIME			 5		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_TIME
+
+#define PSTATE_CONST_AUTO		 6		///< Parser state: Parsing value, cell type is CELL_TYPE_UNDEFINED
+#define PSTATE_CONST_INT		 7		///< Parser state: Parsing value, cell type is any integer
+#define PSTATE_CONST_BOOL		 8		///< Parser state: Parsing value, cell type is any boolean
+#define PSTATE_CONST_REAL		 9		///< Parser state: Parsing value, cell type is any float
+#define PSTATE_CONST_STRING0	10		///< Parser state: Parsing value (first char == "), cell type is CELL_TYPE_STRING
+#define PSTATE_CONST_STRING_E0	11		///< Parser state: Parsing value (string is escaped by \\), cell type is CELL_TYPE_STRING
+#define PSTATE_CONST_STRING_E1	12		///< Parser state: Parsing value (1 hex chars pending after \\xX), cell type is CELL_TYPE_STRING
+#define PSTATE_CONST_STRING_E2	13		///< Parser state: Parsing value (2 hex chars pending after \\x), cell type is CELL_TYPE_STRING
+#define PSTATE_CONST_STRING_N	14		///< Parser state: Parsing value, cell type is CELL_TYPE_STRING
+#define PSTATE_CONST_TIME		15		///< Parser state: Parsing value, cell type is CELL_TYPE_TIME
+
+#define PSTATE_SEP_INT			16		///< Parser state: Reached a cell separator, cell type is any integer
+#define PSTATE_SEP_BOOL			17		///< Parser state: Reached a cell separator, cell type is any boolean
+#define PSTATE_SEP_REAL			18		///< Parser state: Reached a cell separator, cell type is any float
+#define PSTATE_SEP_STRING0		19		///< Parser state: Reached a cell separator (last char == "), cell type is CELL_TYPE_STRING
+#define PSTATE_SEP_STRING		20		///< Parser state: Reached a cell separator, cell type is CELL_TYPE_STRING
+#define PSTATE_SEP_TIME			21		///< Parser state: Reached a cell separator, cell type is CELL_TYPE_TIME
+
+#define PSTATE_OUT_INT			22		///< Parser state: Reached "]" (shape out), cell type is any integer
+#define PSTATE_OUT_BOOL			23		///< Parser state: Reached "]" (shape out), cell type is any boolean
+#define PSTATE_OUT_REAL			24		///< Parser state: Reached "]" (shape out), cell type is any float
+#define PSTATE_OUT_STRING		25		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_STRING
+#define PSTATE_OUT_TIME			26		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_TIME
+
+/** A vector of StateTransition.l This only runs once, when contruction the API object, initializes the LUTs from a sequence of
+StateTransition constants in the source of api.cpp.
+*/
+typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
+
+ParseStateTransitions state_tr = {
+
+	{PSTATE_IN_AUTO,			PSTATE_IN_AUTO,			REX_ALL_SPACES_LEFT_BR},
+	{PSTATE_IN_AUTO,			PSTATE_CONST_AUTO,		REX_NUMBER_FIRST},
+	{PSTATE_IN_AUTO,			PSTATE_CONST_STRING0,	REX_DOUBLEQUOTE},
+	{PSTATE_IN_AUTO,			PSTATE_IN_REAL,			REX_DOT_FIRST},
+
+	{PSTATE_IN_INT,				PSTATE_IN_INT,			REX_ALL_SPACES_LEFT_BR},
+	{PSTATE_IN_INT,				PSTATE_CONST_INT,		REX_NUMBER_FIRST},
+
+	{PSTATE_IN_BOOL,			PSTATE_IN_BOOL,			REX_ALL_SPACES_LEFT_BR},
+	{PSTATE_IN_BOOL,			PSTATE_CONST_BOOL,		REX_BOOL_ONLY},
+
+	{PSTATE_IN_REAL,			PSTATE_IN_REAL,			REX_ALL_SPACES_LEFT_BR},
+	{PSTATE_IN_REAL,			PSTATE_CONST_REAL,		REX_NUMBER_FIRST},
+
+	{PSTATE_IN_STRING,			PSTATE_IN_STRING,		REX_ALL_SPACES_LEFT_BR},
+	{PSTATE_IN_STRING,			PSTATE_CONST_STRING0,	REX_DOUBLEQUOTE},
+
+	{PSTATE_IN_TIME,			PSTATE_IN_TIME,			REX_ALL_SPACES_LEFT_BR},
+	{PSTATE_IN_TIME,			PSTATE_CONST_TIME,		REX_INT_ANY},				// Enforces DEF_FLOAT_TIME = "%Y-%m-%d %H:%M:%S"
+
+	{PSTATE_CONST_AUTO,			PSTATE_CONST_AUTO,		REX_INT_ANY},
+	{PSTATE_CONST_AUTO,			PSTATE_CONST_REAL,		REX_INT_REAL_SWITCH},
+	{PSTATE_CONST_AUTO,			PSTATE_SEP_INT,			REX_COMMA},
+	{PSTATE_CONST_AUTO,			PSTATE_OUT_INT,			REX_ALL_SPACES_RIGHT_BR},
+
+	{PSTATE_CONST_INT,			PSTATE_CONST_INT,		REX_INT_ANY},
+	{PSTATE_CONST_INT,			PSTATE_SEP_INT,			REX_COMMA},
+	{PSTATE_CONST_INT,			PSTATE_OUT_INT,			REX_ALL_SPACES_RIGHT_BR},
+
+	{PSTATE_CONST_BOOL,			PSTATE_SEP_BOOL,		REX_COMMA},
+	{PSTATE_CONST_BOOL,			PSTATE_OUT_BOOL,		REX_ALL_SPACES_RIGHT_BR},
+
+	{PSTATE_CONST_REAL,			PSTATE_CONST_REAL,		REX_REAL_ANY},
+	{PSTATE_CONST_REAL,			PSTATE_SEP_REAL,		REX_COMMA},
+	{PSTATE_CONST_REAL,			PSTATE_OUT_REAL,		REX_ALL_SPACES_RIGHT_BR},
+
+	{PSTATE_CONST_STRING0,		PSTATE_CONST_STRING_E0,	REX_BACKSLASH},
+	{PSTATE_CONST_STRING0,		PSTATE_CONST_STRING_N,	REX_STRING_NOT_ESC},
+
+	{PSTATE_CONST_STRING_E0,	PSTATE_CONST_STRING_E2,	REX_X},
+	{PSTATE_CONST_STRING_E0,	PSTATE_CONST_STRING_N,	REX_STRING_FIRST_ESC},
+
+	{PSTATE_CONST_STRING_E1,	PSTATE_CONST_STRING_N,	REX_STRING_HEX},
+
+	{PSTATE_CONST_STRING_E2,	PSTATE_CONST_STRING_E1,	REX_STRING_HEX},
+
+	{PSTATE_CONST_STRING_N,		PSTATE_CONST_STRING_N,	REX_STRING_NOT_ESC},
+	{PSTATE_CONST_STRING_N,		PSTATE_CONST_STRING_E0,	REX_BACKSLASH},
+	{PSTATE_CONST_STRING_N,		PSTATE_SEP_STRING0,		REX_DOUBLEQUOTE},
+
+	{PSTATE_CONST_TIME,			PSTATE_CONST_TIME,		REX_TIME},
+	{PSTATE_CONST_TIME,			PSTATE_SEP_TIME,		REX_COMMA},
+	{PSTATE_CONST_TIME,			PSTATE_OUT_TIME,		REX_RIGHT_BR},
+
+	{PSTATE_SEP_INT,			PSTATE_SEP_INT,			REX_ALL_SPACES},
+	{PSTATE_SEP_INT,			PSTATE_CONST_INT,		REX_NUMBER_FIRST},
+
+	{PSTATE_SEP_BOOL,			PSTATE_SEP_BOOL,		REX_ALL_SPACES},
+	{PSTATE_SEP_BOOL,			PSTATE_CONST_BOOL,		REX_BOOL_ONLY},
+
+	{PSTATE_SEP_REAL,			PSTATE_SEP_REAL,		REX_ALL_SPACES},
+	{PSTATE_SEP_REAL,			PSTATE_CONST_REAL,		REX_NUMBER_FIRST},
+
+	{PSTATE_SEP_STRING0,		PSTATE_SEP_STRING0,		REX_ALL_SPACES},
+	{PSTATE_SEP_STRING0,		PSTATE_SEP_STRING,		REX_COMMA},
+
+	{PSTATE_SEP_STRING,			PSTATE_SEP_STRING,		REX_ALL_SPACES},
+	{PSTATE_SEP_STRING,			PSTATE_CONST_STRING0,	REX_DOUBLEQUOTE},
+
+	{PSTATE_SEP_TIME,			PSTATE_SEP_TIME,		REX_ALL_SPACES},
+	{PSTATE_SEP_TIME,			PSTATE_CONST_TIME,		REX_INT_ANY},
+
+	{PSTATE_OUT_INT,			PSTATE_OUT_INT,			REX_ALL_SPACES_RIGHT_BR},
+	{PSTATE_OUT_INT,			PSTATE_IN_INT,			REX_COMMA},
+
+	{PSTATE_OUT_BOOL,			PSTATE_OUT_BOOL,		REX_ALL_SPACES_RIGHT_BR},
+	{PSTATE_OUT_BOOL,			PSTATE_IN_BOOL,			REX_COMMA},
+
+	{PSTATE_OUT_REAL,			PSTATE_OUT_REAL,		REX_ALL_SPACES_RIGHT_BR},
+	{PSTATE_OUT_REAL,			PSTATE_IN_REAL,			REX_COMMA},
+
+	{PSTATE_OUT_STRING,			PSTATE_OUT_STRING,		REX_ALL_SPACES_RIGHT_BR},
+	{PSTATE_OUT_STRING,			PSTATE_IN_STRING,		REX_COMMA},
+
+	{PSTATE_OUT_TIME,			PSTATE_OUT_TIME,		REX_ALL_SPACES_RIGHT_BR},
+	{PSTATE_OUT_TIME,			PSTATE_IN_TIME,			REX_COMMA},
+
+	{MAX_NUM_PSTATES}
+};
+
+
+ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
+
+/*	-----------------------------------------------
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
