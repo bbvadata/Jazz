@@ -1936,9 +1936,100 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 */
 bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 
-//TODO: Implement this
+	char state = PSTATE_IN_STRING;
 
-	return false;
+	unsigned char cursor;
+
+	int level = 0;
+
+	while (true) {
+		if (num_bytes == 0)
+			return false;
+
+		cursor = get_char(p_in, num_bytes);
+		state  = parser_state_switch[state].next[cursor];
+
+		switch (state) {
+		case PSTATE_OUT_STRING:
+			if (cursor == ']') {
+				level--;
+
+				if (level == 0) {
+					*p_out = 0;
+
+					return true;
+				}
+			}
+
+			break;
+
+		case PSTATE_IN_STRING:
+			if (cursor == '[')
+				level++;
+
+			break;
+
+		case PSTATE_CONST_STRING_E0:
+			switch (p_in[1]) {
+			case 'a':
+				*(p_out++) = '\a';
+				break;
+
+			case 'b':
+				*(p_out++) = '\b';
+				break;
+
+			case 't':
+				*(p_out++) = '\t';
+				break;
+
+			case 'n':
+				*(p_out++) = '\n';
+				break;
+
+			case 'v':
+				*(p_out++) = '\v';
+				break;
+
+			case 'f':
+				*(p_out++) = '\f';
+				break;
+
+			case 'r':
+				*(p_out++) = '\r';
+				break;
+
+			case '\"':
+				*(p_out++) = '\"';
+				break;
+
+			case '\\':
+				*(p_out++) = '\\';
+				break;
+
+			default:
+				*(p_out++) = (from_hex(p_in[2]) << 4) + from_hex(p_in[3]);
+				break;
+			}
+			break;
+
+		case PSTATE_CONST_STRING_N:
+			*(p_out++) = cursor;
+
+			break;
+
+		case PSTATE_CONST_STRING0:
+		case PSTATE_CONST_STRING_E1:
+		case PSTATE_CONST_STRING_E2:
+		case PSTATE_SEP_STRING0:
+		case PSTATE_SEP_STRING:
+			break;
+
+		default:
+
+			return false;
+		}
+	}
 }
 
 
