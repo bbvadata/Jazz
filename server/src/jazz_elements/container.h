@@ -648,6 +648,15 @@ class Container : public Service {
 			*(p_dest++) = HEX[bl & 0x0f];
 		}
 
+		/** Returns the binary value of a hex char assuming it is in range.
+
+			\param c	The character which is either 0-9, a-f or A-F
+			\return		The binary value of the char
+		*/
+		inline int from_hex(char c) {
+			return (c < 65) ? c - 48 : (c > 96) ? c - 87 : c - 55;
+		}
+
 		/** Writes the separator between two cells in a tensor (counting brackets, comma, ..)
 
 			\param rank_1	The tensor rank - 1
