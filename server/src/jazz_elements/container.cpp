@@ -2047,9 +2047,503 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 */
 bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
-//TODO: Implement this
+	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
+	pChar p_st = (pChar) &cell, p_end = (pChar) &cell + sizeof(cell) - 1;
+
+	switch (p_block->cell_type) {
+	case CELL_TYPE_BYTE: {
+		char state = PSTATE_IN_INT;
+		unsigned char cursor;
+		int level = 0;
+		uint8_t *p_out = &p_block->tensor.cell_byte[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_INT:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						*p_st = 0;
+						p_st  = (pChar) &cell;
+
+						if (sscanf(p_st, "%hhu", p_out) != 1)
+							return false;
+
+						p_out++;
+					}
+
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_INT:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_INT:
+				if (cursor == ',') {
+					*p_st = 0;
+					p_st  = (pChar) &cell;
+
+					if (sscanf(p_st, "%hhu", p_out) != 1)
+						return false;
+
+					p_out++;
+				}
+				break;
+
+			case PSTATE_CONST_INT:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE: {
+		char state = PSTATE_IN_INT;
+		unsigned char cursor;
+		int level = 0;
+		int *p_out = &p_block->tensor.cell_int[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_INT:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						*p_st = 0;
+						p_st  = (pChar) &cell;
+
+						if (sscanf(p_st, "%i", p_out) != 1)
+							return false;
+
+						p_out++;
+					}
+
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_INT:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_INT:
+				if (cursor == ',') {
+					*p_st = 0;
+					p_st  = (pChar) &cell;
+
+					if (sscanf(p_st, "%i", p_out) != 1)
+						return false;
+
+					p_out++;
+				}
+				break;
+
+			case PSTATE_CONST_INT:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_LONG_INTEGER: {
+		char state = PSTATE_IN_INT;
+		unsigned char cursor;
+		int level = 0;
+		long long *p_out = &p_block->tensor.cell_longint[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_INT:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						*p_st = 0;
+						p_st  = (pChar) &cell;
+
+						if (sscanf(p_st, "%lli", p_out) != 1)
+							return false;
+
+						p_out++;
+					}
+
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_INT:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_INT:
+				if (cursor == ',') {
+					*p_st = 0;
+					p_st  = (pChar) &cell;
+
+					if (sscanf(p_st, "%lli", p_out) != 1)
+						return false;
+
+					p_out++;
+				}
+				break;
+
+			case PSTATE_CONST_INT:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_BYTE_BOOLEAN: {
+		char state = PSTATE_IN_BOOL;
+		unsigned char cursor;
+		int level = 0;
+		bool *p_out = &p_block->tensor.cell_bool[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_BOOL:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						p_st  = (pChar) &cell;
+
+						*(p_out++) = cell[0] == '1';
+					}
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_BOOL:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_BOOL:
+				if (cursor == ',') {
+					p_st  = (pChar) &cell;
+
+					*(p_out++) = cell[0] == '1';
+				}
+				break;
+
+			case PSTATE_CONST_BOOL:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_BOOLEAN: {
+		char state = PSTATE_IN_BOOL;
+		unsigned char cursor;
+		int level = 0;
+		uint32_t *p_out = &p_block->tensor.cell_uint[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_BOOL:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						p_st  = (pChar) &cell;
+
+						*(p_out++) = cell[0] == '1';
+					}
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_BOOL:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_BOOL:
+				if (cursor == ',') {
+					p_st  = (pChar) &cell;
+
+					*(p_out++) = cell[0] == '1';
+				}
+				break;
+
+			case PSTATE_CONST_BOOL:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_SINGLE: {
+		char state = PSTATE_IN_REAL;
+		unsigned char cursor;
+		int level = 0;
+		float *p_out = &p_block->tensor.cell_single[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_REAL:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						*p_st = 0;
+						p_st  = (pChar) &cell;
+
+						if (sscanf(p_st, "%f", p_out) != 1)
+							return false;
+
+						p_out++;
+					}
+
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_REAL:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_REAL:
+				if (cursor == ',') {
+					*p_st = 0;
+					p_st  = (pChar) &cell;
+
+					if (sscanf(p_st, "%f", p_out) != 1)
+						return false;
+
+					p_out++;
+				}
+				break;
+
+			case PSTATE_CONST_REAL:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_DOUBLE: {
+		char state = PSTATE_IN_REAL;
+		unsigned char cursor;
+		int level = 0;
+		double *p_out = &p_block->tensor.cell_double[0];
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_REAL:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						*p_st = 0;
+						p_st  = (pChar) &cell;
+
+						if (sscanf(p_st, "%lf", p_out) != 1)
+							return false;
+
+						p_out++;
+					}
+
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_REAL:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_REAL:
+				if (cursor == ',') {
+					*p_st = 0;
+					p_st  = (pChar) &cell;
+
+					if (sscanf(p_st, "%lf", p_out) != 1)
+						return false;
+
+					p_out++;
+				}
+				break;
+
+			case PSTATE_CONST_REAL:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	case CELL_TYPE_TIME: {
+		char state = PSTATE_IN_TIME;
+		unsigned char cursor;
+		int level = 0;
+		time_t *p_out = &p_block->tensor.cell_time[0];
+		struct tm *timeinfo;
+
+		while (true) {
+			if (num_bytes == 0)
+				return false;
+
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (state) {
+			case PSTATE_OUT_TIME:
+				if (cursor == ']') {
+					if (p_st != (pChar) &cell) {
+						*p_st = 0;
+						p_st  = (pChar) &cell;
+
+						if (strptime(p_st, DEF_FLOAT_TIME, timeinfo) == nullptr)
+							return false;
+
+						*(p_out++) = timegm(timeinfo);
+					}
+
+					level--;
+
+					if (level == 0)
+						return true;
+				}
+				break;
+
+			case PSTATE_IN_TIME:
+				if (cursor == '[')
+					level++;
+				break;
+
+			case PSTATE_SEP_TIME:
+				if (cursor == ',') {
+					*p_st = 0;
+					p_st  = (pChar) &cell;
+
+					if (strptime(p_st, DEF_FLOAT_TIME, timeinfo) == nullptr)
+						return false;
+
+					*(p_out++) = timegm(timeinfo);
+				}
+				break;
+
+			case PSTATE_CONST_TIME:
+				if (p_st == p_end)
+					return false;
+
+				*(p_st++) = cursor;
+				break;
+
+			default:
+
+				return false;
+			}
+		}
+	}
+	default:
 		return false;
+	}
 }
 
 
