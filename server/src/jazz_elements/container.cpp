@@ -777,7 +777,14 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	}
 
 	if (p_block == nullptr) {
-		if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
+		if (att	== nullptr) {
+			AttributeMap void_att = {};
+			if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, void_att)) {
+				destroy_internal(p_txn);
+
+				return SERVICE_ERROR_BAD_KIND;
+			}
+		} else if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
 			destroy_internal(p_txn);
 
 			return SERVICE_ERROR_BAD_KIND;
@@ -806,12 +813,18 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			}
 		}
 	} else {
-		if (!reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att)) {
+		if (att	== nullptr) {
+			AttributeMap void_att = {};
+			if (!reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, void_att)) {
+				destroy_internal(p_txn);
+
+				return SERVICE_ERROR_BAD_TUPLE;
+			}
+		} else if (!reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att)) {
 			destroy_internal(p_txn);
 
 			return SERVICE_ERROR_BAD_TUPLE;
 		}
-
 	}
 
 	p_txn->status = BLOCK_STATUS_READY;
