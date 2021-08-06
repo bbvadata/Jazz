@@ -760,7 +760,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	for (int i = 0; i < num_items; i++) {
 		pChar p_name = (pChar) &p_names[i];
 
-		hea.total_bytes += sizeof(ItemHeader) + strlen(p_name) + 1;
+		hea.total_bytes += strlen(p_name) + 1;
 
 		if (p_block != nullptr)
 			hea.total_bytes += p_block[i]->total_bytes + 15;	// 15 == worst case of align 128-bit
