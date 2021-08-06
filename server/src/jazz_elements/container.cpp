@@ -1230,11 +1230,16 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				get_char(p_in, num_bytes);
 		}
 
-		pBlock p_item_blck[MAX_ITEMS_IN_KIND];
-		for (int i = 0; i < num_items; i++)
-			p_item_blck[i] = p_aux_txn[i]->p_block;
+		pBlock			  p_item_blck[MAX_ITEMS_IN_KIND];
+		StaticBlockHeader p_hea		 [MAX_ITEMS_IN_KIND];
 
-		int ret = new_block (p_txn, num_items, p_item_blck, item_name, p_item_blck, nullptr, att);
+		for (int i = 0; i < num_items; i++) {
+			p_item_blck[i] = p_aux_txn[i]->p_block;
+			memcpy(&p_hea[i], p_item_blck[i], sizeof(StaticBlockHeader));
+			p_item_blck[i]->get_dimensions(&p_hea[i].range.dim[0]);
+		}
+
+		int ret = new_block (p_txn, num_items, p_hea, item_name, p_item_blck, nullptr, att);
 
 		for (int i = 0; i < num_items; i++)
 			destroy_internal(p_aux_txn[i]);
@@ -1262,16 +1267,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				get_char(p_in, num_bytes);
 		}
 
-		StaticBlockHeader hea		  [MAX_ITEMS_IN_KIND];
-		pBlock			  p_item_blck [MAX_ITEMS_IN_KIND];
+		StaticBlockHeader hea [MAX_ITEMS_IN_KIND];
 
 		for (int i = 0; i < num_items; i++) {
-			p_item_blck[i] = (pBlock) &hea[i];
-
 			hea[i].cell_type = item_hea[i].cell_type;
 			hea[i].rank		 = item_hea[i].rank;
 
-			memcpy(&hea[i].range, &hea[i].range, sizeof(TensorDim));
+			memcpy(&hea[i].range, &item_hea[i].dim, sizeof(TensorDim));
 		}
 
 		AttributeMap dims = {};
@@ -1281,7 +1283,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		for (it = idx_dims.begin(); it != idx_dims.end(); it++)
 			dims[it->second] = it->first.c_str();
 
-		return new_block (p_txn, num_items, p_item_blck, item_name, nullptr, &dims, att);
+		return new_block (p_txn, num_items, hea, item_name, nullptr, &dims, att);
 	}
 	case CELL_TYPE_STRING:
 		int bf_size = buff_size(item_hea[0]);
