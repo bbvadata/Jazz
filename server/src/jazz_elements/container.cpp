@@ -701,11 +701,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
 	\param num_items	The number of items the Kind or Tuple will have.
-	\param p_hea		A vector of num_items pointers to StaticBlockHeaders defining the Kind or Tuple.
+	\param p_hea		A vector of num_items pointers to StaticBlockHeaders defining the Kind or Tuple. The shape must be defined in
+						"human-readble" format, i.e., what a pBlock->get_dimensions() returns (not the internal way a block stores it).
+						When creating a Kind, negative constants must be defined in p_dims-> and will be used to create dimensions.
 	\param p_names		An array of num_items Name structures by which the items will go.
-	\param p_block		The data, only for tuples. It will normally be the same as p_hea but that will not be checked. The data is
-						simply assumed to have the exact shape and type defined in p_hea. If it is nullptr, a Kind will be created,
-						otherwise a Tuple will be created and data will be copied from here.
+	\param p_block		The data, only for tuples. It must have the same shape as p_hea but that will not be checked. Unlike p_hea
+						this has the shape stores as a real block (but it is not used) instead of "human-readable". If it is nullptr,
+						a Kind will be created, otherwise a Tuple will be created and just the tensor data will be copied from here.
 	\param p_dims		For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
 						like when Kinds are built using Kind.new_kind() followed by Kind.add_item()
 	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
