@@ -795,7 +795,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			for (int i = 0; i < num_items; i++) {
 				pChar p_name = (pChar) &p_names[i];
 
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i]->range.dim, p_hea[i]->cell_type, void_dim)) {
+				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, void_dim)) {
 					destroy_internal(p_txn);
 
 					return SERVICE_ERROR_BAD_KIND;
@@ -805,7 +805,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			for (int i = 0; i < num_items; i++) {
 				pChar p_name = (pChar) &p_names[i];
 
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i]->range.dim, p_hea[i]->cell_type, *p_dims)) {
+				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *p_dims)) {
 					destroy_internal(p_txn);
 
 					return SERVICE_ERROR_BAD_KIND;
