@@ -2584,9 +2584,10 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 			StaticBlockHeader p_hea1[5], p_hea2[5], p_hea3[5];
 			pBlock			  p_blk1[5], p_blk2[5], p_blk3[5];
-			Name   p_names1[] = {"time", "text", "bool", "float"};
-			Name   p_names2[] = {"byte", "bool"};
-			Name   p_names3[] = {"time"};
+
+			Name p_names1[] = {"time", "text", "bool", "float"};
+			Name p_names2[] = {"byte", "bool"};
+			Name p_names3[] = {"time"};
 
 			init_static_hea(p_hea1[0], p_blk1[0] = p_tx3->p_block);
 			init_static_hea(p_hea1[1], p_blk1[1] = p_tx5->p_block);
@@ -2596,13 +2597,28 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			init_static_hea(p_hea2[1], p_blk2[1] = p_tx2->p_block);
 			init_static_hea(p_hea3[0], p_blk3[0] = p_tx3->p_block);
 
-			REQUIRE(CNT.new_block(p_tx_knd1, 4, p_hea1, p_names1, nullptr, nullptr, nullptr) == SERVICE_NO_ERROR);
-			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims, nullptr) == SERVICE_NO_ERROR);
-			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims, &att) == SERVICE_NO_ERROR);
-
 			REQUIRE(CNT.new_block(p_tx_tup1, 4, p_hea1, p_names1, p_blk1, nullptr, nullptr) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_tx_tup2, 2, p_hea2, p_names2, p_blk2, nullptr, &att) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_tx_tup3, 1, p_hea3, p_names3, p_blk3, nullptr, &att) == SERVICE_NO_ERROR);
+
+			REQUIRE(p_hea2[0].range.dim[0] == 27);
+			REQUIRE(p_hea2[0].range.dim[1] ==  7);
+			REQUIRE(p_hea2[0].range.dim[2] ==  3);
+			p_hea2[0].range.dim[2] = -1;
+
+			REQUIRE(p_hea2[1].range.dim[0] == 3);
+			REQUIRE(p_hea2[1].range.dim[1] == 5);
+			REQUIRE(p_hea2[1].range.dim[2] == 4);
+			REQUIRE(p_hea2[1].range.dim[3] == 2);
+			p_hea2[1].range.dim[0] = -1;
+
+			REQUIRE(p_hea3[0].range.dim[0] == 10);
+			REQUIRE(p_hea3[0].range.dim[1] ==  3);
+			p_hea3[0].range.dim[1] = -1;
+
+			REQUIRE(CNT.new_block(p_tx_knd1, 4, p_hea1, p_names1, nullptr, nullptr, nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims, nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims, &att) == SERVICE_NO_ERROR);
 
 			THEN("it breaks") {
 //TODO: add reqs here
