@@ -782,13 +782,14 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, void_att)) {
 				destroy_internal(p_txn);
 
-				return SERVICE_ERROR_BAD_KIND;
+				return SERVICE_ERROR_BAD_NEW_KIND;
 			}
 		} else if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
 			destroy_internal(p_txn);
 
-			return SERVICE_ERROR_BAD_KIND;
+			return SERVICE_ERROR_BAD_NEW_KIND;
 		}
+
 		if (p_dims == nullptr) {
 			AttributeMap void_dim = {};
 
@@ -798,9 +799,10 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, void_dim)) {
 					destroy_internal(p_txn);
 
-					return SERVICE_ERROR_BAD_KIND;
+					return SERVICE_ERROR_BAD_KIND_ADD;
 				}
 			}
+
 		} else {
 			for (int i = 0; i < num_items; i++) {
 				pChar p_name = (pChar) &p_names[i];
@@ -808,28 +810,35 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *p_dims)) {
 					destroy_internal(p_txn);
 
-					return SERVICE_ERROR_BAD_KIND;
+					return SERVICE_ERROR_BAD_KIND_ADD;
 				}
 			}
 		}
-	} else {
-		if (att	== nullptr) {
-			AttributeMap void_att = {};
-			if (!reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, void_att)) {
-				destroy_internal(p_txn);
+		p_txn->status = BLOCK_STATUS_READY;
 
-				return SERVICE_ERROR_BAD_TUPLE;
-			}
-		} else if (!reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att)) {
-			destroy_internal(p_txn);
-
-			return SERVICE_ERROR_BAD_TUPLE;
-		}
+		return SERVICE_NO_ERROR;
 	}
 
-	p_txn->status = BLOCK_STATUS_READY;
+	if (att	== nullptr) {
+		AttributeMap void_att = {};
+		ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, void_att);
 
-	return SERVICE_NO_ERROR;
+		if (ret == SERVICE_NO_ERROR)
+			p_txn->status = BLOCK_STATUS_READY;
+		else
+			destroy_internal(p_txn);
+
+		return ret;
+	}
+
+	ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att);
+
+	if (ret == SERVICE_NO_ERROR)
+		p_txn->status = BLOCK_STATUS_READY;
+	else
+		destroy_internal(p_txn);
+
+	return ret;
 }
 
 
