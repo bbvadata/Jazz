@@ -148,6 +148,12 @@ void check_and_finish(pBlock p_block, int set_has_NA = SET_HAS_NA_AUTO, bool set
 }
 
 
+void init_static_hea(StaticBlockHeader &hea, pBlock p_blk) {
+	memcpy(&hea, p_blk, sizeof(StaticBlockHeader));
+
+	p_blk->get_dimensions(& hea.range.dim[0]);
+}
+
 // Tests
 // -----
 
