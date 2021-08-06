@@ -768,6 +768,14 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			hea.total_bytes += p_block[i]->total_bytes + 15;	// 15 == worst case of align 128-bit
 	}
 
+	if (dims != nullptr && p_block == nullptr) {
+		for (AttributeMap::iterator it = dims->begin(); it != dims->end(); ++it) {
+			int len = it->second == nullptr ? 0 : strlen(it->second);
+
+			hea.total_bytes += len + 1;
+		}
+	}
+
 	p_txn->p_block = (pBlock) malloc(hea.total_bytes);
 
 	if (p_txn->p_block == nullptr) {
