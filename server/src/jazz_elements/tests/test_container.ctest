@@ -2518,15 +2518,124 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
-//TODO: Write tests for this!
+	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	GIVEN("Something") {
+	REQUIRE(CNT.max_num_keepers > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.warn_alloc_bytes > 0);
+	REQUIRE(CNT.fail_alloc_bytes > 0);
+	REQUIRE(CNT.alloc_warning_issued == false);
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == CNT.p_buffer);
+	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
+	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
+	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT._lock_ == 0);
+
+	GIVEN("We have 5 multiple purpose blocks") {
+		pTransaction p_tx1, p_tx2, p_tx3, p_tx4, p_tx5;
+
+		TensorDim dim_t1 {{27, 7, 3}}, dim_t2 {{3, 5, 4, 2, 0}}, dim_t3 {{10, 3, 0}}, dim_t4 {{2, 2, 3, 3, 1, 1}};
+
+		REQUIRE(CNT.new_block(p_tx1, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx1 != nullptr);
+
+		REQUIRE(CNT.new_block(p_tx2, CELL_TYPE_BYTE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx2 != nullptr);
+
+		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx3 != nullptr);
+
+		struct tm junk = {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 30; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx3->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
+
+		REQUIRE(CNT.new_block(p_tx4, CELL_TYPE_SINGLE, dim_t4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx4 != nullptr);
+
+		char const *text_file = "January February March April May June July August September October November December";
+
+		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
+		REQUIRE(p_tx5 != nullptr);
+
 		WHEN("someone looks at it") {
+			pTransaction p_tx_knd1, p_tx_knd2, p_tx_knd3;
+			pTransaction p_tx_tup1, p_tx_tup2, p_tx_tup3;
+
+			AttributeMap dims = {};
+			dims [-1] = "color";
+			AttributeMap att = {};
+			att[BLOCK_ATTRIB_URL] = "who.knows.where";
+
+			StaticBlockHeader p_hea1[5], p_hea2[5], p_hea3[5];
+			pBlock			  p_blk1[5], p_blk2[5], p_blk3[5];
+			Name   p_names1[] = {"time", "text", "bool", "float"};
+			Name   p_names2[] = {"byte", "bool"};
+			Name   p_names3[] = {"time"};
+
+			init_static_hea(p_hea1[0], p_blk1[0] = p_tx3->p_block);
+			init_static_hea(p_hea1[1], p_blk1[1] = p_tx5->p_block);
+			init_static_hea(p_hea1[2], p_blk1[2] = p_tx2->p_block);
+			init_static_hea(p_hea1[3], p_blk1[3] = p_tx4->p_block);
+			init_static_hea(p_hea2[0], p_blk2[0] = p_tx1->p_block);
+			init_static_hea(p_hea2[1], p_blk2[1] = p_tx2->p_block);
+			init_static_hea(p_hea3[0], p_blk3[0] = p_tx3->p_block);
+
+			REQUIRE(CNT.new_block(p_tx_knd1, 4, p_hea1, p_names1, nullptr, nullptr, nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims, nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims, &att) == SERVICE_NO_ERROR);
+
+			REQUIRE(CNT.new_block(p_tx_tup1, 4, p_hea1, p_names1, p_blk1, nullptr, nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_tup2, 2, p_hea2, p_names2, p_blk2, nullptr, &att) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_tup3, 1, p_hea3, p_names3, p_blk3, nullptr, &att) == SERVICE_NO_ERROR);
+
 			THEN("it breaks") {
+//TODO: add reqs here
 				REQUIRE(2 > 1);
 			}
+
+			CNT.destroy_internal(p_tx_knd1);
+			CNT.destroy_internal(p_tx_knd2);
+			CNT.destroy_internal(p_tx_knd3);
+			CNT.destroy_internal(p_tx_tup1);
+			CNT.destroy_internal(p_tx_tup2);
+			CNT.destroy_internal(p_tx_tup3);
 		}
+
+		CNT.destroy_internal(p_tx1);
+		CNT.destroy_internal(p_tx2);
+		CNT.destroy_internal(p_tx3);
+		CNT.destroy_internal(p_tx4);
+		CNT.destroy_internal(p_tx5);
 	}
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
+
+	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.alloc_bytes == 0);
+	REQUIRE(CNT.p_buffer == nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
 }
 
 
