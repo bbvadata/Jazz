@@ -260,7 +260,7 @@ class Container : public Service {
 		// 2. new_block(): Create a Kind or Tuple from arrays of StaticBlockHeader, names, and, in the case of a tuple, Tensors.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								int					num_items,
-								pBlock				p_hea[],
+								StaticBlockHeader	p_hea[],
 								Name				p_names[],
 								pBlock				p_block[],
 								AttributeMap	   *dims			= nullptr,

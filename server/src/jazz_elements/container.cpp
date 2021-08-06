@@ -713,13 +713,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
-StatusCode Container::new_block(pTransaction &p_txn,
-								int			  num_items,
-								pBlock		  p_hea[],
-								Name		  p_names[],
-								pBlock		  p_block[],
-								AttributeMap *p_dims,
-								AttributeMap *att) {
+StatusCode Container::new_block(pTransaction	   &p_txn,
+								int					num_items,
+								StaticBlockHeader	p_hea[],
+								Name				p_names[],
+								pBlock				p_block[],
+								AttributeMap	   *p_dims,
+								AttributeMap	   *att) {
 
 	StatusCode ret = new_transaction(p_txn);
 
