@@ -3826,43 +3826,37 @@ SCENARIO("Testing new_block() (5) Create a Tensor, Kind or Tuple from a Text blo
 
 //TODO: Write tests for this!
 
+	// struct tm *timeinfo;
+	// time_t now_t;
+	// char buffer [80];
+
+	// time (&now_t);
+
+	// timeinfo = localtime (&now_t);
+	// strftime (buffer, 80, "Local: %Y-%m-%d %H:%M:%S\n", timeinfo);
+	// printf ("%s", buffer);
+
+	// timeinfo = gmtime(&now_t);
+	// strftime (buffer, 80, "UTC: %Y-%m-%d %H:%M:%S\n", timeinfo);
+	// printf ("%s", buffer);
+
+	// time_t tt = timegm(timeinfo);
+
+	// printf ("%ld\n", tt);
+
+	// struct tm *tm = gmtime(&tt);
+	// strftime (buffer, 80, "Round trip: %H:%M:%S, %A %B %m %Y\n", tm);
+	// printf ("%s", buffer);
+
 	REQUIRE(2*MAX_TENSOR_RANK + 3 < MAX_SIZE_OF_CELL_AS_TEXT);
 
 	long long now64;
 	jazz_elements::TimePoint big_bang;
 	time_t nowXX;
 
-	// char buffer [80] = {"2021-08-06 10:11:12"};
-	// char fmt    [80] = {"%Y-%m-%d %H:%M:%S"};
-
-	// struct tm *timeinfo;
-
-	// if (strptime(buffer, fmt, timeinfo) != nullptr)
-	// 	strftime (buffer, 80, "It's %Y!", timeinfo);
-
-	// nowXX = timegm(timeinfo);
-	// nowXX = mktime(timeinfo);
-
-	// timeinfo = gmtime(&nowXX);
-
-	// strftime (buffer, 80, "It's %Y-%m-%d at %H:%M:%S!", timeinfo);
-
-	// printf ("%s\n", buffer);
-
 	REQUIRE(sizeof(now64)	 == 8);
 	REQUIRE(sizeof(big_bang) == 8);
 	REQUIRE(sizeof(nowXX)	 == 8);
-
-	// time (&nowXX);
-
-	// struct tm * timeinfo;
-	// timeinfo = gmtime (&nowXX);
-
-	// strftime (buffer, 80, "It's %Y-%m-%d at %H:%M:%S!", timeinfo);
-
-	// printf ("%s\n", buffer);
-
-	// REQUIRE(strcmp(buffer, "Bla") == 0);
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
