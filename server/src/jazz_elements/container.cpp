@@ -406,7 +406,7 @@ void Container::leave_write(pTransaction p_txn) {
 							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
 							If dim == nullptr and p_text != nullptr, dim will be set to the number of lines (see eol) in p_text when
 							cell_type == CELL_TYPE_STRING.
-	\param att				The attributes to set when creating the block. They are be immutable.
+	\param att				The attributes to set when creating the block. They are immutable.
 	\param fill_tensor		How to fill the tensor. When creating anything that is not a filter, p_bool_filter is ignored and the options
 							are: FILL_NEW_DONT_FILL (don't do anything with the tensor), FILL_NEW_WITH_ZERO (fill with binary zero
 							no matter what the cell_type is), FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
@@ -710,7 +710,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						a Kind will be created, otherwise a Tuple will be created and just the tensor data will be copied from here.
 	\param p_dims		For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
 						like when Kinds are built using Kind.new_kind() followed by Kind.add_item()
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
@@ -843,7 +843,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
 						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
 						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
@@ -1009,7 +1009,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 					Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
 	\param p_from	The Tuple from which the item is selected.
 	\param name		The name of the item to be selected.
-	\param att		The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+	\param att		The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 					use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
@@ -1047,7 +1047,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						by passing a nullptr. In that case, the items will be guessed only as CELL_TYPE_INTEGER, CELL_TYPE_DOUBLE or
 						CELL_TYPE_STRING. The serialization of a Kind includes types and does not use this.
 						E.g. "{"temperature":INTEGER[num_places,2], "sensation":STRING[num_places]}"
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
@@ -1324,7 +1324,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_from_raw	The block to be serialized
 	\param p_fmt		An optional numerical precision format specifier. In the case of Tuples, if this is used all items with numerical
 						tensors will use it. (This may imply converting integer to double depending on the specifier.)
-	\param att			The attributes to set when creating the block. They are be immutable. To change the attributes of a Block
+	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
