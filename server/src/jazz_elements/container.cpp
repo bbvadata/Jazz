@@ -703,12 +703,12 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param num_items	The number of items the Kind or Tuple will have.
 	\param p_hea		A vector of num_items pointers to StaticBlockHeaders defining the Kind or Tuple. The shape must be defined in
 						"human-readble" format, i.e., what a pBlock->get_dimensions() returns (not the internal way a block stores it).
-						When creating a Kind, negative constants must be defined in p_dims-> and will be used to create dimensions.
+						When creating a Kind, negative constants must be defined in dims-> and will be used to create dimensions.
 	\param p_names		An array of num_items Name structures by which the items will go.
 	\param p_block		The data, only for tuples. It must have the same shape as p_hea but that will not be checked. Unlike p_hea
 						this has the shape stores as a real block (but it is not used) instead of "human-readable". If it is nullptr,
 						a Kind will be created, otherwise a Tuple will be created and just the tensor data will be copied from here.
-	\param p_dims		For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
+	\param dims			For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
 						like when Kinds are built using Kind.new_kind() followed by Kind.add_item()
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
@@ -720,7 +720,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 								StaticBlockHeader	p_hea[],
 								Name				p_names[],
 								pBlock				p_block[],
-								AttributeMap	   *p_dims,
+								AttributeMap	   *dims,
 								AttributeMap	   *att) {
 
 	StatusCode ret = new_transaction(p_txn);
@@ -790,7 +790,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			return SERVICE_ERROR_BAD_NEW_KIND;
 		}
 
-		if (p_dims == nullptr) {
+		if (dims == nullptr) {
 			AttributeMap void_dim = {};
 
 			for (int i = 0; i < num_items; i++) {
@@ -807,7 +807,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 			for (int i = 0; i < num_items; i++) {
 				pChar p_name = (pChar) &p_names[i];
 
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *p_dims)) {
+				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *dims)) {
 					destroy_internal(p_txn);
 
 					return SERVICE_ERROR_BAD_KIND_ADD;
