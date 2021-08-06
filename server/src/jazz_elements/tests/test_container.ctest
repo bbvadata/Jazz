@@ -2621,8 +2621,37 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims, &att) == SERVICE_NO_ERROR);
 
 			THEN("it breaks") {
-//TODO: add reqs here
-				REQUIRE(2 > 1);
+
+//TODO: Do the same for the tuples
+
+				REQUIRE(p_tx_knd1->p_block->cell_type	 == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_tx_knd1->p_block->rank		 == 1);
+				REQUIRE(p_tx_knd1->p_block->range.dim[0] == 1);
+				REQUIRE(p_tx_knd1->p_block->size		 == 4);
+				REQUIRE(p_tx_knd1->p_block->has_NA		 == false);
+
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[0].cell_type == CELL_TYPE_TIME);
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[0].rank	  == 2);
+
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[1].rank	  ==  1);
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[1].dim[0]	  == 12);
+
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[2].cell_type == CELL_TYPE_BYTE_BOOLEAN);
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[2].rank	  == 4);
+
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[3].cell_type == CELL_TYPE_SINGLE);
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[3].rank	  == 6);
+
+//TODO: fix this!
+
+				// REQUIRE(!strcmp(p_tx_knd1->p_block->item_name(0), "time"));
+				// REQUIRE(!strcmp(p_tx_knd1->p_block->item_name(1), "text"));
+				// REQUIRE(!strcmp(p_tx_knd1->p_block->item_name(2), "bool"));
+				// REQUIRE(!strcmp(p_tx_knd1->p_block->item_name(3), "float"));
+
+//TODO: Do the same for the other kinds
+
 			}
 
 			CNT.destroy_internal(p_tx_knd1);
