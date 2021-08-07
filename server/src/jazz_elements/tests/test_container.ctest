@@ -4744,20 +4744,29 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
-	GIVEN("We have 5 multiple purpose blocks") {
+	GIVEN("We have 5 multiple purpose blocks and three tuples") {
 		pTransaction p_tx1, p_tx2, p_tx3, p_tx4, p_tx5;
 
 		TensorDim dim_t1 {{27, 7, 3}}, dim_t2 {{3, 5, 4, 2, 0}}, dim_t3 {{10, 3, 0}}, dim_t4 {{2, 2, 3, 3, 1, 1}};
 
+		AttributeMap att_bl = {};
+		att_bl[BLOCK_ATTRIB_MIMETYPE] = "block of bool";
 
 		REQUIRE(CNT.new_block(p_tx1, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx1 != nullptr);
+		REQUIRE(p_tx1->p_block != nullptr);
+		REQUIRE(p_tx1->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(CNT.new_block(p_tx2, CELL_TYPE_DOUBLE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_tx2, CELL_TYPE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO, nullptr, 0, nullptr, ' ', &att_bl)
+				== SERVICE_NO_ERROR);
 		REQUIRE(p_tx2 != nullptr);
+		REQUIRE(p_tx2->p_block != nullptr);
+		REQUIRE(p_tx2->status  == BLOCK_STATUS_READY);
 
 		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx3 != nullptr);
+		REQUIRE(p_tx3->p_block != nullptr);
+		REQUIRE(p_tx3->status  == BLOCK_STATUS_READY);
 
 		struct tm junk = {0};
 		struct tm *timeinfo = &junk;
@@ -4778,11 +4787,45 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		REQUIRE(CNT.new_block(p_tx4, CELL_TYPE_SINGLE, dim_t4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx4 != nullptr);
+		REQUIRE(p_tx4->p_block != nullptr);
+		REQUIRE(p_tx4->status  == BLOCK_STATUS_READY);
 
 		char const *text_file = "January February March April May June July August September October November December";
 
 		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_tx5 != nullptr);
+		REQUIRE(p_tx5->p_block != nullptr);
+		REQUIRE(p_tx5->status  == BLOCK_STATUS_READY);
+
+		pTransaction p_tx_tup1, p_tx_tup2, p_tx_tup3;
+
+		AttributeMap att = {};
+		att[BLOCK_ATTRIB_URL] = "who.knows.where";
+
+		StaticBlockHeader p_hea1[5], p_hea2[5], p_hea3[5];
+		pBlock			  p_blk1[5], p_blk2[5], p_blk3[5];
+
+		Name p_names1[] = {"time", "text", "bool", "float"};
+		Name p_names2[] = {"byte", "bool"};
+		Name p_names3[] = {"time"};
+
+		init_static_hea(p_hea1[0], p_blk1[0] = p_tx3->p_block);
+		init_static_hea(p_hea1[1], p_blk1[1] = p_tx5->p_block);
+		init_static_hea(p_hea1[2], p_blk1[2] = p_tx2->p_block);
+		init_static_hea(p_hea1[3], p_blk1[3] = p_tx4->p_block);
+		init_static_hea(p_hea2[0], p_blk2[0] = p_tx1->p_block);
+		init_static_hea(p_hea2[1], p_blk2[1] = p_tx2->p_block);
+		init_static_hea(p_hea3[0], p_blk3[0] = p_tx3->p_block);
+
+		REQUIRE(CNT.new_block(p_tx_tup1, 4, p_hea1, p_names1, p_blk1, nullptr, nullptr) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_tx_tup2, 2, p_hea2, p_names2, p_blk2, nullptr, &att) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_tx_tup3, 1, p_hea3, p_names3, p_blk3, nullptr, &att) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_tup1->p_block != nullptr);
+		REQUIRE(p_tx_tup1->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_tx_tup2->p_block != nullptr);
+		REQUIRE(p_tx_tup2->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_tx_tup3->p_block != nullptr);
+		REQUIRE(p_tx_tup3->status  == BLOCK_STATUS_READY);
 
 //TODO: Write tests for this!
 
@@ -4792,6 +4835,9 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			}
 		}
 
+		CNT.destroy_internal(p_tx_tup1);
+		CNT.destroy_internal(p_tx_tup2);
+		CNT.destroy_internal(p_tx_tup3);
 		CNT.destroy_internal(p_tx1);
 		CNT.destroy_internal(p_tx2);
 		CNT.destroy_internal(p_tx3);
