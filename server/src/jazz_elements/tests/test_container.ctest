@@ -4950,15 +4950,146 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		REQUIRE(p_ki2->status  == BLOCK_STATUS_READY);
 
 		WHEN("we serialize everything") {
-
 			AttributeMap att = {};
 			att[BLOCK_ATTRIB_LANGUAGE] = "bop";
 
+			pTransaction s_byt, s_bbo, s_int, s_fac, s_gra, s_boo, s_sin, s_st1, s_st2, s_lin, s_tim, s_dou, s_ki1, s_ki2, s_tp1, s_tp2;
 
-			THEN("it breaks") {
+			REQUIRE(CNT.new_block(s_byt, p_byt->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_byt->p_block != nullptr);
+			REQUIRE(s_byt->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_bbo, p_bbo->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_bbo->p_block != nullptr);
+			REQUIRE(s_bbo->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_int, p_int->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_int->p_block != nullptr);
+			REQUIRE(s_int->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_fac, p_fac->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_fac->p_block != nullptr);
+			REQUIRE(s_fac->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_gra, p_gra->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_gra->p_block != nullptr);
+			REQUIRE(s_gra->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_boo, p_boo->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_boo->p_block != nullptr);
+			REQUIRE(s_boo->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_sin, p_sin->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_sin->p_block != nullptr);
+			REQUIRE(s_sin->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_st1, p_st1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_st1->p_block != nullptr);
+			REQUIRE(s_st1->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_st2, p_st2->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_st2->p_block != nullptr);
+			REQUIRE(s_st2->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_lin, p_lin->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_lin->p_block != nullptr);
+			REQUIRE(s_lin->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_tim, p_tim->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_tim->p_block != nullptr);
+			REQUIRE(s_tim->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_dou, p_dou->p_block, (pChar) nullptr, &att) == SERVICE_NO_ERROR);
+			REQUIRE(s_dou->p_block != nullptr);
+			REQUIRE(s_dou->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_ki1, p_ki1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_ki1->p_block != nullptr);
+			REQUIRE(s_ki1->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_ki2, p_ki2->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_ki2->p_block != nullptr);
+			REQUIRE(s_ki2->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_tp1, p_tp1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_tp1->p_block != nullptr);
+			REQUIRE(s_tp1->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(s_tp2, p_tp2->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_tp2->p_block != nullptr);
+			REQUIRE(s_tp2->status  == BLOCK_STATUS_READY);
+
+			pTransaction f_byt, f_int, f_sin, f_lin, f_tim, f_dou, f_ki1, f_tp1;
+
+			char format_byte[20]	= {"%02X"};
+			char format_int[20]		= {"%6i"};
+			char format_float[20]	= {"%.4f"};
+			char format_longint[20]	= {"%10l"};
+			char format_time[20]	= {"%H%M%S"};
+			char format_double[20]	= {"%.6f"};
+
+			REQUIRE(CNT.new_block(f_byt, p_byt->p_block, format_byte) == SERVICE_NO_ERROR);
+			REQUIRE(f_byt->p_block != nullptr);
+			REQUIRE(f_byt->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_int, p_int->p_block, format_int) == SERVICE_NO_ERROR);
+			REQUIRE(f_int->p_block != nullptr);
+			REQUIRE(f_int->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_sin, p_sin->p_block, format_float) == SERVICE_NO_ERROR);
+			REQUIRE(f_sin->p_block != nullptr);
+			REQUIRE(f_sin->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_lin, p_lin->p_block, format_longint) == SERVICE_NO_ERROR);
+			REQUIRE(f_lin->p_block != nullptr);
+			REQUIRE(f_lin->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_tim, p_tim->p_block, format_time) == SERVICE_NO_ERROR);
+			REQUIRE(f_tim->p_block != nullptr);
+			REQUIRE(f_tim->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_dou, p_dou->p_block, format_double) == SERVICE_NO_ERROR);
+			REQUIRE(f_dou->p_block != nullptr);
+			REQUIRE(f_dou->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_ki1, p_ki1->p_block, format_int) == SERVICE_NO_ERROR);
+			REQUIRE(f_ki1->p_block != nullptr);
+			REQUIRE(f_ki1->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(CNT.new_block(f_tp1, p_tp1->p_block, format_int) == SERVICE_NO_ERROR);
+			REQUIRE(f_tp1->p_block != nullptr);
+			REQUIRE(f_tp1->status  == BLOCK_STATUS_READY);
+
+			THEN("we parse everything and compare") {
 
 				REQUIRE(2 > 1);
 			}
+
+			CNT.destroy_internal(f_byt);
+			CNT.destroy_internal(f_int);
+			CNT.destroy_internal(f_sin);
+			CNT.destroy_internal(f_lin);
+			CNT.destroy_internal(f_tim);
+			CNT.destroy_internal(f_dou);
+			CNT.destroy_internal(f_ki1);
+			CNT.destroy_internal(f_tp1);
+
+			CNT.destroy_internal(s_byt);
+			CNT.destroy_internal(s_bbo);
+			CNT.destroy_internal(s_int);
+			CNT.destroy_internal(s_fac);
+			CNT.destroy_internal(s_gra);
+			CNT.destroy_internal(s_boo);
+			CNT.destroy_internal(s_sin);
+			CNT.destroy_internal(s_st1);
+			CNT.destroy_internal(s_st2);
+			CNT.destroy_internal(s_lin);
+			CNT.destroy_internal(s_tim);
+			CNT.destroy_internal(s_dou);
+			CNT.destroy_internal(s_ki1);
+			CNT.destroy_internal(s_ki2);
+			CNT.destroy_internal(s_tp1);
+			CNT.destroy_internal(s_tp2);
 		}
 
 		CNT.destroy_internal(p_byt);
