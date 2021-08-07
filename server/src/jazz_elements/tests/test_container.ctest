@@ -4406,31 +4406,7 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 }
 
 
-SCENARIO("Testing new_block() (5) Create a Tensor, Kind or Tuple from a Text block.") {
-
-//TODO: Write tests for this!
-
-	// struct tm *timeinfo;
-	// time_t now_t;
-	// char buffer [80];
-
-	// time (&now_t);
-
-	// timeinfo = localtime (&now_t);
-	// strftime (buffer, 80, "Local: %Y-%m-%d %H:%M:%S\n", timeinfo);
-	// printf ("%s", buffer);
-
-	// timeinfo = gmtime(&now_t);
-	// strftime (buffer, 80, "UTC: %Y-%m-%d %H:%M:%S\n", timeinfo);
-	// printf ("%s", buffer);
-
-	// time_t tt = timegm(timeinfo);
-
-	// printf ("%ld\n", tt);
-
-	// struct tm *tm = gmtime(&tt);
-	// strftime (buffer, 80, "Round trip: %H:%M:%S, %A %B %m %Y\n", tm);
-	// printf ("%s", buffer);
+SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing.") {
 
 	REQUIRE(2*MAX_TENSOR_RANK + 3 < MAX_SIZE_OF_CELL_AS_TEXT);
 
@@ -4528,7 +4504,7 @@ SCENARIO("Testing new_block() (5) Create a Tensor, Kind or Tuple from a Text blo
 }
 
 
-SCENARIO("Testing new_block() (6) Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization.") {
+SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
@@ -4613,18 +4589,4 @@ SCENARIO("Testing new_block() (6) Create a Tensor of CELL_TYPE_BYTE of rank == 1
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
-}
-
-
-SCENARIO("Testing new_block() (7) Create an empty Index block.") {
-
-//TODO: Write tests for this!
-
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
 }
