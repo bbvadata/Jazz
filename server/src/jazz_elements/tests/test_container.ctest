@@ -2656,6 +2656,8 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(dim1.size() == 0);
 
+				REQUIRE(p_kind->audit() == MIXED_TYPE_KIND);
+
 				REQUIRE(p_tx_knd2->p_block->cell_type	 == CELL_TYPE_KIND_ITEM);
 				REQUIRE(p_tx_knd2->p_block->rank		 == 1);
 				REQUIRE(p_tx_knd2->p_block->range.dim[0] == 1);
@@ -2686,6 +2688,8 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(dim2.find("color") != dim2.end());
 
+				REQUIRE(p_kind->audit() == MIXED_TYPE_KIND);
+
 				REQUIRE(p_tx_knd3->p_block->cell_type	 == CELL_TYPE_KIND_ITEM);
 				REQUIRE(p_tx_knd3->p_block->rank		 == 1);
 				REQUIRE(p_tx_knd3->p_block->range.dim[0] == 1);
@@ -2706,6 +2710,8 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(dim3.size() == 1);
 
 				REQUIRE(dim3.find("color") != dim2.end());
+
+				REQUIRE(p_kind->audit() == MIXED_TYPE_KIND);
 			}
 
 			CNT.destroy_internal(p_tx_knd1);
