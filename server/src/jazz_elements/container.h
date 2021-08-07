@@ -391,25 +391,33 @@ class Container : public Service {
 				switch (p_txn->p_block->cell_type) {
 				case CELL_TYPE_INDEX_II:
 					p_txn->p_hea->index.index_ii.~map();
+					alloc_bytes -= sizeof(BlockHeader);
 
 					break;
 
 				case CELL_TYPE_INDEX_IS:
 					p_txn->p_hea->index.index_is.~map();
+					alloc_bytes -= sizeof(BlockHeader);
 
 					break;
 
 				case CELL_TYPE_INDEX_SI:
 					p_txn->p_hea->index.index_si.~map();
+					alloc_bytes -= sizeof(BlockHeader);
 
 					break;
 
 				case CELL_TYPE_INDEX_SS:
 					p_txn->p_hea->index.index_ss.~map();
-				};
+					alloc_bytes -= sizeof(BlockHeader);
 
-				alloc_bytes -= p_txn->p_block->total_bytes;
+					break;
+
+				default:
+					alloc_bytes -= p_txn->p_block->total_bytes;
+				};
 				free(p_txn->p_block);
+
 				p_txn->p_block = nullptr;
 			}
 
