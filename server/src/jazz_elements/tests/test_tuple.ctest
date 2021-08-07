@@ -314,7 +314,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup1->block( 1) == nullptr);
 	REQUIRE(p_tup1->block(-1) == nullptr);
 	REQUIRE(p_tup1->is_a(p_kind1));
-	REQUIRE(p_tup1->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[0] = p_bl2;
 	REQUIRE(p_tup2->new_tuple(1, blocks, tup_fix, 65536, empty_map) == SERVICE_NO_ERROR);
@@ -328,7 +328,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup2->block( 1) == nullptr);
 	REQUIRE(p_tup2->block(-1) == nullptr);
 	REQUIRE(!p_tup2->is_a(p_kind1));
-	REQUIRE(p_tup2->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[1] = p_bl5;
 	REQUIRE(p_tup3->new_tuple(2, blocks, tup_pic, 65536, attr_tuple) == SERVICE_NO_ERROR);
@@ -344,7 +344,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup3->block( 2) == nullptr);
 	REQUIRE(p_tup3->block(-1) == nullptr);
 	REQUIRE(p_tup3->is_a(p_kind2));
-	REQUIRE(p_tup3->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup3->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[2] = p_bl5;
 	REQUIRE(p_tup4->new_tuple(3, blocks, tup_pcc, 65536, empty_map) == SERVICE_NO_ERROR);
@@ -362,7 +362,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup4->block( 3) == nullptr);
 	REQUIRE(p_tup4->block(-1) == nullptr);
 	REQUIRE(!p_tup4->is_a(p_kind2));
-	REQUIRE(p_tup4->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup4->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[0] = p_bl3;
 	blocks[1] = p_bl4;
@@ -382,7 +382,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup5->block( 3) == nullptr);
 	REQUIRE(p_tup5->block(-1) == nullptr);
 	REQUIRE(p_tup5->is_a(p_kind3));
-	REQUIRE(p_tup5->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup5->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[0] = p_bl2;
 	blocks[1] = p_bl3;
@@ -405,7 +405,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup6->block( 4) == nullptr);
 	REQUIRE(p_tup6->block(-1) == nullptr);
 	REQUIRE(!p_tup6->is_a(p_kind3));
-	REQUIRE(p_tup6->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup6->audit() == MIXED_TYPE_TUPLE);
 
 	// Check all blocks
 
@@ -548,7 +548,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!p_tup1->is_a((pKind) p_tup1));
 	REQUIRE( p_tup1->is_a(p_kind1));
 
-	REQUIRE(!pTuple(pt_bl1)->audit());
+	REQUIRE(pTuple(pt_bl1)->audit() == MIXED_TYPE_INVALID);
 
 	Name tup_oth_bad[] = {"pic", "bu--er", "audio", "title"};
 	Name tup_fx_long[] = {"b123456789012345678901234567890", "c123456789012345678901234567890"};
@@ -629,27 +629,27 @@ SCENARIO("Testing tuple") {
 
 	REQUIRE(!p_tup5->is_a(p_kind3));
 
-	REQUIRE(p_tup1->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
 
 	pt_bl1 = p_tup1->block(0);
 	pt_bl1->cell_type = CELL_TYPE_TIME;
 
 	REQUIRE(p_tup1->audit() == MIXED_TYPE_INVALID);
 
-	REQUIRE(p_tup2->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
 
 	pt_bl2 = p_tup2->block(0);
 	pt_bl2->range.dim[0] = 97;
 
 	REQUIRE(p_tup2->audit() == MIXED_TYPE_INVALID);
 
-	REQUIRE(p_tup3->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup3->audit() == MIXED_TYPE_TUPLE);
 
 	p_tup3->tensor.cell_item[0].name = 0;
 
 	REQUIRE(p_tup3->audit() == MIXED_TYPE_INVALID);
 
-	REQUIRE(p_tup4->audit() == MIXED_TYPE_KIND);
+	REQUIRE(p_tup4->audit() == MIXED_TYPE_TUPLE);
 
 	pStringBuffer psb = p_tup4->p_string_buffer();
 

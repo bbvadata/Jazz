@@ -71,7 +71,7 @@ int Tuple::audit() {
 		}
 	}
 
-	return MIXED_TYPE_KIND;
+	return MIXED_TYPE_TUPLE;
 }
 
 } // namespace jazz_elements
