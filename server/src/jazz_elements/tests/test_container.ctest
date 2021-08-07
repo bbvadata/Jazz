@@ -4744,29 +4744,106 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
-	GIVEN("We have 5 multiple purpose blocks and three tuples") {
-		pTransaction p_tx1, p_tx2, p_tx3, p_tx4, p_tx5;
+	GIVEN("We have 16 multiple purpose blocks, kinds and tuples") {
+		pTransaction p_byt, p_bbo, p_int, p_fac, p_gra, p_boo, p_sin, p_st1, p_st2, p_lin, p_tim, p_dou, p_ki1, p_ki2, p_tp1, p_tp2;
+		TensorDim dim_r1 {25}, dim_r2 {17, 5}, dim_r3 {10, 3, 2}, dim_r4 {6, 5, 3, 3}, dim_r5 {4, 3, 2, 7, 2}, dim_r6 {2, 1, 3, 2, 1, 2};
 
-		TensorDim dim_t1 {{27, 7, 3}}, dim_t2 {{3, 5, 4, 2, 0}}, dim_t3 {{10, 3, 0}}, dim_t4 {{2, 2, 3, 3, 1, 1}};
+		REQUIRE(CNT.new_block(p_byt, CELL_TYPE_BYTE, dim_r3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_byt != nullptr);
+		REQUIRE(p_byt->p_block != nullptr);
+		REQUIRE(p_byt->status  == BLOCK_STATUS_READY);
 
-		AttributeMap att_bl = {};
-		att_bl[BLOCK_ATTRIB_MIMETYPE] = "block of bool";
+		for (int i = 0; i < p_byt->p_block->size; i++)
+			p_byt->p_block->tensor.cell_byte[i] = (997*i + 17) % 211;
 
-		REQUIRE(CNT.new_block(p_tx1, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx1 != nullptr);
-		REQUIRE(p_tx1->p_block != nullptr);
-		REQUIRE(p_tx1->status  == BLOCK_STATUS_READY);
+		REQUIRE(CNT.new_block(p_bbo, CELL_TYPE_BYTE_BOOLEAN, dim_r6.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_bbo != nullptr);
+		REQUIRE(p_bbo->p_block != nullptr);
+		REQUIRE(p_bbo->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(   CNT.new_block(p_tx2, CELL_TYPE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO, nullptr, 0, nullptr, ' ', &att_bl)
-				== SERVICE_NO_ERROR);
-		REQUIRE(p_tx2 != nullptr);
-		REQUIRE(p_tx2->p_block != nullptr);
-		REQUIRE(p_tx2->status  == BLOCK_STATUS_READY);
+		for (int i = 0; i < p_bbo->p_block->size; i++) {
+			int jj = (997*i + 17) % 211;
+			int bl = jj < 99 ? 1 : jj > 200 ? BYTE_BOOLEAN_NA : 0;
+			p_bbo->p_block->tensor.cell_bool[i] = bl;
+		}
 
-		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx3 != nullptr);
-		REQUIRE(p_tx3->p_block != nullptr);
-		REQUIRE(p_tx3->status  == BLOCK_STATUS_READY);
+		REQUIRE(CNT.new_block(p_int, CELL_TYPE_INTEGER, dim_r4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_int != nullptr);
+		REQUIRE(p_int->p_block != nullptr);
+		REQUIRE(p_int->status  == BLOCK_STATUS_READY);
+
+		for (int i = 0; i < p_int->p_block->size; i++) {
+			p_int->p_block->tensor.cell_int[i] = (5485867*i + 17) % 15485867 - 9000000;
+			if (p_int->p_block->tensor.cell_int[i] % 55 == 7)
+				p_int->p_block->tensor.cell_int[i] = INTEGER_NA;
+		}
+
+		REQUIRE(CNT.new_block(p_fac, CELL_TYPE_FACTOR, dim_r2.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_fac != nullptr);
+		REQUIRE(p_fac->p_block != nullptr);
+		REQUIRE(p_fac->status  == BLOCK_STATUS_READY);
+
+		for (int i = 0; i < p_fac->p_block->size; i++)
+			p_fac->p_block->tensor.cell_uint[i] = (5485867*i + 17) % 15485867;
+
+		REQUIRE(CNT.new_block(p_gra, CELL_TYPE_GRADE, dim_r5.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_gra != nullptr);
+		REQUIRE(p_gra->p_block != nullptr);
+		REQUIRE(p_gra->status  == BLOCK_STATUS_READY);
+
+		for (int i = 0; i < p_gra->p_block->size; i++)
+			p_gra->p_block->tensor.cell_uint[i] = (5485867*i + 641) % 15485867;
+
+		REQUIRE(CNT.new_block(p_boo, CELL_TYPE_BOOLEAN, dim_r3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_boo != nullptr);
+		REQUIRE(p_boo->p_block != nullptr);
+		REQUIRE(p_boo->status  == BLOCK_STATUS_READY);
+
+		for (int i = 0; i < p_boo->p_block->size; i++) {
+			int jj = (997*i + 17) % 211;
+			int bl = jj < 99 ? 1 : jj > 200 ? BYTE_BOOLEAN_NA : 0;
+			p_boo->p_block->tensor.cell_int[i] = bl;
+		}
+
+		REQUIRE(CNT.new_block(p_sin, CELL_TYPE_SINGLE, dim_r5.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_sin != nullptr);
+		REQUIRE(p_sin->p_block != nullptr);
+		REQUIRE(p_sin->status  == BLOCK_STATUS_READY);
+
+		for (int i = 0; i < p_sin->p_block->size; i++) {
+			double r = (997*i + 17) % 211, d = (779*i + 37) % 211 + 11;
+			p_sin->p_block->tensor.cell_single[i] = r/d - 1;
+			if ((p_sin->p_block->tensor.cell_int[i] & 0x3f) == 7)
+				p_sin->p_block->tensor.cell_single[i] = SINGLE_NA;
+		}
+
+		REQUIRE(CNT.new_block(p_dou, CELL_TYPE_DOUBLE, dim_r4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_dou != nullptr);
+		REQUIRE(p_dou->p_block != nullptr);
+		REQUIRE(p_dou->status  == BLOCK_STATUS_READY);
+
+		for (int i = 0; i < p_dou->p_block->size; i++) {
+			double r = (997*i + 641) % 211, d = (779*i + 33) % 211 + 11;
+			p_dou->p_block->tensor.cell_double[i] = r/d - 1;
+			if ((p_dou->p_block->tensor.cell_ulongint[i] & 0x3f) == 7)
+				p_dou->p_block->tensor.cell_double[i] = DOUBLE_NA;
+		}
+
+		REQUIRE(CNT.new_block(p_lin, CELL_TYPE_LONG_INTEGER, dim_r1.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_lin != nullptr);
+		REQUIRE(p_lin->p_block != nullptr);
+		REQUIRE(p_lin->status  == BLOCK_STATUS_READY);
+
+		for (long long i = 0; i < p_lin->p_block->size; i++) {
+			p_lin->p_block->tensor.cell_longint[i] = (99715485867*i + 17) % 9715485867 - 39715485867;
+			if (p_lin->p_block->tensor.cell_longint[i] % 55 == 7)
+				p_lin->p_block->tensor.cell_longint[i] = LONG_INTEGER_NA;
+		}
+
+		REQUIRE(CNT.new_block(p_tim, CELL_TYPE_TIME, dim_r1.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(p_tim != nullptr);
+		REQUIRE(p_tim->p_block != nullptr);
+		REQUIRE(p_tim->status  == BLOCK_STATUS_READY);
 
 		struct tm junk = {0};
 		struct tm *timeinfo = &junk;
@@ -4778,71 +4855,128 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		REQUIRE(timeinfo->tm_mday == 1);
 
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < p_tim->p_block->size; i++) {
 			timeinfo->tm_mday =  1 + (3*i % 29);
 			timeinfo->tm_hour =  7 + (5*i % 7);
 			timeinfo->tm_min  = 13 + (7*i % 31);
-			p_tx3->p_block->tensor.cell_time[i] = timegm(timeinfo);
+			p_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+
+			if (i % 11 == 2)
+				p_tim->p_block->tensor.cell_time[i] = TIME_POINT_NA;
 		}
 
-		REQUIRE(CNT.new_block(p_tx4, CELL_TYPE_SINGLE, dim_t4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx4 != nullptr);
-		REQUIRE(p_tx4->p_block != nullptr);
-		REQUIRE(p_tx4->status  == BLOCK_STATUS_READY);
+		char const *text_1 = "January\n1917 \"February\" March Apr\\l May June July August Sep\ttember October November December";
 
-		char const *text_file = "January February March April May June July August September October November December";
 
-		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
-		REQUIRE(p_tx5 != nullptr);
-		REQUIRE(p_tx5->p_block != nullptr);
-		REQUIRE(p_tx5->status  == BLOCK_STATUS_READY);
+		REQUIRE(CNT.new_block(p_st1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_1, ' ') == SERVICE_NO_ERROR);
+		REQUIRE(p_st1 != nullptr);
+		REQUIRE(p_st1->p_block != nullptr);
+		REQUIRE(p_st1->status  == BLOCK_STATUS_READY);
 
-		pTransaction p_tx_tup1, p_tx_tup2, p_tx_tup3;
+		char const *text_2 = "This is neat!\n\n\na: \a b: \bf: \f r: \r\nThis too!\náéíóú\nÄËÏÖÜ\n\n読み\nYomi\nThis is.\n\n\" a b \\ c \n";
 
-		AttributeMap att = {};
-		att[BLOCK_ATTRIB_URL] = "who.knows.where";
+		REQUIRE(CNT.new_block(p_st2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_1, ' ') == SERVICE_NO_ERROR);
+		REQUIRE(p_st2 != nullptr);
+		REQUIRE(p_st2->p_block != nullptr);
+		REQUIRE(p_st2->status  == BLOCK_STATUS_READY);
 
-		StaticBlockHeader p_hea1[5], p_hea2[5], p_hea3[5];
-		pBlock			  p_blk1[5], p_blk2[5], p_blk3[5];
+		p_st2->p_block->tensor.cell_int[2] = STRING_NA;
 
-		Name p_names1[] = {"time", "text", "bool", "float"};
-		Name p_names2[] = {"byte", "bool"};
-		Name p_names3[] = {"time"};
+		StaticBlockHeader p_hea1[2], p_hea2[7];
+		pBlock			  p_blk1[2], p_blk2[7];
 
-		init_static_hea(p_hea1[0], p_blk1[0] = p_tx3->p_block);
-		init_static_hea(p_hea1[1], p_blk1[1] = p_tx5->p_block);
-		init_static_hea(p_hea1[2], p_blk1[2] = p_tx2->p_block);
-		init_static_hea(p_hea1[3], p_blk1[3] = p_tx4->p_block);
-		init_static_hea(p_hea2[0], p_blk2[0] = p_tx1->p_block);
-		init_static_hea(p_hea2[1], p_blk2[1] = p_tx2->p_block);
-		init_static_hea(p_hea3[0], p_blk3[0] = p_tx3->p_block);
+		Name p_names1[] = {"int", "string2"};
+		Name p_names2[] = {"byte", "time", "string1", "float", "bool", "long", "grade"};
 
-		REQUIRE(CNT.new_block(p_tx_tup1, 4, p_hea1, p_names1, p_blk1, nullptr, nullptr) == SERVICE_NO_ERROR);
-		REQUIRE(CNT.new_block(p_tx_tup2, 2, p_hea2, p_names2, p_blk2, nullptr, &att) == SERVICE_NO_ERROR);
-		REQUIRE(CNT.new_block(p_tx_tup3, 1, p_hea3, p_names3, p_blk3, nullptr, &att) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx_tup1->p_block != nullptr);
-		REQUIRE(p_tx_tup1->status  == BLOCK_STATUS_READY);
-		REQUIRE(p_tx_tup2->p_block != nullptr);
-		REQUIRE(p_tx_tup2->status  == BLOCK_STATUS_READY);
-		REQUIRE(p_tx_tup3->p_block != nullptr);
-		REQUIRE(p_tx_tup3->status  == BLOCK_STATUS_READY);
+		init_static_hea(p_hea1[0], p_blk1[0] = p_int->p_block);
+		init_static_hea(p_hea1[1], p_blk1[1] = p_st2->p_block);
 
-//TODO: Write tests for this!
+		init_static_hea(p_hea2[0], p_blk2[0] = p_byt->p_block);
+		init_static_hea(p_hea2[1], p_blk2[1] = p_tim->p_block);
+		init_static_hea(p_hea2[2], p_blk2[2] = p_st1->p_block);
+		init_static_hea(p_hea2[3], p_blk2[3] = p_sin->p_block);
+		init_static_hea(p_hea2[4], p_blk2[4] = p_boo->p_block);
+		init_static_hea(p_hea2[5], p_blk2[5] = p_lin->p_block);
+		init_static_hea(p_hea2[6], p_blk2[6] = p_gra->p_block);
 
-		WHEN("someone looks at it") {
+ 		REQUIRE(CNT.new_block(p_tp1, 2, p_hea1, p_names1, p_blk1) == SERVICE_NO_ERROR);
+		REQUIRE(p_tp1->p_block != nullptr);
+		REQUIRE(p_tp1->status  == BLOCK_STATUS_READY);
+
+		REQUIRE(CNT.new_block(p_tp2, 7, p_hea2, p_names2, p_blk2) == SERVICE_NO_ERROR);
+		REQUIRE(p_tp2->p_block != nullptr);
+		REQUIRE(p_tp2->status  == BLOCK_STATUS_READY);
+
+		REQUIRE(CNT.new_block(p_ki1, 2, p_hea1, p_names1, nullptr) == SERVICE_NO_ERROR);
+		REQUIRE(p_ki1->p_block != nullptr);
+		REQUIRE(p_ki1->status  == BLOCK_STATUS_READY);
+
+		AttributeMap dims = {};
+		dims [-1] = "color";
+		dims [-2] = "mode";
+
+		REQUIRE(p_hea2[0].range.dim[0] == 10);
+		REQUIRE(p_hea2[0].range.dim[1] ==  3);
+		REQUIRE(p_hea2[0].range.dim[2] ==  2);
+
+		REQUIRE(p_hea2[4].range.dim[0] == 10);
+		REQUIRE(p_hea2[4].range.dim[1] ==  3);
+		REQUIRE(p_hea2[4].range.dim[2] ==  2);
+
+		REQUIRE(p_hea2[3].range.dim[0] ==  4);
+		REQUIRE(p_hea2[3].range.dim[1] ==  3);
+		REQUIRE(p_hea2[3].range.dim[2] ==  2);
+		REQUIRE(p_hea2[3].range.dim[3] ==  7);
+		REQUIRE(p_hea2[3].range.dim[4] ==  2);
+
+		REQUIRE(p_hea2[6].range.dim[0] ==  4);
+		REQUIRE(p_hea2[6].range.dim[1] ==  3);
+		REQUIRE(p_hea2[6].range.dim[2] ==  2);
+		REQUIRE(p_hea2[6].range.dim[3] ==  7);
+		REQUIRE(p_hea2[6].range.dim[4] ==  2);
+
+		p_hea2[0].range.dim[1] = -1;
+		p_hea2[4].range.dim[1] = -1;
+		p_hea2[3].range.dim[1] = -1;
+		p_hea2[6].range.dim[1] = -1;
+
+		p_hea2[0].range.dim[2] = -2;
+		p_hea2[4].range.dim[2] = -2;
+		p_hea2[3].range.dim[2] = -2;
+		p_hea2[6].range.dim[2] = -2;
+
+		REQUIRE(CNT.new_block(p_ki2, 7, p_hea2, p_names2, nullptr, &dims) == SERVICE_NO_ERROR);
+		REQUIRE(p_ki2->p_block != nullptr);
+		REQUIRE(p_ki2->status  == BLOCK_STATUS_READY);
+
+		WHEN("we serialize everything") {
+
+			AttributeMap att = {};
+			att[BLOCK_ATTRIB_LANGUAGE] = "bop";
+
+
 			THEN("it breaks") {
+
 				REQUIRE(2 > 1);
 			}
 		}
 
-		CNT.destroy_internal(p_tx_tup1);
-		CNT.destroy_internal(p_tx_tup2);
-		CNT.destroy_internal(p_tx_tup3);
-		CNT.destroy_internal(p_tx1);
-		CNT.destroy_internal(p_tx2);
-		CNT.destroy_internal(p_tx3);
-		CNT.destroy_internal(p_tx4);
-		CNT.destroy_internal(p_tx5);
+		CNT.destroy_internal(p_byt);
+		CNT.destroy_internal(p_bbo);
+		CNT.destroy_internal(p_int);
+		CNT.destroy_internal(p_fac);
+		CNT.destroy_internal(p_gra);
+		CNT.destroy_internal(p_boo);
+		CNT.destroy_internal(p_sin);
+		CNT.destroy_internal(p_st1);
+		CNT.destroy_internal(p_st2);
+		CNT.destroy_internal(p_lin);
+		CNT.destroy_internal(p_tim);
+		CNT.destroy_internal(p_dou);
+		CNT.destroy_internal(p_ki1);
+		CNT.destroy_internal(p_ki2);
+		CNT.destroy_internal(p_tp1);
+		CNT.destroy_internal(p_tp2);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
