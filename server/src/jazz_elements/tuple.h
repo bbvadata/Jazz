@@ -264,7 +264,7 @@ class Tuple : public Block {
 			return true;
 		}
 
-		inline int audit();
+		int audit();
 };
 typedef Tuple *pTuple;
 
