@@ -2539,10 +2539,14 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 		TensorDim dim_t1 {{27, 7, 3}}, dim_t2 {{3, 5, 4, 2, 0}}, dim_t3 {{10, 3, 0}}, dim_t4 {{2, 2, 3, 3, 1, 1}};
 
+		AttributeMap att_bl = {};
+		att_bl[BLOCK_ATTRIB_MIMETYPE] = "block of bool";
+
 		REQUIRE(CNT.new_block(p_tx1, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx1 != nullptr);
 
-		REQUIRE(CNT.new_block(p_tx2, CELL_TYPE_BYTE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(   CNT.new_block(p_tx2, CELL_TYPE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO, nullptr, 0, nullptr, ' ', &att_bl)
+				== SERVICE_NO_ERROR);
 		REQUIRE(p_tx2 != nullptr);
 
 		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
@@ -2639,7 +2643,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[1].rank	  ==  1);
 				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[1].dim[0]	  == 12);
 
-				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[2].cell_type == CELL_TYPE_BYTE_BOOLEAN);
+				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[2].cell_type == CELL_TYPE_BOOLEAN);
 				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[2].rank	  == 4);
 
 				REQUIRE(p_tx_knd1->p_block->tensor.cell_item[3].cell_type == CELL_TYPE_SINGLE);
@@ -2670,7 +2674,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[0].dim[1]	  ==  7);
 				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[0].dim[2]	   <  0);
 
-				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_BYTE_BOOLEAN);
+				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_BOOLEAN);
 				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[1].rank	  ==  4);
 				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[1].dim[0]	   <  0);
 				REQUIRE(p_tx_knd2->p_block->tensor.cell_item[1].dim[1]	  ==  5);
