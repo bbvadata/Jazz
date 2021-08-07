@@ -2616,9 +2616,11 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			REQUIRE(p_hea3[0].range.dim[1] ==  3);
 			p_hea3[0].range.dim[1] = -1;
 
-			REQUIRE(CNT.new_block(p_tx_knd1, 4, p_hea1, p_names1, nullptr, nullptr, nullptr) == SERVICE_NO_ERROR);
-			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims, nullptr) == SERVICE_NO_ERROR);
-			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims, &att) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd1, 4, p_hea1, p_names1, nullptr, &dims,   nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, nullptr, nullptr) == SERVICE_ERROR_BAD_KIND_ADD);
+			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims,   nullptr) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, nullptr, &att)	 == SERVICE_ERROR_BAD_KIND_ADD);
+			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims,   &att)	 == SERVICE_NO_ERROR);
 
 			THEN("we get the expected blocks") {
 
