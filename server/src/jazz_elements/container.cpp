@@ -243,7 +243,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 		p_trans++;
 	}
 
-	max_num_keepers = 0;
+	max_transactions = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
 	p_buffer = p_alloc = p_free = nullptr;
 	_lock_ = 0;
@@ -257,7 +257,7 @@ Container::~Container () { destroy_container(); }
 */
 StatusCode Container::start() {
 
-	if (!get_conf_key("ONE_SHOT_MAX_KEEPERS", max_num_keepers)) {
+	if (!get_conf_key("ONE_SHOT_MAX_KEEPERS", max_transactions)) {
 		log(LOG_ERROR, "Config key ONE_SHOT_MAX_KEEPERS not found in Container::start");
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -1629,7 +1629,7 @@ void Container::base_names (BaseNames &base_names) {}
 */
 StatusCode Container::new_container() {
 
-	if (p_buffer != nullptr || max_num_keepers <= 0)
+	if (p_buffer != nullptr || max_transactions <= 0)
 #if defined CATCH_TEST
 		destroy_container();
 #else
@@ -1642,18 +1642,18 @@ StatusCode Container::new_container() {
 
 	_lock_ = 0;
 
-	p_buffer = (pStoredTransaction) malloc(max_num_keepers*sizeof(StoredTransaction));
+	p_buffer = (pStoredTransaction) malloc(max_transactions*sizeof(StoredTransaction));
 
 	if (p_buffer == nullptr)
 		return SERVICE_ERROR_NO_MEM;
 
 	p_alloc = nullptr;
-	p_free  = &p_buffer[max_num_keepers - 1];
+	p_free  = &p_buffer[max_transactions - 1];
 
 	p_free->p_next = nullptr;
 
 	pStoredTransaction pt = p_free;
-	for (int i = 1; i < max_num_keepers; i ++) {
+	for (int i = 1; i < max_transactions; i ++) {
 		p_free--;
 
 		p_free->p_next = pt--;

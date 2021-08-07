@@ -356,8 +356,8 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -366,18 +366,18 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	REQUIRE(CNT.destroy_container() == SERVICE_NO_ERROR);
 
-	CNT.max_num_keepers  = 1024;
+	CNT.max_transactions = 1024;
 	CNT.warn_alloc_bytes = 4096;
 	CNT.fail_alloc_bytes = 8192;
 	REQUIRE(CNT.new_container() == SERVICE_ERROR_NO_MEM);
 
-	CNT.max_num_keepers  = 16;
+	CNT.max_transactions  = 16;
 	REQUIRE(CNT.new_container() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.p_alloc  == nullptr);
@@ -392,7 +392,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(p_txn[0]->status  == BLOCK_STATUS_EMPTY);
 	REQUIRE(p_txn[0]->p_owner == &CNT);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
@@ -401,7 +401,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(p_txn[0]->p_block != nullptr);
 	p_txn[0]->p_block->total_bytes = 5000;
 	REQUIRE(!CNT.alloc_warning_issued);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction) + 5000);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction) + 5000);
 
 	LOGGER.SkipLogOnce = true;
 	REQUIRE(CNT.new_transaction(p_txn[1]) == SERVICE_NO_ERROR);
@@ -413,7 +413,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	CNT.destroy_internal(p_txn[1]);
 	CNT.destroy_internal(p_txn[0]);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
@@ -421,18 +421,18 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_free	!= nullptr);
 	REQUIRE(CNT.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
 	p_txn[0]->p_block = (pBlock) CNT.malloc(50000);
 	REQUIRE(p_txn[0]->p_block == nullptr);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
 	CNT.destroy_internal(p_txn[0]);
 	REQUIRE(p_txn[0] == nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
@@ -511,7 +511,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
 	TensorDim dim_t1 {{500, 10, 0}}, dim_t2 {{500, 1000, 0}};
 
@@ -553,7 +553,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
@@ -573,8 +573,8 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -583,8 +583,8 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	REQUIRE(CNT.new_transaction(p_txn) == SERVICE_NO_ERROR);
@@ -2604,7 +2604,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	CNT.destroy(p_txn);
 	REQUIRE(p_txn == nullptr);
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
@@ -2623,8 +2623,8 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -2633,8 +2633,8 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We have 5 multiple purpose blocks") {
@@ -3013,7 +3013,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 		CNT.destroy_internal(p_tx5);
 	}
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
@@ -3059,8 +3059,8 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -3069,8 +3069,8 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks") {
@@ -4449,7 +4449,7 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(p_by_r6 == nullptr);
 	}
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
@@ -4468,8 +4468,8 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -4478,8 +4478,8 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We have 5 multiple purpose blocks and three tuples") {
@@ -4701,7 +4701,7 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 		CNT.destroy_internal(p_tx5);
 	}
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
@@ -4730,8 +4730,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -4740,8 +4740,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We have 5 multiple purpose blocks and three tuples") {
@@ -4845,7 +4845,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		CNT.destroy_internal(p_tx5);
 	}
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
@@ -4864,8 +4864,8 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.max_num_keepers > 0);
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.warn_alloc_bytes > 0);
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
@@ -4874,8 +4874,8 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
 	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 2].p_next == &CNT.p_buffer[CNT.max_num_keepers - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
+	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We create all possible indices") {
@@ -4911,7 +4911,7 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 		CNT.destroy_internal(p_tx_ss);
 	}
 
-	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);

@@ -456,7 +456,7 @@ class Container : public Service {
 		StatusCode new_container	();
 		StatusCode destroy_container();
 
-		int max_num_keepers;
+		int max_transactions;
 		uint64_t alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
 		bool alloc_warning_issued;
 		pStoredTransaction p_buffer, p_alloc, p_free;
