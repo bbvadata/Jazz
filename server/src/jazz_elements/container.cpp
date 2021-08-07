@@ -1623,7 +1623,7 @@ StatusCode Container::copy (pChar  p_what, pChar  p_where) {
 void Container::base_names (BaseNames &base_names) {}
 
 
-/** Creates the buffers for new_transaction()/free_keeper()
+/** Creates the buffers for new_transaction()/destroy()
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
 */
@@ -1663,7 +1663,7 @@ StatusCode Container::new_container() {
 }
 
 
-/** Destroys everything: all keepers and the buffer itself
+/** Destroys everything: all transactions and the buffer itself
 
 	\return	SERVICE_NO_ERROR.
 */

@@ -90,7 +90,7 @@ namespace jazz_elements
 
 /// Block API (error and status codes)
 #define BLOCK_STATUS_READY				  0		///< Transaction.status: p_block-> is safe to use
-#define BLOCK_STATUS_EMPTY				  1		///< BlockKeeper.status: successful new_keeper() and new_block() or get() in progress.
+#define BLOCK_STATUS_EMPTY				  1		///< BlockKeeper.status: successful new_transaction() and new_block() or get() in progress.
 
 /// Thread safety
 #define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()
