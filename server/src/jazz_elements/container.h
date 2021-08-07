@@ -90,7 +90,7 @@ namespace jazz_elements
 
 /// Block API (error and status codes)
 #define BLOCK_STATUS_READY				  0		///< Transaction.status: p_block-> is safe to use
-#define BLOCK_STATUS_EMPTY				  1		///< BlockKeeper.status: successful new_transaction() and new_block() or get() in progress.
+#define BLOCK_STATUS_EMPTY				  1		///< Transaction.status: successful new_transaction() and new_block() or get() in progress.
 
 /// Thread safety
 #define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()
@@ -144,7 +144,7 @@ struct Transaction {
 		pBlockHeader	p_hea;		///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Index
 	};
 	pBlock			p_route;	///< Anything defining the transaction as a (fixed sized) block allocated in an array inside the owner
-	Lock32			_lock_;		///< An atomically updated int to lock the Keeper to support modifying the Block
+	Lock32			_lock_;		///< An atomically updated int to lock the Transaction to support modifying the Block
 	int				status;		///< The status of the block transaction
 	pContainer		p_owner;	///< A pointer to the Container instance serving API calls related to this block
 };
@@ -190,7 +190,7 @@ Instances and inheritance
 -------------------------
 
 Note that the descendants don't inherit each other, but they all have the basic deque mechanism inherited from Container: i.e., they
-can all allocate new blocks for their own purposes. Configuration-wise the allocations set by ONE_SHOT_MAX_KEEPERS,
+can all allocate new blocks for their own purposes. Configuration-wise the allocations set by ONE_SHOT_MAX_TRANSACTIONS,
 ONE_SHOT_WARN_BLOCK_KBYTES, ... only apply to the instance of the class Container, the descendants use their own limits in which they
 include this allocation combined with whatever other allocations they do. The total allocation of the Jazz node is the sum of all (plus
 some small amount used by libraries, etc. that is not dependant on data size).
