@@ -2573,7 +2573,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_tx5 != nullptr);
 
-		WHEN("someone looks at it") {
+		WHEN("we use them in Kinds and Tuples") {
 			pTransaction p_tx_knd1, p_tx_knd2, p_tx_knd3;
 			pTransaction p_tx_tup1, p_tx_tup2, p_tx_tup3;
 
@@ -2620,7 +2620,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims, nullptr) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims, &att) == SERVICE_NO_ERROR);
 
-			THEN("it breaks") {
+			THEN("we get the expected blocks") {
 
 //TODO: Do the same for the tuples
 
