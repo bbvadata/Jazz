@@ -3078,51 +3078,78 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_db_r1 != nullptr);
+		REQUIRE(p_db_r1->p_block != nullptr);
+		REQUIRE(p_db_r1->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_db_r1->p_block->size == 107);
 
 		REQUIRE(   CNT.new_block(p_db_r3, CELL_TYPE_DOUBLE, dim_r3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n',  &no_str)
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_db_r3 != nullptr);
+		REQUIRE(p_db_r3->p_block != nullptr);
+		REQUIRE(p_db_r3->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_db_r3->p_block->size == 459);
 
 		REQUIRE(CNT.new_block(p_db_r6, CELL_TYPE_DOUBLE, dim_r6.dim) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_db_r6 != nullptr);
+		REQUIRE(p_db_r6->p_block != nullptr);
+		REQUIRE(p_db_r6->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_db_r6->p_block->size == 840);
 
 		REQUIRE(   CNT.new_block(p_st_r1, CELL_TYPE_STRING, dim_r1.dim, FILL_NEW_DONT_FILL, nullptr, 256, nullptr, '\n', &no_str)
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_st_r1 != nullptr);
+		REQUIRE(p_st_r1->p_block != nullptr);
+		REQUIRE(p_st_r1->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_st_r1->p_block->size == 107);
 
 		REQUIRE(CNT.new_block(p_st_r3, CELL_TYPE_STRING, dim_r3.dim, FILL_NEW_DONT_FILL, nullptr, 256) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_st_r3 != nullptr);
+		REQUIRE(p_st_r3->p_block != nullptr);
+		REQUIRE(p_st_r3->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_st_r3->p_block->size == 459);
 
 		REQUIRE(   CNT.new_block(p_st_r6, CELL_TYPE_STRING, dim_r6.dim, FILL_NEW_DONT_FILL, nullptr, 256, nullptr, '\n', &old_str)
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_st_r6 != nullptr);
+		REQUIRE(p_st_r6->p_block != nullptr);
+		REQUIRE(p_st_r6->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_st_r6->p_block->size == 840);
 
 		REQUIRE(CNT.new_block(p_by_r1, CELL_TYPE_BYTE, dim_r1.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_by_r1 != nullptr);
+		REQUIRE(p_by_r1->p_block != nullptr);
+		REQUIRE(p_by_r1->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_by_r1->p_block->size == 107);
 
 		REQUIRE(   CNT.new_block(p_by_r3, CELL_TYPE_BYTE, dim_r3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &old_str)
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_by_r3 != nullptr);
+		REQUIRE(p_by_r3->p_block != nullptr);
+		REQUIRE(p_by_r3->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_by_r3->p_block->size == 459);
 
 		REQUIRE(   CNT.new_block(p_by_r6, CELL_TYPE_BYTE, dim_r6.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &no_str)
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_by_r6 != nullptr);
+		REQUIRE(p_by_r6->p_block != nullptr);
+		REQUIRE(p_by_r6->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_by_r6->p_block->size == 840);
 
 		int index[6];
@@ -3211,6 +3238,9 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(CNT.new_block(p_if_r1, CELL_TYPE_INTEGER, dim_r1.dim, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_if_r1 != nullptr);
+		REQUIRE(p_if_r1->p_block != nullptr);
+		REQUIRE(p_if_r1->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_if_r1->p_block->can_filter(p_db_r1->p_block));
 		REQUIRE(p_if_r1->p_block->can_filter(p_st_r1->p_block));
 		REQUIRE(p_if_r1->p_block->can_filter(p_by_r1->p_block));
@@ -3218,6 +3248,9 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(CNT.new_block(p_if_r3, CELL_TYPE_INTEGER, dim_r3.dim, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_if_r3 != nullptr);
+		REQUIRE(p_if_r3->p_block != nullptr);
+		REQUIRE(p_if_r3->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_if_r3->p_block->can_filter(p_db_r3->p_block));
 		REQUIRE(p_if_r3->p_block->can_filter(p_st_r3->p_block));
 		REQUIRE(p_if_r3->p_block->can_filter(p_by_r3->p_block));
@@ -3225,6 +3258,9 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(CNT.new_block(p_if_r6, CELL_TYPE_INTEGER, dim_r6.dim, FILL_INTEGER_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_if_r6 != nullptr);
+		REQUIRE(p_if_r6->p_block != nullptr);
+		REQUIRE(p_if_r6->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_if_r6->p_block->can_filter(p_db_r6->p_block));
 		REQUIRE(p_if_r6->p_block->can_filter(p_st_r6->p_block));
 		REQUIRE(p_if_r6->p_block->can_filter(p_by_r6->p_block));
@@ -3232,6 +3268,9 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(CNT.new_block(p_bf_r1, CELL_TYPE_BYTE_BOOLEAN, dim_r1.dim, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_bf_r1 != nullptr);
+		REQUIRE(p_bf_r1->p_block != nullptr);
+		REQUIRE(p_bf_r1->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_bf_r1->p_block->can_filter(p_db_r1->p_block));
 		REQUIRE(p_bf_r1->p_block->can_filter(p_st_r1->p_block));
 		REQUIRE(p_bf_r1->p_block->can_filter(p_by_r1->p_block));
@@ -3239,6 +3278,9 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(CNT.new_block(p_bf_r3, CELL_TYPE_BYTE_BOOLEAN, dim_r3.dim, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_bf_r3 != nullptr);
+		REQUIRE(p_bf_r3->p_block != nullptr);
+		REQUIRE(p_bf_r3->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_bf_r3->p_block->can_filter(p_db_r3->p_block));
 		REQUIRE(p_bf_r3->p_block->can_filter(p_st_r3->p_block));
 		REQUIRE(p_bf_r3->p_block->can_filter(p_by_r3->p_block));
@@ -3246,6 +3288,9 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 		REQUIRE(CNT.new_block(p_bf_r6, CELL_TYPE_BYTE_BOOLEAN, dim_r6.dim, FILL_BOOLEAN_FILTER, (bool *) &buff_1k) == SERVICE_NO_ERROR);
 
 		REQUIRE(p_bf_r6 != nullptr);
+		REQUIRE(p_bf_r6->p_block != nullptr);
+		REQUIRE(p_bf_r6->status  == BLOCK_STATUS_READY);
+
 		REQUIRE(p_bf_r6->p_block->can_filter(p_db_r6->p_block));
 		REQUIRE(p_bf_r6->p_block->can_filter(p_st_r6->p_block));
 		REQUIRE(p_bf_r6->p_block->can_filter(p_by_r6->p_block));
@@ -3337,46 +3382,73 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(CNT.new_block(pcp_db_r1, p_db_r1->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r1 != nullptr);
+			REQUIRE(pcp_db_r1->p_block != nullptr);
+			REQUIRE(pcp_db_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_db_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(pcp_db_r3, p_db_r3->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r3 != nullptr);
+			REQUIRE(pcp_db_r3->p_block != nullptr);
+			REQUIRE(pcp_db_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_db_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(pcp_db_r6, p_db_r6->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r6 != nullptr);
+			REQUIRE(pcp_db_r6->p_block != nullptr);
+			REQUIRE(pcp_db_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_db_r6->p_block->size == 840);
 
 			REQUIRE(CNT.new_block(pcp_st_r1, p_st_r1->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r1 != nullptr);
+			REQUIRE(pcp_st_r1->p_block != nullptr);
+			REQUIRE(pcp_st_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_st_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(pcp_st_r3, p_st_r3->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r3 != nullptr);
+			REQUIRE(pcp_st_r3->p_block != nullptr);
+			REQUIRE(pcp_st_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_st_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(pcp_st_r6, p_st_r6->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r6 != nullptr);
+			REQUIRE(pcp_st_r6->p_block != nullptr);
+			REQUIRE(pcp_st_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_st_r6->p_block->size == 840);
 
 			REQUIRE(CNT.new_block(pcp_by_r1, p_by_r1->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r1 != nullptr);
+			REQUIRE(pcp_by_r1->p_block != nullptr);
+			REQUIRE(pcp_by_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_by_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(pcp_by_r3, p_by_r3->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r3 != nullptr);
+			REQUIRE(pcp_by_r3->p_block != nullptr);
+			REQUIRE(pcp_by_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_by_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(pcp_by_r6, p_by_r6->p_block, (pBlock) nullptr) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r6 != nullptr);
+			REQUIRE(pcp_by_r6->p_block != nullptr);
+			REQUIRE(pcp_by_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_by_r6->p_block->size == 840);
 
 			THEN("Their structure is as expected.") {
@@ -3505,46 +3577,73 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(CNT.new_block(pcp_db_r1, p_db_r1->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r1 != nullptr);
+			REQUIRE(pcp_db_r1->p_block != nullptr);
+			REQUIRE(pcp_db_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_db_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(pcp_db_r3, p_db_r3->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r3 != nullptr);
+			REQUIRE(pcp_db_r3->p_block != nullptr);
+			REQUIRE(pcp_db_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_db_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(pcp_db_r6, p_db_r6->p_block, (pBlock) nullptr, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_db_r6 != nullptr);
+			REQUIRE(pcp_db_r6->p_block != nullptr);
+			REQUIRE(pcp_db_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_db_r6->p_block->size == 840);
 
 			REQUIRE(CNT.new_block(pcp_st_r1, p_st_r1->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r1 != nullptr);
+			REQUIRE(pcp_st_r1->p_block != nullptr);
+			REQUIRE(pcp_st_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_st_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(pcp_st_r3, p_st_r3->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r3 != nullptr);
+			REQUIRE(pcp_st_r3->p_block != nullptr);
+			REQUIRE(pcp_st_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_st_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(pcp_st_r6, p_st_r6->p_block, (pBlock) nullptr, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_st_r6 != nullptr);
+			REQUIRE(pcp_st_r6->p_block != nullptr);
+			REQUIRE(pcp_st_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_st_r6->p_block->size == 840);
 
 			REQUIRE(CNT.new_block(pcp_by_r1, p_by_r1->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r1 != nullptr);
+			REQUIRE(pcp_by_r1->p_block != nullptr);
+			REQUIRE(pcp_by_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_by_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(pcp_by_r3, p_by_r3->p_block, (pBlock) nullptr, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r3 != nullptr);
+			REQUIRE(pcp_by_r3->p_block != nullptr);
+			REQUIRE(pcp_by_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_by_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(pcp_by_r6, p_by_r6->p_block, (pBlock) nullptr, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(pcp_by_r6 != nullptr);
+			REQUIRE(pcp_by_r6->p_block != nullptr);
+			REQUIRE(pcp_by_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(pcp_by_r6->p_block->size == 840);
 
 			THEN("Their structure is as expected.") {
@@ -3721,31 +3820,49 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(CNT.new_block(p_pa_db_r1, p_db_r1->p_block, p_if_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_db_r1 != nullptr);
+			REQUIRE(p_pa_db_r1->p_block != nullptr);
+			REQUIRE(p_pa_db_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_db_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_db_r3 != nullptr);
+			REQUIRE(p_pa_db_r3->p_block != nullptr);
+			REQUIRE(p_pa_db_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_db_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(p_pa_db_r6, p_db_r6->p_block, p_if_r6->p_block, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_db_r6 != nullptr);
+			REQUIRE(p_pa_db_r6->p_block != nullptr);
+			REQUIRE(p_pa_db_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_db_r6->p_block->size == 840);
 
 			REQUIRE(CNT.new_block(p_pa_st_r1, p_st_r1->p_block, p_bf_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_st_r1 != nullptr);
+			REQUIRE(p_pa_st_r1->p_block != nullptr);
+			REQUIRE(p_pa_st_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_st_r1->p_block->size == 107);
 
 			REQUIRE(CNT.new_block(p_pa_st_r3, p_st_r3->p_block, p_bf_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_st_r3 != nullptr);
+			REQUIRE(p_pa_st_r3->p_block != nullptr);
+			REQUIRE(p_pa_st_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_st_r3->p_block->size == 459);
 
 			REQUIRE(CNT.new_block(p_pa_st_r6, p_st_r6->p_block, p_bf_r6->p_block, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_st_r6 != nullptr);
+			REQUIRE(p_pa_st_r6->p_block != nullptr);
+			REQUIRE(p_pa_st_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_st_r6->p_block->size == 840);
 
 			// Select no elements with binary and integer
@@ -3767,36 +3884,54 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(CNT.new_block(p_pa_by_r1, p_by_r1->p_block, p_if_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_by_r1 != nullptr);
+			REQUIRE(p_pa_by_r1->p_block != nullptr);
+			REQUIRE(p_pa_by_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_by_r1->p_block->size == 0);
 			REQUIRE(p_pa_by_r1->p_block->rank == 1);
 
 			REQUIRE(CNT.new_block(p_pa_by_r3, p_by_r3->p_block, p_if_r3->p_block, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_by_r3 != nullptr);
+			REQUIRE(p_pa_by_r3->p_block != nullptr);
+			REQUIRE(p_pa_by_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_by_r3->p_block->size == 0);
 			REQUIRE(p_pa_by_r3->p_block->rank == 3);
 
 			REQUIRE(CNT.new_block(p_pa_by_r6, p_by_r6->p_block, p_if_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pa_by_r6 != nullptr);
+			REQUIRE(p_pa_by_r6->p_block != nullptr);
+			REQUIRE(p_pa_by_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pa_by_r6->p_block->size == 0);
 			REQUIRE(p_pa_by_r6->p_block->rank == 6);
 
 			REQUIRE(CNT.new_block(p_pb_db_r1, p_db_r1->p_block, p_bf_r1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_db_r1 != nullptr);
+			REQUIRE(p_pb_db_r1->p_block != nullptr);
+			REQUIRE(p_pb_db_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_db_r1->p_block->size == 0);
 			REQUIRE(p_pb_db_r1->p_block->rank == 1);
 
 			REQUIRE(CNT.new_block(p_pb_db_r3, p_db_r3->p_block, p_bf_r3->p_block, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_db_r3 != nullptr);
+			REQUIRE(p_pb_db_r3->p_block != nullptr);
+			REQUIRE(p_pb_db_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_db_r3->p_block->size == 0);
 			REQUIRE(p_pb_db_r3->p_block->rank == 3);
 
 			REQUIRE(CNT.new_block(p_pb_db_r6, p_db_r6->p_block, p_bf_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_db_r6 != nullptr);
+			REQUIRE(p_pb_db_r6->p_block != nullptr);
+			REQUIRE(p_pb_db_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_db_r6->p_block->size == 0);
 			REQUIRE(p_pb_db_r6->p_block->rank == 6);
 
@@ -3822,31 +3957,49 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(CNT.new_block(p_pb_st_r1, p_st_r1->p_block, p_if_r1->p_block, &no_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_st_r1 != nullptr);
+			REQUIRE(p_pb_st_r1->p_block != nullptr);
+			REQUIRE(p_pb_st_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_st_r1->p_block->size == 17);
 
 			REQUIRE(CNT.new_block(p_pb_st_r3, p_st_r3->p_block, p_if_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_st_r3 != nullptr);
+			REQUIRE(p_pb_st_r3->p_block != nullptr);
+			REQUIRE(p_pb_st_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_st_r3->p_block->size == 189);
 
 			REQUIRE(CNT.new_block(p_pb_st_r6, p_st_r6->p_block, p_if_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_st_r6 != nullptr);
+			REQUIRE(p_pb_st_r6->p_block != nullptr);
+			REQUIRE(p_pb_st_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_st_r6->p_block->size == 420);
 
 			REQUIRE(CNT.new_block(p_pb_by_r1, p_by_r1->p_block, p_bf_r1->p_block, &new_str) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_by_r1 != nullptr);
+			REQUIRE(p_pb_by_r1->p_block != nullptr);
+			REQUIRE(p_pb_by_r1->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_by_r1->p_block->size == 35);
 
 			REQUIRE(CNT.new_block(p_pb_by_r3, p_by_r3->p_block, p_bf_r3->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_by_r3 != nullptr);
+			REQUIRE(p_pb_by_r3->p_block != nullptr);
+			REQUIRE(p_pb_by_r3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_by_r3->p_block->size == 108);
 
 			REQUIRE(CNT.new_block(p_pb_by_r6, p_by_r6->p_block, p_bf_r6->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_pb_by_r6 != nullptr);
+			REQUIRE(p_pb_by_r6->p_block != nullptr);
+			REQUIRE(p_pb_by_r6->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_pb_by_r6->p_block->size == 420);
 
 			THEN("Their structure is as expected.") {
