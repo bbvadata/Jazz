@@ -1517,7 +1517,7 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 	}
 
 	p_txn->p_hea->cell_type = cell_type;
-	p_txn->p_hea->size	    = 0;
+	p_txn->p_hea->size	    = 1;
 
 	switch (cell_type) {
 	case CELL_TYPE_INDEX_II:
