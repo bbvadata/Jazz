@@ -257,8 +257,8 @@ Container::~Container () { destroy_container(); }
 */
 StatusCode Container::start() {
 
-	if (!get_conf_key("ONE_SHOT_MAX_KEEPERS", max_transactions)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_MAX_KEEPERS not found in Container::start");
+	if (!get_conf_key("ONE_SHOT_MAX_TRANSACTIONS", max_transactions)) {
+		log(LOG_ERROR, "Config key ONE_SHOT_MAX_TRANSACTIONS not found in Container::start");
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
