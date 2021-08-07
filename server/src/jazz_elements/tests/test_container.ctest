@@ -4492,13 +4492,19 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 
 		REQUIRE(CNT.new_block(p_tx1, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx1 != nullptr);
+		REQUIRE(p_tx1->p_block != nullptr);
+		REQUIRE(p_tx1->status  == BLOCK_STATUS_READY);
 
 		REQUIRE(   CNT.new_block(p_tx2, CELL_TYPE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO, nullptr, 0, nullptr, ' ', &att_bl)
 				== SERVICE_NO_ERROR);
 		REQUIRE(p_tx2 != nullptr);
+		REQUIRE(p_tx2->p_block != nullptr);
+		REQUIRE(p_tx2->status  == BLOCK_STATUS_READY);
 
 		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx3 != nullptr);
+		REQUIRE(p_tx3->p_block != nullptr);
+		REQUIRE(p_tx3->status  == BLOCK_STATUS_READY);
 
 		struct tm junk = {0};
 		struct tm *timeinfo = &junk;
@@ -4519,11 +4525,15 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 
 		REQUIRE(CNT.new_block(p_tx4, CELL_TYPE_SINGLE, dim_t4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx4 != nullptr);
+		REQUIRE(p_tx4->p_block != nullptr);
+		REQUIRE(p_tx4->status  == BLOCK_STATUS_READY);
 
 		char const *text_file = "January February March April May June July August September October November December";
 
 		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_tx5 != nullptr);
+		REQUIRE(p_tx5->p_block != nullptr);
+		REQUIRE(p_tx5->status  == BLOCK_STATUS_READY);
 
 		pTransaction p_tx_tup1, p_tx_tup2, p_tx_tup3;
 
@@ -4548,6 +4558,12 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 		REQUIRE(CNT.new_block(p_tx_tup1, 4, p_hea1, p_names1, p_blk1, nullptr, nullptr) == SERVICE_NO_ERROR);
 		REQUIRE(CNT.new_block(p_tx_tup2, 2, p_hea2, p_names2, p_blk2, nullptr, &att) == SERVICE_NO_ERROR);
 		REQUIRE(CNT.new_block(p_tx_tup3, 1, p_hea3, p_names3, p_blk3, nullptr, &att) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_tup1->p_block != nullptr);
+		REQUIRE(p_tx_tup1->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_tx_tup2->p_block != nullptr);
+		REQUIRE(p_tx_tup2->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_tx_tup3->p_block != nullptr);
+		REQUIRE(p_tx_tup3->status  == BLOCK_STATUS_READY);
 
 		WHEN("we create some blocks extracting from the tuple") {
 
@@ -4566,10 +4582,27 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 			REQUIRE(CNT.new_block(p_xbl13, p_tup1, p_names1[2], nullptr) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_xbl14, p_tup1, p_names1[3], nullptr) == SERVICE_NO_ERROR);
 
+			REQUIRE(p_xbl11->p_block != nullptr);
+			REQUIRE(p_xbl11->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_xbl12->p_block != nullptr);
+			REQUIRE(p_xbl12->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_xbl13->p_block != nullptr);
+			REQUIRE(p_xbl13->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_xbl14->p_block != nullptr);
+			REQUIRE(p_xbl14->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(CNT.new_block(p_xbl21, p_tup2, p_names2[0], &att_new) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_xbl22, p_tup2, p_names2[1], &att_new) == SERVICE_NO_ERROR);
 
+			REQUIRE(p_xbl21->p_block != nullptr);
+			REQUIRE(p_xbl21->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_xbl22->p_block != nullptr);
+			REQUIRE(p_xbl22->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(CNT.new_block(p_xbl31, p_tup3, p_names3[0], &att_new) == SERVICE_NO_ERROR);
+
+			REQUIRE(p_xbl31->p_block != nullptr);
+			REQUIRE(p_xbl31->status  == BLOCK_STATUS_READY);
 
 			THEN("we get the expected blocks") {
 				REQUIRE(p_xbl11->p_block->cell_type			   == p_tx3->p_block->cell_type);
