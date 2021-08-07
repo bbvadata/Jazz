@@ -4878,59 +4878,37 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 	REQUIRE(CNT.p_buffer[CNT.max_num_keepers - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
-	GIVEN("We have 5 multiple purpose blocks") {
-		pTransaction p_tx1, p_tx2, p_tx3, p_tx4, p_tx5;
+	GIVEN("We create all possible indices") {
 
-		TensorDim dim_t1 {{27, 7, 3}}, dim_t2 {{3, 5, 4, 2, 0}}, dim_t3 {{10, 3, 0}}, dim_t4 {{2, 2, 3, 3, 1, 1}};
+		pTransaction p_tx_ii, p_tx_is, p_tx_si, p_tx_ss;
 
+		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_BYTE) == SERVICE_ERROR_WRONG_TYPE);
 
-		REQUIRE(CNT.new_block(p_tx1, CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx1 != nullptr);
+		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_INDEX_II) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_ii->p_block != nullptr);
+		REQUIRE(p_tx_ii->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(CNT.new_block(p_tx2, CELL_TYPE_DOUBLE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx2 != nullptr);
+		REQUIRE(CNT.new_block(p_tx_is, CELL_TYPE_INDEX_IS) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_is->p_block != nullptr);
+		REQUIRE(p_tx_is->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx3 != nullptr);
+		REQUIRE(CNT.new_block(p_tx_si, CELL_TYPE_INDEX_SI) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_si->p_block != nullptr);
+		REQUIRE(p_tx_si->status  == BLOCK_STATUS_READY);
 
-		struct tm junk = {0};
-		struct tm *timeinfo = &junk;
+		REQUIRE(CNT.new_block(p_tx_ss, CELL_TYPE_INDEX_SS) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_ss->p_block != nullptr);
+		REQUIRE(p_tx_ss->status  == BLOCK_STATUS_READY);
 
-		char buffer[20] = {"2021-08-01 12:13:14"};
-		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
-
-		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
-
-		REQUIRE(timeinfo->tm_mday == 1);
-
-		for (int i = 0; i < 30; i++) {
-			timeinfo->tm_mday =  1 + (3*i % 29);
-			timeinfo->tm_hour =  7 + (5*i % 7);
-			timeinfo->tm_min  = 13 + (7*i % 31);
-			p_tx3->p_block->tensor.cell_time[i] = timegm(timeinfo);
-		}
-
-		REQUIRE(CNT.new_block(p_tx4, CELL_TYPE_SINGLE, dim_t4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
-		REQUIRE(p_tx4 != nullptr);
-
-		char const *text_file = "January February March April May June July August September October November December";
-
-		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
-		REQUIRE(p_tx5 != nullptr);
-
-//TODO: Write tests for this!
-
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
+		WHEN("we use them") {
+			THEN("they grow dynamically") {
 				REQUIRE(2 > 1);
 			}
 		}
-
-		CNT.destroy_internal(p_tx1);
-		CNT.destroy_internal(p_tx2);
-		CNT.destroy_internal(p_tx3);
-		CNT.destroy_internal(p_tx4);
-		CNT.destroy_internal(p_tx5);
+		CNT.destroy_internal(p_tx_ii);
+		CNT.destroy_internal(p_tx_is);
+		CNT.destroy_internal(p_tx_si);
+		CNT.destroy_internal(p_tx_ss);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_num_keepers*sizeof(StoredTransaction));
