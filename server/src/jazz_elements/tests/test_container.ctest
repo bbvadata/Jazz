@@ -2677,25 +2677,37 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				p_block = p_tuple->block(1);
 
-				REQUIRE(p_block->cell_type			  == p_tx5->p_block->cell_type);
-				REQUIRE(p_block->range.dim[0]		  == p_tx5->p_block->range.dim[0]);
-				REQUIRE(p_block->total_bytes		  == p_tx5->p_block->total_bytes);
-				REQUIRE(p_block->tensor.cell_int[0]	  == p_tx5->p_block->tensor.cell_int[0]);
-				REQUIRE(p_block->tensor.cell_int[11]  == p_tx5->p_block->tensor.cell_int[11]);
+				REQUIRE(p_block->cell_type			 == p_tx5->p_block->cell_type);
+				REQUIRE(p_block->range.dim[0]		 == p_tx5->p_block->range.dim[0]);
+				REQUIRE(p_block->total_bytes		 == p_tx5->p_block->total_bytes);
+				REQUIRE(p_block->tensor.cell_int[0]	 == p_tx5->p_block->tensor.cell_int[0]);
+				REQUIRE(p_block->tensor.cell_int[11] == p_tx5->p_block->tensor.cell_int[11]);
 
 				REQUIRE(strcmp(p_block->get_string(0), "January") == 0);
 				REQUIRE(strcmp(p_block->get_string(7), "August")  == 0);
 
 				p_block = p_tuple->block(2);
 
-				REQUIRE(p_block->cell_type			  == p_tx2->p_block->cell_type);
-				REQUIRE(p_block->range.dim[0]		  == p_tx2->p_block->range.dim[0]);
-				REQUIRE(p_block->range.dim[1]		  == p_tx2->p_block->range.dim[1]);
-				REQUIRE(p_block->range.dim[2]		  == p_tx2->p_block->range.dim[2]);
-				REQUIRE(p_block->range.dim[3]		  == p_tx2->p_block->range.dim[3]);
-				REQUIRE(p_block->total_bytes		  == p_tx2->p_block->total_bytes);
+				REQUIRE(p_block->cell_type	  == p_tx2->p_block->cell_type);
+				REQUIRE(p_block->range.dim[0] == p_tx2->p_block->range.dim[0]);
+				REQUIRE(p_block->range.dim[1] == p_tx2->p_block->range.dim[1]);
+				REQUIRE(p_block->range.dim[2] == p_tx2->p_block->range.dim[2]);
+				REQUIRE(p_block->range.dim[3] == p_tx2->p_block->range.dim[3]);
+				REQUIRE(p_block->total_bytes  == p_tx2->p_block->total_bytes);
 
 				REQUIRE(strcmp(p_block->find_attribute(BLOCK_ATTRIB_MIMETYPE), "block of bool") == 0);
+
+				p_block = p_tuple->block(3);
+
+				REQUIRE(p_block->cell_type	  == p_tx4->p_block->cell_type);
+				REQUIRE(p_block->rank		  == 6);
+				REQUIRE(p_block->range.dim[0] == p_tx4->p_block->range.dim[0]);
+				REQUIRE(p_block->range.dim[1] == p_tx4->p_block->range.dim[1]);
+				REQUIRE(p_block->range.dim[2] == p_tx4->p_block->range.dim[2]);
+				REQUIRE(p_block->range.dim[3] == p_tx4->p_block->range.dim[3]);
+				REQUIRE(p_block->range.dim[4] == p_tx4->p_block->range.dim[4]);
+				REQUIRE(p_block->range.dim[5] == p_tx4->p_block->range.dim[5]);
+				REQUIRE(p_block->total_bytes  == p_tx4->p_block->total_bytes);
 
 				REQUIRE(p_tuple->is_a((pKind) p_tx_knd1->p_block));
 
