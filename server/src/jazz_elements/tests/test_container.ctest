@@ -2651,9 +2651,13 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 		REQUIRE(   CNT.new_block(p_tx2, CELL_TYPE_BOOLEAN, dim_t2.dim, FILL_NEW_WITH_ZERO, nullptr, 0, nullptr, ' ', &att_bl)
 				== SERVICE_NO_ERROR);
 		REQUIRE(p_tx2 != nullptr);
+		REQUIRE(p_tx2->p_block != nullptr);
+		REQUIRE(p_tx2->status  == BLOCK_STATUS_READY);
 
 		REQUIRE(CNT.new_block(p_tx3, CELL_TYPE_TIME, dim_t3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx3 != nullptr);
+		REQUIRE(p_tx3->p_block != nullptr);
+		REQUIRE(p_tx3->status  == BLOCK_STATUS_READY);
 
 		struct tm junk = {0};
 		struct tm *timeinfo = &junk;
@@ -2674,11 +2678,15 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 		REQUIRE(CNT.new_block(p_tx4, CELL_TYPE_SINGLE, dim_t4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx4 != nullptr);
+		REQUIRE(p_tx4->p_block != nullptr);
+		REQUIRE(p_tx4->status  == BLOCK_STATUS_READY);
 
 		char const *text_file = "January February March April May June July August September October November December";
 
 		REQUIRE(CNT.new_block(p_tx5, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_tx5 != nullptr);
+		REQUIRE(p_tx5->p_block != nullptr);
+		REQUIRE(p_tx5->status  == BLOCK_STATUS_READY);
 
 		WHEN("we use them in Kinds and Tuples") {
 			pTransaction p_tx_knd1, p_tx_knd2, p_tx_knd3;
@@ -2708,6 +2716,13 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			REQUIRE(CNT.new_block(p_tx_tup2, 2, p_hea2, p_names2, p_blk2, nullptr, &att) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_tx_tup3, 1, p_hea3, p_names3, p_blk3, nullptr, &att) == SERVICE_NO_ERROR);
 
+			REQUIRE(p_tx_tup1->p_block != nullptr);
+			REQUIRE(p_tx_tup1->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_tx_tup2->p_block != nullptr);
+			REQUIRE(p_tx_tup2->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_tx_tup3->p_block != nullptr);
+			REQUIRE(p_tx_tup3->status  == BLOCK_STATUS_READY);
+
 			REQUIRE(p_hea2[0].range.dim[0] == 27);
 			REQUIRE(p_hea2[0].range.dim[1] ==  7);
 			REQUIRE(p_hea2[0].range.dim[2] ==  3);
@@ -2728,6 +2743,13 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			REQUIRE(CNT.new_block(p_tx_knd2, 2, p_hea2, p_names2, nullptr, &dims,   nullptr) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, nullptr, &att)	 == SERVICE_ERROR_BAD_KIND_ADD);
 			REQUIRE(CNT.new_block(p_tx_knd3, 1, p_hea3, p_names3, nullptr, &dims,   &att)	 == SERVICE_NO_ERROR);
+
+			REQUIRE(p_tx_knd1->p_block != nullptr);
+			REQUIRE(p_tx_knd1->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_tx_knd2->p_block != nullptr);
+			REQUIRE(p_tx_knd2->status  == BLOCK_STATUS_READY);
+			REQUIRE(p_tx_knd3->p_block != nullptr);
+			REQUIRE(p_tx_knd3->status  == BLOCK_STATUS_READY);
 
 			THEN("we get the expected blocks") {
 				REQUIRE(p_tx_tup1->p_block->cell_type	 == CELL_TYPE_TUPLE_ITEM);
@@ -3004,7 +3026,6 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
-
 
 
 SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) from another Tensor.") {
