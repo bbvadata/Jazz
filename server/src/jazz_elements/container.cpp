@@ -1516,30 +1516,12 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 		return SERVICE_ERROR_NO_MEM;
 	}
 
+	memset(p_txn->p_hea, 0, sizeof(BlockHeader));	// Zeroing an std::map is enough. It will-default construct on first use.
+
 	p_txn->p_hea->cell_type = cell_type;
 	p_txn->p_hea->size	    = 1;
 
-	switch (cell_type) {
-	case CELL_TYPE_INDEX_II:
-		p_txn->p_hea->index.index_ii = IndexII();
-
-		break;
-
-	case CELL_TYPE_INDEX_IS:
-		p_txn->p_hea->index.index_is = IndexIS();
-
-		break;
-
-	case CELL_TYPE_INDEX_SI:
-		p_txn->p_hea->index.index_si = IndexSI();
-
-		break;
-
-	default:
-		p_txn->p_hea->index.index_ss = IndexSS();
-
-		break;
-	}
+	p_txn->status = BLOCK_STATUS_READY;
 
 	return SERVICE_NO_ERROR;
 }
