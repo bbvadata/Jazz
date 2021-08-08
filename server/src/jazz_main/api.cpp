@@ -541,7 +541,7 @@ Api::Api(pLogger	 a_logger,
 		std::regex  rex(p_trans->rex);
 		std::string s("-");
 
-		for (int i = 0; i < 256; i ++) {
+		for (int i = 0; i < 256; i++) {
 			s[0] = i;
 			if (std::regex_match(s, rex)) {
 #ifdef DEBUG

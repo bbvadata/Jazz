@@ -1010,7 +1010,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
-		for (int i = 0; i < 3; i ++) {
+		for (int i = 0; i < 3; i++) {
 			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn != nullptr);
 			REQUIRE(p_txn->p_block != nullptr);
@@ -1401,7 +1401,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
-		for (int i = 0; i < 3; i ++) {
+		for (int i = 0; i < 3; i++) {
 			REQUIRE(CNT.new_block(p_txn, cell_types[i], dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn != nullptr);
 			REQUIRE(p_txn->p_block != nullptr);
@@ -1808,7 +1808,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	GIVEN("A block of CELL_TYPE_INTEGER, CELL_TYPE_FACTOR & CELL_TYPE_GRADE") {
 		const int cell_types[3] = {CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE};
 
-		for (int i = 0; i < 3; i ++) {
+		for (int i = 0; i < 3; i++) {
 			REQUIRE(   CNT.new_block(p_txn,  cell_types[i], dim_t3.dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', &block_att)
 					== SERVICE_NO_ERROR);
 
@@ -2645,7 +2645,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 	bool filter_v_z[120], filter_v_1[120], filter_v_n[120];
 
-	for (int i = 0; i < 120; i ++) {
+	for (int i = 0; i < 120; i++) {
 		filter_v_z[i] = 0;
 		filter_v_1[i] = true;
 		filter_v_n[i] = (i % 7) == 2;

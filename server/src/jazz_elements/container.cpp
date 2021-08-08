@@ -229,7 +229,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 
 //		printf("from: %2i, to: %2i, rex: %s\n", p_trans->from, p_trans->to, p_trans->rex);
 
-		for (int i = 0; i < 256; i ++) {
+		for (int i = 0; i < 256; i++) {
 			s[0] = i;
 			if (std::regex_match(s, rex)) {
 #ifdef DEBUG
@@ -673,7 +673,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			int j = 0;
-			for (int i = 0; i < p_txn->p_block->size; i ++) {
+			for (int i = 0; i < p_txn->p_block->size; i++) {
 				if (p_bool_filter[i]) {
 					p_txn->p_block->tensor.cell_int[j] = i;
 					j++;
@@ -682,7 +682,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			p_txn->p_block->range.filter.length = j;
 
 #ifdef DEBUG												// Initialize the RAM on top of the filter for Valgrind.
-			for (int i = p_txn->p_block->range.filter.length; i < p_txn->p_block->size; i ++)
+			for (int i = p_txn->p_block->range.filter.length; i < p_txn->p_block->size; i++)
 				p_txn->p_block->tensor.cell_int[i] = 0;
 #endif
 			break; }
@@ -1671,7 +1671,7 @@ StatusCode Container::new_container() {
 	p_free->p_next = nullptr;
 
 	pStoredTransaction pt = p_free;
-	for (int i = 1; i < max_transactions; i ++) {
+	for (int i = 1; i < max_transactions; i++) {
 		p_free--;
 
 		p_free->p_next = pt--;
