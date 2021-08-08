@@ -505,7 +505,7 @@ StateTransitions state_tr = {
 };
 
 StateSwitch  parser_state_switch;
-NextStateLUT hex_hi_LUT, hex_lo_LUT;
+NextStateLUT hex_hi_LUT, hex_lo_LUT;	*/
 
 /*	-----------------------------------------------
 	 Api : I m p l e m e n t a t i o n

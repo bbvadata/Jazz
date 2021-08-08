@@ -3164,9 +3164,11 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 /** Serializes a Tuple as a string.
 
-	\param p_block	The raw Tuple to be serialized as text.
+	\param p_tuple	The raw Tuple to be serialized as text.
 	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
 	\param p_fmt	Optionally, format specifier that will be applied to all items. (default is each type uses its default)
+	\param item_len	A buffer storing the length of each item: computed by tensor_tuple_as_text(p_dest == nullptr),
+					used by tensor_tuple_as_text(p_dest != nullptr).
 
 	\return	The length in bytes required to store the output if p_dest == nullptr
 
@@ -3286,7 +3288,7 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 
 /** Serializes a Kind as a string.
 
-	\param p_block	The raw Kind to be serialized as text.
+	\param p_kind	The raw Kind to be serialized as text.
 	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
 
 	\return	The length in bytes required to store the output if p_dest == nullptr
