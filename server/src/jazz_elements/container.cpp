@@ -2070,7 +2070,6 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 			break;
 
 		default:
-
 			return false;
 		}
 	}
@@ -2117,7 +2116,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 						p_out++;
 					}
-
 					level--;
 
 					if (level == 0)
@@ -2182,7 +2180,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 						p_out++;
 					}
-
 					level--;
 
 					if (level == 0)
@@ -2245,7 +2242,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 						p_out++;
 					}
-
 					level--;
 
 					if (level == 0)
@@ -2416,7 +2412,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 						p_out++;
 					}
-
 					level--;
 
 					if (level == 0)
@@ -2479,7 +2474,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 						p_out++;
 					}
-
 					level--;
 
 					if (level == 0)
@@ -2543,7 +2537,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 						*(p_out++) = timegm(timeinfo);
 					}
-
 					level--;
 
 					if (level == 0)
@@ -2576,7 +2569,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				break;
 
 			default:
-
 				return false;
 			}
 		}
@@ -2733,7 +2725,6 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		return 0;
 	}
 	default:
-
 		return 0;
 	}
 }
@@ -2812,7 +2803,6 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 			p_t++;
 		}
-
 		*p_dest = 0;
 
 		return 0;
@@ -2834,13 +2824,11 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 			p_t++;
 		}
-
 		*p_dest = 0;
 
 		return 0;
 	}
 	default:
-
 		return 0;
 	}
 }
@@ -2930,7 +2918,6 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
 		}
-
 		*p_dest = 0;
 
 		return 0;
@@ -2952,13 +2939,11 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			separator(rank_1, shape, idx, p_dest);
 			p_t++;
 		}
-
 		*p_dest = 0;
 
 		return 0;
 	}
 	default:
-
 		return 0;
 	}
 }
@@ -3036,7 +3021,6 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 			}
 			p_t++;
 		}
-
 		return total_len + 1;
 	}
 
@@ -3114,7 +3098,6 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 		separator(rank_1, shape, idx, p_dest);
 		p_t++;
 	}
-
 	*p_dest = 0;
 
 	return 0;
@@ -3305,9 +3288,7 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 
 		p_t++;
 	}
-
 	*(p_dest++) = ')';
-
 	*p_dest = 0;
 
 	return 0;
@@ -3455,9 +3436,7 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 		}
 		p_t++;
 	}
-
 	*(p_dest++) = '}';
-
 	*p_dest = 0;
 
 	return 0;
