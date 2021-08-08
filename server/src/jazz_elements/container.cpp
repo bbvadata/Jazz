@@ -2736,7 +2736,7 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 		switch (p_block->cell_type) {
 		case CELL_TYPE_BYTE_BOOLEAN: {
-			bool *p_t = &p_block->tensor.cell_bool[0];
+			uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 			for (int i = 0; i < p_block->size; i++) {
 				if (p_t[0] == BYTE_BOOLEAN_NA)
@@ -2772,7 +2772,7 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 	switch (p_block->cell_type) {
 	case CELL_TYPE_BYTE_BOOLEAN: {
-		bool *p_t = &p_block->tensor.cell_bool[0];
+		uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 		for (int i = 0; i < p_block->size; i++) {
 			if (p_t[0]) {
