@@ -5130,6 +5130,9 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		REQUIRE(p_ki2->p_block != nullptr);
 		REQUIRE(p_ki2->status  == BLOCK_STATUS_READY);
 
+		REQUIRE(reinterpret_cast<pTuple>(p_tp1->p_block)->is_a((pKind) p_ki1->p_block));
+		REQUIRE(reinterpret_cast<pTuple>(p_tp2->p_block)->is_a((pKind) p_ki2->p_block));
+
 		WHEN("we serialize everything") {
 			AttributeMap att = {};
 			att[BLOCK_ATTRIB_LANGUAGE] = "bop";
