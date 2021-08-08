@@ -627,8 +627,9 @@ class Container : public Service {
 			for (int i = 0; i < rank; i++) {
 				int k = dim[i];
 				if (k < 0) {
-					char *p_dim = &p_kind->p_string_buffer()->buffer[-k];
-					p_ret += sprintf(p_ret, "%i", k);
+					char *p_dim_name = &p_kind->p_string_buffer()->buffer[-k];
+					strcpy(p_ret, p_dim_name);
+					p_ret += strlen(p_dim_name);
 
 				} else
 					p_ret += sprintf(p_ret, "%i", k);
