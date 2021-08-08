@@ -136,8 +136,8 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind1->index((pChar) "buffe")	   == -1);
 				REQUIRE(p_kind1->index((pChar) "buffer ")  == -1);
 
-				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
 
 				Dimensions dims = {};
 				p_kind1->dimensions(dims);
@@ -172,8 +172,8 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind2->index((pChar) "_titl")   == -1);
 				REQUIRE(p_kind2->index((pChar) "_titlee") == -1);
 
-				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
 
 				Dimensions dims = {};
 				p_kind2->dimensions(dims);
@@ -216,8 +216,8 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind3->index((pChar) "wav")	 == -1);
 				REQUIRE(p_kind3->index((pChar) "wave ")  == -1);
 
-				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
 
 				Dimensions dims = {};
 				p_kind3->dimensions(dims);

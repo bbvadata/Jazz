@@ -154,7 +154,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_bl1->num_attributes == 2);
 	REQUIRE(p_bl1->tensor.cell_byte[0]	 == 0xCA);
 	REQUIRE(p_bl1->tensor.cell_byte[431] == 0xFE);
-	REQUIRE(!strcmp(p_bl1->find_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
+	REQUIRE(!strcmp(p_bl1->get_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
 
 	REQUIRE(p_bl2->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(p_bl2->rank == 3);
@@ -164,7 +164,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_bl2->tensor.cell_byte[0]	  == 0xCA);
 	REQUIRE(p_bl2->tensor.cell_byte[431]  == 0xBA);
 	REQUIRE(p_bl2->tensor.cell_byte[1535] == 0xFE);
-	REQUIRE(!strcmp(p_bl2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+	REQUIRE(!strcmp(p_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
 
 	REQUIRE(p_bl3->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(p_bl3->rank == 4);
@@ -189,8 +189,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_bl5->size == 1);
 	REQUIRE(p_bl5->total_bytes == 4096);
 	REQUIRE(p_bl5->num_attributes == 3);
-	REQUIRE(!strcmp(p_bl5->find_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
-	REQUIRE(!strcmp(p_bl5->find_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(p_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(p_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(p_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
 	// Build the kinds
@@ -227,8 +227,8 @@ SCENARIO("Testing tuple") {
 
 	REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
 
-	REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-	REQUIRE(!strcmp(p_kind1->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
 
 	REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
 
@@ -247,8 +247,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
 	REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
 
-	REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-	REQUIRE(!strcmp(p_kind2->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
 
 	Dimensions kdims = {};
 	p_kind2->dimensions(kdims);
@@ -275,8 +275,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind3->item_name(1), "audio"));
 	REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
 
-	REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-	REQUIRE(!strcmp(p_kind3->find_attribute(BLOCK_ATTRIB_SOURCE),	 "sys.kinds.ThisKind"));
+	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
 
 	Dimensions kdims2 = {};
 	p_kind3->dimensions(kdims2);
@@ -420,7 +420,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl1->num_attributes == 2);
 	REQUIRE(pt_bl1->tensor.cell_byte[0]	  == 0xCA);
 	REQUIRE(pt_bl1->tensor.cell_byte[431] == 0xFE);
-	REQUIRE(!strcmp(pt_bl1->find_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
+	REQUIRE(!strcmp(pt_bl1->get_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
 
 	pt_bl2 = p_tup2->block(0);
 
@@ -432,7 +432,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl2->tensor.cell_byte[0]	   == 0xCA);
 	REQUIRE(pt_bl2->tensor.cell_byte[431]  == 0xBA);
 	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
-	REQUIRE(!strcmp(pt_bl2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
 
 	pt_bl2 = p_tup3->block(0);
 	pt_bl5 = p_tup3->block(1);
@@ -445,15 +445,15 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl2->tensor.cell_byte[0]	   == 0xCA);
 	REQUIRE(pt_bl2->tensor.cell_byte[431]  == 0xBA);
 	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
-	REQUIRE(!strcmp(pt_bl2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
 
 	REQUIRE(pt_bl5->cell_type == CELL_TYPE_STRING);
 	REQUIRE(pt_bl5->rank == 1);
 	REQUIRE(pt_bl5->size == 1);
 	REQUIRE(pt_bl5->total_bytes == 4096);
 	REQUIRE(pt_bl5->num_attributes == 3);
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
 	pt_bl5 = p_tup4->block(2);
@@ -463,8 +463,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl5->size == 1);
 	REQUIRE(pt_bl5->total_bytes == 4096);
 	REQUIRE(pt_bl5->num_attributes == 3);
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
 	pt_bl3 = p_tup5->block(0);
@@ -494,8 +494,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl5->size == 1);
 	REQUIRE(pt_bl5->total_bytes == 4096);
 	REQUIRE(pt_bl5->num_attributes == 3);
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
 	pt_bl2 = p_tup6->block(0);
@@ -511,7 +511,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl2->tensor.cell_byte[0]	   == 0xCA);
 	REQUIRE(pt_bl2->tensor.cell_byte[431]  == 0xBA);
 	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
-	REQUIRE(!strcmp(pt_bl2->find_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
 
 	REQUIRE(pt_bl3->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(pt_bl3->rank == 4);
@@ -536,8 +536,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl5->size == 1);
 	REQUIRE(pt_bl5->total_bytes == 4096);
 	REQUIRE(pt_bl5->num_attributes == 3);
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
-	REQUIRE(!strcmp(pt_bl5->find_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
 	// Force all errors

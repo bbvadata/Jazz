@@ -904,12 +904,12 @@ SCENARIO("Testing String and Attribute logic") {
 		// REQUIRE(pt[28] == 'T');
 		// REQUIRE(pt[29] == 'h');
 
-		REQUIRE(!strcmp(pjb->find_attribute(2477), "http://www.google.com"));
-		REQUIRE(!strcmp(pjb->find_attribute(3185), "en_us"));
-		REQUIRE(!strcmp(pjb->find_attribute(4420), "This is a stupid sentence"));
-		REQUIRE(!strcmp(pjb->find_attribute(6217), "mp17/hologram"));
+		REQUIRE(!strcmp(pjb->get_attribute(2477), "http://www.google.com"));
+		REQUIRE(!strcmp(pjb->get_attribute(3185), "en_us"));
+		REQUIRE(!strcmp(pjb->get_attribute(4420), "This is a stupid sentence"));
+		REQUIRE(!strcmp(pjb->get_attribute(6217), "mp17/hologram"));
 
-		REQUIRE(pjb->find_attribute(123) == nullptr);
+		REQUIRE(pjb->get_attribute(123) == nullptr);
 
 		AttributeMap read_att;
 

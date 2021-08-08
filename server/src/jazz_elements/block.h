@@ -251,7 +251,7 @@ class Block: public StaticBlockHeader {
 			attributes as a dictionary containing, e.g., thousands of config keys, use get_attributes() instead which returns a
 			map with all the attributes.
 		*/
-		inline char *find_attribute(int attribute_id) {
+		inline char *get_attribute(int attribute_id) {
 			int *ptk = p_attribute_keys();
 			for (int i = 0; i < num_attributes; i++)
 				if (ptk[i] == attribute_id)
