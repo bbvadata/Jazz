@@ -42,10 +42,13 @@ namespace jazz_elements
 	 Global const (to avoid local initialization at each call)
 ---------------------------------------------------------------- */
 
-char NA [4]				 = NA_AS_TEXT;
+char NA [8]				 = NA_AS_TEXT;
 char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};
-char DEF_INT_FMT [4]	 = {"%i\0"};
-char DEF_FLOAT_FMT [4]	 = {"%f\0"};
+char DEF_INT8_FMT [8]	 = {"%hhu\0"};
+char DEF_INT32_FMT [8]	 = {"%i\0"};
+char DEF_INT64_FMT [8]	 = {"%lli\0"};
+char DEF_FLOAT32_FMT [8] = {"%.9e\0"};
+char DEF_FLOAT64_FMT [8] = {"%.18e\0"};
 char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 
 /*	-----------------------------------------------
@@ -2591,9 +2594,6 @@ The serialization includes NA identification, commas spaces an square brackets t
 int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-	if (p_fmt == nullptr)
-		p_fmt = (pChar) &DEF_INT_FMT;
-
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -2605,6 +2605,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 		switch (p_block->cell_type) {
 		case CELL_TYPE_BYTE: {
+			if (p_fmt == nullptr)
+				p_fmt = (pChar) &DEF_INT8_FMT;
+
 			uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 			for (int i = 0; i < p_block->size; i++) {
@@ -2617,6 +2620,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		case CELL_TYPE_INTEGER:
 		case CELL_TYPE_FACTOR:
 		case CELL_TYPE_GRADE: {
+			if (p_fmt == nullptr)
+				p_fmt = (pChar) &DEF_INT32_FMT;
+
 			int *p_t = &p_block->tensor.cell_int[0];
 
 			for (int i = 0; i < p_block->size; i++) {
@@ -2632,6 +2638,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			return total_len + 1;
 		}
 		case CELL_TYPE_LONG_INTEGER: {
+			if (p_fmt == nullptr)
+				p_fmt = (pChar) &DEF_INT64_FMT;
+
 			long long *p_t = &p_block->tensor.cell_longint[0];
 
 			for (int i = 0; i < p_block->size; i++) {
@@ -2655,6 +2664,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 	switch (p_block->cell_type) {
 	case CELL_TYPE_BYTE: {
+		if (p_fmt == nullptr)
+			p_fmt = (pChar) &DEF_INT8_FMT;
+
 		uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 		for (int i = 0; i < p_block->size; i++) {
@@ -2671,6 +2683,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 	case CELL_TYPE_INTEGER:
 	case CELL_TYPE_FACTOR:
 	case CELL_TYPE_GRADE: {
+		if (p_fmt == nullptr)
+			p_fmt = (pChar) &DEF_INT32_FMT;
+
 		int *p_t = &p_block->tensor.cell_int[0];
 
 		for (int i = 0; i < p_block->size; i++) {
@@ -2690,6 +2705,9 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 		return 0;
 	}
 	case CELL_TYPE_LONG_INTEGER: {
+		if (p_fmt == nullptr)
+			p_fmt = (pChar) &DEF_INT64_FMT;
+
 		long long *p_t = &p_block->tensor.cell_longint[0];
 
 		for (int i = 0; i < p_block->size; i++) {
@@ -2835,9 +2853,6 @@ The serialization includes NA identification, commas spaces an square brackets t
 int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-	if (p_fmt == nullptr)
-		p_fmt = (pChar) &DEF_FLOAT_FMT;
-
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -2849,6 +2864,9 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 		switch (p_block->cell_type) {
 		case CELL_TYPE_SINGLE: {
+			if (p_fmt == nullptr)
+				p_fmt = (pChar) &DEF_FLOAT32_FMT;
+
 			float *p_t = &p_block->tensor.cell_single[0];
 
 			for (int i = 0; i < p_block->size; i++) {
@@ -2864,6 +2882,9 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			return total_len + 1;
 		}
 		case CELL_TYPE_DOUBLE: {
+			if (p_fmt == nullptr)
+				p_fmt = (pChar) &DEF_FLOAT64_FMT;
+
 			double *p_t = &p_block->tensor.cell_double[0];
 
 			for (int i = 0; i < p_block->size; i++) {
@@ -2887,6 +2908,9 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 
 	switch (p_block->cell_type) {
 	case CELL_TYPE_SINGLE: {
+		if (p_fmt == nullptr)
+			p_fmt = (pChar) &DEF_FLOAT32_FMT;
+
 		float *p_t = &p_block->tensor.cell_single[0];
 
 		for (int i = 0; i < p_block->size; i++) {
@@ -2906,6 +2930,9 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 		return 0;
 	}
 	case CELL_TYPE_DOUBLE: {
+		if (p_fmt == nullptr)
+			p_fmt = (pChar) &DEF_FLOAT64_FMT;
+
 		double *p_t = &p_block->tensor.cell_double[0];
 
 		for (int i = 0; i < p_block->size; i++) {
