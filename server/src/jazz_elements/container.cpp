@@ -2867,7 +2867,7 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			double *p_t = &p_block->tensor.cell_double[0];
 
 			for (int i = 0; i < p_block->size; i++) {
-				if (p_t[0] == DOUBLE_NA)
+				if (*reinterpret_cast<uint64_t*>(p_t) == DOUBLE_NA_UINT64)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
 				else
@@ -2909,7 +2909,7 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 		double *p_t = &p_block->tensor.cell_double[0];
 
 		for (int i = 0; i < p_block->size; i++) {
-			if (p_t[0] == DOUBLE_NA) {
+			if (*reinterpret_cast<uint64_t*>(p_t) == DOUBLE_NA_UINT64) {
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
