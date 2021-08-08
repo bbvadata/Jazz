@@ -5048,9 +5048,13 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(s_dou->p_block != nullptr);
 			REQUIRE(s_dou->status  == BLOCK_STATUS_READY);
 
+			REQUIRE(strcmp(s_dou->p_block->find_attribute(BLOCK_ATTRIB_LANGUAGE), "bop") == 0);
+
 			REQUIRE(CNT.new_block(s_ki1, p_ki1->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(s_ki1->p_block != nullptr);
 			REQUIRE(s_ki1->status  == BLOCK_STATUS_READY);
+
+			REQUIRE(s_ki1->p_block->find_attribute(BLOCK_ATTRIB_LANGUAGE) == nullptr);
 
 			REQUIRE(CNT.new_block(s_ki2, p_ki2->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(s_ki2->p_block != nullptr);
