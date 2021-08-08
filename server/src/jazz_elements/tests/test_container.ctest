@@ -4763,8 +4763,11 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		for (int i = 0; i < p_bbo->p_block->size; i++) {
 			int jj = (997*i + 17) % 211;
-			int bl = jj < 99 ? 1 : jj > 200 ? BYTE_BOOLEAN_NA : 0;
-			p_bbo->p_block->tensor.cell_bool[i] = bl;
+			int bl = jj < 99 ? 1 : 0;
+			p_bbo->p_block->tensor.cell_byte[i] = bl;
+
+			if (jj > 200)
+				p_bbo->p_block->tensor.cell_byte[i] = BYTE_BOOLEAN_NA;
 		}
 
 		REQUIRE(CNT.new_block(p_int, CELL_TYPE_INTEGER, dim_r4.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
@@ -4801,8 +4804,11 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		for (int i = 0; i < p_boo->p_block->size; i++) {
 			int jj = (997*i + 17) % 211;
-			int bl = jj < 99 ? 1 : jj > 200 ? BYTE_BOOLEAN_NA : 0;
+			int bl = jj < 99 ? 1 : 0;
 			p_boo->p_block->tensor.cell_int[i] = bl;
+
+			if (jj > 200)
+				p_boo->p_block->tensor.cell_int[i] = BYTE_BOOLEAN_NA;
 		}
 
 		REQUIRE(CNT.new_block(p_sin, CELL_TYPE_SINGLE, dim_r5.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
@@ -4836,7 +4842,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		for (long long i = 0; i < p_lin->p_block->size; i++) {
 			p_lin->p_block->tensor.cell_longint[i] = (99715485867*i + 17) % 9715485867 - 39715485867;
-			if (p_lin->p_block->tensor.cell_longint[i] % 55 == 7)
+			if ((p_lin->p_block->tensor.cell_longint[i] % 7) == -6)
 				p_lin->p_block->tensor.cell_longint[i] = LONG_INTEGER_NA;
 		}
 
@@ -4866,7 +4872,6 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		}
 
 		char const *text_1 = "January\n1917 \"February\" March Apr\\l May June July August Sep\ttember October November December";
-
 
 		REQUIRE(CNT.new_block(p_st1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_1, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_st1 != nullptr);
