@@ -471,6 +471,9 @@ class Container : public Service {
 		*/
 		inline int skip_space(pChar &p_in, int &num_bytes) {
 			while (num_bytes > 0) {
+				if (*p_in == 0)
+					return 0;
+
 				if (*p_in == ' ' || *p_in == '\t') {
 					p_in++;
 					num_bytes--;
