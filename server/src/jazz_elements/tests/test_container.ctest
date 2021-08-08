@@ -5056,7 +5056,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		char const *text_2 = "This is neat!\n\n\na: \a b: \bf: \f r: \r\nThis too!\náéíóú\nÄËÏÖÜ\n\n読み\nYomi\nThis is.\n\n\" a b \\ c \n";
 
-		REQUIRE(CNT.new_block(p_st2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_1, ' ') == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_st2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_2, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_st2 != nullptr);
 		REQUIRE(p_st2->p_block != nullptr);
 		REQUIRE(p_st2->status  == BLOCK_STATUS_READY);
