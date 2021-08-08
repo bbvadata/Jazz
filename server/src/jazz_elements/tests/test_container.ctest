@@ -5069,7 +5069,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			char format_byte[20]	= {"%02X"};
 			char format_int[20]		= {"%6i"};
 			char format_float[20]	= {"%.4f"};
-			char format_longint[20]	= {"%10l"};
+			char format_longint[20]	= {"%10i"};
 			char format_time[20]	= {"%H%M%S"};
 			char format_double[20]	= {"%.6f"};
 
@@ -5104,6 +5104,32 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(CNT.new_block(f_tp1, p_tp1->p_block, format_int) == SERVICE_NO_ERROR);
 			REQUIRE(f_tp1->p_block != nullptr);
 			REQUIRE(f_tp1->status  == BLOCK_STATUS_READY);
+
+			check_text_block(s_byt->p_block);
+			check_text_block(s_bbo->p_block);
+			check_text_block(s_int->p_block);
+			check_text_block(s_fac->p_block);
+			check_text_block(s_gra->p_block);
+			check_text_block(s_boo->p_block);
+			check_text_block(s_sin->p_block);
+			check_text_block(s_st1->p_block);
+			check_text_block(s_st2->p_block);
+			check_text_block(s_lin->p_block);
+			check_text_block(s_tim->p_block);
+			check_text_block(s_dou->p_block);
+			check_text_block(s_ki1->p_block);
+			check_text_block(s_ki2->p_block);
+			check_text_block(s_tp1->p_block);
+			check_text_block(s_tp2->p_block);
+
+			check_text_block(f_byt->p_block);
+			check_text_block(f_int->p_block);
+			check_text_block(f_sin->p_block);
+			check_text_block(f_lin->p_block);
+			check_text_block(f_tim->p_block);
+			check_text_block(f_dou->p_block);
+			check_text_block(f_ki1->p_block);
+			check_text_block(f_tp1->p_block);
 
 			THEN("we parse everything and compare") {
 
