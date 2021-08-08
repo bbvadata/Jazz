@@ -1856,7 +1856,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	memset(item_hea->dim, -1, sizeof(TensorDim));		// == {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = {0,  0,  0,  0,  0,  0};
 
-	int level = 0;
+	int level = -1;
 	bool first_row = true;
 
 	while (true) {
@@ -1892,7 +1892,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 				};
 				level--;
 
-				if (level == 0) {
+				if (level == -1) {
 					for (int i = item_hea->rank; i < MAX_TENSOR_RANK; i++)
 						item_hea->dim[i] = 0;
 
@@ -1907,14 +1907,15 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 		case PSTATE_IN_REAL:
 		case PSTATE_IN_STRING:
 		case PSTATE_IN_TIME:
+			if (cursor == ',')
+				n_item.dim[level]++;
+
 			if (cursor == '[') {
 				level++;
 				if (first_row) {
-					item_hea->rank = level;
-
-					first_row = false;
+					item_hea->rank = level + 1;
 				} else {
-					if (level != item_hea->rank)
+					if (level >= item_hea->rank)
 						return false;
 				}
 				if (level >= MAX_TENSOR_RANK)
@@ -1929,8 +1930,14 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 		case PSTATE_SEP_REAL:
 		case PSTATE_SEP_STRING:
 		case PSTATE_SEP_TIME:
-			if (cursor == ',')
+			if (cursor == ',') {
+				if (level != item_hea->rank - 1)
+					return false;
+
 				n_item.dim[level]++;
+			}
+
+			first_row = false;
 
 			break;
 
@@ -1951,7 +1958,6 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 			break;
 
 		default:
-
 			return false;
 		}
 	}
