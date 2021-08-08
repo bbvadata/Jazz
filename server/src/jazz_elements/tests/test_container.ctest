@@ -154,6 +154,46 @@ void init_static_hea(StaticBlockHeader &hea, pBlock p_blk) {
 	p_blk->get_dimensions(& hea.range.dim[0]);
 }
 
+
+void check_text_block(pBlock p_block) {
+
+	REQUIRE(p_block->cell_type	  == CELL_TYPE_BYTE);
+	REQUIRE(p_block->size		   > 2);
+	REQUIRE(p_block->rank		  == 1);
+	REQUIRE(p_block->range.dim[0] == 1);
+
+	REQUIRE(p_block->tensor.cell_byte[p_block->size - 1] == 0);
+
+	switch (p_block->tensor.cell_byte[0]) {
+	case '(':
+		REQUIRE(p_block->tensor.cell_byte[p_block->size - 2] == ')');
+		break;
+
+	case '[':
+		REQUIRE(p_block->tensor.cell_byte[p_block->size - 2] == ']');
+		break;
+
+	case '{':
+		REQUIRE(p_block->tensor.cell_byte[p_block->size - 2] == '}');
+		break;
+
+	default:
+		REQUIRE(strcmp("HALT:", "Wrong initial char.") == 0);
+	}
+
+	int n_lo = 0, n_hi = 0;
+	for (int i = 0; i < p_block->size - 1; i++) {
+		if (p_block->tensor.cell_byte[i] < 32)
+			n_lo++;
+
+		if (p_block->tensor.cell_byte[i] > 126)
+			n_hi++;
+	}
+	REQUIRE(n_lo == 0);
+	REQUIRE(n_hi == 0);
+}
+
+
 // Tests
 // -----
 
