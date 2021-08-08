@@ -3414,7 +3414,7 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 
 			break;
 		}
-		as_shape(p_t[0].rank, p_t[0].dim, p_dest, p_kind);
+		p_dest = as_shape(p_t[0].rank, p_t[0].dim, p_dest, p_kind);
 
 		if (i < p_kind->size - 1) {
 			*(p_dest++) = ',';

@@ -621,7 +621,7 @@ class Container : public Service {
 			\param dim		The shape
 			\param p_kind	The kind from which dimension names should be read
 		*/
-		inline void as_shape(int rank, int dim[], pChar p_ret, pKind p_kind) {
+		inline pChar as_shape(int rank, int dim[], pChar p_ret, pKind p_kind) {
 			*(p_ret++) = '[';
 
 			for (int i = 0; i < rank; i++) {
@@ -643,6 +643,8 @@ class Container : public Service {
 			*(p_ret++) = ']';
 
 			*p_ret = 0;
+
+			return p_ret;
 		}
 
 		/** Writes a char as 0xFF
