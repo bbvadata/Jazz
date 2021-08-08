@@ -58,7 +58,7 @@ int Tuple::audit() {
 		if (!valid_name(&p_string_buffer()->buffer[p_it_hea->name]))
 			return MIXED_TYPE_INVALID;
 
-		pBlock p_block = block(i);
+		pBlock p_block = get_block(i);
 
 		if (p_it_hea->rank != p_block->rank || p_it_hea->cell_type != p_block->cell_type)
 			return MIXED_TYPE_INVALID;

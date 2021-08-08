@@ -217,7 +217,7 @@ class Tuple : public Block {
 
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
-		inline pBlock block(int idx) {
+		inline pBlock get_block(int idx) {
 			if (idx < 0 | idx >= size)
 				return nullptr;
 			return (pBlock) ((uintptr_t) &tensor + tensor.cell_item[idx].data_start);

@@ -319,7 +319,7 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2) {
 			if (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0)
 				all_cells_equal = false;
 
-			compare_full_blocks(reinterpret_cast<pTuple>(p_bl1)->block(i), reinterpret_cast<pTuple>(p_bl1)->block(i));
+			compare_full_blocks(reinterpret_cast<pTuple>(p_bl1)->get_block(i), reinterpret_cast<pTuple>(p_bl1)->get_block(i));
 		}
 		break;
 
@@ -2967,7 +2967,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(!strcmp(p_tuple->item_name(2), "bool"));
 				REQUIRE(!strcmp(p_tuple->item_name(3), "float"));
 
-				p_block = p_tuple->block(0);
+				p_block = p_tuple->get_block(0);
 
 				REQUIRE(p_block->cell_type			  == p_tx3->p_block->cell_type);
 				REQUIRE(p_block->rank				  == p_tx3->p_block->rank);
@@ -2976,7 +2976,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(p_block->tensor.cell_time[17] == p_tx3->p_block->tensor.cell_time[17]);
 				REQUIRE(p_block->tensor.cell_time[29] == p_tx3->p_block->tensor.cell_time[29]);
 
-				p_block = p_tuple->block(1);
+				p_block = p_tuple->get_block(1);
 
 				REQUIRE(p_block->cell_type			 == p_tx5->p_block->cell_type);
 				REQUIRE(p_block->range.dim[0]		 == p_tx5->p_block->range.dim[0]);
@@ -2987,7 +2987,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(strcmp(p_block->get_string(0), "January") == 0);
 				REQUIRE(strcmp(p_block->get_string(7), "August")  == 0);
 
-				p_block = p_tuple->block(2);
+				p_block = p_tuple->get_block(2);
 
 				REQUIRE(p_block->cell_type	  == p_tx2->p_block->cell_type);
 				REQUIRE(p_block->range.dim[0] == p_tx2->p_block->range.dim[0]);
@@ -2998,7 +2998,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(strcmp(p_block->get_attribute(BLOCK_ATTRIB_MIMETYPE), "block of bool") == 0);
 
-				p_block = p_tuple->block(3);
+				p_block = p_tuple->get_block(3);
 
 				REQUIRE(p_block->cell_type	  == p_tx4->p_block->cell_type);
 				REQUIRE(p_block->rank		  == 6);
@@ -3038,14 +3038,14 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(!strcmp(p_tuple->item_name(0), "byte"));
 				REQUIRE(!strcmp(p_tuple->item_name(1), "bool"));
 
-				p_block = p_tuple->block(0);
+				p_block = p_tuple->get_block(0);
 
 				REQUIRE(p_block->cell_type			  == p_tx1->p_block->cell_type);
 				REQUIRE(p_block->rank				  == p_tx1->p_block->rank);
 				REQUIRE(p_block->total_bytes		  == p_tx1->p_block->total_bytes);
 				REQUIRE(p_block->tensor.cell_byte[0]  == p_tx1->p_block->tensor.cell_byte[0]);
 
-				p_block = p_tuple->block(1);
+				p_block = p_tuple->get_block(1);
 
 				REQUIRE(p_block->cell_type			  == p_tx2->p_block->cell_type);
 				REQUIRE(p_block->range.dim[0]		  == p_tx2->p_block->range.dim[0]);
@@ -3073,7 +3073,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(!strcmp(p_tuple->item_name(0), "time"));
 
-				p_block = p_tuple->block(0);
+				p_block = p_tuple->get_block(0);
 
 				REQUIRE(p_block->cell_type			  == p_tx3->p_block->cell_type);
 				REQUIRE(p_block->rank				  == p_tx3->p_block->rank);

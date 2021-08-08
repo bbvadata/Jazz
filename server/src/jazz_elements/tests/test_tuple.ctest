@@ -311,8 +311,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup1->index((pChar) "buffer")	 ==  0);
 	REQUIRE(p_tup1->index((pChar) "buffe")	 == -1);
 	REQUIRE(p_tup1->index((pChar) "buffer ") == -1);
-	REQUIRE(p_tup1->block( 1) == nullptr);
-	REQUIRE(p_tup1->block(-1) == nullptr);
+	REQUIRE(p_tup1->get_block( 1) == nullptr);
+	REQUIRE(p_tup1->get_block(-1) == nullptr);
 	REQUIRE(p_tup1->is_a(p_kind1));
 	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
 
@@ -325,8 +325,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup2->index((pChar) "buffer")	 ==  0);
 	REQUIRE(p_tup2->index((pChar) "buffe")	 == -1);
 	REQUIRE(p_tup2->index((pChar) "buffer ") == -1);
-	REQUIRE(p_tup2->block( 1) == nullptr);
-	REQUIRE(p_tup2->block(-1) == nullptr);
+	REQUIRE(p_tup2->get_block( 1) == nullptr);
+	REQUIRE(p_tup2->get_block(-1) == nullptr);
 	REQUIRE(!p_tup2->is_a(p_kind1));
 	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
 
@@ -341,8 +341,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup3->index((pChar) "title")	 ==  1);
 	REQUIRE(p_tup3->index((pChar) "titl")	 == -1);
 	REQUIRE(p_tup3->index((pChar) "buffer ") == -1);
-	REQUIRE(p_tup3->block( 2) == nullptr);
-	REQUIRE(p_tup3->block(-1) == nullptr);
+	REQUIRE(p_tup3->get_block( 2) == nullptr);
+	REQUIRE(p_tup3->get_block(-1) == nullptr);
 	REQUIRE(p_tup3->is_a(p_kind2));
 	REQUIRE(p_tup3->audit() == MIXED_TYPE_TUPLE);
 
@@ -359,8 +359,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup4->index((pChar) "more")	==  2);
 	REQUIRE(p_tup4->index((pChar) "titl")	== -1);
 	REQUIRE(p_tup4->index((pChar) "more ")	== -1);
-	REQUIRE(p_tup4->block( 3) == nullptr);
-	REQUIRE(p_tup4->block(-1) == nullptr);
+	REQUIRE(p_tup4->get_block( 3) == nullptr);
+	REQUIRE(p_tup4->get_block(-1) == nullptr);
 	REQUIRE(!p_tup4->is_a(p_kind2));
 	REQUIRE(p_tup4->audit() == MIXED_TYPE_TUPLE);
 
@@ -379,8 +379,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup5->index((pChar) "title")	==  2);
 	REQUIRE(p_tup5->index((pChar) "titl")	== -1);
 	REQUIRE(p_tup5->index((pChar) "Audio")	== -1);
-	REQUIRE(p_tup5->block( 3) == nullptr);
-	REQUIRE(p_tup5->block(-1) == nullptr);
+	REQUIRE(p_tup5->get_block( 3) == nullptr);
+	REQUIRE(p_tup5->get_block(-1) == nullptr);
 	REQUIRE(p_tup5->is_a(p_kind3));
 	REQUIRE(p_tup5->audit() == MIXED_TYPE_TUPLE);
 
@@ -402,8 +402,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup6->index((pChar) "title")	==  3);
 	REQUIRE(p_tup6->index((pChar) "titl")	== -1);
 	REQUIRE(p_tup6->index((pChar) "Audio")	== -1);
-	REQUIRE(p_tup6->block( 4) == nullptr);
-	REQUIRE(p_tup6->block(-1) == nullptr);
+	REQUIRE(p_tup6->get_block( 4) == nullptr);
+	REQUIRE(p_tup6->get_block(-1) == nullptr);
 	REQUIRE(!p_tup6->is_a(p_kind3));
 	REQUIRE(p_tup6->audit() == MIXED_TYPE_TUPLE);
 
@@ -411,7 +411,7 @@ SCENARIO("Testing tuple") {
 
 	pBlock pt_bl1, pt_bl2, pt_bl3, pt_bl4, pt_bl5;
 
-	pt_bl1 = p_tup1->block(0);
+	pt_bl1 = p_tup1->get_block(0);
 
 	REQUIRE(pt_bl1->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(pt_bl1->rank == 3);
@@ -422,7 +422,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl1->tensor.cell_byte[431] == 0xFE);
 	REQUIRE(!strcmp(pt_bl1->get_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
 
-	pt_bl2 = p_tup2->block(0);
+	pt_bl2 = p_tup2->get_block(0);
 
 	REQUIRE(pt_bl2->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(pt_bl2->rank == 3);
@@ -434,8 +434,8 @@ SCENARIO("Testing tuple") {
 	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
 	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
 
-	pt_bl2 = p_tup3->block(0);
-	pt_bl5 = p_tup3->block(1);
+	pt_bl2 = p_tup3->get_block(0);
+	pt_bl5 = p_tup3->get_block(1);
 
 	REQUIRE(pt_bl2->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(pt_bl2->rank == 3);
@@ -456,7 +456,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
-	pt_bl5 = p_tup4->block(2);
+	pt_bl5 = p_tup4->get_block(2);
 
 	REQUIRE(pt_bl5->cell_type == CELL_TYPE_STRING);
 	REQUIRE(pt_bl5->rank == 1);
@@ -467,9 +467,9 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
-	pt_bl3 = p_tup5->block(0);
-	pt_bl4 = p_tup5->block(1);
-	pt_bl5 = p_tup5->block(2);
+	pt_bl3 = p_tup5->get_block(0);
+	pt_bl4 = p_tup5->get_block(1);
+	pt_bl5 = p_tup5->get_block(2);
 
 	REQUIRE(pt_bl3->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(pt_bl3->rank == 4);
@@ -498,10 +498,10 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
 	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
 
-	pt_bl2 = p_tup6->block(0);
-	pt_bl3 = p_tup6->block(1);
-	pt_bl4 = p_tup6->block(2);
-	pt_bl5 = p_tup6->block(3);
+	pt_bl2 = p_tup6->get_block(0);
+	pt_bl3 = p_tup6->get_block(1);
+	pt_bl4 = p_tup6->get_block(2);
+	pt_bl5 = p_tup6->get_block(3);
 
 	REQUIRE(pt_bl2->cell_type == CELL_TYPE_BYTE);
 	REQUIRE(pt_bl2->rank == 3);
@@ -542,7 +542,7 @@ SCENARIO("Testing tuple") {
 
 	// Force all errors
 
-	pt_bl1 = p_tup1->block(0);
+	pt_bl1 = p_tup1->get_block(0);
 
 	REQUIRE(!p_tup1->is_a((pKind) pt_bl1));
 	REQUIRE(!p_tup1->is_a((pKind) p_tup1));
@@ -631,14 +631,14 @@ SCENARIO("Testing tuple") {
 
 	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
 
-	pt_bl1 = p_tup1->block(0);
+	pt_bl1 = p_tup1->get_block(0);
 	pt_bl1->cell_type = CELL_TYPE_TIME;
 
 	REQUIRE(p_tup1->audit() == MIXED_TYPE_INVALID);
 
 	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
 
-	pt_bl2 = p_tup2->block(0);
+	pt_bl2 = p_tup2->get_block(0);
 	pt_bl2->range.dim[0] = 97;
 
 	REQUIRE(p_tup2->audit() == MIXED_TYPE_INVALID);

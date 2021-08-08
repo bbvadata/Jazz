@@ -1050,7 +1050,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	if (idx < 0)
 		return SERVICE_ERROR_WRONG_NAME;
 
-	pBlock block = reinterpret_cast<pTuple>(p_from)->block(idx);
+	pBlock block = reinterpret_cast<pTuple>(p_from)->get_block(idx);
 
 	return new_block(p_txn, block, (pBlock) nullptr, att);	// This manages the alloc issues of att and possible strings already.
 }
@@ -3211,29 +3211,29 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 			case CELL_TYPE_FACTOR:
 			case CELL_TYPE_GRADE:
 			case CELL_TYPE_LONG_INTEGER:
-				total_len += item_len[i] = tensor_int_as_text(p_tuple->block(i), nullptr, p_fmt) - 1;
+				total_len += item_len[i] = tensor_int_as_text(p_tuple->get_block(i), nullptr, p_fmt) - 1;
 
 				break;
 
 			case CELL_TYPE_BYTE_BOOLEAN:
 			case CELL_TYPE_BOOLEAN:
-				total_len += item_len[i] = tensor_bool_as_text(p_tuple->block(i), nullptr) - 1;
+				total_len += item_len[i] = tensor_bool_as_text(p_tuple->get_block(i), nullptr) - 1;
 
 				break;
 
 			case CELL_TYPE_SINGLE:
 			case CELL_TYPE_DOUBLE:
-				total_len += item_len[i] = tensor_float_as_text(p_tuple->block(i), nullptr, p_fmt) - 1;
+				total_len += item_len[i] = tensor_float_as_text(p_tuple->get_block(i), nullptr, p_fmt) - 1;
 
 				break;
 
 			case CELL_TYPE_STRING:
-				total_len += item_len[i] = tensor_string_as_text(p_tuple->block(i), nullptr) - 1;
+				total_len += item_len[i] = tensor_string_as_text(p_tuple->get_block(i), nullptr) - 1;
 
 				break;
 
 			case CELL_TYPE_TIME:
-				total_len += item_len[i] = tensor_time_as_text(p_tuple->block(i), nullptr, p_fmt) - 1;
+				total_len += item_len[i] = tensor_time_as_text(p_tuple->get_block(i), nullptr, p_fmt) - 1;
 
 				break;
 
@@ -3260,33 +3260,33 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 		case CELL_TYPE_FACTOR:
 		case CELL_TYPE_GRADE:
 		case CELL_TYPE_LONG_INTEGER:
-			tensor_int_as_text(p_tuple->block(i), p_dest, p_fmt);
+			tensor_int_as_text(p_tuple->get_block(i), p_dest, p_fmt);
 			p_dest += item_len[i];
 
 			break;
 
 		case CELL_TYPE_BYTE_BOOLEAN:
 		case CELL_TYPE_BOOLEAN:
-			tensor_bool_as_text(p_tuple->block(i), p_dest);
+			tensor_bool_as_text(p_tuple->get_block(i), p_dest);
 			p_dest += item_len[i];
 
 			break;
 
 		case CELL_TYPE_SINGLE:
 		case CELL_TYPE_DOUBLE:
-			tensor_float_as_text(p_tuple->block(i), p_dest, p_fmt);
+			tensor_float_as_text(p_tuple->get_block(i), p_dest, p_fmt);
 			p_dest += item_len[i];
 
 			break;
 
 		case CELL_TYPE_STRING:
-			tensor_string_as_text(p_tuple->block(i), p_dest);
+			tensor_string_as_text(p_tuple->get_block(i), p_dest);
 			p_dest += item_len[i];
 
 			break;
 
 		case CELL_TYPE_TIME:
-			tensor_time_as_text(p_tuple->block(i), p_dest, p_fmt);
+			tensor_time_as_text(p_tuple->get_block(i), p_dest, p_fmt);
 			p_dest += item_len[i];
 
 			break;
