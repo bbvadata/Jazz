@@ -1423,20 +1423,15 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_WRONG_TYPE;
 	}
 
-	StatusCode ret = new_transaction(p_txn);
+	int dim[MAX_TENSOR_RANK];
+
+	dim[0] = total_bytes;
+	dim[1] = 0;
+
+	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, 0, att);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
-
-	total_bytes += sizeof(BlockHeader);
-
-	p_txn->p_block = (pBlock) malloc(total_bytes);
-
-	if (p_txn->p_block == nullptr) {
-		destroy_internal(p_txn);
-
-		return SERVICE_ERROR_NO_MEM;
-	}
 
 	switch (p_from_raw->cell_type) {
 	case CELL_TYPE_BYTE:
