@@ -2965,7 +2965,7 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 				p_string = p_block->get_string(i);
 
 				while (true) {
-					char lb = *p_string++;
+					char lb = *(p_string++);
 
 					if (lb == 0)
 						break;
@@ -3110,7 +3110,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 	p_block->get_dimensions((int *) &shape);
 
-	struct tm * timeinfo;
+	struct tm *timeinfo;
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
