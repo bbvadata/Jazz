@@ -2139,7 +2139,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_byte[p_block->size];
 				}
 				break;
 
@@ -2199,7 +2199,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_int[p_block->size];
 				}
 				break;
 
@@ -2258,7 +2258,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_longint[p_block->size];
 				}
 				break;
 
@@ -2317,7 +2317,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_bool[p_block->size];
 				}
 				break;
 
@@ -2376,7 +2376,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_uint[p_block->size];
 				}
 				break;
 
@@ -2435,7 +2435,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_single[p_block->size];
 				}
 				break;
 
@@ -2494,7 +2494,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_double[p_block->size];
 				}
 				break;
 
@@ -2553,7 +2553,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					level--;
 
 					if (level == 0)
-						return true;
+						return p_out == &p_block->tensor.cell_time[p_block->size];
 				}
 				break;
 
