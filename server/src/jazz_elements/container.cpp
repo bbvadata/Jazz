@@ -2191,15 +2191,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						*p_st = 0;
-						p_st  = (pChar) &cell;
+					if (!push_int_cell(cell, p_st, p_out))
+						return false;
 
-						if (sscanf(p_st, "%i", p_out) != 1)
-							return false;
-
-						p_out++;
-					}
 					level--;
 
 					if (level == 0)
@@ -2209,25 +2203,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_INT:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_INT:
-				if (cursor == ',') {
-					*p_st = 0;
-					p_st  = (pChar) &cell;
-
-					if (sscanf(p_st, "%i", p_out) != 1)
+				if (cursor == ',')
+					if (!push_int_cell(cell, p_st, p_out))
 						return false;
 
-					p_out++;
-				}
 				break;
 
 			case PSTATE_CONST_INT:
@@ -2235,6 +2225,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
@@ -2259,15 +2250,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						*p_st = 0;
-						p_st  = (pChar) &cell;
+					if (!push_int_cell(cell, p_st, p_out))
+						return false;
 
-						if (sscanf(p_st, "%lli", p_out) != 1)
-							return false;
-
-						p_out++;
-					}
 					level--;
 
 					if (level == 0)
@@ -2277,25 +2262,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_INT:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_INT:
-				if (cursor == ',') {
-					*p_st = 0;
-					p_st  = (pChar) &cell;
-
-					if (sscanf(p_st, "%lli", p_out) != 1)
+				if (cursor == ',')
+					if (!push_int_cell(cell, p_st, p_out))
 						return false;
 
-					p_out++;
-				}
 				break;
 
 			case PSTATE_CONST_INT:
@@ -2303,6 +2284,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
@@ -2327,11 +2309,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						p_st  = (pChar) &cell;
+					if (!push_bool_cell(cell, p_st, p_out))
+						return false;
 
-						*(p_out++) = cell[0] == '1';
-					}
 					level--;
 
 					if (level == 0)
@@ -2341,21 +2321,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_INT:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_INT:
-				if (cursor == ',') {
-					p_st  = (pChar) &cell;
+				if (cursor == ',')
+					if (!push_bool_cell(cell, p_st, p_out))
+						return false;
 
-					*(p_out++) = cell[0] == '1';
-				}
 				break;
 
 			case PSTATE_CONST_INT:
@@ -2363,6 +2343,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
@@ -2387,11 +2368,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						p_st  = (pChar) &cell;
+					if (!push_bool_cell(cell, p_st, p_out))
+						return false;
 
-						*(p_out++) = cell[0] == '1';
-					}
 					level--;
 
 					if (level == 0)
@@ -2401,21 +2380,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_INT:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_INT:
-				if (cursor == ',') {
-					p_st  = (pChar) &cell;
+				if (cursor == ',')
+					if (!push_bool_cell(cell, p_st, p_out))
+						return false;
 
-					*(p_out++) = cell[0] == '1';
-				}
 				break;
 
 			case PSTATE_CONST_INT:
@@ -2423,6 +2402,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
@@ -2447,15 +2427,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						*p_st = 0;
-						p_st  = (pChar) &cell;
+					if (!push_real_cell(cell, p_st, p_out))
+						return false;
 
-						if (sscanf(p_st, "%f", p_out) != 1)
-							return false;
-
-						p_out++;
-					}
 					level--;
 
 					if (level == 0)
@@ -2465,25 +2439,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_REAL:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_REAL:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_REAL:
-				if (cursor == ',') {
-					*p_st = 0;
-					p_st  = (pChar) &cell;
-
-					if (sscanf(p_st, "%f", p_out) != 1)
+				if (cursor == ',')
+					if (!push_real_cell(cell, p_st, p_out))
 						return false;
 
-					p_out++;
-				}
 				break;
 
 			case PSTATE_CONST_REAL:
@@ -2491,6 +2461,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
@@ -2515,15 +2486,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						*p_st = 0;
-						p_st  = (pChar) &cell;
+					if (!push_real_cell(cell, p_st, p_out))
+						return false;
 
-						if (sscanf(p_st, "%lf", p_out) != 1)
-							return false;
-
-						p_out++;
-					}
 					level--;
 
 					if (level == 0)
@@ -2533,25 +2498,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_REAL:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_REAL:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_REAL:
-				if (cursor == ',') {
-					*p_st = 0;
-					p_st  = (pChar) &cell;
-
-					if (sscanf(p_st, "%lf", p_out) != 1)
+				if (cursor == ',')
+					if (!push_real_cell(cell, p_st, p_out))
 						return false;
 
-					p_out++;
-				}
 				break;
 
 			case PSTATE_CONST_REAL:
@@ -2559,6 +2520,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
@@ -2572,7 +2534,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		unsigned char cursor;
 		int level = 0;
 		time_t *p_out = &p_block->tensor.cell_time[0];
-		struct tm *timeinfo;
 
 		while (true) {
 			if (num_bytes == 0)
@@ -2584,15 +2545,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_TIME:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
-						*p_st = 0;
-						p_st  = (pChar) &cell;
+					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
+						return false;
 
-						if (strptime(p_st, DEF_FLOAT_TIME, timeinfo) == nullptr)
-							return false;
-
-						*(p_out++) = timegm(timeinfo);
-					}
 					level--;
 
 					if (level == 0)
@@ -2602,25 +2557,21 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_NA_TIME:
 				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
+					p_st = (pChar) &cell;
 
 				break;
 
 			case PSTATE_IN_TIME:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_TIME:
-				if (cursor == ',') {
-					*p_st = 0;
-					p_st  = (pChar) &cell;
-
-					if (strptime(p_st, DEF_FLOAT_TIME, timeinfo) == nullptr)
+				if (cursor == ',')
+					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
 						return false;
 
-					*(p_out++) = timegm(timeinfo);
-				}
 				break;
 
 			case PSTATE_CONST_TIME:
@@ -2628,6 +2579,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
