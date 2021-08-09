@@ -5314,15 +5314,9 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				REQUIRE(x_sin->p_block->get_attribute(BLOCK_ATTRIB_LANGUAGE) == nullptr);
 
-				// pChar p_prn = (pChar) &s_st1->p_block->tensor;
-				// printf("\n\n%s\n\n", p_prn);
-
 				REQUIRE(CNT.new_block(x_st1, s_st1->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
 				REQUIRE(x_st1->p_block != nullptr);
 				REQUIRE(x_st1->status  == BLOCK_STATUS_READY);
-
-				// p_prn = (pChar) &s_st2->p_block->tensor;
-				// printf("\n\n%s\n\n", p_prn);
 
 				REQUIRE(CNT.new_block(x_st2, s_st2->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
 				REQUIRE(x_st2->p_block != nullptr);
@@ -5363,9 +5357,6 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
 
 				REQUIRE(reinterpret_cast<pTuple>(x_tp2->p_block)->audit() == MIXED_TYPE_TUPLE);
-
-				// pChar p_prn = (pChar) &f_byt->p_block->tensor;
-				// printf("\n\n%s\n\n", p_prn);
 
 				REQUIRE(CNT.new_block(y_byt, f_byt->p_block, CELL_TYPE_BYTE) == SERVICE_NO_ERROR);
 				REQUIRE(y_byt->p_block != nullptr);
@@ -5425,15 +5416,6 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				compare_full_blocks(y_sin->p_block, p_sin->p_block, true);
 				compare_full_blocks(y_lin->p_block, p_lin->p_block, true);
 				compare_full_blocks(y_dou->p_block, p_dou->p_block, true);
-
-				// pChar p_prn = (pChar) &s_ki1->p_block->tensor;
-				// printf("\n\n%s\n\n", p_prn);
-
-				// p_prn = (pChar) &s_ki2->p_block->tensor;
-				// printf("\n\n%s\n\n", p_prn);
-
-				// p_prn = (pChar) &f_ki1->p_block->tensor;
-				// printf("\n\n%s\n\n", p_prn);
 
 				compare_full_blocks(x_ki1->p_block, p_ki1->p_block);
 				compare_full_blocks(x_ki2->p_block, p_ki2->p_block);
