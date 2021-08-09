@@ -2146,6 +2146,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
+
 				break;
 
 			case PSTATE_SEP_INT:
@@ -2165,6 +2166,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					return false;
 
 				*(p_st++) = cursor;
+
 				break;
 
 			default:
