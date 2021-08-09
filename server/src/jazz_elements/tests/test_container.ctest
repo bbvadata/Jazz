@@ -5340,17 +5340,25 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(x_ki1->p_block != nullptr);
 				REQUIRE(x_ki1->status  == BLOCK_STATUS_READY);
 
+				REQUIRE(reinterpret_cast<pKind>(x_ki1->p_block)->audit() == MIXED_TYPE_KIND);
+
 				REQUIRE(CNT.new_block(x_ki2, s_ki2->p_block, CELL_TYPE_KIND_ITEM) == SERVICE_NO_ERROR);
 				REQUIRE(x_ki2->p_block != nullptr);
 				REQUIRE(x_ki2->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(reinterpret_cast<pKind>(x_ki2->p_block)->audit() == MIXED_TYPE_KIND);
 
 				REQUIRE(CNT.new_block(x_tp1, s_tp1->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp1->p_block != nullptr);
 				REQUIRE(x_tp1->status  == BLOCK_STATUS_READY);
 
+				REQUIRE(reinterpret_cast<pTuple>(x_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
+
 				REQUIRE(CNT.new_block(x_tp2, s_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp2->p_block != nullptr);
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(reinterpret_cast<pTuple>(x_tp2->p_block)->audit() == MIXED_TYPE_TUPLE);
 
 				REQUIRE(CNT.new_block(y_byt, f_byt->p_block, CELL_TYPE_BYTE) == SERVICE_NO_ERROR);
 				REQUIRE(y_byt->p_block != nullptr);
@@ -5380,9 +5388,13 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(y_ki1->p_block != nullptr);
 				REQUIRE(y_ki1->status  == BLOCK_STATUS_READY);
 
+				REQUIRE(reinterpret_cast<pKind>(y_ki1->p_block)->audit() == MIXED_TYPE_KIND);
+
 				REQUIRE(CNT.new_block(y_tp1, f_tp1->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(y_tp1->p_block != nullptr);
 				REQUIRE(y_tp1->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(reinterpret_cast<pTuple>(y_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
 
 				compare_full_blocks(x_byt->p_block, p_byt->p_block);
 				compare_full_blocks(x_bbo->p_block, p_bbo->p_block);
