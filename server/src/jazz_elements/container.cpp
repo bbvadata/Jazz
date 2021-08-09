@@ -2596,13 +2596,15 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 }
 
 
-/** Bla
+/** Implements the complete text block creation: fill_text_buffer()/new_block() and fixing NA and ExpandEscapeSequences()
 
-	\param p_block	The raw block to be serialized as text (must have one of the types above).
-	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
-	\param p_fmt	Optionally, format specifier that is understood by sprintf (default is %i)
+	\param p_txn		Transaction for the new_block() call.
+	\param item_hea		An ItemHeader computed by a previous call to get_type_and_shape()
+	\param p_in			The input char stream cursor.
+	\param num_bytes	The number of bytes with data above *p_in
+	\param att			An AttributeMap for the new_block() call.
 
-	\return	The length in bytes required to store the output if p_dest == nullptr
+	\return	StatusCode like a new_block() call
 */
 int Container::new_text_block (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
 
