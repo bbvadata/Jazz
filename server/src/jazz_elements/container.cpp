@@ -2193,7 +2193,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (!push_int_cell(cell, p_st, p_out))
+					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out))
 						return false;
 
 					level--;
@@ -2252,7 +2252,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (!push_int_cell(cell, p_st, p_out))
+					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out))
 						return false;
 
 					level--;
@@ -2311,7 +2311,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (!push_bool_cell(cell, p_st, p_out))
+					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out))
 						return false;
 
 					level--;
@@ -2370,7 +2370,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (!push_bool_cell(cell, p_st, p_out))
+					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out))
 						return false;
 
 					level--;
@@ -2429,7 +2429,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (!push_real_cell(cell, p_st, p_out))
+					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out))
 						return false;
 
 					level--;
@@ -2488,7 +2488,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (!push_real_cell(cell, p_st, p_out))
+					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out))
 						return false;
 
 					level--;
@@ -2547,7 +2547,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_TIME:
 				if (cursor == ']') {
-					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
+					if (level == p_block->rank && !push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
 						return false;
 
 					level--;
