@@ -2595,6 +2595,80 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 }
 
 
+/** Bla
+
+	\param p_block	The raw block to be serialized as text (must have one of the types above).
+	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
+	\param p_fmt	Optionally, format specifier that is understood by sprintf (default is %i)
+
+	\return	The length in bytes required to store the output if p_dest == nullptr
+*/
+int Container::new_text_block (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
+
+	int num_cells = item_hea.dim[0];
+
+	for (int i = 1; i < item_hea.rank; i++)
+		num_cells *= item_hea.dim[i];
+
+	int bf_size = num_cells + item_hea.item_size + 1;
+	int ix_size = (num_cells + 1)*sizeof(int);
+
+	pChar p_txt = (pChar) malloc(bf_size);
+
+	if (p_txt == nullptr)
+		return SERVICE_ERROR_NO_MEM;
+
+	int *p_is_NA = (int *) malloc(ix_size);
+
+	StatusCode ret;
+
+	if (p_is_NA == nullptr)
+		ret = SERVICE_ERROR_NO_MEM;
+
+	else {
+		int *p_hasLN = (int *) malloc(ix_size);
+
+		if (p_hasLN == nullptr)
+			ret = SERVICE_ERROR_NO_MEM;
+
+		else {
+			if (!fill_text_buffer(p_in, num_bytes, p_txt, num_cells, p_is_NA, p_hasLN))
+				ret = PARSE_ERROR_TEXT_FILLING;
+
+			else {
+				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt, '\n', att);
+
+				if (ret == SERVICE_NO_ERROR) {
+					for (int i = 0; i < num_cells; i++) {
+						if (p_is_NA[i] < 0)
+							break;
+
+						p_txn->p_block->tensor.cell_int[p_is_NA[i]] = STRING_NA;
+					}
+					for (int i = 0; i < num_cells; i++) {
+						if (p_hasLN[i] < 0)
+							break;
+
+						ExpandEscapeSequences(p_txn->p_block->get_string(p_hasLN[i]));
+					}
+				}
+			}
+
+			alloc_bytes -= ix_size;
+			free(p_hasLN);
+		}
+
+		alloc_bytes -= ix_size;
+		free(p_is_NA);
+	}
+
+	alloc_bytes -= bf_size;
+	free(p_txt);
+
+	return ret;
+}
+
+
 /** Serializes a Tensor of CELL_TYPE_BYTE, CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE or CELL_TYPE_LONG_INTEGER as a string.
 
 	\param p_block	The raw block to be serialized as text (must have one of the types above).

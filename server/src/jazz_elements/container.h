@@ -762,8 +762,10 @@ class Container : public Service {
 
 		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims);
 		bool get_shape_and_size	 (pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea);
-		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out);
+		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out, int num_cells, int is_NA[], int hasLN[]);
 		bool fill_tensor		 (pChar &p_in, int &num_bytes, pBlock p_block);
+
+		int new_text_block		 (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att);
 
 		int tensor_int_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_bool_as_text	 (pBlock p_block, pChar p_dest);
