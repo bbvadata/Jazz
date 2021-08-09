@@ -1131,16 +1131,18 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (skip_space(p_in, num_bytes) <= 0)
 				return PARSE_ERROR_UNEXPECTED_EOF;
 
-			if (*p_in != ')')
-				break;
-
-			if (get_char(p_in, num_bytes) != ',')
-				return PARSE_ERROR_UNEXPECTED_CHAR;
-
 			item_idx++;
 
 			if (item_idx >= MAX_ITEMS_IN_KIND)
 				return PARSE_ERROR_TOO_MANY_ITEMS;
+
+			char cl = get_char(p_in, num_bytes);
+
+			if (cl == ')')
+				break;
+
+			if (cl != ',')
+				return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
 
 		num_items = item_idx;
