@@ -194,7 +194,7 @@ void check_text_block(pBlock p_block) {
 }
 
 
-void compare_full_blocks(pBlock p_bl1, pBlock p_bl2) {
+void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check = false) {
 
 	REQUIRE(p_bl1->cell_type == p_bl2->cell_type);
 	REQUIRE(p_bl1->size == p_bl2->size);
@@ -330,7 +330,8 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2) {
 		REQUIRE(strcmp("HALT:", "Wrong cell_type.") == 0);
 	}
 
-	REQUIRE(all_cells_equal);
+	if (!skip_value_check)
+		REQUIRE(all_cells_equal);
 }
 
 // Tests
