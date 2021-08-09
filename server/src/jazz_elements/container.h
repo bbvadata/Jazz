@@ -825,10 +825,10 @@ class Container : public Service {
 			\param p_dest	The cursor to the output buffer
 			\param bl		The character
 		*/
-		inline void as_hex(pChar &p_dest, char bl) {
+		inline void as_hex(pChar &p_dest, uint8_t bl) {
 			*(p_dest++) = '\\';
 			*(p_dest++) = 'x';
-			*(p_dest++) = HEX[bl & 0xf0 >> 4];
+			*(p_dest++) = HEX[bl >> 4];
 			*(p_dest++) = HEX[bl & 0x0f];
 		}
 
