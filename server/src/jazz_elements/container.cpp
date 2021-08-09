@@ -1260,8 +1260,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 					return PARSE_ERROR_TENSOR_FILLING;
 				}
 			}
-
 			skip_space(p_in, num_bytes);
+
 			if (*p_in != ')')
 				get_char(p_in, num_bytes);
 		}
@@ -2141,12 +2141,6 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					if (level == 0)
 						return true;
 				}
-				break;
-
-			case PSTATE_NA_INT:
-				if (cursor == 'A')
-					*(p_out++) = '\n';		// TODO: ...
-
 				break;
 
 			case PSTATE_IN_INT:
