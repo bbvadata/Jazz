@@ -746,16 +746,19 @@ class Container : public Service {
 			*p_st = 0;
 			p_st  = cell;
 
-			struct tm *timeinfo;
+			struct tm timeinfo = {0};
 
-			if (strptime(p_st, fmt, timeinfo) == nullptr)
+			if (strptime(p_st, fmt, &timeinfo) == nullptr)
 				return false;
 
-			*(p_out++) = timegm(timeinfo);
+			time_t xx = timegm(&timeinfo);
+			if (xx < 0)
+				return false;
+
+			*(p_out++) = xx;
 
 			return true;
 		}
-
 
 		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims);
 		bool get_shape_and_size	 (pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea);
