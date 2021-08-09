@@ -742,6 +742,36 @@ class Container : public Service {
 			return true;
 		}
 
+		/** Pushes a decimal representation of a time point into a tensor cell in a block.
+
+			\param cell		The fixed sized buffer storing the string (actively written by p_st).
+			\param p_st		The cursor writing to cell. In case of a NA, it will be moved to &cell to clear.
+			\param p_out	A pointer to the cell in the tensor
+			\param fmt		The address of DEF_FLOAT_TIME passed to this inline function
+
+			\return	True on success
+		*/
+		inline bool push_time_cell(pChar cell, pChar &p_st, time_t * &p_out, pChar fmt) {
+
+			if (p_st == cell) {
+				*(p_out++) = TIME_POINT_NA;
+
+				return true;
+			}
+			*p_st = 0;
+			p_st  = cell;
+
+			struct tm *timeinfo;
+
+			if (strptime(p_st, fmt, timeinfo) == nullptr)
+				return false;
+
+			*(p_out++) = timegm(timeinfo);
+
+			return true;
+		}
+
+
 		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims);
 		bool get_shape_and_size	 (pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea);
 		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out);
