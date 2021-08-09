@@ -1951,6 +1951,9 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	\param p_in			The input char stream cursor.
 	\param num_bytes	The number of bytes with data above *p_in
 	\param p_out		A pointer to a buffer that has enough size for the serialized output.
+	\param num_cells	The expected number of cell for verification.
+	\param is_NA		An array to store the indices of the NA cells (to be set after the new_block() call).
+	\param hasLN		An array to store the indices of the string containing \n (which is serialized) and to be deserialized later.
 
 	\return	True on success
 
