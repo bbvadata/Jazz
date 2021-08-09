@@ -5213,11 +5213,11 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 			pTransaction f_byt, f_int, f_sin, f_lin, f_tim, f_dou, f_ki1, f_tp1;
 
-			char format_byte[20]	= {"%02X"};
+			char format_byte[20]	= {"%03i"};
 			char format_int[20]		= {"%6i"};
 			char format_float[20]	= {"%.4f"};
 			char format_longint[20]	= {"%10i"};
-			char format_time[20]	= {"%H%M%S"};
+			char format_time[30]	= {"%Y-%m-%d %H:%M:%S 123"};
 			char format_double[20]	= {"%.6f"};
 
 			REQUIRE(CNT.new_block(f_byt, p_byt->p_block, format_byte) == SERVICE_NO_ERROR);
