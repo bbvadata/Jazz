@@ -525,15 +525,13 @@ class Container : public Service {
 			*(p_out++) = ch;
 
 			for (int i = 1; i < NAME_LENGTH; i++) {
+				if (!check_quotes && (*p_in == ',' || *p_in == ']'))
+					break;
+
 				ch = get_char(p_in, num_bytes);
 
-				if (check_quotes) {
-					if (ch == '"')
-						break;
-				} else {
-					if (ch == ' ' || ch == ',' || ch == ']')
-						break;
-				}
+				if (check_quotes && ch == '"')
+					break;
 
 				if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
 					return false;
