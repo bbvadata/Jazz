@@ -690,6 +690,58 @@ class Container : public Service {
 			return true;
 		}
 
+		/** Pushes a decimal representation of a 32 bit float into a tensor cell in a block.
+
+			\param cell		The fixed sized buffer storing the string (actively written by p_st).
+			\param p_st		The cursor writing to cell. In case of a NA, it will be moved to &cell to clear.
+			\param p_out	A pointer to the cell in the tensor
+
+			\return	True on success
+		*/
+		inline bool push_real_cell(pChar cell, pChar &p_st, float * &p_out) {
+
+			if (p_st == cell) {
+				*(p_out++) = SINGLE_NA;
+
+				return true;
+			}
+			*p_st = 0;
+			p_st  = cell;
+
+			if (sscanf(p_st, "%f", p_out) != 1)
+				return false;
+
+			p_out++;
+
+			return true;
+		}
+
+		/** Pushes a decimal representation of a 64 bit float into a tensor cell in a block.
+
+			\param cell		The fixed sized buffer storing the string (actively written by p_st).
+			\param p_st		The cursor writing to cell. In case of a NA, it will be moved to &cell to clear.
+			\param p_out	A pointer to the cell in the tensor
+
+			\return	True on success
+		*/
+		inline bool push_real_cell(pChar cell, pChar &p_st, double * &p_out) {
+
+			if (p_st == cell) {
+				*(p_out++) = DOUBLE_NA;
+
+				return true;
+			}
+			*p_st = 0;
+			p_st  = cell;
+
+			if (sscanf(p_st, "%lf", p_out) != 1)
+				return false;
+
+			p_out++;
+
+			return true;
+		}
+
 		bool get_type_and_shape	 (pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims);
 		bool get_shape_and_size	 (pChar &p_in, int &num_bytes, int cell_type, ItemHeader *item_hea);
 		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out);
