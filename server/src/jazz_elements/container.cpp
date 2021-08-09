@@ -1861,9 +1861,9 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 			if (cursor == ']') {
 				n_item.dim[level]++;
 
-				if (item_hea->dim[level] < 0) {
+				if (item_hea->dim[level] < 0)
 					item_hea->dim[level] = n_item.dim[level];
-				} else {
+				else {
 					if (item_hea->dim[level] != n_item.dim[level])
 						return false;
 				};
@@ -1888,9 +1888,9 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 			if (cursor == '[') {
 				level++;
-				if (first_row) {
+				if (first_row)
 					item_hea->rank = level + 1;
-				} else {
+				else {
 					if (level >= item_hea->rank)
 						return false;
 				}
