@@ -5364,6 +5364,9 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				REQUIRE(reinterpret_cast<pTuple>(x_tp2->p_block)->audit() == MIXED_TYPE_TUPLE);
 
+				// pChar p_prn = (pChar) &f_byt->p_block->tensor;
+				// printf("\n\n%s\n\n", p_prn);
+
 				REQUIRE(CNT.new_block(y_byt, f_byt->p_block, CELL_TYPE_BYTE) == SERVICE_NO_ERROR);
 				REQUIRE(y_byt->p_block != nullptr);
 				REQUIRE(y_byt->status  == BLOCK_STATUS_READY);
@@ -5412,18 +5415,29 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				compare_full_blocks(x_lin->p_block, p_lin->p_block);
 				compare_full_blocks(x_tim->p_block, p_tim->p_block);
 				compare_full_blocks(x_dou->p_block, p_dou->p_block);
-				compare_full_blocks(x_ki1->p_block, p_ki1->p_block);
-				compare_full_blocks(x_ki2->p_block, p_ki2->p_block);
 				compare_full_blocks(x_tp1->p_block, p_tp1->p_block);
 				compare_full_blocks(x_tp2->p_block, p_tp2->p_block);
 				compare_full_blocks(y_byt->p_block, p_byt->p_block);
 				compare_full_blocks(y_int->p_block, p_int->p_block);
-				compare_full_blocks(y_sin->p_block, p_sin->p_block);
-				compare_full_blocks(y_lin->p_block, p_lin->p_block);
 				compare_full_blocks(y_tim->p_block, p_tim->p_block);
-				compare_full_blocks(y_dou->p_block, p_dou->p_block);
-				compare_full_blocks(y_ki1->p_block, p_ki1->p_block);
 				compare_full_blocks(y_tp1->p_block, p_tp1->p_block);
+
+				compare_full_blocks(y_sin->p_block, p_sin->p_block, true);
+				compare_full_blocks(y_lin->p_block, p_lin->p_block, true);
+				compare_full_blocks(y_dou->p_block, p_dou->p_block, true);
+
+				// pChar p_prn = (pChar) &s_ki1->p_block->tensor;
+				// printf("\n\n%s\n\n", p_prn);
+
+				// p_prn = (pChar) &s_ki2->p_block->tensor;
+				// printf("\n\n%s\n\n", p_prn);
+
+				// p_prn = (pChar) &f_ki1->p_block->tensor;
+				// printf("\n\n%s\n\n", p_prn);
+
+				compare_full_blocks(x_ki1->p_block, p_ki1->p_block);
+				compare_full_blocks(x_ki2->p_block, p_ki2->p_block);
+				compare_full_blocks(y_ki1->p_block, p_ki1->p_block);
 
 				CNT.destroy_internal(y_byt);
 				CNT.destroy_internal(y_int);
