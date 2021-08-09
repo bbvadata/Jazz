@@ -557,21 +557,6 @@ class Container : public Service {
 			return true;
 		}
 
-		/** Computes buffer size required to store the text in a tensor of string serialized including newlines between fields.
-
-			\param item_hea	An ItemHeader that contains the fields computed by a previous get_shape_and_size() call
-
-			\return	The buffer size
-		*/
-		inline int buff_size(ItemHeader &item_hea) {
-			int ret = item_hea.dim[0];
-
-			for (int i = 1; i < item_hea.rank; i++)
-				ret *= item_hea.dim[i];
-
-			return ret + item_hea.item_size + 1;
-		}
-
 		/** Read an integer from the input cursor
 
 			\param p_in			The input char stream cursor.
