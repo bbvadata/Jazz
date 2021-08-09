@@ -67,7 +67,7 @@ char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 #define REX_NUMBER_FIRST		"[0-9\\-]"
 #define REX_DOT_FIRST			"[\\.]"
 #define REX_INT_ANY				"[0-9]"
-#define REX_REAL_ANY			"[e0-9\\-\\.]"
+#define REX_REAL_ANY			"[e0-9\\+\\-\\.]"
 #define REX_INT_REAL_SWITCH		"[e\\.]"
 #define REX_STRING_NOT_ESC		"[\\x20-\\x21\\x23-\\[\\]-\\x7e]"	// Anything from 32 to 126, except \ and "
 #define REX_STRING_FIRST_ESC	"[abtnvfr\"\\\\]"					// Anything immediately after a \ (except x)
