@@ -1844,11 +1844,9 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	case CELL_TYPE_FACTOR:
 	case CELL_TYPE_GRADE:
 	case CELL_TYPE_LONG_INTEGER:
-		state = PSTATE_IN_INT;
-		break;
 	case CELL_TYPE_BYTE_BOOLEAN:
 	case CELL_TYPE_BOOLEAN:
-		state = PSTATE_IN_BOOL;
+		state = PSTATE_IN_INT;
 		break;
 	case CELL_TYPE_SINGLE:
 	case CELL_TYPE_DOUBLE:
@@ -1895,7 +1893,6 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 			if (item_hea->cell_type == CELL_TYPE_UNDEFINED)
 				item_hea->cell_type = CELL_TYPE_STRING;
 
-		case PSTATE_OUT_BOOL:
 		case PSTATE_OUT_TIME:
 			if (cursor == ']') {
 				n_item.dim[level]++;
@@ -1919,7 +1916,6 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 		case PSTATE_IN_AUTO:
 		case PSTATE_IN_INT:
-		case PSTATE_IN_BOOL:
 		case PSTATE_IN_REAL:
 		case PSTATE_IN_STRING:
 		case PSTATE_IN_TIME:
@@ -1942,7 +1938,6 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 			break;
 
 		case PSTATE_SEP_INT:
-		case PSTATE_SEP_BOOL:
 		case PSTATE_SEP_REAL:
 		case PSTATE_SEP_STRING:
 		case PSTATE_SEP_TIME:
@@ -1964,13 +1959,16 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 		case PSTATE_CONST_AUTO:
 		case PSTATE_CONST_INT:
-		case PSTATE_CONST_BOOL:
 		case PSTATE_CONST_REAL:
 		case PSTATE_CONST_STRING0:
 		case PSTATE_CONST_STRING_E1:
 		case PSTATE_CONST_STRING_E2:
 		case PSTATE_CONST_TIME:
-		case PSTATE_SEP_STRING0:
+		case PSTATE_NA_INT:
+		case PSTATE_NA_REAL:
+		case PSTATE_NA_STRING:
+		case PSTATE_NA_TIME:
+		case PSTATE_END_STRING:
 			break;
 
 		default:
@@ -2016,6 +2014,12 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 					return true;
 				}
 			}
+
+			break;
+
+		case PSTATE_NA_STRING:
+			if (cursor == 'A')
+				*(p_out++) = '\n';		// TODO: ...
 
 			break;
 
@@ -2074,7 +2078,7 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 
 			break;
 
-		case PSTATE_SEP_STRING0:
+		case PSTATE_END_STRING:
 			*(p_out++) = '\n';
 
 			break;
@@ -2137,6 +2141,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					if (level == 0)
 						return true;
 				}
+				break;
+
+			case PSTATE_NA_INT:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
 				break;
 
 			case PSTATE_IN_INT:
@@ -2203,6 +2213,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
+			case PSTATE_NA_INT:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
+				break;
+
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
@@ -2265,6 +2281,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
+			case PSTATE_NA_INT:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
+				break;
+
 			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
@@ -2296,7 +2318,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		}
 	}
 	case CELL_TYPE_BYTE_BOOLEAN: {
-		char state = PSTATE_IN_BOOL;
+		char state = PSTATE_IN_INT;
 		unsigned char cursor;
 		int level = 0;
 		bool *p_out = &p_block->tensor.cell_bool[0];
@@ -2309,7 +2331,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			state  = parser_state_switch[state].next[cursor];
 
 			switch (state) {
-			case PSTATE_OUT_BOOL:
+			case PSTATE_OUT_INT:
 				if (cursor == ']') {
 					if (p_st != (pChar) &cell) {
 						p_st  = (pChar) &cell;
@@ -2323,12 +2345,18 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
-			case PSTATE_IN_BOOL:
+			case PSTATE_NA_INT:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
+				break;
+
+			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
 				break;
 
-			case PSTATE_SEP_BOOL:
+			case PSTATE_SEP_INT:
 				if (cursor == ',') {
 					p_st  = (pChar) &cell;
 
@@ -2336,7 +2364,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
-			case PSTATE_CONST_BOOL:
+			case PSTATE_CONST_INT:
 				if (p_st == p_end)
 					return false;
 
@@ -2350,7 +2378,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		}
 	}
 	case CELL_TYPE_BOOLEAN: {
-		char state = PSTATE_IN_BOOL;
+		char state = PSTATE_IN_INT;
 		unsigned char cursor;
 		int level = 0;
 		uint32_t *p_out = &p_block->tensor.cell_uint[0];
@@ -2363,7 +2391,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			state  = parser_state_switch[state].next[cursor];
 
 			switch (state) {
-			case PSTATE_OUT_BOOL:
+			case PSTATE_OUT_INT:
 				if (cursor == ']') {
 					if (p_st != (pChar) &cell) {
 						p_st  = (pChar) &cell;
@@ -2377,12 +2405,18 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
-			case PSTATE_IN_BOOL:
+			case PSTATE_NA_INT:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
+				break;
+
+			case PSTATE_IN_INT:
 				if (cursor == '[')
 					level++;
 				break;
 
-			case PSTATE_SEP_BOOL:
+			case PSTATE_SEP_INT:
 				if (cursor == ',') {
 					p_st  = (pChar) &cell;
 
@@ -2390,7 +2424,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
-			case PSTATE_CONST_BOOL:
+			case PSTATE_CONST_INT:
 				if (p_st == p_end)
 					return false;
 
@@ -2433,6 +2467,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					if (level == 0)
 						return true;
 				}
+				break;
+
+			case PSTATE_NA_REAL:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
 				break;
 
 			case PSTATE_IN_REAL:
@@ -2497,6 +2537,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				}
 				break;
 
+			case PSTATE_NA_REAL:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
+				break;
+
 			case PSTATE_IN_REAL:
 				if (cursor == '[')
 					level++;
@@ -2558,6 +2604,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					if (level == 0)
 						return true;
 				}
+				break;
+
+			case PSTATE_NA_TIME:
+				if (cursor == 'A')
+					*(p_out++) = '\n';		// TODO: ...
+
 				break;
 
 			case PSTATE_IN_TIME:
