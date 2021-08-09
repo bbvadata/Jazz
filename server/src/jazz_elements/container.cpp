@@ -1956,13 +1956,16 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 **Note**: Cells are separated by a \\n character (not escaped) which is not confused with a \\n inside the string which becomes escaped.
 */
-bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
+bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int num_cells, int is_NA[], int hasLN[]) {
 
 	char state = PSTATE_IN_STRING;
 
 	unsigned char cursor;
 
-	int level = 0;
+	int level = 0, ix_NA = 0, ix_LN = 0, ix = 0;
+
+	is_NA[0] = -1;
+	hasLN[0] = -1;
 
 	while (true) {
 		if (num_bytes == 0)
@@ -1979,15 +1982,21 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 				if (level == 0) {
 					*p_out = 0;
 
-					return true;
+					return ix == num_cells;
 				}
 			}
 
 			break;
 
 		case PSTATE_NA_STRING:
-			if (cursor == 'A')
-				*(p_out++) = '\n';		// TODO: ...
+			if (cursor == 'A') {
+				*(p_out++) = '\n';
+
+				is_NA[ix_NA++] = ix;
+				is_NA[ix_NA]   = -1;
+
+				ix++;
+			}
 
 			break;
 
@@ -1998,7 +2007,10 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 			break;
 
 		case PSTATE_CONST_STRING_E0:
-			switch (p_in[1]) {
+			cursor = get_char(p_in, num_bytes);
+			state  = parser_state_switch[state].next[cursor];
+
+			switch (cursor) {
 			case 'a':
 				*(p_out++) = '\a';
 				break;
@@ -2012,7 +2024,17 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 				break;
 
 			case 'n':
-				*(p_out++) = '\n';
+				*(p_out++) = '\\';
+				*(p_out++) = 'n';
+				if (hasLN[0] < 0) {
+					hasLN[0] = ix;
+					hasLN[1] = -1;
+				} else if (hasLN[ix_LN] != ix) {
+					ix_LN++;
+					hasLN[ix_LN]	 = ix;
+					hasLN[ix_LN + 1] = -1;
+				}
+
 				break;
 
 			case 'v':
@@ -2036,7 +2058,14 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 				break;
 
 			default:
-				*(p_out++) = (from_hex(p_in[2]) << 4) + from_hex(p_in[3]);
+				int xhi = from_hex(cursor = get_char(p_in, num_bytes));
+				state	= parser_state_switch[state].next[cursor];
+
+				int xlo = from_hex(cursor = get_char(p_in, num_bytes));
+				state	= parser_state_switch[state].next[cursor];
+
+				*(p_out++) = (xhi << 4) + xlo;
+
 				break;
 			}
 			break;
@@ -2048,6 +2077,7 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out) {
 
 		case PSTATE_END_STRING:
 			*(p_out++) = '\n';
+			ix++;
 
 			break;
 
