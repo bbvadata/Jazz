@@ -5310,9 +5310,15 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				REQUIRE(x_sin->p_block->get_attribute(BLOCK_ATTRIB_LANGUAGE) == nullptr);
 
+				// pChar p_prn = (pChar) &s_st1->p_block->tensor;
+				// printf("\n\n%s\n\n", p_prn);
+
 				REQUIRE(CNT.new_block(x_st1, s_st1->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
 				REQUIRE(x_st1->p_block != nullptr);
 				REQUIRE(x_st1->status  == BLOCK_STATUS_READY);
+
+				// p_prn = (pChar) &s_st2->p_block->tensor;
+				// printf("\n\n%s\n\n", p_prn);
 
 				REQUIRE(CNT.new_block(x_st2, s_st2->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
 				REQUIRE(x_st2->p_block != nullptr);
