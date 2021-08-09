@@ -1214,28 +1214,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			get_item_name(p_in, num_bytes, item_name);
 
 			if (item_hea[i].cell_type == CELL_TYPE_STRING) {
-				int bf_size = buff_size(item_hea[i]);
-
-				pChar p_txt = (pChar) malloc(bf_size);
-
-				if (p_txt == nullptr) {
-					for (int j = i - 1; j >= 0; j --)
-						destroy_internal(p_aux_txn[j]);
-
-					return SERVICE_ERROR_NO_MEM;
-				}
-
-				if (!fill_text_buffer(p_in, num_bytes, p_txt)) {
-					for (int j = i - 1; j >= 0; j --)
-						destroy_internal(p_aux_txn[j]);
-
-					return PARSE_ERROR_TEXT_FILLING;
-				}
-
-				int ret = new_block(p_aux_txn[i], CELL_TYPE_STRING, item_hea[i].dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt);
-
-				alloc_bytes -= bf_size;
-				free(p_txt);
+				StatusCode ret = new_text_block(p_aux_txn[i], item_hea[i], p_in, num_bytes, att);
 
 				if (ret != SERVICE_NO_ERROR) {
 					for (int j = i - 1; j >= 0; j --)
@@ -1322,22 +1301,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return new_block (p_txn, num_items, hea, item_name, nullptr, &dims, att);
 	}
 	case CELL_TYPE_STRING:
-		int bf_size = buff_size(item_hea[0]);
-
-		pChar p_txt = (pChar) malloc(bf_size);
-
-		if (p_txt == nullptr)
-			return SERVICE_ERROR_NO_MEM;
-
-		if (!fill_text_buffer(p_in, num_bytes, p_txt))
-			return PARSE_ERROR_TEXT_FILLING;
-
-		int ret = new_block(p_txn, CELL_TYPE_STRING, item_hea[0].dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt, '\n', att);
-
-		alloc_bytes -= bf_size;
-		free(p_txt);
-
-		return ret;
+		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
 	}
 
 	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', att);
