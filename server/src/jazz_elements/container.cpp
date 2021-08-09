@@ -1917,8 +1917,12 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 			break;
 
 		case PSTATE_CONST_STRING_E0:
+			if (*p_in == 'n')
+				item_hea->item_size++;
+
 		case PSTATE_CONST_STRING_N:
 			item_hea->item_size++;
+
 			break;
 
 		case PSTATE_CONST_AUTO:
