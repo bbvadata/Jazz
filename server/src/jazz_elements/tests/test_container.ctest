@@ -295,7 +295,10 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2) {
 				int d1 = p_bl1->tensor.cell_item[i].dim[j];
 				int d2 = p_bl2->tensor.cell_item[i].dim[j];
 
-				if ((d1 > 0 && d2 != d1) || d2 >= 0)
+				if (d1 > 0) {
+ 					if (d2 != d1)
+						all_cells_equal = false;
+				} else if (d2 >= 0)
 					all_cells_equal = false;
 				else {
 					pChar nd1 = (&p_bl1->p_string_buffer()->buffer[-d1]);
