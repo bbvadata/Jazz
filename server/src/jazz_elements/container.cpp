@@ -1699,39 +1699,50 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 	if (skip_space(p_in, num_bytes) < 7)
 		return false;
 
-	if (strncmp(p_in, "INTEGER", 7)) {
+	if (strncmp(p_in, "INTEGER", 7) == 0) {
 		item_hea->cell_type = CELL_TYPE_INTEGER;
-		p_in += 7;
-	} else if (strncmp(p_in, "DOUBLE", 6)) {
+		num_bytes -= 7;
+		p_in	  += 7;
+	} else if (strncmp(p_in, "DOUBLE", 6) == 0) {
 		item_hea->cell_type = CELL_TYPE_DOUBLE;
-		p_in += 6;
-	} else if (strncmp(p_in, "BYTE", 4)) {
+		num_bytes -= 6;
+		p_in	  += 6;
+	} else if (strncmp(p_in, "BYTE", 4) == 0) {
 		item_hea->cell_type = CELL_TYPE_BYTE;
-		p_in += 4;
-	} else if (strncmp(p_in, "STRING", 6)) {
+		num_bytes -= 4;
+		p_in	  += 4;
+	} else if (strncmp(p_in, "STRING", 6) == 0) {
 		item_hea->cell_type = CELL_TYPE_STRING;
-		p_in += 6;
-	} else if (strncmp(p_in, "BOOLEAN", 7)) {
+		num_bytes -= 6;
+		p_in	  += 6;
+	} else if (strncmp(p_in, "BOOLEAN", 7) == 0) {
 		item_hea->cell_type = CELL_TYPE_BOOLEAN;
-		p_in += 7;
-	} else if (strncmp(p_in, "SINGLE", 6)) {
+		num_bytes -= 7;
+		p_in	  += 7;
+	} else if (strncmp(p_in, "SINGLE", 6) == 0) {
 		item_hea->cell_type = CELL_TYPE_SINGLE;
-		p_in += 6;
-	} else if (strncmp(p_in, "TIME", 4)) {
+		num_bytes -= 6;
+		p_in	  += 6;
+	} else if (strncmp(p_in, "TIME", 4) == 0) {
 		item_hea->cell_type = CELL_TYPE_TIME;
-		p_in += 4;
-	} else if (strncmp(p_in, "LONG_INTEGER", 12)) {
+		num_bytes -= 4;
+		p_in	  += 4;
+	} else if (strncmp(p_in, "LONG_INTEGER", 12) == 0) {
 		item_hea->cell_type = CELL_TYPE_LONG_INTEGER;
-		p_in += 12;
-	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12)) {
+		num_bytes -= 12;
+		p_in	  += 12;
+	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12) == 0) {
 		item_hea->cell_type = CELL_TYPE_BYTE_BOOLEAN;
-		p_in += 12;
-	} else if (strncmp(p_in, "FACTOR", 6)) {
+		num_bytes -= 12;
+		p_in	  += 12;
+	} else if (strncmp(p_in, "FACTOR", 6) == 0) {
 		item_hea->cell_type = CELL_TYPE_FACTOR;
-		p_in += 6;
-	} else if (strncmp(p_in, "GRADE", 5)) {
+		num_bytes -= 6;
+		p_in	  += 6;
+	} else if (strncmp(p_in, "GRADE", 5) == 0) {
 		item_hea->cell_type = CELL_TYPE_GRADE;
-		p_in += 5;
+		num_bytes -= 5;
+		p_in	  += 5;
 	} else
 		return false;
 
