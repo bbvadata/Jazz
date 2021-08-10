@@ -5482,6 +5482,36 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				compare_full_blocks(a_ki2->p_block, p_ki2->p_block);
 				compare_full_blocks(a_tp1->p_block, p_tp1->p_block);
 
+				x_err = s_byt;
+				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_STRING) == PARSE_ERROR_TENSOR_EXPLORATION);
+				REQUIRE(x_err == nullptr);
+
+				x_err = s_byt;
+				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_TIME) == PARSE_ERROR_TENSOR_FILLING);
+				REQUIRE(x_err == nullptr);
+
+				x_err = s_byt;
+				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_KIND_ITEM) == PARSE_ERROR_UNEXPECTED_CHAR);
+				REQUIRE(x_err == nullptr);
+
+				x_err = s_byt;
+				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_TUPLE_ITEM) == PARSE_ERROR_UNEXPECTED_CHAR);
+				REQUIRE(x_err == nullptr);
+
+				x_err = s_byt;
+				REQUIRE(   CNT.new_block(x_err, s_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki1->p_block)
+						== PARSE_ERROR_ITEM_NAME_MISMATCH);
+				REQUIRE(x_err == nullptr);
+
+				CNT.destroy_internal(a_ki1);
+				CNT.destroy_internal(a_ki2);
+				CNT.destroy_internal(a_tp1);
+
+				CNT.destroy_internal(a_int);
+				CNT.destroy_internal(a_dou);
+				CNT.destroy_internal(a_st1);
+				CNT.destroy_internal(a_st2);
+
 				CNT.destroy_internal(y_byt);
 				CNT.destroy_internal(y_int);
 				CNT.destroy_internal(y_sin);
