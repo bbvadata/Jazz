@@ -1453,6 +1453,12 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	dim[0] = total_bytes;
 	dim[1] = 0;
+#ifdef DEBUG				// Initialize i_dim for Valgrind.
+	dim[2] = 0;
+	dim[3] = 0;
+	dim[4] = 0;
+	dim[5] = 0;
+#endif
 
 	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, 0, att);
 
