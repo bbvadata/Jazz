@@ -783,40 +783,35 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		char const *buffer6 = "One Two Three Four Five Six";
 		bool filter[7];
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_DONT_FILL, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_DONT_FILL, nullptr, 0, buffer) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_ZERO, nullptr, 0, buffer) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_NA, nullptr, 0, buffer) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_BOOLEAN_FILTER, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_ZERO, nullptr, 0, buffer)
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_INTEGER_FILTER, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_NEW_WITH_NA, nullptr, 0, buffer)
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(p_txn == nullptr);
+
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_BOOLEAN_FILTER, nullptr, 0, buffer)
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t1.dim, FILL_INTEGER_FILTER, nullptr, 0, buffer)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
-		REQUIRE(p_txn == nullptr);
-
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_DOUBLE, dim_t1.dim, FILL_WITH_TEXTFILE, nullptr, 0, buffer) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -839,7 +834,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		CNT.destroy(p_txn);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
@@ -858,8 +853,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(CNT.new_block(p_txn, 2, dim_t1.dim, FILL_NEW_WITH_NA) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter) == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
@@ -869,15 +863,13 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
-				== SERVICE_ERROR_NEW_BLOCK_ARGS);
+		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t1.dim, FILL_BOOLEAN_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
@@ -894,11 +886,11 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BOOLEAN, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
-		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter)
+		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_BYTE_BOOLEAN, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter)
 				== SERVICE_ERROR_NEW_BLOCK_ARGS);
 		REQUIRE(p_txn == nullptr);
 
