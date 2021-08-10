@@ -1070,13 +1070,19 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  name,
 								AttributeMap *att) {
 
-	if (p_from->cell_type != CELL_TYPE_TUPLE_ITEM)
+	if (p_from->cell_type != CELL_TYPE_TUPLE_ITEM) {
+		p_txn = nullptr;
+
 		return SERVICE_ERROR_WRONG_TYPE;
+	}
 
 	int idx = reinterpret_cast<pTuple>(p_from)->index(name);
 
-	if (idx < 0)
+	if (idx < 0) {
+		p_txn = nullptr;
+
 		return SERVICE_ERROR_WRONG_NAME;
+	}
 
 	pBlock block = reinterpret_cast<pTuple>(p_from)->get_block(idx);
 
