@@ -550,7 +550,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	hea.total_bytes += stringbuff_size + text_length + num_lines;
 
-	p_txn->p_block = (pBlock) malloc(hea.total_bytes);
+	p_txn->p_block = block_malloc(hea.total_bytes);
 
 	if (p_txn->p_block == nullptr) {
 		destroy_internal(p_txn);
@@ -809,7 +809,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		}
 	}
 
-	p_txn->p_block = (pBlock) malloc(hea.total_bytes);
+	p_txn->p_block = block_malloc(hea.total_bytes);
 
 	if (p_txn->p_block == nullptr) {
 		destroy_internal(p_txn);
@@ -982,7 +982,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	int total_bytes = p_from->total_bytes + tensor_diff + attrib_diff;
 
-	p_txn->p_block = (pBlock) malloc(total_bytes);
+	p_txn->p_block = block_malloc(total_bytes);
 
 	if (p_txn->p_block == nullptr) {
 		destroy_internal(p_txn);
@@ -1526,7 +1526,7 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-	p_txn->p_hea = (pBlockHeader) malloc(sizeof(BlockHeader));
+	p_txn->p_block = block_malloc(sizeof(BlockHeader));
 
 	if (p_txn->p_block == nullptr) {
 		destroy_internal(p_txn);

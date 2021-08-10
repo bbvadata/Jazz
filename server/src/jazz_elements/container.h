@@ -453,6 +453,19 @@ class Container : public Service {
 			return ret;
 		}
 
+		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed to be valid by destroy().
+		*/
+		inline pBlock block_malloc(size_t size) {
+			pBlock p_blk = (pBlock) malloc(size);
+
+			if (p_blk != nullptr) {
+				p_blk->cell_type   = 0;
+				p_blk->total_bytes = 0;
+			}
+
+			return p_blk;
+		}
+
 		StatusCode new_container	();
 		StatusCode destroy_container();
 

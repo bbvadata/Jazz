@@ -577,7 +577,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_free	!= nullptr);
 
 	REQUIRE(!CNT.alloc_warning_issued);
-	p_txn[0]->p_block = (pBlock) CNT.malloc(5000);
+	p_txn[0]->p_block = CNT.block_malloc(5000);
 	REQUIRE(p_txn[0]->p_block != nullptr);
 	p_txn[0]->p_block->total_bytes = 5000;
 	REQUIRE(!CNT.alloc_warning_issued);
@@ -605,7 +605,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_alloc != nullptr);
 	REQUIRE(CNT.p_free	!= nullptr);
 
-	p_txn[0]->p_block = (pBlock) CNT.malloc(50000);
+	p_txn[0]->p_block = CNT.block_malloc(50000);
 	REQUIRE(p_txn[0]->p_block == nullptr);
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
