@@ -1120,6 +1120,19 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	p_txn = nullptr;
 
+	if (skip_space(p_in, num_bytes) <= 0)
+		return PARSE_ERROR_UNEXPECTED_EOF;
+
+	if (cell_type == CELL_TYPE_UNDEFINED) {
+		if (*p_in == '(')
+			cell_type = CELL_TYPE_TUPLE_ITEM;
+
+		if (*p_in == '{')
+			cell_type = CELL_TYPE_KIND_ITEM;
+	}
+
+	switch (cell_type) {
+	case CELL_TYPE_TUPLE_ITEM: {
 		if (get_char(p_in, num_bytes) != '(')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
 
@@ -1170,9 +1183,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_KIND_ITEM: {
 		IndexSI idx_dims = {};
 
-		if (skip_space(p_in, num_bytes) <= 0)
-			return PARSE_ERROR_UNEXPECTED_EOF;
-
 		if (get_char(p_in, num_bytes) != '{')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
 
@@ -1215,17 +1225,21 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		if (skip_space(p_in, num_bytes) != 0)
 			return PARSE_ERROR_EXPECTED_EOF;
 
+		if (cell_type == CELL_TYPE_UNDEFINED)
+			cell_type = item_hea[0].cell_type;
+
 		break;
 	}
 
 	num_bytes = p_from_text->size;
 	p_in	  = (pChar) &p_from_text->tensor.cell_byte[0];
 
+	skip_space(p_in, num_bytes);
+
 	switch (cell_type) {
 	case CELL_TYPE_TUPLE_ITEM: {
 		pTransaction p_aux_txn[MAX_ITEMS_IN_KIND];
 
-		skip_space(p_in, num_bytes);
 		get_char(p_in, num_bytes);		// '(')
 
 		for (int i = 0; i < num_items; i++) {
@@ -1283,11 +1297,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_KIND_ITEM: {
 		IndexSI idx_dims = {};
 
-		if (skip_space(p_in, num_bytes) <= 0)
-			return PARSE_ERROR_UNEXPECTED_EOF;
-
-		if (get_char(p_in, num_bytes) != '{')
-			return PARSE_ERROR_UNEXPECTED_CHAR;
+		get_char(p_in, num_bytes);		// '{')
 
 		for (int i = 0; i < num_items; i++) {
 			Name item_name;
