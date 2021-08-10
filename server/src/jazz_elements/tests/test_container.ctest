@@ -5566,6 +5566,16 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			CNT.destroy_internal(s_tp2);
 		}
 
+		pTransaction s_err = p_byt;
+		p_ki1->p_block->tensor.cell_item[0].cell_type = 0xfff;
+		REQUIRE(CNT.new_block(s_err, p_ki1->p_block) == SERVICE_ERROR_BAD_BLOCK);
+		REQUIRE(s_err == nullptr);
+
+		s_err = p_byt;
+		p_tp1->p_block->tensor.cell_item[0].cell_type = 0xfff;
+		REQUIRE(CNT.new_block(s_err, p_tp1->p_block) == SERVICE_ERROR_BAD_BLOCK);
+		REQUIRE(s_err == nullptr);
+
 		CNT.destroy_internal(p_byt);
 		CNT.destroy_internal(p_bbo);
 		CNT.destroy_internal(p_int);
