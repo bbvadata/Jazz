@@ -1118,10 +1118,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	int num_items;
 	pChar p_in = (pChar) &p_from_text->tensor.cell_byte[0];
 
-	switch (cell_type) {
-	case CELL_TYPE_TUPLE_ITEM: {
-		if (skip_space(p_in, num_bytes) <= 0)
-			return PARSE_ERROR_UNEXPECTED_EOF;
+	p_txn = nullptr;
 
 		if (get_char(p_in, num_bytes) != '(')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
@@ -2640,6 +2637,8 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	\return	StatusCode like a new_block() call
 */
 int Container::new_text_block (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
+
+	p_txn = nullptr;
 
 	int num_cells = item_hea.dim[0];
 
