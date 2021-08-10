@@ -1880,8 +1880,6 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	item_hea->cell_type = cell_type;
 	item_hea->item_size = 0;
 
-	unsigned char cursor;
-
 	memset(item_hea->dim, -1, sizeof(TensorDim));		// == {-1, -1, -1, -1, -1, -1};
 	TensorDim n_item = {0,  0,  0,  0,  0,  0};
 
@@ -1889,6 +1887,8 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	bool first_row = true;
 
 	while (true) {
+		unsigned char cursor;
+
 		if (num_bytes == 0)
 			return false;
 
@@ -2014,14 +2014,14 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 
 	char state = PSTATE_IN_STRING;
 
-	unsigned char cursor;
-
 	int level = 0, ix_NA = 0, ix_LN = 0, ix = 0;
 
 	is_NA[0] = -1;
 	hasLN[0] = -1;
 
 	while (true) {
+		unsigned char cursor;
+
 		if (num_bytes == 0)
 			return false;
 
@@ -2165,11 +2165,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	switch (p_block->cell_type) {
 	case CELL_TYPE_BYTE: {
 		char state = PSTATE_IN_INT;
-		unsigned char cursor;
 		int level = 0;
 		uint8_t *p_out = &p_block->tensor.cell_byte[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2179,7 +2180,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (p_st != (pChar) &cell) {
+					if ((void *) p_st != &cell) {
 						*p_st = 0;
 						p_st  = (pChar) &cell;
 
@@ -2231,11 +2232,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	case CELL_TYPE_FACTOR:
 	case CELL_TYPE_GRADE: {
 		char state = PSTATE_IN_INT;
-		unsigned char cursor;
 		int level = 0;
 		int *p_out = &p_block->tensor.cell_int[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2290,11 +2292,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	}
 	case CELL_TYPE_LONG_INTEGER: {
 		char state = PSTATE_IN_INT;
-		unsigned char cursor;
 		int level = 0;
 		long long *p_out = &p_block->tensor.cell_longint[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2349,11 +2352,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	}
 	case CELL_TYPE_BYTE_BOOLEAN: {
 		char state = PSTATE_IN_INT;
-		unsigned char cursor;
 		int level = 0;
 		bool *p_out = &p_block->tensor.cell_bool[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2408,11 +2412,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	}
 	case CELL_TYPE_BOOLEAN: {
 		char state = PSTATE_IN_INT;
-		unsigned char cursor;
 		int level = 0;
 		uint32_t *p_out = &p_block->tensor.cell_uint[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2467,11 +2472,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	}
 	case CELL_TYPE_SINGLE: {
 		char state = PSTATE_IN_REAL;
-		unsigned char cursor;
 		int level = 0;
 		float *p_out = &p_block->tensor.cell_single[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2526,11 +2532,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	}
 	case CELL_TYPE_DOUBLE: {
 		char state = PSTATE_IN_REAL;
-		unsigned char cursor;
 		int level = 0;
 		double *p_out = &p_block->tensor.cell_double[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
@@ -2585,11 +2592,12 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 	}
 	case CELL_TYPE_TIME: {
 		char state = PSTATE_IN_TIME;
-		unsigned char cursor;
 		int level = 0;
 		time_t *p_out = &p_block->tensor.cell_time[0];
 
 		while (true) {
+			unsigned char cursor;
+
 			if (num_bytes == 0)
 				return false;
 
