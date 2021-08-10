@@ -51,6 +51,9 @@ char DEF_FLOAT32_FMT [8] = {"%.9e\0"};
 char DEF_FLOAT64_FMT [8] = {"%.18e\0"};
 char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 
+uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
+uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
+
 /*	-----------------------------------------------
 	 Parser grammar definition
 --------------------------------------------------- */
@@ -261,6 +264,9 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 
 		p_trans++;
 	}
+
+	memcpy(&F_NA_uint32, &F_NA, sizeof(&F_NA));
+	memcpy(&R_NA_uint64, &R_NA, sizeof(&R_NA));
 
 	max_transactions = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
@@ -3001,16 +3007,15 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			if (p_fmt == nullptr)
 				p_fmt = (pChar) &DEF_FLOAT32_FMT;
 
-			float *p_t = &p_block->tensor.cell_single[0];
-
 			for (int i = 0; i < p_block->size; i++) {
-				if (*reinterpret_cast<uint32_t*>(p_t) == SINGLE_NA_UINT32)
+				if (p_block->tensor.cell_uint[i] == SINGLE_NA_UINT32)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else
-					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+				else {
+					char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-				p_t++;
+					total_len += sprintf(cell, p_fmt, p_block->tensor.cell_single[i]) + separator_len(rank_1, shape, idx);
+				}
 			}
 
 			return total_len + 1;
@@ -3019,16 +3024,15 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 			if (p_fmt == nullptr)
 				p_fmt = (pChar) &DEF_FLOAT64_FMT;
 
-			double *p_t = &p_block->tensor.cell_double[0];
-
 			for (int i = 0; i < p_block->size; i++) {
-				if (*reinterpret_cast<uint64_t*>(p_t) == DOUBLE_NA_UINT64)
+				if (p_block->tensor.cell_ulongint[i] == DOUBLE_NA_UINT64)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else
-					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+				else {
+					char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-				p_t++;
+					total_len += sprintf(cell, p_fmt, p_block->tensor.cell_double[i]) + separator_len(rank_1, shape, idx);
+				}
 			}
 
 			return total_len + 1;
@@ -3045,18 +3049,15 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 		if (p_fmt == nullptr)
 			p_fmt = (pChar) &DEF_FLOAT32_FMT;
 
-		float *p_t = &p_block->tensor.cell_single[0];
-
 		for (int i = 0; i < p_block->size; i++) {
-			if (*reinterpret_cast<uint32_t*>(p_t) == SINGLE_NA_UINT32) {
+			if (p_block->tensor.cell_uint[i] == SINGLE_NA_UINT32) {
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
 			} else
-				p_dest += sprintf(p_dest, p_fmt, p_t[0]);
+				p_dest += sprintf(p_dest, p_fmt, p_block->tensor.cell_single[i]);
 
 			separator(rank_1, shape, idx, p_dest);
-			p_t++;
 		}
 		*p_dest = 0;
 
@@ -3066,18 +3067,15 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 		if (p_fmt == nullptr)
 			p_fmt = (pChar) &DEF_FLOAT64_FMT;
 
-		double *p_t = &p_block->tensor.cell_double[0];
-
 		for (int i = 0; i < p_block->size; i++) {
-			if (*reinterpret_cast<uint64_t*>(p_t) == DOUBLE_NA_UINT64) {
+			if (p_block->tensor.cell_ulongint[i] == DOUBLE_NA_UINT64) {
 				strcpy(p_dest, NA);
 				p_dest += LENGTH_NA_AS_TEXT;
 
 			} else
-				p_dest += sprintf(p_dest, p_fmt, p_t[0]);
+				p_dest += sprintf(p_dest, p_fmt, p_block->tensor.cell_double[i]);
 
 			separator(rank_1, shape, idx, p_dest);
-			p_t++;
 		}
 		*p_dest = 0;
 
