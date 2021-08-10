@@ -1330,7 +1330,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		IndexSI::iterator it;
 
-		for (it = idx_dims.begin(); it != idx_dims.end(); it++)
+		for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
 			dims[it->second] = it->first.c_str();
 
 		return new_block (p_txn, num_items, hea, item_name, nullptr, &dims, att);
