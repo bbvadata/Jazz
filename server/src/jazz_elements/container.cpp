@@ -1249,8 +1249,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		get_char(p_in, num_bytes);		// '(')
 
 		for (int i = 0; i < num_items; i++) {
-			Name item_name;
-			get_item_name(p_in, num_bytes, item_name);
+			Name it_name;
+			get_item_name(p_in, num_bytes, it_name);
 
 			if (item_hea[i].cell_type == CELL_TYPE_STRING) {
 				StatusCode ret = new_text_block(p_aux_txn[i], item_hea[i], p_in, num_bytes, att);
@@ -1306,8 +1306,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		get_char(p_in, num_bytes);		// '{')
 
 		for (int i = 0; i < num_items; i++) {
-			Name item_name;
-			get_item_name(p_in, num_bytes, item_name);
+			Name it_name;
+			get_item_name(p_in, num_bytes, it_name);
 
 			get_type_and_shape(p_in, num_bytes, &item_hea[i], idx_dims);
 
