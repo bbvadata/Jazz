@@ -248,7 +248,12 @@ int main(int argc, char* argv[])
 
 			cout << "Break signal was sent to process \"" << proc_name << "\" running with pid = " << jzzPID << "." << endl << endl;
 			for (int t = 0; t < 200; t++) {
-				usleep (100000);
+				struct timespec ts;
+
+				ts.tv_sec  = 1;
+				ts.tv_nsec = 0;
+				nanosleep(&ts, NULL);
+
 				if (!jazz_elements::FindProcessIdByName(proc_name.c_str())) {
 					cout << "The process \"" << proc_name << "\" was stopped." << endl;
 
