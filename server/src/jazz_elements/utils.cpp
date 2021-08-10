@@ -223,6 +223,7 @@ pid_t FindProcessIdByName(const char *name) {
 	struct dirent *ent;
 	char		  *endptr;
 	char		   buf[512];
+	char 		  *saveptr1;
 
 	if (!(dir = opendir("/proc"))) {
 		perror("can't open /proc");
@@ -247,7 +248,7 @@ pid_t FindProcessIdByName(const char *name) {
 		if (fp) {
 			if (fgets(buf, sizeof(buf), fp) != nullptr) {
 				// check the first token in the file, the program name
-				char* first = strtok(buf, " ");
+				char* first = strtok_r(buf, " ", &saveptr1);
 
 				// cout << first << endl;
 				if (!strcmp(first, name) && (pid_t) lpid != pid_self) {
