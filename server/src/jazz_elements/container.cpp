@@ -1509,8 +1509,11 @@ will take care of freeing the std::map before destroying the transaction.
 */
 StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
-	if (cell_type & 0xff != CELL_TYPE_INDEX_II)
+	if (cell_type & 0xff != CELL_TYPE_INDEX_II){
+		p_txn = nullptr;
+
 		return SERVICE_ERROR_WRONG_TYPE;
+	}
 
 	StatusCode ret = new_transaction(p_txn);
 
