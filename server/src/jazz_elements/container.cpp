@@ -1368,6 +1368,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	int item_len[MAX_ITEMS_IN_KIND];
 	int total_bytes;
 
+	p_txn = nullptr;
+
 	switch (p_from_raw->cell_type) {
 	case CELL_TYPE_BYTE:
 	case CELL_TYPE_INTEGER:
