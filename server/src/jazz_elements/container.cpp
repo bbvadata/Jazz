@@ -765,6 +765,12 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	TensorDim i_dim;
 	i_dim.dim[0] = num_items;
 	i_dim.dim[1] = 0;
+#ifdef DEBUG				// Initialize i_dim for Valgrind.
+	i_dim.dim[2] = 0;
+	i_dim.dim[3] = 0;
+	i_dim.dim[4] = 0;
+	i_dim.dim[5] = 0;
+#endif
 
 	if (p_block == nullptr)
 		hea.cell_type = CELL_TYPE_KIND_ITEM;
