@@ -4755,8 +4755,14 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 			AttributeMap att_new = {};
 			att_new[BLOCK_ATTRIB_LANGUAGE] = "c/c++";
 
+			p_xbl11 = p_tx_tup3;
 			REQUIRE(CNT.new_block(p_xbl11, (pTuple) p_tx3->p_block, p_names2[0], nullptr) == SERVICE_ERROR_WRONG_TYPE);
+			REQUIRE(p_xbl11 == nullptr);
+
+			p_xbl11 = p_tx_tup3;
 			REQUIRE(CNT.new_block(p_xbl11, p_tup1, p_names2[0], nullptr) == SERVICE_ERROR_WRONG_NAME);
+			REQUIRE(p_xbl11 == nullptr);
+
 			REQUIRE(CNT.new_block(p_xbl11, p_tup1, p_names1[0], nullptr) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_xbl12, p_tup1, p_names1[1], nullptr) == SERVICE_NO_ERROR);
 			REQUIRE(CNT.new_block(p_xbl13, p_tup1, p_names1[2], nullptr) == SERVICE_NO_ERROR);

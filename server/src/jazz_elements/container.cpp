@@ -1035,6 +1035,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	}
 
 	p_txn->status = BLOCK_STATUS_READY;
+
 	return SERVICE_NO_ERROR;
 }
 
