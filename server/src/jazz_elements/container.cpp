@@ -3253,7 +3253,6 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
-	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
 	if (p_fmt == nullptr)
 		p_fmt = (pChar) &DEF_FLOAT_TIME;
@@ -3264,7 +3263,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 	p_block->get_dimensions((int *) &shape);
 
-	struct tm *timeinfo;
+	struct tm timeinfo;
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3276,9 +3275,12 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
 			else {
-				timeinfo = gmtime (p_t);
+				if (gmtime_r (p_t, &timeinfo) == nullptr)
+					return 0;
 
-				total_len += strftime(cell, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, timeinfo) + separator_len(rank_1, shape, idx);
+				char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+
+				total_len += strftime(cell, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, &timeinfo) + separator_len(rank_1, shape, idx);
 			}
 			p_t++;
 		}
@@ -3296,9 +3298,10 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_dest += LENGTH_NA_AS_TEXT;
 
 		} else {
-			timeinfo = gmtime (p_t);
+			if (gmtime_r (p_t, &timeinfo) == nullptr)
+				return 0;
 
-			p_dest += strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, timeinfo);
+			p_dest += strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, &timeinfo);
 		}
 
 		separator(rank_1, shape, idx, p_dest);
