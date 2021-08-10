@@ -2736,8 +2736,6 @@ int Container::new_text_block (pTransaction &p_txn, ItemHeader &item_hea, pChar 
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
-	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
-
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -2755,6 +2753,8 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			uint8_t *p_t = &p_block->tensor.cell_byte[0];
 
 			for (int i = 0; i < p_block->size; i++) {
+				char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+
 				total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
 				p_t++;
 			}
@@ -2773,8 +2773,11 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				if (p_t[0] == INTEGER_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else
+				else {
+					char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+
 					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+				}
 
 				p_t++;
 			}
@@ -2791,8 +2794,11 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				if (p_t[0] == LONG_INTEGER_NA)
 					total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
-				else
+				else {
+					char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+
 					total_len += sprintf(cell, p_fmt, p_t[0]) + separator_len(rank_1, shape, idx);
+				}
 
 				p_t++;
 			}
@@ -2991,8 +2997,6 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
 int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
-	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
-
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -3446,7 +3450,6 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 The serialization includes item names, types and shapes.
 */
 int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
-	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
 	if (p_dest == nullptr) {
 		int total_len = 1;		// 3 for opening and closing {} + /0 - 2 (for the last item not having final ', ')
@@ -3454,6 +3457,8 @@ int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
 		ItemHeader *p_t = &p_kind->tensor.cell_item[0];
 
 		for (int i = 0; i < p_kind->size; i++) {
+			char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+
 			as_shape(p_t[0].rank, p_t[0].dim, cell, p_kind);
 
 			total_len += 7 + strlen(p_kind->item_name(i)) + strlen(cell);		// 7 == length('"" : , ')
