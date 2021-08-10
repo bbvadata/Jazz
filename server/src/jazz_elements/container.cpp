@@ -1239,7 +1239,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				StatusCode ret = new_text_block(p_aux_txn[i], item_hea[i], p_in, num_bytes, att);
 
 				if (ret != SERVICE_NO_ERROR) {
-					for (int j = i - 1; j >= 0; j --)
+					for (int j = i - 1; j >= 0; j--)
 						destroy_internal(p_aux_txn[j]);
 
 					return ret;
@@ -1248,14 +1248,14 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				int ret = new_block(p_aux_txn[i], item_hea[i].cell_type, item_hea[i].dim, FILL_NEW_DONT_FILL);
 
 				if (ret != SERVICE_NO_ERROR) {
-					for (int j = i - 1; j >= 0; j --)
+					for (int j = i - 1; j >= 0; j--)
 						destroy_internal(p_aux_txn[j]);
 
 					return ret;
 				}
 
 				if (!fill_tensor(p_in, num_bytes, p_aux_txn[i]->p_block)) {
-					for (int j = i; j >= 0; j --)
+					for (int j = i; j >= 0; j--)
 						destroy_internal(p_aux_txn[j]);
 
 					return PARSE_ERROR_TENSOR_FILLING;

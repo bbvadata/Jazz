@@ -847,7 +847,7 @@ class Container : public Service {
 			\param p_ret	The cursor to the output buffer
 		*/
 		inline void separator(int rank_1, int dim[], int idx[], pChar &p_ret) {
-			for (int i = rank_1; i >= 0; i --) {
+			for (int i = rank_1; i >= 0; i--) {
 				idx[i]++;
 
 				if (idx[i] == dim[i]) {
@@ -877,7 +877,7 @@ class Container : public Service {
 		inline int separator_len(int rank_1, int dim[], int idx[]) {
 			int ret = 0;
 
-			for (int i = rank_1; i >= 0; i --) {
+			for (int i = rank_1; i >= 0; i--) {
 				idx[i]++;
 
 				if (idx[i] == dim[i]) {
