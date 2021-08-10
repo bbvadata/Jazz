@@ -5287,6 +5287,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			THEN("we parse everything and compare") {
 				pTransaction x_byt, x_bbo, x_int, x_fac, x_gra, x_boo, x_sin, x_st1, x_st2, x_lin, x_tim, x_dou;
 				pTransaction x_ki1, x_ki2, x_tp1, x_tp2, y_byt, y_int, y_sin, y_lin, y_tim, y_dou, y_ki1, y_tp1;
+				pTransaction a_int, a_dou, a_st1, a_st2, a_ki1, a_ki2, a_tp1, a_tp2, x_err;
 
 				REQUIRE(CNT.new_block(x_byt, s_byt->p_block, CELL_TYPE_BYTE) == SERVICE_NO_ERROR);
 				REQUIRE(x_byt->p_block != nullptr);
@@ -5426,6 +5427,60 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				compare_full_blocks(x_ki1->p_block, p_ki1->p_block);
 				compare_full_blocks(x_ki2->p_block, p_ki2->p_block);
 				compare_full_blocks(y_ki1->p_block, p_ki1->p_block);
+
+				REQUIRE(CNT.new_block(a_int, s_int->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_int->p_block != nullptr);
+				REQUIRE(a_int->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(a_int->p_block->cell_type == CELL_TYPE_INTEGER);
+
+				REQUIRE(CNT.new_block(a_dou, s_dou->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_dou->p_block != nullptr);
+				REQUIRE(a_dou->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(a_dou->p_block->cell_type == CELL_TYPE_DOUBLE);
+
+				REQUIRE(CNT.new_block(a_st1, s_st1->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_st1->p_block != nullptr);
+				REQUIRE(a_st1->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(a_st1->p_block->cell_type == CELL_TYPE_STRING);
+
+				REQUIRE(CNT.new_block(a_st2, s_st2->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_st2->p_block != nullptr);
+				REQUIRE(a_st2->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(a_st2->p_block->cell_type == CELL_TYPE_STRING);
+
+				REQUIRE(CNT.new_block(a_ki1, s_ki1->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_ki1->p_block != nullptr);
+				REQUIRE(a_ki1->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(reinterpret_cast<pKind>(a_ki1->p_block)->audit() == MIXED_TYPE_KIND);
+
+				REQUIRE(CNT.new_block(a_ki2, s_ki2->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_ki2->p_block != nullptr);
+				REQUIRE(a_ki2->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(reinterpret_cast<pKind>(a_ki2->p_block)->audit() == MIXED_TYPE_KIND);
+
+				REQUIRE(CNT.new_block(a_tp1, s_tp1->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_tp1->p_block != nullptr);
+				REQUIRE(a_tp1->status  == BLOCK_STATUS_READY);
+
+				REQUIRE(reinterpret_cast<pTuple>(a_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
+
+				REQUIRE(CNT.new_block(a_tp2, s_tp2->p_block, CELL_TYPE_UNDEFINED) == PARSE_ERROR_TENSOR_EXPLORATION);
+				REQUIRE(a_tp2 == nullptr);
+
+				compare_full_blocks(a_int->p_block, p_int->p_block);
+				compare_full_blocks(a_dou->p_block, p_dou->p_block);
+				compare_full_blocks(a_st1->p_block, p_st1->p_block);
+				compare_full_blocks(a_st2->p_block, p_st2->p_block);
+
+				compare_full_blocks(a_ki1->p_block, p_ki1->p_block);
+				compare_full_blocks(a_ki2->p_block, p_ki2->p_block);
+				compare_full_blocks(a_tp1->p_block, p_tp1->p_block);
 
 				CNT.destroy_internal(y_byt);
 				CNT.destroy_internal(y_int);
