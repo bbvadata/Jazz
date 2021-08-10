@@ -5631,7 +5631,9 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 
 		pTransaction p_tx_ii, p_tx_is, p_tx_si, p_tx_ss;
 
+		p_tx_ii = (pTransaction) &p_tx_is;
 		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_BYTE) == SERVICE_ERROR_WRONG_TYPE);
+		REQUIRE(p_tx_ii == nullptr);
 
 		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_INDEX_II) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx_ii->p_block != nullptr);
