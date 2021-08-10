@@ -42,7 +42,7 @@ namespace jazz_main
 	 M A I N   H T T P	 E N T R Y	 P O I N T S
 ------------------------------------------------- */
 
-#define MHD_HTTP_ANYERROR 400
+#define MHD_HTTP_ANYERROR true
 
 #ifdef DEBUG
 MHD_Result print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
@@ -245,7 +245,7 @@ MHD_Result http_request_callback(void *cls,
 		}
 	}
 
-	if (status >= MHD_HTTP_ANYERROR)
+	if (status == MHD_HTTP_ANYERROR)
 		return API.return_error_message(connection, status);
 
 	if (http_method == HTTP_DELETE)
