@@ -478,6 +478,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	if (p_text != nullptr) {
 		if (cell_type != CELL_TYPE_STRING || fill_tensor != FILL_WITH_TEXTFILE) {
 			destroy_internal(p_txn);
+
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -498,6 +499,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	if (dim == nullptr) {
 		if (p_text == nullptr) {
 			destroy_internal(p_txn);
+
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -516,6 +518,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		if (num_lines && (num_lines != hea.size)){
 			destroy_internal(p_txn);
+
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 	}
@@ -545,6 +548,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (p_txn->p_block == nullptr) {
 		destroy_internal(p_txn);
+
 		return SERVICE_ERROR_NO_MEM;
 	}
 
@@ -669,6 +673,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 			default:
 				destroy_internal(p_txn);
+
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
 			break;
@@ -677,6 +682,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			p_txn->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
 				destroy_internal(p_txn);
+
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			memcpy(&p_txn->p_block->tensor, p_bool_filter, p_txn->p_block->size);
@@ -686,6 +692,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			p_txn->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_INTEGER) {
 				destroy_internal(p_txn);
+
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
 			int j = 0;
@@ -705,6 +712,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		default:
 			destroy_internal(p_txn);
+
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;			// No silent fail, fill_tensor is invalid
 		}
 	}
@@ -896,6 +904,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (p_from == nullptr || p_from->size < 0 || p_from->range.dim[0] < 1) {
 		destroy_internal(p_txn);
+
 		return SERVICE_ERROR_NEW_BLOCK_ARGS;
 	}
 
@@ -909,6 +918,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		if (!p_row_filter->can_filter(p_from)){
 			destroy_internal(p_txn);
+
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
@@ -948,6 +958,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		if (!new_num_attributes) {
 			destroy_internal(p_txn);
+
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
