@@ -1649,15 +1649,15 @@ StatusCode Container::remove (pChar p_what) {
 
 /** Block copying interface: A general API to be inherited (and possibly extended)
 
-	\param p_what	Some string with a locator that the Container can handle.
 	\param p_where	Some string with a locator that the Container can handle.
+	\param p_what	Some string with a locator that the Container can handle.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
-be destroy()-ed when the caller is done.
+**NOTE**: This does not copy blocks across Containers. A copy() call is a short way to do "get(tx, what); put(where, tx); destroy(tx);"
+without the Container needing to allocate Transactions and, possibly, not even blocks. To copy blocks across containers, you need channels.
 */
-StatusCode Container::copy (pChar  p_what, pChar  p_where) {
+StatusCode Container::copy (pChar p_where, pChar p_what) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
