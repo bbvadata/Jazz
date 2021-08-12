@@ -89,6 +89,43 @@ namespace jazz_elements
 #define CHANNEL_URL_DELETE			0x2004		///< A channel deleting via a libcurl DELETE
 #define CHANNEL_CONTAINER_REMOVE	0x2100		///< A channel deleting any Block, Kind or Tuple inside a Container or descendant
 
+/// A (forward defined) pointer to a Channel
+typedef class Channel *pChannel;
+
+
+/** \brief Locator: A ... TODO: .
+
+
+*/
+struct Locator {
+
+	pContainer			p_owner;
+};
+
+
+/** \brief Endpoint: A minimalistic "Container" that is not a Service, like a filesystems, http and zeroMQ pipes or Indices.
+
+
+*/
+class Endpoint {
+
+	public:
+
+
+};
+
+
+/** \brief Channel: A Transaction descendant that handles Block communication across Containers and Endpoints.
+
+
+*/
+class Channel: public Transaction {
+
+	public:
+
+
+};
+
 
 /** \brief Channels: A Container doing block transactions across media (files, folders, shell, urls, other Containers, ..)
 
