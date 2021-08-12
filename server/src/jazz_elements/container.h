@@ -269,33 +269,33 @@ class Container : public Service {
 		// 3. new_block(): Create a Tensor by selecting rows (filtering) from another Tensor.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								pBlock				p_from,
-						   		pBlock				p_row_filter,
+								pBlock				p_row_filter,
 								AttributeMap	   *att				= nullptr);
 
 		// 4. new_block(): Create a Tensor by selecting an item from a Tuple.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								pTuple				p_from,
-						   		pChar				name,
+								pChar				name,
 								AttributeMap	   *att				= nullptr);
 
 		// 5. new_block(): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								pBlock				p_from_text,
-						   		int					cell_type,
+								int					cell_type,
 								pKind				p_as_kind		= nullptr,
 								AttributeMap	   *att				= nullptr);
 
 		// 6. new_block(): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								pBlock				p_from_raw,
-						   		pChar				p_fmt			= nullptr,
+								pChar				p_fmt			= nullptr,
 								AttributeMap	   *att				= nullptr);
 
 		// 7. new_block(): Create an empty Index block.
 		StatusCode new_block   (pTransaction	   &p_txn,
 								int					cell_type);
 
-		void destroy		   (pTransaction &p_txn);
+		void destroy		   (pTransaction	   &p_txn);
 
 		// Crud: .get(), .put(), .remove()
 
@@ -378,6 +378,7 @@ class Container : public Service {
 			p_alloc = pStoredTransaction(p_txn);
 
 			unlock_container();
+
 			return SERVICE_NO_ERROR;
 		}
 
