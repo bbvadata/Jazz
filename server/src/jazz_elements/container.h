@@ -299,13 +299,13 @@ class Container : public Service {
 
 		// Crud: .get(), .put(), .remove()
 
-		StatusCode get		   (pChar		  p_what,
-								pTransaction &p_txn);
-		StatusCode put		   (pBlock		  p_block,
-								pChar		  p_where);
-		StatusCode remove	   (pChar		  p_what);
-		StatusCode copy		   (pChar		  p_what,
-								pChar		  p_where);
+		StatusCode get		   (pTransaction	   &p_txn,
+								pChar				p_what);
+		StatusCode put		   (pChar				p_where,
+								pBlock				p_block);
+		StatusCode remove	   (pChar				p_what);
+		StatusCode copy		   (pChar				p_where,
+								pChar				p_what);
 
 		// Support for container names in the API .base_names()
 
