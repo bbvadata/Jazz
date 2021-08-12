@@ -143,10 +143,10 @@ struct Transaction {
 		pBlock			p_block;	///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Tensor, Kind and Tuple
 		pBlockHeader	p_hea;		///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Index
 	};
-	pBlock			p_route;	///< Anything defining the transaction as a (fixed sized) block allocated in an array inside the owner
-	Lock32			_lock_;		///< An atomically updated int to lock the Transaction to support modifying the Block
-	int				status;		///< The status of the block transaction
-	pContainer		p_owner;	///< A pointer to the Container instance serving API calls related to this block
+	pBlock				p_route;	///< Anything defining the transaction as a (fixed sized) block allocated in an array inside the owner
+	Lock32				_lock_;		///< An atomically updated int to lock the Transaction to support modifying the Block
+	int					status;		///< The status of the block transaction
+	pContainer			p_owner;	///< A pointer to the Container instance serving API calls related to this block
 };
 typedef Transaction *pTransaction;
 
