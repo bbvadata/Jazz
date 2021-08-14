@@ -1814,7 +1814,7 @@ StatusCode Container::copy (pChar p_where, pChar p_what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get (pTransaction &p_txn, Locator &what) {
 
@@ -1824,7 +1824,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
@@ -1834,7 +1834,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what, pBlock p_row_filt
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get (pTransaction &p_txn, Locator &what, pChar name) {
 
@@ -1844,7 +1844,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what, pChar name) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::header (StaticBlockHeader &p_txn, Locator &what) {
 
@@ -1854,7 +1854,7 @@ StatusCode Container::header (StaticBlockHeader &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::header (pTransaction &p_txn, Locator &what) {
 
@@ -1864,7 +1864,7 @@ StatusCode Container::header (pTransaction &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::put (Locator &where, pBlock p_block, int mode) {
 
@@ -1874,7 +1874,7 @@ StatusCode Container::put (Locator &where, pBlock p_block, int mode) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::new_entity (Locator &what) {
 
@@ -1884,7 +1884,7 @@ StatusCode Container::new_entity (Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::remove (Locator &what) {
 
@@ -1894,7 +1894,7 @@ StatusCode Container::remove (Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
-**NOTE**: The root Container class doe not implement this.
+**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::copy (Locator &where, Locator &what) {
 
