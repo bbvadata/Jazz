@@ -1812,6 +1812,23 @@ StatusCode Container::copy (pChar p_where, pChar p_what) {
 }
 
 
+/** The parser: A simple regex-based parser that does not support Locator.p_extra, but is enough for Volatile and Persisted.
+
+	\param result	A Locator to contained the parsed result on success. (Undefined content on error.)
+	\param p_what	Some string to be parsed. E.g. //base/entity/key
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+More complex Container descendants that support URLs, credentials, cookies, etc. will override this minimalistic parser.
+*/
+StatusCode Container::as_locator (Locator &result, pChar p_what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
 **NOTE**: The root Container class does not implement this.
