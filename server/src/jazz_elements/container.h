@@ -136,7 +136,7 @@ typedef class Container *pContainer;
 typedef std::map<std::string, pContainer> BaseNames;
 
 
-/** \brief Transaction: A wrapper over a Block that defines the communication of a block over get/put/remove/copy.
+/** \brief Transaction: A wrapper over a Block that defines the communication of a block with a Container.
 
 This minimalist struc is the only block wrapper across anything. Anything is: file I/O, http client CRUD, http server GET and PUT, shell
 commands, Volatile, Persisted and Index objects (an stdlib map that serializes to and from a block).
