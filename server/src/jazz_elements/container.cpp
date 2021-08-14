@@ -1812,6 +1812,92 @@ StatusCode Container::copy (pChar p_where, pChar p_what) {
 }
 
 
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode get (pTransaction &p_txn, Locator &what) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode get (pTransaction &p_txn, Locator &what, pChar name) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode header (StaticBlockHeader &p_txn, Locator &what) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode header (pTransaction &p_txn, Locator &what) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode put (Locator &where, pBlock p_block, int mode) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode new_entity (Locator &what) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode remove (Locator &what) {
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+
+**NOTE**: The root Container class doe not implement this.
+*/
+StatusCode copy (Locator &where, Locator &what) {
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
