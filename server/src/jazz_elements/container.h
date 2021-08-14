@@ -158,6 +158,10 @@ typedef Transaction *pTransaction;
 /** \brief Locator: A minimal structure to define the location of resources inside a Container.
 
 This is used by all Container descendants, it can be extended using p_extra to something else. E..g, a UniversalLocator
+
+**Valid characters**: base, entity and key names must start with a letter and continue with up to NAME_LENGTH or (SHORT_NAME_SIZE -1 for
+base) characters in [a-zA-Z0-9\\-_~$]. When part of a URL, none of these characters should be %-encoded. Besides names, the following
+characters have special meaning in URLs (see the parser in API for details): / . : # ; [ ] ( ) =
 */
 struct Locator {
 	char base	[SHORT_NAME_SIZE];	///< A Jazz node level unique name to locate a Container and possibly a type of service inside it.
