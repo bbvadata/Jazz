@@ -89,42 +89,6 @@ namespace jazz_elements
 #define CHANNEL_URL_DELETE			0x2004		///< A channel deleting via a libcurl DELETE
 #define CHANNEL_CONTAINER_REMOVE	0x2100		///< A channel deleting any Block, Kind or Tuple inside a Container or descendant
 
-/// A (forward defined) pointer to a Channel
-typedef class Channel *pChannel;
-
-
-/** \brief Locator: A ... TODO: .
-
-
-*/
-struct Locator {
-
-	pContainer			p_owner;
-};
-
-
-/** \brief Endpoint: A minimalistic "Container" that is not a Service, like a filesystems, http and zeroMQ pipes or Indices.
-
-
-*/
-class Endpoint {
-
-	public:
-
-
-};
-
-
-/** \brief Channel: A Transaction descendant that handles Block communication across Containers and Endpoints.
-
-
-*/
-class Channel: public Transaction {
-
-	public:
-
-
-};
 
 
 /** \brief Channels: A Container doing block transactions across media (files, folders, shell, urls, other Containers, ..)
@@ -141,31 +105,37 @@ class Channels : public Container {
 		StatusCode start	 ();
 		StatusCode shut_down ();
 
-		// The "verbose" interface (which overrides the same method in Container, but requires parsing the strings.)
-		StatusCode get		   (pChar		  p_what,
-								pTransaction &p_txn);
-		StatusCode put		   (pBlock		  p_block,
-								pChar		  p_where);
-		StatusCode remove	   (pChar		  p_what);
-		StatusCode copy		   (pChar		  p_what,
-								pChar		  p_where);
+		// The parser: This simple regex-based parser only needs override for Channels.)
+		virtual StatusCode as_locator  (Locator			   &result,
+										pChar				p_what);
 
-		// The "native" interface (which does the job).)
-		StatusCode get		   (int			  channel,
-								pChar		  p_locator,
-								pTransaction &p_txn);
-		StatusCode put		   (int			  channel,
-								pBlock		  p_block,
-								pChar		  p_locator);
-		StatusCode remove	   (int			  channel,
-								pChar		  p_what);
-		StatusCode copy		   (int			  channel,
-								pChar		  p_what,
-								pChar		  p_where);
+		// The "native" interface: This is what really does the job and all Container descendants implement.)
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										Locator			   &what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										Locator			   &what,
+										pBlock				p_row_filter);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+							  			Locator			   &what,
+							  			pChar				name);
+		virtual StatusCode header	   (StaticBlockHeader  &p_txn,
+										Locator			   &what);
+		virtual StatusCode header	   (pTransaction	   &p_txn,
+										Locator			   &what);
+		virtual StatusCode put		   (Locator			   &where,
+										pBlock				p_block,
+										int					mode = WRITE_ALWAYS_COMPLETE);
+		virtual StatusCode new_entity  (Locator			   &what);
+		virtual StatusCode remove	   (Locator			   &what);
+		virtual StatusCode copy		   (Locator			   &where,
+										Locator			   &what);
 
-		// The parsers
-		StatusCode parse_rvalue(pChar		  p_what);
-		StatusCode parse_lvalue(pChar		  p_where);
+		// Support for container names in the API .base_names()
+
+		void base_names (BaseNames &base_names);
+};
+typedef Channels *pChannels;
+
 
 		// Libcurl
 // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -216,9 +186,9 @@ class Channels : public Container {
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-		StatusCode url_put	   ();
-		StatusCode url_get	   ();
-		StatusCode url_delete  ();
+		// StatusCode url_put	   ();
+		// StatusCode url_get	   ();
+		// StatusCode url_delete  ();
 
 		// The shell
 
@@ -244,13 +214,7 @@ class Channels : public Container {
 //     return result;
 // }
 
-		StatusCode shell_exec  ();
-
-		// Base names
-
-		void base_names (BaseNames &base_names);
-};
-typedef Channels *pChannels;
+		// StatusCode shell_exec  ();
 
 } // namespace jazz_elements
 
