@@ -1728,8 +1728,27 @@ StatusCode Container::header (pTransaction &p_txn, pChar p_what) {
 	return header(p_txn, loc);
 }
 
+
+/** "Easy" interface for **Block storing**: This parses p_where and, on success, calls the native put() equivalent.
+
+	\param p_where	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
 	\param p_block	A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
 					disc, PUT it via http, etc. The container does not own the pointer in any way.
+	\param mode		Some writing restriction that should return an error if not supported. It controls overriding or writing just the data
+					as when writing to a file.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+*/
+StatusCode Container::put (pChar p_where, pBlock p_block, int mode) {
+	Locator loc;
+	StatusCode ret;
+
+	if (ret = as_locator(loc, p_where) != SERVICE_NO_ERROR)
+		return ret;
+
+	return put(loc, p_block, mode);
+}
+
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
