@@ -1750,11 +1750,22 @@ StatusCode Container::put (pChar p_where, pBlock p_block, int mode) {
 }
 
 
-	\return	SERVICE_NO_ERROR on success or some negative value (error).
-*/
-StatusCode Container::put (pChar p_where, pBlock p_block) {
+/** "Easy" interface for **creating entities**: This parses p_what and, on success, calls the native new_entity() equivalent.
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+	What an entity is, is Container and base dependent. It can be an lmdb database, a folder in a filesystem, a Volatile tree, ...
+*/
+StatusCode Container::new_entity (pChar p_what) {
+	Locator loc;
+	StatusCode ret;
+
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return new_entity(loc);
 }
 
 
