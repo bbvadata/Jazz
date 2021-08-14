@@ -1788,10 +1788,10 @@ StatusCode Container::remove (pChar p_what) {
 }
 
 
-/** Block copying interface: A general API to be inherited (and possibly extended)
+/** "Easy" interface for **Block copying**: This parses p_what and p_where. On success, it calls the native copy() equivalent.
 
-	\param p_where	Some string with a locator that the Container can handle.
-	\param p_what	Some string with a locator that the Container can handle.
+	\param p_where	Some **destination** that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param p_what	Some **source** that as_locator() can parse into a Locator. E.g. //base/entity/key
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
@@ -1799,6 +1799,18 @@ StatusCode Container::remove (pChar p_what) {
 without the Container needing to allocate Transactions and, possibly, not even blocks. To copy blocks across containers, you need channels.
 */
 StatusCode Container::copy (pChar p_where, pChar p_what) {
+	Locator where, what;
+	StatusCode ret;
+
+	if (ret = as_locator(where, p_where) != SERVICE_NO_ERROR)
+		return ret;
+
+	if (ret = as_locator(what, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return copy(where, what);
+}
+
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
