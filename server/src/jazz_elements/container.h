@@ -102,6 +102,11 @@ namespace jazz_elements
 #define EIGHT_BIT_LONG					256		///< Length of a NextStateLUT.
 #define MAX_TRANSITION_REGEX_LEN		 32		///< Length of regex for state transitions. Used only in constants for LUT construction.
 
+// Writing modes for put()
+#define WRITE_ALWAYS_COMPLETE			  0		///< The default mode with none of the other flags.
+#define WRITE_ONLY_IF_EXISTS			  1		///< A .put() call can override, but cannot create a new block.
+#define WRITE_ONLY_IF_NOT_EXISTS		  2		///< A .put() call cannot override, it can only create new blocks.
+#define WRITE_TENSOR_DATA_AS_RAW		  4		///< Fails if not a Tensor, writes the raw data. For e.g., writing files.
 
 /** A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
