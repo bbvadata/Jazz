@@ -1769,15 +1769,22 @@ StatusCode Container::new_entity (pChar p_what) {
 }
 
 
-/** Block deletion interface: Erase a block at a locator inside the Container
+/** "Easy" interface for **deleting entities and blocks**: This parses p_what and, on success, calls the native header() equivalent.
 
-	\param p_what Some string with a locator that the Container can handle.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity or //base/entity/key
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+	What an entity is, is Container and base dependent. It can be an lmdb database, a folder in a filesystem, a Volatile tree, ...
 */
 StatusCode Container::remove (pChar p_what) {
+	Locator loc;
+	StatusCode ret;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return remove(loc);
 }
 
 
