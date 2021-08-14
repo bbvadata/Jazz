@@ -150,6 +150,19 @@ struct Transaction {
 typedef Transaction *pTransaction;
 
 
+/** \brief Locator: A minimal structure to define the location of resources inside a Container.
+
+This is used by all Container descendants, it can be extended using p_extra to something else. E..g, a UniversalLocator
+*/
+struct Locator {
+	char base	[SHORT_NAME_SIZE];	///< A Jazz node level unique name to locate a Container and possibly a type of service inside it.
+	char entity	[NAME_SIZE];		///< Another abstraction inside node.container.base, like the name of a table in a database.
+	char key	[NAME_SIZE];		///< A key identifying a block inside the entity.
+
+	pChar p_extra;					///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
+};
+
+
 /// An internal (for Container) Transaction with pointers for a deque
 struct StoredTransaction: Transaction {
 	StoredTransaction *p_prev, *p_next;
