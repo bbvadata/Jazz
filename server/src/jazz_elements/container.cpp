@@ -1907,7 +1907,6 @@ StatusCode copy (Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 	The root class Container does not add any base names.
-
 */
 void Container::base_names (BaseNames &base_names) {}
 
