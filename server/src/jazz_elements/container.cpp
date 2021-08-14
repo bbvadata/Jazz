@@ -1681,6 +1681,53 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what, pChar name) {
 
 
 /** "Easy" interface **metadata of a Block** retrieval. This parses p_what and, on success, calls the native header() equivalent.
+
+	\param hea		A StaticBlockHeader structure that will receive the metadata.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
+for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
+*/
+StatusCode Container::header (StaticBlockHeader	&hea, pChar p_what) {
+	Locator loc;
+	StatusCode ret;
+
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return header(hea, loc);
+}
+
+
+/** "Easy" interface **metadata of a Block** retrieval. This parses p_what and, on success, calls the native header() equivalent.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Unlike its faster form, this allocates a Block and therefore, it is equivalent to a new_block() call. On success, it will return a
+Transaction that belongs to the Container and must be destroy()-ed when the caller is done.
+
+For Tensors it will allocate a block that only has the StaticBlockHeader (What you can more efficiently get from the other form.)
+For Kinds, the metadata of all the items is exactly the same a .get() call returns.
+For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
+*/
+StatusCode Container::header (pTransaction &p_txn, pChar p_what) {
+	Locator loc;
+	StatusCode ret;
+
+	p_txn = nullptr;
+
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return header(p_txn, loc);
+}
+
 	\param p_block	A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
 					disc, PUT it via http, etc. The container does not own the pointer in any way.
 
