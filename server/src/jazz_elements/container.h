@@ -330,7 +330,8 @@ class Container : public Service {
 		StatusCode header	   (pTransaction		&p_txn,
 								pChar				 p_what);
 		StatusCode put		   (pChar				 p_where,
-								pBlock				 p_block);
+								pBlock				 p_block,
+								int					 mode = WRITE_ALWAYS_COMPLETE);
 		StatusCode new_entity  (pChar				 p_what);
 		StatusCode remove	   (pChar				 p_what);
 		StatusCode copy		   (pChar				 p_where,
@@ -352,13 +353,7 @@ class Container : public Service {
 		virtual StatusCode header	   (StaticBlockHeader  &p_txn,
 										Locator			   &p_what);
 		virtual StatusCode header	   (pTransaction	   &p_txn,
-										Locator			   &p_what);
-		virtual StatusCode put		   (Locator			   &p_where,
-										pBlock				p_block);
-		virtual StatusCode new_entity  (Locator			   &p_what);
-		virtual StatusCode remove	   (Locator			   &p_what);
-		virtual StatusCode copy		   (Locator			   &p_where,
-										Locator			   &p_what);
+										int					mode = WRITE_ALWAYS_COMPLETE);
 
 		// Support for container names in the API .base_names()
 
