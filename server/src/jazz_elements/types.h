@@ -61,6 +61,7 @@
 namespace jazz_elements
 {
 
+#define SHORT_NAME_SIZE			 8				///< Size of a node name or a base name (ending 0 included)
 #define NAME_SIZE				32				///< Size of a Name (ending 0 included)
 #define NAME_LENGTH				NAME_SIZE - 1	///< Maximum length of a Name.name
 #define ONE_MB					(1024*1024)		///< Is used in log_printf() of error/warning messages
