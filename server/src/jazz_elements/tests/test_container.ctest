@@ -341,8 +341,8 @@ SCENARIO("Testing (container) structure sizes.") {
 
 	REQUIRE(sizeof(Name)			  == 32);
 	REQUIRE(sizeof(Lock32)			  == 4);
-	REQUIRE(sizeof(Transaction)		  == 32);
-	REQUIRE(sizeof(StoredTransaction) == 48);
+	REQUIRE(sizeof(Transaction)		  == 24);
+	REQUIRE(sizeof(StoredTransaction) == 40);
 	REQUIRE(sizeof(Locator)			  == 80);
 }
 
