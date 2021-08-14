@@ -1604,11 +1604,11 @@ void Container::destroy (pTransaction &p_txn) {
 }
 
 
-/** Block retrieving interface: A general API to be inherited (and possibly extended)
+/** "Easy" interface **complete Block** retrieval. This parses p_what and, on success, calls the native get() equivalent.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 					Transaction inside the Container.
-	\param p_what	Some string with a locator that the Container can handle.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -1616,14 +1616,71 @@ Usage-wise, this is equivalent to a new_block() call. On success, it will return
 be destroy()-ed when the caller is done.
 */
 StatusCode Container::get (pTransaction &p_txn, pChar p_what) {
+	Locator loc;
+	StatusCode ret;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	p_txn = nullptr;
+
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return get(p_txn, loc);
 }
 
 
-/** Block storing interface: A general API to be inherited (and possibly extended)
+/** "Easy" interface **selection of rows in a Block** retrieval. This parses p_what and, on success, calls the native get() equivalent.
 
-	\param p_where	Some string with a locator that the Container can handle.
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container.
+	\param p_what		Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
+						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
+						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
+*/
+StatusCode Container::get (pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
+	Locator loc;
+	StatusCode ret;
+
+	p_txn = nullptr;
+
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return get(p_txn, loc, p_row_filter);
+}
+
+
+/** "Easy" interface **selection of a tensor in a Tuple** retrieval. This parses p_what and, on success, calls the native get() equivalent.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param name		The name of the item to be selected.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
+*/
+StatusCode Container::get (pTransaction &p_txn, pChar p_what, pChar name) {
+	Locator loc;
+	StatusCode ret;
+
+	p_txn = nullptr;
+
+	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+		return ret;
+
+	return get(p_txn, loc, name);
+}
+
+
+/** "Easy" interface **metadata of a Block** retrieval. This parses p_what and, on success, calls the native header() equivalent.
 	\param p_block	A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
 					disc, PUT it via http, etc. The container does not own the pointer in any way.
 
