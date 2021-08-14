@@ -65,6 +65,105 @@ StatusCode Volatile::shut_down()
 }
 
 
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::get (pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pChar name) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::header (StaticBlockHeader &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::header (pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::put (Locator &where, pBlock p_block, int mode) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::new_entity (Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::remove (Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Volatile::copy (Locator &where, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
 /** Add the base names for this Container.
 
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.

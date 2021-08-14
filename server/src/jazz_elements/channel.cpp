@@ -141,7 +141,117 @@ StatusCode Channels::shut_down()
 }
 
 
-/** Add the base names for this Container.
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::as_locator (Locator &result, pChar p_what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::get (pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::get (pTransaction &p_txn, Locator &what, pChar name) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::header (StaticBlockHeader &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::header (pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::put (Locator &where, pBlock p_block, int mode) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::new_entity (Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::remove (Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Channels::copy (Locator &where, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/** Add the base names for this Channels.
 
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 

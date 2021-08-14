@@ -65,6 +65,105 @@ StatusCode Persisted::shut_down()
 }
 
 
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::get (pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pChar name) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::header (StaticBlockHeader &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::put (Locator &where, pBlock p_block, int mode) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::new_entity (Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::remove (Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
+/**
+//TODO: Document this.
+*/
+StatusCode Persisted::copy (Locator &where, Locator &what) {
+
+//TODO: Implement this.
+
+	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+}
+
+
 /** Add the base names for this Container.
 
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
