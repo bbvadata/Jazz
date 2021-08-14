@@ -176,13 +176,13 @@ This is the root class for all containers. It is basically an abstract class wit
 Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, Bebop, Agency, and the Api.
 
 There is no class Channel (in singular), copy() is a method that copies blocks across Containers (or different media in Channels).
-Channels does all the block transactions across media (files, folders, shell, urls, other Containers, ...).
+Channels does all the block transactions across media (files, folders, shell, urls, zeroMQ pipes, Index types, ...).
 
 Container provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - Allocation: .new_block(), .destroy()
-- Crud: .get(), .put(), .remove(), .copy()
+- Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
 
