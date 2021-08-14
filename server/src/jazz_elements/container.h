@@ -343,17 +343,24 @@ class Container : public Service {
 
 		// The "native" interface: This is what really does the job and all Container descendants implement.)
 		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &p_what);
+										Locator			   &what);
 		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &p_what,
+										Locator			   &what,
 										pBlock				p_row_filter);
 		virtual StatusCode get		   (pTransaction	   &p_txn,
-							  			Locator			   &p_what,
+							  			Locator			   &what,
 							  			pChar				name);
 		virtual StatusCode header	   (StaticBlockHeader  &p_txn,
-										Locator			   &p_what);
+										Locator			   &what);
 		virtual StatusCode header	   (pTransaction	   &p_txn,
+										Locator			   &what);
+		virtual StatusCode put		   (Locator			   &where,
+										pBlock				p_block,
 										int					mode = WRITE_ALWAYS_COMPLETE);
+		virtual StatusCode new_entity  (Locator			   &what);
+		virtual StatusCode remove	   (Locator			   &what);
+		virtual StatusCode copy		   (Locator			   &where,
+										Locator			   &what);
 
 		// Support for container names in the API .base_names()
 
