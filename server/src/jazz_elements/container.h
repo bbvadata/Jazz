@@ -309,15 +309,51 @@ class Container : public Service {
 
 		void destroy		   (pTransaction	   &p_txn);
 
-		// Crud: .get(), .put(), .remove()
+		// Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
 
-		StatusCode get		   (pTransaction	   &p_txn,
-								pChar				p_what);
-		StatusCode put		   (pChar				p_where,
-								pBlock				p_block);
-		StatusCode remove	   (pChar				p_what);
-		StatusCode copy		   (pChar				p_where,
-								pChar				p_what);
+		// The "easy" interface: Uses strings instead of locators. Is translated to the native interface by an as_locator() call.
+		StatusCode get		   (pTransaction		&p_txn,
+								pChar				 p_what);
+		StatusCode get		   (pTransaction		&p_txn,
+								pChar				 p_what,
+								pBlock				 p_row_filter);
+		StatusCode get		   (pTransaction		&p_txn,
+								pChar				 p_what,
+								pChar				 name);
+		StatusCode header	   (StaticBlockHeader	&hea,
+								pChar				 p_what);
+		StatusCode header	   (pTransaction		&p_txn,
+								pChar				 p_what);
+		StatusCode put		   (pChar				 p_where,
+								pBlock				 p_block);
+		StatusCode new_entity  (pChar				 p_what);
+		StatusCode remove	   (pChar				 p_what);
+		StatusCode copy		   (pChar				 p_where,
+								pChar				 p_what);
+
+		// The parser: This simple regex-based parser only needs override for Channels.)
+		virtual StatusCode as_locator  (Locator			   &result,
+										pChar				p_what);
+
+		// The "native" interface: This is what really does the job and all Container descendants implement.)
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										Locator			   &p_what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										Locator			   &p_what,
+										pBlock				p_row_filter);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+							  			Locator			   &p_what,
+							  			pChar				name);
+		virtual StatusCode header	   (StaticBlockHeader  &p_txn,
+										Locator			   &p_what);
+		virtual StatusCode header	   (pTransaction	   &p_txn,
+										Locator			   &p_what);
+		virtual StatusCode put		   (Locator			   &p_where,
+										pBlock				p_block);
+		virtual StatusCode new_entity  (Locator			   &p_what);
+		virtual StatusCode remove	   (Locator			   &p_what);
+		virtual StatusCode copy		   (Locator			   &p_where,
+										Locator			   &p_what);
 
 		// Support for container names in the API .base_names()
 
@@ -376,7 +412,6 @@ class Container : public Service {
 			p_free = p_free->p_next;
 
 			p_txn->p_block = nullptr;
-			p_txn->p_route = nullptr;
 			p_txn->status  = BLOCK_STATUS_EMPTY;
 			p_txn->_lock_  = 0;
 			p_txn->p_owner = this;
