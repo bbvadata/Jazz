@@ -38,6 +38,59 @@
 namespace jazz_main
 {
 
+/// Http methods
+
+#define HTTP_NOTUSED					 0		///< Rogue value to fill the LUTs
+#define HTTP_OPTIONS					 1		///< http predicate OPTIONS
+#define HTTP_HEAD						 2		///< http predicate HEAD
+#define HTTP_GET						 3		///< http predicate GET
+#define HTTP_PUT						 4		///< http predicate PUT
+#define HTTP_DELETE						 5		///< http predicate DELETE
+
+/// Parser return codes
+
+#define PARSE_OK						 0		///< Success.
+#define GET_OK							 0		///< Success.
+
+/*	-----------------------------------------------
+	 Parser grammar definition
+--------------------------------------------------- */
+
+#define REX_ALL_SPACES			"[ \\t]"
+#define REX_STRING_NOT_ESC		"[\\x20-\\x21\\x23-\\[\\]-\\x7e]"	// Anything from 32 to 126, except \ and "
+
+#define MAX_NUM_PSTATES			 11		///< Maximum number of non error states the parser can be in
+#define NUM_STATE_TRANSITIONS	 20		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define PSTATE_INVALID_CHAR		255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
+
+/// Parser state values
+
+#define PSTATE_INITIAL			 0		///< Begin parsing, assumes already seen / to avoid unnecessary initial counting
+#define PSTATE_NODE0			 1		///< Already seen ///.
+#define PSTATE_IN_NODE			 2		///< Name starts after /// + letter, stays with valid char
+#define PSTATE_BASE0			 3		///< Already seen //.
+#define PSTATE_IN_BASE			 4		///< Name starts after // + letter, stays with valid char
+#define PSTATE_ENTITY0			 5		///< Already seen / after reading a base.
+#define PSTATE_EXTRA_ENTITY		 6		///< Found # while reading a base.
+#define PSTATE_IN_ENTITY		 7		///< Name starts after / + letter, stays with valid char
+#define PSTATE_KEY0				 8		///< Already seen / after reading an entity.
+#define PSTATE_ENTITY_CLOSES	 9		///< Found END while reading an entity.
+#define PSTATE_KEY_SWITCH		10		///< The final switch after a key: END, =, ., :, [, [#, (, or (#.
+
+/** A vector of StateTransition.l This only runs once, when contruction the API object, initializes the LUTs from a sequence of
+StateTransition constants in the source of api.cpp.
+*/
+typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
+
+ParseStateTransitions state_tr = {
+	{PSTATE_INITIAL,		PSTATE_INITIAL,			REX_ALL_SPACES},
+
+	{MAX_NUM_PSTATES}
+};
+
+ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
+
+
 /*	---------------------------------------------
 	 M A I N   H T T P	 E N T R Y	 P O I N T S
 ------------------------------------------------- */
@@ -102,8 +155,8 @@ MHD_Result http_request_callback(void *cls,
 
 	int http_method = http_methods[TenBitsAtAddress(method)];
 
-	APIParseBuffer parse_buffer;
-	parse_buffer.stack_size = 0;
+	HttpQueryState q_state;
+	q_state.parser_state = PSTATE_INITIAL;
 
 	struct MHD_Response *response = nullptr;
 
@@ -111,13 +164,13 @@ MHD_Result http_request_callback(void *cls,
 		if (*upload_data_size == 0)
 			goto create_response_answer_put_ok;
 
-		if (http_method != HTTP_PUT || API.parse(url, HTTP_PUT, parse_buffer, false) != PARSE_OK) {
+		if (http_method != HTTP_PUT || API.parse(url, HTTP_PUT, q_state, false) != PARSE_OK) {
 			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
 
 			return MHD_NO;
 		}
 
-		if (API.upload(parse_buffer, upload_data, *upload_data_size, true))
+		if (API.upload(q_state, upload_data, *upload_data_size, true))
 			goto continue_in_put_ok;
 
 		goto continue_in_put_notacceptable;
@@ -168,11 +221,11 @@ MHD_Result http_request_callback(void *cls,
 
 				allow = allow + "OPTIONS";
 			} else {
-				if (API.parse(url, HTTP_GET, parse_buffer, false) == PARSE_OK)
+				if (API.parse(url, HTTP_GET, q_state, false) == PARSE_OK)
 					allow = "HEAD,GET,";
-				if (API.parse(url, HTTP_PUT, parse_buffer, false) == PARSE_OK)
+				if (API.parse(url, HTTP_PUT, q_state, false) == PARSE_OK)
 					allow = allow + "PUT,";
-				if (API.parse(url, HTTP_DELETE, parse_buffer, false) == PARSE_OK)
+				if (API.parse(url, HTTP_DELETE, q_state, false) == PARSE_OK)
 					allow = allow + "DELETE,";
 
 				allow = allow + "OPTIONS";
@@ -195,7 +248,7 @@ MHD_Result http_request_callback(void *cls,
 
 			return API.return_error_message(connection, MHD_HTTP_NOT_FOUND);
 		} else {
-			if (API.parse(url, HTTP_GET, parse_buffer) != PARSE_OK)
+			if (API.parse(url, HTTP_GET, q_state) != PARSE_OK)
 				return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
 		}
 		break;
@@ -204,7 +257,7 @@ MHD_Result http_request_callback(void *cls,
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 			return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
 		} else {
-			if (API.parse(url, http_method, parse_buffer) != PARSE_OK) {
+			if (API.parse(url, http_method, q_state) != PARSE_OK) {
 				if (http_method == HTTP_PUT)
 					goto continue_in_put_badrequest;
 
@@ -219,18 +272,18 @@ MHD_Result http_request_callback(void *cls,
 
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.upload(parse_buffer, upload_data, *upload_data_size, false);
+		status = API.upload(q_state, upload_data, *upload_data_size, false);
 
 		break;
 
 	case HTTP_DELETE:
-		status = API.remove(parse_buffer);
+		status = API.remove(q_state);
 
 		break;
 
 	default:
 
-		status = API.http_get(parse_buffer, response);
+		status = API.http_get(q_state, response);
 	}
 
 	// Step 6 : The core finished, just distribute the answer as appropriate.
@@ -261,20 +314,17 @@ answer_status:
 
 	return ret;
 
-
 answer_http_ok:
 
 	status = MHD_HTTP_OK;
 
 	goto answer_status;
 
-
 answer_no_content:
 
 	status = MHD_HTTP_NO_CONTENT;
 
 	goto answer_status;
-
 
 create_response_answer_put_ok:
 
@@ -286,7 +336,6 @@ create_response_answer_put_ok:
 
 	return ret;
 
-
 create_response_answer_PUT_NOTACCEPTABLE:
 
 	response = MHD_create_response_from_buffer (1, response_put_fail, MHD_RESPMEM_PERSISTENT);
@@ -296,7 +345,6 @@ create_response_answer_PUT_NOTACCEPTABLE:
 	MHD_destroy_response (response);
 
 	return ret;
-
 
 create_response_answer_PUT_BADREQUEST:
 
@@ -308,7 +356,6 @@ create_response_answer_PUT_BADREQUEST:
 
 	return ret;
 
-
 continue_in_put_notacceptable:
 
 	if (*upload_data_size) {
@@ -317,8 +364,8 @@ continue_in_put_notacceptable:
 
 		return MHD_YES;
 	}
-	return MHD_NO;
 
+	return MHD_NO;
 
 continue_in_put_badrequest:
 
@@ -328,8 +375,8 @@ continue_in_put_badrequest:
 
 		return MHD_YES;
 	}
-	return MHD_NO;
 
+	return MHD_NO;
 
 continue_in_put_ok:
 
@@ -339,173 +386,9 @@ continue_in_put_ok:
 
 		return MHD_YES;
 	}
+
 	return MHD_NO;
 }
-
-/*	-----------------------------------------------
-	 Parser grammar definition
---------------------------------------------------- */
-/*
-#define REX_ALL_SPACES		"[ \\t]"
-#define REX_COLON			"[:]"
-#define REX_COMMA			"[,]"
-#define REX_DOUBLEQUOTE		"[\"]"
-#define REX_HEX_CHAR		"[0-9A-Fa-f]"
-#define REX_LEFT_SQUARE_BR	"[\\[]"
-#define REX_NAME_ANY		"[A-Za-z0-9_]"
-#define REX_NAME_FIRST		"[A-Za-z]"
-#define REX_NON_URLENCODED	"[ \tA-Za-z0-9_~!#$&',/:;=@\\[\\]\\?\\(\\)\\*\\+\\-\\.]"
-#define REX_PERCENT			"[%]"
-#define REX_RIGHT_SQUARE_BR	"[\\]]"
-#define REX_SEMICOLON		"[;]"
-#define REX_ZERO			"[\\0]"
-
-
-StateTransitions state_tr = {
-	{PSTATE_INITIAL,		PSTATE_INITIAL,			REX_ALL_SPACES},
-	{PSTATE_INITIAL,		PSTATE_CONST_IN_UNK,	REX_LEFT_SQUARE_BR},
-	{PSTATE_INITIAL,		PSTATE_CONST_INT,		"[0-9\\-]"},
-	{PSTATE_INITIAL,		PSTATE_CONST_STR0,		REX_DOUBLEQUOTE},
-	{PSTATE_INITIAL,		PSTATE_BASE_NAME,		REX_NAME_FIRST},
-
-	{PSTATE_CONST_IN_UNK,	PSTATE_CONST_IN_UNK,	"[ \\t\\[]"},
-	{PSTATE_CONST_IN_UNK,	PSTATE_CONST_INT,		"[0-9\\-]"},
-	{PSTATE_CONST_IN_UNK,	PSTATE_CONST_STR0,		REX_DOUBLEQUOTE},
-
-	{PSTATE_CONST_INT,		PSTATE_CONST_INT,		"[0-9]"},
-	{PSTATE_CONST_INT,		PSTATE_CONST_SEP_INT,	REX_COMMA},
-	{PSTATE_CONST_INT,		PSTATE_CONST_IN_INT,	REX_LEFT_SQUARE_BR},
-	{PSTATE_CONST_INT,		PSTATE_CONST_OUT_INT,	REX_RIGHT_SQUARE_BR},
-	{PSTATE_CONST_INT,		PSTATE_CONST_END_INT,	REX_ZERO},
-	{PSTATE_CONST_INT,		PSTATE_TUPL_SEMICOLON,	REX_SEMICOLON},
-	{PSTATE_CONST_INT,		PSTATE_CONST_REAL,		"[e\\.]"},
-
-	{PSTATE_CONST_SEP_INT,	PSTATE_CONST_SEP_INT,	REX_ALL_SPACES},
-	{PSTATE_CONST_SEP_INT,	PSTATE_CONST_INT,		"[0-9\\-]"},
-	{PSTATE_CONST_SEP_INT,	PSTATE_CONST_IN_INT,	REX_LEFT_SQUARE_BR},
-
-	{PSTATE_CONST_IN_INT,	PSTATE_CONST_IN_INT,	"[ \\t\\[]"},
-	{PSTATE_CONST_IN_INT,	PSTATE_CONST_INT,		"[0-9\\-]"},
-
-	{PSTATE_CONST_OUT_INT,	PSTATE_CONST_OUT_INT,	"[ \\t\\]]"},
-	{PSTATE_CONST_OUT_INT,	PSTATE_CONST_INT,		"[0-9\\-]"},
-	{PSTATE_CONST_OUT_INT,	PSTATE_CONST_SEP_INT,	REX_COMMA},
-	{PSTATE_CONST_OUT_INT,	PSTATE_CONST_END_INT,	REX_ZERO},
-	{PSTATE_CONST_OUT_INT,	PSTATE_TUPL_SEMICOLON,	REX_SEMICOLON},
-
-	{PSTATE_CONST_REAL,		PSTATE_CONST_REAL,		"[e0-9\\-\\.]"},
-	{PSTATE_CONST_REAL,		PSTATE_CONST_SEP_REAL,	REX_COMMA},
-	{PSTATE_CONST_REAL,		PSTATE_CONST_IN_REAL,	REX_LEFT_SQUARE_BR},
-	{PSTATE_CONST_REAL,		PSTATE_CONST_OUT_REAL,	REX_RIGHT_SQUARE_BR},
-	{PSTATE_CONST_REAL,		PSTATE_CONST_END_REAL,	REX_ZERO},
-	{PSTATE_CONST_REAL,		PSTATE_TUPL_SEMICOLON,	REX_SEMICOLON},
-
-	{PSTATE_CONST_SEP_REAL,	PSTATE_CONST_SEP_REAL,	REX_ALL_SPACES},
-	{PSTATE_CONST_SEP_REAL,	PSTATE_CONST_REAL,		"[0-9\\-]"},
-	{PSTATE_CONST_SEP_REAL,	PSTATE_CONST_IN_REAL,	REX_LEFT_SQUARE_BR},
-
-	{PSTATE_CONST_IN_REAL,	PSTATE_CONST_IN_REAL,	"[ \\t\\[]"},
-	{PSTATE_CONST_IN_REAL,	PSTATE_CONST_REAL,		"[0-9\\-]"},
-
-	{PSTATE_CONST_OUT_REAL,	PSTATE_CONST_OUT_REAL,	"[ \\t\\]]"},
-	{PSTATE_CONST_OUT_REAL,	PSTATE_CONST_REAL,		"[0-9\\-]"},
-	{PSTATE_CONST_OUT_REAL,	PSTATE_CONST_SEP_REAL,	REX_COMMA},
-	{PSTATE_CONST_OUT_REAL,	PSTATE_CONST_END_REAL,	REX_ZERO},
-	{PSTATE_CONST_OUT_REAL,	PSTATE_TUPL_SEMICOLON,	REX_SEMICOLON},
-
-	{PSTATE_CONST_STR0,		PSTATE_CONST_STR,		REX_NON_URLENCODED},
-	{PSTATE_CONST_STR0,		PSTATE_CONST_SEP_STR0,	REX_DOUBLEQUOTE},
-	{PSTATE_CONST_STR0,		PSTATE_CONST_STR_ENC0,	REX_PERCENT},
-
-	{PSTATE_CONST_STR,		PSTATE_CONST_STR,		REX_NON_URLENCODED},
-	{PSTATE_CONST_STR,		PSTATE_CONST_SEP_STR0,	REX_DOUBLEQUOTE},
-	{PSTATE_CONST_STR,		PSTATE_CONST_STR_ENC0,	REX_PERCENT},
-
-	{PSTATE_CONST_SEP_STR0,	PSTATE_CONST_SEP_STR0,	REX_ALL_SPACES},
-	{PSTATE_CONST_SEP_STR0,	PSTATE_CONST_SEP_STR,	REX_COMMA},
-	{PSTATE_CONST_SEP_STR0,	PSTATE_CONST_IN_STR,	REX_LEFT_SQUARE_BR},
-	{PSTATE_CONST_SEP_STR0,	PSTATE_CONST_OUT_STR,	REX_RIGHT_SQUARE_BR},
-	{PSTATE_CONST_SEP_STR0,	PSTATE_CONST_END_STR,	REX_ZERO},
-	{PSTATE_CONST_SEP_STR0,	PSTATE_TUPL_SEMICOLON,	REX_SEMICOLON},
-
-	{PSTATE_CONST_SEP_STR,	PSTATE_CONST_SEP_STR,	REX_ALL_SPACES},
-	{PSTATE_CONST_SEP_STR,	PSTATE_CONST_STR0,		REX_DOUBLEQUOTE},
-	{PSTATE_CONST_SEP_STR,	PSTATE_CONST_IN_STR,	REX_LEFT_SQUARE_BR},
-
-	{PSTATE_CONST_IN_STR,	PSTATE_CONST_IN_STR,	"[ \\t\\[]"},
-	{PSTATE_CONST_IN_STR,	PSTATE_CONST_STR0,		REX_DOUBLEQUOTE},
-
-	{PSTATE_CONST_OUT_STR,	PSTATE_CONST_OUT_STR,	"[ \\t\\]]"},
-	{PSTATE_CONST_OUT_STR,	PSTATE_CONST_STR0,		REX_DOUBLEQUOTE},
-	{PSTATE_CONST_OUT_STR,	PSTATE_CONST_SEP_STR,	REX_COMMA},
-	{PSTATE_CONST_OUT_STR,	PSTATE_CONST_END_STR,	REX_ZERO},
-	{PSTATE_CONST_OUT_STR,	PSTATE_TUPL_SEMICOLON,	REX_SEMICOLON},
-
-	{PSTATE_CONST_STR_ENC0,	PSTATE_CONST_STR_ENC1,	REX_HEX_CHAR},
-
-	{PSTATE_CONST_STR_ENC1,	PSTATE_CONST_STR_ENC2,	REX_HEX_CHAR},
-
-	{PSTATE_CONST_STR_ENC2,	PSTATE_CONST_STR_ENC0,	REX_PERCENT},
-	{PSTATE_CONST_STR_ENC2,	PSTATE_CONST_STR,		REX_NON_URLENCODED},
-	{PSTATE_CONST_STR_ENC2,	PSTATE_CONST_SEP_STR0,	REX_DOUBLEQUOTE},
-
-	{PSTATE_BASE_NAME,		PSTATE_BASE_NAME,		REX_NAME_ANY},
-	{PSTATE_BASE_NAME,		PSTATE_TUPL_COLON,		REX_COLON},
-
-	{PSTATE_TUPL_COLON,		PSTATE_TUPL_COLON,		REX_ALL_SPACES},
-	{PSTATE_TUPL_COLON,		PSTATE_KIND_COLON0,		REX_COLON},
-	{PSTATE_TUPL_COLON,		PSTATE_CONST_IN_UNK,	REX_LEFT_SQUARE_BR},
-	{PSTATE_TUPL_COLON,		PSTATE_CONST_INT,		"[0-9\\-]"},
-	{PSTATE_TUPL_COLON,		PSTATE_CONST_STR0,		REX_DOUBLEQUOTE},
-
-	{PSTATE_TUPL_SEMICOLON,	PSTATE_TUPL_SEMICOLON,	REX_ALL_SPACES},
-	{PSTATE_TUPL_SEMICOLON,	PSTATE_TUPL_ITEM_NAME,	REX_NAME_FIRST},
-
-	{PSTATE_TUPL_ITEM_NAME,	PSTATE_TUPL_ITEM_NAME,	REX_NAME_ANY},
-	{PSTATE_TUPL_ITEM_NAME,	PSTATE_TUPL_COLON,		REX_COLON},
-
-	{PSTATE_KIND_COLON0,	PSTATE_KIND_COLON0,		REX_ALL_SPACES},
-	{PSTATE_KIND_COLON0,	PSTATE_KIND_ITEM_NAME,	REX_NAME_FIRST},
-
-	{PSTATE_KIND_ITEM_NAME,	PSTATE_KIND_ITEM_NAME,	REX_NAME_ANY},
-	{PSTATE_KIND_ITEM_NAME,	PSTATE_KIND_COLON,		REX_COLON},
-
-	{PSTATE_KIND_COLON,		PSTATE_KIND_COLON,		REX_ALL_SPACES},
-	{PSTATE_KIND_COLON,		PSTATE_TYPE_NAME,		REX_NAME_FIRST},
-
-	{PSTATE_TYPE_NAME,		PSTATE_TYPE_NAME,		REX_NAME_ANY},
-	{PSTATE_TYPE_NAME,		PSTATE_DIMENSION_IN,	REX_LEFT_SQUARE_BR},
-	{PSTATE_TYPE_NAME,		PSTATE_KIND_SEMICOLON,	REX_SEMICOLON},
-	{PSTATE_TYPE_NAME,		PSTATE_CONST_END_KIND,	REX_ZERO},
-
-	{PSTATE_DIMENSION_IN,	PSTATE_DIMENSION_IN,	REX_ALL_SPACES},
-	{PSTATE_DIMENSION_IN,	PSTATE_DIMENSION_NAME,	REX_NAME_FIRST},
-	{PSTATE_DIMENSION_IN,	PSTATE_DIMENSION_INT,	"[0-9]"},
-
-	{PSTATE_DIMENSION_NAME,	PSTATE_DIMENSION_NAME,	REX_NAME_ANY},
-	{PSTATE_DIMENSION_NAME,	PSTATE_DIMENSION_SEP,	REX_COMMA},
-	{PSTATE_DIMENSION_NAME,	PSTATE_DIMENSION_OUT,	REX_RIGHT_SQUARE_BR},
-
-	{PSTATE_DIMENSION_INT,	PSTATE_DIMENSION_INT,	"[0-9]"},
-	{PSTATE_DIMENSION_INT,	PSTATE_DIMENSION_SEP,	REX_COMMA},
-	{PSTATE_DIMENSION_INT,	PSTATE_DIMENSION_OUT,	REX_RIGHT_SQUARE_BR},
-
-	{PSTATE_DIMENSION_SEP,	PSTATE_DIMENSION_SEP,	REX_ALL_SPACES},
-	{PSTATE_DIMENSION_SEP,	PSTATE_DIMENSION_NAME,	REX_NAME_FIRST},
-	{PSTATE_DIMENSION_SEP,	PSTATE_DIMENSION_INT,	"[0-9]"},
-
-	{PSTATE_DIMENSION_OUT,	PSTATE_DIMENSION_OUT,	REX_ALL_SPACES},
-	{PSTATE_DIMENSION_OUT,	PSTATE_KIND_SEMICOLON,	REX_SEMICOLON},
-	{PSTATE_DIMENSION_OUT,	PSTATE_CONST_END_KIND,	REX_ZERO},
-
-	{PSTATE_KIND_SEMICOLON,	PSTATE_KIND_SEMICOLON,	REX_ALL_SPACES},
-	{PSTATE_KIND_SEMICOLON,	PSTATE_KIND_ITEM_NAME,	REX_NAME_FIRST},
-
-	{MAX_NUM_PSTATES}
-};
-
-StateSwitch  parser_state_switch;
-NextStateLUT hex_hi_LUT, hex_lo_LUT;	*/
 
 /*	-----------------------------------------------
 	 Api : I m p l e m e n t a t i o n
@@ -577,8 +460,8 @@ Api::Api(pLogger	 a_logger,
 	p_bebop		= a_bebop;
 	p_agency	= a_agency;
 
-	base	 = {};
-	url_name = {};
+	base = {};
+	www	 = {};
 }
 
 
@@ -591,8 +474,7 @@ Configuration-wise the API has just two keys:
 
 Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
-StatusCode Api::start ()
-{
+StatusCode Api::start () {
 	p_channels->base_names(base);
 	p_volatile->base_names(base);
 	p_persisted->base_names(base);
@@ -618,8 +500,7 @@ StatusCode Api::start ()
 
 /** Shuts down the Persisted Service
 */
-StatusCode Api::shut_down ()
-{
+StatusCode Api::shut_down () {
 	base.clear();
 
 	return Container::shut_down();	// Closes the one-shot functionality.
@@ -646,8 +527,7 @@ HTTP_DELETE | Api.remove()
 HTTP_OPTIONS | Nothing: options calls must call with `execution = false`
 
 */
-StatusCode Api::parse (const char *url, int method, APIParseBuffer &pars, bool execution)
-{
+StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, bool execution) {
 //TODO: Implement Api::parse()
 
 	return SERVICE_NOT_IMPLEMENTED;
@@ -663,8 +543,7 @@ StatusCode Api::parse (const char *url, int method, APIParseBuffer &pars, bool e
 	\return			 Some error code or SERVICE_NO_ERROR if successful.
 
 */
-StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execution)
-{
+StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execution) {
 //TODO: Implement Api::get_static()
 
 	return SERVICE_NOT_IMPLEMENTED;
@@ -680,13 +559,12 @@ StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execu
 
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
-MHD_Result Api::return_error_message (struct MHD_Connection *connection, int http_status)
-{
-	Answer answer;
+MHD_Result Api::return_error_message (struct MHD_Connection *connection, int http_status) {
+	char answer[128];
 
-	sprintf(answer.text, "<html><body><h1><br/><br/>Http error : %d.</h1></body></html>", http_status);
+	sprintf(answer, "<html><body><h1><br/><br/>Http error : %d.</h1></body></html>", http_status);
 
-	struct MHD_Response *response = MHD_create_response_from_buffer (strlen(answer.text), answer.text, MHD_RESPMEM_MUST_COPY);
+	struct MHD_Response *response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
 
 	MHD_Result ret = MHD_queue_response (connection, http_status, response);
 
@@ -712,8 +590,8 @@ the block is appended at the end on the existing block.
 callback, but it is not intended for any other context.
 
 */
-bool Api::upload (APIParseBuffer &parse_buff, const char *upload, size_t size, bool continue_upload)
-{
+bool Api::upload (HttpQueryState &q_state, const char *upload, size_t size, bool continue_upload) {
+
 //TODO: Implement Api::upload()
 
 	return false;
@@ -730,10 +608,11 @@ bool Api::upload (APIParseBuffer &parse_buff, const char *upload, size_t size, b
 callback, but it is not intended for any other context.
 
 */
-bool Api::remove (APIParseBuffer &parse_buff)
-{
+bool Api::remove (HttpQueryState &q_state) {
 
-	return PARSE_NOT_IMPLEMENTED;
+//TODO: Implement Api::remove()
+
+	return false;
 }
 
 
@@ -748,43 +627,12 @@ bool Api::remove (APIParseBuffer &parse_buff)
 for the callback, but it is not intended for any other context.
 
 */
-bool Api::http_get (APIParseBuffer &parse_buff, pMHD_Response &response)
+bool Api::http_get (HttpQueryState &q_state, pMHD_Response &response)
 {
 
-	return PARSE_NOT_IMPLEMENTED;
-}
+//TODO: Implement Api::http_get()
 
-
-/** Implements .get() interface to the Api Container.
-
-The Api is a Container (the root class) and includes all the one shot functionality (6 new block methods) and a deque to lock blocks.
-It does not implement get(), just defines the interface to be inherited. Api needs this extra method for keeping temporary blocks locked
-over possibly more than one http callback query (in uploads) and used by different threads.
-
-This is an implementation of the interface using block names and locators for the only purpose of storing Api-owned Blocks and have some
-mechanism to recall the same blocks across http PUT queries.
-
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-	\param p_what	An L_value (locator) of the block being uploaded, that will be moved to the appropriate Container when upload is done.
-
-	\return			Some error code or SERVICE_NO_ERROR if successful.
-*/
-StatusCode Api::get(pTransaction *p_txn, pLocator p_what)
-{
-
-	return PARSE_NOT_IMPLEMENTED;
-}
-
-
-/** Add the base names for this Container.
-
-	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
-
-*/
-void Api::base_names (BaseNames &base_names)
-{
-	base_names[""] = this;
+	return false;
 }
 
 
@@ -802,305 +650,12 @@ It also assigns attributes:
 */
 StatusCode Api::_load_statics (const char *path)
 {
+
 //TODO: Implement Api::_load_statics()
 
 	return 0;
 }
 
-
-/** This is a private submethod of parse() doing the outer level recursively. See the documentation of Api.parse() for reference.
-
-	\param p_url	 The url as a pointer passed by reference (that updates and points to the conflicting char on error.)
-	\param method	 The http method in [HTTP_NOTUSED .. HTTP_DELETE]
-	\param l_value		 A structure with the parts the url successfully parsed ready to be executed.
-	\param r_value		 A structure with the parts the url successfully parsed ready to be executed.
-	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
-	\param rec_level The recursion level (starting with 0, breaking with MAX_RECURSION_DEPTH).
-
-	\return			 Some error code or SERVICE_NO_ERROR if successful.
-
-
-*/
-StatusCode Api::_parse_recurse (pChar &p_url, int method, L_value &l_value, R_value &r_value, bool execution, int rec_level)
-{
-
-	return PARSE_NOT_IMPLEMENTED;
-}
-
-
-/** This is a private submethod of parse() parsing constants for syntax checking and retrieving the metadata.
-
-It returns a BlockHeader that is necessary to allocate a block calling _parse_const_data() with it.
-
-	\param p_url	A pointer to the first character of the constant.
-	\param p_block	A pointer to a BlockHeader (A Block with no alloc) that will be filled on success.
-
-	\return		 Some error code or SERVICE_NO_ERROR if successful.
-*/
-StatusCode Api::_parse_const_meta(pChar &p_url, pBlock p_block)
-{
-/*
-	int state = PSTATE_INITIAL;
-	unsigned char cursor, url_enc_byte;
-
-	TensorDim shape	 = {-1, -1, -1, -1, -1, -1};
-	TensorDim n_item = { 0,  0,  0,  0,  0,  0};
-
-	int level = -1, tot_cells = 0, cell = 0, max_level = 0, utf8_len = 0, num_items = 0, num_dimensions = 0;
-	bool no_brackets = true, is_kind = false;
-
-	while (true) {
-		cursor = p_url++[0];
-		state  = parser_state_switch.state[state].next[cursor];
-
-		switch (state) {
-		case PSTATE_CONST_END_INT:
-		case PSTATE_CONST_END_REAL:
-		case PSTATE_CONST_END_STR:
-		case PSTATE_CONST_END_KIND:
-			if (level == 0 && no_brackets) {
-				n_item.dim[0]++;
-				tot_cells += cell;
-
-				if (shape.dim[0] < 0)
-					shape.dim[0] = n_item.dim[0];
-
-				level--;
-			}
-			if (level != -1)
-				return PARSE_BRACKET_MISMATCH;
-
-			memset(p_block, 0, sizeof(Block));
-
-			if (num_items) {
-				if (state == PSTATE_CONST_END_KIND)
-					p_block->cell_type = CELL_TYPE_KIND_ITEM;
-				else
-					p_block->cell_type = CELL_TYPE_TUPLE_ITEM;
-
-				shape.dim[0] = num_items;
-				shape.dim[1] = 0;
-
-				p_block->set_dimensions(shape.dim);
-
-			} else {
-				switch (state) {
-				case PSTATE_CONST_END_INT:
-					p_block->cell_type = CELL_TYPE_INTEGER;
-					break;
-				case PSTATE_CONST_END_REAL:
-					p_block->cell_type = CELL_TYPE_DOUBLE;
-					break;
-				case PSTATE_CONST_END_STR:
-					p_block->cell_type = CELL_TYPE_STRING;
-					break;
-				}
-				p_block->set_dimensions(shape.dim);
-
-				if (p_block->size != tot_cells)
-					return PARSE_ERROR_INVALID_SHAPE;
-			}
-
-			return PARSE_OK;
-
-		case PSTATE_CONST_STR0:
-			if (utf8_len)
-				return PARSE_ERROR_ENCODING;
-
-		case PSTATE_CONST_INT:
-		case PSTATE_CONST_REAL:
-			if (level < 0) {
-				if (tot_cells > 0)
-					return PARSE_BRACKET_MISMATCH;
-
-				level = 0;
-			}
-			cell = 1;
-			break;
-
-		case PSTATE_CONST_IN_INT:
-		case PSTATE_CONST_IN_REAL:
-		case PSTATE_CONST_IN_STR:
-		case PSTATE_CONST_IN_UNK:
-			if (cursor == '[') {
-				no_brackets = false;
-				level++;
-				if (tot_cells) {
-					if (level > max_level)
-						return PARSE_ERROR_INVALID_SHAPE;
-				} else {
-					max_level = level;
-				}
-				if (level >= MAX_TENSOR_RANK)
-					return PARSE_ERROR_TOO_DEEP;
-
-				n_item.dim[level] = 0;
-			};
-			break;
-
-		case PSTATE_CONST_OUT_STR:
-			if (utf8_len)
-				return PARSE_ERROR_ENCODING;
-
-		case PSTATE_CONST_OUT_INT:
-		case PSTATE_CONST_OUT_REAL:
-			if (cursor == ']') {
-				if (level < 0)
-					return PARSE_BRACKET_MISMATCH;
-
-				n_item.dim[level]++;
-				tot_cells += cell;
-				cell = 0;
-
-				if (shape.dim[level] < 0) {
-					shape.dim[level] = n_item.dim[level];
-				} else {
-					if (shape.dim[level] != n_item.dim[level])
-						return PARSE_ERROR_INVALID_SHAPE;
-				};
-				level--;
-			};
-			break;
-
-		case PSTATE_CONST_SEP_STR:
-			if (utf8_len)
-				return PARSE_ERROR_ENCODING;
-
-		case PSTATE_CONST_SEP_INT:
-		case PSTATE_CONST_SEP_REAL:
-			if (cursor == ',') {
-				n_item.dim[level]++;
-				tot_cells += cell;
-				cell = 0;
-			};
-			break;
-
-		case PSTATE_CONST_STR:
-			if (utf8_len)
-				return PARSE_ERROR_ENCODING;
-
-			break;
-
-		case PSTATE_CONST_STR_ENC1:
-			url_enc_byte = hex_hi_LUT.next[cursor];
-
-			break;
-
-		case PSTATE_CONST_STR_ENC2:
-			if (utf8_len) {
-				utf8_len--;
-			} else {
-				url_enc_byte += hex_lo_LUT.next[cursor];
-
-				if		((url_enc_byte & 0xE0) == 0xC0)	// 110x xxxx
-					utf8_len = 1;
-				else if ((url_enc_byte & 0xF0) == 0xE0)	// 1110 xxxx
-					utf8_len = 2;
-				else if ((url_enc_byte & 0xF8) == 0xF0)	// 1111 0xxx
-					utf8_len = 3;
-			}
-
-			break;
-
-		case PSTATE_KIND_COLON0:
-			if (cursor == ':') {
-				num_items--;
-				if (num_items)
-					return PARSE_ERROR_INVALID_CHAR;
-
-				is_kind = true;
-			}
-
-			break;
-
-		case PSTATE_TUPL_COLON:
-		case PSTATE_KIND_COLON:
-			if (cursor == ':')
-				num_items++;
-
-			break;
-
-		case PSTATE_DIMENSION_IN:
-			num_dimensions = 0;
-
-			break;
-
-		case PSTATE_DIMENSION_SEP:
-			if (cursor == ',') {
-				num_dimensions++;
-				if (num_dimensions >= MAX_TENSOR_RANK)
-					return PARSE_ERROR_INVALID_SHAPE;
-			}
-
-			break;
-
-		case PSTATE_TUPL_SEMICOLON:
-			if (cursor == ';') {
-				if (level == 0 && no_brackets)
-					level--;
-
-				if (level != -1)
-					return PARSE_BRACKET_MISMATCH;
-
-				shape  = {-1, -1, -1, -1, -1, -1};
-				n_item = { 0,  0,  0,  0,  0,  0};
-
-				level = -1, tot_cells = 0, cell = 0, max_level = 0, utf8_len = 0;
-				no_brackets = true;
-			}
-
-			break;
-
-		case PSTATE_INITIAL:
-		case PSTATE_CONST_SEP_STR0:
-		case PSTATE_CONST_STR_ENC0:
-		case PSTATE_BASE_NAME:
-		case PSTATE_TUPL_ITEM_NAME:
-		case PSTATE_KIND_ITEM_NAME:
-		case PSTATE_TYPE_NAME:
-		case PSTATE_DIMENSION_NAME:
-		case PSTATE_DIMENSION_INT:
-		case PSTATE_DIMENSION_OUT:
-		case PSTATE_KIND_SEMICOLON:
-			break;
-
-		default:
-			return PARSE_ERROR_INVALID_CHAR;
-		}
-	}
-*/
-	return PARSE_NOT_IMPLEMENTED;
-}
-
-
-/** This is a private submethod of parse() creating blocks with the data of a constant previously checked by _parse_const_meta()
-
-It returns a locked (one shot) block that must be unlocked in the same http query.
-
-	\param p_url	A pointer to the first character of the constant.
-	\param hea		A BlockHeader created in a successful _parse_const_meta.
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container. The caller can only use it read-only and **must** unlock() it when done.
-
-	\return			Some error code or SERVICE_NO_ERROR if successful.
-*/
-StatusCode Api::_parse_const_data(pChar &p_url, BlockHeader &hea, pTransaction *p_txn)
-{
-/*
-	int state = PSTATE_INITIAL;
-	int state_recency = -1, next_state;
-	unsigned char cursor;
-
-	while (true) {
-		cursor		  = p_url++[0];
-		next_state	  = parser_state_switch.state[state].next[cursor];
-		state_recency = next_state == state ? state_recency + 1 : 0;
-		state		  = next_state;
-
-	}
-*/
-	return PARSE_NOT_IMPLEMENTED;
-}
 
 } // namespace jazz_main
 
