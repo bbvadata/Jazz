@@ -567,7 +567,6 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(p_txn[0] != nullptr);
 
 	REQUIRE(p_txn[0]->p_block == nullptr);
-	REQUIRE(p_txn[0]->p_route == nullptr);
 	REQUIRE(p_txn[0]->_lock_  == 0);
 	REQUIRE(p_txn[0]->status  == BLOCK_STATUS_EMPTY);
 	REQUIRE(p_txn[0]->p_owner == &CNT);
@@ -622,7 +621,6 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 			REQUIRE(p_txn[i] != nullptr);
 
 			REQUIRE(p_txn[i]->p_block == nullptr);
-			REQUIRE(p_txn[i]->p_route == nullptr);
 			REQUIRE(p_txn[i]->_lock_  == 0);
 			REQUIRE(p_txn[i]->status  == BLOCK_STATUS_EMPTY);
 			REQUIRE(p_txn[i]->p_owner == &CNT);
