@@ -26,6 +26,40 @@
 
 char dkbuf[1024];
 
+#define MDB_DEVEL 0
+#define MDB_MAXKEYSIZE	 ((MDB_DEVEL) ? 0 : 511)
+#define DKBUF_MAXKEYSIZE ((MDB_MAXKEYSIZE) > 0 ? (MDB_MAXKEYSIZE) : 511)
+
+/** Display a key in hexadecimal and return the address of the result.
+ * @param[in] key the key to display
+ * @param[in] buf the buffer to write into. Should always be #DKBUF.
+ * @return The key in hexadecimal form.
+ */
+char *
+mdb_dkey(MDB_val *key, char *buf)
+{
+	char *ptr = buf;
+	unsigned char *c = key->mv_data;
+	unsigned int i;
+
+	if (!key)
+		return "";
+
+	if (key->mv_size > DKBUF_MAXKEYSIZE)
+		return "MDB_MAXKEYSIZE";
+	/* may want to make this a dynamic check: if the key is mostly
+	 * printable characters, print it as-is instead of converting to hex.
+	 */
+#if 1
+	buf[0] = '\0';
+	for (i=0; i<key->mv_size; i++)
+		ptr += sprintf(ptr, "%02x", *c++);
+#else
+	sprintf(buf, "%.*s", key->mv_size, key->mv_data);
+#endif
+	return buf;
+}
+
 int main(int argc,char * argv[])
 {
 	int i = 0, j = 0, rc;
