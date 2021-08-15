@@ -205,11 +205,11 @@ int mdb_midl_append_range( MDB_IDL *idp, MDB_ID id, unsigned n )
 
 void mdb_midl_xmerge( MDB_IDL idl, MDB_IDL merge )
 {
-	MDB_ID old_id, merge_id, i = merge[0], j = idl[0], k = i+j, total = k;
+	MDB_ID old_id, i = merge[0], j = idl[0], k = i+j, total = k;
 	idl[0] = (MDB_ID)-1;		/* delimiter for idl scan below */
 	old_id = idl[j];
 	while (i) {
-		merge_id = merge[i--];
+		MDB_ID merge_id = merge[i--];
 		for (; old_id < merge_id; old_id = idl[--j])
 			idl[k--] = old_id;
 		idl[k--] = merge_id;
@@ -320,7 +320,7 @@ unsigned mdb_mid2l_search( MDB_ID2L ids, MDB_ID id )
 
 int mdb_mid2l_insert( MDB_ID2L ids, MDB_ID2 *id )
 {
-	unsigned x, i;
+	unsigned x;
 
 	x = mdb_mid2l_search( ids, id->mid );
 
@@ -341,7 +341,7 @@ int mdb_mid2l_insert( MDB_ID2L ids, MDB_ID2 *id )
 	} else {
 		/* insert id */
 		ids[0].mid++;
-		for (i=(unsigned)ids[0].mid; i>x; i--)
+		for (unsigned i = (unsigned)ids[0].mid; i>x; i--)
 			ids[i] = ids[i-1];
 		ids[x] = *id;
 	}
