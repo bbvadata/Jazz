@@ -497,7 +497,7 @@ StatusCode Api::shut_down () {
 
 	\param url		 The http url (that has already been checked to start with //)
 	\param method	 The http method in [HTTP_NOTUSED .. HTTP_DELETE]
-	\param pars		 A structure with the parts the url successfully parsed ready to be executed.
+	\param q_state	 A structure with the parts the url successfully parsed ready to be executed.
 	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
 
 	\return			 Some error code or SERVICE_NO_ERROR if successful.
@@ -508,8 +508,8 @@ unlock() all the intermediate blocks.
 method | call executed by
 -------|-----------------
 HTTP_GET, HTTP_HEAD | Api.http_get()
-HTTP_PUT | Api.upload()
-HTTP_DELETE | Api.remove()
+HTTP_PUT | Api.http_put()
+HTTP_DELETE | Api.http_delete()
 HTTP_OPTIONS | Nothing: options calls must call with `execution = false`
 
 */
@@ -565,8 +565,8 @@ MHD_Result Api::return_error_message (struct MHD_Connection *connection, int htt
 
 /**	 Execute a put block using some one-shot block as an intermediate buffer.
 
-	\param parse_buff		The structure containing the parts of the url successfully parsed.
-	\param upload			A pointer to the data uploaded with the http PUT call.
+	\param q_state			The structure containing the parts of the url successfully parsed.
+	\param p_upload			A pointer to the data uploaded with the http PUT call.
 	\param size				The size of the data uploaded with the http PUT call.
 	\param continue_upload  If true, the upload is added at the end of the already existing block.
 
@@ -589,7 +589,7 @@ bool Api::http_put (HttpQueryState &q_state, const char *p_upload, size_t size, 
 
 /**	 Execute an http DELETE of a block using the block API.
 
-	\param parse_buff The structure containing the parts of the url successfully parsed.
+	\param q_state The structure containing the parts of the url successfully parsed.
 
 	\return			  true if successful, log(LOG_MISS, "further details") for errors.
 
@@ -607,7 +607,7 @@ bool Api::http_delete (HttpQueryState &q_state) {
 
 /** Execute a get block using the instrumental API.
 
-	\param parse_buff The structure containing the parts of the url successfully parsed.
+	\param q_state The structure containing the parts of the url successfully parsed.
 	\param response	  A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
 
 	\return			  true if successful, log(LOG_MISS, "further details") for errors.
