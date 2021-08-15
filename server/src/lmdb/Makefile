@@ -20,7 +20,7 @@
 #
 CC	= gcc
 AR	= ar
-W	= -W -Wall -Wno-unused-parameter -Wbad-function-cast -Wuninitialized
+W	= -W -Wall -Wno-unused-parameter -Wbad-function-cast -Wuninitialized -Wimplicit-fallthrough=0
 THREADS = -pthread
 OPT = -O2 -g
 CFLAGS	= $(THREADS) $(OPT) $(W) $(XCFLAGS)
