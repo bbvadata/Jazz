@@ -10767,7 +10767,7 @@ int mdb_dbi_open(MDB_txn *txn, const char *name, unsigned int flags, MDB_dbi *db
 	MDB_cursor mc;
 	MDB_db dummy;
 	int rc, dbflag, exact;
-	unsigned int unused = 0, seq;
+	unsigned int unused = 0;
 	char *namedup;
 	size_t len;
 
@@ -10865,7 +10865,7 @@ int mdb_dbi_open(MDB_txn *txn, const char *name, unsigned int flags, MDB_dbi *db
 		/* txn-> and env-> are the same in read txns, use
 		 * tmp variable to avoid undefined assignment
 		 */
-		seq = ++txn->mt_env->me_dbiseqs[slot];
+		unsigned int seq = ++txn->mt_env->me_dbiseqs[slot];
 		txn->mt_dbiseqs[slot] = seq;
 
 		memcpy(&txn->mt_dbs[slot], data.mv_data, sizeof(MDB_db));
