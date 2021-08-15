@@ -190,7 +190,9 @@ pid_t FindProcessIdByName(const char *name) {
 
 	pid_t pid_self = getpid();
 
-	while((ent = readdir(dir)) != nullptr) {
+	while((ent = readdir(dir)) != nullptr) {		// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
+													// readdir() (3) is thread safe.
+
 		// if endptr is not null, the directory is not entirely numeric, so ignore it
 		long lpid = strtol(ent->d_name, &endptr, 10);
 
