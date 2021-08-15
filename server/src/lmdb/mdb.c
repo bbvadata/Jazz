@@ -814,7 +814,7 @@ typedef struct MDB_reader {
 #define	mr_pid	mru.mrx.mrb_pid
 #define	mr_tid	mru.mrx.mrb_tid
 		/** cache line alignment */
-		char pad[(sizeof(MDB_rxbody)+CACHELINE-1) & ~(CACHELINE-1)];
+		char pad[(sizeof(MDB_rxbody)+CACHELINE-1) & ~(CACHELINE-1)];	// cppcheck-suppress unusedStructMember
 	} mru;
 } MDB_reader;
 
@@ -876,7 +876,7 @@ typedef struct MDB_txninfo {
 #define	mti_semid	mt1.mtb.mtb_semid
 #define	mti_rlocked	mt1.mtb.mtb_rlocked
 #endif
-		char pad[(sizeof(MDB_txbody)+CACHELINE-1) & ~(CACHELINE-1)];
+		char pad[(sizeof(MDB_txbody)+CACHELINE-1) & ~(CACHELINE-1)];	// cppcheck-suppress unusedStructMember
 	} mt1;
 #if !(defined(_WIN32) || defined(MDB_USE_POSIX_SEM))
 	union {
@@ -887,7 +887,7 @@ typedef struct MDB_txninfo {
 		mdb_mutex_t	mt2_wmutex;
 #define mti_wmutex	mt2.mt2_wmutex
 #endif
-		char pad[(MNAME_LEN+CACHELINE-1) & ~(CACHELINE-1)];
+		char pad[(MNAME_LEN+CACHELINE-1) & ~(CACHELINE-1)];				// cppcheck-suppress unusedStructMember
 	} mt2;
 #endif
 	MDB_reader	mti_readers[1];
@@ -1230,7 +1230,7 @@ typedef struct MDB_meta {
 typedef union MDB_metabuf {
 	MDB_page	mb_page;
 	struct {
-		char		mm_pad[PAGEHDRSZ];
+		char		mm_pad[PAGEHDRSZ];			// cppcheck-suppress unusedStructMember
 		MDB_meta	mm_meta;
 	} mb_metabuf;
 } MDB_metabuf;
