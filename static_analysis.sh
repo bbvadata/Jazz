@@ -25,7 +25,7 @@ then
   exit 1
 fi
 
-cppcheck src/ -i src/catch2/ -i src/curl/ --enable=all --inconclusive --library=posix --xml 2>report.xml
+cppcheck src/ -i src/catch2/ -i src/curl/ --enable=all --inconclusive --library=posix --inline-suppr --xml 2>report.xml
 cppcheck-htmlreport --file=report.xml --title="Jazz (inconclusive)" --report-dir=static_analysis_reports/inconclusive --source-dir=.
 
 rm -f report.xml
