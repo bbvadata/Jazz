@@ -6398,7 +6398,7 @@ mdb_page_get(MDB_cursor *mc, pgno_t pgno, MDB_page **ret, int *lvl)
 		level = 1;
 		do {
 			MDB_ID2L dl = tx2->mt_u.dirty_list;
-			unsigned x;
+
 			/* Spilled pages were dirtied in this txn and flushed
 			 * because the dirty list got full. Bring this page
 			 * back in from the map (but don't unspill it here,
@@ -6406,7 +6406,7 @@ mdb_page_get(MDB_cursor *mc, pgno_t pgno, MDB_page **ret, int *lvl)
 			 */
 			if (tx2->mt_spill_pgs) {
 				MDB_ID pn = pgno << 1;
-				x = mdb_midl_search(tx2->mt_spill_pgs, pn);
+				unsigned x = mdb_midl_search(tx2->mt_spill_pgs, pn);
 				if (x <= tx2->mt_spill_pgs[0] && tx2->mt_spill_pgs[x] == pn) {
 					goto mapped;
 				}
