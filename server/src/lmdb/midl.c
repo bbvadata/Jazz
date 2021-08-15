@@ -360,43 +360,5 @@ int mdb_mid2l_append( MDB_ID2L ids, MDB_ID2 *id )
 	return 0;
 }
 
-#ifdef MDB_VL32
-unsigned mdb_mid3l_search( MDB_ID3L ids, MDB_ID id )
-{
-	/*
-	 * binary search of id in ids
-	 * if found, returns position of id
-	 * if not found, returns first position greater than id
-	 */
-	unsigned base = 0;
-	unsigned cursor = 1;
-	int val = 0;
-	unsigned n = (unsigned)ids[0].mid;
-
-	while( 0 < n ) {
-		unsigned pivot = n >> 1;
-		cursor = base + pivot + 1;
-		val = CMP( id, ids[cursor].mid );
-
-		if( val < 0 ) {
-			n = pivot;
-
-		} else if ( val > 0 ) {
-			base = cursor;
-			n -= pivot + 1;
-
-		} else {
-			return cursor;
-		}
-	}
-
-	if( val > 0 ) {
-		++cursor;
-	}
-	return cursor;
-}
-
-#endif /* MDB_VL32 */
-
 /** @} */
 /** @} */
