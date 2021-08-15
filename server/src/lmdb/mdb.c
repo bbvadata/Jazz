@@ -9134,7 +9134,6 @@ mdb_page_merge(MDB_cursor *csrc, MDB_cursor *cdst)
 			srcnode = NODEPTR(psrc, i);
 			if (i == 0 && IS_BRANCH(psrc)) {
 				MDB_cursor mn;
-				MDB_node *s2;
 				mdb_cursor_copy(csrc, &mn);
 				mn.mc_xcursor = NULL;
 				/* must find the lowest key below src */
@@ -9145,7 +9144,7 @@ mdb_page_merge(MDB_cursor *csrc, MDB_cursor *cdst)
 					key.mv_size = mn.mc_db->md_pad;
 					key.mv_data = LEAF2KEY(mn.mc_pg[mn.mc_top], 0, key.mv_size);
 				} else {
-					s2 = NODEPTR(mn.mc_pg[mn.mc_top], 0);
+					MDB_node *s2 = NODEPTR(mn.mc_pg[mn.mc_top], 0);
 					key.mv_size = NODEKSZ(s2);
 					key.mv_data = NODEKEY(s2);
 				}
