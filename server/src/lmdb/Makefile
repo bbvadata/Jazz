@@ -24,8 +24,8 @@ W	= -W -Wall -Wno-unused-parameter -Wbad-function-cast -Wuninitialized
 THREADS = -pthread
 OPT = -O2 -g
 CFLAGS	= $(THREADS) $(OPT) $(W) $(XCFLAGS)
-LDLIBS	= 
-SOLIBS	= 
+LDLIBS	=
+SOLIBS	=
 SOEXT	= .so
 prefix	= /usr/local
 exec_prefix = $(prefix)
@@ -41,7 +41,7 @@ IHDRS	= lmdb.h
 ILIBS	= liblmdb.a liblmdb$(SOEXT)
 IPROGS	= mdb_stat mdb_copy mdb_dump mdb_load mdb_drop
 IDOCS	= mdb_stat.1 mdb_copy.1 mdb_dump.1 mdb_load.1 mdb_drop.1
-PROGS	= $(IPROGS) mtest mtest2 mtest3 mtest4 mtest5
+PROGS	= $(IPROGS) test_1 test_2 test_3 test_4 test_5 test_6
 all:	$(ILIBS) $(PROGS)
 
 install: $(ILIBS) $(IPROGS) $(IHDRS)
@@ -59,7 +59,7 @@ clean:
 
 test:	all
 	rm -rf testdb && mkdir testdb
-	./mtest && ./mdb_stat testdb
+	./test_1 && ./mdb_stat testdb
 
 liblmdb.a:	mdb.o midl.o
 	$(AR) rs $@ mdb.o midl.o
@@ -73,12 +73,12 @@ mdb_copy: mdb_copy.o liblmdb.a
 mdb_dump: mdb_dump.o liblmdb.a
 mdb_load: mdb_load.o liblmdb.a
 mdb_drop: mdb_drop.o liblmdb.a
-mtest:    mtest.o    liblmdb.a
-mtest2:	mtest2.o liblmdb.a
-mtest3:	mtest3.o liblmdb.a
-mtest4:	mtest4.o liblmdb.a
-mtest5:	mtest5.o liblmdb.a
-mtest6:	mtest6.o liblmdb.a
+test_1: test_1.o liblmdb.a
+test_2:	test_2.o liblmdb.a
+test_3:	test_3.o liblmdb.a
+test_4:	test_4.o liblmdb.a
+test_5:	test_5.o liblmdb.a
+test_6:	test_6.o liblmdb.a
 
 mdb.o: mdb.c lmdb.h midl.h
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c mdb.c
@@ -102,14 +102,14 @@ COV_FLAGS=-fprofile-arcs -ftest-coverage
 COV_OBJS=xmdb.o xmidl.o
 
 coverage: xmtest
-	for i in mtest*.c [0-9]*.c; do j=`basename \$$i .c`; $(MAKE) $$j.o; \
+	for i in test_*.c [0-9]*.c; do j=`basename \$$i .c`; $(MAKE) $$j.o; \
 		gcc -o x$$j $$j.o $(COV_OBJS) -pthread $(COV_FLAGS); \
 		rm -rf testdb; mkdir testdb; ./x$$j; done
 	gcov xmdb.c
 	gcov xmidl.c
 
-xmtest:	mtest.o xmdb.o xmidl.o
-	gcc -o xmtest mtest.o xmdb.o xmidl.o -pthread $(COV_FLAGS)
+xmtest:	test_1.o xmdb.o xmidl.o
+	gcc -o xmtest test_1.o xmdb.o xmidl.o -pthread $(COV_FLAGS)
 
 xmdb.o: mdb.c lmdb.h midl.h
 	$(CC) $(CFLAGS) -fPIC $(CPPFLAGS) -O0 $(COV_FLAGS) -c mdb.c -o $@
