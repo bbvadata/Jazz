@@ -51,11 +51,12 @@ HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logge
 
 /** Start the Jazz server.
 
-\param p_sig_handler	A function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
-\param p_daemon			Returns by reference the pointer that will be used to control the MHD_Daemon.
-\param dh				The addres of the MHD_AccessHandlerCallback (server callback).
+	\param p_sig_handler	A function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
+	\param p_daemon			Returns by reference the pointer that will be used to control the MHD_Daemon.
+	\param dh				The addres of the MHD_AccessHandlerCallback (server callback).
+	\param channels			The instance of Channel to find out the configuration port.
 
-\return			On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does
+	\return		On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does
 not return. The application is stopped when callback signalHandler_SIGTERM exits with EXIT_SUCCESS if shutting all services was successful
 or with EXIT_FAILURE if not. On failure, the caller is responsible of stopping all started services (see jazz_main.cpp).
 
