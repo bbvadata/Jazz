@@ -167,8 +167,8 @@ MHD_Result http_request_callback(void *cls,
 								 const char *version,
 								 const char *upload_data,
 								 size_t *upload_data_size,
-								 void **con_cls)
-{
+								 void **con_cls) {
+
 	// Step 1: First opportunity to end the connection before uploading or getting. Not used. We initialize con_cls for the next call.
 
 	if (*con_cls == NULL) {
@@ -196,7 +196,7 @@ MHD_Result http_request_callback(void *cls,
 			return MHD_NO;
 		}
 
-		if (API.upload(q_state, upload_data, *upload_data_size, true))
+		if (API.http_put(q_state, upload_data, *upload_data_size, true))
 			goto continue_in_put_ok;
 
 		goto continue_in_put_notacceptable;
@@ -514,6 +514,7 @@ HTTP_OPTIONS | Nothing: options calls must call with `execution = false`
 
 */
 StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, bool execution) {
+
 //TODO: Implement Api::parse()
 
 	return SERVICE_NOT_IMPLEMENTED;
@@ -530,6 +531,7 @@ StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, boo
 
 */
 StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execution) {
+
 //TODO: Implement Api::get_static()
 
 	return SERVICE_NOT_IMPLEMENTED;
@@ -546,6 +548,7 @@ StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execu
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
 MHD_Result Api::return_error_message (struct MHD_Connection *connection, int http_status) {
+
 	char answer[128];
 
 	sprintf(answer, "<html><body><h1><br/><br/>Http error : %d.</h1></body></html>", http_status);
@@ -613,8 +616,7 @@ bool Api::http_delete (HttpQueryState &q_state) {
 for the callback, but it is not intended for any other context.
 
 */
-bool Api::http_get (HttpQueryState &q_state, pMHD_Response &response)
-{
+bool Api::http_get (HttpQueryState &q_state, pMHD_Response &response) {
 
 //TODO: Implement Api::http_get()
 
@@ -634,14 +636,12 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::_load_statics (const char *path)
-{
+StatusCode Api::_load_statics (const char *path) {
 
 //TODO: Implement Api::_load_statics()
 
 	return 0;
 }
-
 
 } // namespace jazz_main
 
