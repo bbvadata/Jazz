@@ -11216,7 +11216,7 @@ mdb_reader_check0(MDB_env *env, int rlocked, int *dead)
 	mdb_mutexref_t rmutex = rlocked ? NULL : env->me_rmutex;
 	unsigned int i, j, rdrs;
 	MDB_reader *mr;
-	MDB_PID_T *pids, pid;
+	MDB_PID_T *pids;
 	int rc = MDB_SUCCESS, count = 0;
 
 	rdrs = env->me_txns->mti_numreaders;
@@ -11226,7 +11226,7 @@ mdb_reader_check0(MDB_env *env, int rlocked, int *dead)
 	pids[0] = 0;
 	mr = env->me_txns->mti_readers;
 	for (i=0; i<rdrs; i++) {
-		pid = mr[i].mr_pid;
+		MDB_PID_T pid = mr[i].mr_pid;
 		if (pid && pid != env->me_pid) {
 			if (mdb_pid_insert(pids, pid) == 0) {
 				if (!mdb_reader_pid(env, Pidcheck, pid)) {
