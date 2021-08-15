@@ -1620,7 +1620,7 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what) {
 
 	p_txn = nullptr;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return get(p_txn, loc);
@@ -1647,7 +1647,7 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what, pBlock p_row_filte
 
 	p_txn = nullptr;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return get(p_txn, loc, p_row_filter);
@@ -1672,7 +1672,7 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what, pChar name) {
 
 	p_txn = nullptr;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return get(p_txn, loc, name);
@@ -1693,7 +1693,7 @@ StatusCode Container::header (StaticBlockHeader	&hea, pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return header(hea, loc);
@@ -1721,7 +1721,7 @@ StatusCode Container::header (pTransaction &p_txn, pChar p_what) {
 
 	p_txn = nullptr;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return header(p_txn, loc);
@@ -1742,7 +1742,7 @@ StatusCode Container::put (pChar p_where, pBlock p_block, int mode) {
 	Locator loc;
 	StatusCode ret;
 
-	if (ret = as_locator(loc, p_where) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_where)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return put(loc, p_block, mode);
@@ -1761,7 +1761,7 @@ StatusCode Container::new_entity (pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return new_entity(loc);
@@ -1780,7 +1780,7 @@ StatusCode Container::remove (pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
-	if (ret = as_locator(loc, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return remove(loc);
@@ -1801,10 +1801,10 @@ StatusCode Container::copy (pChar p_where, pChar p_what) {
 	Locator where, what;
 	StatusCode ret;
 
-	if (ret = as_locator(where, p_where) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(where, p_where)) != SERVICE_NO_ERROR)
 		return ret;
 
-	if (ret = as_locator(what, p_what) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(what, p_what)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return copy(where, what);
