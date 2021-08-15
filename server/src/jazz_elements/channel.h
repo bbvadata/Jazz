@@ -105,11 +105,22 @@ class Channels : public Container {
 		StatusCode start	 ();
 		StatusCode shut_down ();
 
+		// The easy interface (Requires explicit pulling because of the native interface using the same names.)
+
+		using Container::get;
+		using Container::header;
+		using Container::put;
+		using Container::new_entity;
+		using Container::remove;
+		using Container::copy;
+
 		// The parser: This overrides the parser in Channels.
+
 		virtual StatusCode as_locator  (Locator			   &result,
 										pChar				p_what);
 
 		// The "native" interface
+
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 										Locator			   &what);
 		virtual StatusCode get		   (pTransaction	   &p_txn,

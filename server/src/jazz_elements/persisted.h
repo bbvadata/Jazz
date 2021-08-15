@@ -69,7 +69,17 @@ class Persisted : public Container {
 		StatusCode start	 ();
 		StatusCode shut_down ();
 
+		// The easy interface (Requires explicit pulling because of the native interface using the same names.)
+
+		using Container::get;
+		using Container::header;
+		using Container::put;
+		using Container::new_entity;
+		using Container::remove;
+		using Container::copy;
+
 		// The "native" interface
+
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 										Locator			   &what);
 		virtual StatusCode get		   (pTransaction	   &p_txn,
@@ -93,6 +103,19 @@ class Persisted : public Container {
 		// Support for container names in the API .base_names()
 
 		void base_names (BaseNames &base_names);
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
+		inline void close_block(pBlock p_block) {
+			p_block->hash64  = MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(StaticBlockHeader));
+			p_block->created = std::chrono::steady_clock::now();
+		}
+
+		inline bool check_block(pBlock p_block) {
+			return p_block->hash64 == MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(StaticBlockHeader));
+		}
 };
 typedef Persisted *pPersisted;
 
