@@ -3375,6 +3375,19 @@ int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) 
 The serialization includes NA identification, double quotes, commas spaces an square brackets to define the shape.
 
 **NOTE** that this escapes all non-vanilla ASCI characters, non printable (below 32), the blackslash and the double quote.
+
+How UTF-8 works
+---------------
+
+The RFC http://www.ietf.org/rfc/rfc3629.txt says:
+
+    Char. number range	| UTF-8 octet sequence
+    (hexadecimal)       | (binary)
+    --------------------+---------------------------------------------
+    0000 0000-0000 007F | 0xxxxxxx
+    0000 0080-0000 07FF | 110xxxxx 10xxxxxx
+    0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
+    0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 */
 int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 	int shape[MAX_TENSOR_RANK];
