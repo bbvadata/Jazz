@@ -188,14 +188,13 @@ int main(int argc, char *argv[])
 					pg += span;
 					for (; j >= span && iptr[j-span] == pg; span++, pg++) ;
 				}
-				printf("    Transaction %"Yu", %"Z"d pages, maxspan %"Z"d%s\n",
+				printf("    Transaction %"Yu", %zu pages, maxspan %zu%s\n",
 					*(mdb_size_t *)key.mv_data, k, span, bad);
 				if (freinfo > 2) {
 					for (--k; k >= 0; ) {
 						pg = iptr[k];
 						for (span=1; --k >= 0 && iptr[k] == pg+span; span++) ;
-						printf(span>1 ? "     %9"Yu"[%"Z"d]\n" : "     %9"Yu"\n",
-							pg, span);
+						printf("     %9"Yu"[%zu]\n", pg, span);
 					}
 				}
 			}
