@@ -54,6 +54,36 @@ char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
 uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
+/*	--------------------------------------------------------
+	 Global compile_next_state_LUT() (also used in API)
+--------------------------------------------------------- */
+
+void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateTransition trans[]) {
+
+	memset(lut, -1, num_states*sizeof(ParseNextStateLUT));
+
+	int i = 0;
+	while (trans[i].from != num_states) {
+		ParseNextStateLUT *p_next = &lut[trans[i].from];
+
+		std::regex  rex(trans[i].rex);
+		std::string s("-");
+
+		for (int j = 0; j < 256; j++) {
+			s[0] = j;
+			if (std::regex_match(s, rex)) {
+#ifdef DEBUG
+				if (p_next->next[j] != PSTATE_INVALID_CHAR)
+					throw 1;
+#endif
+				p_next->next[j] = trans[i].to;
+			}
+		}
+
+		i++;
+	}
+}
+
 /*	-----------------------------------------------
 	 Parser grammar definition
 --------------------------------------------------- */
@@ -80,7 +110,6 @@ uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
 #define MAX_NUM_PSTATES			27		///< Maximum number of non error states the parser can be in
 #define NUM_STATE_TRANSITIONS	74		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
-#define PSTATE_INVALID_CHAR		255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
 #define PSTATE_IN_AUTO			 0		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_UNDEFINED
 #define PSTATE_IN_INT			 1		///< Parser state: Reached "[" (shape in), cell type is any integer
@@ -225,45 +254,15 @@ ParseStateTransitions state_tr = {
 	{MAX_NUM_PSTATES}
 };
 
-
 ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
-/*	-----------------------------------------------
+/*	--------------------------------------------------
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
 Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 
-	memset(&parser_state_switch, -1, sizeof(parser_state_switch));
-
-	ParseStateTransition *p_trans = (ParseStateTransition *) &state_tr;
-	while (true) {
-		if (p_trans->from == MAX_NUM_PSTATES)
-			break;
-
-		ParseNextStateLUT *p_next = &parser_state_switch[p_trans->from];
-
-		std::regex  rex(p_trans->rex);
-		std::string s("-");
-
-//		printf("from: %2i, to: %2i, rex: %s\n", p_trans->from, p_trans->to, p_trans->rex);
-
-		for (int i = 0; i < 256; i++) {
-			s[0] = i;
-			if (std::regex_match(s, rex)) {
-#ifdef DEBUG
-				if (p_next->next[i] != PSTATE_INVALID_CHAR) {
-//					printf("  i = %i\n", i);
-
-					throw 1;
-				}
-#endif
-				p_next->next[i] = p_trans->to;
-			}
-		}
-
-		p_trans++;
-	}
+	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 
 	memcpy(&F_NA_uint32, &F_NA, sizeof(&F_NA));
 	memcpy(&R_NA_uint64, &R_NA, sizeof(&R_NA));

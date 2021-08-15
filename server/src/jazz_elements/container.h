@@ -101,6 +101,7 @@ namespace jazz_elements
 // State based parser types:
 #define EIGHT_BIT_LONG					256		///< Length of a NextStateLUT.
 #define MAX_TRANSITION_REGEX_LEN		 32		///< Length of regex for state transitions. Used only in constants for LUT construction.
+#define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
 // Writing modes for put()
 #define WRITE_ALWAYS_COMPLETE			  0		///< The default mode with none of the other flags.
@@ -122,6 +123,10 @@ struct ParseStateTransition {
 	int	 to;
 	char rex[MAX_TRANSITION_REGEX_LEN];
 };
+
+
+/// The ParseNextStateLUT compiler: (This is only used to create constants used by parsers.)
+void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateTransition trans[]);
 
 
 /// An atomically increased (via fetch_add() and fetch_sub()) 32 bit signed integer to use as a lock.
