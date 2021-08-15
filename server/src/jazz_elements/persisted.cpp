@@ -72,6 +72,9 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what) {
 
 //TODO: Implement this.
 
+	if (!check_block(p_txn->p_block))
+		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -83,6 +86,9 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pBlock p_row_filt
 
 //TODO: Implement this.
 
+	if (!check_block(p_txn->p_block))
+		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
 
@@ -93,6 +99,9 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pBlock p_row_filt
 StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pChar name) {
 
 //TODO: Implement this.
+
+	if (!check_block(p_txn->p_block))
+		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -126,6 +135,8 @@ StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
 StatusCode Persisted::put (Locator &where, pBlock p_block, int mode) {
 
 //TODO: Implement this.
+
+	close_block(p_block);
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
