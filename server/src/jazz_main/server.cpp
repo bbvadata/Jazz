@@ -76,19 +76,10 @@ Starting logic:
 
 	And sleeps forever! (Remember, it is the child of the original caller who exited with EXIT_SUCCESS.)
 */
-StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon, MHD_AccessHandlerCallback dh)
-{
+StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon, MHD_AccessHandlerCallback dh, Channels &channels) {
 // 1. Get all the MHD server config settings via get_conf_key()
 
-	int http_port;
-
-	if (!get_conf_key("HTTP_PORT", http_port)) {
-		cout << "Failed to find server port in configuration." << endl;
-
-		log(LOG_ERROR, "JazzHttpServer::server_start() failed to find server port in configuration.");
-
-		return EXIT_FAILURE;
-	}
+	int http_port = channels.jazz_node_port[channels.jazz_node_my_index];
 
 	int ok, debug, ssl, ipv6, pedantic, supp_date, tcp_fastopen;
 
@@ -203,8 +194,7 @@ This overrides the Service shut_down() just to set the return to SERVICE_NO_ERRO
 
 The true closing mechanism is a: MHD_stop_daemon (Jazz_MHD_Daemon); done by the signalHandler_SIGTERM() callback that captures SIGTERM.
 */
-StatusCode HttpServer::shut_down()
-{
+StatusCode HttpServer::shut_down() {
 	return SERVICE_NO_ERROR;
 }
 

@@ -72,9 +72,10 @@ class HttpServer : public Service {
 		HttpServer (pLogger		a_logger,
 					pConfigFile a_config);
 
-		StatusCode start	(pSignalHandler				p_sig_handler,
-						 	 pMHD_Daemon			   &p_daemon,
-							 MHD_AccessHandlerCallback  dh);
+		StatusCode start   (pSignalHandler				p_sig_handler,
+						 	pMHD_Daemon				   &p_daemon,
+							MHD_AccessHandlerCallback	dh,
+							Channels				   &channels);
 		StatusCode shut_down();
 
 	private:
