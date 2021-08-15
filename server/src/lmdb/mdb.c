@@ -7891,7 +7891,7 @@ current:
 				 */
 				if (level > 1) {
 					/* It is writable only in a parent txn */
-					size_t sz = (size_t) env->me_psize * ovpages, off;
+					size_t sz = (size_t) env->me_psize * ovpages;
 					MDB_page *np = mdb_page_malloc(mc->mc_txn, ovpages);
 					MDB_ID2 id2;
 					if (!np)
@@ -7910,7 +7910,7 @@ current:
 						 * Copy end of page, adjusting alignment so
 						 * compiler may copy words instead of bytes.
 						 */
-						off = (PAGEHDRSZ + data->mv_size) & -sizeof(size_t);
+						size_t off = (PAGEHDRSZ + data->mv_size) & -sizeof(size_t);
 						memcpy((size_t *)((char *)np + off),
 							(size_t *)((char *)omp + off), sz - off);
 						sz = PAGEHDRSZ;
