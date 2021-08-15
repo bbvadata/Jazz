@@ -105,11 +105,11 @@ class Channels : public Container {
 		StatusCode start	 ();
 		StatusCode shut_down ();
 
-		// The parser: This simple regex-based parser only needs override for Channels.)
+		// The parser: This overrides the parser in Channels.
 		virtual StatusCode as_locator  (Locator			   &result,
 										pChar				p_what);
 
-		// The "native" interface: This is what really does the job and all Container descendants implement.)
+		// The "native" interface
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 										Locator			   &what);
 		virtual StatusCode get		   (pTransaction	   &p_txn,

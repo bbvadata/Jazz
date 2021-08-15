@@ -67,7 +67,7 @@ class Volatile : public Container {
 		StatusCode start	 ();
 		StatusCode shut_down ();
 
-		// The "native" interface: This is what really does the job and all Container descendants implement.)
+		// The "native" interface
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 										Locator			   &what);
 		virtual StatusCode get		   (pTransaction	   &p_txn,

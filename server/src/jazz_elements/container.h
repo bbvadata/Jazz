@@ -346,11 +346,11 @@ class Container : public Service {
 		StatusCode copy		   (pChar				 p_where,
 								pChar				 p_what);
 
-		// The parser: This simple regex-based parser only needs override for Channels.)
+		// The parser: This simple regex-based parser only needs override for Channels.
 		virtual StatusCode as_locator  (Locator			   &result,
 										pChar				p_what);
 
-		// The "native" interface: This is what really does the job and all Container descendants implement.)
+		// The "native" interface: This is what really does the job and all Container descendants implement.
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 										Locator			   &what);
 		virtual StatusCode get		   (pTransaction	   &p_txn,
