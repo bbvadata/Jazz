@@ -38,35 +38,6 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-SCENARIO("Testing CountBytesFromUtf8().") {
-	char buf1[80] = {"NineChars"};
-	char buf2[80] = {"ácido"};
-	char buf3[80] = {"eñe"};
-	char buf4[80] = {"\xF0...\xE0..\xC0.Z"};
-
-	REQUIRE(CountBytesFromUtf8(buf1, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf1, 1) ==	1);
-	REQUIRE(CountBytesFromUtf8(buf1, 2) ==	2);
-	REQUIRE(CountBytesFromUtf8(buf1, 9) ==	9);
-
-	REQUIRE(CountBytesFromUtf8(buf2, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf2, 1) ==	2);
-	REQUIRE(CountBytesFromUtf8(buf2, 2) ==	3);
-	REQUIRE(CountBytesFromUtf8(buf2, 5) ==	6);
-
-	REQUIRE(CountBytesFromUtf8(buf3, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf3, 1) ==	1);
-	REQUIRE(CountBytesFromUtf8(buf3, 2) ==	3);
-	REQUIRE(CountBytesFromUtf8(buf3, 3) ==	4);
-
-	REQUIRE(CountBytesFromUtf8(buf4, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf4, 1) ==	4);
-	REQUIRE(CountBytesFromUtf8(buf4, 2) ==	7);
-	REQUIRE(CountBytesFromUtf8(buf4, 3) ==	9);
-	REQUIRE(CountBytesFromUtf8(buf4, 4) == 10);
-}
-
-
 SCENARIO("Testing ExpandEscapeSequences().") {
 	char buff[80];
 

@@ -50,49 +50,6 @@ bool FileExists(const char* file_name) {
 }
 
 
-/** \brief Count the number of bytes required by an utf-8 string of length characters.
-
-\param buff	  The string (not necessarily null-terminated)
-\param length The number of characters in the string
-
-\return	The number of bytes in the string.
-
-The RFC http://www.ietf.org/rfc/rfc3629.txt says:
-
-    Char. number range	| UTF-8 octet sequence
-    (hexadecimal)       | (binary)
-    --------------------+---------------------------------------------
-    0000 0000-0000 007F | 0xxxxxxx
-    0000 0080-0000 07FF | 110xxxxx 10xxxxxx
-    0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
-    0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
-*/
-int CountBytesFromUtf8(char *buff, int length) {
-	int bytes = 0;
-
-	while (length > 0)	{
-		length--;
-		bytes++;
-		char lb = *buff++;
-
-		if ((lb & 0xE0) == 0xC0) {			// 110x xxxx
-			buff++;
-			bytes++;
-		}
-		else if ((lb & 0xF0) == 0xE0) {		// 1110 xxxx
-			buff  += 2;
-			bytes += 2;
-		}
-		else if ((lb & 0xF8) == 0xF0) {		// 1111 0xxx
-			buff  += 3;
-			bytes += 3;
-		}
-	}
-
-	return bytes;
-}
-
-
 /** \brief Expand escaped strings at run-time.
 
 Public Domain by Jerry Coffin.
