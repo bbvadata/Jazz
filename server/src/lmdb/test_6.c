@@ -36,12 +36,12 @@ char dkbuf[1024];
 char *
 mdb_dkey(MDB_val *key, char *buf)
 {
+	if (!key)
+		return "";
+
 	char *ptr = buf;
 	unsigned char *c = key->mv_data;
 	unsigned int i;
-
-	if (!key)
-		return "";
 
 	if (key->mv_size > DKBUF_MAXKEYSIZE)
 		return "MDB_MAXKEYSIZE";
