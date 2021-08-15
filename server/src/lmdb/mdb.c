@@ -7965,18 +7965,18 @@ new_sub:
 			MDB_cursor *m2, *m3;
 			MDB_dbi dbi = mc->mc_dbi;
 			unsigned i = mc->mc_top;
-			MDB_page *mp = mc->mc_pg[i];
+			MDB_page *mpp = mc->mc_pg[i];
 
 			for (m2 = mc->mc_txn->mt_cursors[dbi]; m2; m2=m2->mc_next) {
 				if (mc->mc_flags & C_SUB)
 					m3 = &m2->mc_xcursor->mx_cursor;
 				else
 					m3 = m2;
-				if (m3 == mc || m3->mc_snum < mc->mc_snum || m3->mc_pg[i] != mp) continue;
+				if (m3 == mc || m3->mc_snum < mc->mc_snum || m3->mc_pg[i] != mpp) continue;
 				if (m3->mc_ki[i] >= mc->mc_ki[i] && insert_key) {
 					m3->mc_ki[i]++;
 				}
-				XCURSOR_REFRESH(m3, i, mp);
+				XCURSOR_REFRESH(m3, i, mpp);
 			}
 		}
 	}
@@ -8017,16 +8017,16 @@ put_sub:
 				MDB_cursor *m2;
 				MDB_xcursor *mx = mc->mc_xcursor;
 				unsigned i = mc->mc_top;
-				MDB_page *mp = mc->mc_pg[i];
+				MDB_page *mpp = mc->mc_pg[i];
 
 				for (m2 = mc->mc_txn->mt_cursors[mc->mc_dbi]; m2; m2=m2->mc_next) {
 					if (m2 == mc || m2->mc_snum < mc->mc_snum) continue;
 					if (!(m2->mc_flags & C_INITIALIZED)) continue;
-					if (m2->mc_pg[i] == mp) {
+					if (m2->mc_pg[i] == mpp) {
 						if (m2->mc_ki[i] == mc->mc_ki[i]) {
 							mdb_xcursor_init2(m2, mx, new_dupdata);
 						} else if (!insert_key) {
-							XCURSOR_REFRESH(m2, i, mp);
+							XCURSOR_REFRESH(m2, i, mpp);
 						}
 					}
 				}
