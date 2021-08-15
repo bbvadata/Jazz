@@ -5921,7 +5921,6 @@ mdb_cmp_memnr(const MDB_val *a, const MDB_val *b)
 {
 	const unsigned char	*p1, *p2, *p1_lim;
 	ssize_t len_diff;
-	int diff;
 
 	p1_lim = (const unsigned char *)a->mv_data;
 	p1 = (const unsigned char *)a->mv_data + a->mv_size;
@@ -5934,7 +5933,7 @@ mdb_cmp_memnr(const MDB_val *a, const MDB_val *b)
 	}
 
 	while (p1 > p1_lim) {
-		diff = *--p1 - *--p2;
+		int diff = *--p1 - *--p2;
 		if (diff)
 			return diff;
 	}
