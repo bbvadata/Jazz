@@ -1667,8 +1667,7 @@ static int utf8_to_utf16(const char *src, struct MDB_name *dst, int xtra);
 #endif
 
 /** Return the library version info. */
-char * ESECT
-mdb_version(int *major, int *minor, int *patch)
+char * ESECT mdb_version(int *major, int *minor, int *patch)		// cppcheck-suppress unusedFunction
 {
 	if (major) *major = MDB_VERSION_MAJOR;
 	if (minor) *minor = MDB_VERSION_MINOR;
@@ -1974,14 +1973,12 @@ static void mdb_audit(MDB_txn *txn)
 }
 #endif
 
-int
-mdb_cmp(MDB_txn *txn, MDB_dbi dbi, const MDB_val *a, const MDB_val *b)
+int mdb_cmp(MDB_txn *txn, MDB_dbi dbi, const MDB_val *a, const MDB_val *b)		// cppcheck-suppress unusedFunction
 {
 	return txn->mt_dbxs[dbi].md_cmp(a, b);
 }
 
-int
-mdb_dcmp(MDB_txn *txn, MDB_dbi dbi, const MDB_val *a, const MDB_val *b)
+int mdb_dcmp(MDB_txn *txn, MDB_dbi dbi, const MDB_val *a, const MDB_val *b)		// cppcheck-suppress unusedFunction
 {
 	MDB_cmp_func *dcmp = txn->mt_dbxs[dbi].md_dcmp;
 	if (NEED_CMP_CLONG(dcmp, a->mv_size))
@@ -2805,8 +2802,7 @@ fail:
 	return rc;
 }
 
-int
-mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)
+int mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)		// cppcheck-suppress unusedFunction
 {
 	int rc = 0;
 	if (env->me_flags & MDB_RDONLY)
@@ -2839,8 +2835,7 @@ mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)
 	return rc;
 }
 
-int
-mdb_env_sync(MDB_env *env, int force)
+int mdb_env_sync(MDB_env *env, int force)		// cppcheck-suppress unusedFunction
 {
 	MDB_meta *m = mdb_env_pick_meta(env);
 	return mdb_env_sync0(env, force, m->mm_last_pg+1);
@@ -4610,8 +4605,7 @@ mdb_env_set_maxreaders(MDB_env *env, unsigned int readers)
 	return MDB_SUCCESS;
 }
 
-int ESECT
-mdb_env_get_maxreaders(MDB_env *env, unsigned int *readers)
+int ESECT mdb_env_get_maxreaders(MDB_env *env, unsigned int *readers)		// cppcheck-suppress unusedFunction
 {
 	if (!env || !readers)
 		return EINVAL;
@@ -6772,9 +6766,7 @@ mdb_node_read(MDB_cursor *mc, MDB_node *leaf, MDB_val *data)
 	return MDB_SUCCESS;
 }
 
-int
-mdb_get(MDB_txn *txn, MDB_dbi dbi,
-    MDB_val *key, MDB_val *data)
+int mdb_get(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data)		// cppcheck-suppress unusedFunction
 {
 	MDB_cursor	mc;
 	MDB_xcursor	mx;
@@ -8755,15 +8747,13 @@ mdb_cursor_close(MDB_cursor *mc)
 	}
 }
 
-MDB_txn *
-mdb_cursor_txn(MDB_cursor *mc)
+MDB_txn *mdb_cursor_txn(MDB_cursor *mc)		// cppcheck-suppress unusedFunction
 {
 	if (!mc) return NULL;
 	return mc->mc_txn;
 }
 
-MDB_dbi
-mdb_cursor_dbi(MDB_cursor *mc)
+MDB_dbi mdb_cursor_dbi(MDB_cursor *mc)		// cppcheck-suppress unusedFunction
 {
 	return mc->mc_dbi;
 }
@@ -10586,8 +10576,7 @@ mdb_env_copyfd2(MDB_env *env, HANDLE fd, unsigned int flags)
 		return mdb_env_copyfd0(env, fd);
 }
 
-int ESECT
-mdb_env_copyfd(MDB_env *env, HANDLE fd)
+int ESECT mdb_env_copyfd(MDB_env *env, HANDLE fd)							// cppcheck-suppress unusedFunction
 {
 	return mdb_env_copyfd2(env, fd, 0);
 }
@@ -10612,14 +10601,12 @@ mdb_env_copy2(MDB_env *env, const char *path, unsigned int flags)
 	return rc;
 }
 
-int ESECT
-mdb_env_copy(MDB_env *env, const char *path)
+int ESECT mdb_env_copy(MDB_env *env, const char *path)						// cppcheck-suppress unusedFunction
 {
 	return mdb_env_copy2(env, path, 0);
 }
 
-int ESECT
-mdb_env_set_flags(MDB_env *env, unsigned int flag, int onoff)
+int ESECT mdb_env_set_flags(MDB_env *env, unsigned int flag, int onoff)		// cppcheck-suppress unusedFunction
 {
 	if (flag & ~CHANGEABLE)
 		return EINVAL;
@@ -10630,8 +10617,7 @@ mdb_env_set_flags(MDB_env *env, unsigned int flag, int onoff)
 	return MDB_SUCCESS;
 }
 
-int ESECT
-mdb_env_get_flags(MDB_env *env, unsigned int *arg)
+int ESECT mdb_env_get_flags(MDB_env *env, unsigned int *arg)				// cppcheck-suppress unusedFunction
 {
 	if (!env || !arg)
 		return EINVAL;
@@ -10640,8 +10626,7 @@ mdb_env_get_flags(MDB_env *env, unsigned int *arg)
 	return MDB_SUCCESS;
 }
 
-int ESECT
-mdb_env_set_userctx(MDB_env *env, void *ctx)
+int ESECT mdb_env_set_userctx(MDB_env *env, void *ctx)						// cppcheck-suppress unusedFunction
 {
 	if (!env)
 		return EINVAL;
@@ -10649,14 +10634,12 @@ mdb_env_set_userctx(MDB_env *env, void *ctx)
 	return MDB_SUCCESS;
 }
 
-void * ESECT
-mdb_env_get_userctx(MDB_env *env)
+void *ESECT mdb_env_get_userctx(MDB_env *env)								// cppcheck-suppress unusedFunction
 {
 	return env ? env->me_userctx : NULL;
 }
 
-int ESECT
-mdb_env_set_assert(MDB_env *env, MDB_assert_func *func)
+int ESECT mdb_env_set_assert(MDB_env *env, MDB_assert_func *func)			// cppcheck-suppress unusedFunction
 {
 	if (!env)
 		return EINVAL;
@@ -10666,8 +10649,7 @@ mdb_env_set_assert(MDB_env *env, MDB_assert_func *func)
 	return MDB_SUCCESS;
 }
 
-int ESECT
-mdb_env_get_path(MDB_env *env, const char **arg)
+int ESECT mdb_env_get_path(MDB_env *env, const char **arg)					// cppcheck-suppress unusedFunction
 {
 	if (!env || !arg)
 		return EINVAL;
@@ -10676,8 +10658,7 @@ mdb_env_get_path(MDB_env *env, const char **arg)
 	return MDB_SUCCESS;
 }
 
-int ESECT
-mdb_env_get_fd(MDB_env *env, mdb_filehandle_t *arg)
+int ESECT mdb_env_get_fd(MDB_env *env, mdb_filehandle_t *arg)				// cppcheck-suppress unusedFunction
 {
 	if (!env || !arg)
 		return EINVAL;
@@ -11097,7 +11078,7 @@ int mdb_set_dupsort(MDB_txn *txn, MDB_dbi dbi, MDB_cmp_func *cmp)
 	return MDB_SUCCESS;
 }
 
-int mdb_set_relfunc(MDB_txn *txn, MDB_dbi dbi, MDB_rel_func *rel)
+int mdb_set_relfunc(MDB_txn *txn, MDB_dbi dbi, MDB_rel_func *rel)		// cppcheck-suppress unusedFunction
 {
 	if (!TXN_DBI_EXIST(txn, dbi, DB_USRVALID))
 		return EINVAL;
@@ -11106,7 +11087,7 @@ int mdb_set_relfunc(MDB_txn *txn, MDB_dbi dbi, MDB_rel_func *rel)
 	return MDB_SUCCESS;
 }
 
-int mdb_set_relctx(MDB_txn *txn, MDB_dbi dbi, void *ctx)
+int mdb_set_relctx(MDB_txn *txn, MDB_dbi dbi, void *ctx)				// cppcheck-suppress unusedFunction
 {
 	if (!TXN_DBI_EXIST(txn, dbi, DB_USRVALID))
 		return EINVAL;
