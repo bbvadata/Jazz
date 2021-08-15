@@ -298,12 +298,12 @@ MHD_Result http_request_callback(void *cls,
 
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.upload(q_state, upload_data, *upload_data_size, false);
+		status = API.http_put(q_state, upload_data, *upload_data_size, false);
 
 		break;
 
 	case HTTP_DELETE:
-		status = API.remove(q_state);
+		status = API.http_delete(q_state);
 
 		break;
 
@@ -576,9 +576,9 @@ the block is appended at the end on the existing block.
 callback, but it is not intended for any other context.
 
 */
-bool Api::upload (HttpQueryState &q_state, const char *upload, size_t size, bool continue_upload) {
+bool Api::http_put (HttpQueryState &q_state, const char *p_upload, size_t size, bool continue_upload) {
 
-//TODO: Implement Api::upload()
+//TODO: Implement Api::http_put()
 
 	return false;
 }
@@ -594,9 +594,9 @@ bool Api::upload (HttpQueryState &q_state, const char *upload, size_t size, bool
 callback, but it is not intended for any other context.
 
 */
-bool Api::remove (HttpQueryState &q_state) {
+bool Api::http_delete (HttpQueryState &q_state) {
 
-//TODO: Implement Api::remove()
+//TODO: Implement Api::http_delete()
 
 	return false;
 }

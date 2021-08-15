@@ -145,13 +145,13 @@ class Api : public Container {
 
 		// Specific execution methods
 
-		bool upload	   (HttpQueryState &q_state,
-						const char	   *upload,
-						size_t			size,
-						bool			continue_upload);
-		bool remove	   (HttpQueryState &q_state);
-		bool http_get  (HttpQueryState &q_state,
-						pMHD_Response  &response);
+		bool http_put	 (HttpQueryState &q_state,
+						  const char	 *p_upload,
+						  size_t		  size,
+						  bool			  continue_upload);
+		bool http_delete (HttpQueryState &q_state);
+		bool http_get	 (HttpQueryState &q_state,
+						  pMHD_Response  &response);
 
 #ifndef CATCH_TEST
 	private:
