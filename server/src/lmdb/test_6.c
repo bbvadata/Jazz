@@ -62,16 +62,14 @@ mdb_dkey(MDB_val *key, char *buf)
 
 int main(int argc,char * argv[])
 {
-	int i = 0, j = 0, rc;
+	int i = 0, rc;
 	MDB_env *env;
 	MDB_dbi dbi;
 	MDB_val key, data, sdata;
 	MDB_txn *txn;
 	MDB_stat mst;
 	MDB_cursor *cursor;
-	int count;
-	int *values;
-	long kval;
+	unsigned long kval;
 	char *sval;
 
 	srand(time(NULL));
