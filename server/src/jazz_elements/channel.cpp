@@ -120,12 +120,71 @@ bool remote_testing_point () {
 
 Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
-/**
-//TODO: Document Channels::start()
+/** Reads config variables and sets jazz_node_* public variables.
 */
 StatusCode Channels::start()
 {
-//TODO: Implement Channels::start()
+	if (!get_conf_key("FILESYSTEM_ROOT", filesystem_root)) {
+		log(LOG_ERROR, "Channels::start() failed to find FILESYSTEM_ROOT");
+
+		return EXIT_FAILURE;
+	}
+
+	std::string my_name;
+
+	if (!get_conf_key("JAZZ_NODE_MY_NAME", my_name)) {
+		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME");
+
+		return EXIT_FAILURE;
+	}
+
+	jazz_node_cluster_size =  0;
+	jazz_node_my_index	   = -1;
+
+	std::string s;
+	char key[40];
+
+	for (int i = 1;; i++) {
+		sprintf(key, "JAZZ_NODE_NAME_%i", i);
+
+		if (!get_conf_key(key, s))
+			break;
+
+		jazz_node_name[i] = s;
+
+		if (my_name == s)
+			jazz_node_my_index = i;
+
+		sprintf(key, "JAZZ_NODE_IP_%i", i);
+
+		if (!get_conf_key(key, s)) {
+			log_printf(LOG_ERROR, "Channels::start() failed to find %s", key);
+
+			return EXIT_FAILURE;
+		}
+
+		jazz_node_ip[i] = s;
+
+		sprintf(key, "JAZZ_NODE_PORT_%i", i);
+
+		int port;
+
+		if (!get_conf_key(key, port)) {
+			log_printf(LOG_ERROR, "Channels::start() failed to find %s", key);
+
+			return EXIT_FAILURE;
+		}
+
+		jazz_node_port[i] = port;
+
+		jazz_node_cluster_size++;
+	}
+
+	if (jazz_node_my_index < 0) {
+		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME in JAZZ_NODE_NAME_*");
+
+		return EXIT_FAILURE;
+	}
 
 	return SERVICE_NO_ERROR;
 }

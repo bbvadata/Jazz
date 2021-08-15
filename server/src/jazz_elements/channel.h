@@ -133,6 +133,17 @@ class Channels : public Container {
 		// Support for container names in the API .base_names()
 
 		void base_names (BaseNames &base_names);
+
+		// Public config variables
+
+		IndexIS jazz_node_name = {};
+		IndexIS jazz_node_ip   = {};
+		IndexII jazz_node_port = {};
+
+		int jazz_node_my_index	   = -1;
+		int jazz_node_cluster_size =  0;
+
+		std::string filesystem_root = {};
 };
 typedef Channels *pChannels;
 
