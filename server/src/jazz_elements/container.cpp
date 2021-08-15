@@ -724,6 +724,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	p_txn->status = BLOCK_STATUS_READY;
 
+#ifdef CATCH_TEST		// Avoid cppcheck incorrectly considering MurmurHash64A() is not used
+	p_txn->p_block->hash64 = MurmurHash64A(&p_txn->p_block->tensor, p_txn->p_block->total_bytes - sizeof(StaticBlockHeader));
+#endif
+
 	return SERVICE_NO_ERROR;
 }
 
