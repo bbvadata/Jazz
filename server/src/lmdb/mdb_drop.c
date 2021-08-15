@@ -77,12 +77,6 @@ int main(int argc, char *argv[])
 	if (optind != argc - 1)
 		usage(prog);
 
-#ifdef SIGPIPE
-	signal(SIGPIPE, dumpsig);
-#endif
-#ifdef SIGHUP
-	signal(SIGHUP, dumpsig);
-#endif
 	signal(SIGINT, dumpsig);
 	signal(SIGTERM, dumpsig);
 

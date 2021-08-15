@@ -54,12 +54,6 @@ int main(int argc,char * argv[])
 		exit(EXIT_FAILURE);
 	}
 
-#ifdef SIGPIPE
-	signal(SIGPIPE, sighandle);
-#endif
-#ifdef SIGHUP
-	signal(SIGHUP, sighandle);
-#endif
 	signal(SIGINT, sighandle);
 	signal(SIGTERM, sighandle);
 
