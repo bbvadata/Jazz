@@ -8885,7 +8885,6 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 		flags = srcnode->mn_flags;
 		if (csrc->mc_ki[csrc->mc_top] == 0 && IS_BRANCH(csrc->mc_pg[csrc->mc_top])) {
 			unsigned int snum = csrc->mc_snum;
-			MDB_node *s2;
 			/* must find the lowest key below src */
 			rc = mdb_page_search_lowest(csrc);
 			if (rc)
@@ -8894,7 +8893,7 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 				key.mv_size = csrc->mc_db->md_pad;
 				key.mv_data = LEAF2KEY(csrc->mc_pg[csrc->mc_top], 0, key.mv_size);
 			} else {
-				s2 = NODEPTR(csrc->mc_pg[csrc->mc_top], 0);
+				MDB_node *s2 = NODEPTR(csrc->mc_pg[csrc->mc_top], 0);
 				key.mv_size = NODEKSZ(s2);
 				key.mv_data = NODEKEY(s2);
 			}
