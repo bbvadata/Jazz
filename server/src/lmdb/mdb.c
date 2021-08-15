@@ -8470,7 +8470,7 @@ static void
 mdb_node_shrink(MDB_page *mp, indx_t indx)
 {
 	MDB_node *node;
-	MDB_page *sp, *xp;
+	MDB_page *sp;
 	char *base;
 	indx_t delta, nsize, len, ptr;
 	int i;
@@ -8486,7 +8486,7 @@ mdb_node_shrink(MDB_page *mp, indx_t indx)
 		if (nsize & 1)
 			return;		/* do not make the node uneven-sized */
 	} else {
-		xp = (MDB_page *)((char *)sp + delta); /* destination subpage */
+		MDB_page *xp = (MDB_page *)((char *)sp + delta); /* destination subpage */
 		for (i = NUMKEYS(sp); --i >= 0; )
 			xp->mp_ptrs[i] = sp->mp_ptrs[i] - delta;
 		len = PAGEHDRSZ;
