@@ -8920,7 +8920,6 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 	mn.mc_xcursor = NULL;
 	if (IS_BRANCH(cdst->mc_pg[cdst->mc_top]) && cdst->mc_ki[cdst->mc_top] == 0) {
 		unsigned int snum = cdst->mc_snum;
-		MDB_node *s2;
 		MDB_val bkey;
 		/* must find the lowest key below dst */
 		mdb_cursor_copy(cdst, &mn);
@@ -8931,7 +8930,7 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 			bkey.mv_size = mn.mc_db->md_pad;
 			bkey.mv_data = LEAF2KEY(mn.mc_pg[mn.mc_top], 0, bkey.mv_size);
 		} else {
-			s2 = NODEPTR(mn.mc_pg[mn.mc_top], 0);
+			MDB_node *s2 = NODEPTR(mn.mc_pg[mn.mc_top], 0);
 			bkey.mv_size = NODEKSZ(s2);
 			bkey.mv_data = NODEKEY(s2);
 		}
