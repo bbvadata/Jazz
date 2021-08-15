@@ -142,6 +142,9 @@ StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
 */
 StatusCode Persisted::put (Locator &where, pBlock p_block, int mode) {
 
+	if (mode & WRITE_TENSOR_DATA_AS_RAW)
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
+
 //TODO: Implement this.
 
 	close_block(p_block);
