@@ -4065,19 +4065,19 @@ mdb_txn_commit(MDB_txn *txn)
 	/* Update DB root pointers */
 	if (txn->mt_numdbs > CORE_DBS) {
 		MDB_cursor mc;
-		MDB_dbi i;
+		MDB_dbi j;
 		MDB_val data;
 		data.mv_size = sizeof(MDB_db);
 
 		mdb_cursor_init(&mc, txn, MAIN_DBI, NULL);
-		for (i = CORE_DBS; i < txn->mt_numdbs; i++) {
-			if (txn->mt_dbflags[i] & DB_DIRTY) {
-				if (TXN_DBI_CHANGED(txn, i)) {
+		for (j = CORE_DBS; j < txn->mt_numdbs; j++) {
+			if (txn->mt_dbflags[j] & DB_DIRTY) {
+				if (TXN_DBI_CHANGED(txn, j)) {
 					rc = MDB_BAD_DBI;
 					goto fail;
 				}
-				data.mv_data = &txn->mt_dbs[i];
-				rc = mdb_cursor_put(&mc, &txn->mt_dbxs[i].md_name, &data,
+				data.mv_data = &txn->mt_dbs[j];
+				rc = mdb_cursor_put(&mc, &txn->mt_dbxs[j].md_name, &data,
 					F_SUBDATA);
 				if (rc)
 					goto fail;
