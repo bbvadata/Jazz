@@ -428,6 +428,8 @@ Api::Api(pLogger	 a_logger,
 		 pBebop		 a_bebop,
 		 pAgency	 a_agency) : Container(a_logger, a_config) {
 
+	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
+
 	for (int i = 0; i < 1024; i++) http_methods[i] = HTTP_NOTUSED;
 
 	http_methods[TenBitsAtAddress("OPTIONS")] = HTTP_OPTIONS;
@@ -437,49 +439,7 @@ Api::Api(pLogger	 a_logger,
 	http_methods[TenBitsAtAddress("DELETE")]  = HTTP_DELETE;
 
 	tenbit_double_slash = TenBitsAtAddress("//");
-/*
-	memset(&parser_state_switch, -1, sizeof(parser_state_switch));
 
-	StateTransition *p_trans = reinterpret_cast<StateTransition *>(&state_tr);
-	while (true) {
-		if (p_trans->from == MAX_NUM_PSTATES)
-			break;
-
-		NextStateLUT *p_next = &parser_state_switch.state[p_trans->from];
-
-		std::regex  rex(p_trans->rex);
-		std::string s("-");
-
-		for (int i = 0; i < 256; i++) {
-			s[0] = i;
-			if (std::regex_match(s, rex)) {
-#ifdef DEBUG
-				if (p_next->next[i] != PSTATE_INVALID_CHAR)
-					throw 1;
-#endif
-				p_next->next[i] = p_trans->to;
-			}
-		};
-		p_trans++;
-	};
-
-	memset(&hex_hi_LUT, 0, sizeof(NextStateLUT));
-	memset(&hex_lo_LUT, 0, sizeof(NextStateLUT));
-
-	int i = 0;
-	for (unsigned char c = '0'; c <= '9'; c++) {
-		hex_hi_LUT.next[c] = 0x10*i;
-		hex_lo_LUT.next[c] = i++;
-	};
-
-	i = 0x0a;
-	for (unsigned char c = 'A'; c <= 'F'; c++) {
-		hex_hi_LUT.next[c + 0x20] = 0x10*i;
-		hex_hi_LUT.next[c]		  = 0x10*i;
-		hex_lo_LUT.next[c + 0x20] = i;
-		hex_lo_LUT.next[c]		  = i++;
-	};
-*/
 	p_channels	= a_channels;
 	p_volatile	= a_volatile;
 	p_persisted	= a_persisted;
