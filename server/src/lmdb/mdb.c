@@ -3130,8 +3130,7 @@ mdb_txn_renew(MDB_txn *txn)
 	return rc;
 }
 
-int
-mdb_txn_begin(MDB_env *env, MDB_txn *parent, unsigned int flags, MDB_txn **ret)
+int mdb_txn_begin(MDB_env *env, MDB_txn *parent, unsigned int flags, MDB_txn **ret)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_txn *txn;
 	MDB_ntxn *ntxn;
@@ -6380,8 +6379,7 @@ ok:
  * @param[out] lvl dirty_list inheritance level of found page. 1=current txn, 0=mapped page.
  * @return 0 on success, non-zero on failure.
  */
-static int
-mdb_page_get(MDB_cursor *mc, pgno_t pgno, MDB_page **ret, int *lvl)
+static int mdb_page_get(MDB_cursor *mc, pgno_t pgno, MDB_page **ret, int *lvl)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_txn *txn = mc->mc_txn;
 	MDB_page *p = NULL;
@@ -6448,8 +6446,7 @@ done:
 /** Finish #mdb_page_search() / #mdb_page_search_lowest().
  *	The cursor is at the root page, set up the rest of it.
  */
-static int
-mdb_page_search_root(MDB_cursor *mc, MDB_val *key, int flags)
+static int mdb_page_search_root(MDB_cursor *mc, MDB_val *key, int flags)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_page	*mp = mc->mc_pg[mc->mc_top];
 	int rc;
@@ -7318,9 +7315,7 @@ mdb_cursor_last(MDB_cursor *mc, MDB_val *key, MDB_val *data)
 	return MDB_SUCCESS;
 }
 
-int
-mdb_cursor_get(MDB_cursor *mc, MDB_val *key, MDB_val *data,
-    MDB_cursor_op op)
+int mdb_cursor_get(MDB_cursor *mc, MDB_val *key, MDB_val *data, MDB_cursor_op op)		// cppcheck-suppress funcArgNamesDifferent
 {
 	int		 rc;
 	int		 exact = 0;
@@ -7539,9 +7534,7 @@ mdb_cursor_touch(MDB_cursor *mc)
 /** Do not spill pages to disk if txn is getting full, may fail instead */
 #define MDB_NOSPILL	0x8000
 
-int
-mdb_cursor_put(MDB_cursor *mc, MDB_val *key, MDB_val *data,
-    unsigned int flags)
+int mdb_cursor_put(MDB_cursor *mc, MDB_val *key, MDB_val *data, unsigned int flags)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_env		*env;
 	MDB_node	*leaf = NULL;
@@ -8066,8 +8059,7 @@ bad_sub:
 	return rc;
 }
 
-int
-mdb_cursor_del(MDB_cursor *mc, unsigned int flags)
+int mdb_cursor_del(MDB_cursor *mc, unsigned int flags)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_node	*leaf;
 	MDB_page	*mp;
@@ -8585,8 +8577,7 @@ mdb_xcursor_init1(MDB_cursor *mc, MDB_node *node)
  * @param[in] src_mx The xcursor of an up-to-date cursor.
  * @param[in] new_dupdata True if converting from a non-#F_DUPDATA item.
  */
-static void
-mdb_xcursor_init2(MDB_cursor *mc, MDB_xcursor *src_mx, int new_dupdata)
+static void mdb_xcursor_init2(MDB_cursor *mc, MDB_xcursor *src_mx, int new_dupdata)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_xcursor *mx = mc->mc_xcursor;
 
@@ -8637,8 +8628,7 @@ mdb_cursor_init(MDB_cursor *mc, MDB_txn *txn, MDB_dbi dbi, MDB_xcursor *mx)
 	}
 }
 
-int
-mdb_cursor_open(MDB_txn *txn, MDB_dbi dbi, MDB_cursor **ret)
+int mdb_cursor_open(MDB_txn *txn, MDB_dbi dbi, MDB_cursor **ret)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_cursor	*mc;
 	size_t size = sizeof(MDB_cursor);
@@ -8671,7 +8661,7 @@ mdb_cursor_open(MDB_txn *txn, MDB_dbi dbi, MDB_cursor **ret)
 	return MDB_SUCCESS;
 }
 
-int mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)				// cppcheck-suppress unusedFunction
+int mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)				// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	if (!mc || !TXN_DBI_EXIST(txn, mc->mc_dbi, DB_VALID))
 		return EINVAL;
@@ -8687,7 +8677,7 @@ int mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)				// cppcheck-suppress unuse
 }
 
 /* Return the count of duplicate data items for the current key */
-int mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)		// cppcheck-suppress unusedFunction
+int mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)		// cppcheck-suppress unusedFunction [funcArgNamesDifferent]
 {
 	MDB_node	*leaf;
 
@@ -8724,8 +8714,7 @@ int mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)		// cppcheck-suppress u
 	return MDB_SUCCESS;
 }
 
-void
-mdb_cursor_close(MDB_cursor *mc)
+void mdb_cursor_close(MDB_cursor *mc)			// cppcheck-suppress funcArgNamesDifferent
 {
 	if (mc) {
 		MDB_CURSOR_UNREF(mc, 0);
@@ -8745,13 +8734,13 @@ mdb_cursor_close(MDB_cursor *mc)
 	}
 }
 
-MDB_txn *mdb_cursor_txn(MDB_cursor *mc)		// cppcheck-suppress unusedFunction
+MDB_txn *mdb_cursor_txn(MDB_cursor *mc)		// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	if (!mc) return NULL;
 	return mc->mc_txn;
 }
 
-MDB_dbi mdb_cursor_dbi(MDB_cursor *mc)		// cppcheck-suppress unusedFunction
+MDB_dbi mdb_cursor_dbi(MDB_cursor *mc)		// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	return mc->mc_dbi;
 }
@@ -10603,7 +10592,7 @@ int ESECT mdb_env_copy(MDB_env *env, const char *path)						// cppcheck-suppress
 	return mdb_env_copy2(env, path, 0);
 }
 
-int ESECT mdb_env_set_flags(MDB_env *env, unsigned int flag, int onoff)		// cppcheck-suppress unusedFunction
+int ESECT mdb_env_set_flags(MDB_env *env, unsigned int flag, int onoff)		// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	if (flag & ~CHANGEABLE)
 		return EINVAL;
@@ -10614,7 +10603,7 @@ int ESECT mdb_env_set_flags(MDB_env *env, unsigned int flag, int onoff)		// cppc
 	return MDB_SUCCESS;
 }
 
-int ESECT mdb_env_get_flags(MDB_env *env, unsigned int *arg)				// cppcheck-suppress unusedFunction
+int ESECT mdb_env_get_flags(MDB_env *env, unsigned int *arg)				// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	if (!env || !arg)
 		return EINVAL;
@@ -10646,7 +10635,7 @@ int ESECT mdb_env_set_assert(MDB_env *env, MDB_assert_func *func)			// cppcheck-
 	return MDB_SUCCESS;
 }
 
-int ESECT mdb_env_get_path(MDB_env *env, const char **arg)					// cppcheck-suppress unusedFunction
+int ESECT mdb_env_get_path(MDB_env *env, const char **arg)					// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	if (!env || !arg)
 		return EINVAL;
@@ -10655,7 +10644,7 @@ int ESECT mdb_env_get_path(MDB_env *env, const char **arg)					// cppcheck-suppr
 	return MDB_SUCCESS;
 }
 
-int ESECT mdb_env_get_fd(MDB_env *env, mdb_filehandle_t *arg)				// cppcheck-suppress unusedFunction
+int ESECT mdb_env_get_fd(MDB_env *env, mdb_filehandle_t *arg)				// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	if (!env || !arg)
 		return EINVAL;
@@ -10683,8 +10672,7 @@ mdb_stat0(MDB_env *env, MDB_db *db, MDB_stat *arg)
 	return MDB_SUCCESS;
 }
 
-int ESECT
-mdb_env_stat(MDB_env *env, MDB_stat *arg)
+int ESECT mdb_env_stat(MDB_env *env, MDB_stat *arg)			// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_meta *meta;
 
@@ -10696,8 +10684,7 @@ mdb_env_stat(MDB_env *env, MDB_stat *arg)
 	return mdb_stat0(env, &meta->mm_dbs[MAIN_DBI], arg);
 }
 
-int ESECT
-mdb_env_info(MDB_env *env, MDB_envinfo *arg)
+int ESECT mdb_env_info(MDB_env *env, MDB_envinfo *arg)		// cppcheck-suppress funcArgNamesDifferent
 {
 	MDB_meta *meta;
 
@@ -10857,8 +10844,7 @@ int mdb_dbi_open(MDB_txn *txn, const char *name, unsigned int flags, MDB_dbi *db
 	return rc;
 }
 
-int ESECT
-mdb_stat(MDB_txn *txn, MDB_dbi dbi, MDB_stat *arg)
+int ESECT mdb_stat(MDB_txn *txn, MDB_dbi dbi, MDB_stat *arg)		// cppcheck-suppress funcArgNamesDifferent
 {
 	if (!arg || !TXN_DBI_EXIST(txn, dbi, DB_VALID))
 		return EINVAL;
