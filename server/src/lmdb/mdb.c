@@ -8671,8 +8671,7 @@ mdb_cursor_open(MDB_txn *txn, MDB_dbi dbi, MDB_cursor **ret)
 	return MDB_SUCCESS;
 }
 
-int
-mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)
+int mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)				// cppcheck-suppress unusedFunction
 {
 	if (!mc || !TXN_DBI_EXIST(txn, mc->mc_dbi, DB_VALID))
 		return EINVAL;
@@ -8688,8 +8687,7 @@ mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)
 }
 
 /* Return the count of duplicate data items for the current key */
-int
-mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)
+int mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)		// cppcheck-suppress unusedFunction
 {
 	MDB_node	*leaf;
 

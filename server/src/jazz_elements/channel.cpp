@@ -43,7 +43,7 @@ namespace jazz_elements
 {
 
 
-int client_test (void) {
+int client_test (void) {		// cppcheck-suppress unusedFunction
 
 	printf ("Connecting to hello world server…\n");
 	void *context = zmq_ctx_new ();
@@ -89,7 +89,7 @@ size_t write_callback(char * ptr, size_t size, size_t nmemb, void *userdata) {
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
-bool remote_testing_point () {
+bool remote_testing_point () {			// cppcheck-suppress unusedFunction
 	CURL *curl;
 	CURLcode res;
 
