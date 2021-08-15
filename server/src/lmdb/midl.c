@@ -396,30 +396,6 @@ unsigned mdb_mid3l_search( MDB_ID3L ids, MDB_ID id )
 	return cursor;
 }
 
-int mdb_mid3l_insert( MDB_ID3L ids, MDB_ID3 *id )
-{
-	unsigned x, i;
-
-	x = mdb_mid3l_search( ids, id->mid );
-
-	if( x < 1 ) {
-		/* internal error */
-		return -2;
-	}
-
-	if ( x <= ids[0].mid && ids[x].mid == id->mid ) {
-		/* duplicate */
-		return -1;
-	}
-
-	/* insert id */
-	ids[0].mid++;
-	for (i=(unsigned)ids[0].mid; i>x; i--)
-		ids[i] = ids[i-1];
-	ids[x] = *id;
-
-	return 0;
-}
 #endif /* MDB_VL32 */
 
 /** @} */
