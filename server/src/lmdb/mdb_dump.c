@@ -125,7 +125,7 @@ static int dumpit(MDB_txn *txn, MDB_dbi dbi, char *name)
 		if (flags & dbflags[i].bit)
 			printf("%s=1\n", dbflags[i].name);
 
-	printf("db_pagesize=%d\n", ms.ms_psize);
+	printf("db_pagesize=%u\n", ms.ms_psize);
 	printf("HEADER=END\n");
 
 	rc = mdb_cursor_open(txn, dbi, &mc);
