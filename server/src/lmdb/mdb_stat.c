@@ -178,22 +178,22 @@ int main(int argc, char *argv[])
 			if (freinfo > 1) {
 				char *bad = "";
 				mdb_size_t pg, prev;
-				ssize_t i, j, span = 0;
-				j = *iptr++;
-				for (i = j, prev = 1; --i >= 0; ) {
-					pg = iptr[i];
+				ssize_t j, k, span = 0;
+				k = *iptr++;
+				for (j = k, prev = 1; --j >= 0; ) {
+					pg = iptr[j];
 					if (pg <= prev)
 						bad = " [bad sequence]";
 					prev = pg;
 					pg += span;
-					for (; i >= span && iptr[i-span] == pg; span++, pg++) ;
+					for (; j >= span && iptr[j-span] == pg; span++, pg++) ;
 				}
 				printf("    Transaction %"Yu", %"Z"d pages, maxspan %"Z"d%s\n",
-					*(mdb_size_t *)key.mv_data, j, span, bad);
+					*(mdb_size_t *)key.mv_data, k, span, bad);
 				if (freinfo > 2) {
-					for (--j; j >= 0; ) {
-						pg = iptr[j];
-						for (span=1; --j >= 0 && iptr[j] == pg+span; span++) ;
+					for (--k; k >= 0; ) {
+						pg = iptr[k];
+						for (span=1; --k >= 0 && iptr[k] == pg+span; span++) ;
 						printf(span>1 ? "     %9"Yu"[%"Z"d]\n" : "     %9"Yu"\n",
 							pg, span);
 					}
