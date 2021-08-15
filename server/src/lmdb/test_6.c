@@ -121,52 +121,6 @@ int main(int argc,char * argv[])
 	CHECK(rc == MDB_NOTFOUND, "mdb_cursor_get");
 	mdb_cursor_close(cursor);
 	mdb_txn_commit(txn);
-
-#if 0
-	j=0;
-
-	for (i= count - 1; i > -1; i-= (rand()%5)) {
-		j++;
-		txn=NULL;
-		E(mdb_txn_begin(env, NULL, 0, &txn));
-		sprintf(kval, "%03x", values[i & ~0x0f]);
-		sprintf(sval, "%03x %d foo bar", values[i], values[i]);
-		key.mv_size = sizeof(int);
-		key.mv_data = kval;
-		data.mv_size = sizeof(sval);
-		data.mv_data = sval;
-		if (RES(MDB_NOTFOUND, mdb_del(txn, dbi, &key, &data))) {
-			j--;
-			mdb_txn_abort(txn);
-		} else {
-			E(mdb_txn_commit(txn));
-		}
-	}
-	free(values);
-	printf("Deleted %d values\n", j);
-
-	E(mdb_env_stat(env, &mst));
-	E(mdb_txn_begin(env, NULL, MDB_RDONLY, &txn));
-	E(mdb_cursor_open(txn, dbi, &cursor));
-	printf("Cursor next\n");
-	while ((rc = mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) == 0) {
-		printf("key: %.*s, data: %.*s\n",
-			(int) key.mv_size,  (char *) key.mv_data,
-			(int) data.mv_size, (char *) data.mv_data);
-	}
-	CHECK(rc == MDB_NOTFOUND, "mdb_cursor_get");
-	printf("Cursor prev\n");
-	while ((rc = mdb_cursor_get(cursor, &key, &data, MDB_PREV)) == 0) {
-		printf("key: %.*s, data: %.*s\n",
-			(int) key.mv_size,  (char *) key.mv_data,
-			(int) data.mv_size, (char *) data.mv_data);
-	}
-	CHECK(rc == MDB_NOTFOUND, "mdb_cursor_get");
-	mdb_cursor_close(cursor);
-	mdb_txn_abort(txn);
-
-	mdb_dbi_close(env, dbi);
-#endif
 	mdb_env_close(env);
 
 	return 0;
