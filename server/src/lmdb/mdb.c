@@ -7544,8 +7544,8 @@ int mdb_cursor_put(MDB_cursor *mc, MDB_val *key, MDB_val *data, unsigned int fla
 	 * early failures.
 	 */
 	if (flags & MDB_MULTIPLE) {
-		dcount = data[1].mv_size;
-		data[1].mv_size = 0;
+		dcount = data[1].mv_size;							// cppcheck-suppress objectIndex ; No problem, in the recursive call flags
+		data[1].mv_size = 0;								// cppcheck-suppress objectIndex ; does not contain MDB_MULTIPLE
 		if (!F_ISSET(mc->mc_db->md_flags, MDB_DUPFIXED))
 			return MDB_INCOMPATIBLE;
 	}
