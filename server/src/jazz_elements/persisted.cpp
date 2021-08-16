@@ -330,13 +330,96 @@ config, "group" keeps track of all groups (of nodes sharing a sharded resource),
 */
 void Persisted::base_names (BaseNames &base_names)
 {
-	base_names["sys"]	 = this;
-	base_names["group"]  = this;
-	base_names["kind"]	 = this;
-	base_names["field"]  = this;
-	base_names["flux"]	 = this;
-	base_names["agent"]	 = this;
-	base_names["static"] = this;
+/** \brief A nicer presentation for LMDB error messages.
+*/
+void Persisted::log_lmdb_err(int err, const char * msg) {
+	char errmsg [128];
+
+	switch (err) {
+	case MDB_KEYEXIST:
+		strcpy(errmsg, "LMDB MDB_KEYEXIST: Key/data pair already exists.");
+		break;
+	case MDB_NOTFOUND:
+		strcpy(errmsg, "LMDB MDB_NOTFOUND: Key/data pair not found (EOF).");
+		break;
+	case MDB_PAGE_NOTFOUND:
+		strcpy(errmsg, "LMDB MDB_PAGE_NOTFOUND: Requested page not found - this usually indicates corruption.");
+		break;
+	case MDB_CORRUPTED:
+		strcpy(errmsg, "LMDB MDB_CORRUPTED: Located page was wrong type.");
+		break;
+	case MDB_PANIC:
+		strcpy(errmsg, "LMDB MDB_PANIC: Update of meta page failed or environment had a fatal error.");
+		break;
+	case MDB_VERSION_MISMATCH:
+		strcpy(errmsg, "LMDB MDB_VERSION_MISMATCH: Environment version mismatch.");
+		break;
+	case MDB_INVALID:
+		strcpy(errmsg, "LMDB MDB_INVALID: File is not a valid LMDB file.");
+		break;
+	case MDB_MAP_FULL:
+		strcpy(errmsg, "LMDB MDB_MAP_FULL: Environment mapsize reached.");
+		break;
+	case MDB_DBS_FULL:
+		strcpy(errmsg, "LMDB MDB_DBS_FULL: Environment maxdbs reached.");
+		break;
+	case MDB_READERS_FULL:
+		strcpy(errmsg, "LMDB MDB_READERS_FULL: Environment maxreaders reached.");
+		break;
+	case MDB_TLS_FULL:
+		strcpy(errmsg, "LMDB MDB_TLS_FULL: Too many TLS keys in use - Windows only.");
+		break;
+	case MDB_TXN_FULL:
+		strcpy(errmsg, "LMDB MDB_TXN_FULL: Txn has too many dirty pages.");
+		break;
+	case MDB_CURSOR_FULL:
+		strcpy(errmsg, "LMDB MDB_CURSOR_FULL: Cursor stack too deep - internal error.");
+		break;
+	case MDB_PAGE_FULL:
+		strcpy(errmsg, "LMDB MDB_PAGE_FULL: Page has not enough space - internal error.");
+		break;
+	case MDB_MAP_RESIZED:
+		strcpy(errmsg, "LMDB MDB_MAP_RESIZED: Database contents grew beyond environment mapsize.");
+		break;
+	case MDB_INCOMPATIBLE:
+		strcpy(errmsg, "LMDB MDB_INCOMPATIBLE: Operation and DB incompatible, or DB type changed (see doc).");
+		break;
+	case MDB_BAD_RSLOT:
+		strcpy(errmsg, "LMDB MDB_BAD_RSLOT: Invalid reuse of reader locktable slot.");
+		break;
+	case MDB_BAD_TXN:
+		strcpy(errmsg, "LMDB MDB_BAD_TXN: Transaction must abort, has a child, or is invalid.");
+		break;
+	case MDB_BAD_VALSIZE:
+		strcpy(errmsg, "LMDB MDB_BAD_VALSIZE: Unsupported size of key/DB name/data, or wrong DUPFIXED size.");
+		break;
+	case MDB_BAD_DBI:
+		strcpy(errmsg, "LMDB MDB_BAD_DBI: The specified DBI was changed unexpectedly.");
+		break;
+	case MDB_PROBLEM:
+		strcpy(errmsg, "LMDB MDB_PROBLEM: Unexpected problem - txn should abort.");
+		break;
+	case EACCES:
+		strcpy(errmsg, "LMDB EACCES: An attempt was made to write in a read-only transaction.");
+		break;
+	case EINVAL:
+		strcpy(errmsg, "LMDB EINVAL: An invalid parameter was specified.");
+		break;
+	case EIO:
+		strcpy(errmsg, "LMDB EIO: A low-level I/O error occurred while writing.");
+		break;
+	case ENOSPC:
+		strcpy(errmsg, "LMDB ENOSPC: No more disk space.");
+		break;
+	case ENOMEM:
+		strcpy(errmsg, "LMDB ENOMEM: Out of memory.");
+		break;
+	default:
+		sprintf(errmsg,"LMDB Unknown code %d.", err);
+	}
+
+	log(LOG_ERROR, errmsg);
+	log(LOG_MISS, msg);
 }
 
 } // namespace jazz_elements
