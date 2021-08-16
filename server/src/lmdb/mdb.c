@@ -2825,7 +2825,7 @@ int mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)
 	return rc;
 }
 
-int mdb_env_sync(MDB_env *env, int force)		// cppcheck-suppress unusedFunction
+int mdb_env_sync(MDB_env *env, int force)													// cppcheck-suppress unusedFunction
 {
 	MDB_meta *m = mdb_env_pick_meta(env);
 	return mdb_env_sync0(env, force, m->mm_last_pg+1);
@@ -3103,8 +3103,7 @@ mdb_txn_renew0(MDB_txn *txn)
 	return rc;
 }
 
-int
-mdb_txn_renew(MDB_txn *txn)
+int mdb_txn_renew(MDB_txn *txn)															// cppcheck-suppress unusedFunction
 {
 	int rc;
 
@@ -3238,15 +3237,13 @@ renew:
 	return rc;
 }
 
-MDB_env *
-mdb_txn_env(MDB_txn *txn)
+MDB_env *mdb_txn_env(MDB_txn *txn)
 {
 	if(!txn) return NULL;
 	return txn->mt_env;
 }
 
-mdb_size_t
-mdb_txn_id(MDB_txn *txn)
+mdb_size_t mdb_txn_id(MDB_txn *txn)					// cppcheck-suppress unusedFunction
 {
     if(!txn) return 0;
     return txn->mt_txnid;
@@ -3636,8 +3633,7 @@ mdb_freelist_save(MDB_txn *txn)
  * @param[in] keep number of initial pages in dirty_list to keep dirty.
  * @return 0 on success, non-zero on failure.
  */
-static int
-mdb_page_flush(MDB_txn *txn, int keep)
+static int mdb_page_flush(MDB_txn *txn, int keep)
 {
 	MDB_env		*env = txn->mt_env;
 	MDB_ID2L	dl = txn->mt_u.dirty_list;
