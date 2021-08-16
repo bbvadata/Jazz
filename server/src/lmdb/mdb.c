@@ -3802,8 +3802,8 @@ retry_seek:
 		}
 #else
 		}
-		iov[n].iov_len = size;
-		iov[n].iov_base = (char *)dp;
+		iov[n].iov_len = size;							// cppcheck-suppress arrayIndexOutOfBoundsCond
+		iov[n].iov_base = (char *)dp;					// cppcheck-suppress arrayIndexOutOfBoundsCond
 #endif	/* _WIN32 */
 		DPRINTF(("committing page %"Yu, pgno));
 		next_pos = pos + size;
