@@ -314,12 +314,30 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pChar name) {
 }
 
 
+/** Native (Persistence) interface **metadata of a Block** retrieval.
+
+	\param hea		A StaticBlockHeader structure that will receive the metadata.
+	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
+for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
 */
-StatusCode Persisted::header (StaticBlockHeader &p_txn, Locator &what) {
+StatusCode Persisted::header (StaticBlockHeader &hea, Locator &what) {
 
-//TODO: Implement this.
+	pMDB_txn p_l_txn;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);
+
+	if (p_blx == nullptr)
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+	memcpy(&hea, p_blx, sizeof(StaticBlockHeader));
+
+	done_pointer_to_block(p_l_txn);
+
+	return SERVICE_NO_ERROR;
 }
 
 
