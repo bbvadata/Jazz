@@ -4505,10 +4505,10 @@ mdb_env_map(MDB_env *env, void *addr)
 	if (flags & MDB_NORDAHEAD) {
 		/* Turn off readahead. It's harmful when the DB is larger than RAM. */
 #ifdef MADV_RANDOM
-		madvise(env->me_map, env->me_mapsize, MADV_RANDOM);				// cppcheck-suppress ConfigurationNotChecked
+		madvise(env->me_map, env->me_mapsize, MADV_RANDOM);					// cppcheck-suppress ConfigurationNotChecked
 #else
 #ifdef POSIX_MADV_RANDOM
-		posix_madvise(env->me_map, env->me_mapsize, POSIX_MADV_RANDOM);
+		posix_madvise(env->me_map, env->me_mapsize, POSIX_MADV_RANDOM);		// cppcheck-suppress ConfigurationNotChecked
 #endif /* POSIX_MADV_RANDOM */
 #endif /* MADV_RANDOM */
 	}
@@ -4692,13 +4692,13 @@ enum mdb_fopen_type {
 	/* A comment in mdb_fopen() explains some O_* flag choices. */
 	MDB_O_RDONLY= O_RDONLY,                            /**< for RDONLY me_fd */
 	MDB_O_RDWR  = O_RDWR  |O_CREAT,                    /**< for me_fd */
-	MDB_O_META  = O_WRONLY|MDB_DSYNC     |MDB_CLOEXEC, /**< for me_mfd */
-	MDB_O_COPY  = O_WRONLY|O_CREAT|O_EXCL|MDB_CLOEXEC, /**< for #mdb_env_copy() */
+	MDB_O_META  = O_WRONLY|MDB_DSYNC     |MDB_CLOEXEC, /**< for me_mfd */					   // cppcheck-suppress ConfigurationNotChecked
+	MDB_O_COPY  = O_WRONLY|O_CREAT|O_EXCL|MDB_CLOEXEC, /**< for #mdb_env_copy() */			   // cppcheck-suppress ConfigurationNotChecked
 	/** Bitmask for open() flags in enum #mdb_fopen_type.  The other bits
 	 * distinguish otherwise-equal MDB_O_* constants from each other.
 	 */
-	MDB_O_MASK  = MDB_O_RDWR|MDB_CLOEXEC | MDB_O_RDONLY|MDB_O_META|MDB_O_COPY,
-	MDB_O_LOCKS = MDB_O_RDWR|MDB_CLOEXEC | ((MDB_O_MASK+1) & ~MDB_O_MASK) /**< for me_lfd */
+	MDB_O_MASK  = MDB_O_RDWR|MDB_CLOEXEC | MDB_O_RDONLY|MDB_O_META|MDB_O_COPY,				   // cppcheck-suppress ConfigurationNotChecked
+	MDB_O_LOCKS = MDB_O_RDWR|MDB_CLOEXEC | ((MDB_O_MASK+1) & ~MDB_O_MASK) /**< for me_lfd */   // cppcheck-suppress ConfigurationNotChecked
 #endif
 };
 
@@ -4781,7 +4781,7 @@ mdb_fopen(const MDB_env *env, MDB_name *fname,
 	else {
 		if (which != MDB_O_RDONLY && which != MDB_O_RDWR) {
 			/* Set CLOEXEC if we could not pass it to open() */
-			if (!MDB_CLOEXEC && (flags = fcntl(fd, F_GETFD)) != -1)
+			if (!MDB_CLOEXEC && (flags = fcntl(fd, F_GETFD)) != -1)			// cppcheck-suppress ConfigurationNotChecked
 				(void) fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
 		}
 		if (which == MDB_O_COPY && env->me_psize >= env->me_os_psize) {
@@ -4789,13 +4789,13 @@ mdb_fopen(const MDB_env *env, MDB_name *fname,
 			 * way to ask how much, so we require OS pagesize alignment.
 			 */
 # ifdef F_NOCACHE	/* __APPLE__ */
-			(void) fcntl(fd, F_NOCACHE, 1);				// cppcheck-suppress ConfigurationNotChecked
+			(void) fcntl(fd, F_NOCACHE, 1);									// cppcheck-suppress ConfigurationNotChecked
 # elif defined O_DIRECT
 			/* open(...O_DIRECT...) would break on filesystems without
 			 * O_DIRECT support (ITS#7682). Try to set it here instead.
 			 */
 			if ((flags = fcntl(fd, F_GETFL)) != -1)
-				(void) fcntl(fd, F_SETFL, flags | O_DIRECT);
+				(void) fcntl(fd, F_SETFL, flags | O_DIRECT);				// cppcheck-suppress ConfigurationNotChecked
 # endif
 		}
 	}
@@ -4824,7 +4824,7 @@ mdb_env_open2(MDB_env *env, int prev)
 	/* See if we should use QueryLimited */
 	rc = GetVersion();
 	if ((rc & 0xff) > 5)
-		env->me_pidquery = MDB_PROCESS_QUERY_LIMITED_INFORMATION;
+		env->me_pidquery = MDB_PROCESS_QUERY_LIMITED_INFORMATION;		// cppcheck-suppress ConfigurationNotChecked
 	else
 		env->me_pidquery = PROCESS_QUERY_INFORMATION;
 	/* Grab functions we need from NTDLL */
@@ -10058,7 +10058,7 @@ mdb_env_copythr(void *arg)
 #ifdef SIGPIPE
 	sigset_t set;
 	sigemptyset(&set);
-	sigaddset(&set, SIGPIPE);
+	sigaddset(&set, SIGPIPE);										// cppcheck-suppress ConfigurationNotChecked
 	if ((rc = pthread_sigmask(SIG_BLOCK, &set, NULL)) != 0)
 		my->mc_error = rc;
 #endif
