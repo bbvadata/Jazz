@@ -3457,11 +3457,13 @@ mdb_freelist_save(MDB_txn *txn)
 		{
 			/* squash freed slots out of the dirty list */
 			unsigned y;
-			for (y=1; dl[y].mptr && y <= dl[0].mid; y++);
+			for (y=1; y <= dl[0].mid && dl[y].mptr; y++);
 			if (y <= dl[0].mid) {
 				for(x=y, y++;;) {
-					while (!dl[y].mptr && y <= dl[0].mid) y++;
-					if (y > dl[0].mid) break;
+					while (y <= dl[0].mid && !dl[y].mptr)
+						y++;
+					if (y > dl[0].mid)
+						break;
 					dl[x++] = dl[y++];
 				}
 				dl[0].mid = x-1;
