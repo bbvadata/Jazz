@@ -511,14 +511,76 @@ StatusCode Persisted::new_entity (Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Persistence) interface for **deleting databases and blocks**:
+
+	\param what	Some Locator to the block or database to be removed. E.g. //lmdb/entity/key or //lmdb/entity compiled.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Persisted::remove (Locator &what) {
 
-//TODO: Implement this.
+	if (what.key[0] == 0) {
+		if (remove_database(what.entity))
+			return SERVICE_NO_ERROR;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+		return SERVICE_ERROR_REMOVE_FAILED;
+	}
+
+	DBImap::iterator i = source_dbi.find(what.entity);
+
+	if (i == source_dbi.end()) {
+		log(LOG_MISS, "Invalid source in Persisted::remove().");
+
+		return SERVICE_ERROR_REMOVE_FAILED;
+	}
+
+	pMDB_txn p_txn;
+
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn))
+	{
+		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::remove().");
+
+		return SERVICE_ERROR_REMOVE_FAILED;
+	}
+
+	MDB_dbi hh = i->second;
+
+	if (hh == INVALID_MDB_DBI) {
+
+		if (int err = mdb_dbi_open(p_txn, what.entity, MDB_CREATE, &hh)) {
+			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::remove().");
+
+			goto release_txn_and_fail;
+		}
+
+		source_dbi [what.entity] = hh;
+	}
+
+	MDB_val l_key;
+
+	l_key.mv_size = strlen(what.key);
+	l_key.mv_data = (void *) &what.key;
+
+	if (int err = mdb_del(p_txn, hh, &l_key, NULL)) {
+		log_lmdb_err(err, "mdb_del() failed in Persisted::remove().");
+
+		goto release_txn_and_fail;
+	}
+
+	if (int err = mdb_txn_commit(p_txn)) {
+		log_lmdb_err(err, "mdb_txn_commit() failed in Persisted::remove().");
+
+		goto release_txn_and_fail;
+	}
+
+	return SERVICE_NO_ERROR;
+
+
+release_txn_and_fail:
+
+	mdb_txn_abort(p_txn);
+
+	return SERVICE_ERROR_REMOVE_FAILED;
 }
 
 
