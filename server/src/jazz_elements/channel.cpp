@@ -122,8 +122,7 @@ Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 
 /** Reads config variables and sets jazz_node_* public variables.
 */
-StatusCode Channels::start()
-{
+StatusCode Channels::start() {
 	if (!get_conf_key("FILESYSTEM_ROOT", filesystem_root)) {
 		log(LOG_ERROR, "Channels::start() failed to find FILESYSTEM_ROOT");
 
@@ -192,8 +191,7 @@ StatusCode Channels::start()
 
 /** Shuts down the Persisted Service
 */
-StatusCode Channels::shut_down()
-{
+StatusCode Channels::shut_down() {
 //TODO: Implement Channels::shut_down()
 
 	return SERVICE_NO_ERROR;
