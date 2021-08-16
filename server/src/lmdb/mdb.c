@@ -3649,7 +3649,7 @@ static int mdb_page_flush(MDB_txn *txn, int keep)
 	int async_i = 0;
 	HANDLE fd = (env->me_flags & MDB_NOSYNC) ? env->me_fd : env->me_ovfd;
 #else
-	struct iovec iov[MDB_COMMIT_PAGES];
+	struct iovec iov[MDB_COMMIT_PAGES];				// cppcheck-suppress ConfigurationNotChecked
 	HANDLE fd = env->me_fd;
 #endif
 	ssize_t		wsize = 0, wres;
@@ -3717,7 +3717,7 @@ static int mdb_page_flush(MDB_txn *txn, int keep)
 			if (IS_OVERFLOW(dp)) size *= dp->mp_pages;
 		}
 		/* Write up to MDB_COMMIT_PAGES dirty pages at a time. */
-		if (pos!=next_pos || n==MDB_COMMIT_PAGES || wsize+size>MAX_WRITE
+		if (pos!=next_pos || n==MDB_COMMIT_PAGES || wsize+size>MAX_WRITE				// cppcheck-suppress ConfigurationNotChecked
 #ifdef _WIN32
 			/* If writemap is enabled, consecutive page positions infer
 			 * contiguous (mapped) memory.
@@ -4480,7 +4480,7 @@ mdb_env_map(MDB_env *env, void *addr)
 	int prot = PROT_READ;
 #ifdef MAP_NOSYNC	/* Used on FreeBSD */
 	if (flags & MDB_NOSYNC)
-		mmap_flags |= MAP_NOSYNC;
+		mmap_flags |= MAP_NOSYNC;				// cppcheck-suppress ConfigurationNotChecked
 #endif
 #ifdef MDB_VL32
 	(void) flags;
@@ -4506,7 +4506,7 @@ mdb_env_map(MDB_env *env, void *addr)
 	if (flags & MDB_NORDAHEAD) {
 		/* Turn off readahead. It's harmful when the DB is larger than RAM. */
 #ifdef MADV_RANDOM
-		madvise(env->me_map, env->me_mapsize, MADV_RANDOM);
+		madvise(env->me_map, env->me_mapsize, MADV_RANDOM);				// cppcheck-suppress ConfigurationNotChecked
 #else
 #ifdef POSIX_MADV_RANDOM
 		posix_madvise(env->me_map, env->me_mapsize, POSIX_MADV_RANDOM);
@@ -4790,7 +4790,7 @@ mdb_fopen(const MDB_env *env, MDB_name *fname,
 			 * way to ask how much, so we require OS pagesize alignment.
 			 */
 # ifdef F_NOCACHE	/* __APPLE__ */
-			(void) fcntl(fd, F_NOCACHE, 1);
+			(void) fcntl(fd, F_NOCACHE, 1);				// cppcheck-suppress ConfigurationNotChecked
 # elif defined O_DIRECT
 			/* open(...O_DIRECT...) would break on filesystems without
 			 * O_DIRECT support (ITS#7682). Try to set it here instead.
@@ -11226,7 +11226,7 @@ mdb_mutex_failed(MDB_env *env, mdb_mutexref_t mutex, int rc)
 	int rlocked, rc2;
 	MDB_meta *meta;
 
-	if (rc == MDB_OWNERDEAD) {
+	if (rc == MDB_OWNERDEAD) {											// cppcheck-suppress ConfigurationNotChecked
 		/* We own the mutex. Clean up after dead previous owner. */
 		rc = MDB_SUCCESS;
 		rlocked = (mutex == env->me_rmutex);
