@@ -328,8 +328,75 @@ are the name of a database (and will fail otherwise).
 config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
 "static" is a database of objects with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
 */
-void Persisted::base_names (BaseNames &base_names)
-{
+
+/** \brief Locates a block doing an mdb_get() leaving the transaction open.
+
+	\param what	 The location of a Block inside LMDB.
+	\param p_txn the transcation created by a lock_pointer_to_block() call.
+
+	\return	The pointer to the block (can **only** be read and **requires** a done_pointer_to_block() to close the transaction) or
+			nullptr (+ log INFO) on error.
+
+NOTE: This requires a subsequent done_pointer_to_block() call.
+*/
+pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &p_txn) {
+
+	DBImap::iterator i = source_dbi.find(what.entity);
+
+	if (i == source_dbi.end()) {
+		log(LOG_MISS, "Invalid source in Persisted::lock_pointer_to_block().");
+
+		return nullptr;
+	}
+
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn))
+	{
+		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::lock_pointer_to_block().");
+
+		return nullptr;
+	}
+
+	MDB_dbi hh = i->second;
+
+	if (hh == INVALID_MDB_DBI) {
+
+		if (int err = mdb_dbi_open(p_txn, what.entity, MDB_CREATE, &hh)) {
+			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::lock_pointer_to_block().");
+
+			goto release_txn_and_fail;
+		}
+
+		source_dbi [what.entity] = hh;
+	}
+
+	MDB_val l_key, l_data;
+
+	l_key.mv_size = strlen(what.key);
+	l_key.mv_data = (void *) &what.key;
+
+	if (int err = mdb_get(p_txn, hh, &l_key, &l_data)) {
+
+#ifndef DEBUG
+		if (err == MDB_NOTFOUND)
+			goto release_txn_and_fail; // Not found does not log anything
+#endif
+		log_lmdb_err(err, "mdb_get() failed in Persisted::lock_pointer_to_block() with a code other than MDB_NOTFOUND.");
+
+		goto release_txn_and_fail;
+	}
+
+	return (pBlock) l_data.mv_data;
+
+
+release_txn_and_fail:
+
+	mdb_txn_abort(p_txn);
+
+	p_txn = nullptr;
+
+	return nullptr;
+}
+
 
 /** \brief Completes the transaction started by lock_pointer_to_block() doing a mdb_txn_commit() which invalidates the pointer.
 
