@@ -328,6 +328,10 @@ are the name of a database (and will fail otherwise).
 config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
 "static" is a database of objects with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
 */
+void Persisted::base_names (BaseNames &base_names) {
+	base_names["lmdb"] = this;		// Provides LMDB block persistence for any movable (Tensor, Kind or Tuple).
+}
+
 
 /** \brief Locates a block doing an mdb_get() leaving the transaction open.
 
