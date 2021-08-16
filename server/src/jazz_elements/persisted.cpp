@@ -330,6 +330,87 @@ config, "group" keeps track of all groups (of nodes sharing a sharded resource),
 */
 void Persisted::base_names (BaseNames &base_names)
 {
+/** Create a new LMDB named database and add it as a new source to the source_dbi[] map.
+
+	\param name The name of the source to be added.
+
+	\return true if successful, false and log(LOG_MISS, "further details") if not.
+*/
+bool Persisted::new_database(pChar name) {
+
+	char key [] = {"."};
+	int	 val	= 0xbadF00D;
+
+	lock_container();
+
+	if (source_dbi.size() >= MAX_POSSIBLE_SOURCES) {
+		log(LOG_MISS, "Persisted::new_database(): too many sources.");
+
+		goto release_lock_and_fail;
+	}
+
+	if (source_dbi.find(name) != source_dbi.end()) {
+		log(LOG_MISS, "Persisted::new_database(): source already exists.");
+
+		goto release_lock_and_fail;
+	}
+
+	MDB_txn *txn;
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
+		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::new_database().");
+
+		goto release_lock_and_fail;
+	}
+
+	MDB_dbi hh;
+
+	if (int err = mdb_dbi_open(txn, name, MDB_CREATE, &hh)) {
+		log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::new_database().");
+
+		goto release_txn_and_fail;
+	}
+
+	MDB_val l_key, l_data;
+
+	l_key.mv_size  = 1;
+	l_key.mv_data  = &key;
+	l_data.mv_size = sizeof(int);
+	l_data.mv_data = &val;
+
+	if (int err = mdb_put(txn, hh, &l_key, &l_data, 0)) {
+		log_lmdb_err(err, "mdb_put() failed in Persisted::new_database().");
+
+		goto release_dbi_and_fail;
+	}
+
+	if (int err = mdb_txn_commit(txn)) {
+		log_lmdb_err(err, "mdb_txn_commit() failed in Persisted::new_database().");
+
+		goto release_dbi_and_fail;
+	}
+
+	source_dbi [name] = hh;
+
+	unlock_container();
+
+	return true;
+
+release_dbi_and_fail:
+
+	mdb_dbi_close(lmdb_env, hh);
+
+release_txn_and_fail:
+
+	mdb_txn_abort(txn);
+
+release_lock_and_fail:
+
+	unlock_container();
+
+	return false;
+}
+
+
 /** Kill a source, both from the LMDB persistence and from the source[] vector.
 	\param name The name of the source to be killed.
 
