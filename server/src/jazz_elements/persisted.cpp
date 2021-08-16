@@ -341,18 +341,66 @@ StatusCode Persisted::header (StaticBlockHeader &hea, Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Persistence) interface **metadata of a Block** retrieval.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Unlike its faster form, this allocates a Block and therefore, it is equivalent to a new_block() call. On success, it will return a
+Transaction that belongs to the Container and must be destroy()-ed when the caller is done.
+
+For Tensors it will allocate a block that only has the StaticBlockHeader (What you can more efficiently get from the other form.)
+For Kinds, the metadata of all the items is exactly the same a .get() call returns.
+For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
 StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
 
-//TODO: Implement this.
+	pMDB_txn p_l_txn;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);
+
+	if (p_blx == nullptr) {
+		p_txn = nullptr;
+
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+	}
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR) {
+		done_pointer_to_block(p_l_txn);
+
+		return ret;
+	}
+
+	int hea_size = sizeof(StaticBlockHeader);
+
+	switch (p_blx->cell_type) {
+	case CELL_TYPE_TUPLE_ITEM:
+	case CELL_TYPE_KIND_ITEM:
+		hea_size += p_blx->size*sizeof(ItemHeader);
+	}
+
+	p_txn->p_block = block_malloc(hea_size);
+
+	if (p_txn->p_block == nullptr) {
+		done_pointer_to_block(p_l_txn);
+		destroy_internal(p_txn);
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	memcpy(p_txn->p_block, p_blx, hea_size);
+
+	done_pointer_to_block(p_l_txn);
+
+	return SERVICE_NO_ERROR;
 }
 
 
-/**
 
 	\param where	Some **destination** parsed by as_locator()
 	\param p_block	The Block to be stored in Persistence. The Block hash and dated will be updated by this call!!
