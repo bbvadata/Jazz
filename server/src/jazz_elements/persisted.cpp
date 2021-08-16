@@ -584,14 +584,27 @@ release_txn_and_fail:
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Persistence) interface for **Block copying** (inside the Persistence).
+
+	\param where	Some **destination** parsed by as_locator()
+	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Persisted::copy (Locator &where, Locator &what) {
 
-//TODO: Implement this.
+	pMDB_txn p_l_txn;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);
+
+	if (p_blx == nullptr)
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+	StatusCode ret = put(where, p_blx);
+
+	done_pointer_to_block(p_l_txn);
+
+	return ret;
 }
 
 
