@@ -137,6 +137,26 @@ class Persisted : public Container {
 		inline bool check_block(pBlock p_block) {
 			return p_block->hash64 == MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(StaticBlockHeader));
 		}
+
+		// Hot LMDB get
+
+		pBlock lock_pointer_to_block(Locator &what, pMDB_txn &p_txn);
+		void   done_pointer_to_block(pMDB_txn &p_txn);
+
+		// Internal dbi management
+
+		bool open_all_databases	 ();
+		void close_all_databases ();
+		bool new_database		 (pChar name);
+		bool remove_database	 (pChar name);
+
+		// Logger with full messages for lmdb errors.
+
+		void log_lmdb_err (int err, const char *msg);
+
+		DBImap source_dbi = {};
+		JazzLmdbOptions lmdb_opt;
+		MDB_env *lmdb_env = nullptr;
 };
 typedef Persisted *pPersisted;
 
