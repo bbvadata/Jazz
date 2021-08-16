@@ -376,10 +376,35 @@ class Container : public Service {
 		void base_names		   (BaseNames 	 &base_names);
 
 #ifndef CATCH_TEST
-	private:
+	protected:
 #endif
 
-		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+		/** An std::malloc() that increases .alloc_bytes on each call and fails on overcommit.
+		*/
+		inline void* malloc (size_t size) {
+			if (alloc_bytes + size >= fail_alloc_bytes)
+				return nullptr;
+
+			void * ret = std::malloc(size);
+
+			if (ret != nullptr)
+				alloc_bytes += size;
+
+			return ret;
+		}
+
+		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed to be valid by destroy().
+		*/
+		inline pBlock block_malloc(size_t size) {
+			pBlock p_blk = (pBlock) malloc(size);
+
+			if (p_blk != nullptr) {
+				p_blk->cell_type   = 0;
+				p_blk->total_bytes = 0;
+			}
+
+			return p_blk;
+		}
 
 		/** A private hard lock for Container-critical operations. E.g., Adding a new block to the deque.
 
@@ -405,44 +430,6 @@ class Container : public Service {
 		*/
 		void unlock_container () {
 			_lock_ = 0;
-		}
-
-		/** Allocate a Transaction to share a block via the API.
-		*/
-		inline StatusCode new_transaction (pTransaction &p_txn) {
-			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
-				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
-						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
-				alloc_warning_issued = true;
-			}
-
-			lock_container();
-
-			if (p_free == nullptr) {
-				unlock_container();
-				p_txn = nullptr;
-				return SERVICE_ERROR_NO_MEM;
-			}
-
-			p_txn  = p_free;
-			p_free = p_free->p_next;
-
-			p_txn->p_block = nullptr;
-			p_txn->status  = BLOCK_STATUS_EMPTY;
-			p_txn->_lock_  = 0;
-			p_txn->p_owner = this;
-
-			pStoredTransaction(p_txn)->p_next = p_alloc;
-			pStoredTransaction(p_txn)->p_prev = nullptr;
-
-			if (p_alloc != nullptr)
-				p_alloc->p_prev = pStoredTransaction(p_txn);
-
-			p_alloc = pStoredTransaction(p_txn);
-
-			unlock_container();
-
-			return SERVICE_NO_ERROR;
 		}
 
 		/** \brief (UNSAFE) Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction API.
@@ -503,32 +490,49 @@ class Container : public Service {
 			unlock_container();
 		}
 
-		/** An std::malloc() that increases .alloc_bytes on each call and fails on overcommit.
+		/** Allocate a Transaction to share a block via the API.
 		*/
-		inline void* malloc (size_t size) {
-			if (alloc_bytes + size >= fail_alloc_bytes)
-				return nullptr;
-
-			void * ret = std::malloc(size);
-
-			if (ret != nullptr)
-				alloc_bytes += size;
-
-			return ret;
-		}
-
-		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed to be valid by destroy().
-		*/
-		inline pBlock block_malloc(size_t size) {
-			pBlock p_blk = (pBlock) malloc(size);
-
-			if (p_blk != nullptr) {
-				p_blk->cell_type   = 0;
-				p_blk->total_bytes = 0;
+		inline StatusCode new_transaction (pTransaction &p_txn) {
+			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
+				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
+						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
+				alloc_warning_issued = true;
 			}
 
-			return p_blk;
+			lock_container();
+
+			if (p_free == nullptr) {
+				unlock_container();
+				p_txn = nullptr;
+				return SERVICE_ERROR_NO_MEM;
+			}
+
+			p_txn  = p_free;
+			p_free = p_free->p_next;
+
+			p_txn->p_block = nullptr;
+			p_txn->status  = BLOCK_STATUS_EMPTY;
+			p_txn->_lock_  = 0;
+			p_txn->p_owner = this;
+
+			pStoredTransaction(p_txn)->p_next = p_alloc;
+			pStoredTransaction(p_txn)->p_prev = nullptr;
+
+			if (p_alloc != nullptr)
+				p_alloc->p_prev = pStoredTransaction(p_txn);
+
+			p_alloc = pStoredTransaction(p_txn);
+
+			unlock_container();
+
+			return SERVICE_NO_ERROR;
 		}
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
 		StatusCode new_container	();
 		StatusCode destroy_container();
