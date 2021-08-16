@@ -331,6 +331,71 @@ config, "group" keeps track of all groups (of nodes sharing a sharded resource),
 void Persisted::base_names (BaseNames &base_names)
 {
 
+/** Locate all the named databases in the current LMDB environment, add them to the source[] vector and open them all for reading.
+
+	\return true if successful, false and log(LOG_MISS, "further details") if not.
+*/
+bool Persisted::open_all_databases() {
+
+	lock_container();
+
+	MDB_txn *txn;
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &txn)) {
+		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::open_all_databases().");
+
+		goto release_lock_and_fail;
+	}
+
+	MDB_dbi dbi;
+	if (int err = mdb_dbi_open(txn, NULL, 0, &dbi)) {
+		log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::open_all_databases().");
+
+		goto release_txn_and_fail;
+	}
+
+	MDB_cursor *cursor;
+	if (int err = mdb_cursor_open(txn, dbi, &cursor)) {
+		log_lmdb_err(err, "mdb_cursor_open() failed in Persisted::open_all_databases().");
+
+		goto release_dbi_and_fail;
+	}
+
+	MDB_val key, data;
+	while (!mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) {
+		std::string name((pChar) key.mv_data);
+
+		source_dbi[name] = INVALID_MDB_DBI;
+	}
+
+	mdb_cursor_close(cursor);
+	mdb_dbi_close(lmdb_env, dbi);
+
+	if (int err = mdb_txn_commit(txn)) {
+		log_lmdb_err(err, "mdb_txn_commit() failed in Persisted::open_all_databases().");
+
+		goto release_txn_and_fail;
+	}
+
+	unlock_container();
+
+	return true;
+
+release_dbi_and_fail:
+
+	mdb_dbi_close(lmdb_env, dbi);
+
+release_txn_and_fail:
+
+	mdb_txn_abort(txn);
+
+release_lock_and_fail:
+
+	unlock_container();
+
+	return false;
+}
+
+
 /** Close all named databases on LMDB leaving them ready for a subsequent opening.
 
 	This makes numsources == 0 by closing used LMDB handles via mdb_dbi_close().
