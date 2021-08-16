@@ -10196,7 +10196,7 @@ static int ESECT mdb_env_cwalk(mdb_copy *my, pgno_t *pg, int flags)
 					ni = NODEPTR(mp, i);
 					if (ni->mn_flags & F_BIGDATA) {
 						MDB_page *omp;
-						pgno_t pg;
+						pgno_t pg_l;
 
 						/* Need writable leaf */
 						if (mp != leaf) {
@@ -10206,9 +10206,9 @@ static int ESECT mdb_env_cwalk(mdb_copy *my, pgno_t *pg, int flags)
 							ni = NODEPTR(mp, i);
 						}
 
-						memcpy(&pg, NODEDATA(ni), sizeof(pg));
+						memcpy(&pg_l, NODEDATA(ni), sizeof(pg_l));
 						memcpy(NODEDATA(ni), &my->mc_next_pgno, sizeof(pgno_t));
-						rc = mdb_page_get(&mc, pg, &omp, NULL);
+						rc = mdb_page_get(&mc, pg_l, &omp, NULL);
 						if (rc)
 							goto done;
 						if (my->mc_wlen[toggle] >= MDB_WBUF) {
@@ -10254,11 +10254,11 @@ static int ESECT mdb_env_cwalk(mdb_copy *my, pgno_t *pg, int flags)
 		} else {
 			mc.mc_ki[mc.mc_top]++;
 			if (mc.mc_ki[mc.mc_top] < n) {
-				pgno_t pg;
+				pgno_t pg_l;
 again:
-				ni = NODEPTR(mp, mc.mc_ki[mc.mc_top]);
-				pg = NODEPGNO(ni);
-				rc = mdb_page_get(&mc, pg, &mp, NULL);
+				ni	 = NODEPTR(mp, mc.mc_ki[mc.mc_top]);
+				pg_l = NODEPGNO(ni);
+				rc	 = mdb_page_get(&mc, pg_l, &mp, NULL);
 				if (rc)
 					goto done;
 				mc.mc_top++;
