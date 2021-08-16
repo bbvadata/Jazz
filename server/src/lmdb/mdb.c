@@ -4859,29 +4859,29 @@ mdb_env_open2(MDB_env *env, int prev)
 		fstatfs(env->me_fd, &st);
 		while (st.f_type == 0xEF53) {
 			struct utsname uts;
-			int i;
+			int j;
 			uname(&uts);
 			if (uts.release[0] < '3') {
 				if (!strncmp(uts.release, "2.6.32.", 7)) {
-					i = atoi(uts.release+7);
-					if (i >= 60)
+					j = atoi(uts.release+7);
+					if (j >= 60)
 						break;	/* 2.6.32.60 and newer is OK */
 				} else if (!strncmp(uts.release, "2.6.34.", 7)) {
-					i = atoi(uts.release+7);
-					if (i >= 15)
+					j = atoi(uts.release+7);
+					if (j >= 15)
 						break;	/* 2.6.34.15 and newer is OK */
 				}
 			} else if (uts.release[0] == '3') {
-				i = atoi(uts.release+2);
-				if (i > 5)
+				j = atoi(uts.release+2);
+				if (j > 5)
 					break;	/* 3.6 and newer is OK */
-				if (i == 5) {
-					i = atoi(uts.release+4);
-					if (i >= 4)
+				if (j == 5) {
+					j = atoi(uts.release+4);
+					if (j >= 4)
 						break;	/* 3.5.4 and newer is OK */
-				} else if (i == 2) {
-					i = atoi(uts.release+4);
-					if (i >= 30)
+				} else if (j == 2) {
+					j = atoi(uts.release+4);
+					if (j >= 30)
 						break;	/* 3.2.30 and newer is OK */
 				}
 			} else {	/* 4.x and newer is OK */
