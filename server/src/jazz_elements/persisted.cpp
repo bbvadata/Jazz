@@ -248,22 +248,40 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Persistence) interface **selection of rows in a Block** retrieval.
+
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container.
+	\param what			Some Locator to the block. E.g. //lmdb/entity/key
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
+						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
+						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
 */
 StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
-//TODO: Implement this.
+	pMDB_txn p_l_txn;
 
-	if (!check_block(p_txn->p_block))
-		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	if (p_blx == nullptr) {
+		p_txn = nullptr;
+
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+	}
+
+	StatusCode ret = new_block(p_txn, p_blx, p_row_filter);
+
+	done_pointer_to_block(p_l_txn);
+
+	return ret;
 }
 
 
-/**
-//TODO: Document this.
 */
 StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pChar name) {
 
