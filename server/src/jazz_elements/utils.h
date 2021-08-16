@@ -106,6 +106,12 @@ without global variables.
 #define SERVICE_ERROR_BAD_BLOCK			-10		///< A general error when Blocks cannot be serialized for whatever reason.
 #define SERVICE_ERROR_BAD_NEW_KIND		-11		///< Error in new_block (form 2) with Kind.new_kind()
 #define SERVICE_ERROR_BAD_KIND_ADD		-12		///< Error in new_block (form 2) with Kind.add_item()
+#define SERVICE_ERROR_WRITE_FORBIDDEN	-13		///< Conflict with a block existing and the argument mode in a put()
+#define SERVICE_ERROR_WRITE_FAILED		-14		///< put() failed
+#define SERVICE_ERROR_REMOVE_FAILED		-15		///< remove() failed (either on a key or an entity)
+#define SERVICE_ERROR_BLOCK_NOT_FOUND	-16		///< get() failed (either on a key or an entity)
+#define SERVICE_ERROR_CREATE_FAILED		-17		///< new_entity() failed
+
 
 /** Default path to config file
 */
