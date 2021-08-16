@@ -2628,10 +2628,9 @@ mdb_page_copy(MDB_page *dst, MDB_page *src, unsigned int psize)
 	 * alignment so memcpy may copy words instead of bytes.
 	 */
 	if ((unused &= -Align) && !IS_LEAF2(src)) {
-		upper = (upper + PAGEBASE) & -Align;
-		memcpy(dst, src, (lower + PAGEBASE + (Align-1)) & -Align);
-		memcpy((pgno_t *)((char *)dst+upper), (pgno_t *)((char *)src+upper),
-			psize - upper);
+		upper = (upper + PAGEBASE) & -Align;													// cppcheck-suppress integerOverflow
+		memcpy(dst, src, (lower + PAGEBASE + (Align-1)) & -Align);								// cppcheck-suppress integerOverflow
+		memcpy((pgno_t *)((char *)dst+upper), (pgno_t *)((char *)src+upper), psize - upper);
 	} else {
 		memcpy(dst, src, psize - unused);
 	}
