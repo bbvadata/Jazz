@@ -46,6 +46,7 @@ clean  :
 	@rm -f jazz_dbg.log
 	@rm -rf static_analysis_reports/
 	@rm -rf dynamic_analysis_reports/
+	@rm -rf jazz_dbg_mdb/
 	@rm -rf src/lmdb/testdb/
 	@rm -f src/lmdb/*.a src/lmdb/*.o src/lmdb/*.lo src/lmdb/*.so
 	@find src/lmdb/ -executable -type f | xargs rm -f
