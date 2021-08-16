@@ -169,12 +169,12 @@ StatusCode Volatile::copy (Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 */
-void Volatile::base_names (BaseNames &base_names)
-{
-	base_names["deque"]	= this;
-	base_names["map"]	= this;
-	base_names["tree"]	= this;
-	base_names["queue"] = this;
+void Volatile::base_names (BaseNames &base_names) {
+
+	base_names["deque"]	= this;		// Just a key/value store for any kind of blocks
+	base_names["index"]	= this;		// A way to API-fy the IndexIS and IndexSS (Again, a block storage but only for Index*S)
+	base_names["queue"] = this;		// The AA-tree priority queue with methods, possibly used instead of keys. E.g. key~_first_
+	base_names["tree"]	= this;		// An API-fied tree. Can use IndexIS to return. E.g. key~_child_
 }
 
 
