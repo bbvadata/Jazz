@@ -1869,7 +1869,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what, pChar name) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::header (StaticBlockHeader &p_txn, Locator &what) {
+StatusCode Container::header (StaticBlockHeader &hea, Locator &what) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
