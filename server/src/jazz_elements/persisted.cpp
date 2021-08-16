@@ -165,11 +165,28 @@ StatusCode Persisted::start()
 }
 
 
-/** Shuts down the Persisted Service
+/** \brief Shuts down the Persisted Service
+
+	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
+
 */
-StatusCode Persisted::shut_down()
-{
-//TODO: Implement Persisted::shut_down()
+StatusCode Persisted::shut_down() {
+
+	if (lmdb_env != nullptr) {
+		log(LOG_INFO, "Closing all LMDB databases.");
+
+		close_all_databases();
+
+		log(LOG_INFO, "Flushing LMDB environment.");
+		mdb_env_sync(lmdb_env, true);
+
+		log(LOG_INFO, "Closing LMDB environment.");
+		mdb_env_close(lmdb_env);
+
+		log(LOG_INFO, "Persisted stopped.");
+
+		lmdb_env = nullptr;
+	}
 
 	return SERVICE_NO_ERROR;
 }
