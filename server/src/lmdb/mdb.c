@@ -9072,7 +9072,7 @@ mdb_page_merge(MDB_cursor *csrc, MDB_cursor *cdst)
 		return rc;
 
 	/* get dst page again now that we've touched it. */
-	pdst = cdst->mc_pg[cdst->mc_top];
+	pdst = cdst->mc_pg[cdst->mc_top];						// cppcheck-suppress redundantAssignment ; NOT redundant!
 
 	/* Move all nodes from src to dst.
 	 */
