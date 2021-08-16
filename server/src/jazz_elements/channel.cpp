@@ -313,11 +313,13 @@ StatusCode Channels::copy (Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 */
-void Channels::base_names (BaseNames &base_names)
-{
-	base_names["file"]	= this;
-	base_names["http"]	= this;
-	base_names["index"]	= this;
+void Channels::base_names (BaseNames &base_names) {
+
+	base_names["bash"]	= this;		// Runs shell scripts
+	base_names["file"]	= this;		// Returns arrays of bytes with attributes for files, IndexIS for folders.
+	base_names["http"]	= this;		// libCURL
+	base_names["index"]	= this;		// Serializes Tuple <-> IndexXX
+	base_names["tcp"]	= this;		// zeroMQ (client)
 }
 
 } // namespace jazz_elements
