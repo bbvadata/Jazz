@@ -330,6 +330,27 @@ config, "group" keeps track of all groups (of nodes sharing a sharded resource),
 */
 void Persisted::base_names (BaseNames &base_names)
 {
+
+/** Close all named databases on LMDB leaving them ready for a subsequent opening.
+
+	This makes numsources == 0 by closing used LMDB handles via mdb_dbi_close().
+*/
+void Persisted::close_all_databases() {
+
+	lock_container();
+
+	for (DBImap::iterator it = source_dbi.begin(); it != source_dbi.end(); ++it)
+		if (it->second != INVALID_MDB_DBI)
+			mdb_dbi_close(lmdb_env, it->second);
+
+	source_dbi.clear();
+
+	mdb_env_sync(lmdb_env, true);
+
+	unlock_container();
+}
+
+
 /** Create a new LMDB named database and add it as a new source to the source_dbi[] map.
 
 	\param name The name of the source to be added.
