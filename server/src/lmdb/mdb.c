@@ -2397,7 +2397,7 @@ mdb_page_dirty(MDB_txn *txn, MDB_page *mp)
 #endif
 	mid.mid = mp->mp_pgno;
 	mid.mptr = mp;
-	rc = insert(txn->mt_u.dirty_list, &mid);
+	rc = insert(txn->mt_u.dirty_list, &mid);			// cppcheck-suppress unreadVariable
 	mdb_tassert(txn, rc == 0);
 	txn->mt_dirty_room--;
 }
@@ -7869,7 +7869,7 @@ current:
 					id2.mid = pg;
 					id2.mptr = np;
 					/* Note - this page is already counted in parent's dirty_room */
-					rc2 = mdb_mid2l_insert(mc->mc_txn->mt_u.dirty_list, &id2);
+					rc2 = mdb_mid2l_insert(mc->mc_txn->mt_u.dirty_list, &id2);			// cppcheck-suppress unreadVariable
 					mdb_cassert(mc, rc2 == 0);
 					/* Currently we make the page look as with put() in the
 					 * parent txn, in case the user peeks at MDB_RESERVEd
@@ -9031,7 +9031,7 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 			indx_t	ix = cdst->mc_ki[cdst->mc_top];
 			nullkey.mv_size = 0;
 			cdst->mc_ki[cdst->mc_top] = 0;
-			rc = mdb_update_key(cdst, &nullkey);
+			rc = mdb_update_key(cdst, &nullkey);						// cppcheck-suppress unreadVariable
 			cdst->mc_ki[cdst->mc_top] = ix;
 			mdb_cassert(cdst, rc == MDB_SUCCESS);
 		}
