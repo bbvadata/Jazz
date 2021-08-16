@@ -401,31 +401,98 @@ StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
 }
 
 
+/** Native (Persistence) interface for **Block storing**
 
 	\param where	Some **destination** parsed by as_locator()
 	\param p_block	The Block to be stored in Persistence. The Block hash and dated will be updated by this call!!
 	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA_AS_RAW returns
 					the error SERVICE_ERROR_WRONG_ARGUMENTS
 
-//TODO: Document this.
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-**NOTE**: This updates the calling block's creation time and hash64
+**NOTE**: This updates the calling block's creation time and hash64.
 */
 StatusCode Persisted::put (Locator &where, pBlock p_block, int mode) {
 
-	if (mode & WRITE_TENSOR_DATA_AS_RAW)
-		return SERVICE_ERROR_WRONG_ARGUMENTS;
+	pMDB_txn p_txn;
 
-//TODO: Implement this.
+	if (mode != WRITE_ALWAYS_COMPLETE) {
+		if (mode & WRITE_TENSOR_DATA_AS_RAW)
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+		pBlock p_blx = lock_pointer_to_block(where, p_txn);
+
+		bool already_exists = p_blx != nullptr;
+
+		if (already_exists) {
+			done_pointer_to_block(p_txn);
+
+			if (mode & WRITE_ONLY_IF_NOT_EXISTS)
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+		} else if (mode & WRITE_ONLY_IF_EXISTS)
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
+	}
 
 	close_block(p_block);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	DBImap::iterator i = source_dbi.find(where.entity);
+
+	if (i == source_dbi.end()) {
+		log(LOG_MISS, "Invalid source in Persisted::put().");
+
+		return SERVICE_ERROR_WRITE_FAILED;
+	}
+
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn))
+	{
+		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::put().");
+
+		return SERVICE_ERROR_WRITE_FAILED;
+	}
+
+	MDB_dbi hh = i->second;
+
+	if (hh == INVALID_MDB_DBI) {
+
+		if (int err = mdb_dbi_open(p_txn, where.entity, MDB_CREATE, &hh)) {
+			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::put().");
+
+			goto release_txn_and_fail;
+		}
+
+		source_dbi [where.entity] = hh;
+	}
+
+	MDB_val l_key, l_data;
+
+	l_key.mv_size  = strlen(where.key);
+	l_key.mv_data  = (void *) &where.key;
+	l_data.mv_size = p_block->total_bytes;
+	l_data.mv_data = p_block;
+
+	if (int err = mdb_put(p_txn, hh, &l_key, &l_data, 0)) {
+		log_lmdb_err(err, "mdb_put() failed in Persisted::put().");
+
+		goto release_txn_and_fail;
+	}
+
+	if (int err = mdb_txn_commit(p_txn)) {
+		log_lmdb_err(err, "mdb_txn_commit() failed in Persisted::put().");
+
+		goto release_txn_and_fail;
+	}
+
+	return SERVICE_NO_ERROR;
+
+release_txn_and_fail:
+
+	mdb_txn_abort(p_txn);
+
+	return SERVICE_ERROR_WRITE_FAILED;
 }
 
 
-/**
-//TODO: Document this.
 */
 StatusCode Persisted::new_entity (Locator &what) {
 
