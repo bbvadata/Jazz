@@ -8793,8 +8793,7 @@ mdb_update_key(MDB_cursor *mc, MDB_val *key)
 	}
 
 	/* But even if no shift was needed, update ksize */
-	if (node->mn_ksize != key->mv_size)
-		node->mn_ksize = key->mv_size;
+	node->mn_ksize = key->mv_size;
 
 	if (key->mv_size)
 		memcpy(NODEKEY(node), key->mv_data, key->mv_size);
