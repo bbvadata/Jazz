@@ -331,6 +331,22 @@ config, "group" keeps track of all groups (of nodes sharing a sharded resource),
 void Persisted::base_names (BaseNames &base_names)
 {
 
+/** \brief Completes the transaction started by lock_pointer_to_block() doing a mdb_txn_commit() which invalidates the pointer.
+
+	\param p_txn the transcation created by a lock_pointer_to_block() call.
+*/
+void Persisted::done_pointer_to_block(pMDB_txn &p_txn) {
+
+	if (int err = mdb_txn_commit(p_txn)) {
+		log_lmdb_err(err, "mdb_txn_commit() failed in Persisted::done_pointer_to_block().");
+
+		mdb_txn_abort(p_txn);
+	}
+
+	p_txn = nullptr;
+}
+
+
 /** Locate all the named databases in the current LMDB environment, add them to the source[] vector and open them all for reading.
 
 	\return true if successful, false and log(LOG_MISS, "further details") if not.
