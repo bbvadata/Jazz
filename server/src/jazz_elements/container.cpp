@@ -283,6 +283,7 @@ StatusCode Container::start() {
 
 	if (!get_conf_key("ONE_SHOT_MAX_TRANSACTIONS", max_transactions)) {
 		log(LOG_ERROR, "Config key ONE_SHOT_MAX_TRANSACTIONS not found in Container::start");
+
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
@@ -290,12 +291,14 @@ StatusCode Container::start() {
 
 	if (!get_conf_key("ONE_SHOT_WARN_BLOCK_KBYTES", i)) {
 		log(LOG_ERROR, "Config key ONE_SHOT_WARN_BLOCK_KBYTES not found in Container::start");
+
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
 
 	if (!get_conf_key("ONE_SHOT_ERROR_BLOCK_KBYTES", i)) {
 		log(LOG_ERROR, "Config key ONE_SHOT_ERROR_BLOCK_KBYTES not found in Container::start");
+
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 	fail_alloc_bytes = 1024; fail_alloc_bytes *= i;
