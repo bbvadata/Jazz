@@ -330,6 +330,72 @@ config, "group" keeps track of all groups (of nodes sharing a sharded resource),
 */
 void Persisted::base_names (BaseNames &base_names)
 {
+/** Kill a source, both from the LMDB persistence and from the source[] vector.
+	\param name The name of the source to be killed.
+
+	\return true if successful, false and log(LOG_MISS, "further details") if not.
+
+	NOTE: kill_source() is EXTREMELY not thread safe! Indices to ALL sources may change. Unsafe use of: numsources, source_nam, source_open,
+source_dbi.
+*/
+bool Persisted::remove_database(pChar name) {
+	if (source_dbi.find(name) == source_dbi.end()) {
+		log(LOG_MISS, "Persisted::remove_database(): source does not exist.");
+
+		return false;
+	}
+
+	lock_container();
+
+	MDB_txn * txn;
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
+		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::remove_database().");
+
+		goto release_lock_and_fail;
+	}
+
+	if (source_dbi[name] == INVALID_MDB_DBI) {
+		MDB_dbi hh;
+
+		if (int err = mdb_dbi_open(txn, name, MDB_CREATE, &hh)) {
+			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::new_database().");
+
+			goto release_txn_and_fail;
+		}
+
+		source_dbi [name] = hh;
+	}
+
+	if (int err = mdb_drop(txn, source_dbi[name], 1)) {
+		log_lmdb_err(err, "mdb_drop() failed in Persisted::remove_database().");
+
+		goto release_txn_and_fail;
+	}
+
+	if (int err = mdb_txn_commit(txn)) {
+		log_lmdb_err(err, "mdb_txn_commit() failed in Persisted::remove_database().");
+
+		goto release_txn_and_fail;
+	}
+
+	source_dbi.erase(name);
+
+	unlock_container();
+
+	return true;
+
+release_txn_and_fail:
+
+	mdb_txn_abort(txn);
+
+release_lock_and_fail:
+
+	unlock_container();
+
+	return false;
+}
+
+
 /** \brief A nicer presentation for LMDB error messages.
 */
 void Persisted::log_lmdb_err(int err, const char * msg) {
