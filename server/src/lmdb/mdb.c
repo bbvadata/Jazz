@@ -4463,7 +4463,7 @@ mdb_env_map(MDB_env *env, void *addr)
 		return mdb_nt2win32(rc);
 	map = addr;
 #ifdef MDB_VL32
-	msize = NUM_METAS * env->me_psize;
+	msize = NUM_METAS * env->me_psize;			// cppcheck-suppress redundantAssignment
 #endif
 	rc = NtMapViewOfSection(mh, GetCurrentProcess(), &map, 0, 0, NULL, &msize, ViewUnmap, alloctype, pageprot);
 #ifdef MDB_VL32
