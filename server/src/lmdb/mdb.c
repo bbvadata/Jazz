@@ -2824,7 +2824,7 @@ int mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)
 	return rc;
 }
 
-int mdb_env_sync(MDB_env *env, int force)													// cppcheck-suppress unusedFunction
+int mdb_env_sync(MDB_env *env, int force)
 {
 	MDB_meta *m = mdb_env_pick_meta(env);
 	return mdb_env_sync0(env, force, m->mm_last_pg+1);
@@ -6748,7 +6748,7 @@ mdb_node_read(MDB_cursor *mc, MDB_node *leaf, MDB_val *data)
 	return MDB_SUCCESS;
 }
 
-int mdb_get(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data)		// cppcheck-suppress unusedFunction
+int mdb_get(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data)
 {
 	MDB_cursor	mc;
 	MDB_xcursor	mx;
