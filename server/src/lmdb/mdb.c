@@ -2801,25 +2801,16 @@ fail:
 	return rc;
 }
 
-int mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)		// cppcheck-suppress unusedFunction
+int mdb_env_sync0(MDB_env *env, int force, pgno_t numpgs)
 {
 	int rc = 0;
 	if (env->me_flags & MDB_RDONLY)
 		return EACCES;
-	if (force
-#ifndef _WIN32	/* Sync is normally achieved in Windows by doing WRITE_THROUGH writes */
-		|| !(env->me_flags & MDB_NOSYNC)
-#endif
-		) {
+	if (force || !(env->me_flags & MDB_NOSYNC)) {
 		if (env->me_flags & MDB_WRITEMAP) {
-			int flags = ((env->me_flags & MDB_MAPASYNC) && !force)
-				? MS_ASYNC : MS_SYNC;
+			int flags = ((env->me_flags & MDB_MAPASYNC) && !force) ? MS_ASYNC : MS_SYNC;	// cppcheck-suppress unreadVariable
 			if (MDB_MSYNC(env->me_map, env->me_psize * numpgs, flags))
 				rc = ErrCode();
-#ifdef _WIN32
-			else if (flags == MS_SYNC && MDB_FDATASYNC(env->me_fd))
-				rc = ErrCode();
-#endif
 		} else {
 #ifdef BROKEN_FDATASYNC
 			if (env->me_flags & MDB_FSYNCONLY) {
