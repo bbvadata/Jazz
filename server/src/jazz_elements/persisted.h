@@ -72,6 +72,11 @@ struct JazzLmdbOptions {
 		flags;
 };
 
+
+typedef std::map <std::string, MDB_dbi> DBImap;		///< The lmdb MDB_dbi handles for each source.
+typedef MDB_txn *pMDB_txn;							///< A pointer to a MDB_txn structure which is what mdb_txn_begin() returns.
+
+
 /** \brief Persisted: A Service to manage data objects in LMDB.
 
 */
