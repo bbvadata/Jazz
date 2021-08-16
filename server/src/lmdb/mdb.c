@@ -10146,8 +10146,7 @@ mdb_env_cthr_toggle(mdb_copy *my, int adjust)
 	 * @param[in,out] pg database root.
 	 * @param[in] flags includes #F_DUPDATA if it is a sorted-duplicate sub-DB.
 	 */
-static int ESECT
-mdb_env_cwalk(mdb_copy *my, pgno_t *pg, int flags)
+static int ESECT mdb_env_cwalk(mdb_copy *my, pgno_t *pg, int flags)
 {
 	MDB_cursor mc = {0};
 	MDB_node *ni;
