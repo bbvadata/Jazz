@@ -44,12 +44,122 @@ namespace jazz_elements
 
 Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
-/**
-//TODO: Document Persisted::start()
+
+/** \brief Starts the service, checking the environment and building the databases.
+
+	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
+
+	This service initialization checks configuration values related with persistence and starts LMDB with configured values.
 */
 StatusCode Persisted::start()
 {
-//TODO: Implement Persisted::start()
+	if (lmdb_env != nullptr) {
+		log(LOG_ERROR, "Persisted::start() failed: nested start() call.");
+
+		return SERVICE_ERROR_STARTING;
+	}
+
+	std::string db_path;
+
+	bool ok = get_conf_key("MDB_PERSISTENCE_PATH", db_path);
+
+	if (!ok || db_path.length() > MAX_LMDB_HOME_LEN - 1) {
+		log(LOG_ERROR, "Persisted::start() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	int fixedmap, writemap, nometasync, nosync, mapasync, nolock, noreadahead, nomeminit;
+
+	ok =	get_conf_key("MDB_ENV_SET_MAPSIZE",	   lmdb_opt.env_set_mapsize)
+		 && get_conf_key("MDB_ENV_SET_MAXREADERS", lmdb_opt.env_set_maxreaders)
+		 && get_conf_key("MDB_ENV_SET_MAXDBS",	   lmdb_opt.env_set_maxdbs)
+		 && get_conf_key("MDB_FIXEDMAP",		   fixedmap)
+		 && get_conf_key("MDB_WRITEMAP",		   writemap)
+		 && get_conf_key("MDB_NOMETASYNC",		   nometasync)
+		 && get_conf_key("MDB_NOSYNC",			   nosync)
+		 && get_conf_key("MDB_MAPASYNC",		   mapasync)
+		 && get_conf_key("MDB_NOLOCK",			   nolock)
+		 && get_conf_key("MDB_NOREADAHEAD",		   noreadahead)
+		 && get_conf_key("MDB_NOMEMINIT",		   nomeminit);
+
+	if (!ok) {
+		log(LOG_ERROR, "Persisted::start() failed. Invalid MHD_* config (integer values).");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	ok = ((fixedmap | writemap | nometasync | nosync | mapasync | nolock | noreadahead | nomeminit) & 0xfffffffe) == 0;
+
+	if (!ok) {
+		log(LOG_ERROR, "Persisted::start() failed. Flags must be 0 or 1.");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	lmdb_opt.flags =  MDB_FIXEDMAP*fixedmap
+					+ MDB_WRITEMAP*writemap
+					+ MDB_NOMETASYNC*nometasync
+					+ MDB_NOSYNC*nosync
+					+ MDB_MAPASYNC*mapasync
+					+ MDB_NOLOCK*nolock
+					+ MDB_NORDAHEAD*noreadahead
+					+ MDB_NOMEMINIT*nomeminit;
+
+	if (lmdb_opt.env_set_maxdbs > MAX_POSSIBLE_SOURCES) {
+		log(LOG_ERROR, "Persisted::start() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	strcpy(lmdb_opt.path, db_path.c_str());
+
+	struct stat st = {0};
+	if (stat(lmdb_opt.path, &st) != 0) {
+		log_printf(LOG_INFO, "Path \"%s\" does not exist, creating it.", db_path.c_str());
+
+		mkdir(lmdb_opt.path, 0700);
+	}
+
+	log(LOG_INFO, "Creating an LMDB environment.");
+
+	if (mdb_env_create(&lmdb_env) != MDB_SUCCESS) {
+		log(LOG_ERROR, "Persisted::start() failed: mdb_env_create() failed.");
+
+		return SERVICE_ERROR_STARTING;
+	}
+
+	if (mdb_env_set_maxreaders(lmdb_env, lmdb_opt.env_set_maxreaders) != MDB_SUCCESS) {
+		log(LOG_ERROR, "Persisted::start() failed: mdb_env_set_maxreaders() failed.");
+
+		return SERVICE_ERROR_STARTING;
+	}
+
+	if (mdb_env_set_maxdbs(lmdb_env, lmdb_opt.env_set_maxdbs) != MDB_SUCCESS) {
+		log(LOG_ERROR, "Persisted::start() failed: mdb_env_set_maxdbs() failed.");
+
+		return SERVICE_ERROR_STARTING;
+	}
+
+	if (mdb_env_set_mapsize(lmdb_env, ((mdb_size_t)1024)*1024*lmdb_opt.env_set_mapsize) != MDB_SUCCESS) {
+		log(LOG_ERROR, "Persisted::start() failed: mdb_env_set_mapsize() failed.");
+
+		return SERVICE_ERROR_STARTING;
+	}
+
+	log_printf(LOG_INFO, "Opening LMDB environment at : \"%s\"", lmdb_opt.path);
+
+	if (int ret = mdb_env_open(lmdb_env, lmdb_opt.path, lmdb_opt.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS) {
+		log_lmdb_err(ret, "Persisted::start() failed: mdb_env_open() failed.");
+
+		return SERVICE_ERROR_STARTING;
+	}
+
+	if (!open_all_databases()) {
+		log(LOG_ERROR, "Persisted::start() failed: open_all_sources() failed.");
+
+		return SERVICE_ERROR_STARTING;
+	}
 
 	return SERVICE_NO_ERROR;
 }
