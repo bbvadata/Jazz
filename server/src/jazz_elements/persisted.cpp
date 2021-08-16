@@ -32,6 +32,9 @@
 */
 
 
+#include <sys/stat.h>
+
+
 #include "src/jazz_elements/persisted.h"
 
 
