@@ -6166,7 +6166,7 @@ mdb_rpage_get(MDB_txn *txn, pgno_t pg0, MDB_page **ret)
 			SET_OFF(off, pgno * env->me_psize);
 			MAP(rc, env, id3.mptr, len, off);
 			if (rc)
-				return rc;
+				return rc;													// cppcheck-suppress memleak
 			/* check for local-only page */
 			if (rem) {
 				mdb_tassert(txn, tl[x].mid != pg0);
@@ -6325,7 +6325,7 @@ retry:
 		if (rc) {
 fail:
 			pthread_mutex_unlock(&env->me_rpmutex);
-			return rc;
+			return rc;													// cppcheck-suppress memleak
 		}
 		/* check for overflow size */
 		p = (MDB_page *)((char *)id3.mptr + rem * env->me_psize);
