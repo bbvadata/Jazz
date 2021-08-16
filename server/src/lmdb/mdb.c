@@ -1202,7 +1202,7 @@ typedef struct MDB_meta {
 	uint32_t	mm_version;
 #ifdef MDB_VL32
 	union {		/* always zero since we don't support fixed mapping in MDB_VL32 */
-		MDB_ID	mmun_ull;
+		MDB_ID	mmun_ull;															// cppcheck-suppress unusedStructMember
 		void *mmun_address;
 	} mm_un;
 #define	mm_address mm_un.mmun_address
