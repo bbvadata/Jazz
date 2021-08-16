@@ -11176,7 +11176,7 @@ mdb_reader_check0(MDB_env *env, int rlocked, int *dead)
 					j = i;
 					if (rmutex) {
 						if ((rc = LOCK_MUTEX0(rmutex)) != 0) {
-							if ((rc = mdb_mutex_failed(env, rmutex, rc)))
+							if ((rc = mdb_mutex_failed(env, rmutex, rc)))		// cppcheck-suppress selfAssignment
 								break;
 							rdrs = 0; /* the above checked all readers */
 						} else {
