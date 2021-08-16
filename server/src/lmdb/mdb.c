@@ -2085,11 +2085,10 @@ mdb_page_unref(MDB_txn *txn, MDB_page *mp)
 static void
 mdb_cursor_unref(MDB_cursor *mc)
 {
-	int i;
 	if (mc->mc_txn->mt_rpages[0].mid) {
 		if (!mc->mc_snum || !mc->mc_pg[0] || IS_SUBP(mc->mc_pg[0]))
 			return;
-		for (i=0; i<mc->mc_snum; i++)
+		for (int i=0; i<mc->mc_snum; i++)
 			mdb_page_unref(mc->mc_txn, mc->mc_pg[i]);
 		if (mc->mc_ovpg) {
 			mdb_page_unref(mc->mc_txn, mc->mc_ovpg);
