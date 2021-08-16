@@ -3377,8 +3377,7 @@ mdb_txn_end(MDB_txn *txn, unsigned mode)
 		free(txn);
 }
 
-void
-mdb_txn_reset(MDB_txn *txn)
+void mdb_txn_reset(MDB_txn *txn)				// cppcheck-suppress unusedFunction
 {
 	if (txn == NULL)
 		return;
@@ -8663,7 +8662,7 @@ int mdb_cursor_renew(MDB_txn *txn, MDB_cursor *mc)				// cppcheck-suppress [unus
 }
 
 /* Return the count of duplicate data items for the current key */
-int mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)		// cppcheck-suppress unusedFunction [funcArgNamesDifferent]
+int mdb_cursor_count(MDB_cursor *mc, mdb_size_t *countp)		// cppcheck-suppress [unusedFunction, funcArgNamesDifferent]
 {
 	MDB_node	*leaf;
 
