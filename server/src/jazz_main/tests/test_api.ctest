@@ -126,32 +126,32 @@ bool test_parse_put(const char * p_query,
 
 SCENARIO("Testing api initialization") {
 
-	GIVEN("The instances are constructed, but not yet started") {
-		REQUIRE(tenbit_double_slash == TenBitsAtAddress("//"));
+	// GIVEN("The instances are constructed, but not yet started") {
+	// 	REQUIRE(tenbit_double_slash == TenBitsAtAddress("//"));
 
-		REQUIRE(TT_API.p_channels	== &CHANNELS);
-		REQUIRE(TT_API.p_volatile	== &VOLATILE);
-		REQUIRE(TT_API.p_persisted	== &PERSISTED);
-		REQUIRE(TT_API.p_bebop		== &BOP);
-		REQUIRE(TT_API.p_agency		== &EPI);
+	// 	REQUIRE(TT_API.p_channels	== &CHANNELS);
+	// 	REQUIRE(TT_API.p_volatile	== &VOLATILE);
+	// 	REQUIRE(TT_API.p_persisted	== &PERSISTED);
+	// 	REQUIRE(TT_API.p_bebop		== &BOP);
+	// 	REQUIRE(TT_API.p_agency		== &EPI);
 
-		REQUIRE(TT_API.base.size() == 0);
-	}
+	// 	REQUIRE(TT_API.base.size() == 0);
+	// }
 
-	REQUIRE(CHANNELS.start()  == 0);
-	REQUIRE(VOLATILE.start()  == 0);
-	REQUIRE(PERSISTED.start() == 0);
+	// REQUIRE(CHANNELS.start()  == 0);
+	// REQUIRE(VOLATILE.start()  == 0);
+	// REQUIRE(PERSISTED.start() == 0);
 
-	REQUIRE(BOP.start() == 0);
-	REQUIRE(EPI.start() == 0);
+	// REQUIRE(BOP.start() == 0);
+	// REQUIRE(EPI.start() == 0);
 
-	REQUIRE(TT_API.start() == 0);
+	// REQUIRE(TT_API.start() == 0);
 
-	GIVEN("The instances are started") {
-		// REQUIRE(TT_API.base[""]	   == &TT_API);
-		REQUIRE(TT_API.base["map"] == &VOLATILE);
-		REQUIRE(TT_API.base["sys"] == &PERSISTED);
-	}
+	// GIVEN("The instances are started") {
+	// 	// REQUIRE(TT_API.base[""]	   == &TT_API);
+	// 	REQUIRE(TT_API.base["map"] == &VOLATILE);
+	// 	REQUIRE(TT_API.base["sys"] == &PERSISTED);
+	// }
 }
 
 
