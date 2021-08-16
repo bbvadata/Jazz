@@ -4124,7 +4124,7 @@ mdb_env_read_header(MDB_env *env, int prev, MDB_meta *meta)
 	 * Read both meta pages so we can use the latest one.
 	 */
 
-	for (i=off=0; i<NUM_METAS; i++, off += meta->mm_psize) {
+	for (i=off=0; i<NUM_METAS; i++, off += meta->mm_psize) {		// cppcheck-suppress ctuuninitvar
 #ifdef _WIN32
 		DWORD len;
 		OVERLAPPED ov;
