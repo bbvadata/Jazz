@@ -8198,12 +8198,10 @@ mdb_leaf_size(MDB_env *env, MDB_val *key, MDB_val *data)
 {
 	size_t		 sz;
 
-	// cppcheck-suppress nullPointer ; cppcheck mistake: mdb_leaf_size() is NOT called with data == nullptr
 	// cppcheck-suppress ctunullpointer ; same reason
 	sz = LEAFSIZE(key, data);
 	if (sz > env->me_nodemax) {
 		/* put on overflow page */
-		// cppcheck-suppress nullPointer ; cppcheck mistake: mdb_leaf_size() is NOT called with data == nullptr
 		sz -= data->mv_size - sizeof(pgno_t);
 	}
 
@@ -9706,7 +9704,6 @@ mdb_page_split(MDB_cursor *mc, MDB_val *newkey, MDB_val *newdata, pgno_t newpgno
 			/* Maximum free space in an empty page */
 			pmax = env->me_psize - PAGEHDRSZ;
 			if (IS_LEAF(mp))
-				// cppcheck-suppress nullPointer ; (IS_LEAF(mp) == True) => (data != newdata)
 				nsize = mdb_leaf_size(env, newkey, newdata);
 			else
 				nsize = mdb_branch_size(env, newkey);
