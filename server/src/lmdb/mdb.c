@@ -8295,7 +8295,6 @@ mdb_node_add(MDB_cursor *mc, indx_t indx,
 		if (F_ISSET(flags, F_BIGDATA)) {
 			/* Data already on overflow page. */
 			node_size += sizeof(pgno_t);
-		// cppcheck-suppress nullPointer ; (IS_LEAF(mp) == True) => (data != nulllptr)
 		} else if (node_size + data->mv_size > mc->mc_txn->mt_env->me_nodemax) {
 			int ovpages = OVPAGES(data->mv_size, mc->mc_txn->mt_env->me_psize);
 			int rc;
