@@ -197,17 +197,54 @@ StatusCode Persisted::shut_down() {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Persistence) interface **complete Block** retrieval.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
 */
 StatusCode Persisted::get (pTransaction &p_txn, Locator &what) {
 
-//TODO: Implement this.
+	pMDB_txn p_l_txn;
+
+	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);
+
+	if (p_blx == nullptr) {
+		p_txn = nullptr;
+
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+	}
+
+	StatusCode ret = new_transaction(p_txn);
+
+	if (ret != SERVICE_NO_ERROR) {
+		done_pointer_to_block(p_l_txn);
+
+		return ret;
+	}
+
+	p_txn->p_block = block_malloc(p_blx->total_bytes);
+
+	if (p_txn->p_block == nullptr) {
+		done_pointer_to_block(p_l_txn);
+		destroy_internal(p_txn);
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	memcpy(p_txn->p_block, p_blx, p_blx->total_bytes);
+
+	done_pointer_to_block(p_l_txn);
 
 	if (!check_block(p_txn->p_block))
 		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	return SERVICE_NO_ERROR;
 }
 
 
