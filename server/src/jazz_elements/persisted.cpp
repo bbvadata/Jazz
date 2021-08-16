@@ -493,12 +493,21 @@ release_txn_and_fail:
 }
 
 
+/** Native (Persistence) interface for **creating databases**
+
+	\param what	The name of the LMDB database to be created. E.g. //lmdb/entity compiled.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Persisted::new_entity (Locator &what) {
 
-//TODO: Implement this.
+	if (what.key[0] != 0)
+		return SERVICE_ERROR_CREATE_FAILED;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	if (new_database(what.entity))
+		return SERVICE_NO_ERROR;
+
+	return SERVICE_ERROR_CREATE_FAILED;
 }
 
 
