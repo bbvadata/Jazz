@@ -101,7 +101,7 @@ StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pChar name) {
 /**
 //TODO: Document this.
 */
-StatusCode Volatile::header (StaticBlockHeader &p_txn, Locator &what) {
+StatusCode Volatile::header (StaticBlockHeader &hea, Locator &what) {
 
 //TODO: Implement this.
 

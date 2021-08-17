@@ -245,7 +245,7 @@ StatusCode Channels::get (pTransaction &p_txn, Locator &what, pChar name) {
 /**
 //TODO: Document this.
 */
-StatusCode Channels::header (StaticBlockHeader &p_txn, Locator &what) {
+StatusCode Channels::header (StaticBlockHeader &hea, Locator &what) {
 
 //TODO: Implement this.
 

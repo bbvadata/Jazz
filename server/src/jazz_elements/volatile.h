@@ -86,7 +86,7 @@ class Volatile : public Container {
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 							  			Locator			   &what,
 							  			pChar				name);
-		virtual StatusCode header	   (StaticBlockHeader  &p_txn,
+		virtual StatusCode header	   (StaticBlockHeader  &hea,
 										Locator			   &what);
 		virtual StatusCode header	   (pTransaction	   &p_txn,
 										Locator			   &what);
