@@ -199,8 +199,33 @@ StatusCode Channels::shut_down() {
 }
 
 
-/**
-//TODO: Document this.
+/** The parser: An overwrite of the same method in Container to handle long and realistic file names, URL quirks, etc.
+
+	\param result	A Locator to contained the parsed result on success. (Undefined content on error.) It uses the p_extra-> pointer
+					in the Locator structure to match an ExtraLocator structure containing the long paths. The structure is owned by
+					Channels and has to be released using destroy_extra_locator() which happens automatically when you use the native API.
+	\param p_what	Some string to be parsed. (See Syntax below) E.g. //http/http://www.google.com?xy or //http[USERNAME:me]http://ibm.com
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+**NOTE**: Because Locators are being replaced by ExtraLocator, all calls to as_locator() **must** be used **just once** by the Native API.
+If an ExtraLocator returned by this is not used, you must explicitely call destroy_extra_locator().
+
+Syntax
+------
+
+The general syntax is: //{base}/{url} or //{base}[]{url}
+
+The parser will accept anything as the URL or file name, without imposing on character ranges, with the exception of the (optional)
+initial []. If the **first** character is a [, a closing ] will be found and anything inside the [] are the **quirks**, the rest is the
+URL (or file name).
+
+The quirks have the format [USERNAME:xxx,USERPW:xxx,COOKIEFILE://base/entity/key,COOKIEJAR://base/entity/key] When any of these fields is
+given it will populate the corresponding field of the ExtraLocator which will otherwise be NULL.
+Both the COOKIEFILE (cookies emitted) and COOKIEJAR (cookies accepted) will be files with short names in a format good for
+curl_easy_setopt() https://everything.curl.dev/libcurl-http/cookies The USERNAME is https://curl.se/libcurl/c/CURLOPT_USERNAME.html and
+the USERPW https://curl.se/libcurl/c/CURLOPT_USERPWD.html
+
 */
 StatusCode Channels::as_locator (Locator &result, pChar p_what) {
 
