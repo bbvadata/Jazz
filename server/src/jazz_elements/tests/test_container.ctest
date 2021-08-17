@@ -5719,3 +5719,97 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
+
+
+SCENARIO("Testing Container::as_locator()") {
+
+	Locator	loc;
+
+	loc.base[0]	  = 0xba;
+	loc.entity[0] = 0xca;
+	loc.key[0]	  = 0xda;
+	loc.p_extra	  = (pExtraLocator) &loc;
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//base/entity/key") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "base")	 == 0);
+	REQUIRE(strcmp(loc.entity, "entity") == 0);
+	REQUIRE(strcmp(loc.key,	   "key")	 == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/1234567890abcdefghijABCDEFGHIJ_") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "base-_1") == 0);
+	REQUIRE(strcmp(loc.entity, "abcdefghij01234567890123456789~") == 0);
+	REQUIRE(strcmp(loc.key,	   "1234567890abcdefghijABCDEFGHIJ_") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(strlen(loc.base)   == sizeof(loc.base) - 1);
+	REQUIRE(strlen(loc.entity) == sizeof(loc.entity) - 1);
+	REQUIRE(strlen(loc.key)	   == sizeof(loc.key) - 1);
+
+	REQUIRE(   CNT.as_locator(loc, (pChar) "//base-_10/abcdefghij01234567890123456789~/1234567890abcdefghijABCDEFGHIJ_")
+			== SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(   CNT.as_locator(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~0/1234567890abcdefghijABCDEFGHIJ_")
+			== SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(   CNT.as_locator(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/1234567890abcdefghijABCDEFGHIJ_0")
+			== SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//ase-_10/bcdefghij01234567890123456789~0/234567890abcdefghijABCDEFGHIJ_0") == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "base") == 0);
+	REQUIRE(strcmp(loc.entity, "azAZ_-~09") == 0);
+	REQUIRE(strcmp(loc.key,	   "AZaz_-~09") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//bas e/azAZ_-~09/AZaz_-~09") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//ba'se/azAZ_-~09/AZaz_-~09") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//ba/se/azAZ_-~09/AZaz_-~09") == SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//b/e/k") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "b") == 0);
+	REQUIRE(strcmp(loc.entity, "e") == 0);
+	REQUIRE(strcmp(loc.key,	   "k") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//0/-/~") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "0") == 0);
+	REQUIRE(strcmp(loc.entity, "-") == 0);
+	REQUIRE(strcmp(loc.key,	   "~") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//0/-/~/")	 == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//0/-/~/x") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "///-/~")	 == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//0//~")	 == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//0/-/")	 == SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//a/z")	 == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "a") == 0);
+	REQUIRE(strcmp(loc.entity, "z") == 0);
+	REQUIRE(loc.key[0]  == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//a234567/z123456789012345678901234567890") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "a234567") == 0);
+	REQUIRE(strcmp(loc.entity, "z123456789012345678901234567890") == 0);
+	REQUIRE(loc.key[0]  == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//a234567/z123456789012345678901234567890/") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//a234567/") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//a234567") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//") == SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "/") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "a") == SERVICE_ERROR_PARSING_NAMES);
+	REQUIRE(CNT.as_locator(loc, (pChar) "") == SERVICE_ERROR_PARSING_NAMES);
+}
