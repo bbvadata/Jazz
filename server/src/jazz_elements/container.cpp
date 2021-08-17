@@ -1756,38 +1756,38 @@ StatusCode Container::put (pChar p_where, pBlock p_block, int mode) {
 }
 
 
-/** "Easy" interface for **creating entities**: This parses p_what and, on success, calls the native new_entity() equivalent.
+/** "Easy" interface for **creating entities**: This parses p_where and, on success, calls the native new_entity() equivalent.
 
-	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity
+	\param p_where	Some string that as_locator() can parse into a Locator. E.g. //base/entity
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
 	What an entity is, is Container and base dependent. It can be an lmdb database, a folder in a filesystem, a Volatile tree, ...
 */
-StatusCode Container::new_entity (pChar p_what) {
+StatusCode Container::new_entity (pChar p_where) {
 	Locator loc;
 	StatusCode ret;
 
-	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_where)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return new_entity(loc);
 }
 
 
-/** "Easy" interface for **deleting entities and blocks**: This parses p_what and, on success, calls the native header() equivalent.
+/** "Easy" interface for **deleting entities and blocks**: This parses p_where and, on success, calls the native header() equivalent.
 
-	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity or //base/entity/key
+	\param p_where	Some string that as_locator() can parse into a Locator. E.g. //base/entity or //base/entity/key
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
 	What an entity is, is Container and base dependent. It can be an lmdb database, a folder in a filesystem, a Volatile tree, ...
 */
-StatusCode Container::remove (pChar p_what) {
+StatusCode Container::remove (pChar p_where) {
 	Locator loc;
 	StatusCode ret;
 
-	if ((ret = as_locator(loc, p_what)) != SERVICE_NO_ERROR)
+	if ((ret = as_locator(loc, p_where)) != SERVICE_NO_ERROR)
 		return ret;
 
 	return remove(loc);
@@ -1899,7 +1899,7 @@ StatusCode Container::put (Locator &where, pBlock p_block, int mode) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::new_entity (Locator &what) {
+StatusCode Container::new_entity (Locator &where) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1909,7 +1909,7 @@ StatusCode Container::new_entity (Locator &what) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::remove (Locator &what) {
+StatusCode Container::remove (Locator &where) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }

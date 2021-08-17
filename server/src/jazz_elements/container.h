@@ -341,8 +341,8 @@ class Container : public Service {
 		StatusCode put		   (pChar				 p_where,
 								pBlock				 p_block,
 								int					 mode = WRITE_ALWAYS_COMPLETE);
-		StatusCode new_entity  (pChar				 p_what);
-		StatusCode remove	   (pChar				 p_what);
+		StatusCode new_entity  (pChar				 p_where);
+		StatusCode remove	   (pChar				 p_where);
 		StatusCode copy		   (pChar				 p_where,
 								pChar				 p_what);
 
@@ -366,8 +366,8 @@ class Container : public Service {
 		virtual StatusCode put		   (Locator			   &where,
 										pBlock				p_block,
 										int					mode = WRITE_ALWAYS_COMPLETE);
-		virtual StatusCode new_entity  (Locator			   &what);
-		virtual StatusCode remove	   (Locator			   &what);
+		virtual StatusCode new_entity  (Locator			   &where);
+		virtual StatusCode remove	   (Locator			   &where);
 		virtual StatusCode copy		   (Locator			   &where,
 										Locator			   &what);
 

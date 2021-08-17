@@ -495,16 +495,16 @@ release_txn_and_fail:
 
 /** Native (Persistence) interface for **creating databases**
 
-	\param what	The name of the LMDB database to be created. E.g. //lmdb/entity compiled.
+	\param where	The name of the LMDB database to be created. E.g. //lmdb/entity compiled.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Persisted::new_entity (Locator &what) {
+StatusCode Persisted::new_entity (Locator &where) {
 
-	if (what.key[0] != 0)
+	if (where.key[0] != 0)
 		return SERVICE_ERROR_CREATE_FAILED;
 
-	if (new_database(what.entity))
+	if (new_database(where.entity))
 		return SERVICE_NO_ERROR;
 
 	return SERVICE_ERROR_CREATE_FAILED;
@@ -513,20 +513,20 @@ StatusCode Persisted::new_entity (Locator &what) {
 
 /** Native (Persistence) interface for **deleting databases and blocks**:
 
-	\param what	Some Locator to the block or database to be removed. E.g. //lmdb/entity/key or //lmdb/entity compiled.
+	\param where	Some Locator to the block or database to be removed. E.g. //lmdb/entity/key or //lmdb/entity compiled.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Persisted::remove (Locator &what) {
+StatusCode Persisted::remove (Locator &where) {
 
-	if (what.key[0] == 0) {
-		if (remove_database(what.entity))
+	if (where.key[0] == 0) {
+		if (remove_database(where.entity))
 			return SERVICE_NO_ERROR;
 
 		return SERVICE_ERROR_REMOVE_FAILED;
 	}
 
-	DBImap::iterator i = source_dbi.find(what.entity);
+	DBImap::iterator i = source_dbi.find(where.entity);
 
 	if (i == source_dbi.end()) {
 		log(LOG_MISS, "Invalid source in Persisted::remove().");
@@ -547,19 +547,19 @@ StatusCode Persisted::remove (Locator &what) {
 
 	if (hh == INVALID_MDB_DBI) {
 
-		if (int err = mdb_dbi_open(p_txn, what.entity, MDB_CREATE, &hh)) {
+		if (int err = mdb_dbi_open(p_txn, where.entity, MDB_CREATE, &hh)) {
 			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::remove().");
 
 			goto release_txn_and_fail;
 		}
 
-		source_dbi [what.entity] = hh;
+		source_dbi [where.entity] = hh;
 	}
 
 	MDB_val l_key;
 
-	l_key.mv_size = strlen(what.key);
-	l_key.mv_data = (void *) &what.key;
+	l_key.mv_size = strlen(where.key);
+	l_key.mv_data = (void *) &where.key;
 
 	if (int err = mdb_del(p_txn, hh, &l_key, NULL)) {
 		log_lmdb_err(err, "mdb_del() failed in Persisted::remove().");

@@ -278,7 +278,7 @@ StatusCode Channels::put (Locator &where, pBlock p_block, int mode) {
 /**
 //TODO: Document this.
 */
-StatusCode Channels::new_entity (Locator &what) {
+StatusCode Channels::new_entity (Locator &where) {
 
 //TODO: Implement this.
 
@@ -289,7 +289,7 @@ StatusCode Channels::new_entity (Locator &what) {
 /**
 //TODO: Document this.
 */
-StatusCode Channels::remove (Locator &what) {
+StatusCode Channels::remove (Locator &where) {
 
 //TODO: Implement this.
 

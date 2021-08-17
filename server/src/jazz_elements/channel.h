@@ -136,8 +136,8 @@ class Channels : public Container {
 		virtual StatusCode put		   (Locator			   &where,
 										pBlock				p_block,
 										int					mode = WRITE_ALWAYS_COMPLETE);
-		virtual StatusCode new_entity  (Locator			   &what);
-		virtual StatusCode remove	   (Locator			   &what);
+		virtual StatusCode new_entity  (Locator			   &where);
+		virtual StatusCode remove	   (Locator			   &where);
 		virtual StatusCode copy		   (Locator			   &where,
 										Locator			   &what);
 
