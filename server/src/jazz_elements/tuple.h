@@ -88,7 +88,7 @@ just a Block. Note:
 - It has a new method, .block(item), that returns the address of an item.
 - It has an is_a() method that verifies if it satisfies a Kind.
 - It has an audit() method to check validity.
-- Besides that, it is just a "big Block" whose header has a `total_bytes` that includes all the metadata and data.
+- Besides that, it is just a "big Block" whose header has a **total_bytes** that includes all the metadata and data.
 
 */
 class Tuple : public Block {
