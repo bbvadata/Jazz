@@ -38,6 +38,12 @@ using namespace jazz_elements;
 // Tests
 // -----
 
+SCENARIO("Testing (channel) structure sizes.") {
+
+	REQUIRE(sizeof(ExtraLocator) == 2048);
+}
+
+
 SCENARIO("Testing channel") {
 
 //TODO: Write tests for this!
