@@ -141,6 +141,19 @@ class Channels : public Container {
 		int jazz_node_cluster_size =  0;
 
 		std::string filesystem_root = {};
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+
+		inline void destroy_extra_locator(Locator &loc) {
+			if (loc.p_extra != nullptr) {
+				alloc_bytes -= sizeof(ExtraLocator);
+				free(loc.p_extra);
+			}
+			loc.p_extra = nullptr;
+		}
+
 };
 typedef Channels *pChannels;
 
