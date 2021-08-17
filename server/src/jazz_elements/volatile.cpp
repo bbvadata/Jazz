@@ -60,8 +60,8 @@ StatusCode Volatile::start() {
 
 /** Shuts down the Persisted Service
 */
-StatusCode Volatile::shut_down()
-{
+StatusCode Volatile::shut_down() {
+
 //TODO: Implement Volatile::shut_down()
 
 	return SERVICE_NO_ERROR;
