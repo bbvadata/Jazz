@@ -355,8 +355,15 @@ StatusCode Channels::new_entity (Locator &where) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface for **deleting databases and blocks**:
+
+	\param where Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+This only supports the bases **file** (for both files and folders) and **http** (will send an HTTP_DELETE).
+
+**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
 */
 StatusCode Channels::remove (Locator &where) {
 
