@@ -54,6 +54,8 @@ char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
 uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
 uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
+int LOCATOR_SIZE[3] = {SHORT_NAME_SIZE - 1, NAME_SIZE - 1, NAME_SIZE - 1};
+
 /*	--------------------------------------------------------
 	 Global compile_next_state_LUT() (also used in API)
 --------------------------------------------------------- */
@@ -1818,7 +1820,7 @@ StatusCode Container::copy (pChar p_where, pChar p_what) {
 }
 
 
-/** The parser: A simple regex-based parser that does not support Locator.p_extra, but is enough for Volatile and Persisted.
+/** The parser: A simple parser that does not support Locator.p_extra, but is enough for Volatile and Persisted.
 
 	\param result	A Locator to contained the parsed result on success. (Undefined content on error.)
 	\param p_what	Some string to be parsed. E.g. //base/entity/key
@@ -1829,9 +1831,71 @@ More complex Container descendants that support URLs, credentials, cookies, etc.
 */
 StatusCode Container::as_locator (Locator &result, pChar p_what) {
 
-//TODO: Implement this.
+	if (p_what[0] != '/' || p_what[1] != '/')
+		return SERVICE_ERROR_PARSING_NAMES;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	p_what += 2;
+
+	int	  section = 0;
+	int	  size	  = LOCATOR_SIZE[section];
+	bool  written = false;
+	pChar p_out	  = (pChar) &result.base;
+
+	while (true) {
+		switch (char ch = *(p_what++)) {
+		case '0' ... '9':
+		case 'a' ... 'z':
+		case 'A' ... 'Z':
+		case '-':
+		case '_':
+		case '~':
+			if (--size < 0)
+				return SERVICE_ERROR_PARSING_NAMES;
+
+			*(p_out++) = ch;
+			written	   = true;
+
+			break;
+
+		case '/':
+			if (!written)
+				return SERVICE_ERROR_PARSING_NAMES;
+
+			*(p_out++) = 0;
+
+			if (++section > 2)
+				return SERVICE_ERROR_PARSING_NAMES;
+
+			if (section == 1)
+				p_out = (pChar) &result.entity;
+			else
+				p_out = (pChar) &result.key;
+
+			size	= LOCATOR_SIZE[section];
+			written = false;
+
+			break;
+
+		case 0:
+			if (!written)
+				return SERVICE_ERROR_PARSING_NAMES;
+
+			*(p_out++) = 0;
+
+			if (section == 0)
+				return SERVICE_ERROR_PARSING_NAMES;
+
+			if (section == 1)
+				result.key[0] = 0;
+
+			result.p_extra = nullptr;
+
+			return SERVICE_NO_ERROR;
+
+		default:
+			return SERVICE_ERROR_PARSING_NAMES;
+		}
+	}
 }
 
 
