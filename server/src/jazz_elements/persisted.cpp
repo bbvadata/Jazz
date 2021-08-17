@@ -395,6 +395,8 @@ StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
 
 	memcpy(p_txn->p_block, p_blx, hea_size);
 
+	p_txn->p_block->total_bytes = hea_size;
+
 	done_pointer_to_block(p_l_txn);
 
 	return SERVICE_NO_ERROR;
