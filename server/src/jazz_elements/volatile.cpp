@@ -170,8 +170,16 @@ StatusCode Volatile::header (pTransaction &p_txn, Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface for **Block storing**
+
+	\param where	Some **destination** Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+	\param p_block	The Block to be stored in Volatile. The Block hash and dated will be updated by this call!!
+	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA_AS_RAW returns
+					the error SERVICE_ERROR_WRONG_ARGUMENTS
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+**NOTE**: This updates the calling block's creation time and hash64.
 */
 StatusCode Volatile::put (Locator &where, pBlock p_block, int mode) {
 
