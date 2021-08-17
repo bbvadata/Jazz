@@ -338,8 +338,14 @@ StatusCode Channels::put (Locator &where, pBlock p_block, int mode) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface for **creating databases**
+
+	\param where Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once. It only supports the base
+				**file** and will mkdir()
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
 */
 StatusCode Channels::new_entity (Locator &where) {
 
