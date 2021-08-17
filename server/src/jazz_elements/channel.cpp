@@ -192,6 +192,7 @@ StatusCode Channels::start() {
 /** Shuts down the Persisted Service
 */
 StatusCode Channels::shut_down() {
+
 //TODO: Implement Channels::shut_down()
 
 	return SERVICE_NO_ERROR;
