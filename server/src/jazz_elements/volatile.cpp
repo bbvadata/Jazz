@@ -240,9 +240,9 @@ StatusCode Volatile::copy (Locator &where, Locator &what) {
 void Volatile::base_names (BaseNames &base_names) {
 
 	base_names["deque"]	= this;		// Just a key/value store for any kind of blocks
-	base_names["index"]	= this;		// A way to API-fy the IndexIS and IndexSS (Again, a block storage but only for Index*S)
+	base_names["index"]	= this;		// A way to APIfy and serialize Tuple <-> IndexXX (Again, a block storage but only for Index*S)
 	base_names["queue"] = this;		// The AA-tree priority queue with methods, possibly used instead of keys. E.g. key~_first_
-	base_names["tree"]	= this;		// An API-fied tree. Can use IndexIS to return. E.g. key~_child_
+	base_names["tree"]	= this;		// An APIfied tree. Can use IndexIS to return. E.g. key~_child_
 }
 
 
