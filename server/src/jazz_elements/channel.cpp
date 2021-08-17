@@ -373,8 +373,16 @@ StatusCode Channels::remove (Locator &where) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface for **Block copying** (possibly across bases but inside the Channels).
+
+	\param where Some Locator to the destination endpoint compiled by Channels::as_locator() that can only be used once.
+	\param what	 Some Locator to the source endpoint compiled by Channels::as_locator() that can only be used once.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+At least one of the endpoints must have the base **file**.
+
+**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where** and **what**.
 */
 StatusCode Channels::copy (Locator &where, Locator &what) {
 
