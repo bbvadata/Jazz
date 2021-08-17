@@ -129,8 +129,15 @@ StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pChar name) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface **metadata of a Block** retrieval.
+
+	\param hea		A StaticBlockHeader structure that will receive the metadata.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
+for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
 */
 StatusCode Volatile::header (StaticBlockHeader &hea, Locator &what) {
 
