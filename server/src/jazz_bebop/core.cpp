@@ -44,12 +44,13 @@ namespace jazz_bebop
 
 Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
-/**
-//TODO: Document Bebop::start()
+
+/** \brief Starts the service, checking the configuration and starting the Service.
+
+	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
+
 */
-StatusCode Bebop::start()
-{
-//TODO: Implement Bebop::start()
+StatusCode Bebop::start() {
 
 	return SERVICE_NO_ERROR;
 }

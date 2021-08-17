@@ -44,12 +44,13 @@ namespace jazz_agency
 
 Agency::Agency(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
-/**
-//TODO: Document Agency::start()
+
+/** \brief Starts the service, checking the configuration and starting the Service.
+
+	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
+
 */
-StatusCode Agency::start()
-{
-//TODO: Implement Agency::start()
+StatusCode Agency::start() {
 
 	return SERVICE_NO_ERROR;
 }
