@@ -510,7 +510,7 @@ method | call executed by
 HTTP_GET, HTTP_HEAD | Api.http_get()
 HTTP_PUT | Api.http_put()
 HTTP_DELETE | Api.http_delete()
-HTTP_OPTIONS | Nothing: options calls must call with `execution = false`
+HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
 
 */
 StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, bool execution) {
