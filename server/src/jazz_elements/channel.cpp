@@ -402,7 +402,6 @@ void Channels::base_names (BaseNames &base_names) {
 	base_names["bash"]	= this;		// Runs shell scripts
 	base_names["file"]	= this;		// Returns arrays of bytes with attributes for files, IndexIS for folders.
 	base_names["http"]	= this;		// libCURL
-	base_names["index"]	= this;		// Serializes Tuple <-> IndexXX
 	base_names["tcp"]	= this;		// zeroMQ (client)
 }
 
