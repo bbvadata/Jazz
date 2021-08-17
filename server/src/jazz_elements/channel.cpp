@@ -235,8 +235,19 @@ StatusCode Channels::as_locator (Locator &result, pChar p_what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface **complete Block** retrieval.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The data read from the endpoint will be stored as a rank == 1 CELL_TYPE_BYTE
+					for all bases except "bash" shell output is returned as a rank == 1 CELL_TYPE_STRING
+	\param what		Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
+
+**NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
 */
 StatusCode Channels::get (pTransaction &p_txn, Locator &what) {
 
