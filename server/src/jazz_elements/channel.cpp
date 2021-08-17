@@ -257,25 +257,29 @@ StatusCode Channels::get (pTransaction &p_txn, Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface **selection of rows in a Block** retrieval.
+
+**NOTE**: This is NOT supported by Channels since the blocks returned by endpoints would need other types for filtering. It does
+call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
 */
 StatusCode Channels::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
-//TODO: Implement this.
+	destroy_extra_locator(what);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	return SERVICE_ERROR_WRONG_ARGUMENTS;
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface **selection of a tensor in a Tuple** retrieval.
+
+**NOTE**: This is NOT supported by Channels since the blocks returned by endpoints cannot be Tuples. It does
+call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
 */
 StatusCode Channels::get (pTransaction &p_txn, Locator &what, pChar name) {
 
-//TODO: Implement this.
+	destroy_extra_locator(what);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	return SERVICE_ERROR_WRONG_ARGUMENTS;
 }
 
 
