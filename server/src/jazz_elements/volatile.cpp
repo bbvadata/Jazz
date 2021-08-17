@@ -68,8 +68,16 @@ StatusCode Volatile::shut_down() {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface **complete Block** retrieval.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy()-ed when the caller is done.
 */
 StatusCode Volatile::get (pTransaction &p_txn, Locator &what) {
 
