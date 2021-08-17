@@ -147,8 +147,20 @@ StatusCode Volatile::header (StaticBlockHeader &hea, Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface **metadata of a Block** retrieval.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Unlike its faster form, this allocates a Block and therefore, it is equivalent to a new_block() call. On success, it will return a
+Transaction that belongs to the Container and must be destroy()-ed when the caller is done.
+
+For Tensors it will allocate a block that only has the StaticBlockHeader (What you can more efficiently get from the other form.)
+For Kinds, the metadata of all the items is exactly the same a .get() call returns.
+For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
 StatusCode Volatile::header (pTransaction &p_txn, Locator &what) {
 
