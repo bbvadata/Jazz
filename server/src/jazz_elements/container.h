@@ -160,6 +160,8 @@ struct Transaction {
 typedef Transaction *pTransaction;
 
 
+typedef struct ExtraLocator	*pExtraLocator;
+
 /** \brief Locator: A minimal structure to define the location of resources inside a Container.
 
 This is used by all Container descendants, it can be extended using p_extra to something else, an ExtraLocator.
@@ -173,7 +175,7 @@ struct Locator {
 	char entity	[NAME_SIZE];		///< Another abstraction inside node.container.base, like the name of a table in a database.
 	char key	[NAME_SIZE];		///< A key identifying a block inside the entity.
 
-	pChar p_extra;					///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
+	pExtraLocator p_extra;			///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
 };
 
 
