@@ -189,8 +189,11 @@ StatusCode Volatile::put (Locator &where, pBlock p_block, int mode) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface for **creating databases**
+
+	\param where	Some **destination** Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Volatile::new_entity (Locator &where) {
 
