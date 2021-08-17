@@ -56,6 +56,45 @@ namespace jazz_elements
 
 /** \brief Volatile: A Service to manage data objects in RAM.
 
+Node Method Reference
+---------------------
+
+Some bases in Volatile, like **deque** which is just a key/value store where each entity is a new keyspace. Keys are keys and values
+are blocks of any kind. Other bases have a syntax that allows operating with entities or nodes, like pop()-ing the highest priority
+node in a **queue**, accessing to nodes in a tree using the tree pointers or keys to node ids, etc.
+
+The reference for this is this docstring. All entities and keys can be removed with remove(), each time keys are returned, they are
+inside a block of just one string, see the methods of each base for more.
+
+Methods in deque
+----------------
+
+A deque is a key-value store. It is created empty via new_entity() and you can just get(), header(), put(), remove() or copy(). In order
+to  access all the blocks in a deque, the key of the first block will be returned by get()ting //deque/entity/~first. And the keys of
+any node can be obtained by //deque/entity/key~next and //deque/entity/key~prev.
+
+Methods in index
+----------------
+
+Index both exposes and serializes Index type blocks. An entity inside index is **one single** Index. When get()ting them by key, you get
+the value stored in the Index. To create a new one, just new_entity() //index/name/~ss (ii, is, si or ss). To populate one just
+put() to //index/name/~load with a Tuple of the appropriate Kind. To save one, just get() //index/name/~save.
+
+Methods in queue
+----------------
+
+A priority queue is implemented as self balanced binary trees. Each time you push a block, you must put() to a key with a priority by
+putting to //queue/name/key~0.977 (where 0.977 can be serialized to a double). The queue is created by new_entity() //queue/name/~5000
+(where 5000 is the mandatory maximum number of nodes). When the queue fills, lower priority nodes are discarded. You can also get()
+to //queue/name/~pop_highest, //queue/name/~peek_highest, //queue/name/~pop_lowest, //queue/name/~peek_lowest. And you can get()
+nodes by key as in a deque (if they haven't been pop()ed or been discarded).
+
+Methods in tree
+---------------
+
+When a tree is created empty, new_entity() //tree/name/, the first node pushed must have key == **root** and is the only node without
+a parent. Any node is created by put()ing to //tree/name/key~parentname (where parentname must exist). All nodes support querying keys to
+their parent, siblings and first child via: get() //tree/name/key~parent, //tree/name/key~next, //tree/name/key~child.
 */
 class Volatile : public Container {
 
