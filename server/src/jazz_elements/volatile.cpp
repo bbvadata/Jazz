@@ -217,8 +217,12 @@ StatusCode Volatile::remove (Locator &where) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface for **Block copying** (inside the Volatile).
+
+	\param where	The block or entity to be written. (See Node Method Reference in the documentation of the class Volatile.)
+	\param what		The block or entity to be read. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Volatile::copy (Locator &where, Locator &what) {
 
