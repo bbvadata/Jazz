@@ -203,8 +203,11 @@ StatusCode Volatile::new_entity (Locator &where) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Volatile) interface for **deleting databases and blocks**:
+
+	\param where	The block or entity to be removed. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
 StatusCode Volatile::remove (Locator &where) {
 
