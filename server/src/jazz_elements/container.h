@@ -528,6 +528,8 @@ class Container : public Service {
 			return SERVICE_NO_ERROR;
 		}
 
+		uint64_t alloc_bytes;
+
 #ifndef CATCH_TEST
 	private:
 #endif
@@ -538,7 +540,7 @@ class Container : public Service {
 		StatusCode destroy_container();
 
 		int max_transactions;
-		uint64_t alloc_bytes, warn_alloc_bytes, fail_alloc_bytes;
+		uint64_t warn_alloc_bytes, fail_alloc_bytes;
 		bool alloc_warning_issued;
 		pStoredTransaction p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
