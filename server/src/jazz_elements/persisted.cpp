@@ -56,8 +56,8 @@ Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logge
 
 	This service initialization checks configuration values related with persistence and starts LMDB with configured values.
 */
-StatusCode Persisted::start()
-{
+StatusCode Persisted::start() {
+
 	if (lmdb_env != nullptr) {
 		log(LOG_ERROR, "Persisted::start() failed: nested start() call.");
 
