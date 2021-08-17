@@ -283,8 +283,18 @@ StatusCode Channels::get (pTransaction &p_txn, Locator &what, pChar name) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface **metadata of a Block** retrieval.
+
+	\param hea	A StaticBlockHeader structure that will receive the metadata.
+	\param what	Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Note that, unlike in other containers, this does the whole .get() just to return the header which is predictable except for the
+data size. For the base "file", this will just verify if the file exists and return its size in a StaticBlockHeader efficiently,
+for any other base, it makes sense to use get() instead to avoid downloading the same data twice.
+
+**NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
 */
 StatusCode Channels::header (StaticBlockHeader &hea, Locator &what) {
 
