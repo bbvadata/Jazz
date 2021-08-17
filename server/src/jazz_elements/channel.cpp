@@ -294,14 +294,16 @@ StatusCode Channels::header (StaticBlockHeader &hea, Locator &what) {
 }
 
 
-/**
-//TODO: Document this.
+/** Native (Channels) interface **metadata of a Block** retrieval.
+
+**NOTE**: This is NOT supported by Channels since the blocks returned by endpoints cannot be Tuples. It does
+call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
 */
 StatusCode Channels::header (pTransaction &p_txn, Locator &what) {
 
-//TODO: Implement this.
+	destroy_extra_locator(what);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	return SERVICE_ERROR_WRONG_ARGUMENTS;
 }
 
 
