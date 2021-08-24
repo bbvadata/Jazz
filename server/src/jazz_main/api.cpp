@@ -182,7 +182,7 @@ MHD_Result http_request_callback(void *cls,
 	int http_method = http_methods[TenBitsAtAddress(method)];
 
 	HttpQueryState q_state;
-	q_state.parser_state = PSTATE_INITIAL;
+	q_state.state = PSTATE_INITIAL;
 
 	struct MHD_Response *response = nullptr;
 
