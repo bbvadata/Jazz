@@ -487,6 +487,14 @@ StatusCode Api::start () {
 /** Shuts down the Persisted Service
 */
 StatusCode Api::shut_down () {
+
+	StatusCode err;
+	if (remove_statics)
+		for (IndexSS::iterator it = www.begin(); it != www.end(); ++it)
+			if ((err = p_persisted->remove((pChar) it->second.c_str())) != SERVICE_NO_ERROR)
+				log_printf(LOG_MISS, "Persisted.remove(%s) returned %d", it->second.c_str(), err);
+
+	www.clear();
 	base.clear();
 
 	return Container::shut_down();	// Closes the one-shot functionality.
