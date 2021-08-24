@@ -461,13 +461,13 @@ Configuration-wise the API has just two keys:
 Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
 StatusCode Api::start () {
+	base.clear();
+
 	p_channels->base_names(base);
 	p_volatile->base_names(base);
 	p_persisted->base_names(base);
 	p_bebop->base_names(base);
 	p_agency->base_names(base);
-
-	base_names(base);
 
 	std::string statics_path;
 
