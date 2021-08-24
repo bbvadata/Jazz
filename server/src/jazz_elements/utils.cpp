@@ -299,11 +299,16 @@ std::string CleanConfigArgument(std::string s) {
 	bool in_quote = false;
 
 	for (int i = s.length() - 1; i >= 0; i--) {
-		if (s[i] == '"') in_quote = !in_quote;
-		else if (!in_quote && (s[i] == ' ' || s[i] == '\t')) s.erase(i, 1);
+		if (s[i] == '"')
+			in_quote = !in_quote;
+
+		else if (!in_quote && (s[i] == ' ' || s[i] == '\t'))
+			s.erase(i, 1);
 	}
 
-	for (int i = s.length() - 1; i >= 0; i--) if (s[i] == '"') s.erase(i, 1);
+	for (int i = s.length() - 1; i >= 0; i--)
+		if (s[i] == '"')
+			s.erase(i, 1);
 
 	return s;
 }
