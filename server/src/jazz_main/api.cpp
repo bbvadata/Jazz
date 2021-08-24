@@ -472,7 +472,7 @@ StatusCode Api::start () {
 	std::string statics_path;
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
-		int ret = _load_statics(statics_path.c_str());
+		int ret = load_statics(statics_path.c_str());
 		if (ret != SERVICE_NO_ERROR)
 			return ret;
 	}
@@ -636,7 +636,7 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::_load_statics (const char *path) {
+StatusCode Api::load_statics (const char *path) {
 
 //TODO: Implement Api::_load_statics()
 

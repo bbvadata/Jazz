@@ -180,7 +180,7 @@ class Api : public Container {
 	private:
 #endif
 
-		StatusCode _load_statics (const char *path);
+		StatusCode	load_statics (const char *path);
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;
