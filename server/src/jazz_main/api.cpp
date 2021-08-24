@@ -124,8 +124,7 @@ ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 #define MHD_HTTP_ANYERROR true
 
 #ifdef DEBUG
-MHD_Result print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
-{
+MHD_Result print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value) {
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
 
 	return MHD_YES;
