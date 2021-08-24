@@ -57,60 +57,65 @@ namespace jazz_main
 --------------------------------------------------- */
 
 #define REX_SLASH				"[/]"
-#define REX_HASH				"[#]"
 #define REX_NAME_FIRST			"[a-zA-Z]"
 #define REX_NAME_ANY			"[a-zA-Z0-9\\-_~$]"
-#define REX_SWITCH				"[\\x00\\.:\\[\\(]"
+#define REX_BASE_SWITCH			"[#]"
+#define REX_ENT_SWITCH			"[\\x00]"
+#define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(]"
 
-#define MAX_NUM_PSTATES			12		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	17		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define MAX_NUM_PSTATES			13		///< Maximum number of non error states the parser can be in
+#define NUM_STATE_TRANSITIONS	18		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 /// Parser state values
 
 #define PSTATE_INITIAL			 0		///< Begin parsing, assumes already seen / to avoid unnecessary initial counting
-#define PSTATE_DONE_NODE		 1		///< Equivalent to PSTATE_INITIAL, except node was done and it cannot happen again.
-#define PSTATE_NODE0			 2		///< Already seen ///.
+#define PSTATE_DONE_NODE		 1		///< Equivalent to PSTATE_INITIAL, except node was done and it cannot happen again
+#define PSTATE_NODE0			 2		///< Already seen ///
 #define PSTATE_IN_NODE			 3		///< Name starts after /// + letter, stays with valid char
-#define PSTATE_BASE0			 4		///< Already seen //.
+#define PSTATE_BASE0			 4		///< Already seen //
 #define PSTATE_IN_BASE			 5		///< Name starts after // + letter, stays with valid char
-#define PSTATE_ENTITY0			 6		///< Already seen / after reading a base.
-#define PSTATE_EXTRA_SWITCH		 7		///< Found # while reading a base.
-#define PSTATE_IN_ENTITY		 8		///< Name starts after / + letter, stays with valid char
-#define PSTATE_KEY0				 9		///< Already seen / after reading an entity.
-#define PSTATE_IN_KEY			10		///< Name starts after / + letter, stays with valid char
-#define PSTATE_KEY_SWITCH		11		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#.
+#define PSTATE_ENTITY0			 6		///< Already seen / after reading a base
+#define PSTATE_IN_ENTITY		 7		///< Name starts after / + letter, stays with valid char
+#define PSTATE_KEY0				 8		///< Already seen / after reading an entity
+#define PSTATE_IN_KEY			 9		///< Name starts after / + letter, stays with valid char
+#define PSTATE_BASE_SWITCH		10		///< Found # while reading a base
+#define PSTATE_ENT_SWITCH		11		///< Found # while reading a base
+#define PSTATE_KEY_SWITCH		12		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#
+#define PSTATE_FAILED			98		///< Set by the parser on any error (possibly in the r_value too)
+#define PSTATE_COMPLETE_OK		99		///< Set by the parser on complete success
 
-/** A vector of StateTransition.l This only runs once, when contruction the API object, initializes the LUTs from a sequence of
+/** A vector of StateTransition. This only runs once, when contruction the API object, initializes the LUTs from a sequence of
 StateTransition constants in the source of api.cpp.
 */
 typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
 
 ParseStateTransitions state_tr = {
-	{PSTATE_INITIAL,	PSTATE_BASE0,			REX_SLASH},
+	{PSTATE_INITIAL,	PSTATE_BASE0,		REX_SLASH},
 
-	{PSTATE_BASE0,		PSTATE_NODE0,			REX_SLASH},
-	{PSTATE_BASE0,		PSTATE_IN_BASE,			REX_NAME_FIRST},
+	{PSTATE_BASE0,		PSTATE_NODE0,		REX_SLASH},
+	{PSTATE_BASE0,		PSTATE_IN_BASE,		REX_NAME_FIRST},
 
-	{PSTATE_NODE0,		PSTATE_IN_NODE,			REX_NAME_FIRST},
+	{PSTATE_NODE0,		PSTATE_IN_NODE,		REX_NAME_FIRST},
 
-	{PSTATE_IN_BASE,	PSTATE_IN_BASE,			REX_NAME_ANY},
-	{PSTATE_IN_BASE,	PSTATE_ENTITY0,			REX_SLASH},
-	{PSTATE_IN_BASE,	PSTATE_EXTRA_SWITCH,	REX_HASH},
+	{PSTATE_IN_BASE,	PSTATE_IN_BASE,		REX_NAME_ANY},
+	{PSTATE_IN_BASE,	PSTATE_ENTITY0,		REX_SLASH},
+	{PSTATE_IN_BASE,	PSTATE_BASE_SWITCH,	REX_BASE_SWITCH},
 
-	{PSTATE_IN_NODE,	PSTATE_IN_NODE,			REX_NAME_ANY},
-	{PSTATE_IN_NODE,	PSTATE_DONE_NODE,		REX_SLASH},
+	{PSTATE_IN_NODE,	PSTATE_IN_NODE,		REX_NAME_ANY},
+	{PSTATE_IN_NODE,	PSTATE_DONE_NODE,	REX_SLASH},
 
-	{PSTATE_DONE_NODE,	PSTATE_IN_BASE,			REX_NAME_FIRST},
+	{PSTATE_DONE_NODE,	PSTATE_IN_BASE,		REX_NAME_FIRST},
 
-	{PSTATE_ENTITY0,	PSTATE_IN_ENTITY,		REX_NAME_FIRST},
+	{PSTATE_ENTITY0,	PSTATE_IN_ENTITY,	REX_NAME_FIRST},
 
-	{PSTATE_IN_ENTITY,	PSTATE_IN_ENTITY,		REX_NAME_ANY},
-	{PSTATE_IN_ENTITY,	PSTATE_KEY0,			REX_SLASH},
+	{PSTATE_IN_ENTITY,	PSTATE_IN_ENTITY,	REX_NAME_ANY},
+	{PSTATE_IN_ENTITY,	PSTATE_KEY0,		REX_SLASH},
+	{PSTATE_IN_ENTITY,	PSTATE_ENT_SWITCH,	REX_ENT_SWITCH},
 
-	{PSTATE_KEY0,		PSTATE_IN_KEY,			REX_NAME_FIRST},
+	{PSTATE_KEY0,		PSTATE_IN_KEY,		REX_NAME_FIRST},
 
-	{PSTATE_IN_KEY,		PSTATE_IN_KEY,			REX_NAME_ANY},
-	{PSTATE_IN_KEY,		PSTATE_KEY_SWITCH,		REX_SWITCH},
+	{PSTATE_IN_KEY,		PSTATE_IN_KEY,		REX_NAME_ANY},
+	{PSTATE_IN_KEY,		PSTATE_KEY_SWITCH,	REX_KEY_SWITCH},
 
 	{MAX_NUM_PSTATES}
 };
