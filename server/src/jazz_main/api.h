@@ -82,8 +82,16 @@ using namespace jazz_agency;
 /** \brief A buffer to keep the state while parsing/executing a query
 */
 struct HttpQueryState {
-	int	parser_state;
-	Locator l_value, r_value;
+	int	state;									///< The parser state from PSTATE_INITIAL to PSTATE_COMPLETE_OK
+	int apply;									///< APPLY_NOTHING, APPLY_NAME, APPLY_URL, APPLY_FUNCTION, .. APPLY_ASSIGN_CONST
+
+	char base	[SHORT_NAME_SIZE];				///< A Locator compatible base for the l_value.
+	char entity	[NAME_SIZE];					///< A Locator compatible entity for the l_value.
+	char key	[NAME_SIZE];					///< A Locator compatible key for the l_value.
+	char name	[NAME_SIZE];					///< A possible item name
+	char url	[MAX_FILE_OR_URL_SIZE + 32];	///< The endpoint (an URL, file name, folder name, bash script)
+
+	Locator r_value;							///< Parsed //r_base/r_entity/r_key
 };
 
 
