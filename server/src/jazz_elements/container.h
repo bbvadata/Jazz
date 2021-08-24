@@ -109,14 +109,14 @@ namespace jazz_elements
 #define WRITE_ONLY_IF_NOT_EXISTS		  2		///< A .put() call cannot override, it can only create new blocks.
 #define WRITE_TENSOR_DATA_AS_RAW		  4		///< Fails if not a Tensor, writes the raw data. For e.g., writing files.
 
-/** A lookup table for all the possible values of a char mapped into an 8-bit state.
+/** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
 struct ParseNextStateLUT {
 	unsigned char next[EIGHT_BIT_LONG];
 };
 
 
-/** A way to build constants defining the transtition from one state to the next via a regex.
+/** \brief A way to build constants defining the transtition from one state to the next via a regex.
 */
 struct ParseStateTransition {
 	int  from;
