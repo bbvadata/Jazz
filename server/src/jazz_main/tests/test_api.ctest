@@ -391,16 +391,11 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(test_parse_put("//tta/aa/bb", PARSE_OK));
 	}
 }
-
-
-SCENARIO("Testing api statics") {
-
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
 */
+}
+
+
+SCENARIO("Testing api sizes") {
+
+	REQUIRE(sizeof(HttpQueryState) == 2048);
 }
