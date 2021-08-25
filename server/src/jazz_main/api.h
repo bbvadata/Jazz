@@ -181,7 +181,12 @@ class Api : public Container {
 	private:
 #endif
 
-		StatusCode	load_statics (const char *path);
+		bool load_statics		(pChar	  path);
+		bool expand_url_encoded	(pChar	  p_buff,
+								 int	  buff_size,
+								 pChar	  p_url);
+		bool parse_nested		(Locator &r_value,
+								 pChar	  p_url);
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;
