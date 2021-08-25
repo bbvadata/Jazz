@@ -47,23 +47,56 @@ Agency		EPI		  (&LOGGER, &CONFIG);
 Api			TT_API	  (&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
 
 
-// Testing utilities
-// -----------------
+// Tests
+// -----
 
-bool test_parse_const_meta (const char * p_query,
-							int expected_ret,
-							int expected_type = 0,
-							int expected_rank = 0,
-							int expected_dim0 = 0,
-							int expected_dim1 = 0,
-							int expected_dim2 = 0,
-							int expected_dim3 = 0,
-							int expected_dim4 = 0,
-							int expected_dim5 = 0)
-{
-	// Block		block_hea;
-	// char		buff[SAFE_URL_LENGTH];
-	// TensorDim	td;
+SCENARIO("Testing all Containers start()/shut_down()") {
+
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(tenbit_double_slash == TenBitsAtAddress("//"));
+
+		REQUIRE(TT_API.p_channels	== &CHANNELS);
+		REQUIRE(TT_API.p_volatile	== &VOLATILE);
+		REQUIRE(TT_API.p_persisted	== &PERSISTED);
+		REQUIRE(TT_API.p_bebop		== &BOP);
+		REQUIRE(TT_API.p_agency		== &EPI);
+
+		REQUIRE(TT_API.base.size() == 0);
+	}
+
+	REQUIRE(CHANNELS.start()  == 0);
+	REQUIRE(VOLATILE.start()  == 0);
+	REQUIRE(PERSISTED.start() == 0);
+
+	REQUIRE(BOP.start() == 0);
+	REQUIRE(EPI.start() == 0);
+
+	REQUIRE(TT_API.start() == 0);
+
+	GIVEN("The instances are started") {
+		REQUIRE(TT_API.base["bash"] == &CHANNELS);
+		REQUIRE(TT_API.base["file"] == &CHANNELS);
+		REQUIRE(TT_API.base["http"] == &CHANNELS);
+		REQUIRE(TT_API.base["tcp"]  == &CHANNELS);
+
+		REQUIRE(TT_API.base["deque"] == &VOLATILE);
+		REQUIRE(TT_API.base["index"] == &VOLATILE);
+		REQUIRE(TT_API.base["queue"] == &VOLATILE);
+		REQUIRE(TT_API.base["tree"]	 == &VOLATILE);
+
+		REQUIRE(TT_API.base["lmdb"] == &PERSISTED);
+	}
+
+	REQUIRE(TT_API.shut_down() == 0);
+
+	REQUIRE(BOP.shut_down() == 0);
+	REQUIRE(EPI.shut_down() == 0);
+
+	REQUIRE(CHANNELS.shut_down()  == 0);
+	REQUIRE(VOLATILE.shut_down()  == 0);
+	REQUIRE(PERSISTED.shut_down() == 0);
+}
+
 
 	// strcpy(buff, p_query);
 
