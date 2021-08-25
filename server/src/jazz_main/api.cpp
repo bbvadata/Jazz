@@ -60,11 +60,12 @@ namespace jazz_main
 #define REX_NAME_FIRST			"[a-zA-Z]"
 #define REX_NAME_ANY			"[a-zA-Z0-9\\-_~$]"
 #define REX_BASE_SWITCH			"[#]"
-#define REX_ENT_SWITCH			"[\\x00]"
-#define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(]"
+#define REX_INFO_SWITCH			"[\\x00]"
+#define REX_ENT_SWITCH			"[\\x00\\]\\)]"
+#define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(\\]\\)]"
 
-#define MAX_NUM_PSTATES			13		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	18		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define MAX_NUM_PSTATES			14		///< Maximum number of non error states the parser can be in
+#define NUM_STATE_TRANSITIONS	19		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 /// Parser state values
 
@@ -78,9 +79,10 @@ namespace jazz_main
 #define PSTATE_IN_ENTITY		 7		///< Name starts after / + letter, stays with valid char
 #define PSTATE_KEY0				 8		///< Already seen / after reading an entity
 #define PSTATE_IN_KEY			 9		///< Name starts after / + letter, stays with valid char
-#define PSTATE_BASE_SWITCH		10		///< Found # while reading a base
-#define PSTATE_ENT_SWITCH		11		///< Found # while reading a base
-#define PSTATE_KEY_SWITCH		12		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#
+#define PSTATE_INFO_SWITCH		10		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#
+#define PSTATE_BASE_SWITCH		11		///< Found # while reading a base
+#define PSTATE_ENT_SWITCH		12		///< Found # while reading a base
+#define PSTATE_KEY_SWITCH		13		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#
 #define PSTATE_FAILED			98		///< Set by the parser on any error (possibly in the r_value too)
 #define PSTATE_COMPLETE_OK		99		///< Set by the parser on complete success
 
@@ -96,6 +98,7 @@ ParseStateTransitions state_tr = {
 	{PSTATE_BASE0,		PSTATE_IN_BASE,		REX_NAME_FIRST},
 
 	{PSTATE_NODE0,		PSTATE_IN_NODE,		REX_NAME_FIRST},
+	{PSTATE_NODE0,		PSTATE_INFO_SWITCH,	REX_INFO_SWITCH},
 
 	{PSTATE_IN_BASE,	PSTATE_IN_BASE,		REX_NAME_ANY},
 	{PSTATE_IN_BASE,	PSTATE_ENTITY0,		REX_SLASH},
@@ -104,7 +107,7 @@ ParseStateTransitions state_tr = {
 	{PSTATE_IN_NODE,	PSTATE_IN_NODE,		REX_NAME_ANY},
 	{PSTATE_IN_NODE,	PSTATE_DONE_NODE,	REX_SLASH},
 
-	{PSTATE_DONE_NODE,	PSTATE_IN_BASE,		REX_NAME_FIRST},
+	{PSTATE_DONE_NODE,	PSTATE_BASE0,		REX_SLASH},
 
 	{PSTATE_ENTITY0,	PSTATE_IN_ENTITY,	REX_NAME_FIRST},
 
