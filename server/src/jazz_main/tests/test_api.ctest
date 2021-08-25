@@ -191,21 +191,74 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(!TT_API.parse_nested(loc, (pChar) ""));
 	}
 
+	GIVEN("We want to test expand_url_encoded()") {
+		char buff [4096];
 
-bool test_parse_get(const char * p_query,
-					int expected_ret)
-{
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a_stupid_string;"));
 
-	return true;
-}
+		REQUIRE(strcmp(buff, "a_stupid_string") == 0);
 
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a stupid string;"));
 
-bool test_parse_put(const char * p_query,
-					int expected_ret)
-{
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a%20stupid%20string;"));
 
-	return true;
-}
+		REQUIRE(strcmp(buff, "a stupid string") == 0);
+
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "a_stupid_string;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a_stupid_string"));
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#b_stupid_string)"));
+
+		REQUIRE(strcmp(buff, "b_stupid_string") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#c_stupid_string]"));
+
+		REQUIRE(strcmp(buff, "c_stupid_string") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#d_stupid_string;;"));
+
+		REQUIRE(strcmp(buff, "d_stupid_string;") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#e_stupid_string]]"));
+
+		REQUIRE(strcmp(buff, "e_stupid_string]") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#f_stupid_string];"));
+
+		REQUIRE(strcmp(buff, "f_stupid_string]") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#g_stupid_string))"));
+
+		REQUIRE(strcmp(buff, "g_stupid_string)") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#!#$&'()*+,/:;=?@[]a-z_A-Z_0-9.e+99~kk;"));
+
+		REQUIRE(strcmp(buff, "!#$&'()*+,/:;=?@[]a-z_A-Z_0-9.e+99~kk") == 0);
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#*%2a%2A;%3b%3B]%5d%5D;"));
+
+		REQUIRE(strcmp(buff, "***;;;]]]") == 0);
+
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#*%2a%2A;%3b%3B]%5d%5;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#*%2a%2A;%3b%3B]%5d%;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc\t;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc<;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc>;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc\\;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc^;"));
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 8, (pChar) "#abc%20123;"));
+
+		REQUIRE(strcmp(buff, "abc 123") == 0);
+
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 7, (pChar) "#abc%20123;"));
+
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4, (pChar) "#abc;"));
+
+		REQUIRE(strcmp(buff, "abc") == 0);
+
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 3, (pChar) "#abc;"));
+	}
 
 // Tests
 // -----
