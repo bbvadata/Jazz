@@ -536,8 +536,8 @@ StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, boo
 
 /** Check a non-API url into and return the static object related with it.
 
-	\param url		 The http url (that has already been checked not to start with //)
 	\param response	 A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+	\param p_url	 The http url (that has already been checked not to start with //)
 	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
 
 	\return			 Some error code or SERVICE_NO_ERROR if successful.
@@ -547,7 +547,7 @@ bool Api::get_static (pMHD_Response &response, pChar p_url, bool execution) {
 
 //TODO: Implement Api::get_static()
 
-	return SERVICE_NOT_IMPLEMENTED;
+	return false;
 }
 
 
