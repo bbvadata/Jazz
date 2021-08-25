@@ -649,11 +649,75 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::load_statics (const char *path) {
+/** Parse a simple //base/entity/key string (Used inside the main Api.parse()).
 
-//TODO: Implement Api::_load_statics()
+	\param r_value	A Locator to store the result (that will be left in undetermined on error).
+	\param p_url	The input string.
 
-	return 0;
+	\return			'true' if successful.
+*/
+bool Api::parse_nested (Locator &r_value, pChar p_url) {
+
+	int buf_size, state = PSTATE_INITIAL;
+	pChar p_out;
+
+	r_value.p_extra = nullptr;
+
+	p_url++;	// parse_nested() is only called after checking the trailing /, this skips the first / to set state to PSTATE_INITIAL
+
+	while (true) {
+		unsigned char cursor;
+
+		cursor = *(p_url++);
+		state = parser_state_switch[state].next[cursor];
+
+		switch (state) {
+		case PSTATE_BASE0:
+			p_out	 = (pChar) &r_value.base;
+			buf_size = SHORT_NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_ENTITY0:
+			p_out	 = (pChar) &r_value.entity;
+			buf_size = NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_KEY0:
+			p_out	 = (pChar) &r_value.key;
+			buf_size = NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_IN_BASE:
+		case PSTATE_IN_ENTITY:
+		case PSTATE_IN_KEY:
+			if (buf_size-- == 0)
+				return false;
+
+			*(p_out++) = cursor;
+			*(p_out)   = 0;
+
+			break;
+
+		case PSTATE_ENT_SWITCH:
+			r_value.key[0] = 0;
+
+		case PSTATE_KEY_SWITCH:
+			switch (cursor) {
+			case 0:
+				return true;
+			case ')':
+			case ']':
+				return *(p_url) == 0;
+			}
+			return false;
+
+		default:
+			return false;
+		}
+	}
 }
 
 } // namespace jazz_main
