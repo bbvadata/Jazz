@@ -649,6 +649,77 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
+
+/** Copy while percent-decoding a string into a buffer. Only RFC 3986 section 2.3 and RFC 3986 section 2.2 characters accepted.
+
+	\param p_buff	 A buffer to store the result.
+	\param buff_size The size of the output buffer (ending zero included).
+	\param p_url	 The input string.
+
+	\return			'true' if successful. Possible errors are wrong %-syntax, wrong char range or output buffer too small.
+
+See https://en.wikipedia.org/wiki/Percent-encoding This is utf-8 compatible, utf-8 chars are just percent encoded one byte at a time.
+*/
+bool Api::expand_url_encoded (pChar p_buff, int buff_size, pChar p_url) {
+
+	if (*(p_url++) != '#')
+		return false;
+
+	pChar p_end = p_url;
+
+	p_end += strlen(p_url) - 1;
+
+	if (*p_end != ';' && *p_end != ']' && *p_end != ')')
+		return false;
+
+	while (buff_size-- > 0) {
+		if (p_url == p_end) {
+			*(p_buff) = 0;
+
+			return true;
+		}
+		switch (char ch = *(p_url++)) {
+		case '!' ... '$':
+		case '&' ... '/':
+		case '0' ... '9':
+		case ':':
+		case ';':
+		case '=':
+		case '?':
+		case '@':
+		case 'A' ... 'Z':
+		case '[':
+		case ']':
+		case '_':
+		case 'a' ... 'z':
+		case '~':
+			*(p_buff++) = ch;
+			break;
+
+		case '%': {
+			if (p_url == p_end)
+				return false;
+
+			int xhi = from_hex(*(p_url++));
+
+			if (p_url == p_end)
+				return false;
+
+			int xlo = from_hex(*(p_url++));
+
+			*(p_buff++) = (xhi << 4) + xlo;
+
+			break;
+		}
+		default:
+			return false;
+		}
+	}
+
+	return false;
+}
+
+
 /** Parse a simple //base/entity/key string (Used inside the main Api.parse()).
 
 	\param r_value	A Locator to store the result (that will be left in undetermined on error).
