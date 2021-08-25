@@ -47,11 +47,6 @@ namespace jazz_main
 #define HTTP_PUT						 4		///< http predicate PUT
 #define HTTP_DELETE						 5		///< http predicate DELETE
 
-/// Parser return codes
-
-#define PARSE_OK						 0		///< Success.
-#define GET_OK							 0		///< Success.
-
 /*	-----------------------------------------------
 	 Parser grammar definition
 --------------------------------------------------- */
