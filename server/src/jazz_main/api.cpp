@@ -242,9 +242,10 @@ MHD_Result http_request_callback(void *cls,
 	case HTTP_NOTUSED:
 		return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
 
-	case HTTP_OPTIONS:
-		{ // Tricky: Opens a scope to make "std::string allow" out of scope in the rest to support the goto logic.
+	case HTTP_OPTIONS: {	// Shield variable "allow" initialization to support the goto logic.
+
 			std::string allow;
+
 			if (TenBitsAtAddress(url) != tenbit_double_slash) {
 				if (API.get_static(response, (pChar) url, false))
 					allow = "HEAD,GET,";
@@ -267,7 +268,7 @@ MHD_Result http_request_callback(void *cls,
 
 			MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, "Jazz " JAZZ_VERSION " - " LINUX_PLATFORM);
 			MHD_add_response_header (response, MHD_HTTP_HEADER_ALLOW, allow.c_str());
-		} // Here std::string allow is out of scope.
+		}
 
 		goto answer_no_content;
 
@@ -286,8 +287,9 @@ MHD_Result http_request_callback(void *cls,
 		break;
 
 	default:
-		if (TenBitsAtAddress(url) != tenbit_double_slash) {
+		if (TenBitsAtAddress(url) != tenbit_double_slash)
 			return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
+
 		else if (!API.parse(q_state, (pChar) url, http_method)) {
 
 			if (http_method == HTTP_PUT)
@@ -466,6 +468,7 @@ Configuration-wise the API has just two keys:
 Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
 StatusCode Api::start () {
+
 	base.clear();
 
 	p_channels->base_names(base);
@@ -494,6 +497,7 @@ StatusCode Api::start () {
 StatusCode Api::shut_down () {
 
 	StatusCode err;
+
 	if (remove_statics)
 		for (IndexSS::iterator it = www.begin(); it != www.end(); ++it)
 			if ((err = p_persisted->remove((pChar) it->second.c_str())) != SERVICE_NO_ERROR)
