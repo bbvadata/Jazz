@@ -649,6 +649,13 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
+bool Api::load_statics (pChar path) {
+
+//TODO: Implement Api::load_statics()
+
+	return false;
+}
+
 
 /** Copy while percent-decoding a string into a buffer. Only RFC 3986 section 2.3 and RFC 3986 section 2.2 characters accepted.
 
