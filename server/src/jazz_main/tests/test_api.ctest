@@ -98,45 +98,98 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 }
 
 
-	// strcpy(buff, p_query);
+SCENARIO("Testing api.parse") {
+	REQUIRE(TT_API.start() == 0);
 
-	// pChar p_buff = (pChar) &buff;
+	GIVEN("We want to test parse_nested()") {
+		Locator	loc;
 
-	// int ret = TT_API._parse_const_meta(p_buff, &block_hea);
+		loc.base[0]	  = 0xba;
+		loc.entity[0] = 0xca;
+		loc.key[0]	  = 0xda;
+		loc.p_extra	  = (pExtraLocator) &loc;
 
-	// REQUIRE(ret == expected_ret);
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base/entity/key"));
 
-	// if (expected_ret != PARSE_OK)
-	// 	return true;
+		REQUIRE(strcmp(loc.base,   "base")	 == 0);
+		REQUIRE(strcmp(loc.entity, "entity") == 0);
+		REQUIRE(strcmp(loc.key,	   "key")	 == 0);
+		REQUIRE(loc.p_extra == nullptr);
 
-	// if (expected_type)
-	// 	REQUIRE(block_hea.cell_type == expected_type);
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij)"));
 
-	// if (expected_rank)
-	// 	REQUIRE(block_hea.rank == expected_rank);
+		REQUIRE(strcmp(loc.base,   "base-_1") == 0);
+		REQUIRE(strcmp(loc.entity, "abcdefghij01234567890123456789~") == 0);
+		REQUIRE(strcmp(loc.key,	   "ABCDEFGHIJ_1234567890abcdefghij") == 0);
+		REQUIRE(loc.p_extra == nullptr);
 
-	// block_hea.get_dimensions((int *)&td.dim);
+		REQUIRE(strlen(loc.base)   == sizeof(loc.base) - 1);
+		REQUIRE(strlen(loc.entity) == sizeof(loc.entity) - 1);
+		REQUIRE(strlen(loc.key)	   == sizeof(loc.key) - 1);
 
-	// if (expected_dim0)
-	// 	REQUIRE(td.dim[0] == expected_dim0);
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base-_12/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~2/ABCDEFGHIJ_1234567890abcdefghij"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij2"));
 
-	// if (expected_dim1)
-	// 	REQUIRE(td.dim[1] == expected_dim1);
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//ase-_10/bcdefghij01234567890123456789~0/ABCDEFGHIJ_0123456789abcdefghij"));
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base1/azAZ_-~09/AZaz_-~09]"));
 
-	// if (expected_dim2)
-	// 	REQUIRE(td.dim[2] == expected_dim2);
+		REQUIRE(strcmp(loc.base,   "base1") == 0);
+		REQUIRE(strcmp(loc.entity, "azAZ_-~09") == 0);
+		REQUIRE(strcmp(loc.key,	   "AZaz_-~09") == 0);
+		REQUIRE(loc.p_extra == nullptr);
 
-	// if (expected_dim3)
-	// 	REQUIRE(td.dim[3] == expected_dim3);
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base2/azAZ_-~08/AZaz_-~08)"));
 
-	// if (expected_dim4)
-	// 	REQUIRE(td.dim[4] == expected_dim4);
+		REQUIRE(strcmp(loc.base,   "base2") == 0);
+		REQUIRE(strcmp(loc.entity, "azAZ_-~08") == 0);
+		REQUIRE(strcmp(loc.key,	   "AZaz_-~08") == 0);
+		REQUIRE(loc.p_extra == nullptr);
 
-	// if (expected_dim5)
-	// 	REQUIRE(td.dim[5] == expected_dim5);
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base2b/azAZ_-~10)"));
 
-	return true;
-}
+		REQUIRE(strcmp(loc.base,   "base2b") == 0);
+		REQUIRE(strcmp(loc.entity, "azAZ_-~10") == 0);
+		REQUIRE(loc.key[0] == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base3/azAZ_-~07/AZaz_-~07"));
+
+		REQUIRE(strcmp(loc.base,   "base3") == 0);
+		REQUIRE(strcmp(loc.entity, "azAZ_-~07") == 0);
+		REQUIRE(strcmp(loc.key,	   "AZaz_-~07") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09("));
+
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09]]"));
+
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//bas e/azAZ_-~09/AZaz_-~09"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//ba'se/azAZ_-~09/AZaz_-~09"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//ba/se/azAZ_-~09/AZaz_-~09"));
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//b/e/k"));
+
+		REQUIRE(strcmp(loc.base,   "b") == 0);
+		REQUIRE(strcmp(loc.entity, "e") == 0);
+		REQUIRE(strcmp(loc.key,	   "k") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//0/e/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/0/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/0"));
+
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "/b/e/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/k/"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "///b/e/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "///n//b/e/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "/"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "a"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) ""));
+	}
 
 
 bool test_parse_get(const char * p_query,
@@ -418,13 +471,7 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(test_parse_get("//tta/aa/bb = //my_base/fun(vec:[[2,4],[6,8]];transform:\"log\")", PARSE_OK));
 	}
 
-	GIVEN("We test Api::_parse_recurse (PUT)") {
-		REQUIRE(test_parse_put("//tta/aa", PARSE_OK));
-		REQUIRE(test_parse_put("//tta/aa.attrib(key:[1,2], value:[\"base/a.htm\",\"en_us\"])", PARSE_OK));
-		REQUIRE(test_parse_put("//tta/aa/bb", PARSE_OK));
-	}
-}
-*/
+	REQUIRE(TT_API.shut_down() == 0);
 }
 
 
