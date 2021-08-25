@@ -508,12 +508,11 @@ StatusCode Api::shut_down () {
 
 /** Parse an API url into an APIParseBuffer for later execution.
 
-	\param url		 The http url (that has already been checked to start with //)
-	\param method	 The http method in [HTTP_NOTUSED .. HTTP_DELETE]
-	\param q_state	 A structure with the parts the url successfully parsed ready to be executed.
-	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
+	\param q_state	A structure with the parts the url successfully parsed ready to be executed.
+	\param p_url	The http url (that has already been checked to start with //)
+	\param method	The http method in [HTTP_NOTUSED .. HTTP_DELETE]
 
-	\return			 Some error code or SERVICE_NO_ERROR if successful.
+	\return			Some error code or SERVICE_NO_ERROR if successful.
 
 	When parse() is successful, the content of the APIParseBuffer **must** be executed by a call (that depends on the method) and will
 unlock() all the intermediate blocks.
@@ -526,11 +525,192 @@ HTTP_DELETE | Api.http_delete()
 HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
 
 */
-StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, bool execution) {
+bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
 
-//TODO: Implement Api::parse()
+	int buf_size;
+	pChar p_out;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	q_state.node[0] = 0;
+	q_state.apply = APPLY_NOTHING;
+	q_state.state = PSTATE_INITIAL;
+
+	p_url++;	// parse() is only called after checking the trailing //, this skips the first / to set state to PSTATE_INITIAL
+
+	while (true) {
+		unsigned char cursor;
+
+		cursor = *(p_url++);
+		q_state.state = parser_state_switch[q_state.state].next[cursor];
+
+		switch (q_state.state) {
+		case PSTATE_NODE0:
+			p_out	 = (pChar) &q_state.node;
+			buf_size = NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_BASE0:
+			p_out	 = (pChar) &q_state.base;
+			buf_size = SHORT_NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_ENTITY0:
+			p_out	 = (pChar) &q_state.entity;
+			buf_size = NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_KEY0:
+			p_out	 = (pChar) &q_state.key;
+			buf_size = NAME_SIZE - 1;
+
+			break;
+
+		case PSTATE_IN_NODE:
+		case PSTATE_IN_BASE:
+		case PSTATE_IN_ENTITY:
+		case PSTATE_IN_KEY:
+			if (buf_size-- == 0) {
+				q_state.state = PSTATE_FAILED;
+
+				return false;
+			}
+			*(p_out++) = cursor;
+			*(p_out)   = 0;
+
+			break;
+
+		case PSTATE_INFO_SWITCH:
+			q_state.base[0]	  = 0;
+			q_state.entity[0] = 0;
+			q_state.key[0]	  = 0;
+
+			if (method == HTTP_GET) {
+				q_state.apply = APPLY_JAZZ_INFO;
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+			}
+			q_state.state = PSTATE_FAILED;
+
+			return false;
+
+		case PSTATE_BASE_SWITCH:
+			if (!expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1)) {
+				q_state.state = PSTATE_FAILED;
+
+				return false;
+			}
+			q_state.apply	  = APPLY_URL;
+			q_state.state	  = PSTATE_COMPLETE_OK;
+			q_state.entity[0] = 0;
+			q_state.key[0]	  = 0;
+
+			return true;
+
+		case PSTATE_ENT_SWITCH:
+			q_state.state  = PSTATE_COMPLETE_OK;
+			q_state.key[0] = 0;
+
+			return true;
+
+		case PSTATE_KEY_SWITCH:
+			q_state.state = PSTATE_FAILED;
+
+			switch (cursor) {
+			case 0:
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+
+			case '.':
+				if (method != HTTP_GET)
+					return false;
+
+				if (strcmp("raw", p_url) == 0)
+					q_state.apply = APPLY_RAW;
+				else if (strcmp("text", p_url) == 0)
+					q_state.apply = APPLY_TEXT;
+				else
+					return false;
+
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+
+			case ':':
+				if (method != HTTP_GET || strlen(p_url) >= NAME_SIZE)
+					return false;
+
+				strcpy(q_state.name, p_url);
+				q_state.apply = APPLY_NAME;
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+
+			case '=':
+				if (method != HTTP_GET)
+					return false;
+
+				if (*p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+					q_state.apply = APPLY_ASSIGN_CONST;
+				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+					q_state.apply = APPLY_ASSIGN;
+				else
+					return false;
+
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+
+			case '[':
+				if (method != HTTP_GET)
+					return false;
+
+				if (*p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+					q_state.apply = APPLY_FILT_CONST;
+				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+					q_state.apply = APPLY_FILTER;
+				else
+					return false;
+
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+
+			case '(':
+				if (method != HTTP_GET)
+					return false;
+
+				if (*p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+					q_state.apply = APPLY_FUNCT_CONST;
+				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+					q_state.apply = APPLY_FUNCTION;
+				else
+					return false;
+
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+
+			default:
+				q_state.state = PSTATE_FAILED;
+
+				return false;
+			}
+
+			break;
+
+		case PSTATE_DONE_NODE:
+			break;
+
+		default:
+			q_state.state = PSTATE_FAILED;
+
+			return false;
+		}
+	}
 }
 
 
