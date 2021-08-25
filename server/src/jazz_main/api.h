@@ -154,14 +154,13 @@ class Api : public Container {
 
 		// parsing methods
 
-		StatusCode parse	   (const char	   *url,
-								int				method,
-								HttpQueryState &q_state,
-								bool			execution = true);
+		bool parse		(HttpQueryState &q_state,
+						 pChar			 p_url,
+						 int			 method);
 
-		StatusCode get_static  (const char	   *url,
-								pMHD_Response  &response,
-								bool			execution = true);
+		bool get_static	(pMHD_Response  &response,
+						 pChar			 p_url,
+						 bool			 get_it = true);
 
 		// deliver http error pages
 
@@ -170,13 +169,13 @@ class Api : public Container {
 
 		// Specific execution methods
 
-		bool http_put	 (HttpQueryState &q_state,
-						  const char	 *p_upload,
+		bool http_put	 (const char	 *p_upload,
 						  size_t		  size,
+						  HttpQueryState &q_state,
 						  bool			  continue_upload);
 		bool http_delete (HttpQueryState &q_state);
-		bool http_get	 (HttpQueryState &q_state,
-						  pMHD_Response  &response);
+		bool http_get	 (pMHD_Response  &response,
+						  HttpQueryState &q_state);
 
 #ifndef CATCH_TEST
 	private:

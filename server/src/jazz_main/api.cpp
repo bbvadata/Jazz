@@ -194,13 +194,13 @@ MHD_Result http_request_callback(void *cls,
 		if (*upload_data_size == 0)
 			goto create_response_answer_put_ok;
 
-		if (http_method != HTTP_PUT || API.parse(url, HTTP_PUT, q_state, false) != PARSE_OK) {
+		if (http_method != HTTP_PUT || !API.parse(q_state, (pChar) url, HTTP_PUT)) {
 			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
 
 			return MHD_NO;
 		}
 
-		if (API.http_put(q_state, upload_data, *upload_data_size, true))
+		if (API.http_put(upload_data, *upload_data_size, q_state, true))
 			goto continue_in_put_ok;
 
 		goto continue_in_put_notacceptable;
@@ -246,16 +246,18 @@ MHD_Result http_request_callback(void *cls,
 		{ // Tricky: Opens a scope to make "std::string allow" out of scope in the rest to support the goto logic.
 			std::string allow;
 			if (TenBitsAtAddress(url) != tenbit_double_slash) {
-				if (API.get_static(url, response, false) == GET_OK)
+				if (API.get_static(response, (pChar) url, false))
 					allow = "HEAD,GET,";
 
 				allow = allow + "OPTIONS";
 			} else {
-				if (API.parse(url, HTTP_GET, q_state, false) == PARSE_OK)
+				if (API.parse(q_state, (pChar) url, HTTP_GET))
 					allow = "HEAD,GET,";
-				if (API.parse(url, HTTP_PUT, q_state, false) == PARSE_OK)
+
+				if (API.parse(q_state, (pChar) url, HTTP_PUT))
 					allow = allow + "PUT,";
-				if (API.parse(url, HTTP_DELETE, q_state, false) == PARSE_OK)
+
+				if (API.parse(q_state, (pChar) url, HTTP_DELETE))
 					allow = allow + "DELETE,";
 
 				allow = allow + "OPTIONS";
@@ -273,26 +275,25 @@ MHD_Result http_request_callback(void *cls,
 	case HTTP_GET:
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 
-			if (API.get_static(url, response) == GET_OK)
+			if (API.get_static(response, (pChar) url))
 				goto answer_http_ok;
 
 			return API.return_error_message(connection, MHD_HTTP_NOT_FOUND);
-		} else {
-			if (API.parse(url, HTTP_GET, q_state) != PARSE_OK)
-				return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
-		}
+
+		} else if (!API.parse(q_state, (pChar) url, HTTP_GET))
+			return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
+
 		break;
 
 	default:
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 			return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
-		} else {
-			if (API.parse(url, http_method, q_state) != PARSE_OK) {
-				if (http_method == HTTP_PUT)
-					goto continue_in_put_badrequest;
+		else if (!API.parse(q_state, (pChar) url, http_method)) {
 
-				return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
-			}
+			if (http_method == HTTP_PUT)
+				goto continue_in_put_badrequest;
+
+			return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
 		}
 	}
 
@@ -302,7 +303,7 @@ MHD_Result http_request_callback(void *cls,
 
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.http_put(q_state, upload_data, *upload_data_size, false);
+		status = API.http_put(upload_data, *upload_data_size, q_state, false);
 
 		break;
 
@@ -313,7 +314,7 @@ MHD_Result http_request_callback(void *cls,
 
 	default:
 
-		status = API.http_get(q_state, response);
+		status = API.http_get(response, q_state);
 	}
 
 	// Step 6 : The core finished, just distribute the answer as appropriate.
@@ -476,7 +477,7 @@ StatusCode Api::start () {
 	std::string statics_path;
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
-		int ret = load_statics(statics_path.c_str());
+		int ret = load_statics((pChar) statics_path.c_str());
 		if (ret != SERVICE_NO_ERROR)
 			return ret;
 	}
@@ -542,7 +543,7 @@ StatusCode Api::parse (const char *url, int method, HttpQueryState &q_state, boo
 	\return			 Some error code or SERVICE_NO_ERROR if successful.
 
 */
-StatusCode Api::get_static (const char *url, pMHD_Response &response, bool execution) {
+bool Api::get_static (pMHD_Response &response, pChar p_url, bool execution) {
 
 //TODO: Implement Api::get_static()
 
@@ -591,7 +592,7 @@ the block is appended at the end on the existing block.
 callback, but it is not intended for any other context.
 
 */
-bool Api::http_put (HttpQueryState &q_state, const char *p_upload, size_t size, bool continue_upload) {
+bool Api::http_put (const char *p_upload, size_t size, HttpQueryState &q_state, bool continue_upload) {
 
 //TODO: Implement Api::http_put()
 
@@ -628,7 +629,7 @@ bool Api::http_delete (HttpQueryState &q_state) {
 for the callback, but it is not intended for any other context.
 
 */
-bool Api::http_get (HttpQueryState &q_state, pMHD_Response &response) {
+bool Api::http_get (pMHD_Response &response, HttpQueryState &q_state) {
 
 //TODO: Implement Api::http_get()
 
