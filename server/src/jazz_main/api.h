@@ -92,6 +92,7 @@ using namespace jazz_agency;
 #define APPLY_TEXT						 8		///< {///node}//base/entity/key.text (Serialize raw to text.)
 #define APPLY_ASSIGN					 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
 #define APPLY_ASSIGN_CONST				10		///< {///node}//base/entity/key=# any_url_encoded_const ; (Assign const to block.)
+#define APPLY_JAZZ_INFO					11		///< /// Show the server info.
 
 
 /** \brief A buffer to keep the state while parsing/executing a query
