@@ -60,8 +60,6 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 		REQUIRE(TT_API.p_persisted	== &PERSISTED);
 		REQUIRE(TT_API.p_bebop		== &BOP);
 		REQUIRE(TT_API.p_agency		== &EPI);
-
-		REQUIRE(TT_API.base.size() == 0);
 	}
 
 	REQUIRE(CHANNELS.start()  == 0);
@@ -74,17 +72,16 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 	REQUIRE(TT_API.start() == 0);
 
 	GIVEN("The instances are started") {
-		REQUIRE(TT_API.base["bash"] == &CHANNELS);
-		REQUIRE(TT_API.base["file"] == &CHANNELS);
-		REQUIRE(TT_API.base["http"] == &CHANNELS);
-		REQUIRE(TT_API.base["tcp"]  == &CHANNELS);
-
-		REQUIRE(TT_API.base["deque"] == &VOLATILE);
-		REQUIRE(TT_API.base["index"] == &VOLATILE);
-		REQUIRE(TT_API.base["queue"] == &VOLATILE);
-		REQUIRE(TT_API.base["tree"]	 == &VOLATILE);
-
-		REQUIRE(TT_API.base["lmdb"] == &PERSISTED);
+		REQUIRE(base_server[TenBitsAtAddress("bash")]  == &CHANNELS);
+		REQUIRE(base_server[TenBitsAtAddress("file")]  == &CHANNELS);
+		REQUIRE(base_server[TenBitsAtAddress("http")]  == &CHANNELS);
+		REQUIRE(base_server[TenBitsAtAddress("tcp")]   == &CHANNELS);
+		REQUIRE(base_server[TenBitsAtAddress("deque")] == &VOLATILE);
+		REQUIRE(base_server[TenBitsAtAddress("index")] == &VOLATILE);
+		REQUIRE(base_server[TenBitsAtAddress("queue")] == &VOLATILE);
+		REQUIRE(base_server[TenBitsAtAddress("tree")]  == &VOLATILE);
+		REQUIRE(base_server[TenBitsAtAddress("lmdb")]  == &PERSISTED);
+		REQUIRE(base_server[TenBitsAtAddress("zqt")]   == nullptr);
 	}
 
 	REQUIRE(TT_API.shut_down() == 0);
