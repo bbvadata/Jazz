@@ -32,6 +32,9 @@
 */
 
 
+#include <sys/utsname.h>
+
+
 #include "src/jazz_main/api.h"
 
 
@@ -825,7 +828,38 @@ for the callback, but it is not intended for any other context.
 */
 MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) {
 
-//TODO: Implement Api::http_get()
+	char answer[2048];
+
+	if (q_state.state == PSTATE_COMPLETE_OK && q_state.apply == APPLY_JAZZ_INFO) {
+#ifdef DEBUG
+		std::string st ("DEBUG");
+#else
+		std::string st ("RELEASE");
+#endif
+
+		struct utsname unn;
+		uname(&unn);
+
+		int my_idx	 = p_channels->jazz_node_my_index;
+		int my_port	 = p_channels->jazz_node_port[my_idx];
+		int nn_nodes = p_channels->jazz_node_name.size();
+
+		std::string my_name = p_channels->jazz_node_name[my_idx];
+		std::string my_ip	= p_channels->jazz_node_ip[my_idx];
+
+		sprintf(answer, "Jazz\n\n version : %s\n build   : %s\n artifact: %s\n jazznode: %s (%s:%d) (%d of %d)\n "
+				"sysname : %s\n hostname: %s\n kernel\x20 : %s\n sysvers : %s\n machine : %s",
+				JAZZ_VERSION, st.c_str(), LINUX_PLATFORM, my_name.c_str(), my_ip.c_str(), my_port, my_idx, nn_nodes,
+				unn.sysname, unn.nodename, unn.release, unn.version, unn.machine);
+
+		log(LOG_DEBUG, answer);
+
+		response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
+
+		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
+
+		return MHD_HTTP_OK;
+	}
 
 	return MHD_HTTP_NOT_FOUND;
 }
