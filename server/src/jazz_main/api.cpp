@@ -740,9 +740,25 @@ MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_i
 */
 MHD_Result Api::return_error_message (pMHD_Connection connection, pChar p_url, int http_status) {
 
-	char answer[128];
+	char answer[2048];
 
-	sprintf(answer, "<html><body><h1><br/><br/>Http error : %d.</h1></body></html>", http_status);
+	sprintf(answer,
+			"<html><head><style type=\"text/css\">"
+			"*{transition: all 0.6s;}"
+			"html {height: 100%%;}"
+			"body{font-family: 'Lato', sans-serif; color: #081040; margin: 0;}"
+			"#main{display: table; width: 100%%; height: 100vh; text-align: center;}"
+			".fof{display: table-cell;}"
+			".fof h1{font-size: 50px; display: inline-block; padding-right: 12px; animation: type .5s alternate infinite;}"
+			"@keyframes type{from{box-shadow: inset -4px 0px 0px #102080;}to{box-shadow: inset -4px 0px 0px transparent;}}"
+			"</style></head><body>"
+			"<div style=\"background-color:#fffcf8;padding: 12px 30px 6px 30px;\"><h2>Http error on : %.140s</h2></div>"
+			"<hr/>"
+			"<div id=\"main\" style=\"background-color:#f0f8ff;\"><div class=\"fof\"><br/><br/><h1>Error %d</h1>"
+			"<hr style=\"height:2px; width:35%%; border-width:0; color:red; background-color:red\">"
+			"</div></div></body></html>",
+			p_url,
+			http_status);
 
 	struct MHD_Response *response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
 
