@@ -704,14 +704,14 @@ bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
 
 /** Check a non-API url into and return the static object related with it.
 
-	\param response	 A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
-	\param p_url	 The http url (that has already been checked not to start with //)
-	\param execution If true (default), locks the nested blocks and creates constants as blocks in the R_Value. Ready for execution.
+	\param response	A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+	\param p_url	The http url (that has already been checked not to start with //)
+	\param get_it	If true (default), it actually gets it as a response, otherwise it just check if it exists.
 
-	\return			 Some error code or SERVICE_NO_ERROR if successful.
+	\return			Some error code or SERVICE_NO_ERROR if successful.
 
 */
-bool Api::get_static (pMHD_Response &response, pChar p_url, bool execution) {
+MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_it) {
 
 //TODO: Implement Api::get_static()
 
