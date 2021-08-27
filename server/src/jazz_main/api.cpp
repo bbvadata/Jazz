@@ -419,7 +419,8 @@ Api::Api(pLogger	 a_logger,
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 
-	for (int i = 0; i < 1024; i++) http_methods[i] = HTTP_NOTUSED;
+	for (int i = 0; i < 1024; i++)
+		http_methods[i] = HTTP_NOTUSED;
 
 	http_methods[TenBitsAtAddress("OPTIONS")] = HTTP_OPTIONS;
 	http_methods[TenBitsAtAddress("HEAD")]	  = HTTP_HEAD;
@@ -463,6 +464,7 @@ StatusCode Api::start () {
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
 		int ret = load_statics((pChar) statics_path.c_str());
+
 		if (ret != SERVICE_NO_ERROR)
 			return ret;
 	}
