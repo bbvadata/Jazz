@@ -442,7 +442,6 @@ Api::Api(pLogger	 a_logger,
 	p_bebop		= a_bebop;
 	p_agency	= a_agency;
 
-	base = {};
 	www	 = {};
 }
 
@@ -458,13 +457,27 @@ Besides that, this function initializes global (and object) variables used by th
 */
 StatusCode Api::start () {
 
-	base.clear();
+	BaseNames base = {};
 
 	p_channels->base_names(base);
 	p_volatile->base_names(base);
 	p_persisted->base_names(base);
 	p_bebop->base_names(base);
 	p_agency->base_names(base);
+
+	for (int i = 0; i < 1024; i++)
+		base_server[i] = nullptr;
+
+	for (BaseNames::iterator it = base.begin(); it != base.end(); ++it) {
+		int tt = TenBitsAtAddress(it->first.c_str());
+
+		if (base_server[tt] != nullptr) {
+			log_printf(LOG_ERROR, "Api::start(): Base name conflict with \"%s\"", it->first.c_str());
+
+			return SERVICE_ERROR_STARTING;
+		}
+		base_server[tt] = it->second;
+	}
 
 	std::string statics_path;
 
