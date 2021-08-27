@@ -162,14 +162,8 @@ TenBitsLUT http_methods;				///< A LUT to convert argument const char *method in
 
 	The internal operation of the callback function is subject to change and the remarks in the source code are the description of it.
 */
-MHD_Result http_request_callback(void *cls,
-								 struct MHD_Connection *connection,
-								 const char *url,
-								 const char *method,
-								 const char *version,
-								 const char *upload_data,
-								 size_t *upload_data_size,
-								 void **con_cls) {
+MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, const char *url, const char *method,
+								 const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls) {
 
 	// Step 1: First opportunity to end the connection before uploading or getting. Not used. We initialize con_cls for the next call.
 
@@ -198,7 +192,7 @@ MHD_Result http_request_callback(void *cls,
 			return MHD_NO;
 		}
 
-		if (API.http_put(upload_data, *upload_data_size, q_state, true))
+		if (API.http_put((pChar) upload_data, *upload_data_size, q_state, true) == MHD_HTTP_OK)
 			goto continue_in_put_ok;
 
 		goto continue_in_put_notacceptable;
@@ -236,16 +230,18 @@ MHD_Result http_request_callback(void *cls,
 	LOGGER.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
 #endif
 
+	MHD_StatusCode status;
+
 	switch (http_method) {
 	case HTTP_NOTUSED:
-		return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
+		return API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
 
 	case HTTP_OPTIONS: {	// Shield variable "allow" initialization to support the goto logic.
 
 			std::string allow;
 
 			if (TenBitsAtAddress(url) != tenbit_double_slash) {
-				if (API.get_static(response, (pChar) url, false))
+				if (API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)
 					allow = "HEAD,GET,";
 
 				allow = allow + "OPTIONS";
@@ -268,42 +264,42 @@ MHD_Result http_request_callback(void *cls,
 			MHD_add_response_header (response, MHD_HTTP_HEADER_ALLOW, allow.c_str());
 		}
 
-		goto answer_no_content;
+		status = MHD_HTTP_NO_CONTENT;
+
+		goto answer_status;
 
 	case HTTP_HEAD:
 	case HTTP_GET:
 		if (TenBitsAtAddress(url) != tenbit_double_slash) {
 
-			if (API.get_static(response, (pChar) url))
-				goto answer_http_ok;
+			if ((status = API.get_static(response, (pChar) url)) != MHD_HTTP_OK)
+				return API.return_error_message(connection, (pChar) url, status);
 
-			return API.return_error_message(connection, MHD_HTTP_NOT_FOUND);
+			goto answer_status;
 
 		} else if (!API.parse(q_state, (pChar) url, HTTP_GET))
-			return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
+			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 
 		break;
 
 	default:
 		if (TenBitsAtAddress(url) != tenbit_double_slash)
-			return API.return_error_message(connection, MHD_HTTP_METHOD_NOT_ALLOWED);
+			return API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
 
 		else if (!API.parse(q_state, (pChar) url, http_method)) {
 
 			if (http_method == HTTP_PUT)
 				goto continue_in_put_badrequest;
 
-			return API.return_error_message(connection, MHD_HTTP_BAD_REQUEST);
+			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 		}
 	}
 
 	// Step 5 : This is the core. This point is only reached by correct API queries for the first (or only) time.
 
-	bool status;
-
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.http_put(upload_data, *upload_data_size, q_state, false);
+		status = API.http_put((pChar) upload_data, *upload_data_size, q_state, false);
 
 		break;
 
@@ -320,7 +316,7 @@ MHD_Result http_request_callback(void *cls,
 	// Step 6 : The core finished, just distribute the answer as appropriate.
 
 	if (http_method == HTTP_PUT) {
-		if (status) {
+		if (status == MHD_HTTP_OK) {
 			if (*upload_data_size) goto continue_in_put_ok;
 			else				   goto create_response_answer_put_ok;
 		} else {
@@ -329,8 +325,8 @@ MHD_Result http_request_callback(void *cls,
 		}
 	}
 
-	if (status == MHD_HTTP_ANYERROR)
-		return API.return_error_message(connection, status);
+	if (status != MHD_HTTP_OK)
+		return API.return_error_message(connection, (pChar) url, status);
 
 	if (http_method == HTTP_DELETE)
 		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
@@ -344,18 +340,6 @@ answer_status:
 	MHD_destroy_response (response);
 
 	return ret;
-
-answer_http_ok:
-
-	status = MHD_HTTP_OK;
-
-	goto answer_status;
-
-answer_no_content:
-
-	status = MHD_HTTP_NO_CONTENT;
-
-	goto answer_status;
 
 create_response_answer_put_ok:
 
