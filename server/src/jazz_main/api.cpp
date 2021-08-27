@@ -791,7 +791,7 @@ MHD_StatusCode Api::http_put (pChar p_upload, size_t size, HttpQueryState &q_sta
 
 //TODO: Implement Api::http_put()
 
-	return false;
+	return MHD_HTTP_FORBIDDEN;
 }
 
 
