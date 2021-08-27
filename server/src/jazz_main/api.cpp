@@ -772,7 +772,6 @@ MHD_Result Api::return_error_message (pMHD_Connection connection, pChar p_url, i
 
 /**	 Execute a put block using some one-shot block as an intermediate buffer.
 
-	\param q_state			The structure containing the parts of the url successfully parsed.
 	\param p_upload			A pointer to the data uploaded with the http PUT call.
 	\param size				The size of the data uploaded with the http PUT call.
 	\param q_state			The structure containing the parts of the url successfully parsed.
