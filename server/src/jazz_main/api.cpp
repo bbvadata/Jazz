@@ -41,6 +41,8 @@
 namespace jazz_main
 {
 
+#define SIZE_OF_BASE_ENT_KEY			(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert HttpQueryState -> Locator
+
 /// Http methods
 
 #define HTTP_NOTUSED					 0		///< Rogue value to fill the LUTs
