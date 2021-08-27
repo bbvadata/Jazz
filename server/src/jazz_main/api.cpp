@@ -150,7 +150,8 @@ char response_put_ok[]			= "0";
 char response_put_fail[]		= "1";
 
 int tenbit_double_slash;				///< The binary ten bits of "//" double-slash to identify web source interface.
-TenBitsLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
+TenBitIntLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
+TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method int an integer code.
 
 
 /** Callback function for MHD. See: https://www.gnu.org/software/libmicrohttpd/tutorial.html
