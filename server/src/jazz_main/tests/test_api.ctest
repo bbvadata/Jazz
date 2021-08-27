@@ -659,7 +659,22 @@ SCENARIO("Testing api.parse") {
 }
 
 
-SCENARIO("Testing api sizes") {
+SCENARIO("Testing API struct sizes and positions") {
 
 	REQUIRE(sizeof(HttpQueryState) == 2048);
+
+	HttpQueryState q_state;
+	Locator loc;
+
+	strcpy(q_state.base,   "base");
+	strcpy(q_state.entity, "entity");
+	strcpy(q_state.key,	   "abcdefghij0123456789ABCDEFGHIJ-");
+
+	REQUIRE(strlen(q_state.key) == sizeof(q_state.key) - 1);
+
+	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+
+	REQUIRE(strcmp(loc.base,   "base") == 0);
+	REQUIRE(strcmp(loc.entity, "entity") == 0);
+	REQUIRE(strcmp(loc.key,	   "abcdefghij0123456789ABCDEFGHIJ-") == 0);
 }
