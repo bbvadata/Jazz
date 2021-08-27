@@ -775,6 +775,7 @@ MHD_Result Api::return_error_message (pMHD_Connection connection, pChar p_url, i
 	\param q_state			The structure containing the parts of the url successfully parsed.
 	\param p_upload			A pointer to the data uploaded with the http PUT call.
 	\param size				The size of the data uploaded with the http PUT call.
+	\param q_state			The structure containing the parts of the url successfully parsed.
 	\param continue_upload  If true, the upload is added at the end of the already existing block.
 
 	\return					true if successful, log(LOG_MISS, "further details") if not.
@@ -786,7 +787,7 @@ the block is appended at the end on the existing block.
 callback, but it is not intended for any other context.
 
 */
-bool Api::http_put (const char *p_upload, size_t size, HttpQueryState &q_state, bool continue_upload) {
+MHD_StatusCode Api::http_put (pChar p_upload, size_t size, HttpQueryState &q_state, bool continue_upload) {
 
 //TODO: Implement Api::http_put()
 
