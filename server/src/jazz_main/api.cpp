@@ -715,7 +715,16 @@ MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_i
 
 //TODO: Implement Api::get_static()
 
-	return false;
+	if (strlen(p_url) < 10) {
+		char answer[2048];
+
+		sprintf(answer, "<html><body><h2>Hello %s!</h2></body></html>", p_url);
+
+		response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
+
+		return MHD_HTTP_OK;
+	} else
+		return MHD_HTTP_NOT_FOUND;
 }
 
 
