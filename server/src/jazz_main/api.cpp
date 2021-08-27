@@ -828,7 +828,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 //TODO: Implement Api::http_get()
 
-	return false;
+	return MHD_HTTP_NOT_FOUND;
 }
 
 
