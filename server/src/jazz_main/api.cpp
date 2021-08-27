@@ -815,8 +815,8 @@ MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 
 /** Execute a get block using the instrumental API.
 
-	\param q_state The structure containing the parts of the url successfully parsed.
-	\param response	  A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+	\param response	A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+	\param q_state	The structure containing the parts of the url successfully parsed.
 
 	\return			  true if successful, log(LOG_MISS, "further details") for errors.
 
@@ -824,7 +824,7 @@ MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 for the callback, but it is not intended for any other context.
 
 */
-bool Api::http_get (pMHD_Response &response, HttpQueryState &q_state) {
+MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) {
 
 //TODO: Implement Api::http_get()
 
