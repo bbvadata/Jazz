@@ -805,11 +805,11 @@ MHD_StatusCode Api::http_put (pChar p_upload, size_t size, HttpQueryState &q_sta
 callback, but it is not intended for any other context.
 
 */
-bool Api::http_delete (HttpQueryState &q_state) {
+MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 
 //TODO: Implement Api::http_delete()
 
-	return false;
+	return MHD_HTTP_FORBIDDEN;
 }
 
 
