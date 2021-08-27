@@ -66,6 +66,21 @@ enum MHD_Result {MHD_NO = 0, MHD_YES = 1};
 typedef int MHD_Result;
 #endif
 
+
+/*! \brief A proper type for specifying http status codes
+
+Before libmicrohttpd (somewhere between > 0.9.66-1 and <= 0.9.72-2) changed MHD_Result to an enum, MHD_Result was (improperly) used
+to define HTTP responses. That ended-up badly on newer versions, since it was passed to a MHD_queue_response() and stopped working
+as it became an enum.
+
+This triggeresd the need, for clarity reasons only, to introduce a new type, MHD_StatusCode to refer to **HTTP responses**.
+
+See: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
+
+*/
+typedef unsigned int MHD_StatusCode;
+
+
 /*! \brief The http API, instancing and building the server.
 
 	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_agency
