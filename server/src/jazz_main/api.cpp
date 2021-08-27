@@ -824,9 +824,22 @@ callback, but it is not intended for any other context.
 */
 MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 
-//TODO: Implement Api::http_delete()
+	if (q_state.state != PSTATE_COMPLETE_OK)
+		return MHD_HTTP_BAD_REQUEST;
 
-	return MHD_HTTP_FORBIDDEN;
+	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+
+	if (p_container == nullptr)
+		return MHD_HTTP_SERVICE_UNAVAILABLE;
+
+	Locator loc;
+
+	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+
+	if (p_container->remove(loc) == SERVICE_NO_ERROR)
+		return MHD_HTTP_OK;
+
+	return MHD_HTTP_NOT_FOUND;
 }
 
 
