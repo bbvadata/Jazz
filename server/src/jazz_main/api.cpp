@@ -1364,6 +1364,22 @@ bool Api::parse_nested (Locator &r_value, pChar p_url) {
 	}
 }
 
+
+/** Creates a block from a constant read in the URL.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param p_const	The constant.
+
+	\return			'true' if successful.
+*/
+bool Api::block_from_const (pTransaction &p_txn, pChar p_const) {
+
+//TODO: Implement Api::block_from_const()
+
+	return false;
+}
+
 } // namespace jazz_main
 
 #if defined CATCH_TEST
