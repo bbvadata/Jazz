@@ -746,18 +746,33 @@ bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
 */
 MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_it) {
 
-//TODO: Implement Api::get_static()
+	IndexSS::iterator it = www.find(std::string(p_url));
 
-	if (strlen(p_url) < 10) {
-		char answer[2048];
-
-		sprintf(answer, "<html><body><h2>Hello %s!</h2></body></html>", p_url);
-
-		response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
-
-		return MHD_HTTP_OK;
-	} else
+	if (it == www.end())
 		return MHD_HTTP_NOT_FOUND;
+
+	Locator loc = {"lmdb", "www"};
+
+	strcpy(loc.key, it->second.c_str());
+
+	pTransaction p_txn;
+	if (p_persisted->get(p_txn, loc) != SERVICE_NO_ERROR)
+		return MHD_HTTP_BAD_GATEWAY;
+
+	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+
+	response = MHD_create_response_from_buffer (size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+
+	pChar p_att;
+	if ((p_att = p_txn->p_block->get_attribute(BLOCK_ATTRIB_MIMETYPE)) != nullptr)
+		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, p_att);
+
+	if ((p_att = p_txn->p_block->get_attribute(BLOCK_ATTRIB_LANGUAGE)) != nullptr)
+		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_LANGUAGE, p_att);
+
+	p_persisted->destroy(p_txn);
+
+	return MHD_HTTP_OK;
 }
 
 
