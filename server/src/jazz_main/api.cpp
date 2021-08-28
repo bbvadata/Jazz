@@ -1375,9 +1375,25 @@ bool Api::parse_nested (Locator &r_value, pChar p_url) {
 */
 bool Api::block_from_const (pTransaction &p_txn, pChar p_const) {
 
-//TODO: Implement Api::block_from_const()
+	int size = strlen(p_const) + 1;
+	int dim[MAX_TENSOR_RANK] = {size, 0, 0, 0, 0, 0};
 
-	return false;
+	pTransaction p_text;
+
+	if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
+		return false;
+
+	memcpy(&p_text->p_block->tensor, p_const, size);
+
+	if (new_block(p_txn, p_text->p_block, CELL_TYPE_UNDEFINED) !=  SERVICE_NO_ERROR) {
+		destroy(p_text);
+
+		return false;
+	}
+
+	destroy(p_text);
+
+	return true;
 }
 
 } // namespace jazz_main
