@@ -63,6 +63,22 @@ StatusCode Bebop::shut_down() {
 	return SERVICE_NO_ERROR;
 }
 
+
+/** Run a function on an argument.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+	\param function	The function to be called: entity == field, key == opcode.
+	\param args		A Tuple passed as an argument.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+*/
+StatusCode Bebop::call (pTransaction &p_txn, Locator function, pTuple args) {
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
