@@ -977,14 +977,32 @@ for the callback, but it is not intended for any other context.
 */
 MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) {
 
-	char answer[2048];
+	if (q_state.state != PSTATE_COMPLETE_OK)
+		return MHD_HTTP_BAD_REQUEST;
 
-	if (q_state.state == PSTATE_COMPLETE_OK && q_state.apply == APPLY_JAZZ_INFO) {
+	if (q_state.node[0] != 0) {
+		pTransaction p_txn;
+
+		int ret = p_channels->forward_get(p_txn, q_state.node, q_state.url, q_state.apply);
+
+		if (ret != MHD_HTTP_OK)
+			return ret;
+
+		int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+		response = MHD_create_response_from_buffer (size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+
+		p_channels->destroy(p_txn);
+
+		return MHD_HTTP_OK;
+	}
+
+	if (q_state.apply == APPLY_JAZZ_INFO) {
 #ifdef DEBUG
 		std::string st ("DEBUG");
 #else
 		std::string st ("RELEASE");
 #endif
+		char answer[2048];
 
 		struct utsname unn;
 		uname(&unn);
@@ -1010,7 +1028,178 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 		return MHD_HTTP_OK;
 	}
 
-	return MHD_HTTP_NOT_FOUND;
+	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+
+	if (p_container == nullptr)
+		return MHD_HTTP_SERVICE_UNAVAILABLE;
+
+	Locator loc;
+
+	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+
+	pTransaction p_txn, p_base, p_filter;
+
+	switch (q_state.apply) {
+	case APPLY_NAME:
+		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		if (new_block(p_txn, (pTuple) p_base->p_block, q_state.name) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container = this;
+
+		break;
+
+	case APPLY_URL:
+		if (p_container->get(p_txn, q_state.url) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		break;
+
+	case APPLY_FUNCTION:
+		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		if (p_bebop->call(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container = p_bebop;
+
+		break;
+
+	case APPLY_FUNCT_CONST:
+		if (!block_from_const(p_base, q_state.url))
+			return MHD_HTTP_BAD_REQUEST;
+
+		if (p_bebop->call(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container = p_bebop;
+
+		break;
+
+	case APPLY_FILTER:
+		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		if (p_container->get(p_filter, q_state.r_value) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_NOT_FOUND;
+		}
+
+		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+			p_container->destroy(p_filter);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container->destroy(p_filter);
+		p_container = this;
+
+		break;
+
+	case APPLY_FILT_CONST:
+		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		if (!block_from_const(p_filter, q_state.url)) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+
+		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+			p_container->destroy(p_filter);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container->destroy(p_filter);
+		p_container = this;
+
+		break;
+
+	case APPLY_RAW:
+		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		if (new_block(p_txn, p_base->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container = this;
+
+		break;
+
+	case APPLY_TEXT:
+		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		if (new_block(p_txn, p_base->p_block) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+		p_container = this;
+
+		break;
+
+	case APPLY_ASSIGN:
+		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_CREATED;
+
+	case APPLY_ASSIGN_CONST:
+		if (!block_from_const(p_txn, q_state.url))
+			return MHD_HTTP_BAD_REQUEST;
+
+		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
+			destroy(p_txn);
+
+			return MHD_HTTP_NOT_ACCEPTABLE;
+		}
+		destroy(p_txn);
+
+		return MHD_HTTP_CREATED;
+
+	case APPLY_NEW_ENTITY:
+		if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_CREATED;
+
+	default:
+		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+	}
+
+	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+	response = MHD_create_response_from_buffer (size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+
+	p_container->destroy(p_txn);
+
+	return MHD_HTTP_OK;
 }
 
 
