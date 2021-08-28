@@ -824,14 +824,61 @@ MHD_StatusCode Api::http_put (pChar p_upload, size_t size, HttpQueryState &q_sta
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
+	Locator loc;
+
+	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+
+	if (q_state.node[0] != 0) {
+		pTransaction p_full;
+
+		if (continue_upload) {
+			pTransaction p_prev;
+
+			if (p_channels->forward_get(p_prev, q_state.node, q_state.url, APPLY_NOTHING) != MHD_HTTP_OK)
+				return MHD_HTTP_BAD_GATEWAY;
+
+			if (p_prev->p_block->cell_type != CELL_TYPE_BYTE || p_prev->p_block->rank != 1) {
+				p_channels->destroy(p_prev);
+
+				return MHD_HTTP_BAD_GATEWAY;
+			}
+
+			int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+			int prev_size = p_prev->p_block->size;
+
+			dim[0] = prev_size + size;
+
+			if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
+				p_channels->destroy(p_prev);
+
+				return MHD_HTTP_INSUFFICIENT_STORAGE;
+			}
+			memcpy(&p_full->p_block->tensor.cell_byte[0], &p_prev->p_block->tensor.cell_byte[0], prev_size);
+			memcpy(&p_full->p_block->tensor.cell_byte[prev_size], p_upload, size);
+
+			p_channels->destroy(p_prev);
+		} else {
+			int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+
+			dim[0] = size;
+
+			if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
+				return MHD_HTTP_INSUFFICIENT_STORAGE;
+
+			memcpy(&p_full->p_block->tensor.cell_byte[0], p_upload, size);
+		}
+
+		int ret = p_channels->forward_put(q_state.node, q_state.url, p_full->p_block);
+
+		destroy(p_full);
+
+		return ret;
+	}
+
 	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
 	if (p_container == nullptr)
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-	Locator loc;
-
-	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 	pTransaction p_full;
 
