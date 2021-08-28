@@ -260,10 +260,16 @@ SCENARIO("Testing api.parse") {
 	GIVEN("We want to test parse()") {
 		HttpQueryState hqs;
 
+		hqs.node[0]	= 'a';
+		hqs.url[0]	= 'z';
+
 		REQUIRE(TT_API.parse(hqs, (pChar) "///", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_JAZZ_INFO);
+
+		REQUIRE(hqs.node[0]	== 0);
+		REQUIRE(hqs.url[0]	== 0);
 
 		REQUIRE(!TT_API.parse(hqs, (pChar) "///", HTTP_PUT));
 
