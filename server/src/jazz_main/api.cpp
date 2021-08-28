@@ -61,7 +61,7 @@ namespace jazz_main
 #define REX_NAME_ANY			"[a-zA-Z0-9\\-_~$]"
 #define REX_BASE_SWITCH			"[#]"
 #define REX_INFO_SWITCH			"[\\x00]"
-#define REX_ENT_SWITCH			"[\\x00\\]\\)]"
+#define REX_ENT_SWITCH			"[\\x00\\.\\]\\)]"
 #define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(\\]\\)]"
 
 #define MAX_NUM_PSTATES			14		///< Maximum number of non error states the parser can be in
@@ -618,6 +618,17 @@ bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
 		case PSTATE_ENT_SWITCH:
 			q_state.state  = PSTATE_COMPLETE_OK;
 			q_state.key[0] = 0;
+
+			if (cursor != '.')
+				return true;
+
+			if (method != HTTP_GET || strcmp("new", p_url) != 0) {
+				q_state.state = PSTATE_FAILED;
+
+				return false;
+			}
+
+			q_state.apply = APPLY_NEW_ENTITY;
 
 			return true;
 
