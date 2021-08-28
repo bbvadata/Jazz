@@ -157,10 +157,15 @@ class Channels : public Container {
 		virtual StatusCode remove	   (Locator			   &where);
 		virtual StatusCode copy		   (Locator			   &where,
 										Locator			   &what);
-
-		MHD_StatusCode	   forward	   (Name				node,
+		MHD_StatusCode	   forward_get (pTransaction	   &p_txn,
+										Name				node,
 										pChar				p_url,
-										int					method);
+										int					apply);
+		MHD_StatusCode	   forward_put (Name				node,
+										pChar				p_url,
+										pBlock				p_block);
+		MHD_StatusCode	   forward_del (Name				node,
+										pChar				p_url);
 
 		// Support for container names in the API .base_names()
 
