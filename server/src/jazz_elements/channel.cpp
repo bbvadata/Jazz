@@ -34,6 +34,7 @@
 
 #include <curl/curl.h>
 #include <zmq.h>
+#include <microhttpd.h>
 
 
 #include "src/jazz_elements/channel.h"
@@ -403,6 +404,54 @@ void Channels::base_names (BaseNames &base_names) {
 	base_names["file"]	= this;		// Returns arrays of bytes with attributes for files, IndexIS for folders.
 	base_names["http"]	= this;		// libCURL
 	base_names["tcp"]	= this;		// zeroMQ (client)
+}
+
+
+/** Forwards an HTTP_GET call to another node in the Jazz cluster.
+
+	\param p_txn  A pTransaction owned by Channels. It must be destroy()-ed after successful use.
+	\param node	  The name of the endpoint node. It must be found in the cluster config.
+	\param p_url  The unparsed url (server excluded) the remote Jazz server can serve.
+	\param apply  A code parsed by the API in range APPLY_NOTHING .. APPLY_NEW_ENTITY
+
+	\return		  MHD_HTTP_OK on success, or some valid http status error code.
+*/
+MHD_StatusCode Channels::forward_get (pTransaction &p_txn, Name node, pChar p_url, int apply) {
+
+//TODO: Implement this.
+
+	return MHD_HTTP_FORBIDDEN;
+}
+
+
+/** Forwards an HTTP_PUT call to another node in the Jazz cluster.
+
+	\param node		The name of the endpoint node. It must be found in the cluster config.
+	\param p_url	The unparsed url (server excluded) the remote Jazz server can serve.
+	\param p_block	A block to be put (owned by the caller).
+
+	\return			MHD_HTTP_CREATED on success, or some valid http status error code.
+*/
+MHD_StatusCode Channels::forward_put (Name node, pChar p_url, pBlock p_block) {
+
+//TODO: Implement this.
+
+	return MHD_HTTP_FORBIDDEN;
+}
+
+
+/** Forwards an HTTP_DELETE call to another node in the Jazz cluster.
+
+	\param node	  The name of the endpoint node. It must be found in the cluster config.
+	\param p_url  The unparsed url (server excluded) the remote Jazz server can serve.
+
+	\return		  MHD_HTTP_OK on success, or some valid http status error code.
+*/
+MHD_StatusCode Channels::forward_del (Name node, pChar p_url) {
+
+//TODO: Implement this.
+
+	return MHD_HTTP_FORBIDDEN;
 }
 
 } // namespace jazz_elements
