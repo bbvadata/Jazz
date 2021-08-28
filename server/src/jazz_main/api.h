@@ -167,12 +167,14 @@ class Api : public Container {
 	private:
 #endif
 
-		bool load_statics		(pChar	  path);
-		bool expand_url_encoded	(pChar	  p_buff,
-								 int	  buff_size,
-								 pChar	  p_url);
-		bool parse_nested		(Locator &r_value,
-								 pChar	  p_url);
+		bool load_statics		(pChar			path);
+		bool expand_url_encoded	(pChar			p_buff,
+								 int			buff_size,
+								 pChar			p_url);
+		bool parse_nested		(Locator	   &r_value,
+								 pChar			p_url);
+		bool block_from_const	(pTransaction  &p_txn,
+								 pChar			p_const);
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;
