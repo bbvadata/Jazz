@@ -945,6 +945,9 @@ MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
+	if (q_state.node[0] != 0)
+		return p_channels->forward_del(q_state.node, q_state.url);
+
 	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
 	if (p_container == nullptr)
