@@ -1118,6 +1118,24 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 		return MHD_HTTP_OK;
 
+	case APPLY_GET_ATTRIBUTE:
+		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		pChar p_att = p_txn->p_block->get_attribute(q_state.r_value.attribute);
+
+		if (p_att == nullptr) {
+			p_container->destroy(p_txn);
+
+			return MHD_HTTP_NOT_FOUND;
+		}
+		response = MHD_create_response_from_buffer (strlen(p_att), p_att, MHD_RESPMEM_MUST_COPY);
+
+		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
+
+		p_container->destroy(p_txn);
+
+		return MHD_HTTP_OK;
 	}
 
 	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy (or fail immediately).
