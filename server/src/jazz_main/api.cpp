@@ -1068,8 +1068,6 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 				JAZZ_VERSION, st.c_str(), LINUX_PLATFORM, my_name.c_str(), my_ip.c_str(), my_port, my_idx, nn_nodes,
 				unn.sysname, unn.nodename, unn.release, unn.version, unn.machine);
 
-		log(LOG_DEBUG, answer);
-
 		response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
 
 		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
