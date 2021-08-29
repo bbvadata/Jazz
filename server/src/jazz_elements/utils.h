@@ -112,6 +112,7 @@ without global variables.
 #define SERVICE_ERROR_BLOCK_NOT_FOUND	-16		///< get() failed (either on a key or an entity)
 #define SERVICE_ERROR_CREATE_FAILED		-17		///< new_entity() failed
 #define SERVICE_ERROR_PARSING_NAMES		-18		///< Error with format in Container.as_locator().
+#define SERVICE_ERROR_TOO_DEEP			-19		///< Error recursion limit reached.
 
 
 /** Default path to config file
