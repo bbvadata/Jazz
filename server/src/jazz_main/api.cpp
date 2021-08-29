@@ -1051,7 +1051,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 #else
 		std::string st ("RELEASE");
 #endif
-		char answer[2048];
+		char answer[1024];
 
 		struct utsname unn;
 		uname(&unn);
