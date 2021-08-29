@@ -1087,6 +1087,33 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 	pTransaction p_txn, p_base, p_filter;
 
 	switch (q_state.apply) {	// This does all cases that return immediately (creating a response only on success).
+	case APPLY_SET_ATTRIBUTE: {
+		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		AttributeMap atts;
+		p_base->p_block->get_attributes(&atts);
+
+		atts[q_state.r_value.attribute] = q_state.url;
+
+		if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
+			p_container->destroy(p_base);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
+		p_container->destroy(p_base);
+
+		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
+			destroy(p_txn);
+
+			return MHD_HTTP_NOT_ACCEPTABLE;
+		}
+		destroy(p_txn);
+
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK; }
+
 	case APPLY_ASSIGN:
 		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
