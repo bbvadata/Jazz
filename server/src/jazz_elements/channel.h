@@ -59,17 +59,17 @@ namespace jazz_elements
 
 /// HttpQueryState apply values (on state == PSTATE_COMPLETE_OK)
 
-#define APPLY_NOTHING					 0		///< Just an r_value with {///node}//base/entity or {///node}//base/entity/key
+#define APPLY_NOTHING					 0		///< Just an l_value with {///node}//base/entity or {///node}//base/entity/key
 #define APPLY_NAME						 1		///< //base/entity/key:name (Select an item form a Tuple by name)
-#define APPLY_URL						 2		///< {///node}//base# any_url_encoded_url ; (A call to http or file)
+#define APPLY_URL						 2		///< //base# any_url_encoded_url ; (A call to http or file)
 #define APPLY_FUNCTION					 3		///< {///node}//base/entity/key(//r_base/r_entity/r_key) (A function call on a block.)
-#define APPLY_FUNCT_CONST				 4		///< {///node}//base/entity/key(# any_url_encoded_const ;) (A function call on a const.)
+#define APPLY_FUNCT_CONST				 4		///< //base/entity/key(# any_url_encoded_const ;) (A function call on a const.)
 #define APPLY_FILTER					 5		///< {///node}//base/entity/key[//r_base/r_entity/r_key] (A filter on a block.)
-#define APPLY_FILT_CONST				 6		///< {///node}//base/entity/key[# any_url_encoded_const ;] (A filter on a const.)
+#define APPLY_FILT_CONST				 6		///< //base/entity/key[# any_url_encoded_const ;] (A filter on a const.)
 #define APPLY_RAW						 7		///< {///node}//base/entity/key.raw (Serialize text to raw.)
 #define APPLY_TEXT						 8		///< {///node}//base/entity/key.text (Serialize raw to text.)
 #define APPLY_ASSIGN					 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
-#define APPLY_ASSIGN_CONST				10		///< {///node}//base/entity/key=# any_url_encoded_const ; (Assign const to block.)
+#define APPLY_ASSIGN_CONST				10		///< //base/entity/key=# any_url_encoded_const ; (Assign const to block.)
 #define APPLY_JAZZ_INFO					11		///< /// Show the server info.
 #define APPLY_NEW_ENTITY				12		///< {///node}//base/entity.new (Create a new entity)
 
