@@ -1306,11 +1306,13 @@ It also assigns attributes:
 - BLOCK_ATTRIB_MIMETYPE guessed from the file extension (html, js, png, etc.)
 - BLOCK_ATTRIB_LANGUAGE == en-us
 
-	\param path	The path to the tree of webpage statics.
+	\param p_base_path		The path to the tree of webpage statics.
+	\param p_relative_path	The relative path that becomes the url with a file name added, starting with /.
+	\param rec_level		The level of recursion (from 0 to MAX_RECURSE_LEVEL_ON_STATICS)
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-bool Api::load_statics (pChar path) {
+StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_level) {
 
 //TODO: Implement Api::load_statics()
 
