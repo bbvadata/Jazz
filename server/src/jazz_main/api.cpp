@@ -1086,7 +1086,41 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 	pTransaction p_txn, p_base, p_filter;
 
-	switch (q_state.apply) {
+	switch (q_state.apply) {	// This does all cases that return immediately (creating a response only on success).
+	case APPLY_ASSIGN:
+		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
+	case APPLY_ASSIGN_CONST:
+		if (!block_from_const(p_txn, q_state.url))
+			return MHD_HTTP_BAD_REQUEST;
+
+		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
+			destroy(p_txn);
+
+			return MHD_HTTP_NOT_ACCEPTABLE;
+		}
+		destroy(p_txn);
+
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
+	case APPLY_NEW_ENTITY:
+		if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
+	}
+
+	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy (or fail immediately).
 	case APPLY_NAME:
 		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
@@ -1206,35 +1240,6 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 		p_container = this;
 
 		break;
-
-	case APPLY_ASSIGN:
-		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
-
-		return MHD_HTTP_CREATED;
-
-	case APPLY_ASSIGN_CONST:
-		if (!block_from_const(p_txn, q_state.url))
-			return MHD_HTTP_BAD_REQUEST;
-
-		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
-			destroy(p_txn);
-
-			return MHD_HTTP_NOT_ACCEPTABLE;
-		}
-		destroy(p_txn);
-
-		return MHD_HTTP_CREATED;
-
-	case APPLY_NEW_ENTITY:
-		if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
-
-		return MHD_HTTP_CREATED;
 
 	default:
 		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
