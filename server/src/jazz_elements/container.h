@@ -175,7 +175,10 @@ struct Locator {
 	char entity	[NAME_SIZE];		///< Another abstraction inside node.container.base, like the name of a table in a database.
 	char key	[NAME_SIZE];		///< A key identifying a block inside the entity.
 
-	pExtraLocator p_extra;			///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
+	union {
+		int			  attribute;	///< Used by Api to store the attribute
+		pExtraLocator p_extra;		///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
+	};
 };
 
 
