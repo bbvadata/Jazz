@@ -1015,10 +1015,10 @@ MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 
 /** Execute a get block using the instrumental API.
 
-	\param response	A valid (or error) MHD_Response pointer with the resource, status, mime, etc.
+	\param response	A valid (or error) MHD_Response pointer with the resource. It will only be used on success.
 	\param q_state	The structure containing the parts of the url successfully parsed.
 
-	\return			  true if successful, log(LOG_MISS, "further details") for errors.
+	\return			MHD_HTTP_OK if successful, or a valid http status error.
 
 	This function is **only** called after a successfull parse() of HTTP_GET and HTTP_HEAD queries. It is not private because it is called
 for the callback, but it is not intended for any other context.
