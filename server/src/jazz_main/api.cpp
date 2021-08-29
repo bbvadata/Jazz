@@ -1223,7 +1223,6 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 			return MHD_HTTP_NOT_FOUND;
 		}
-
 		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
 			p_container->destroy(p_base);
 			p_container->destroy(p_filter);
@@ -1245,7 +1244,6 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-
 		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
 			p_container->destroy(p_base);
 			p_container->destroy(p_filter);
