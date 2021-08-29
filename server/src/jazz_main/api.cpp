@@ -482,10 +482,13 @@ StatusCode Api::start () {
 	std::string statics_path;
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
-		int ret = load_statics((pChar) statics_path.c_str());
+		int ret = load_statics((pChar) statics_path.c_str(), (pChar) "/", 0);
 
-		if (ret != SERVICE_NO_ERROR)
+		if (ret != SERVICE_NO_ERROR) {
+			log_printf(LOG_ERROR, "Api::start(): load_statics() failed loading \"%s\"", statics_path.c_str());
+
 			return ret;
+		}
 	}
 
 	if (!get_conf_key("REMOVE_STATICS_ON_CLOSE", remove_statics))
