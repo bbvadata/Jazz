@@ -646,16 +646,50 @@ bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (strcmp("raw", p_url) == 0)
+				if (strcmp("raw", p_url) == 0) {
+					q_state.state = PSTATE_COMPLETE_OK;
 					q_state.apply = APPLY_RAW;
-				else if (strcmp("text", p_url) == 0)
+
+					return true;
+				}
+				if (strcmp("text", p_url) == 0) {
+					q_state.state = PSTATE_COMPLETE_OK;
 					q_state.apply = APPLY_TEXT;
-				else
+
+					return true;
+				}
+				if (strncmp(p_url, "attribute(", 10) != 0)
 					return false;
 
-				q_state.state = PSTATE_COMPLETE_OK;
+				p_url += 10;
 
-				return true;
+				int i_len;
+
+				if (sscanf(p_url, "%i%n", &q_state.r_value.attribute, &i_len) != 1)
+					return false;
+
+				p_url += i_len;
+
+				if (*(p_url++) != ')')
+					return false;
+
+				switch (*(p_url++)) {
+				case 0:
+					q_state.state = PSTATE_COMPLETE_OK;
+					q_state.apply = APPLY_GET_ATTRIBUTE;
+
+					return true;
+
+				case '=':
+					if (q_state.node[0] == 0 && *p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url)) {
+						q_state.state = PSTATE_COMPLETE_OK;
+						q_state.apply = APPLY_SET_ATTRIBUTE;
+
+						return true;
+					}
+				}
+
+				return false;
 
 			case ':':
 				if (method != HTTP_GET || strlen(p_url) >= NAME_SIZE)
