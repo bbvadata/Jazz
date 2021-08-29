@@ -717,6 +717,95 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/entity.new", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(123)", HTTP_GET));
+
+		REQUIRE(strcmp(hqs.node,   "node")	 == 0);
+		REQUIRE(strcmp(hqs.base,   "base")	 == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key")	 == 0);
+
+		REQUIRE(strcmp(hqs.url, "//base/entity/key.attribute(123)") == 0);
+
+		REQUIRE(hqs.r_value.attribute == 123);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_GET_ATTRIBUTE);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(123)", HTTP_PUT));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base2/entity/key44.attribute(-456)", HTTP_GET));
+
+		REQUIRE(hqs.node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "base2")	 == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key44")	 == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.r_value.attribute == -456);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_GET_ATTRIBUTE);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base2/entity/key44.attribute(-456)", HTTP_PUT));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=#en-us;", HTTP_GET));
+
+		REQUIRE(hqs.node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "base")	 == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key")	 == 0);
+		REQUIRE(strcmp(hqs.url,	   "en-us")	 == 0);
+
+		REQUIRE(hqs.r_value.attribute == 1234);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_SET_ATTRIBUTE);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=#en-us;", HTTP_PUT));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(what)=#en-us;", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base2/entity/key44.attribute(-456", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(1234)=#en-us;", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=en-us;", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234);", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=# en-us;", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=#%20en-us;", HTTP_GET));
+
+		REQUIRE(hqs.node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "base")	 == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key")	 == 0);
+		REQUIRE(strcmp(hqs.url,	   " en-us") == 0);
+
+		REQUIRE(hqs.r_value.attribute == 1234);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_SET_ATTRIBUTE);
 	}
 
 	REQUIRE(TT_API.shut_down() == 0);
