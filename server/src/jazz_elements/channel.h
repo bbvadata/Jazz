@@ -72,6 +72,8 @@ namespace jazz_elements
 #define APPLY_ASSIGN_CONST				10		///< //base/entity/key=# any_url_encoded_const ; (Assign const to block.)
 #define APPLY_JAZZ_INFO					11		///< /// Show the server info.
 #define APPLY_NEW_ENTITY				12		///< {///node}//base/entity.new (Create a new entity)
+#define APPLY_GET_ATTRIBUTE				13		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
+#define APPLY_SET_ATTRIBUTE				14		///< //base/entity/key.attribute(123)=# url_encoded ; (set attribute 123 with HTTP_GET)
 
 
 /** \brief ExtraLocator: A structure that replaces the entity/key in a Locator by a long URL or file name and some http quirks.
