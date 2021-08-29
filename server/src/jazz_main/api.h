@@ -167,7 +167,9 @@ class Api : public Container {
 	private:
 #endif
 
-		bool load_statics		(pChar			path);
+		StatusCode load_statics	(pChar			p_base_path,
+								 pChar			p_relative_path,
+								 int			rec_level);
 		bool expand_url_encoded	(pChar			p_buff,
 								 int			buff_size,
 								 pChar			p_url);
