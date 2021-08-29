@@ -627,6 +627,18 @@ void Persisted::base_names (BaseNames &base_names) {
 }
 
 
+/** \brief Check the internal std::map to see if a (dbi) database name exists.
+
+	\param dbi_name	The location of a Block inside LMDB.
+
+	\return	True if exists.
+*/
+bool Persisted::dbi_exists (Name dbi_name) {
+
+	return source_dbi.find(dbi_name) != source_dbi.end();
+}
+
+
 /** \brief Locates a block doing an mdb_get() leaving the transaction open.
 
 	\param what	 The location of a Block inside LMDB.

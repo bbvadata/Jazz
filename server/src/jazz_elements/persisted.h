@@ -136,6 +136,7 @@ class Persisted : public Container {
 		// Support for container names in the API .base_names()
 
 		void base_names (BaseNames &base_names);
+		bool dbi_exists (Name		dbi_name);
 
 #ifndef CATCH_TEST
 	private:
