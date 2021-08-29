@@ -1320,15 +1320,6 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 	if (rec_level > MAX_RECURSE_LEVEL_ON_STATICS)
 		return SERVICE_ERROR_TOO_DEEP;
 
-	if (rec_level == 0 && !p_persisted->dbi_exists((pChar) "www")) {
-		Locator loc = {"lmdb", "www", ""};
-		int ret;
-		if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
-			log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
-
-			return ret;
-		}
-	}
 	DIR *dir;
 	struct dirent *ent;
 
@@ -1339,6 +1330,17 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 	int		 file_num = 1;
 
 	if ((dir = opendir(root_dir)) != nullptr) {
+
+		if (rec_level == 0 && !p_persisted->dbi_exists((pChar) "www")) {
+			Locator loc = {"lmdb", "www", ""};
+			int ret;
+			if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
+				log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
+
+				return ret;
+			}
+		}
+
 		while ((ent = readdir (dir)) != nullptr) {
 			if (ent->d_type == DT_REG) {
 				char fn[1024];
