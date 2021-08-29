@@ -1314,9 +1314,124 @@ It also assigns attributes:
 */
 StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_level) {
 
-//TODO: Implement Api::load_statics()
+	if (rec_level > MAX_RECURSE_LEVEL_ON_STATICS)
+		return SERVICE_ERROR_TOO_DEEP;
 
-	return false;
+	if (rec_level == 0 && !p_persisted->dbi_exists((pChar) "www")) {
+		Locator loc = {"lmdb", "www", ""};
+		int ret;
+		if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
+			log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
+
+			return ret;
+		}
+	}
+	DIR *dir;
+	struct dirent *ent;
+
+	char root_dir[1024];
+	sprintf(root_dir, "%s%s", p_base_path, p_relative_path);
+
+	uint64_t dir_hash = MurmurHash64A(&root_dir, strlen(root_dir));
+	int		 file_num = 1;
+
+	if ((dir = opendir(root_dir)) != nullptr) {
+		while ((ent = readdir (dir)) != nullptr) {
+			if (ent->d_type == DT_REG) {
+				char fn[1024];
+				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
+
+				if (ret < 0 || ret >= 1024)
+					return SERVICE_ERROR_NO_MEM;
+
+				pTransaction p_base, p_txn;
+
+				ret = p_channels->get(p_base, (pChar) &fn);
+
+				if (ret != SERVICE_NO_ERROR)
+					return ret;
+
+				AttributeMap atts;
+				p_base->p_block->get_attributes(&atts);
+
+				sprintf(fn, "%s%s", p_relative_path, ent->d_name);
+
+				atts[BLOCK_ATTRIB_URL]		= fn;
+				atts[BLOCK_ATTRIB_LANGUAGE] = "en-us";
+
+				for (int i = 0; i < 1024; i++) {
+					if (fn[i] == 0)
+						break;
+
+					fn[i] = tolower(fn[i]);
+				}
+				pChar p_ext = strrchr(fn, '.');
+
+				char mime_type[40] = {"application/octet-stream"};
+
+				if (p_ext != nullptr) {
+					if (strcmp(p_ext, ".htm") == 0 || strcmp(p_ext, ".html") == 0)
+						strcpy(mime_type, "text/html");
+					else if (strcmp(p_ext, ".css") == 0)
+						strcpy(mime_type, "text/css");
+					else if (strcmp(p_ext, ".png") == 0)
+						strcpy(mime_type, "image/png");
+					else if (strcmp(p_ext, ".js") == 0)
+						strcpy(mime_type, "application/javascript");
+					else if (strcmp(p_ext, ".jpg") == 0 || strcmp(p_ext, ".jpeg") == 0)
+						strcpy(mime_type, "image/jpeg");
+					else if (strcmp(p_ext, ".gif") == 0)
+						strcpy(mime_type, "image/gif");
+					else if (strcmp(p_ext, ".ico") == 0)
+						strcpy(mime_type, "image/x-icon");
+					else if (strcmp(p_ext, ".md") == 0 || strcmp(p_ext, ".txt") == 0)
+						strcpy(mime_type, "text/plain; charset=utf-8");
+					else if (strcmp(p_ext, ".json") == 0)
+						strcpy(mime_type, "application/json");
+					else if (strcmp(p_ext, ".mp4") == 0)
+						strcpy(mime_type, "video/mp4");
+					else if (strcmp(p_ext, ".pdf") == 0)
+						strcpy(mime_type, "application/pdf");
+					else if (strcmp(p_ext, ".xml") == 0)
+						strcpy(mime_type, "application/xml");
+				}
+				atts[BLOCK_ATTRIB_MIMETYPE] = mime_type;
+
+				if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
+					p_channels->destroy(p_base);
+
+					return SERVICE_ERROR_NO_MEM;
+				}
+				p_channels->destroy(p_base);
+
+				Locator loc = {"lmdb", "www", ""};
+
+				sprintf(loc.key, "blk%lx_%d", dir_hash, file_num++);
+
+				ret = p_persisted->put(loc, p_txn->p_block);
+
+				destroy(p_txn);
+
+				if (ret != SERVICE_NO_ERROR)
+					return ret;
+
+			} else if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
+				char next_relative_path[1024];
+				int ret = snprintf(next_relative_path, 1024, "%s%s/", p_relative_path, ent->d_name);
+
+				if (ret < 0 || ret >= 1024)
+					return SERVICE_ERROR_NO_MEM;
+
+				ret = load_statics(p_base_path, (pChar) &next_relative_path, rec_level + 1);
+
+				if (ret != SERVICE_NO_ERROR)
+					return ret;
+			}
+		}
+  		closedir (dir);
+	}
+
+	return SERVICE_NO_ERROR;
 }
 
 

@@ -80,6 +80,9 @@ using namespace jazz_bebop;
 using namespace jazz_agency;
 
 
+#define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
+
+
 /** \brief A buffer to keep the state while parsing/executing a query
 */
 struct HttpQueryState {
