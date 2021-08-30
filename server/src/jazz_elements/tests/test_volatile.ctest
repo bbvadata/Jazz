@@ -38,16 +38,8 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-SCENARIO("Testing volatile") {
+SCENARIO("Testing Volatile struc sizes") {
 
-//TODO: Write tests for this!
-
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
+	REQUIRE(sizeof(VolatileTransaction) == 64);
 }
 
