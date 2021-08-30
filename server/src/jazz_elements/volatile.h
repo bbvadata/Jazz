@@ -54,6 +54,37 @@
 namespace jazz_elements
 {
 
+/** \brief A pointer to a Transaction-descendant wrapper over a Block for Volatile blocks.
+*/
+typedef struct VolatileTransaction *pVolatileTransaction;
+
+
+/** \brief VolatileTransaction: A Transaction-descendant wrapper over a Block for Volatile blocks.
+
+This structure supports all the types in Volatile (deque, queue, tree).
+*/
+struct VolatileTransaction: Transaction {
+	union {
+		pVolatileTransaction p_prev;
+		pVolatileTransaction p_parent;
+	};
+	pVolatileTransaction p_next;
+	union {
+		pVolatileTransaction p_child;
+		double priority;
+	};
+	union {
+		int	level;										///< Level in the AA tree (used for auto-balancing)
+		int num_wins;
+	};
+	union {
+		int	times_used;									///< Times the block has been reassigned in the queue
+		int num_visits;
+	};
+	uint64_t id_hash;
+};
+
+
 /** \brief Volatile: A Service to manage data objects in RAM.
 
 Node Method Reference
