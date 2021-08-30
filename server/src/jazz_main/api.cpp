@@ -1339,9 +1339,10 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 		struct dirent *ent;
 
 		int		 file_num = 1;
-		uint64_t dir_hash = MurmurHash64A(&root_dir, strlen(root_dir));		// cppcheck-suppress readdirCalled ; cppcheck is wrong!
-																			// readdir_r is deprecated and readdir() (3) is thread safe.
-		while ((ent = readdir (dir)) != nullptr) {
+		uint64_t dir_hash = MurmurHash64A(&root_dir, strlen(root_dir));
+
+		while ((ent = readdir (dir)) != nullptr) {	// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
+													// readdir() (3) is thread safe.
 			if (ent->d_type == DT_REG) {
 				char fn[1024];
 				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
