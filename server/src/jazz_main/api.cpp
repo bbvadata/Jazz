@@ -1332,6 +1332,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 			if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
 				log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
 
+		  		closedir (dir);
+
 				return ret;
 			}
 		}
@@ -1347,15 +1349,21 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				char fn[1024];
 				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
 
-				if (ret < 0 || ret >= 1024)
+				if (ret < 0 || ret >= 1024) {
+			  		closedir (dir);
+
 					return SERVICE_ERROR_NO_MEM;
+				}
 
 				pTransaction p_base, p_txn;
 
 				ret = p_channels->get(p_base, (pChar) &fn);
 
-				if (ret != SERVICE_NO_ERROR)
+				if (ret != SERVICE_NO_ERROR) {
+			  		closedir (dir);
+
 					return ret;
+				}
 
 				AttributeMap atts;
 				p_base->p_block->get_attributes(&atts);
@@ -1406,6 +1414,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
 					p_channels->destroy(p_base);
 
+			  		closedir (dir);
+
 					return SERVICE_ERROR_NO_MEM;
 				}
 				p_channels->destroy(p_base);
@@ -1418,20 +1428,28 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 
 				destroy(p_txn);
 
-				if (ret != SERVICE_NO_ERROR)
-					return ret;
+				if (ret != SERVICE_NO_ERROR) {
+			  		closedir (dir);
 
+					return ret;
+				}
 			} else if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
 				char next_relative_path[1024];
 				int ret = snprintf(next_relative_path, 1024, "%s%s/", p_relative_path, ent->d_name);
 
-				if (ret < 0 || ret >= 1024)
+				if (ret < 0 || ret >= 1024) {
+			  		closedir (dir);
+
 					return SERVICE_ERROR_NO_MEM;
+				}
 
 				ret = load_statics(p_base_path, (pChar) &next_relative_path, rec_level + 1);
 
-				if (ret != SERVICE_NO_ERROR)
+				if (ret != SERVICE_NO_ERROR) {
+			  		closedir (dir);
+
 					return ret;
+				}
 			}
 		}
   		closedir (dir);
