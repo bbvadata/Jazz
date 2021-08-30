@@ -1321,13 +1321,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 		return SERVICE_ERROR_TOO_DEEP;
 
 	DIR *dir;
-	struct dirent *ent;
-
 	char root_dir[1024];
 	sprintf(root_dir, "%s%s", p_base_path, p_relative_path);
-
-	uint64_t dir_hash = MurmurHash64A(&root_dir, strlen(root_dir));
-	int		 file_num = 1;
 
 	if ((dir = opendir(root_dir)) != nullptr) {
 
@@ -1341,6 +1336,11 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 			}
 		}
 
+		struct dirent *ent;
+
+		int		 file_num = 1;
+		uint64_t dir_hash = MurmurHash64A(&root_dir, strlen(root_dir));		// cppcheck-suppress readdirCalled ; cppcheck is wrong!
+																			// readdir_r is deprecated and readdir() (3) is thread safe.
 		while ((ent = readdir (dir)) != nullptr) {
 			if (ent->d_type == DT_REG) {
 				char fn[1024];
