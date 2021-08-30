@@ -1350,6 +1350,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
+					log(LOG_ERROR, "Api::load_statics(): File path/name too long.");
+
 			  		closedir (dir);
 
 					return SERVICE_ERROR_NO_MEM;
@@ -1360,6 +1362,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				ret = p_channels->get(p_base, (pChar) &fn);
 
 				if (ret != SERVICE_NO_ERROR) {
+					log(LOG_ERROR, "Api::load_statics(): p_channels->get() failed.");
+
 			  		closedir (dir);
 
 					return ret;
@@ -1412,6 +1416,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				atts[BLOCK_ATTRIB_MIMETYPE] = mime_type;
 
 				if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
+					log(LOG_ERROR, "Api::load_statics(): new_block() with attributes failed.");
+
 					p_channels->destroy(p_base);
 
 			  		closedir (dir);
@@ -1429,6 +1435,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				destroy(p_txn);
 
 				if (ret != SERVICE_NO_ERROR) {
+					log(LOG_ERROR, "Api::load_statics(): p_persisted->put() failed.");
+
 			  		closedir (dir);
 
 					return ret;
@@ -1438,6 +1446,8 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				int ret = snprintf(next_relative_path, 1024, "%s%s/", p_relative_path, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
+					log(LOG_ERROR, "Api::load_statics(): nested path too long.");
+
 			  		closedir (dir);
 
 					return SERVICE_ERROR_NO_MEM;
