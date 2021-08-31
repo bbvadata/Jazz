@@ -131,11 +131,11 @@ class Volatile : public Container {
 
 	public:
 
-		Volatile (pLogger	  a_logger,
-				  pConfigFile a_config);
+		Volatile(pLogger	 a_logger,
+				 pConfigFile a_config);
 
-		StatusCode start	 ();
-		StatusCode shut_down ();
+		StatusCode start	();
+		StatusCode shut_down();
 
 		// The easy interface (Requires explicit pulling because of the native interface using the same names.)
 
@@ -148,25 +148,25 @@ class Volatile : public Container {
 
 		// The "native" interface
 
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &what);
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &what,
-										pBlock				p_row_filter);
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-							  			Locator			   &what,
-							  			pChar				name);
-		virtual StatusCode header	   (StaticBlockHeader  &hea,
-										Locator			   &what);
-		virtual StatusCode header	   (pTransaction	   &p_txn,
-										Locator			   &what);
-		virtual StatusCode put		   (Locator			   &where,
-										pBlock				p_block,
-										int					mode = WRITE_ALWAYS_COMPLETE);
-		virtual StatusCode new_entity  (Locator			   &where);
-		virtual StatusCode remove	   (Locator			   &where);
-		virtual StatusCode copy		   (Locator			   &where,
-										Locator			   &what);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  Locator			&what);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  Locator			&what,
+									  pBlock			 p_row_filter);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+							  		  Locator			&what,
+							  		  pChar				 name);
+		virtual StatusCode header	 (StaticBlockHeader	&hea,
+									  Locator			&what);
+		virtual StatusCode header	 (pTransaction		&p_txn,
+									  Locator			&what);
+		virtual StatusCode put		 (Locator			&where,
+									  pBlock			 p_block,
+									  int				 mode = WRITE_ALWAYS_COMPLETE);
+		virtual StatusCode new_entity(Locator			&where);
+		virtual StatusCode remove	 (Locator			&where);
+		virtual StatusCode copy		 (Locator			&where,
+									  Locator			&what);
 
 		// Support for container names in the API .base_names()
 
