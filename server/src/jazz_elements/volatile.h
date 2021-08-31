@@ -146,6 +146,9 @@ class Volatile : public Container {
 		using Container::remove;
 		using Container::copy;
 
+		virtual StatusCode new_transaction(pTransaction &p_txn);
+		virtual void destroy_transaction  (pTransaction &p_txn);
+
 		// The "native" interface
 
 		virtual StatusCode get		 (pTransaction		&p_txn,
@@ -170,7 +173,19 @@ class Volatile : public Container {
 
 		// Support for container names in the API .base_names()
 
-		void base_names (BaseNames &base_names);
+		void base_names(BaseNames &base_names);
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+
+		StatusCode new_volatile();
+		StatusCode destroy_volatile();
+
+#ifndef CATCH_TEST
+	private:
+#endif
+
 };
 typedef Volatile *pVolatile;
 

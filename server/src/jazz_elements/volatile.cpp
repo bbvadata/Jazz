@@ -52,9 +52,29 @@ Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 */
 StatusCode Volatile::start() {
 
-//TODO: Implement Volatile::start()
+	if (!get_conf_key("VOLATILE_MAX_TRANSACTIONS", max_transactions)) {
+		log(LOG_ERROR, "Config key VOLATILE_MAX_TRANSACTIONS not found in Container::start");
 
-	return SERVICE_NO_ERROR;
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	int i = 0;
+
+	if (!get_conf_key("VOLATILE_WARN_BLOCK_KBYTES", i)) {
+		log(LOG_ERROR, "Config key VOLATILE_WARN_BLOCK_KBYTES not found in Container::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
+
+	if (!get_conf_key("VOLATILE_ERROR_BLOCK_KBYTES", i)) {
+		log(LOG_ERROR, "Config key VOLATILE_ERROR_BLOCK_KBYTES not found in Container::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+	fail_alloc_bytes = 1024; fail_alloc_bytes *= i;
+
+	return new_volatile();
 }
 
 
@@ -62,9 +82,58 @@ StatusCode Volatile::start() {
 */
 StatusCode Volatile::shut_down() {
 
-//TODO: Implement Volatile::shut_down()
+	return destroy_volatile();
+}
 
-	return SERVICE_NO_ERROR;
+
+/** Bla,
+
+//TODO: Document this!
+
+*/
+StatusCode Volatile::new_volatile() {
+
+//TODO: Implement this!
+
+	return 0;
+}
+
+
+/** Bla,
+
+//TODO: Document this!
+
+*/
+StatusCode Volatile::destroy_volatile() {
+
+//TODO: Implement this!
+
+	return 0;
+}
+
+
+/** Bla,
+
+//TODO: Document this!
+
+*/
+StatusCode Volatile::new_transaction(pTransaction &p_txn) {
+
+//TODO: Implement this!
+
+	return 0;
+}
+
+
+/** Bla,
+
+//TODO: Document this!
+
+*/
+void Volatile::destroy_transaction  (pTransaction &p_txn) {
+
+//TODO: Implement this!
+
 }
 
 
