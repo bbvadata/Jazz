@@ -807,7 +807,7 @@ MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it
 	if ((p_att = p_txn->p_block->get_attribute(BLOCK_ATTRIB_LANGUAGE)) != nullptr)
 		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_LANGUAGE, p_att);
 
-	p_persisted->destroy(p_txn);
+	p_persisted->destroy_transaction(p_txn);
 
 	return MHD_HTTP_OK;
 }
@@ -890,7 +890,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 				return MHD_HTTP_BAD_GATEWAY;
 
 			if (p_prev->p_block->cell_type != CELL_TYPE_BYTE || p_prev->p_block->rank != 1) {
-				p_channels->destroy(p_prev);
+				p_channels->destroy_transaction(p_prev);
 
 				return MHD_HTTP_BAD_GATEWAY;
 			}
@@ -901,14 +901,14 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 			dim[0] = prev_size + size;
 
 			if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
-				p_channels->destroy(p_prev);
+				p_channels->destroy_transaction(p_prev);
 
 				return MHD_HTTP_INSUFFICIENT_STORAGE;
 			}
 			memcpy(&p_full->p_block->tensor.cell_byte[0], &p_prev->p_block->tensor.cell_byte[0], prev_size);
 			memcpy(&p_full->p_block->tensor.cell_byte[prev_size], p_upload, size);
 
-			p_channels->destroy(p_prev);
+			p_channels->destroy_transaction(p_prev);
 		} else {
 			int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 
@@ -922,7 +922,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 		int ret = p_channels->forward_put(q_state.node, q_state.url, p_full->p_block);
 
-		destroy(p_full);
+		destroy_transaction(p_full);
 
 		return ret;
 	}
@@ -941,7 +941,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 			return MHD_HTTP_BAD_GATEWAY;
 
 		if (p_prev->p_block->cell_type != CELL_TYPE_BYTE || p_prev->p_block->rank != 1) {
-			p_container->destroy(p_prev);
+			p_container->destroy_transaction(p_prev);
 
 			return MHD_HTTP_BAD_GATEWAY;
 		}
@@ -952,14 +952,14 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		dim[0] = prev_size + size;
 
 		if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
-			p_container->destroy(p_prev);
+			p_container->destroy_transaction(p_prev);
 
 			return MHD_HTTP_INSUFFICIENT_STORAGE;
 		}
 		memcpy(&p_full->p_block->tensor.cell_byte[0], &p_prev->p_block->tensor.cell_byte[0], prev_size);
 		memcpy(&p_full->p_block->tensor.cell_byte[prev_size], p_upload, size);
 
-		p_container->destroy(p_prev);
+		p_container->destroy_transaction(p_prev);
 	} else {
 		int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 
@@ -976,7 +976,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 	if (p_container->put(loc, p_full->p_block) == SERVICE_NO_ERROR)
 		ret = MHD_HTTP_CREATED;
 
-	destroy(p_full);
+	destroy_transaction(p_full);
 
 	return ret;
 }
@@ -1043,7 +1043,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
 		response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 
-		p_channels->destroy(p_txn);
+		p_channels->destroy_transaction(p_txn);
 
 		return MHD_HTTP_OK;
 	}
@@ -1100,18 +1100,18 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		atts[q_state.r_value.attribute] = q_state.url;
 
 		if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
+		p_container->destroy_transaction(p_base);
 
 		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
-			destroy(p_txn);
+			destroy_transaction(p_txn);
 
 			return MHD_HTTP_NOT_ACCEPTABLE;
 		}
-		destroy(p_txn);
+		destroy_transaction(p_txn);
 
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
@@ -1130,11 +1130,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_BAD_REQUEST;
 
 		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
-			destroy(p_txn);
+			destroy_transaction(p_txn);
 
 			return MHD_HTTP_NOT_ACCEPTABLE;
 		}
-		destroy(p_txn);
+		destroy_transaction(p_txn);
 
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
@@ -1155,7 +1155,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		pChar p_att = p_txn->p_block->get_attribute(q_state.r_value.attribute);
 
 		if (p_att == nullptr) {
-			p_container->destroy(p_txn);
+			p_container->destroy_transaction(p_txn);
 
 			return MHD_HTTP_NOT_FOUND;
 		}
@@ -1163,22 +1163,22 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
-		p_container->destroy(p_txn);
+		p_container->destroy_transaction(p_txn);
 
 		return MHD_HTTP_OK;
 	}
 
-	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy (or fail immediately).
+	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy_transaction (or fail).
 	case APPLY_NAME:
 		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
 		if (new_block(p_txn, (pTuple) p_base->p_block, q_state.name) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
+		p_container->destroy_transaction(p_base);
 		p_container = this;
 
 		break;
@@ -1194,11 +1194,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_NOT_FOUND;
 
 		if (p_bebop->call(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
+		p_container->destroy_transaction(p_base);
 		p_container = p_bebop;
 
 		break;
@@ -1208,11 +1208,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_BAD_REQUEST;
 
 		if (p_bebop->call(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
+		p_container->destroy_transaction(p_base);
 		p_container = p_bebop;
 
 		break;
@@ -1222,18 +1222,18 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_NOT_FOUND;
 
 		if (p_container->get(p_filter, q_state.r_value) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_NOT_FOUND;
 		}
 		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
-			p_container->destroy(p_filter);
+			p_container->destroy_transaction(p_base);
+			p_container->destroy_transaction(p_filter);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
-		p_container->destroy(p_filter);
+		p_container->destroy_transaction(p_base);
+		p_container->destroy_transaction(p_filter);
 		p_container = this;
 
 		break;
@@ -1243,18 +1243,18 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_NOT_FOUND;
 
 		if (!block_from_const(p_filter, q_state.url)) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
 		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
-			p_container->destroy(p_filter);
+			p_container->destroy_transaction(p_base);
+			p_container->destroy_transaction(p_filter);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
-		p_container->destroy(p_filter);
+		p_container->destroy_transaction(p_base);
+		p_container->destroy_transaction(p_filter);
 		p_container = this;
 
 		break;
@@ -1264,11 +1264,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_NOT_FOUND;
 
 		if (new_block(p_txn, p_base->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
+		p_container->destroy_transaction(p_base);
 		p_container = this;
 
 		break;
@@ -1278,11 +1278,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			return MHD_HTTP_NOT_FOUND;
 
 		if (new_block(p_txn, p_base->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy(p_base);
+			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
-		p_container->destroy(p_base);
+		p_container->destroy_transaction(p_base);
 		p_container = this;
 
 		break;
@@ -1295,7 +1295,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
 	response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 
-	p_container->destroy(p_txn);
+	p_container->destroy_transaction(p_txn);
 
 	return MHD_HTTP_OK;
 }
@@ -1418,13 +1418,13 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
 					log(LOG_ERROR, "Api::load_statics(): new_block() with attributes failed.");
 
-					p_channels->destroy(p_base);
+					p_channels->destroy_transaction(p_base);
 
 			  		closedir(dir);
 
 					return SERVICE_ERROR_NO_MEM;
 				}
-				p_channels->destroy(p_base);
+				p_channels->destroy_transaction(p_base);
 
 				Locator loc = {"lmdb", "www", ""};
 
@@ -1432,7 +1432,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 
 				ret = p_persisted->put(loc, p_txn->p_block);
 
-				destroy(p_txn);
+				destroy_transaction(p_txn);
 
 				if (ret != SERVICE_NO_ERROR) {
 					log(LOG_ERROR, "Api::load_statics(): p_persisted->put() failed.");
@@ -1614,7 +1614,7 @@ bool Api::parse_nested(Locator &r_value, pChar p_url) {
 /** Creates a block from a constant read in the URL.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+					Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction() it when done.
 	\param p_const	The constant.
 
 	\return			'true' if successful.
@@ -1632,12 +1632,12 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const) {
 	memcpy(&p_text->p_block->tensor, p_const, size);
 
 	if (new_block(p_txn, p_text->p_block, CELL_TYPE_UNDEFINED) !=  SERVICE_NO_ERROR) {
-		destroy(p_text);
+		destroy_transaction(p_text);
 
 		return false;
 	}
 
-	destroy(p_text);
+	destroy_transaction(p_text);
 
 	return true;
 }

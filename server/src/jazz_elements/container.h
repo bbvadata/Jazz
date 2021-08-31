@@ -200,7 +200,7 @@ Channels does all the block transactions across media (files, folders, shell, ur
 Container provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
-- Allocation: .new_block(), .destroy()
+- Allocation: .new_block(), .destroy_transaction()
 - Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
@@ -215,7 +215,7 @@ One-shot Block allocation
 This is the only container providing one-shot Block allocation. This does not mean, unlike in previous versions, the caller owns the
 pointer. One-shot Block allocation is intended for computing intermediate blocks like: blocks generated from constants, from slicing,
 returned by functions, etc. In these blocks, the locator is meaningless, the caller will create it by new_block(), use it and call
-destroy() when done.
+destroy_transaction() when done.
 
 Instances and inheritance
 -------------------------
@@ -230,7 +230,7 @@ Container descendants
 ---------------------
 
 Note that Continers own their Transactions and may allocate p_route blocks including all kinds of things like session cookies or
-credentials for libcurl calls. Any container will reroute a destroy() call to its owner.
+credentials for libcurl calls. Any container will reroute a destroy_transaction() call to its owner.
 
 Scope of jazz_elements
 ----------------------
@@ -243,8 +243,8 @@ new_block()
 -----------
 
 **NOTE** that new_block() has 7 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
-sharing a pointer to an existing one). Therefore, the container allocates and owns it an requires a destroy() call when no longer needed.
-The forms cover all the supported ways to do basic operations like filtering and serializing.
+sharing a pointer to an existing one). Therefore, the container allocates and owns it an requires a destroy_transaction() call when no
+longer needed. The forms cover all the supported ways to do basic operations like filtering and serializing.
 
    -# new_block(): Create a Tensor from raw data specifying everything from scratch.
    -# new_block(): Create a Kind or Tuple from arrays of StaticBlockHeader, names, and, in the case of a tuple, Tensors.
@@ -252,7 +252,7 @@ The forms cover all the supported ways to do basic operations like filtering and
    -# new_block(): Create a Tensor by selecting an item from a Tuple.
    -# new_block(): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
    -# new_block(): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
-   -# new_block(): Create an empty Index block. It is dynamically allocated, it contains an std:map, and destroy()-ed just like the others.
+   -# new_block(): Create an empty Index block. It is dynamically allocated, an std:map, and is destroy_transaction()-ed like the others.
 
 */
 class Container : public Service {
@@ -275,7 +275,7 @@ class Container : public Service {
 		void leave_read	(pTransaction p_txn);
 		void leave_write(pTransaction p_txn);
 
-		// - Allocation: .new_block(), .destroy()
+		// - Allocation: .new_block(), .destroy_transaction()
 
 		// 1. new_block(): Create a Tensor from raw data specifying everything from scratch.
 		StatusCode new_block   (pTransaction	   &p_txn,
@@ -326,7 +326,10 @@ class Container : public Service {
 		StatusCode new_block   (pTransaction	   &p_txn,
 								int					cell_type);
 
-		void destroy		   (pTransaction	   &p_txn);
+		// Support for transactions creation/destruction
+
+		virtual StatusCode new_transaction(pTransaction &p_txn);
+		virtual void destroy_transaction  (pTransaction &p_txn);
 
 		// Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
 
@@ -398,7 +401,7 @@ class Container : public Service {
 			return ret;
 		}
 
-		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed to be valid by destroy().
+		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed valid by destroy_transaction().
 		*/
 		inline pBlock block_malloc(size_t size) {
 			pBlock p_blk = (pBlock) malloc(size);
@@ -435,102 +438,6 @@ class Container : public Service {
 		*/
 		void unlock_container() {
 			_lock_ = 0;
-		}
-
-		/** \brief (UNSAFE) Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction API.
-
-			This (faster) method assumes the Container owns the Transaction and nobody else is using it. Use destroy() as a safer
-			alternative.
-		*/
-		inline void destroy_internal(pTransaction &p_txn) {
-			if (p_txn->p_block != nullptr) {
-				switch (p_txn->p_block->cell_type) {
-				case CELL_TYPE_INDEX_II:
-					p_txn->p_hea->index.index_ii.~map();
-					alloc_bytes -= sizeof(BlockHeader);
-
-					break;
-
-				case CELL_TYPE_INDEX_IS:
-					p_txn->p_hea->index.index_is.~map();
-					alloc_bytes -= sizeof(BlockHeader);
-
-					break;
-
-				case CELL_TYPE_INDEX_SI:
-					p_txn->p_hea->index.index_si.~map();
-					alloc_bytes -= sizeof(BlockHeader);
-
-					break;
-
-				case CELL_TYPE_INDEX_SS:
-					p_txn->p_hea->index.index_ss.~map();
-					alloc_bytes -= sizeof(BlockHeader);
-
-					break;
-
-				default:
-					alloc_bytes -= p_txn->p_block->total_bytes;
-				};
-				free(p_txn->p_block);
-
-				p_txn->p_block = nullptr;
-			}
-
-			lock_container();
-
-			if (pStoredTransaction(p_txn)->p_prev == nullptr)
-				p_alloc = pStoredTransaction(p_txn)->p_next;
-			else
-				pStoredTransaction(p_txn)->p_prev->p_next = pStoredTransaction(p_txn)->p_next;
-
-			if (pStoredTransaction(p_txn)->p_next != nullptr)
-				pStoredTransaction(p_txn)->p_next->p_prev = pStoredTransaction(p_txn)->p_prev;
-
-			pStoredTransaction(p_txn)->p_next = p_free;
-
-			p_free = pStoredTransaction(p_txn);
-			p_txn  = nullptr;
-
-			unlock_container();
-		}
-
-		/** Allocate a Transaction to share a block via the API.
-		*/
-		inline StatusCode new_transaction(pTransaction &p_txn) {
-			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
-				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
-						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
-				alloc_warning_issued = true;
-			}
-
-			lock_container();
-
-			if (p_free == nullptr) {
-				unlock_container();
-				p_txn = nullptr;
-				return SERVICE_ERROR_NO_MEM;
-			}
-
-			p_txn  = p_free;
-			p_free = p_free->p_next;
-
-			p_txn->p_block = nullptr;
-			p_txn->status  = BLOCK_STATUS_EMPTY;
-			p_txn->_lock_  = 0;
-			p_txn->p_owner = this;
-
-			pStoredTransaction(p_txn)->p_next = p_alloc;
-			pStoredTransaction(p_txn)->p_prev = nullptr;
-
-			if (p_alloc != nullptr)
-				p_alloc->p_prev = pStoredTransaction(p_txn);
-
-			p_alloc = pStoredTransaction(p_txn);
-
-			unlock_container();
-
-			return SERVICE_NO_ERROR;
 		}
 
 		/** Returns the binary value of a hex char assuming it is in range.

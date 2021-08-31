@@ -246,7 +246,7 @@ StatusCode Channels::as_locator(Locator &result, pChar p_what) {
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
-be destroy()-ed when the caller is done.
+be destroy_transaction()-ed when the caller is done.
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
 */
@@ -409,7 +409,7 @@ void Channels::base_names(BaseNames &base_names) {
 
 /** Forwards an HTTP_GET call to another node in the Jazz cluster.
 
-	\param p_txn  A pTransaction owned by Channels. It must be destroy()-ed after successful use.
+	\param p_txn  A pTransaction owned by Channels. It must be destroy_transaction()-ed after successful use.
 	\param node	  The name of the endpoint node. It must be found in the cluster config.
 	\param p_url  The unparsed url (server excluded) the remote Jazz server can serve.
 	\param apply  A code parsed by the API in range APPLY_NOTHING .. APPLY_NEW_ENTITY

@@ -532,7 +532,7 @@ SCENARIO("Testing threading functions") {
 }
 
 
-SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
+SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	pTransaction p_txn[20];
 
 	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
@@ -590,8 +590,8 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(p_txn[1] != nullptr);
 	REQUIRE(CNT.alloc_warning_issued);
 
-	CNT.destroy_internal(p_txn[1]);
-	CNT.destroy_internal(p_txn[0]);
+	CNT.destroy_transaction(p_txn[1]);
+	CNT.destroy_transaction(p_txn[0]);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -609,7 +609,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(p_txn[0]->p_block == nullptr);
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
-	CNT.destroy_internal(p_txn[0]);
+	CNT.destroy_transaction(p_txn[0]);
 	REQUIRE(p_txn[0] == nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
@@ -630,7 +630,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 			REQUIRE(CNT.p_free == nullptr);
 
 		for (int i = 0; i < t; i++) {
-			CNT.destroy_internal(p_txn[i]);
+			CNT.destroy_transaction(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
@@ -646,7 +646,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 			REQUIRE(CNT.p_free == nullptr);
 
 		for (int i = t - 1; i >= 0; i--) {
-			CNT.destroy_internal(p_txn[i]);
+			CNT.destroy_transaction(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
@@ -667,7 +667,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 			while (p_txn[j] == nullptr)
 				j = (j + 1) % t;
 
-			CNT.destroy_internal(p_txn[j]);
+			CNT.destroy_transaction(p_txn[j]);
 			REQUIRE(p_txn[j] == nullptr);
 		}
 		REQUIRE(CNT.p_alloc == nullptr);
@@ -684,7 +684,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.p_free == nullptr);
 
 	for (int i = 0; i < 16; i++) {
-		CNT.destroy_internal(p_txn[i]);
+		CNT.destroy_transaction(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -702,7 +702,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(CNT.new_block(p_txn[1], p_txn[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
 	REQUIRE(p_txn[1] == nullptr);
 
-	CNT.destroy(p_txn[0]);
+	CNT.destroy_transaction(p_txn[0]);
 	REQUIRE(p_txn[0] == nullptr);
 
 	REQUIRE(CNT.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
@@ -726,7 +726,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_internal()") {
 	REQUIRE(p_txn[16] == nullptr);
 
 	for (int i = 0; i < 16; i++) {
-		CNT.destroy_internal(p_txn[i]);
+		CNT.destroy_transaction(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
 	REQUIRE(CNT.p_alloc == nullptr);
@@ -773,7 +773,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	REQUIRE(p_txn->_lock_  == 0);
 
 	REQUIRE(CNT.p_alloc != nullptr);
-	CNT.destroy_internal(p_txn);
+	CNT.destroy_transaction(p_txn);
 	REQUIRE(CNT.p_alloc == nullptr);
 	REQUIRE(p_txn		== nullptr);
 
@@ -823,14 +823,14 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, FILL_WITH_TEXTFILE, nullptr, 128, buffer, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(   CNT.new_block(p_txn, CELL_TYPE_STRING, dim_t7.dim, FILL_WITH_TEXTFILE, nullptr, 128, buffer6, ' ')
@@ -856,7 +856,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, FILL_BOOLEAN_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -879,7 +879,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_BYTE, dim_t7.dim, FILL_INTEGER_FILTER, (bool *) &filter) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -903,7 +903,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn != nullptr);
 		REQUIRE(p_txn->p_block != nullptr);
 		REQUIRE(p_txn->status == BLOCK_STATUS_READY);
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_INTEGER, dim_t1.dim, FILL_NEW_DONT_FILL - 1) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -955,7 +955,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -998,7 +998,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1044,7 +1044,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 			REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 			REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-			CNT.destroy(p_txn);
+			CNT.destroy_transaction(p_txn);
 			REQUIRE(p_txn == nullptr);
 		}
 	}
@@ -1088,7 +1088,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1131,7 +1131,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1174,7 +1174,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1217,7 +1217,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1260,7 +1260,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1303,7 +1303,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1346,7 +1346,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1389,7 +1389,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1435,7 +1435,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 			REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 			REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-			CNT.destroy(p_txn);
+			CNT.destroy_transaction(p_txn);
 			REQUIRE(p_txn == nullptr);
 		}
 	}
@@ -1479,7 +1479,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1522,7 +1522,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1565,7 +1565,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1608,7 +1608,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1651,7 +1651,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1694,7 +1694,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY) != nullptr);
 		REQUIRE(strlen(p_txn->p_block->get_attribute(BLOCK_ATTRIB_EMPTY)) == 0);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1748,7 +1748,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1796,7 +1796,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1847,7 +1847,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 			REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 			REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-			CNT.destroy(p_txn);
+			CNT.destroy_transaction(p_txn);
 			REQUIRE(p_txn == nullptr);
 		}
 	}
@@ -1898,7 +1898,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -1948,7 +1948,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -2017,7 +2017,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(!strcmp(p_txn->p_block->get_string(95), "Tuesday"));
 		REQUIRE(!strcmp(p_txn->p_block->get_string(96), ""));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -2067,7 +2067,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -2117,7 +2117,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -2167,7 +2167,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_attribute(468) != nullptr);
 		REQUIRE(!strcmp(p_txn->p_block->get_attribute(468), "Hi!"));
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -2221,7 +2221,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "Q") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_1) == SERVICE_NO_ERROR);
@@ -2250,7 +2250,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "#") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_2) == SERVICE_NO_ERROR);
@@ -2283,7 +2283,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_3) == SERVICE_NO_ERROR);
@@ -2314,7 +2314,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_4) == SERVICE_NO_ERROR);
@@ -2345,7 +2345,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_5) == SERVICE_NO_ERROR);
@@ -2378,7 +2378,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_6) == SERVICE_NO_ERROR);
@@ -2409,7 +2409,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "A") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_7) == SERVICE_NO_ERROR);
@@ -2446,7 +2446,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "S") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		dim_xx.dim[0] = 11;
@@ -2510,7 +2510,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "-") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 
@@ -2549,7 +2549,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "@") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_8, ' ') == SERVICE_NO_ERROR);
@@ -2588,7 +2588,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "T") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
 		REQUIRE(CNT.new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, text_file_9) == SERVICE_NO_ERROR);
@@ -2634,7 +2634,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->get_string_offset(p_txn->p_block->p_string_buffer(), "p") == STRING_NA);
 		REQUIRE(p_txn->p_block->p_string_buffer()->alloc_failed);
 
-		CNT.destroy(p_txn);
+		CNT.destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 	}
 
@@ -2683,7 +2683,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_BOOLEAN);
 		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
-		CNT.destroy(p_filter_kpr);
+		CNT.destroy_transaction(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 	}
 
@@ -2716,7 +2716,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_INTEGER);
 		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
-		CNT.destroy(p_filter_kpr);
+		CNT.destroy_transaction(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 
 		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, FILL_INTEGER_FILTER, (bool *) &filter_v_z) == SERVICE_NO_ERROR);
@@ -2741,7 +2741,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_INTEGER);
 		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
-		CNT.destroy(p_filter_kpr);
+		CNT.destroy_transaction(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 
 		REQUIRE(CNT.new_block(p_filter_kpr, CELL_TYPE_INTEGER, dim_t6.dim, FILL_INTEGER_FILTER, (bool *) &filter_v_1) == SERVICE_NO_ERROR);
@@ -2768,11 +2768,11 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->filter_audit() == FILTER_TYPE_INTEGER);
 		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
-		CNT.destroy(p_filter_kpr);
+		CNT.destroy_transaction(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
 	}
 
-	CNT.destroy(p_txn);
+	CNT.destroy_transaction(p_txn);
 	REQUIRE(p_txn == nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
@@ -3177,19 +3177,19 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 				REQUIRE(p_kind->audit() == MIXED_TYPE_KIND);
 			}
 
-			CNT.destroy_internal(p_tx_knd1);
-			CNT.destroy_internal(p_tx_knd2);
-			CNT.destroy_internal(p_tx_knd3);
-			CNT.destroy_internal(p_tx_tup1);
-			CNT.destroy_internal(p_tx_tup2);
-			CNT.destroy_internal(p_tx_tup3);
+			CNT.destroy_transaction(p_tx_knd1);
+			CNT.destroy_transaction(p_tx_knd2);
+			CNT.destroy_transaction(p_tx_knd3);
+			CNT.destroy_transaction(p_tx_tup1);
+			CNT.destroy_transaction(p_tx_tup2);
+			CNT.destroy_transaction(p_tx_tup3);
 		}
 
-		CNT.destroy_internal(p_tx1);
-		CNT.destroy_internal(p_tx2);
-		CNT.destroy_internal(p_tx3);
-		CNT.destroy_internal(p_tx4);
-		CNT.destroy_internal(p_tx5);
+		CNT.destroy_transaction(p_tx1);
+		CNT.destroy_transaction(p_tx2);
+		CNT.destroy_transaction(p_tx3);
+		CNT.destroy_transaction(p_tx4);
+		CNT.destroy_transaction(p_tx5);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
@@ -3722,31 +3722,31 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				check_and_finish(pcp_by_r6->p_block);
 			}
 
-			CNT.destroy(pcp_db_r1);
+			CNT.destroy_transaction(pcp_db_r1);
 			REQUIRE(pcp_db_r1 == nullptr);
 
-			CNT.destroy(pcp_db_r3);
+			CNT.destroy_transaction(pcp_db_r3);
 			REQUIRE(pcp_db_r3 == nullptr);
 
-			CNT.destroy(pcp_db_r6);
+			CNT.destroy_transaction(pcp_db_r6);
 			REQUIRE(pcp_db_r6 == nullptr);
 
-			CNT.destroy(pcp_st_r1);
+			CNT.destroy_transaction(pcp_st_r1);
 			REQUIRE(pcp_st_r1 == nullptr);
 
-			CNT.destroy(pcp_st_r3);
+			CNT.destroy_transaction(pcp_st_r3);
 			REQUIRE(pcp_st_r3 == nullptr);
 
-			CNT.destroy(pcp_st_r6);
+			CNT.destroy_transaction(pcp_st_r6);
 			REQUIRE(pcp_st_r6 == nullptr);
 
-			CNT.destroy(pcp_by_r1);
+			CNT.destroy_transaction(pcp_by_r1);
 			REQUIRE(pcp_by_r1 == nullptr);
 
-			CNT.destroy(pcp_by_r3);
+			CNT.destroy_transaction(pcp_by_r3);
 			REQUIRE(pcp_by_r3 == nullptr);
 
-			CNT.destroy(pcp_by_r6);
+			CNT.destroy_transaction(pcp_by_r6);
 			REQUIRE(pcp_by_r6 == nullptr);
 		}
 
@@ -3945,31 +3945,31 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				check_and_finish(pcp_by_r6->p_block);
 			}
 
-			CNT.destroy(pcp_db_r1);
+			CNT.destroy_transaction(pcp_db_r1);
 			REQUIRE(pcp_db_r1 == nullptr);
 
-			CNT.destroy(pcp_db_r3);
+			CNT.destroy_transaction(pcp_db_r3);
 			REQUIRE(pcp_db_r3 == nullptr);
 
-			CNT.destroy(pcp_db_r6);
+			CNT.destroy_transaction(pcp_db_r6);
 			REQUIRE(pcp_db_r6 == nullptr);
 
-			CNT.destroy(pcp_st_r1);
+			CNT.destroy_transaction(pcp_st_r1);
 			REQUIRE(pcp_st_r1 == nullptr);
 
-			CNT.destroy(pcp_st_r3);
+			CNT.destroy_transaction(pcp_st_r3);
 			REQUIRE(pcp_st_r3 == nullptr);
 
-			CNT.destroy(pcp_st_r6);
+			CNT.destroy_transaction(pcp_st_r6);
 			REQUIRE(pcp_st_r6 == nullptr);
 
-			CNT.destroy(pcp_by_r1);
+			CNT.destroy_transaction(pcp_by_r1);
 			REQUIRE(pcp_by_r1 == nullptr);
 
-			CNT.destroy(pcp_by_r3);
+			CNT.destroy_transaction(pcp_by_r3);
 			REQUIRE(pcp_by_r3 == nullptr);
 
-			CNT.destroy(pcp_by_r6);
+			CNT.destroy_transaction(pcp_by_r6);
 			REQUIRE(pcp_by_r6 == nullptr);
 		}
 
@@ -4527,104 +4527,104 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				}
 			}
 
-			CNT.destroy(p_pa_db_r1);
+			CNT.destroy_transaction(p_pa_db_r1);
 			REQUIRE(p_pa_db_r1 == nullptr);
 
-			CNT.destroy(p_pa_db_r3);
+			CNT.destroy_transaction(p_pa_db_r3);
 			REQUIRE(p_pa_db_r3 == nullptr);
 
-			CNT.destroy(p_pa_db_r6);
+			CNT.destroy_transaction(p_pa_db_r6);
 			REQUIRE(p_pa_db_r6 == nullptr);
 
-			CNT.destroy(p_pa_st_r1);
+			CNT.destroy_transaction(p_pa_st_r1);
 			REQUIRE(p_pa_st_r1 == nullptr);
 
-			CNT.destroy(p_pa_st_r3);
+			CNT.destroy_transaction(p_pa_st_r3);
 			REQUIRE(p_pa_st_r3 == nullptr);
 
-			CNT.destroy(p_pa_st_r6);
+			CNT.destroy_transaction(p_pa_st_r6);
 			REQUIRE(p_pa_st_r6 == nullptr);
 
-			CNT.destroy(p_pa_by_r1);
+			CNT.destroy_transaction(p_pa_by_r1);
 			REQUIRE(p_pa_by_r1 == nullptr);
 
-			CNT.destroy(p_pa_by_r3);
+			CNT.destroy_transaction(p_pa_by_r3);
 			REQUIRE(p_pa_by_r3 == nullptr);
 
-			CNT.destroy(p_pa_by_r6);
+			CNT.destroy_transaction(p_pa_by_r6);
 			REQUIRE(p_pa_by_r6 == nullptr);
 
-			CNT.destroy(p_pb_db_r1);
+			CNT.destroy_transaction(p_pb_db_r1);
 			REQUIRE(p_pb_db_r1 == nullptr);
 
-			CNT.destroy(p_pb_db_r3);
+			CNT.destroy_transaction(p_pb_db_r3);
 			REQUIRE(p_pb_db_r3 == nullptr);
 
-			CNT.destroy(p_pb_db_r6);
+			CNT.destroy_transaction(p_pb_db_r6);
 			REQUIRE(p_pb_db_r6 == nullptr);
 
-			CNT.destroy(p_pb_st_r1);
+			CNT.destroy_transaction(p_pb_st_r1);
 			REQUIRE(p_pb_st_r1 == nullptr);
 
-			CNT.destroy(p_pb_st_r3);
+			CNT.destroy_transaction(p_pb_st_r3);
 			REQUIRE(p_pb_st_r3 == nullptr);
 
-			CNT.destroy(p_pb_st_r6);
+			CNT.destroy_transaction(p_pb_st_r6);
 			REQUIRE(p_pb_st_r6 == nullptr);
 
-			CNT.destroy(p_pb_by_r1);
+			CNT.destroy_transaction(p_pb_by_r1);
 			REQUIRE(p_pb_by_r1 == nullptr);
 
-			CNT.destroy(p_pb_by_r3);
+			CNT.destroy_transaction(p_pb_by_r3);
 			REQUIRE(p_pb_by_r3 == nullptr);
 
-			CNT.destroy(p_pb_by_r6);
+			CNT.destroy_transaction(p_pb_by_r6);
 			REQUIRE(p_pb_by_r6 == nullptr);
 		}
 
-		CNT.destroy(p_if_r1);
+		CNT.destroy_transaction(p_if_r1);
 		REQUIRE(p_if_r1 == nullptr);
 
-		CNT.destroy(p_if_r3);
+		CNT.destroy_transaction(p_if_r3);
 		REQUIRE(p_if_r3 == nullptr);
 
-		CNT.destroy(p_if_r6);
+		CNT.destroy_transaction(p_if_r6);
 		REQUIRE(p_if_r6 == nullptr);
 
-		CNT.destroy(p_bf_r1);
+		CNT.destroy_transaction(p_bf_r1);
 		REQUIRE(p_bf_r1 == nullptr);
 
-		CNT.destroy(p_bf_r3);
+		CNT.destroy_transaction(p_bf_r3);
 		REQUIRE(p_bf_r3 == nullptr);
 
-		CNT.destroy(p_bf_r6);
+		CNT.destroy_transaction(p_bf_r6);
 		REQUIRE(p_bf_r6 == nullptr);
 
-		CNT.destroy(p_db_r1);
+		CNT.destroy_transaction(p_db_r1);
 		REQUIRE(p_db_r1 == nullptr);
 
-		CNT.destroy(p_db_r3);
+		CNT.destroy_transaction(p_db_r3);
 		REQUIRE(p_db_r3 == nullptr);
 
-		CNT.destroy(p_db_r6);
+		CNT.destroy_transaction(p_db_r6);
 		REQUIRE(p_db_r6 == nullptr);
 
-		CNT.destroy(p_st_r1);
+		CNT.destroy_transaction(p_st_r1);
 		REQUIRE(p_st_r1 == nullptr);
 
-		CNT.destroy(p_st_r3);
+		CNT.destroy_transaction(p_st_r3);
 		REQUIRE(p_st_r3 == nullptr);
 
-		CNT.destroy(p_st_r6);
+		CNT.destroy_transaction(p_st_r6);
 		REQUIRE(p_st_r6 == nullptr);
 
-		CNT.destroy(p_by_r1);
+		CNT.destroy_transaction(p_by_r1);
 		REQUIRE(p_by_r1 == nullptr);
 
-		CNT.destroy(p_by_r3);
+		CNT.destroy_transaction(p_by_r3);
 		REQUIRE(p_by_r3 == nullptr);
 
-		CNT.destroy(p_by_r6);
+		CNT.destroy_transaction(p_by_r6);
 		REQUIRE(p_by_r6 == nullptr);
 	}
 
@@ -4867,23 +4867,23 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 				REQUIRE(p_xbl31->p_block->get_attribute(BLOCK_ATTRIB_MIMETYPE) == nullptr);
 			}
 
-			CNT.destroy_internal(p_xbl31);
-			CNT.destroy_internal(p_xbl22);
-			CNT.destroy_internal(p_xbl21);
-			CNT.destroy_internal(p_xbl14);
-			CNT.destroy_internal(p_xbl13);
-			CNT.destroy_internal(p_xbl12);
-			CNT.destroy_internal(p_xbl11);
+			CNT.destroy_transaction(p_xbl31);
+			CNT.destroy_transaction(p_xbl22);
+			CNT.destroy_transaction(p_xbl21);
+			CNT.destroy_transaction(p_xbl14);
+			CNT.destroy_transaction(p_xbl13);
+			CNT.destroy_transaction(p_xbl12);
+			CNT.destroy_transaction(p_xbl11);
 		}
 
-		CNT.destroy_internal(p_tx_tup1);
-		CNT.destroy_internal(p_tx_tup2);
-		CNT.destroy_internal(p_tx_tup3);
-		CNT.destroy_internal(p_tx1);
-		CNT.destroy_internal(p_tx2);
-		CNT.destroy_internal(p_tx3);
-		CNT.destroy_internal(p_tx4);
-		CNT.destroy_internal(p_tx5);
+		CNT.destroy_transaction(p_tx_tup1);
+		CNT.destroy_transaction(p_tx_tup2);
+		CNT.destroy_transaction(p_tx_tup3);
+		CNT.destroy_transaction(p_tx1);
+		CNT.destroy_transaction(p_tx2);
+		CNT.destroy_transaction(p_tx3);
+		CNT.destroy_transaction(p_tx4);
+		CNT.destroy_transaction(p_tx5);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
@@ -5502,67 +5502,67 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 						== PARSE_ERROR_ITEM_NAME_MISMATCH);
 				REQUIRE(x_err == nullptr);
 
-				CNT.destroy_internal(a_ki1);
-				CNT.destroy_internal(a_ki2);
-				CNT.destroy_internal(a_tp1);
+				CNT.destroy_transaction(a_ki1);
+				CNT.destroy_transaction(a_ki2);
+				CNT.destroy_transaction(a_tp1);
 
-				CNT.destroy_internal(a_int);
-				CNT.destroy_internal(a_dou);
-				CNT.destroy_internal(a_st1);
-				CNT.destroy_internal(a_st2);
+				CNT.destroy_transaction(a_int);
+				CNT.destroy_transaction(a_dou);
+				CNT.destroy_transaction(a_st1);
+				CNT.destroy_transaction(a_st2);
 
-				CNT.destroy_internal(y_byt);
-				CNT.destroy_internal(y_int);
-				CNT.destroy_internal(y_sin);
-				CNT.destroy_internal(y_lin);
-				CNT.destroy_internal(y_tim);
-				CNT.destroy_internal(y_dou);
-				CNT.destroy_internal(y_ki1);
-				CNT.destroy_internal(y_tp1);
+				CNT.destroy_transaction(y_byt);
+				CNT.destroy_transaction(y_int);
+				CNT.destroy_transaction(y_sin);
+				CNT.destroy_transaction(y_lin);
+				CNT.destroy_transaction(y_tim);
+				CNT.destroy_transaction(y_dou);
+				CNT.destroy_transaction(y_ki1);
+				CNT.destroy_transaction(y_tp1);
 
-				CNT.destroy_internal(x_byt);
-				CNT.destroy_internal(x_bbo);
-				CNT.destroy_internal(x_int);
-				CNT.destroy_internal(x_fac);
-				CNT.destroy_internal(x_gra);
-				CNT.destroy_internal(x_boo);
-				CNT.destroy_internal(x_sin);
-				CNT.destroy_internal(x_st1);
-				CNT.destroy_internal(x_st2);
-				CNT.destroy_internal(x_lin);
-				CNT.destroy_internal(x_tim);
-				CNT.destroy_internal(x_dou);
-				CNT.destroy_internal(x_ki1);
-				CNT.destroy_internal(x_ki2);
-				CNT.destroy_internal(x_tp1);
-				CNT.destroy_internal(x_tp2);
+				CNT.destroy_transaction(x_byt);
+				CNT.destroy_transaction(x_bbo);
+				CNT.destroy_transaction(x_int);
+				CNT.destroy_transaction(x_fac);
+				CNT.destroy_transaction(x_gra);
+				CNT.destroy_transaction(x_boo);
+				CNT.destroy_transaction(x_sin);
+				CNT.destroy_transaction(x_st1);
+				CNT.destroy_transaction(x_st2);
+				CNT.destroy_transaction(x_lin);
+				CNT.destroy_transaction(x_tim);
+				CNT.destroy_transaction(x_dou);
+				CNT.destroy_transaction(x_ki1);
+				CNT.destroy_transaction(x_ki2);
+				CNT.destroy_transaction(x_tp1);
+				CNT.destroy_transaction(x_tp2);
 			}
 
-			CNT.destroy_internal(f_byt);
-			CNT.destroy_internal(f_int);
-			CNT.destroy_internal(f_sin);
-			CNT.destroy_internal(f_lin);
-			CNT.destroy_internal(f_tim);
-			CNT.destroy_internal(f_dou);
-			CNT.destroy_internal(f_ki1);
-			CNT.destroy_internal(f_tp1);
+			CNT.destroy_transaction(f_byt);
+			CNT.destroy_transaction(f_int);
+			CNT.destroy_transaction(f_sin);
+			CNT.destroy_transaction(f_lin);
+			CNT.destroy_transaction(f_tim);
+			CNT.destroy_transaction(f_dou);
+			CNT.destroy_transaction(f_ki1);
+			CNT.destroy_transaction(f_tp1);
 
-			CNT.destroy_internal(s_byt);
-			CNT.destroy_internal(s_bbo);
-			CNT.destroy_internal(s_int);
-			CNT.destroy_internal(s_fac);
-			CNT.destroy_internal(s_gra);
-			CNT.destroy_internal(s_boo);
-			CNT.destroy_internal(s_sin);
-			CNT.destroy_internal(s_st1);
-			CNT.destroy_internal(s_st2);
-			CNT.destroy_internal(s_lin);
-			CNT.destroy_internal(s_tim);
-			CNT.destroy_internal(s_dou);
-			CNT.destroy_internal(s_ki1);
-			CNT.destroy_internal(s_ki2);
-			CNT.destroy_internal(s_tp1);
-			CNT.destroy_internal(s_tp2);
+			CNT.destroy_transaction(s_byt);
+			CNT.destroy_transaction(s_bbo);
+			CNT.destroy_transaction(s_int);
+			CNT.destroy_transaction(s_fac);
+			CNT.destroy_transaction(s_gra);
+			CNT.destroy_transaction(s_boo);
+			CNT.destroy_transaction(s_sin);
+			CNT.destroy_transaction(s_st1);
+			CNT.destroy_transaction(s_st2);
+			CNT.destroy_transaction(s_lin);
+			CNT.destroy_transaction(s_tim);
+			CNT.destroy_transaction(s_dou);
+			CNT.destroy_transaction(s_ki1);
+			CNT.destroy_transaction(s_ki2);
+			CNT.destroy_transaction(s_tp1);
+			CNT.destroy_transaction(s_tp2);
 		}
 
 		pTransaction s_err = p_byt;
@@ -5575,22 +5575,22 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		REQUIRE(CNT.new_block(s_err, p_tp1->p_block) == SERVICE_ERROR_BAD_BLOCK);
 		REQUIRE(s_err == nullptr);
 
-		CNT.destroy_internal(p_byt);
-		CNT.destroy_internal(p_bbo);
-		CNT.destroy_internal(p_int);
-		CNT.destroy_internal(p_fac);
-		CNT.destroy_internal(p_gra);
-		CNT.destroy_internal(p_boo);
-		CNT.destroy_internal(p_sin);
-		CNT.destroy_internal(p_st1);
-		CNT.destroy_internal(p_st2);
-		CNT.destroy_internal(p_lin);
-		CNT.destroy_internal(p_tim);
-		CNT.destroy_internal(p_dou);
-		CNT.destroy_internal(p_ki1);
-		CNT.destroy_internal(p_ki2);
-		CNT.destroy_internal(p_tp1);
-		CNT.destroy_internal(p_tp2);
+		CNT.destroy_transaction(p_byt);
+		CNT.destroy_transaction(p_bbo);
+		CNT.destroy_transaction(p_int);
+		CNT.destroy_transaction(p_fac);
+		CNT.destroy_transaction(p_gra);
+		CNT.destroy_transaction(p_boo);
+		CNT.destroy_transaction(p_sin);
+		CNT.destroy_transaction(p_st1);
+		CNT.destroy_transaction(p_st2);
+		CNT.destroy_transaction(p_lin);
+		CNT.destroy_transaction(p_tim);
+		CNT.destroy_transaction(p_dou);
+		CNT.destroy_transaction(p_ki1);
+		CNT.destroy_transaction(p_ki2);
+		CNT.destroy_transaction(p_tp1);
+		CNT.destroy_transaction(p_tp2);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
@@ -5700,10 +5700,10 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 				REQUIRE(p_tx_ss->p_hea->index.index_ss.find("si")  == p_tx_ss->p_hea->index.index_ss.end());
 			}
 		}
-		CNT.destroy_internal(p_tx_ii);
-		CNT.destroy_internal(p_tx_is);
-		CNT.destroy_internal(p_tx_si);
-		CNT.destroy_internal(p_tx_ss);
+		CNT.destroy_transaction(p_tx_ii);
+		CNT.destroy_transaction(p_tx_is);
+		CNT.destroy_transaction(p_tx_si);
+		CNT.destroy_transaction(p_tx_ss);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));

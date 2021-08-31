@@ -548,7 +548,8 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 /** Create a new Block (1): Create a Tensor from raw data specifying everything from scratch.
 
 	\param p_txn			A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-							Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+							Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+							it when done.
 	\param cell_type		The tensor cell type in [CELL_TYPE_BYTE..CELL_TYPE_DOUBLE]
 	\param dim				This defines both the rank and the dimensions of the tensor. Note that, except for the first position a
 							dimension of 0 and 1 is the same dim = {3, 1} is a vector of 3 elements with rank 1, exactly like {3, 0}.
@@ -583,8 +584,8 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 	If stringbuff_size is used, Block.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
 	Block.set_string() **should not** be called after that.
 
-	OWNERSHIP: Remember: the p_txn returned on success points inside the Container. Use it as read-only and don't forget to destroy() it
-	when done.
+	OWNERSHIP: Remember: the p_txn returned on success points inside the Container. Use it as read-only and don't forget to
+	destroy_transaction() it when done.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -611,7 +612,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (p_text != nullptr) {
 		if (cell_type != CELL_TYPE_STRING || fill_tensor != FILL_WITH_TEXTFILE) {
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
@@ -632,7 +633,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (dim == nullptr) {
 		if (p_text == nullptr) {
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
@@ -651,7 +652,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		reinterpret_cast<pBlock>(&hea)->set_dimensions(dim);
 
 		if (num_lines && (num_lines != hea.size)){
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
@@ -681,7 +682,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	p_txn->p_block = block_malloc(hea.total_bytes);
 
 	if (p_txn->p_block == nullptr) {
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 		return SERVICE_ERROR_NO_MEM;
 	}
@@ -806,7 +807,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				break; }
 
 			default:
-				destroy_internal(p_txn);
+				destroy_transaction(p_txn);
 
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
@@ -815,7 +816,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		case FILL_BOOLEAN_FILTER:
 			p_txn->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
-				destroy_internal(p_txn);
+				destroy_transaction(p_txn);
 
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
@@ -825,7 +826,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		case FILL_INTEGER_FILTER: {
 			p_txn->p_block->has_NA = false;
 			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_INTEGER) {
-				destroy_internal(p_txn);
+				destroy_transaction(p_txn);
 
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
 			}
@@ -845,7 +846,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			break; }
 
 		default:
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;			// No silent fail, fill_tensor is invalid
 		}
@@ -864,7 +865,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 /** Create a new Block (2): Create a Kind or Tuple from arrays of StaticBlockHeader, names, and, in the case of a tuple, Tensors.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						it when done.
 	\param num_items	The number of items the Kind or Tuple will have.
 	\param p_hea		A vector of num_items pointers to StaticBlockHeaders defining the Kind or Tuple. The shape must be defined in
 						"human-readble" format, i.e., what a pBlock->get_dimensions() returns (not the internal way a block stores it).
@@ -950,7 +952,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	p_txn->p_block = block_malloc(hea.total_bytes);
 
 	if (p_txn->p_block == nullptr) {
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 		return SERVICE_ERROR_NO_MEM;
 	}
@@ -959,12 +961,12 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		if (att	== nullptr) {
 			AttributeMap void_att = {};
 			if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, void_att)) {
-				destroy_internal(p_txn);
+				destroy_transaction(p_txn);
 
 				return SERVICE_ERROR_BAD_NEW_KIND;
 			}
 		} else if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_BAD_NEW_KIND;
 		}
@@ -976,7 +978,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 				pChar p_name = (pChar) &p_names[i];
 
 				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, void_dim)) {
-					destroy_internal(p_txn);
+					destroy_transaction(p_txn);
 
 					return SERVICE_ERROR_BAD_KIND_ADD;
 				}
@@ -987,7 +989,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 				pChar p_name = (pChar) &p_names[i];
 
 				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *dims)) {
-					destroy_internal(p_txn);
+					destroy_transaction(p_txn);
 
 					return SERVICE_ERROR_BAD_KIND_ADD;
 				}
@@ -1005,7 +1007,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		if (ret == SERVICE_NO_ERROR)
 			p_txn->status = BLOCK_STATUS_READY;
 		else
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 		return ret;
 	}
@@ -1015,7 +1017,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	if (ret == SERVICE_NO_ERROR)
 		p_txn->status = BLOCK_STATUS_READY;
 	else
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 	return ret;
 }
@@ -1024,7 +1026,8 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 /** Create a new Block (3): Create a Tensor by selecting rows (filtering) from another Tensor.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						it when done.
 	\param p_from		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
 						dimension of the tensor). This can be either a tensor or a Tuple. In the case of a Tuple, all the tensors must
 						have the same first dimension.
@@ -1047,7 +1050,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return ret;
 
 	if (p_from == nullptr || p_from->size < 0 || p_from->range.dim[0] < 1) {
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 		return SERVICE_ERROR_NEW_BLOCK_ARGS;
 	}
@@ -1061,7 +1064,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		int	tensor_rows = p_from->size/p_from->range.dim[0];
 
 		if (!p_row_filter->can_filter(p_from)){
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
@@ -1101,7 +1104,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		}
 
 		if (!new_num_attributes) {
-			destroy_internal(p_txn);
+			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
@@ -1123,7 +1126,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	p_txn->p_block = block_malloc(total_bytes);
 
 	if (p_txn->p_block == nullptr) {
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 		return SERVICE_ERROR_NO_MEM;
 	}
@@ -1198,7 +1201,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 /** Create a new Block (4): Create a Tensor by selecting an item from a Tuple.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+					Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+					it when done.
 	\param p_from	The Tuple from which the item is selected.
 	\param name		The name of the item to be selected.
 	\param att		The attributes to set when creating the block. They are immutable. To change the attributes of a Block
@@ -1237,7 +1241,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 /** Create a new Block (5): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						it when done.
 	\param p_from_text	The block containing a valid serialization of Tensor, Kind or Tuple.
 	\param cell_type	The expected output type.
 	\param p_as_kind	For Tuples only, the definition of the exact types of each item. The serialization contains names, but not types
@@ -1395,7 +1400,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 				if (ret != SERVICE_NO_ERROR) {
 					for (int j = i - 1; j >= 0; j--)
-						destroy_internal(p_aux_txn[j]);
+						destroy_transaction(p_aux_txn[j]);
 
 					return ret;
 				}
@@ -1404,14 +1409,14 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 				if (ret != SERVICE_NO_ERROR) {
 					for (int j = i - 1; j >= 0; j--)
-						destroy_internal(p_aux_txn[j]);
+						destroy_transaction(p_aux_txn[j]);
 
 					return ret;
 				}
 
 				if (!fill_tensor(p_in, num_bytes, p_aux_txn[i]->p_block)) {
 					for (int j = i; j >= 0; j--)
-						destroy_internal(p_aux_txn[j]);
+						destroy_transaction(p_aux_txn[j]);
 
 					return PARSE_ERROR_TENSOR_FILLING;
 				}
@@ -1434,7 +1439,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		int ret = new_block(p_txn, num_items, p_hea, item_name, p_item_blck, nullptr, att);
 
 		for (int i = 0; i < num_items; i++)
-			destroy_internal(p_aux_txn[i]);
+			destroy_transaction(p_aux_txn[i]);
 
 		return ret;
 	}
@@ -1483,7 +1488,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return ret;
 
 	if (!fill_tensor(p_in, num_bytes, p_txn->p_block)) {
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 		return PARSE_ERROR_TENSOR_FILLING;
 	}
@@ -1495,7 +1500,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 /** Create a new Block (6): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						it when done.
 	\param p_from_raw	The block to be serialized
 	\param p_fmt		An optional numerical precision format specifier. In the case of Tuples, if this is used all items with numerical
 						tensors will use it. (This may imply converting integer to double depending on the specifier.)
@@ -1646,15 +1652,16 @@ StatusCode Container::new_block(pTransaction &p_txn,
 /** Create a new Block (7): Create an empty Index block.
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-						Transaction inside the Container. The caller can only use it read-only and **must** destroy() it when done.
+						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						it when done.
 	\param cell_type	The type of index (from CELL_TYPE_INDEX_II to CELL_TYPE_INDEX_SS)
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Unlike all the other blocks, Tensor, Kind and Tuple, this returns a header with an std::map. Thefore, it is dynamically allocated,
 by just using it. As such, it is not movable and cannot be used in any transactions other that Channels serializing it as a
-Tuple(key, value). When no longer needed, it has to be destroy()-ed just like the other Blocks created with new_block() and the Container
-will take care of freeing the std::map before destroying the transaction.
+Tuple(key, value). When no longer needed, it has to be destroy_transaction()-ed just like the other Blocks created with new_block() and
+the Container will take care of freeing the std::map before destroying the transaction.
 
 */
 StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
@@ -1673,7 +1680,7 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 	p_txn->p_block = block_malloc(sizeof(BlockHeader));
 
 	if (p_txn->p_block == nullptr) {
-		destroy_internal(p_txn);
+		destroy_transaction(p_txn);
 
 		return SERVICE_ERROR_NO_MEM;
 	}
@@ -1709,33 +1716,6 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 }
 
 
-/** Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction inside a Container.
-
-	\param p_txn	A pointer to a valid Transaction passed by reference. Once finished, p_txn is set to nullptr to avoid reusing.
-
-NOTE: Different Container descendants, may do different things with blocks inside the transaction. In the case of this one-shot
-allocation, the p_block will be freed and the p_route ignored (since this Container does not allocate anything here).
-Persisted or Volatile Blocks will not be destroyed when a Transaction referring to them is destroyed. If the descentant allocates
-a p_route, it should also free it when the Transaction is destroyed.
-*/
-void Container::destroy(pTransaction &p_txn) {
-
-	if (p_txn->p_owner == nullptr) {
-		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
-
-		return;
-	}
-	if (p_txn->p_owner != this) {
-		p_txn->p_owner->destroy(p_txn);
-
-		return;
-	}
-
-	enter_write(p_txn);
-	destroy_internal(p_txn);
-}
-
-
 /** "Easy" interface **complete Block** retrieval. This parses p_what and, on success, calls the native get() equivalent.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
@@ -1745,7 +1725,7 @@ void Container::destroy(pTransaction &p_txn) {
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
-be destroy()-ed when the caller is done.
+be destroy_transaction()-ed when the caller is done.
 */
 StatusCode Container::get(pTransaction &p_txn, pChar p_what) {
 	Locator loc;
@@ -1772,7 +1752,7 @@ StatusCode Container::get(pTransaction &p_txn, pChar p_what) {
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
-be destroy()-ed when the caller is done.
+be destroy_transaction()-ed when the caller is done.
 */
 StatusCode Container::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
 	Locator loc;
@@ -1797,7 +1777,7 @@ StatusCode Container::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
-be destroy()-ed when the caller is done.
+be destroy_transaction()-ed when the caller is done.
 */
 StatusCode Container::get(pTransaction &p_txn, pChar p_what, pChar name) {
 	Locator loc;
@@ -1842,7 +1822,7 @@ StatusCode Container::header(StaticBlockHeader	&hea, pChar p_what) {
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Unlike its faster form, this allocates a Block and therefore, it is equivalent to a new_block() call. On success, it will return a
-Transaction that belongs to the Container and must be destroy()-ed when the caller is done.
+Transaction that belongs to the Container and must be destroy_transaction()-ed when the caller is done.
 
 For Tensors it will allocate a block that only has the StaticBlockHeader (What you can more efficiently get from the other form.)
 For Kinds, the metadata of all the items is exactly the same a .get() call returns.
@@ -1927,8 +1907,9 @@ StatusCode Container::remove(pChar p_where) {
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-**NOTE**: This does not copy blocks across Containers. A copy() call is a short way to do "get(tx, what); put(where, tx); destroy(tx);"
-without the Container needing to allocate Transactions and, possibly, not even blocks. To copy blocks across containers, you need channels.
+**NOTE**: This does not copy blocks across Containers. A copy() call is a short way to do "get(tx, what); put(where, tx);
+destroy_transaction(tx);" without the Container needing to allocate Transactions and, possibly, not even blocks. To copy blocks
+across containers, you need channels.
 */
 StatusCode Container::copy(pChar p_where, pChar p_what) {
 	Locator where, what;
@@ -2122,7 +2103,7 @@ StatusCode Container::copy(Locator &where, Locator &what) {
 void Container::base_names(BaseNames &base_names) {}
 
 
-/** Creates the buffers for new_transaction()/destroy()
+/** Creates the buffers for new_transaction()/destroy_transaction()
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
 */
@@ -2171,7 +2152,7 @@ StatusCode Container::destroy_container() {
 	if (p_buffer != nullptr) {
 		while (p_alloc != nullptr) {
 			pTransaction pt = p_alloc;
-			destroy_internal(pt);
+			destroy_transaction(pt);
 		}
 
 		free(p_buffer);
