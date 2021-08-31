@@ -79,7 +79,7 @@ StatusCode Volatile::shut_down() {
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Volatile::get (pTransaction &p_txn, Locator &what) {
+StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 
 //TODO: Implement this.
 
@@ -101,7 +101,7 @@ StatusCode Volatile::get (pTransaction &p_txn, Locator &what) {
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
 //TODO: Implement this.
 
@@ -121,7 +121,7 @@ StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pBlock p_row_filte
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pChar name) {
+StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 //TODO: Implement this.
 
@@ -139,7 +139,7 @@ StatusCode Volatile::get (pTransaction &p_txn, Locator &what, pChar name) {
 This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
 for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
 */
-StatusCode Volatile::header (StaticBlockHeader &hea, Locator &what) {
+StatusCode Volatile::header(StaticBlockHeader &hea, Locator &what) {
 
 //TODO: Implement this.
 
@@ -162,7 +162,7 @@ For Tensors it will allocate a block that only has the StaticBlockHeader (What y
 For Kinds, the metadata of all the items is exactly the same a .get() call returns.
 For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
-StatusCode Volatile::header (pTransaction &p_txn, Locator &what) {
+StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 
 //TODO: Implement this.
 
@@ -181,7 +181,7 @@ StatusCode Volatile::header (pTransaction &p_txn, Locator &what) {
 
 **NOTE**: This updates the calling block's creation time and hash64.
 */
-StatusCode Volatile::put (Locator &where, pBlock p_block, int mode) {
+StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 //TODO: Implement this.
 
@@ -195,7 +195,7 @@ StatusCode Volatile::put (Locator &where, pBlock p_block, int mode) {
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Volatile::new_entity (Locator &where) {
+StatusCode Volatile::new_entity(Locator &where) {
 
 //TODO: Implement this.
 
@@ -209,7 +209,7 @@ StatusCode Volatile::new_entity (Locator &where) {
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Volatile::remove (Locator &where) {
+StatusCode Volatile::remove(Locator &where) {
 
 //TODO: Implement this.
 
@@ -224,7 +224,7 @@ StatusCode Volatile::remove (Locator &where) {
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Volatile::copy (Locator &where, Locator &what) {
+StatusCode Volatile::copy(Locator &where, Locator &what) {
 
 //TODO: Implement this.
 
@@ -237,7 +237,7 @@ StatusCode Volatile::copy (Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 */
-void Volatile::base_names (BaseNames &base_names) {
+void Volatile::base_names(BaseNames &base_names) {
 
 	base_names["deque"]	= this;		// Just a key/value store for any kind of blocks
 	base_names["index"]	= this;		// A way to APIfy and serialize Tuple <-> IndexXX (Again, a block storage but only for Index*S)
