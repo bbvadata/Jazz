@@ -65,23 +65,23 @@ This structure supports all the types in Volatile (deque, queue, tree).
 */
 struct VolatileTransaction: Transaction {
 	union {
-		pVolatileTransaction p_prev;
-		pVolatileTransaction p_parent;
+		pVolatileTransaction p_prev;					///< Pointer to the previous node in a deque ...
+		pVolatileTransaction p_parent;					///< ... or parent node in a tree.
 	};
-	pVolatileTransaction p_next;
+	pVolatileTransaction p_next;						///< Pointer to the next node in a deque or next sibling in a tree.
 	union {
-		pVolatileTransaction p_child;
-		double priority;
-	};
-	union {
-		int	level;										///< Level in the AA tree (used for auto-balancing)
-		int num_wins;
+		pVolatileTransaction p_child;					///< Pointer to the first child in a tree ...
+		double priority;								///< ... or priority value in a queue.
 	};
 	union {
-		int	times_used;									///< Times the block has been reassigned in the queue
-		int num_visits;
+		int	level;										///< Level in the AA tree (used for auto-balancing) ...
+		int num_wins;									///< ... or MCTS tree node number of wins.
 	};
-	uint64_t id_hash;
+	union {
+		int	times_used;									///< Times the block has been reassigned in the queue ...
+		int num_visits;									///< ... or MCTS tree node number of visits.
+	};
+	uint64_t id_hash;									///< Node locator hash required to find the ID of a related (next, ...) node.
 };
 
 
