@@ -392,6 +392,7 @@ in multithreaded algorithms like MCTS.
 
 */
 void Container::leave_read(pTransaction p_txn) {
+
 	while (true) {
 		int32_t lock = p_txn->_lock_;
 		int32_t next = lock - 1;
@@ -411,6 +412,7 @@ in multithreaded algorithms like MCTS.
 
 */
 void Container::leave_write(pTransaction p_txn) {
+
 	while (true) {
 		int32_t lock = p_txn->_lock_;
 		int32_t next = lock + LOCK_WEIGHT_OF_WRITE;

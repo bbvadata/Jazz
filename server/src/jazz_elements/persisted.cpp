@@ -899,6 +899,7 @@ release_lock_and_fail:
 source_dbi.
 */
 bool Persisted::remove_database(pChar name) {
+
 	if (source_dbi.find(name) == source_dbi.end()) {
 		log(LOG_MISS, "Persisted::remove_database(): source does not exist.");
 
@@ -959,6 +960,7 @@ release_lock_and_fail:
 /** \brief A nicer presentation for LMDB error messages.
 */
 void Persisted::log_lmdb_err(int err, const char * msg) {
+
 	char errmsg [128];
 
 	switch (err) {
