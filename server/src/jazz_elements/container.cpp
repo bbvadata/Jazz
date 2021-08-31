@@ -423,6 +423,128 @@ void Container::leave_write(pTransaction p_txn) {
 }
 
 
+/** Allocate a Transaction to share a block via the API.
+
+	\param p_txn	A pointer to a valid Transaction passed by reference. On failure, it will assign nullptr to it.
+
+NOTE: The idea of this method being virtual is allowing descendants to use new_block() calls to create one shot blocks that can be later
+inserted into different structures.
+*/
+StatusCode Container::new_transaction(pTransaction &p_txn) {
+
+	if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
+		log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
+				   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
+
+		alloc_warning_issued = true;
+	}
+
+	lock_container();
+
+	if (p_free == nullptr) {
+		unlock_container();
+		p_txn = nullptr;
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	p_txn  = p_free;
+	p_free = p_free->p_next;
+
+	p_txn->p_block = nullptr;
+	p_txn->status  = BLOCK_STATUS_EMPTY;
+	p_txn->_lock_  = 0;
+	p_txn->p_owner = this;
+
+	pStoredTransaction(p_txn)->p_next = p_alloc;
+	pStoredTransaction(p_txn)->p_prev = nullptr;
+
+	if (p_alloc != nullptr)
+		p_alloc->p_prev = pStoredTransaction(p_txn);
+
+	p_alloc = pStoredTransaction(p_txn);
+
+	unlock_container();
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction inside a Container.
+
+	\param p_txn	A pointer to a valid Transaction passed by reference. Once finished, p_txn is set to nullptr to avoid reusing.
+
+NOTE: The idea of this method being virtual is allowing descendants to use new_block() calls to create one shot blocks that can be later
+inserted into different structures.
+*/
+void Container::destroy_transaction  (pTransaction &p_txn) {
+
+	if (p_txn->p_owner == nullptr) {
+		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
+
+		return;
+	}
+	if (p_txn->p_owner != this) {
+		p_txn->p_owner->destroy_transaction(p_txn);
+
+		return;
+	}
+
+	enter_write(p_txn);
+
+	if (p_txn->p_block != nullptr) {
+		switch (p_txn->p_block->cell_type) {
+		case CELL_TYPE_INDEX_II:
+			p_txn->p_hea->index.index_ii.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		case CELL_TYPE_INDEX_IS:
+			p_txn->p_hea->index.index_is.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		case CELL_TYPE_INDEX_SI:
+			p_txn->p_hea->index.index_si.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		case CELL_TYPE_INDEX_SS:
+			p_txn->p_hea->index.index_ss.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		default:
+			alloc_bytes -= p_txn->p_block->total_bytes;
+		};
+		free(p_txn->p_block);
+
+		p_txn->p_block = nullptr;
+	}
+
+	lock_container();
+
+	if (pStoredTransaction(p_txn)->p_prev == nullptr)
+		p_alloc = pStoredTransaction(p_txn)->p_next;
+	else
+		pStoredTransaction(p_txn)->p_prev->p_next = pStoredTransaction(p_txn)->p_next;
+
+	if (pStoredTransaction(p_txn)->p_next != nullptr)
+		pStoredTransaction(p_txn)->p_next->p_prev = pStoredTransaction(p_txn)->p_prev;
+
+	pStoredTransaction(p_txn)->p_next = p_free;
+
+	p_free = pStoredTransaction(p_txn);
+	p_txn  = nullptr;
+
+	unlock_container();
+}
+
+
 /** Create a new Block (1): Create a Tensor from raw data specifying everything from scratch.
 
 	\param p_txn			A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
