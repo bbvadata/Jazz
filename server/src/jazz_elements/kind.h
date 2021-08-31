@@ -139,9 +139,9 @@ class Kind : public Block {
 
 			\return			 False on error (insufficient alloc size for a very conservative minimum).
 		*/
-		inline bool new_kind (int			num_items,
-							  int			num_bytes,
-			   				  AttributeMap &attr) {
+		inline bool new_kind(int			num_items,
+							 int			num_bytes,
+			   				 AttributeMap  &attr) {
 
 			if (num_items < 1 || num_items >= MAX_ITEMS_IN_KIND)
 				return false;
@@ -182,11 +182,11 @@ class Kind : public Block {
 		if an image has shape [-1, -2, 3] and dims[-1] == "width" and dims[-2] == "height", The kind will store these variable dimensions
 		together with their names.
 		*/
-		inline bool add_item (int			idx,
-			   				  char const   *p_name,
-							  int		   *p_dim,
-							  int			cell_type,
-							  AttributeMap &dims) {
+		inline bool add_item(int			idx,
+			   				 char const    *p_name,
+							 int		   *p_dim,
+							 int			cell_type,
+							 AttributeMap  &dims) {
 
 			if (idx < 0 | idx >= size)
 				return false;

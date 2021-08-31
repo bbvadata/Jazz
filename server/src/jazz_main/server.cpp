@@ -162,8 +162,7 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 
 	cout << "Starting server on port : " << http_port << endl;
 
-	p_daemon = MHD_start_daemon (server_flags, http_port, NULL, NULL, dh, NULL,
-								 MHD_OPTION_ARRAY, &server_options, MHD_OPTION_END);
+	p_daemon = MHD_start_daemon(server_flags, http_port, NULL, NULL, dh, NULL, MHD_OPTION_ARRAY, &server_options, MHD_OPTION_END);
 
 	if (p_daemon == NULL) {
 		cout << "Failed to start the server." << endl;

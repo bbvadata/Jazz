@@ -74,11 +74,11 @@ class Agency : public Container {
 
 	public:
 
-		Agency (pLogger		a_logger,
-				pConfigFile a_config);
+		Agency(pLogger	   a_logger,
+			   pConfigFile a_config);
 
-		StatusCode start	 ();
-		StatusCode shut_down ();
+		StatusCode start();
+		StatusCode shut_down();
 };
 
 } // namespace jazz_agency

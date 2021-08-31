@@ -129,42 +129,42 @@ class Api : public Container {
 
 	public:
 
-		Api (pLogger	 a_logger,
-			 pConfigFile a_config,
-			 pChannels	 a_channels,
-			 pVolatile	 a_volatile,
-			 pPersisted	 a_persisted,
-			 pBebop		 a_bebop,
-			 pAgency	 a_agency);
+		Api(pLogger		a_logger,
+			pConfigFile	a_config,
+			pChannels	a_channels,
+			pVolatile	a_volatile,
+			pPersisted	a_persisted,
+			pBebop		a_bebop,
+			pAgency		a_agency);
 
-		StatusCode start	 ();
-		StatusCode shut_down ();
+		StatusCode start	();
+		StatusCode shut_down();
 
 		// parsing methods
 
-		bool parse						(HttpQueryState	&q_state,
-										 pChar			 p_url,
-										 int			 method);
+		bool parse					   (HttpQueryState &q_state,
+										pChar			p_url,
+										int				method);
 
-		MHD_StatusCode get_static		(pMHD_Response	&response,
-										 pChar			 p_url,
-										 bool			 get_it = true);
+		MHD_StatusCode get_static	   (pMHD_Response  &response,
+										pChar			p_url,
+										bool			get_it = true);
 
 		// deliver http error pages
 
-		MHD_Result return_error_message (pMHD_Connection connection,
-										 pChar			 p_url,
-										 int			 http_status);
+		MHD_Result return_error_message(pMHD_Connection	connection,
+										pChar			p_url,
+										int				http_status);
 
 		// Specific execution methods
 
-		MHD_StatusCode http_put			(pChar			 p_upload,
-										 size_t			 size,
-										 HttpQueryState	&q_state,
-										 bool			 continue_upload);
-		MHD_StatusCode http_delete		(HttpQueryState	&q_state);
-		MHD_StatusCode http_get			(pMHD_Response	&response,
-										 HttpQueryState	&q_state);
+		MHD_StatusCode http_put		   (pChar			p_upload,
+										size_t			size,
+										HttpQueryState &q_state,
+										bool			continue_upload);
+		MHD_StatusCode http_delete	   (HttpQueryState &q_state);
+		MHD_StatusCode http_get		   (pMHD_Response  &response,
+										HttpQueryState &q_state);
 
 #ifndef CATCH_TEST
 	private:

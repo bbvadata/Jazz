@@ -118,11 +118,11 @@ class Channels : public Container {
 
 	public:
 
-		Channels (pLogger	  a_logger,
-				  pConfigFile a_config);
+		Channels(pLogger	 a_logger,
+				 pConfigFile a_config);
 
-		StatusCode start	 ();
-		StatusCode shut_down ();
+		StatusCode start	();
+		StatusCode shut_down();
 
 		// The easy interface (Requires explicit pulling because of the native interface using the same names.)
 
@@ -135,43 +135,43 @@ class Channels : public Container {
 
 		// The parser: This overrides the parser in Channels.
 
-		virtual StatusCode as_locator  (Locator			   &result,
-										pChar				p_what);
+		virtual StatusCode as_locator (Locator			 &result,
+									   pChar			  p_what);
 
 		// The "native" interface
 
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &what);
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &what,
-										pBlock				p_row_filter);
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-							  			Locator			   &what,
-							  			pChar				name);
-		virtual StatusCode header	   (StaticBlockHeader  &hea,
-										Locator			   &what);
-		virtual StatusCode header	   (pTransaction	   &p_txn,
-										Locator			   &what);
-		virtual StatusCode put		   (Locator			   &where,
-										pBlock				p_block,
-										int					mode = WRITE_ALWAYS_COMPLETE);
-		virtual StatusCode new_entity  (Locator			   &where);
-		virtual StatusCode remove	   (Locator			   &where);
-		virtual StatusCode copy		   (Locator			   &where,
-										Locator			   &what);
-		MHD_StatusCode	   forward_get (pTransaction	   &p_txn,
-										Name				node,
-										pChar				p_url,
-										int					apply);
-		MHD_StatusCode	   forward_put (Name				node,
-										pChar				p_url,
-										pBlock				p_block);
-		MHD_StatusCode	   forward_del (Name				node,
-										pChar				p_url);
+		virtual StatusCode get		  (pTransaction		 &p_txn,
+									   Locator			 &what);
+		virtual StatusCode get		  (pTransaction		 &p_txn,
+									   Locator			 &what,
+									   pBlock			  p_row_filter);
+		virtual StatusCode get		  (pTransaction		 &p_txn,
+							  		   Locator			 &what,
+							  		   pChar			  name);
+		virtual StatusCode header	  (StaticBlockHeader &hea,
+									   Locator			 &what);
+		virtual StatusCode header	  (pTransaction		 &p_txn,
+									   Locator			 &what);
+		virtual StatusCode put		  (Locator			 &where,
+									   pBlock			  p_block,
+									   int				  mode = WRITE_ALWAYS_COMPLETE);
+		virtual StatusCode new_entity (Locator			 &where);
+		virtual StatusCode remove	  (Locator			 &where);
+		virtual StatusCode copy		  (Locator			 &where,
+									   Locator			 &what);
+		MHD_StatusCode	   forward_get(pTransaction		 &p_txn,
+									   Name				  node,
+									   pChar			  p_url,
+									   int				  apply);
+		MHD_StatusCode	   forward_put(Name				  node,
+									   pChar			  p_url,
+									   pBlock			  p_block);
+		MHD_StatusCode	   forward_del(Name				  node,
+									   pChar			  p_url);
 
 		// Support for container names in the API .base_names()
 
-		void base_names (BaseNames &base_names);
+		void base_names(BaseNames &base_names);
 
 		// Public config variables
 

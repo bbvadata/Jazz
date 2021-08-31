@@ -208,7 +208,7 @@ StatusCode Persisted::shut_down() {
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Persisted::get (pTransaction &p_txn, Locator &what) {
+StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 
 	pMDB_txn p_l_txn;
 
@@ -262,7 +262,7 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what) {
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+StatusCode Persisted::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
 	pMDB_txn p_l_txn;
 
@@ -294,7 +294,7 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pBlock p_row_filt
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pChar name) {
+StatusCode Persisted::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 	pMDB_txn p_l_txn;
 
@@ -324,7 +324,7 @@ StatusCode Persisted::get (pTransaction &p_txn, Locator &what, pChar name) {
 This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
 for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
 */
-StatusCode Persisted::header (StaticBlockHeader &hea, Locator &what) {
+StatusCode Persisted::header(StaticBlockHeader &hea, Locator &what) {
 
 	pMDB_txn p_l_txn;
 
@@ -356,7 +356,7 @@ For Tensors it will allocate a block that only has the StaticBlockHeader (What y
 For Kinds, the metadata of all the items is exactly the same a .get() call returns.
 For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
-StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
+StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 
 	pMDB_txn p_l_txn;
 
@@ -414,7 +414,7 @@ StatusCode Persisted::header (pTransaction &p_txn, Locator &what) {
 
 **NOTE**: This updates the calling block's creation time and hash64.
 */
-StatusCode Persisted::put (Locator &where, pBlock p_block, int mode) {
+StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	pMDB_txn p_txn;
 
@@ -501,7 +501,7 @@ release_txn_and_fail:
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Persisted::new_entity (Locator &where) {
+StatusCode Persisted::new_entity(Locator &where) {
 
 	if (where.key[0] != 0)
 		return SERVICE_ERROR_CREATE_FAILED;
@@ -519,7 +519,7 @@ StatusCode Persisted::new_entity (Locator &where) {
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Persisted::remove (Locator &where) {
+StatusCode Persisted::remove(Locator &where) {
 
 	if (where.key[0] == 0) {
 		if (remove_database(where.entity))
@@ -538,8 +538,7 @@ StatusCode Persisted::remove (Locator &where) {
 
 	pMDB_txn p_txn;
 
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn)) {
 		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::remove().");
 
 		return SERVICE_ERROR_REMOVE_FAILED;
@@ -593,7 +592,7 @@ release_txn_and_fail:
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Persisted::copy (Locator &where, Locator &what) {
+StatusCode Persisted::copy(Locator &where, Locator &what) {
 
 	pMDB_txn p_l_txn;
 
@@ -622,7 +621,8 @@ are the name of a database (and will fail otherwise).
 config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
 "static" is a database of objects with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
 */
-void Persisted::base_names (BaseNames &base_names) {
+void Persisted::base_names(BaseNames &base_names) {
+
 	base_names["lmdb"] = this;		// Provides LMDB block persistence for any movable (Tensor, Kind or Tuple).
 }
 
@@ -633,7 +633,7 @@ void Persisted::base_names (BaseNames &base_names) {
 
 	\return	True if exists.
 */
-bool Persisted::dbi_exists (Name dbi_name) {
+bool Persisted::dbi_exists(Name dbi_name) {
 
 	return source_dbi.find(dbi_name) != source_dbi.end();
 }

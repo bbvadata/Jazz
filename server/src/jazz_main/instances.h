@@ -105,7 +105,7 @@ bool start_service(pService service, char const *service_name);
 	\return	True if the service stopped ok.
 
 */
-bool stop_service (pService service, char const *service_name);
+bool stop_service(pService service, char const *service_name);
 
 } // namespace jazz_main
 

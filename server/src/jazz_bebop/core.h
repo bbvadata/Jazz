@@ -74,15 +74,15 @@ class Bebop : public Container {
 
 	public:
 
-		Bebop (pLogger	   a_logger,
-			   pConfigFile a_config);
+		Bebop(pLogger	  a_logger,
+			  pConfigFile a_config);
 
-		StatusCode start	 ();
-		StatusCode shut_down ();
+		StatusCode start();
+		StatusCode shut_down();
 
-		StatusCode call		 (pTransaction &p_txn,
-							  Locator		function,
-							  pTuple		args);
+		StatusCode call(pTransaction &p_txn,
+						Locator		  function,
+						pTuple		  args);
 };
 
 } // namespace jazz_bebop

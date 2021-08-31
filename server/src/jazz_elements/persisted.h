@@ -96,11 +96,11 @@ class Persisted : public Container {
 
 	public:
 
-		Persisted (pLogger	   a_logger,
-				   pConfigFile a_config);
+		Persisted(pLogger	  a_logger,
+				  pConfigFile a_config);
 
-		StatusCode start	 ();
-		StatusCode shut_down ();
+		StatusCode start	();
+		StatusCode shut_down();
 
 		// The easy interface (Requires explicit pulling because of the native interface using the same names.)
 
@@ -113,30 +113,30 @@ class Persisted : public Container {
 
 		// The "native" interface
 
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &what);
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-										Locator			   &what,
-										pBlock				p_row_filter);
-		virtual StatusCode get		   (pTransaction	   &p_txn,
-							  			Locator			   &what,
-							  			pChar				name);
-		virtual StatusCode header	   (StaticBlockHeader  &hea,
-										Locator			   &what);
-		virtual StatusCode header	   (pTransaction	   &p_txn,
-										Locator			   &what);
-		virtual StatusCode put		   (Locator			   &where,
-										pBlock				p_block,
-										int					mode = WRITE_ALWAYS_COMPLETE);
-		virtual StatusCode new_entity  (Locator			   &where);
-		virtual StatusCode remove	   (Locator			   &where);
-		virtual StatusCode copy		   (Locator			   &where,
-										Locator			   &what);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  Locator			&what);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  Locator			&what,
+									  pBlock			 p_row_filter);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+							  		  Locator			&what,
+							  		  pChar				 name);
+		virtual StatusCode header	 (StaticBlockHeader	&hea,
+									  Locator			&what);
+		virtual StatusCode header	 (pTransaction		&p_txn,
+									  Locator			&what);
+		virtual StatusCode put		 (Locator			&where,
+									  pBlock			 p_block,
+									  int				 mode = WRITE_ALWAYS_COMPLETE);
+		virtual StatusCode new_entity(Locator			&where);
+		virtual StatusCode remove	 (Locator			&where);
+		virtual StatusCode copy		 (Locator			&where,
+									  Locator			&what);
 
 		// Support for container names in the API .base_names()
 
-		void base_names (BaseNames &base_names);
-		bool dbi_exists (Name		dbi_name);
+		void base_names(BaseNames &base_names);
+		bool dbi_exists(Name	   dbi_name);
 
 #ifndef CATCH_TEST
 	private:
@@ -158,14 +158,14 @@ class Persisted : public Container {
 
 		// Internal dbi management
 
-		bool open_all_databases	 ();
-		void close_all_databases ();
-		bool new_database		 (pChar name);
-		bool remove_database	 (pChar name);
+		bool open_all_databases	();
+		void close_all_databases();
+		bool new_database		(pChar name);
+		bool remove_database	(pChar name);
 
 		// Logger with full messages for lmdb errors.
 
-		void log_lmdb_err (int err, const char *msg);
+		void log_lmdb_err(int err, const char *msg);
 
 		DBImap source_dbi = {};
 		JazzLmdbOptions lmdb_opt;

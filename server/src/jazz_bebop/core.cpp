@@ -73,7 +73,7 @@ StatusCode Bebop::shut_down() {
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
-StatusCode Bebop::call (pTransaction &p_txn, Locator function, pTuple args) {
+StatusCode Bebop::call(pTransaction &p_txn, Locator function, pTuple args) {
 
 	return SERVICE_NOT_IMPLEMENTED;
 }

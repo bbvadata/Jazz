@@ -44,23 +44,23 @@ namespace jazz_elements
 {
 
 
-int client_test (void) {		// cppcheck-suppress unusedFunction
+int client_test(void) {		// cppcheck-suppress unusedFunction
 
-	printf ("Connecting to hello world server…\n");
-	void *context = zmq_ctx_new ();
-	void *requester = zmq_socket (context, ZMQ_REQ);
-	zmq_connect (requester, "tcp://localhost:5555");
+	printf("Connecting to hello world server…\n");
+	void *context = zmq_ctx_new();
+	void *requester = zmq_socket(context, ZMQ_REQ);
+	zmq_connect(requester, "tcp://localhost:5555");
 
 	int request_nbr;
 	for (request_nbr = 0; request_nbr != 10; request_nbr++) {
 		char buffer [10];
-		printf ("Sending Hello %d…\n", request_nbr);
-		zmq_send (requester, "Hello", 5, 0);
-		zmq_recv (requester, buffer, 10, 0);
-		printf ("Received World %d\n", request_nbr);
+		printf("Sending Hello %d…\n", request_nbr);
+		zmq_send(requester, "Hello", 5, 0);
+		zmq_recv(requester, buffer, 10, 0);
+		printf("Received World %d\n", request_nbr);
 	}
-	zmq_close (requester);
-	zmq_ctx_destroy (context);
+	zmq_close(requester);
+	zmq_ctx_destroy(context);
 
 	return 0;
 }
@@ -90,7 +90,7 @@ size_t write_callback(char * ptr, size_t size, size_t nmemb, void *userdata) {
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
-bool remote_testing_point () {			// cppcheck-suppress unusedFunction
+bool remote_testing_point() {			// cppcheck-suppress unusedFunction
 	CURL *curl;
 	CURLcode res;
 
@@ -228,7 +228,7 @@ curl_easy_setopt() https://everything.curl.dev/libcurl-http/cookies The USERNAME
 the USERPW https://curl.se/libcurl/c/CURLOPT_USERPWD.html
 
 */
-StatusCode Channels::as_locator (Locator &result, pChar p_what) {
+StatusCode Channels::as_locator(Locator &result, pChar p_what) {
 
 //TODO: Implement this.
 
@@ -250,7 +250,7 @@ be destroy()-ed when the caller is done.
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
 */
-StatusCode Channels::get (pTransaction &p_txn, Locator &what) {
+StatusCode Channels::get(pTransaction &p_txn, Locator &what) {
 
 //TODO: Implement this.
 
@@ -263,7 +263,7 @@ StatusCode Channels::get (pTransaction &p_txn, Locator &what) {
 **NOTE**: This is NOT supported by Channels since the blocks returned by endpoints would need other types for filtering. It does
 call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
 */
-StatusCode Channels::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+StatusCode Channels::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
 	destroy_extra_locator(what);
 
@@ -276,7 +276,7 @@ StatusCode Channels::get (pTransaction &p_txn, Locator &what, pBlock p_row_filte
 **NOTE**: This is NOT supported by Channels since the blocks returned by endpoints cannot be Tuples. It does
 call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
 */
-StatusCode Channels::get (pTransaction &p_txn, Locator &what, pChar name) {
+StatusCode Channels::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 	destroy_extra_locator(what);
 
@@ -297,7 +297,7 @@ for any other base, it makes sense to use get() instead to avoid downloading the
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
 */
-StatusCode Channels::header (StaticBlockHeader &hea, Locator &what) {
+StatusCode Channels::header(StaticBlockHeader &hea, Locator &what) {
 
 //TODO: Implement this.
 
@@ -310,7 +310,7 @@ StatusCode Channels::header (StaticBlockHeader &hea, Locator &what) {
 **NOTE**: This is NOT supported by Channels since the blocks returned by endpoints cannot be Tuples. It does
 call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
 */
-StatusCode Channels::header (pTransaction &p_txn, Locator &what) {
+StatusCode Channels::header(pTransaction &p_txn, Locator &what) {
 
 	destroy_extra_locator(what);
 
@@ -331,7 +331,7 @@ This does not support the **bash** base. For the **tcp** base, it will normally 
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
 */
-StatusCode Channels::put (Locator &where, pBlock p_block, int mode) {
+StatusCode Channels::put(Locator &where, pBlock p_block, int mode) {
 
 //TODO: Implement this.
 
@@ -348,7 +348,7 @@ StatusCode Channels::put (Locator &where, pBlock p_block, int mode) {
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
 */
-StatusCode Channels::new_entity (Locator &where) {
+StatusCode Channels::new_entity(Locator &where) {
 
 //TODO: Implement this.
 
@@ -366,7 +366,7 @@ This only supports the bases **file** (for both files and folders) and **http** 
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
 */
-StatusCode Channels::remove (Locator &where) {
+StatusCode Channels::remove(Locator &where) {
 
 //TODO: Implement this.
 
@@ -385,7 +385,7 @@ At least one of the endpoints must have the base **file**.
 
 **NOTE**: This can only be used once since it calls destroy_extra_locator() on **where** and **what**.
 */
-StatusCode Channels::copy (Locator &where, Locator &what) {
+StatusCode Channels::copy(Locator &where, Locator &what) {
 
 //TODO: Implement this.
 
@@ -398,7 +398,7 @@ StatusCode Channels::copy (Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 */
-void Channels::base_names (BaseNames &base_names) {
+void Channels::base_names(BaseNames &base_names) {
 
 	base_names["bash"]	= this;		// Runs shell scripts
 	base_names["file"]	= this;		// Returns arrays of bytes with attributes for files, IndexIS for folders.
@@ -416,7 +416,7 @@ void Channels::base_names (BaseNames &base_names) {
 
 	\return		  MHD_HTTP_OK on success, or some valid http status error code.
 */
-MHD_StatusCode Channels::forward_get (pTransaction &p_txn, Name node, pChar p_url, int apply) {
+MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url, int apply) {
 
 //TODO: Implement this.
 
@@ -432,7 +432,7 @@ MHD_StatusCode Channels::forward_get (pTransaction &p_txn, Name node, pChar p_ur
 
 	\return			MHD_HTTP_CREATED on success, or some valid http status error code.
 */
-MHD_StatusCode Channels::forward_put (Name node, pChar p_url, pBlock p_block) {
+MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 
 //TODO: Implement this.
 
@@ -447,7 +447,7 @@ MHD_StatusCode Channels::forward_put (Name node, pChar p_url, pBlock p_block) {
 
 	\return		  MHD_HTTP_OK on success, or some valid http status error code.
 */
-MHD_StatusCode Channels::forward_del (Name node, pChar p_url) {
+MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 
 //TODO: Implement this.
 

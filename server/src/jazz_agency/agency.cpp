@@ -58,7 +58,7 @@ StatusCode Agency::start() {
 
 /** Shuts down the Agency Service
 */
-StatusCode Agency::shut_down()  {
+StatusCode Agency::shut_down() {
 
 	return SERVICE_NO_ERROR;
 }

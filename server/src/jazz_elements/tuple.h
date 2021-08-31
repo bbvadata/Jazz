@@ -107,11 +107,11 @@ class Tuple : public Block {
 
 			\return			 0, SERVICE_ERROR_NO_MEM, SERVICE_ERROR_WRONG_TYPE, SERVICE_ERROR_WRONG_NAME, SERVICE_ERROR_WRONG_ARGUMENTS
 		*/
-		inline StatusCode new_tuple (int	num_items,
-									 pBlock blocks[],
-									 Name	p_names[],
-									 int	num_bytes,
-									 AttributeMap &attr) {
+		inline StatusCode new_tuple(int			  num_items,
+									pBlock		  blocks[],
+									Name		  p_names[],
+									int			  num_bytes,
+									AttributeMap &attr) {
 
 			if (num_items < 1 || num_items >= MAX_ITEMS_IN_KIND)
 				return false;
@@ -192,6 +192,7 @@ class Tuple : public Block {
 		inline char *item_name(int idx)	{
 			if (idx < 0 | idx >= size)
 				return nullptr;
+
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
 		}
 
@@ -202,10 +203,10 @@ class Tuple : public Block {
 			\return A invalid index or -1 for "not found".
 		*/
 		inline int index(pChar name) {
-			for (int idx = 0; idx < size; idx++) {
+			for (int idx = 0; idx < size; idx++)
 				if (strcmp(reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]), name) == 0)
 					return idx;
-			}
+
 			return -1;
 		}
 
@@ -220,6 +221,7 @@ class Tuple : public Block {
 		inline pBlock get_block(int idx) {
 			if (idx < 0 | idx >= size)
 				return nullptr;
+
 			return (pBlock) ((uintptr_t) &tensor + tensor.cell_item[idx].data_start);
 		}
 

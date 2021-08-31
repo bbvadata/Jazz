@@ -259,21 +259,21 @@ class Container : public Service {
 
 	public:
 
-		Container (pLogger	   a_logger,
+		Container(pLogger	   a_logger,
 				   pConfigFile a_config);
-	   ~Container ();
+	   ~Container();
 
 	   // Service API
 
-		StatusCode start	   ();
-		StatusCode shut_down   ();
+		StatusCode start	();
+		StatusCode shut_down();
 
 		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 
-		void enter_read		   (pTransaction  p_txn);
-		void enter_write	   (pTransaction  p_txn);
-		void leave_read		   (pTransaction  p_txn);
-		void leave_write	   (pTransaction  p_txn);
+		void enter_read	(pTransaction p_txn);
+		void enter_write(pTransaction p_txn);
+		void leave_read	(pTransaction p_txn);
+		void leave_write(pTransaction p_txn);
 
 		// - Allocation: .new_block(), .destroy()
 
@@ -378,7 +378,7 @@ class Container : public Service {
 
 		// Support for container names in the API .base_names()
 
-		void base_names		   (BaseNames 	 &base_names);
+		void base_names(BaseNames &base_names);
 
 #ifndef CATCH_TEST
 	protected:
@@ -386,7 +386,7 @@ class Container : public Service {
 
 		/** An std::malloc() that increases .alloc_bytes on each call and fails on overcommit.
 		*/
-		inline void* malloc (size_t size) {
+		inline void* malloc(size_t size) {
 			if (alloc_bytes + size >= fail_alloc_bytes)
 				return nullptr;
 
@@ -415,7 +415,7 @@ class Container : public Service {
 
 			Needeless to say: Use only for a few clockcycles over the critical part and always unlock_container() no matter what.
 		*/
-		inline void lock_container () {
+		inline void lock_container() {
 			int		retry = 0;
 			int32_t lock = 0;
 			int32_t next = 1;
@@ -433,7 +433,7 @@ class Container : public Service {
 
 		/** Release the private hard lock for Container-critical operations.
 		*/
-		void unlock_container () {
+		void unlock_container() {
 			_lock_ = 0;
 		}
 
@@ -442,7 +442,7 @@ class Container : public Service {
 			This (faster) method assumes the Container owns the Transaction and nobody else is using it. Use destroy() as a safer
 			alternative.
 		*/
-		inline void destroy_internal (pTransaction &p_txn) {
+		inline void destroy_internal(pTransaction &p_txn) {
 			if (p_txn->p_block != nullptr) {
 				switch (p_txn->p_block->cell_type) {
 				case CELL_TYPE_INDEX_II:
@@ -497,7 +497,7 @@ class Container : public Service {
 
 		/** Allocate a Transaction to share a block via the API.
 		*/
-		inline StatusCode new_transaction (pTransaction &p_txn) {
+		inline StatusCode new_transaction(pTransaction &p_txn) {
 			if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
 				log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
 						   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);

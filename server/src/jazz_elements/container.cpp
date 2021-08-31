@@ -276,7 +276,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 }
 
 
-Container::~Container () { destroy_container(); }
+Container::~Container() { destroy_container(); }
 
 
 /** Reads variables from config and sets private variables accordingly.
@@ -1307,7 +1307,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			p_item_blck[i]->get_dimensions(&p_hea[i].range.dim[0]);
 		}
 
-		int ret = new_block (p_txn, num_items, p_hea, item_name, p_item_blck, nullptr, att);
+		int ret = new_block(p_txn, num_items, p_hea, item_name, p_item_blck, nullptr, att);
 
 		for (int i = 0; i < num_items; i++)
 			destroy_internal(p_aux_txn[i]);
@@ -1347,7 +1347,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
 			dims[it->second] = it->first.c_str();
 
-		return new_block (p_txn, num_items, hea, item_name, nullptr, &dims, att);
+		return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
@@ -1594,7 +1594,7 @@ allocation, the p_block will be freed and the p_route ignored (since this Contai
 Persisted or Volatile Blocks will not be destroyed when a Transaction referring to them is destroyed. If the descentant allocates
 a p_route, it should also free it when the Transaction is destroyed.
 */
-void Container::destroy (pTransaction &p_txn) {
+void Container::destroy(pTransaction &p_txn) {
 
 	if (p_txn->p_owner == nullptr) {
 		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
@@ -1607,8 +1607,8 @@ void Container::destroy (pTransaction &p_txn) {
 		return;
 	}
 
-	enter_write		 (p_txn);
-	destroy_internal (p_txn);
+	enter_write(p_txn);
+	destroy_internal(p_txn);
 }
 
 
@@ -1623,7 +1623,7 @@ void Container::destroy (pTransaction &p_txn) {
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::get (pTransaction &p_txn, pChar p_what) {
+StatusCode Container::get(pTransaction &p_txn, pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1650,7 +1650,7 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what) {
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::get (pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
+StatusCode Container::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1675,7 +1675,7 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what, pBlock p_row_filte
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy()-ed when the caller is done.
 */
-StatusCode Container::get (pTransaction &p_txn, pChar p_what, pChar name) {
+StatusCode Container::get(pTransaction &p_txn, pChar p_what, pChar name) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1698,7 +1698,7 @@ StatusCode Container::get (pTransaction &p_txn, pChar p_what, pChar name) {
 This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
 for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
 */
-StatusCode Container::header (StaticBlockHeader	&hea, pChar p_what) {
+StatusCode Container::header(StaticBlockHeader	&hea, pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1724,7 +1724,7 @@ For Tensors it will allocate a block that only has the StaticBlockHeader (What y
 For Kinds, the metadata of all the items is exactly the same a .get() call returns.
 For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
-StatusCode Container::header (pTransaction &p_txn, pChar p_what) {
+StatusCode Container::header(pTransaction &p_txn, pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1747,7 +1747,7 @@ StatusCode Container::header (pTransaction &p_txn, pChar p_what) {
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 */
-StatusCode Container::put (pChar p_where, pBlock p_block, int mode) {
+StatusCode Container::put(pChar p_where, pBlock p_block, int mode) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1766,7 +1766,7 @@ StatusCode Container::put (pChar p_where, pBlock p_block, int mode) {
 
 	What an entity is, is Container and base dependent. It can be an lmdb database, a folder in a filesystem, a Volatile tree, ...
 */
-StatusCode Container::new_entity (pChar p_where) {
+StatusCode Container::new_entity(pChar p_where) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1785,7 +1785,7 @@ StatusCode Container::new_entity (pChar p_where) {
 
 	What an entity is, is Container and base dependent. It can be an lmdb database, a folder in a filesystem, a Volatile tree, ...
 */
-StatusCode Container::remove (pChar p_where) {
+StatusCode Container::remove(pChar p_where) {
 	Locator loc;
 	StatusCode ret;
 
@@ -1806,7 +1806,7 @@ StatusCode Container::remove (pChar p_where) {
 **NOTE**: This does not copy blocks across Containers. A copy() call is a short way to do "get(tx, what); put(where, tx); destroy(tx);"
 without the Container needing to allocate Transactions and, possibly, not even blocks. To copy blocks across containers, you need channels.
 */
-StatusCode Container::copy (pChar p_where, pChar p_what) {
+StatusCode Container::copy(pChar p_where, pChar p_what) {
 	Locator where, what;
 	StatusCode ret;
 
@@ -1829,7 +1829,7 @@ StatusCode Container::copy (pChar p_where, pChar p_what) {
 
 More complex Container descendants that support URLs, credentials, cookies, etc. will override this minimalistic parser.
 */
-StatusCode Container::as_locator (Locator &result, pChar p_what) {
+StatusCode Container::as_locator(Locator &result, pChar p_what) {
 
 	if (p_what[0] != '/' || p_what[1] != '/')
 		return SERVICE_ERROR_PARSING_NAMES;
@@ -1903,7 +1903,7 @@ StatusCode Container::as_locator (Locator &result, pChar p_what) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::get (pTransaction &p_txn, Locator &what) {
+StatusCode Container::get(pTransaction &p_txn, Locator &what) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1913,7 +1913,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::get (pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+StatusCode Container::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1923,7 +1923,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what, pBlock p_row_filt
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::get (pTransaction &p_txn, Locator &what, pChar name) {
+StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1933,7 +1933,7 @@ StatusCode Container::get (pTransaction &p_txn, Locator &what, pChar name) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::header (StaticBlockHeader &hea, Locator &what) {
+StatusCode Container::header(StaticBlockHeader &hea, Locator &what) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1943,7 +1943,7 @@ StatusCode Container::header (StaticBlockHeader &hea, Locator &what) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::header (pTransaction &p_txn, Locator &what) {
+StatusCode Container::header(pTransaction &p_txn, Locator &what) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1953,7 +1953,7 @@ StatusCode Container::header (pTransaction &p_txn, Locator &what) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::put (Locator &where, pBlock p_block, int mode) {
+StatusCode Container::put(Locator &where, pBlock p_block, int mode) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1963,7 +1963,7 @@ StatusCode Container::put (Locator &where, pBlock p_block, int mode) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::new_entity (Locator &where) {
+StatusCode Container::new_entity(Locator &where) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1973,7 +1973,7 @@ StatusCode Container::new_entity (Locator &where) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::remove (Locator &where) {
+StatusCode Container::remove(Locator &where) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1983,7 +1983,7 @@ StatusCode Container::remove (Locator &where) {
 
 **NOTE**: The root Container class does not implement this.
 */
-StatusCode Container::copy (Locator &where, Locator &what) {
+StatusCode Container::copy(Locator &where, Locator &what) {
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
@@ -1995,7 +1995,7 @@ StatusCode Container::copy (Locator &where, Locator &what) {
 
 	The root class Container does not add any base names.
 */
-void Container::base_names (BaseNames &base_names) {}
+void Container::base_names(BaseNames &base_names) {}
 
 
 /** Creates the buffers for new_transaction()/destroy()
@@ -2050,7 +2050,7 @@ StatusCode Container::destroy_container() {
 			destroy_internal(pt);
 		}
 
-		free (p_buffer);
+		free(p_buffer);
 	}
 	alloc_bytes = 0;
 	p_buffer = p_alloc = p_free = nullptr;
@@ -3002,7 +3002,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 	\return	StatusCode like a new_block() call
 */
-int Container::new_text_block (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
+int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
 
 	p_txn = nullptr;
 
@@ -3080,7 +3080,7 @@ int Container::new_text_block (pTransaction &p_txn, ItemHeader &item_hea, pChar 
 
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
-int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -3236,7 +3236,7 @@ int Container::tensor_int_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
-int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
+int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -3341,7 +3341,7 @@ int Container::tensor_bool_as_text (pBlock p_block, pChar p_dest) {
 
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
-int Container::tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -3460,7 +3460,7 @@ The RFC http://www.ietf.org/rfc/rfc3629.txt says:
     0000 0800-0000 FFFF | 1110xxxx 10xxxxxx 10xxxxxx
     0001 0000-0010 FFFF | 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
 */
-int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
+int Container::tensor_string_as_text(pBlock p_block, pChar p_dest) {
 	int shape[MAX_TENSOR_RANK];
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
@@ -3614,7 +3614,7 @@ int Container::tensor_string_as_text (pBlock p_block, pChar p_dest) {
 
 The serialization includes NA identification, commas spaces an square brackets to define the shape.
 */
-int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
+int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 	if (p_fmt == nullptr)
 		p_fmt = (pChar) &DEF_FLOAT_TIME;
@@ -3637,7 +3637,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 				total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
 			else {
-				if (gmtime_r (p_t, &timeinfo) == nullptr)
+				if (gmtime_r(p_t, &timeinfo) == nullptr)
 					return 0;
 
 				char cell [MAX_SIZE_OF_CELL_AS_TEXT];
@@ -3660,7 +3660,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_dest += LENGTH_NA_AS_TEXT;
 
 		} else {
-			if (gmtime_r (p_t, &timeinfo) == nullptr)
+			if (gmtime_r(p_t, &timeinfo) == nullptr)
 				return 0;
 
 			p_dest += strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, &timeinfo);
@@ -3688,7 +3688,7 @@ int Container::tensor_time_as_text (pBlock p_block, pChar p_dest, pChar p_fmt) {
 
 The serialization includes item names and the content of each tensor as written by the tensor methods.
 */
-int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
+int Container::tensor_tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
 	if (p_dest == nullptr) {
 		int total_len = 1;		// 3 for opening and closing () + /0 - 2 (for the last item not having final ', ')
 
@@ -3807,7 +3807,7 @@ int Container::tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, 
 
 The serialization includes item names, types and shapes.
 */
-int Container::tensor_kind_as_text (pKind p_kind, pChar p_dest) {
+int Container::tensor_kind_as_text(pKind p_kind, pChar p_dest) {
 
 	if (p_dest == nullptr) {
 		int total_len = 1;		// 3 for opening and closing {} + /0 - 2 (for the last item not having final ', ')

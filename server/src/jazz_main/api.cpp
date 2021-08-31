@@ -132,7 +132,7 @@ ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 #define MHD_HTTP_ANYERROR true
 
 #ifdef DEBUG
-MHD_Result print_out_key (void *cls, enum MHD_ValueKind kind, const char *key, const char *value) {
+MHD_Result print_out_key(void *cls, enum MHD_ValueKind kind, const char *key, const char *value) {
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
 
 	return MHD_YES;
@@ -226,7 +226,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	LOGGER.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - cls \x20 \x20 \x20 \x20 \x20 \x20 \x20: %p", cls);
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - connection \x20 \x20 \x20 : %p", connection);
-	MHD_get_connection_values (connection, MHD_HEADER_KIND, &print_out_key, NULL);
+	MHD_get_connection_values(connection, MHD_HEADER_KIND, &print_out_key, NULL);
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - url \x20 \x20 \x20 \x20 \x20 \x20 \x20: %s", url);
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - method \x20 \x20 \x20 \x20 \x20 : %s", method);
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - version \x20 \x20 \x20 \x20 \x20: %s", version);
@@ -264,10 +264,10 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 				allow = allow + "OPTIONS";
 			}
 
-			response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+			response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
-			MHD_add_response_header (response, MHD_HTTP_HEADER_SERVER, "Jazz " JAZZ_VERSION " - " LINUX_PLATFORM);
-			MHD_add_response_header (response, MHD_HTTP_HEADER_ALLOW, allow.c_str());
+			MHD_add_response_header(response, MHD_HTTP_HEADER_SERVER, "Jazz " JAZZ_VERSION " - " LINUX_PLATFORM);
+			MHD_add_response_header(response, MHD_HTTP_HEADER_ALLOW, allow.c_str());
 		}
 
 		status = MHD_HTTP_NO_CONTENT;
@@ -335,45 +335,45 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 		return API.return_error_message(connection, (pChar) url, status);
 
 	if (http_method == HTTP_DELETE)
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
 	MHD_Result ret;
 
 answer_status:
 
-	ret = MHD_queue_response (connection, status, response);
+	ret = MHD_queue_response(connection, status, response);
 
-	MHD_destroy_response (response);
+	MHD_destroy_response(response);
 
 	return ret;
 
 create_response_answer_put_ok:
 
-	response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+	response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
-	ret = MHD_queue_response (connection, MHD_HTTP_CREATED, response);
+	ret = MHD_queue_response(connection, MHD_HTTP_CREATED, response);
 
-	MHD_destroy_response (response);
+	MHD_destroy_response(response);
 
 	return ret;
 
 create_response_answer_PUT_NOTACCEPTABLE:
 
-	response = MHD_create_response_from_buffer (1, response_put_fail, MHD_RESPMEM_PERSISTENT);
+	response = MHD_create_response_from_buffer(1, response_put_fail, MHD_RESPMEM_PERSISTENT);
 
-	ret = MHD_queue_response (connection, MHD_HTTP_NOT_ACCEPTABLE, response);
+	ret = MHD_queue_response(connection, MHD_HTTP_NOT_ACCEPTABLE, response);
 
-	MHD_destroy_response (response);
+	MHD_destroy_response(response);
 
 	return ret;
 
 create_response_answer_PUT_BADREQUEST:
 
-	response = MHD_create_response_from_buffer (1, response_put_fail, MHD_RESPMEM_PERSISTENT);
+	response = MHD_create_response_from_buffer(1, response_put_fail, MHD_RESPMEM_PERSISTENT);
 
-	ret = MHD_queue_response (connection, MHD_HTTP_BAD_REQUEST, response);
+	ret = MHD_queue_response(connection, MHD_HTTP_BAD_REQUEST, response);
 
-	MHD_destroy_response (response);
+	MHD_destroy_response(response);
 
 	return ret;
 
@@ -455,7 +455,7 @@ Configuration-wise the API has just two keys:
 
 Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
-StatusCode Api::start () {
+StatusCode Api::start() {
 
 	BaseNames base = {};
 
@@ -500,7 +500,7 @@ StatusCode Api::start () {
 
 /** Shuts down the Persisted Service
 */
-StatusCode Api::shut_down () {
+StatusCode Api::shut_down() {
 
 	StatusCode err;
 
@@ -534,7 +534,7 @@ HTTP_DELETE | Api.http_delete()
 HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
 
 */
-bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
+bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 
 	int buf_size;
 	pChar p_out;
@@ -781,7 +781,7 @@ bool Api::parse (HttpQueryState &q_state, pChar p_url, int method) {
 	\return			Some error code or SERVICE_NO_ERROR if successful.
 
 */
-MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_it) {
+MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
 
 	IndexSS::iterator it = www.find(std::string(p_url));
 
@@ -798,14 +798,14 @@ MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_i
 
 	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
 
-	response = MHD_create_response_from_buffer (size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+	response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 
 	pChar p_att;
 	if ((p_att = p_txn->p_block->get_attribute(BLOCK_ATTRIB_MIMETYPE)) != nullptr)
-		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, p_att);
+		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, p_att);
 
 	if ((p_att = p_txn->p_block->get_attribute(BLOCK_ATTRIB_LANGUAGE)) != nullptr)
-		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_LANGUAGE, p_att);
+		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_LANGUAGE, p_att);
 
 	p_persisted->destroy(p_txn);
 
@@ -823,7 +823,7 @@ MHD_StatusCode Api::get_static (pMHD_Response &response, pChar p_url, bool get_i
 
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
-MHD_Result Api::return_error_message (pMHD_Connection connection, pChar p_url, int http_status) {
+MHD_Result Api::return_error_message(pMHD_Connection connection, pChar p_url, int http_status) {
 
 	char answer[2048];
 
@@ -845,11 +845,11 @@ MHD_Result Api::return_error_message (pMHD_Connection connection, pChar p_url, i
 			p_url,
 			http_status);
 
-	struct MHD_Response *response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
+	struct MHD_Response *response = MHD_create_response_from_buffer(strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
 
-	MHD_Result ret = MHD_queue_response (connection, http_status, response);
+	MHD_Result ret = MHD_queue_response(connection, http_status, response);
 
-	MHD_destroy_response (response);
+	MHD_destroy_response(response);
 
 	return ret;
 }
@@ -871,7 +871,7 @@ the block is appended at the end on the existing block.
 callback, but it is not intended for any other context.
 
 */
-MHD_StatusCode Api::http_put (pChar p_upload, size_t size, HttpQueryState &q_state, bool continue_upload) {
+MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, bool continue_upload) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -992,7 +992,7 @@ MHD_StatusCode Api::http_put (pChar p_upload, size_t size, HttpQueryState &q_sta
 callback, but it is not intended for any other context.
 
 */
-MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
+MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -1027,7 +1027,7 @@ MHD_StatusCode Api::http_delete (HttpQueryState &q_state) {
 for the callback, but it is not intended for any other context.
 
 */
-MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) {
+MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -1041,7 +1041,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 			return ret;
 
 		int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
-		response = MHD_create_response_from_buffer (size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+		response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 
 		p_channels->destroy(p_txn);
 
@@ -1050,9 +1050,9 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 	if (q_state.apply == APPLY_JAZZ_INFO) {
 #ifdef DEBUG
-		std::string st ("DEBUG");
+		std::string st("DEBUG");
 #else
-		std::string st ("RELEASE");
+		std::string st("RELEASE");
 #endif
 		char answer[1024];
 
@@ -1071,9 +1071,9 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 				JAZZ_VERSION, st.c_str(), LINUX_PLATFORM, my_name.c_str(), my_ip.c_str(), my_port, my_idx, nn_nodes,
 				unn.sysname, unn.nodename, unn.release, unn.version, unn.machine);
 
-		response = MHD_create_response_from_buffer (strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
+		response = MHD_create_response_from_buffer(strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
 
-		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
+		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
 		return MHD_HTTP_OK;
 	}
@@ -1113,7 +1113,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 		}
 		destroy(p_txn);
 
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
 		return MHD_HTTP_OK; }
 
@@ -1121,7 +1121,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
 		return MHD_HTTP_OK;
 
@@ -1136,7 +1136,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 		}
 		destroy(p_txn);
 
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
 		return MHD_HTTP_OK;
 
@@ -1144,7 +1144,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 		if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		response = MHD_create_response_from_buffer (1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
 		return MHD_HTTP_OK;
 
@@ -1159,9 +1159,9 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 
 			return MHD_HTTP_NOT_FOUND;
 		}
-		response = MHD_create_response_from_buffer (strlen(p_att), p_att, MHD_RESPMEM_MUST_COPY);
+		response = MHD_create_response_from_buffer(strlen(p_att), p_att, MHD_RESPMEM_MUST_COPY);
 
-		MHD_add_response_header (response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
+		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
 		p_container->destroy(p_txn);
 
@@ -1293,7 +1293,7 @@ MHD_StatusCode Api::http_get (pMHD_Response &response, HttpQueryState &q_state) 
 	}
 
 	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
-	response = MHD_create_response_from_buffer (size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+	response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 
 	p_container->destroy(p_txn);
 
@@ -1315,7 +1315,7 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_level) {
+StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_level) {
 
 	if (rec_level > MAX_RECURSE_LEVEL_ON_STATICS)
 		return SERVICE_ERROR_TOO_DEEP;
@@ -1332,7 +1332,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 			if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
 				log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
 
-		  		closedir (dir);
+		  		closedir(dir);
 
 				return ret;
 			}
@@ -1343,7 +1343,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 		int		 file_num = 1;
 		uint64_t dir_hash = MurmurHash64A(&root_dir, strlen(root_dir));
 
-		while ((ent = readdir (dir)) != nullptr) {	// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
+		while ((ent = readdir(dir)) != nullptr) {	// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
 													// readdir() (3) is thread safe.
 			if (ent->d_type == DT_REG) {
 				char fn[1024];
@@ -1352,7 +1352,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				if (ret < 0 || ret >= 1024) {
 					log(LOG_ERROR, "Api::load_statics(): File path/name too long.");
 
-			  		closedir (dir);
+			  		closedir(dir);
 
 					return SERVICE_ERROR_NO_MEM;
 				}
@@ -1364,7 +1364,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				if (ret != SERVICE_NO_ERROR) {
 					log(LOG_ERROR, "Api::load_statics(): p_channels->get() failed.");
 
-			  		closedir (dir);
+			  		closedir(dir);
 
 					return ret;
 				}
@@ -1420,7 +1420,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 
 					p_channels->destroy(p_base);
 
-			  		closedir (dir);
+			  		closedir(dir);
 
 					return SERVICE_ERROR_NO_MEM;
 				}
@@ -1437,7 +1437,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				if (ret != SERVICE_NO_ERROR) {
 					log(LOG_ERROR, "Api::load_statics(): p_persisted->put() failed.");
 
-			  		closedir (dir);
+			  		closedir(dir);
 
 					return ret;
 				}
@@ -1448,7 +1448,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				if (ret < 0 || ret >= 1024) {
 					log(LOG_ERROR, "Api::load_statics(): nested path too long.");
 
-			  		closedir (dir);
+			  		closedir(dir);
 
 					return SERVICE_ERROR_NO_MEM;
 				}
@@ -1456,13 +1456,13 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 				ret = load_statics(p_base_path, (pChar) &next_relative_path, rec_level + 1);
 
 				if (ret != SERVICE_NO_ERROR) {
-			  		closedir (dir);
+			  		closedir(dir);
 
 					return ret;
 				}
 			}
 		}
-  		closedir (dir);
+  		closedir(dir);
 	}
 
 	return SERVICE_NO_ERROR;
@@ -1479,7 +1479,7 @@ StatusCode Api::load_statics (pChar p_base_path, pChar p_relative_path, int rec_
 
 See https://en.wikipedia.org/wiki/Percent-encoding This is utf-8 compatible, utf-8 chars are just percent encoded one byte at a time.
 */
-bool Api::expand_url_encoded (pChar p_buff, int buff_size, pChar p_url) {
+bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 
 	if (*(p_url++) != '#')
 		return false;
@@ -1546,7 +1546,7 @@ bool Api::expand_url_encoded (pChar p_buff, int buff_size, pChar p_url) {
 
 	\return			'true' if successful.
 */
-bool Api::parse_nested (Locator &r_value, pChar p_url) {
+bool Api::parse_nested(Locator &r_value, pChar p_url) {
 
 	int buf_size, state = PSTATE_INITIAL;
 	pChar p_out;
@@ -1619,7 +1619,7 @@ bool Api::parse_nested (Locator &r_value, pChar p_url) {
 
 	\return			'true' if successful.
 */
-bool Api::block_from_const (pTransaction &p_txn, pChar p_const) {
+bool Api::block_from_const(pTransaction &p_txn, pChar p_const) {
 
 	int size = strlen(p_const) + 1;
 	int dim[MAX_TENSOR_RANK] = {size, 0, 0, 0, 0, 0};

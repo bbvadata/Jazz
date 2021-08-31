@@ -54,7 +54,7 @@ using namespace jazz_elements;
 
 /** Callback function used to handle a POSIX signal.
 */
-typedef void (*pSignalHandler) (int signum);
+typedef void (*pSignalHandler)(int signum);
 
 
 /** The server's MHD_Daemon created by MHD_start_daemon() and needed for MHD_stop_daemon()
@@ -69,13 +69,14 @@ class HttpServer : public Service {
 
 	public:
 
-		HttpServer (pLogger		a_logger,
-					pConfigFile a_config);
+		HttpServer(pLogger	   a_logger,
+				   pConfigFile a_config);
 
-		StatusCode start   (pSignalHandler				p_sig_handler,
-						 	pMHD_Daemon				   &p_daemon,
-							MHD_AccessHandlerCallback	dh,
-							Channels				   &channels);
+		StatusCode start(pSignalHandler				p_sig_handler,
+						 pMHD_Daemon			   &p_daemon,
+						 MHD_AccessHandlerCallback	dh,
+						 Channels				   &channels);
+
 		StatusCode shut_down();
 
 	private:

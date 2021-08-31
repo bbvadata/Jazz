@@ -336,7 +336,7 @@ ConfigFile::ConfigFile(const char *input_file_name) {
 bool ConfigFile::load_config(const char *input_file_name) {
 	config.clear();
 
-	std::ifstream fh (input_file_name);
+	std::ifstream fh(input_file_name);
 
 	if (!fh.is_open()) return false;
 
@@ -382,7 +382,7 @@ int ConfigFile::num_keys() {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, int &value) {
-	std::string keys (key);
+	std::string keys(key);
 
 	try	{
 		std::string val = config[keys];
@@ -410,7 +410,7 @@ bool ConfigFile::get_key(const char *key, int &value) {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, double &value) {
-	std::string keys (key);
+	std::string keys(key);
 
 	try {
 		std::string val = config[keys];
@@ -438,7 +438,7 @@ bool ConfigFile::get_key(const char *key, double &value) {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, std::string &value) {
-	std::string keys (key);
+	std::string keys(key);
 
 	std::string s = config[keys];
 
@@ -502,7 +502,7 @@ void Logger::InitLogger() {
 
 	f_buff = f_stream.rdbuf();
 
-	f_buff->open (file_name, std::ios::out | std::ios::app);
+	f_buff->open(file_name, std::ios::out | std::ios::app);
 
 	big_bang = std::chrono::steady_clock::now();
 
@@ -574,7 +574,7 @@ void Logger::log(int loglevel, const char *message) {
 
 #define LEFTAUTO	28
 
-	sprintf (buffer, "%12.6f : %02d : %5zu : ", sec, loglevel, syscall(SYS_gettid));	// This fills LEFTAUTO char
+	sprintf(buffer, "%12.6f : %02d : %5zu : ", sec, loglevel, syscall(SYS_gettid));	// This fills LEFTAUTO char
 	while (strlen(buffer) > LEFTAUTO)
 	{
 		int j = strlen(buffer);

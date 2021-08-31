@@ -142,7 +142,7 @@ typedef void* TenBitPtrLUT[TENBITS_LUT_SIZE];
 
 	Warning: No pointer validation or length check. Never use on nullptr or "".
 */
-inline int TenBitsAtAddress (const char* str) {
+inline int TenBitsAtAddress(const char* str) {
 	return ((str[1] & 0x1f) << 5) | (str[0] & 0x1F);
 }
 
@@ -199,13 +199,13 @@ class ConfigFile {
 
 		ConfigFile(const char *input_file_name);
 
-		bool load_config (const char *input_file_name);
+		bool load_config(const char *input_file_name);
 
-		int	 num_keys ();
+		int	 num_keys();
 
-		bool get_key  (const char *key, int &value);
-		bool get_key  (const char *key, double &value);
-		bool get_key  (const char *key, std::string &value);
+		bool get_key(const char *key, int &value);
+		bool get_key(const char *key, double &value);
+		bool get_key(const char *key, std::string &value);
 
 		void debug_put(const std::string key, const std::string val);
 
@@ -230,11 +230,11 @@ class Logger {
 				const char		 *config_key);
 		~Logger();
 
-		int	 get_output_file_name (char *buff, int buff_size);
+		int	 get_output_file_name(char *buff, int buff_size);
 
-		void log		(int loglevel, const char *message);
-		void log_printf	(int loglevel, const char *fmt, ...);
-		void log_printf	(int loglevel, const char *fmt, va_list args);
+		void log	   (int loglevel, const char *message);
+		void log_printf(int loglevel, const char *fmt, ...);
+		void log_printf(int loglevel, const char *fmt, va_list args);
 
 #if defined CATCH_TEST
 		bool SkipLogOnce;
@@ -269,8 +269,8 @@ class Service {
 			     pConfigFile a_config);
 
 		/// A simple start()/shut_down() interface (Restart is: shut_down(TRUE):start())
-		virtual StatusCode start	 ();
-		virtual StatusCode shut_down ();
+		virtual StatusCode start	();
+		virtual StatusCode shut_down();
 
 		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
 
@@ -279,7 +279,7 @@ class Service {
 
 			See Logger for details.
 		*/
-		inline void log (int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
+		inline void log(int loglevel, const char *message) { if (p_log != nullptr) p_log->log(loglevel, message); }
 
 		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
 
@@ -289,7 +289,7 @@ class Service {
 
 			See Logger for details.
 		*/
-		inline void log_printf (int loglevel, const char *fmt, ...) {
+		inline void log_printf(int loglevel, const char *fmt, ...) {
 			if (p_log != nullptr) {
 				va_list args;
 				va_start(args, fmt);
@@ -306,13 +306,13 @@ class Service {
 
 			See ConfigFile for details.
 		*/
-		bool get_conf_key (const char *key, int &value) {
+		bool get_conf_key(const char *key, int &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
-		bool get_conf_key (const char *key, double &value) {
+		bool get_conf_key(const char *key, double &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
-		bool get_conf_key (const char *key, std::string &value) {
+		bool get_conf_key(const char *key, std::string &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
 	private:

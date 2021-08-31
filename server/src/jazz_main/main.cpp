@@ -45,8 +45,7 @@ using namespace jazz_main;
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
  */
-void show_credits()
-{
+void show_credits() {
 	cout << "\x20 888888" << endl
 		 << "\x20 \x20 `88b" << endl
 		 << " \x20 \x20 888" << endl
@@ -73,8 +72,7 @@ void show_credits()
 
 /** Explain usage of the command line interface to stdout.
  */
-void show_usage()
-{
+void show_usage() {
 	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
 
 		 << " <config>: A configuration file for the server in case of command start." << endl
@@ -90,8 +88,7 @@ void show_usage()
 	\param arg The argument as typed.
 	\return the numeric constant and CMD_HELP when not known.
 */
-int parse_command(const char *arg)
-{
+int parse_command(const char *arg) {
 	if (!strcmp("start",  arg)) return CMD_START;
 	if (!strcmp("stop",	  arg)) return CMD_STOP;
 	if (!strcmp("status", arg)) return CMD_STATUS;
@@ -126,8 +123,7 @@ When the command is anything else, too many or too few:
 	show help + EXIT_FAILURE
 
  */
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	int cmd = (argc < 2 || argc > 3) ? CMD_HELP : parse_command(argv[argc - 1]);
 
 	if (cmd == CMD_HELP || argc == 3 && cmd != CMD_START) {
@@ -138,11 +134,11 @@ int main(int argc, char* argv[])
 	}
 
 #ifdef DEBUG
-	string proc_name ("./djazz");
+	string proc_name("./djazz");
 
 	pid_t jzzPID;
 #else
-	string proc_name ("./jazz");
+	string proc_name("./jazz");
 
 	pid_t jzzPID = jazz_elements::FindProcessIdByName(proc_name.c_str());
 
@@ -178,20 +174,20 @@ int main(int argc, char* argv[])
 		show_credits();
 
 		if (!start_service(&CHANNELS, "Channels")) {
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&VOLATILE, "Volatile")) {
 			stop_service(&CHANNELS,  "Channels");
 
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&PERSISTED, "Persisted")) {
 			stop_service(&VOLATILE,  "Volatile");
 			stop_service(&CHANNELS,  "Channels");
 
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&BOP, "Bebop")) {
@@ -199,7 +195,7 @@ int main(int argc, char* argv[])
 			stop_service(&VOLATILE,  "Volatile");
 			stop_service(&CHANNELS,  "Channels");
 
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&EPI, "Agency")) {
@@ -208,7 +204,7 @@ int main(int argc, char* argv[])
 			stop_service(&VOLATILE,  "Volatile");
 			stop_service(&CHANNELS,  "Channels");
 
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&API, "Api")) {
@@ -218,7 +214,7 @@ int main(int argc, char* argv[])
 			stop_service(&VOLATILE,  "Volatile");
 			stop_service(&CHANNELS,  "Channels");
 
-			exit (EXIT_FAILURE);
+			exit(EXIT_FAILURE);
 		}
 
 		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon, &http_request_callback, CHANNELS);
@@ -273,6 +269,5 @@ int main(int argc, char* argv[])
 		exit(EXIT_SUCCESS);
 	}
 };
-
 
 #endif

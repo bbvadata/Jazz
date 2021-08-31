@@ -48,22 +48,21 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 
 // Services
 
-Channels	CHANNELS  (&LOGGER, &CONFIG);
-Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Persisted	PERSISTED (&LOGGER, &CONFIG);
-Bebop		BOP		  (&LOGGER, &CONFIG);
-Agency		EPI		  (&LOGGER, &CONFIG);
+Channels	CHANNELS (&LOGGER, &CONFIG);
+Volatile	VOLATILE (&LOGGER, &CONFIG);
+Persisted	PERSISTED(&LOGGER, &CONFIG);
+Bebop		BOP		 (&LOGGER, &CONFIG);
+Agency		EPI		 (&LOGGER, &CONFIG);
 
-Api			API		  (&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
-HttpServer	HTTP	  (&LOGGER, &CONFIG);
+Api			API	(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
+HttpServer	HTTP(&LOGGER, &CONFIG);
 
 // Callbacks
 
 pMHD_Daemon	Jazz_MHD_Daemon;
 
 
-bool start_service(pService service, char const *service_name)
-{
+bool start_service(pService service, char const *service_name) {
 	cout << "Starting " << service_name << " ... ";
 
 	if (service->start() != SERVICE_NO_ERROR) {
@@ -80,8 +79,7 @@ bool start_service(pService service, char const *service_name)
 }
 
 
-bool stop_service(pService service, char const *service_name)
-{
+bool stop_service(pService service, char const *service_name) {
 	cout << "Stopping " << service_name << " ... ";
 
 	if (service->shut_down() != SERVICE_NO_ERROR) {
@@ -102,13 +100,12 @@ bool stop_service(pService service, char const *service_name)
 
 	See main_server_start() for details on the server's start/stop.
 */
-void signalHandler_SIGTERM(int signum)
-{
+void signalHandler_SIGTERM(int signum) {
 	cout << "Interrupt signal (" << signum << ") received." << endl;
 
 	cout << "Closing the http server ... ok." << endl;
 
-	MHD_stop_daemon (Jazz_MHD_Daemon);
+	MHD_stop_daemon(Jazz_MHD_Daemon);
 
 	bool stop_ok = true;
 
@@ -120,7 +117,7 @@ void signalHandler_SIGTERM(int signum)
 	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
 	if (!stop_service(&CHANNELS,  "Channels"))	 stop_ok = false;
 
-	if (stop_ok) exit (EXIT_SUCCESS); else exit (EXIT_FAILURE);
+	if (stop_ok) exit(EXIT_SUCCESS); else exit(EXIT_FAILURE);
 }
 
 } // namespace jazz_main
