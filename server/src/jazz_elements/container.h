@@ -559,7 +559,7 @@ class Container : public Service {
 		pStoredTransaction p_buffer, p_alloc, p_free;
 		Lock32 _lock_;
 
-		/** Skip space or tab characterr while parsing
+		/** Skip space or tab character while parsing
 
 			\param p_in			The input char stream cursor.
 			\param num_bytes	The number of bytes with data above *p_in
@@ -581,7 +581,7 @@ class Container : public Service {
 			return num_bytes;
 		}
 
-		/** Returns the char at input cursor shifting the cursor by one or zero if there are no mor characters to be read.
+		/** Returns the char at input cursor shifting the cursor by one or zero if there are no more characters to be read.
 
 			\param p_in			The input char stream cursor.
 			\param num_bytes	The number of bytes with data above *p_in
@@ -597,7 +597,7 @@ class Container : public Service {
 			return *(p_in++);
 		}
 
-		/** Returns the char at input cursor shifting the cursor by one or zero if there are no mor characters to be read.
+		/** Returns the char at input cursor shifting the cursor by one or zero if there are no more characters to be read.
 
 			\param p_in			The input char stream cursor.
 			\param num_bytes	The number of bytes with data above *p_in
