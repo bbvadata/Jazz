@@ -201,8 +201,69 @@ StatusCode Volatile::new_transaction(pTransaction &p_txn) {
 */
 void Volatile::destroy_transaction  (pTransaction &p_txn) {
 
-//TODO: Implement this!
+	if (p_txn->p_owner == nullptr) {
+		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
 
+		return;
+	}
+	if (p_txn->p_owner != this) {
+		p_txn->p_owner->destroy_transaction(p_txn);
+
+		return;
+	}
+
+	enter_write(p_txn);
+
+	if (p_txn->p_block != nullptr) {
+		switch (p_txn->p_block->cell_type) {
+		case CELL_TYPE_INDEX_II:
+			p_txn->p_hea->index.index_ii.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		case CELL_TYPE_INDEX_IS:
+			p_txn->p_hea->index.index_is.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		case CELL_TYPE_INDEX_SI:
+			p_txn->p_hea->index.index_si.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		case CELL_TYPE_INDEX_SS:
+			p_txn->p_hea->index.index_ss.~map();
+			alloc_bytes -= sizeof(BlockHeader);
+
+			break;
+
+		default:
+			alloc_bytes -= p_txn->p_block->total_bytes;
+		};
+		free(p_txn->p_block);
+
+		p_txn->p_block = nullptr;
+	}
+
+	lock_container();
+
+	if (pVolatileTransaction(p_txn)->p_prev == nullptr)
+		p_alloc = pVolatileTransaction(p_txn)->p_next;
+	else
+		pVolatileTransaction(p_txn)->p_prev->p_next = pVolatileTransaction(p_txn)->p_next;
+
+	if (pVolatileTransaction(p_txn)->p_next != nullptr)
+		pVolatileTransaction(p_txn)->p_next->p_prev = pVolatileTransaction(p_txn)->p_prev;
+
+	pVolatileTransaction(p_txn)->p_next = (pVolatileTransaction) p_free;
+
+	p_free = p_txn;
+	p_txn  = nullptr;
+
+	unlock_container();
 }
 
 
