@@ -86,10 +86,9 @@ StatusCode Volatile::shut_down() {
 }
 
 
-/** Bla,
+/** Creates the buffers for new_transaction()/destroy_transaction()
 
-//TODO: Document this!
-
+	\return	SERVICE_NO_ERROR or SERVICE_ERROR_NO_MEM on RAM alloc failure.
 */
 StatusCode Volatile::new_volatile() {
 
