@@ -35,8 +35,228 @@
 using namespace jazz_elements;
 
 
+// Instancing container, logger and config
+// ---------------------------------------
+
+ConfigFile	CNF(JAZZ_DEFAULT_CONFIG_PATH);
+Logger		LOG(CNF, "LOGGER_PATH");
+Volatile	VOL(&LOG, &CNF);
+
+
 // Tests
 // -----
+
+SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
+	pTransaction p_txn[20];
+
+	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(VOL.max_transactions > 0);
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(VOL.warn_alloc_bytes > 0);
+	REQUIRE(VOL.fail_alloc_bytes > 0);
+	REQUIRE(VOL.alloc_warning_issued == false);
+	REQUIRE(VOL.p_buffer != nullptr);
+	REQUIRE(VOL.p_alloc  == nullptr);
+	REQUIRE(VOL.p_free	 == VOL.p_buffer);
+	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
+	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
+	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next == &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
+	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
+	REQUIRE(VOL._lock_ == 0);
+
+	REQUIRE(VOL.destroy_volatile() == SERVICE_NO_ERROR);
+
+	VOL.max_transactions = 1024;
+	VOL.warn_alloc_bytes = 4096;
+	VOL.fail_alloc_bytes = 8192;
+	REQUIRE(VOL.new_volatile() == SERVICE_ERROR_NO_MEM);
+
+	VOL.max_transactions  = 16;
+	REQUIRE(VOL.new_volatile() == SERVICE_NO_ERROR);
+
+	REQUIRE(VOL.p_alloc  == nullptr);
+	REQUIRE(VOL.p_free	 != nullptr);
+
+	REQUIRE(VOL.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn[0] != nullptr);
+
+	REQUIRE(p_txn[0]->p_block == nullptr);
+	REQUIRE(p_txn[0]->_lock_  == 0);
+	REQUIRE(p_txn[0]->status  == BLOCK_STATUS_EMPTY);
+	REQUIRE(p_txn[0]->p_owner == &VOL);
+
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(VOL.p_alloc != nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+
+	REQUIRE(!VOL.alloc_warning_issued);
+	p_txn[0]->p_block = VOL.block_malloc(5000);
+	REQUIRE(p_txn[0]->p_block != nullptr);
+	p_txn[0]->p_block->total_bytes = 5000;
+	REQUIRE(!VOL.alloc_warning_issued);
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction) + 5000);
+
+	LOG.SkipLogOnce = true;
+	REQUIRE(VOL.new_transaction(p_txn[1]) == SERVICE_NO_ERROR);
+	REQUIRE(!LOG.SkipLogOnce);
+
+	REQUIRE(p_txn[1] != nullptr);
+	REQUIRE(VOL.alloc_warning_issued);
+
+	VOL.destroy_transaction(p_txn[1]);
+	VOL.destroy_transaction(p_txn[0]);
+
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(VOL.p_alloc == nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+
+	REQUIRE(VOL.p_alloc == nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
+
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(VOL.p_alloc != nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+
+	p_txn[0]->p_block = VOL.block_malloc(50000);
+	REQUIRE(p_txn[0]->p_block == nullptr);
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+
+	VOL.destroy_transaction(p_txn[0]);
+	REQUIRE(p_txn[0] == nullptr);
+
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(VOL.p_alloc == nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+
+	for (int t = 1; t < 17; t++) {
+		for (int i = 0; i < t; i++) {
+			REQUIRE(VOL.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn[i] != nullptr);
+
+			REQUIRE(p_txn[i]->p_block == nullptr);
+			REQUIRE(p_txn[i]->_lock_  == 0);
+			REQUIRE(p_txn[i]->status  == BLOCK_STATUS_EMPTY);
+			REQUIRE(p_txn[i]->p_owner == &VOL);
+		}
+		if (t == 16)
+			REQUIRE(VOL.p_free == nullptr);
+
+		for (int i = 0; i < t; i++) {
+			VOL.destroy_transaction(p_txn[i]);
+			REQUIRE(p_txn[i] == nullptr);
+		}
+		REQUIRE(VOL.p_alloc == nullptr);
+		REQUIRE(VOL.p_free	!= nullptr);
+	}
+
+	for (int t = 1; t < 17; t++) {
+		for (int i = 0; i < t; i++) {
+			REQUIRE(VOL.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn[i] != nullptr);
+		}
+		if (t == 16)
+			REQUIRE(VOL.p_free == nullptr);
+
+		for (int i = t - 1; i >= 0; i--) {
+			VOL.destroy_transaction(p_txn[i]);
+			REQUIRE(p_txn[i] == nullptr);
+		}
+		REQUIRE(VOL.p_alloc == nullptr);
+		REQUIRE(VOL.p_free	!= nullptr);
+	}
+
+	for (int t = 3; t < 17; t++) {
+		for (int i = 0; i < t; i++) {
+			REQUIRE(VOL.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn[i] != nullptr);
+		}
+		if (t == 16)
+			REQUIRE(VOL.p_free == nullptr);
+
+		for (int i = t - 1; i >= 0; i--) {
+			int j = 3 % t;
+
+			while (p_txn[j] == nullptr)
+				j = (j + 1) % t;
+
+			VOL.destroy_transaction(p_txn[j]);
+			REQUIRE(p_txn[j] == nullptr);
+		}
+		REQUIRE(VOL.p_alloc == nullptr);
+		REQUIRE(VOL.p_free	!= nullptr);
+	}
+
+	for (int i = 0; i < 16; i++) {
+		REQUIRE(VOL.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn[i] != nullptr);
+	}
+	REQUIRE(VOL.p_free == nullptr);
+
+	REQUIRE(VOL.new_transaction(p_txn[17]) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(VOL.p_free == nullptr);
+
+	for (int i = 0; i < 16; i++) {
+		VOL.destroy_transaction(p_txn[i]);
+		REQUIRE(p_txn[i] == nullptr);
+	}
+	REQUIRE(VOL.p_alloc == nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+
+	TensorDim dim_t1 {{500, 10, 0}}, dim_t2 {{500, 1000, 0}};
+
+	REQUIRE(VOL.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn[0] != nullptr);
+	REQUIRE(p_txn[0]->p_block != nullptr);
+	REQUIRE(p_txn[0]->status  == BLOCK_STATUS_READY);
+
+	REQUIRE(VOL.new_block(p_txn[1], p_txn[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[1] == nullptr);
+
+	VOL.destroy_transaction(p_txn[0]);
+	REQUIRE(p_txn[0] == nullptr);
+
+	REQUIRE(VOL.new_block(p_txn[0], CELL_TYPE_BYTE, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[0] == nullptr);
+
+	for (int i = 0; i < 15; i++) {
+		REQUIRE(VOL.new_transaction(p_txn[i]) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn[i] != nullptr);
+	}
+	REQUIRE(VOL.new_block(p_txn[15], CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+	REQUIRE(p_txn[15] != nullptr);
+	REQUIRE(p_txn[15]->p_block != nullptr);
+	REQUIRE(p_txn[15]->status  == BLOCK_STATUS_READY);
+
+	REQUIRE(VOL.p_free == nullptr);
+
+	REQUIRE(VOL.new_block(p_txn[16], CELL_TYPE_BYTE, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[16] == nullptr);
+
+	REQUIRE(VOL.new_block(p_txn[16], p_txn[15]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_txn[16] == nullptr);
+
+	for (int i = 0; i < 16; i++) {
+		VOL.destroy_transaction(p_txn[i]);
+		REQUIRE(p_txn[i] == nullptr);
+	}
+	REQUIRE(VOL.p_alloc == nullptr);
+	REQUIRE(VOL.p_free	!= nullptr);
+
+	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
+
+	REQUIRE(VOL.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(VOL.alloc_bytes == 0);
+	REQUIRE(VOL.p_buffer == nullptr);
+	REQUIRE(VOL.p_alloc  == nullptr);
+	REQUIRE(VOL.p_free	 == nullptr);
+	REQUIRE(VOL._lock_	 == 0);
+}
+
 
 SCENARIO("Testing Volatile struc sizes") {
 
