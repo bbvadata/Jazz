@@ -449,20 +449,20 @@ StatusCode Container::new_transaction(pTransaction &p_txn) {
 	}
 
 	p_txn  = p_free;
-	p_free = p_free->p_next;
+	p_free = pStoredTransaction(p_free)->p_next;
 
 	p_txn->p_block = nullptr;
 	p_txn->status  = BLOCK_STATUS_EMPTY;
 	p_txn->_lock_  = 0;
 	p_txn->p_owner = this;
 
-	pStoredTransaction(p_txn)->p_next = p_alloc;
+	pStoredTransaction(p_txn)->p_next = (pStoredTransaction) p_alloc;
 	pStoredTransaction(p_txn)->p_prev = nullptr;
 
 	if (p_alloc != nullptr)
-		p_alloc->p_prev = pStoredTransaction(p_txn);
+		pStoredTransaction(p_alloc)->p_prev = (pStoredTransaction) p_txn;
 
-	p_alloc = pStoredTransaction(p_txn);
+	p_alloc = p_txn;
 
 	unlock_container();
 
@@ -536,9 +536,9 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 	if (pStoredTransaction(p_txn)->p_next != nullptr)
 		pStoredTransaction(p_txn)->p_next->p_prev = pStoredTransaction(p_txn)->p_prev;
 
-	pStoredTransaction(p_txn)->p_next = p_free;
+	pStoredTransaction(p_txn)->p_next = (pStoredTransaction) p_free;
 
-	p_free = pStoredTransaction(p_txn);
+	p_free = p_txn;
 	p_txn  = nullptr;
 
 	unlock_container();
@@ -2128,16 +2128,15 @@ StatusCode Container::new_container() {
 		return SERVICE_ERROR_NO_MEM;
 
 	p_alloc = nullptr;
-	p_free  = &p_buffer[max_transactions - 1];
+	p_free  = p_buffer;
 
-	p_free->p_next = nullptr;
+	pStoredTransaction pt = (pStoredTransaction) p_buffer;
 
-	pStoredTransaction pt = p_free;
 	for (int i = 1; i < max_transactions; i++) {
-		p_free--;
-
-		p_free->p_next = pt--;
+		pStoredTransaction l_pt = pt++;
+		l_pt->p_next = pt;
 	}
+	pt->p_next = nullptr;
 
 	return SERVICE_NO_ERROR;
 }
@@ -2154,7 +2153,6 @@ StatusCode Container::destroy_container() {
 			pTransaction pt = p_alloc;
 			destroy_transaction(pt);
 		}
-
 		free(p_buffer);
 	}
 	alloc_bytes = 0;
