@@ -545,10 +545,10 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	REQUIRE(CNT.destroy_container() == SERVICE_NO_ERROR);
@@ -760,10 +760,10 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	REQUIRE(CNT.new_transaction(p_txn) == SERVICE_NO_ERROR);
@@ -2802,10 +2802,10 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We have 5 multiple purpose blocks") {
@@ -3246,10 +3246,10 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("A set of 9 blocks of 3 types x 3 ranks") {
@@ -4655,10 +4655,10 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We have 5 multiple purpose blocks and three tuples") {
@@ -4923,10 +4923,10 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We have 16 multiple purpose blocks, kinds and tuples") {
@@ -5620,10 +5620,10 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 	REQUIRE(CNT.p_buffer != nullptr);
 	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
-	REQUIRE(CNT.p_free->p_next == &CNT.p_buffer[1]);
-	REQUIRE(CNT.p_free->p_next->p_next == &CNT.p_buffer[2]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 2].p_next == &CNT.p_buffer[CNT.max_transactions - 1]);
-	REQUIRE(CNT.p_buffer[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
 	GIVEN("We create all possible indices") {
