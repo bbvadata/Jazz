@@ -93,9 +93,36 @@ StatusCode Volatile::shut_down() {
 */
 StatusCode Volatile::new_volatile() {
 
-//TODO: Implement this!
+	if (p_buffer != nullptr || max_transactions <= 0)
+#if defined CATCH_TEST
+		destroy_container();
+#else
+		return SERVICE_ERROR_STARTING;
+#endif
 
-	return 0;
+	alloc_bytes = 0;
+
+	alloc_warning_issued = false;
+
+	_lock_ = 0;
+
+	p_buffer = (pVolatileTransaction) malloc(max_transactions*sizeof(VolatileTransaction));
+
+	if (p_buffer == nullptr)
+		return SERVICE_ERROR_NO_MEM;
+
+	p_alloc = nullptr;
+	p_free	= p_buffer;
+
+	pVolatileTransaction pt = (pVolatileTransaction) p_buffer;
+
+	for (int i = 1; i < max_transactions; i++) {
+		pVolatileTransaction l_pt = pt++;
+		l_pt->p_next = pt;
+	}
+	pt->p_next = nullptr;
+
+	return SERVICE_NO_ERROR;
 }
 
 
