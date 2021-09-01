@@ -125,10 +125,9 @@ StatusCode Volatile::new_volatile() {
 }
 
 
-/** Bla,
+/** Destroys everything: all transactions and the buffer itself
 
-//TODO: Document this!
-
+	\return	SERVICE_NO_ERROR.
 */
 StatusCode Volatile::destroy_volatile() {
 
