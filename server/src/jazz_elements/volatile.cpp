@@ -156,9 +156,41 @@ StatusCode Volatile::destroy_volatile() {
 */
 StatusCode Volatile::new_transaction(pTransaction &p_txn) {
 
-//TODO: Implement this!
+	if (alloc_bytes > warn_alloc_bytes && !alloc_warning_issued) {
+		log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
+				   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
 
-	return 0;
+		alloc_warning_issued = true;
+	}
+
+	lock_container();
+
+	if (p_free == nullptr) {
+		unlock_container();
+		p_txn = nullptr;
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	p_txn  = p_free;
+	p_free = pVolatileTransaction(p_free)->p_next;
+
+	p_txn->p_block = nullptr;
+	p_txn->status  = BLOCK_STATUS_EMPTY;
+	p_txn->_lock_  = 0;
+	p_txn->p_owner = this;
+
+	pVolatileTransaction(p_txn)->p_next = (pVolatileTransaction) p_alloc;
+	pVolatileTransaction(p_txn)->p_prev = nullptr;
+
+	if (p_alloc != nullptr)
+		pVolatileTransaction(p_alloc)->p_prev = (pVolatileTransaction) p_txn;
+
+	p_alloc = p_txn;
+
+	unlock_container();
+
+	return SERVICE_NO_ERROR;
 }
 
 
