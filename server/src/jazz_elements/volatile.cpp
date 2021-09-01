@@ -133,9 +133,19 @@ StatusCode Volatile::new_volatile() {
 */
 StatusCode Volatile::destroy_volatile() {
 
-//TODO: Implement this!
+	if (p_buffer != nullptr) {
+		while (p_alloc != nullptr) {
+			pTransaction pt = p_alloc;
+			destroy_transaction(pt);
+		}
 
-	return 0;
+		free(p_buffer);
+	}
+	alloc_bytes = 0;
+	p_buffer = p_alloc = p_free = nullptr;
+	_lock_ = 0;
+
+	return SERVICE_NO_ERROR;
 }
 
 
