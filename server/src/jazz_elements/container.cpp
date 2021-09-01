@@ -427,6 +427,8 @@ void Container::leave_write(pTransaction p_txn) {
 
 	\param p_txn	A pointer to a valid Transaction passed by reference. On failure, it will assign nullptr to it.
 
+	\return			SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
+
 NOTE: The idea of this method being virtual is allowing descendants to use new_block() calls to create one shot blocks that can be later
 inserted into different structures.
 */
@@ -2105,7 +2107,7 @@ void Container::base_names(BaseNames &base_names) {}
 
 /** Creates the buffers for new_transaction()/destroy_transaction()
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
+	\return	SERVICE_NO_ERROR or SERVICE_ERROR_NO_MEM on RAM alloc failure.
 */
 StatusCode Container::new_container() {
 
