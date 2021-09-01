@@ -432,7 +432,7 @@ inserted into different structures.
 */
 StatusCode Container::new_transaction(pTransaction &p_txn) {
 
-	if (alloc_bytes > warn_alloc_bytes & !alloc_warning_issued) {
+	if (alloc_bytes > warn_alloc_bytes && !alloc_warning_issued) {
 		log_printf(LOG_WARN, "Service Container exceeded RAM %0.2f Mb of %0.2f Mb",
 				   (double) alloc_bytes/ONE_MB, (double) warn_alloc_bytes/ONE_MB);
 
