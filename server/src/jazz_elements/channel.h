@@ -195,7 +195,6 @@ class Channels : public Container {
 			}
 			loc.p_extra = nullptr;
 		}
-
 };
 typedef Channels *pChannels;
 
