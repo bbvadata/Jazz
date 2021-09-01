@@ -196,10 +196,12 @@ StatusCode Volatile::new_transaction(pTransaction &p_txn) {
 }
 
 
-/** Bla,
+/** Dealloc the Block in the p_tnx->p_block (if not null) and free the Transaction inside a Container.
 
-//TODO: Document this!
+	\param p_txn	A pointer to a valid Transaction passed by reference. Once finished, p_txn is set to nullptr to avoid reusing.
 
+NOTE: Volatile overrides the original virtual method from Container. This way, the original new_block() methods can be used and the
+Transaction returned is actually a VolatileTransaction which is good for any of the bases (deque, queue, tree or index).
 */
 void Volatile::destroy_transaction  (pTransaction &p_txn) {
 
