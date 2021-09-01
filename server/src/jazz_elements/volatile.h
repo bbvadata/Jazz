@@ -179,13 +179,12 @@ class Volatile : public Container {
 	protected:
 #endif
 
-		StatusCode new_volatile();
-		StatusCode destroy_volatile();
-
 #ifndef CATCH_TEST
 	private:
 #endif
 
+		StatusCode new_volatile();
+		StatusCode destroy_volatile();
 };
 typedef Volatile *pVolatile;
 
