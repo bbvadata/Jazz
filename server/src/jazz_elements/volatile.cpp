@@ -147,10 +147,14 @@ StatusCode Volatile::destroy_volatile() {
 }
 
 
-/** Bla,
+/** Allocate a Transaction to share a block via the API.
 
-//TODO: Document this!
+	\param p_txn	A pointer to a valid Transaction passed by reference. On failure, it will assign nullptr to it.
 
+	\return			SERVICE_NO_ERROR on success (and a valid p_txn), or some error.
+
+NOTE: Volatile overrides the original virtual method from Container. This way, the original new_block() methods can be used and the
+Transaction returned is actually a VolatileTransaction which is good for any of the bases (deque, queue, tree or index).
 */
 StatusCode Volatile::new_transaction(pTransaction &p_txn) {
 
