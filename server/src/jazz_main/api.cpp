@@ -1432,6 +1432,9 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 
 				ret = p_persisted->put(loc, p_txn->p_block);
 
+				if (ret == SERVICE_NO_ERROR)
+					www[p_txn->p_block->get_attribute(BLOCK_ATTRIB_URL)] = loc.key;
+
 				destroy_transaction(p_txn);
 
 				if (ret != SERVICE_NO_ERROR) {
