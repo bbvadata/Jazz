@@ -43,6 +43,73 @@ Logger		LOG(CNF, "LOGGER_PATH");
 Volatile	VOL(&LOG, &CNF);
 
 
+// Utils
+// -----
+
+pVolatileTransaction highest_priority(pVolatileTransaction p_item) {
+
+	if (p_item != nullptr)
+		while (p_item->p_next != nullptr)
+			p_item = (pVolatileTransaction) p_item->p_next;
+
+	return p_item;
+};
+
+
+pVolatileTransaction lowest_priority(pVolatileTransaction p_item) {
+	if (p_item != nullptr)
+		while (p_item->p_prev != nullptr)
+			p_item = (pVolatileTransaction) p_item->p_prev;
+
+	return p_item;
+};
+
+
+int recursive_audit_aa_tree(pVolatileTransaction p_tree) {
+/*	1. The level of every leaf node is one.
+	2. The level of every left child is exactly one less than that of its parent.
+	3. The level of every right child is equal to or one less than that of its parent.
+	4. The level of every right grandchild is strictly less than that of its grandparent.
+	5. Every node of level greater than one has two children.
+	Returns number of nodes in the tree.
+*/
+	if (p_tree == nullptr)
+		return 0;
+
+	if (p_tree->p_prev == nullptr && p_tree->p_next == nullptr) {
+		if (p_tree->level != 1)
+			return -1;
+
+		return 1;
+	}
+
+	if (p_tree->p_prev != nullptr) {
+		if (highest_priority(p_tree->p_prev)->priority > p_tree->priority)
+			return -1;
+
+		if (p_tree->p_prev->level != p_tree->level - 1)
+			return -1;
+	}
+
+	if (p_tree->p_next != nullptr) {
+		if (lowest_priority(p_tree->p_next)->priority < p_tree->priority)
+			return -1;
+
+		if (p_tree->p_next->level != p_tree->level - 1) {
+			if (p_tree->p_next->level != p_tree->level)
+				return -1;
+
+			if (p_tree->p_next->p_prev != nullptr && p_tree->p_next->p_prev->level >= p_tree->level)
+				return -1;
+
+			if (p_tree->p_next->p_next != nullptr && p_tree->p_next->p_next->level >= p_tree->level)
+				return -1;
+		}
+	}
+
+	return 1 + recursive_audit_aa_tree(p_tree->p_prev) + recursive_audit_aa_tree(p_tree->p_next);
+}
+
 // Tests
 // -----
 
