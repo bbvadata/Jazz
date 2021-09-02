@@ -185,6 +185,352 @@ class Volatile : public Container {
 
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
+
+		/** Check the relative position (left or right) between an item and a tree for inserting a deleting.
+
+			\param p_item The item that will be inserted or deleted.
+			\param p_tree The AA subtree compared with the item,.
+
+			Note: This should be the only way to break ties when p_item->priority == p_tree->priority.
+		*/
+		inline bool to_left(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+			return p_item->priority == p_tree->priority ? (uintptr_t) p_item < (uintptr_t) p_tree : p_item->priority < p_tree->priority;
+		}
+
+
+		/** Free all the blocks in the sub-tree calling destroy_transaction() recursively.
+
+			\param p_txn The root of the AA subtree from which we the free all the blocks.
+
+			Note: This does not dealloc the tree and should only be used inside destroy_keeprs(). It is NOT thread safe.
+		*/
+		inline void recursive_destroy_queue(pVolatileTransaction &p_txn) {
+
+			if (p_txn != nullptr) {
+				recursive_destroy_queue(p_txn->p_prev);
+				recursive_destroy_queue(p_txn->p_next);
+
+				pTransaction p_txn2 = p_txn;	// Ugly, this should be: destroy_transaction(p_txn)
+				destroy_transaction(p_txn2);
+				p_txn = nullptr;
+			}
+		};
+
+
+		/** Return the highest priority node in the AA subtree without modifying the tree
+
+			\param p_item The root of the AA subtree from which we want the highest priority node.
+
+			\return		  The highest priority node in the AA subtree.
+
+			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
+		*/
+		inline pVolatileTransaction highest_priority(pVolatileTransaction p_item) {
+
+			if (p_item != nullptr) {
+				while (p_item->p_next != nullptr)
+					p_item = p_item->p_next;
+			};
+
+			return p_item;
+		};
+
+
+		/** Return the lowest priority node in the AA subtree without modifying the tree
+
+			\param p_item The root of the AA subtree from which we want the lowest priority node.
+
+			\return		  The lowest priority node in the AA subtree.
+
+			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
+		*/
+		inline pVolatileTransaction lowest_priority(pVolatileTransaction p_item) {
+
+			if (p_item != nullptr) {
+				while (p_item->p_prev != nullptr)
+					p_item = p_item->p_prev;
+			};
+
+			return p_item;
+		};
+
+
+		/** Rebalance the tree after remove().
+
+			\param	p_tree The tree resulting of (a recursive step) in remove
+
+			\return The balanced tree
+
+		 Decrease the level of all nodes in this level if necessary, and then skew and split all nodes in the new level.
+		*/
+		inline pVolatileTransaction rebalance(pVolatileTransaction p_tree) {
+
+			decrease_level(p_tree);
+
+			p_tree = skew(p_tree);
+			if (p_tree->p_next != nullptr) {
+				p_tree->p_next = skew(p_tree->p_next);
+
+				if (p_tree->p_next->p_next != nullptr)
+					p_tree->p_next->p_next = skew(p_tree->p_next->p_next);
+			};
+			p_tree = split(p_tree);
+
+			if (p_tree->p_next != nullptr)
+				p_tree->p_next = split(p_tree->p_next);
+
+			return p_tree;
+		}
+
+
+		/** Check if a node belongs to a tree
+
+			\param p_item The node checked if part of the AA subtree
+			\param p_tree The the AA subtree that may contain p_item
+
+			\return		  True if the node was found in the tree
+		*/
+		inline bool is_in_tree(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+			if (p_tree == nullptr || p_item == nullptr)
+				return false;
+
+			if (p_item == p_tree)
+				return true;
+
+			if (to_left(p_item, p_tree))
+				return is_in_tree(p_item, p_tree->p_prev);
+
+			return is_in_tree(p_item, p_tree->p_next);
+		};
+
+
+		/** Implements the "deep case" of AA tree removal.
+
+			\param p_kill	The node that we are following towards HPLoT found by recursion
+			\param p_parent The parent of p_kill (required to rebalance the tree after every recursive step)
+			\param p_tree	The (never changing) root of the subtree (we want to remove it)
+			\param p_deep	A variable to store the HPLoT (found in the deepest level, applied in the shallowest)
+
+			\return			The rebalanced HPLoT converted in the new subtree root
+
+			Note: Against what is stated in AA tree literature, it is not always easy to convert an arbitrary node that has to be
+			removed into a leaf. (Many applications only remove high or low priority node and that does not apply then.) When we need
+			to remove a node high in the tree (far away for leaves) skewing the tree to make its predecessor the new root is feasible,
+			but that still does not solve the problem of removing it. The safest option is removing the HPLoT (Highest Priority to the
+			Left of Tree) which at least will have no successor, rebalancing the tree after removal and inserting it back as the root
+			in replacement of the previous root. That is what is function does.
+		*/
+		inline pVolatileTransaction remove_go_deep(pVolatileTransaction p_kill,
+												   pVolatileTransaction p_parent,
+												   pVolatileTransaction p_tree,
+												   pVolatileTransaction &p_deep) {
+			if (p_kill->p_next != nullptr)
+				p_kill->p_next = remove_go_deep(p_kill->p_next, p_kill, p_tree, p_deep);
+
+			else {
+				if (p_parent == p_tree) {
+					p_tree->p_prev = p_kill->p_prev;	// Disconnect p_kill
+					p_kill->level		 = p_tree->level;
+					p_kill->p_next = p_tree->p_next;
+					p_kill->p_prev = p_tree->p_prev;	// p_kill is the new p_tree
+
+					return rebalance(p_kill);
+				} else {
+					p_deep = p_kill;					// Save p_kill for the end
+
+					return p_kill->p_prev;				// Disconnect p_kill
+				}
+			}
+			if (p_parent != p_tree)
+				return rebalance(p_kill);
+
+			else {
+				p_deep->level		 = p_tree->level;
+				p_deep->p_next = p_tree->p_next;
+				p_deep->p_prev = rebalance(p_kill);
+
+				return rebalance(p_deep);
+			}
+		}
+
+
+		/** Remove a node in an AA subtree
+
+			\param p_item The node to be removed
+			\param p_tree The tree from which it should be removed
+
+			\return		  The balanced p_tree without the node p_item
+
+			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
+		*/
+		inline pVolatileTransaction remove(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+			if (p_tree == nullptr || p_item == nullptr)
+				return p_tree;
+
+			if (p_item == p_tree) {
+				if (p_tree->p_prev == nullptr)
+					return p_tree->p_next;
+
+				else {
+					if (p_tree->p_next == nullptr)
+						return p_tree->p_prev;
+					else {
+						pVolatileTransaction p_deep = nullptr;
+						return remove_go_deep(p_tree->p_prev, p_tree, p_tree, p_deep);
+					}
+				}
+			} else {
+				if (to_left(p_item, p_tree))
+					p_tree->p_prev = remove(p_item, p_tree->p_prev);
+
+				else
+					p_tree->p_next = remove(p_item, p_tree->p_next);
+			}
+
+			return rebalance(p_tree);
+		};
+
+
+		/** Remove links that skip level in an AA subtree
+
+			\param p_item A tree for which we want to remove links that skip levels.
+
+			Note: This does alter the tree and requires exclusive access to the AA.
+		*/
+		inline void decrease_level(pVolatileTransaction p_item) {
+			if (p_item->p_prev == nullptr) {
+				if (p_item->p_next == nullptr)
+					p_item->level = 1;
+
+				else {
+					int should_be = p_item->p_next->level + 1;
+
+					if (should_be < p_item->level) {
+						p_item->level = should_be;
+
+						if (should_be < p_item->p_next->level)
+							p_item->p_next->level = should_be;
+					}
+				}
+			} else {
+				if (p_item->p_next == nullptr) {
+					int should_be = p_item->p_prev->level + 1;
+
+					if (should_be < p_item->level)
+						p_item->level = should_be;
+
+				} else {
+					int should_be = std::min(p_item->p_prev->level, p_item->p_next->level) + 1;
+
+					if (should_be < p_item->level) {
+						p_item->level = should_be;
+
+						if (should_be < p_item->p_next->level)
+							p_item->p_next->level = should_be;
+					}
+				}
+			}
+		};
+
+
+		/** Try to rebalance an AA subtree on its left (prev) side
+
+			\param p_item a node representing an AA tree that needs to be rebalanced.
+			\return		  Another node representing the rebalanced AA tree.
+
+			Note: This does alter the tree and requires exclusive access to the AA.
+		*/
+		inline pVolatileTransaction skew(pVolatileTransaction p_item) {
+			// rotate p_next if p_prev child has same level
+
+			if (p_item->p_prev != nullptr && p_item->level == p_item->p_prev->level) {
+				pVolatileTransaction p_left = p_item->p_prev;
+
+				p_item->p_prev = p_left->p_next;
+				p_left->p_next = p_item;
+
+				return p_left;
+			}
+
+			return p_item;
+		};
+
+
+		/** Try to rebalance an AA subtree on its right (next) side
+
+			\param p_item A node representing an AA tree that needs to be rebalanced.
+			\return		  Another node representing the rebalanced AA tree.
+
+			Note: This does alter the tree and requires exclusive access to the AA.
+		*/
+		inline pVolatileTransaction split(pVolatileTransaction p_item) {
+			// rotate p_prev if there are two p_next children on same level
+
+			if (   p_item->p_next != nullptr
+				&& p_item->p_next->p_next != nullptr
+				&& p_item->level == p_item->p_next->p_next->level) {
+
+				pVolatileTransaction p_right = p_item->p_next;
+
+				p_item->p_next  = p_right->p_prev;
+				p_right->p_prev = p_item;
+				if (p_item->p_prev == nullptr && p_item->p_next == nullptr && p_item->level > 1) {
+					p_item->level = 1;
+/* The following condition looks like it could be problematic (since the previous one is already an undocumented deviation from the
+canonical method description). It has never been observed (in intense unit testing) and should only be considered if problems happen.
+It may very well be impossible, who knows. Just keep it as a remark, unless someone smarter proves it unnecessary. */
+					// if (   p_right->level != 2
+					// 	|| (   p_right->p_next->p_next != nullptr
+					// 		&& p_right->p_next->p_next->level >= 2))
+					// 		p_right->level++;	// This is actually a breakpoint possibility, not a solution!!
+
+				} else
+					p_right->level++;
+
+				return p_right;
+			}
+
+			return p_item;
+		};
+
+
+		/** Insert a node in its correct place according to priority in an AA subtree
+
+			\param p_new  The node to be inserted
+			\param p_tree The root of the subtree where p_new will be inserted
+			\return		  A balanced version of p_tree including p_new
+
+			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
+		*/
+		inline pVolatileTransaction insert(pVolatileTransaction p_new, pVolatileTransaction p_tree) {
+			// Do the normal binary tree insertion procedure. Set the result of the
+			// recursive call to the correct child in case a new node was created or the
+			// root of the subtree changes.
+
+			if (p_tree == nullptr) {
+				p_new->level = 1;
+				p_new->p_prev = nullptr;
+				p_new->p_next = nullptr;
+
+				return p_new;
+
+			} else {
+
+				if (to_left(p_new, p_tree))
+					p_tree->p_prev = insert(p_new, p_tree->p_prev);
+				else
+					p_tree->p_next = insert(p_new, p_tree->p_next);
+			}
+
+			// Perform skew and then split.	The conditionals that determine whether or
+			// not a rotation will occur or not are inside of the procedures, as given above.
+
+			p_tree = skew(p_tree);
+			p_tree = split(p_tree);
+
+			return p_tree;
+		};
+
 };
 typedef Volatile *pVolatile;
 
