@@ -840,6 +840,61 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_SET_ATTRIBUTE);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//deque/entity/~pop_first", HTTP_GET));
+
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "deque") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "~pop_first") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//deque/entity/key~prev", HTTP_GET));
+
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "deque") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key~prev") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//index/id/~si", HTTP_PUT));
+
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "index") == 0);
+		REQUIRE(strcmp(hqs.entity, "id") == 0);
+		REQUIRE(strcmp(hqs.key,	   "~si") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//queue/candidates/~5000", HTTP_PUT));
+
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "queue") == 0);
+		REQUIRE(strcmp(hqs.entity, "candidates") == 0);
+		REQUIRE(strcmp(hqs.key,	   "~5000") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//tree/game/node0a7ef~node0244e", HTTP_PUT));
+
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "tree") == 0);
+		REQUIRE(strcmp(hqs.entity, "game") == 0);
+		REQUIRE(strcmp(hqs.key,	   "node0a7ef~node0244e") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
 	}
 
 	REQUIRE(TT_API.shut_down() == 0);
