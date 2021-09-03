@@ -1087,7 +1087,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
-	pTransaction p_txn, p_base, p_filter;
+	pTransaction p_txn, p_base;
 
 	switch (q_state.apply) {	// This does all cases that return immediately (creating a response only on success).
 	case APPLY_SET_ATTRIBUTE: {
@@ -1170,16 +1170,8 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy_transaction (or fail).
 	case APPLY_NAME:
-		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+		if (p_container->get(p_txn, loc, q_state.name) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
-
-		if (new_block(p_txn, (pTuple) p_base->p_block, q_state.name) != SERVICE_NO_ERROR) {
-			p_container->destroy_transaction(p_base);
-
-			return MHD_HTTP_BAD_REQUEST;
-		}
-		p_container->destroy_transaction(p_base);
-		p_container = this;
 
 		break;
 
@@ -1218,44 +1210,28 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		break;
 
 	case APPLY_FILTER:
-		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
-		if (p_container->get(p_filter, q_state.r_value) != SERVICE_NO_ERROR) {
+		if (p_container->get(p_txn, loc, p_base->p_block) != SERVICE_NO_ERROR) {
 			p_container->destroy_transaction(p_base);
-
-			return MHD_HTTP_NOT_FOUND;
-		}
-		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy_transaction(p_base);
-			p_container->destroy_transaction(p_filter);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
 		p_container->destroy_transaction(p_base);
-		p_container->destroy_transaction(p_filter);
-		p_container = this;
 
 		break;
 
 	case APPLY_FILT_CONST:
-		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
-
-		if (!block_from_const(p_filter, q_state.url)) {
-			p_container->destroy_transaction(p_base);
-
+		if (!block_from_const(p_base, q_state.url))
 			return MHD_HTTP_BAD_REQUEST;
-		}
-		if (new_block(p_txn, p_base->p_block, p_filter->p_block) != SERVICE_NO_ERROR) {
+
+		if (p_container->get(p_txn, loc, p_base->p_block) != SERVICE_NO_ERROR) {
 			p_container->destroy_transaction(p_base);
-			p_container->destroy_transaction(p_filter);
 
 			return MHD_HTTP_BAD_REQUEST;
 		}
 		p_container->destroy_transaction(p_base);
-		p_container->destroy_transaction(p_filter);
-		p_container = this;
 
 		break;
 
