@@ -589,6 +589,9 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 			return p_tree;
 		};
 
+	HashNameMap		name {};
+	HashVolXctMap	deque_ent {}, queue_ent {}, tree_ent {}, index_ent {};
+	EntKeyVolXctMap deque_key {}, queue_key {}, tree_key {};
 };
 typedef Volatile *pVolatile;
 
