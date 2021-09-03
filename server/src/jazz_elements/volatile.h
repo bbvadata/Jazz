@@ -249,6 +249,27 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
+		/** Fills a name with zero after the string and returns the hash of the complete NAME_SIZE-long array.
+
+			\param name The name to be filled and hashed.
+
+			\return		The hash of the whole array.
+		*/
+		inline uint64_t hash(Name &name) {
+
+			bool fill = false;
+
+			for (int i = 0; i < NAME_SIZE; i++) {
+				if (name[i] != 0) {
+					if (fill)
+						name[i] = 0;
+				} else
+					fill = true;
+			}
+			return MurmurHash64A(&name, NAME_SIZE);
+		}
+
+
 		/** Check the relative position (left or right) between an item and a tree for inserting a deleting.
 
 			\param p_item The item that will be inserted or deleted.
@@ -257,6 +278,7 @@ class Volatile : public Container {
 			Note: This should be the only way to break ties when p_item->priority == p_tree->priority.
 		*/
 		inline bool to_left(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+
 			return p_item->priority == p_tree->priority ? (uintptr_t) p_item < (uintptr_t) p_tree : p_item->priority < p_tree->priority;
 		}
 
