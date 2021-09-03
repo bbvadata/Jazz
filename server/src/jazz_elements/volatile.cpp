@@ -284,9 +284,28 @@ be destroy_transaction()-ed when the caller is done.
 */
 StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 
-//TODO: Implement this.
+	switch (TenBitsAtAddress(what.base)) {
+	case BASE_DEQUE_10BIT:
+		/* code */
+		break;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	case BASE_INDEX_10BIT:
+		/* code */
+		break;
+
+	case BASE_QUEUE_10BIT:
+		/* code */
+		break;
+
+	case BASE_TREE_10BIT:
+		/* code */
+		break;
+
+	default:
+		return SERVICE_ERROR_WRONG_BASE;
+	}
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
 
