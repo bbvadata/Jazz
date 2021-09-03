@@ -153,37 +153,42 @@ are blocks of any kind. Other bases have a syntax that allows operating with ent
 node in a **queue**, accessing to nodes in a tree using the tree pointers or keys to node ids, etc.
 
 The reference for this is this docstring. All entities and keys can be removed with remove(), each time keys are returned, they are
-inside a block of just one string, see the methods of each base for more.
+inside a block of just one string, see the methods of each base for more. Methods have commands that follow a ~ char and are only two
+letters long, allthough they can be written in full to improve readability. E.g. ~fi is the same as ~first and, we write it ~fi{rst}
+below, but, of course, it cannot be written with the brackets.
 
 Methods in deque
 ----------------
 
 A deque is a key-value store. It is created empty via new_entity() and you can just get(), header(), put(), remove() or copy(). In order
-to  access all the blocks in a deque, the key of the first block will be returned by get()ting //deque/entity/~first. And the keys of
-any node can be obtained by //deque/entity/key~next and //deque/entity/key~prev.
+to  access all the blocks in a deque, the key of the first block will be returned by get()ting //deque/entity/~fi{rst}. And the keys of
+any node can be obtained by //deque/entity/key~ne{xt} and //deque/entity/key~pr{ev}. Also, //deque/entity/~la{st} returns the last element.
+Aditionally, //deque/entity/~pf{irst} and //deque/entity/~pl{ast} return the corresponding nodes while removing them. For put() calls
+//deque/entity/~fi{rst} and //deque/entity/~la{st} can also be given and the nodes will be created without keys.
 
 Methods in index
 ----------------
 
 Index both exposes and serializes Index type blocks. An entity inside index is **one single** Index. When get()ting them by key, you get
 the value stored in the Index. To create a new one, just new_entity() //index/name/~ss (ii, is, si or ss). To populate one just
-put() to //index/name/~load with a Tuple of the appropriate Kind. To save one, just get() //index/name/~save.
+put() to //index/name/~pu{t} with a Tuple of the appropriate Kind. To save one, just get() //index/name/~ge{t}.
 
 Methods in queue
 ----------------
 
 A priority queue is implemented as self balanced binary trees. Each time you push a block, you must put() to a key with a priority by
 putting to //queue/name/key~0.977 (where 0.977 can be serialized to a double). The queue is created by new_entity() //queue/name/~5000
-(where 5000 is the mandatory maximum number of nodes). When the queue fills, lower priority nodes are discarded. You can also get()
-to //queue/name/~pop_highest, //queue/name/~peek_highest, //queue/name/~pop_lowest, //queue/name/~peek_lowest. And you can get()
-nodes by key as in a deque (if they haven't been pop()ed or been discarded).
+(where 5000 is a mandatory maximum number of nodes). When the queue fills, lower priority nodes are discarded. You can also get()
+to //queue/name/~xh{ighest} (extracting it), //queue/name/~hi{ghest} (leaving it), equivalently: //queue/name/~xl{owest},
+//queue/name/~lo{west}. And you can get() nodes by key as in a deque (if they haven't been pop()ed or been discarded).
+Aditionally, you can put() to //deque/entity/~in{sert} and the node will be inserted without a key.
 
 Methods in tree
 ---------------
 
-When a tree is created empty, new_entity() //tree/name/, the first node pushed must have key == **root** and is the only node without
+When a tree is created empty, new_entity() //tree/name/, the first node pushed must have just a key and is the only node without
 a parent. Any node is created by put()ing to //tree/name/key~parentname (where parentname must exist). All nodes support querying keys to
-their parent, siblings and first child via: get() //tree/name/key~parent, //tree/name/key~next, //tree/name/key~child.
+their parent, siblings and first child via: get() //tree/name/key~pa{rent}, //tree/name/key~ne{xt}, //tree/name/key~ch{ild}.
 */
 class Volatile : public Container {
 
