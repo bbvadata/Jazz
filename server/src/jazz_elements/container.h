@@ -172,8 +172,8 @@ characters have special meaning in URLs (see the parser in API for details): / .
 */
 struct Locator {
 	char base	[SHORT_NAME_SIZE];	///< A Jazz node level unique name to locate a Container and possibly a type of service inside it.
-	char entity	[NAME_SIZE];		///< Another abstraction inside node.container.base, like the name of a table in a database.
-	char key	[NAME_SIZE];		///< A key identifying a block inside the entity.
+	Name entity;					///< Another abstraction inside node.container.base, like the name of a table in a database.
+	Name key;						///< A key identifying a block inside the entity.
 
 	union {
 		int			  attribute;	///< Used by Api to store the attribute
