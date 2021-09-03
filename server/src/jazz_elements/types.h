@@ -228,7 +228,7 @@ union Tensor {
 };
 
 
-typedef std::set <std::string> Dimensions;				///< An set::set with the dimension names returned by kind.dimensions()
+typedef std::set<std::string> Dimensions;				///< An set::set with the dimension names returned by kind.dimensions()
 
 
 typedef std::map<int, int>					IndexII;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, int)
