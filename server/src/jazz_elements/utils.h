@@ -113,6 +113,7 @@ without global variables.
 #define SERVICE_ERROR_CREATE_FAILED		-17		///< new_entity() failed
 #define SERVICE_ERROR_PARSING_NAMES		-18		///< Error with format in Container.as_locator().
 #define SERVICE_ERROR_TOO_DEEP			-19		///< Error recursion limit reached.
+#define SERVICE_ERROR_WRONG_BASE		-20		///< Base is not supported by the container.
 
 
 /** Default path to config file
