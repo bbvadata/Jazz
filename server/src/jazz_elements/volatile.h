@@ -249,6 +249,86 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
+
+		/** Parses a key to find the command and a new key that can be hashed, possibly a key of a parent.
+
+			\param key_out The clean key returned without the command.
+			\param command The command as an integer in COMMAND_CHILD_10BIT..COMMAND_XLOW_10BIT or COMMAND_SIZE + a size
+			\param parent  Possibly a parent node, if the command is not the only thing in the key_in.
+			\param key_in  The original key to be parsed.
+			\param is_put  We are parsing a put call (if true, the command maybe a parent node id).
+
+			\return		True on success
+
+		NOTE: See the reference of the class Volatile for an explanation on commands.
+		*/
+		inline bool parse_command(Name &key_out, int &command, Name &parent, Name key_in, bool is_put) {
+			if (key_in[0] == '~') {
+				key_out[0] = 0;
+				parent [0] = 0;
+
+				switch (command = TenBitsAtAddress(&key_in[1])) {
+				case COMMAND_CHILD_10BIT:
+				case COMMAND_FIRST_10BIT:
+				case COMMAND_GET_10BIT:
+				case COMMAND_HIGH_10BIT:
+				case COMMAND_II_10BIT:
+				case COMMAND_INSERT_10BIT:
+				case COMMAND_IS_10BIT:
+				case COMMAND_LAST_10BIT:
+				case COMMAND_LOW_10BIT:
+				case COMMAND_NEXT_10BIT:
+				case COMMAND_PARENT_10BIT:
+				case COMMAND_PFIRST_10BIT:
+				case COMMAND_PLAST_10BIT:
+				case COMMAND_PREV_10BIT:
+				case COMMAND_PUT_10BIT:
+				case COMMAND_SI_10BIT:
+				case COMMAND_SS_10BIT:
+				case COMMAND_XHIGH_10BIT:
+				case COMMAND_XLOW_10BIT:
+					return true;
+
+				default:
+					int size;
+
+					if (sscanf(&key_in[1], "%i", &size) != 1)
+						return false;
+
+					command = COMMAND_SIZE + size;
+
+					return true;
+				}
+			}
+			strcpy(key_out, key_in);
+			pChar pc = strchr(key_out, '~');
+
+			if (pc == nullptr) {
+				command	  = COMMAND_JUST_THE_KEY;
+				parent[0] = 0;
+
+				return true;
+			}
+			(*pc++) = 0;
+
+			if (is_put) {
+				strcpy(parent, pc);
+				command = COMMAND_PARENT_KEY;
+
+				return true;
+			}
+
+			switch (command = TenBitsAtAddress(pc)) {
+			case COMMAND_CHILD_10BIT:
+			case COMMAND_NEXT_10BIT:
+			case COMMAND_PARENT_10BIT:
+			case COMMAND_PREV_10BIT:
+				return true;
+			}
+
+			return false;
+		}
+
 		/** Fills a name with zero after the string and returns the hash of the complete NAME_SIZE-long array.
 
 			\param name The name to be filled and hashed.
