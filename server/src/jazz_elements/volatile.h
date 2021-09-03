@@ -114,6 +114,35 @@ struct VolatileTransaction: Transaction {
 };
 
 
+/** \brief EntityKeyHash: A record containing separate hashes for entity and key.
+
+*/
+struct EntityKeyHash {
+	uint64_t ent_hash, key_hash;
+};
+
+
+/** \brief HashVolXctMap: A map from hashes to pointers to VolatileTransaction.
+
+This map allows locating entity root VolatileTransactions for creating and destroying entities.
+*/
+typedef std::map<uint64_t, pVolatileTransaction> HashVolXctMap;
+
+
+/** \brief EntKeyVolXctMap: A map from (entity,key) hashes to pointers to VolatileTransaction.
+
+This map allows locating any nodes.
+*/
+typedef std::map<EntityKeyHash, pVolatileTransaction> EntKeyVolXctMap;
+
+
+/** \brief HashNameMap: A map from hashes to pointers to VolatileTransaction.
+
+This map allows doing the reverse conversion to a hash() function finding out the hashed names.
+*/
+typedef std::map<uint64_t, Name> HashNameMap;
+
+
 /** \brief Volatile: A Service to manage data objects in RAM.
 
 Node Method Reference
