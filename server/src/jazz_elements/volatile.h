@@ -110,7 +110,7 @@ struct VolatileTransaction: Transaction {
 		int	times_used;									///< Times the block has been reassigned in the queue ...
 		int num_visits;									///< ... or MCTS tree node number of visits.
 	};
-	uint64_t id_hash;									///< Node locator hash required to find the ID of a related (next, ...) node.
+	uint64_t key_hash;									///< Node locator hash required to find the ID of a related (next, ...) node.
 };
 
 
