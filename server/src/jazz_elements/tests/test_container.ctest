@@ -5812,4 +5812,39 @@ SCENARIO("Testing Container::as_locator()") {
 	REQUIRE(CNT.as_locator(loc, (pChar) "/") == SERVICE_ERROR_PARSING_NAMES);
 	REQUIRE(CNT.as_locator(loc, (pChar) "a") == SERVICE_ERROR_PARSING_NAMES);
 	REQUIRE(CNT.as_locator(loc, (pChar) "") == SERVICE_ERROR_PARSING_NAMES);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//deque/entity/~pop_first") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "deque") == 0);
+	REQUIRE(strcmp(loc.entity, "entity") == 0);
+	REQUIRE(strcmp(loc.key,	   "~pop_first") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//deque/entity/key~prev") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "deque") == 0);
+	REQUIRE(strcmp(loc.entity, "entity") == 0);
+	REQUIRE(strcmp(loc.key,	   "key~prev") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//index/id/~si") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "index") == 0);
+	REQUIRE(strcmp(loc.entity, "id") == 0);
+	REQUIRE(strcmp(loc.key,	   "~si") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//queue/candidates/~5000") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "queue") == 0);
+	REQUIRE(strcmp(loc.entity, "candidates") == 0);
+	REQUIRE(strcmp(loc.key,	   "~5000") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/game/node0a7ef~node0244e") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "tree") == 0);
+	REQUIRE(strcmp(loc.entity, "game") == 0);
+	REQUIRE(strcmp(loc.key,	   "node0a7ef~node0244e") == 0);
+	REQUIRE(loc.p_extra == nullptr);
 }
