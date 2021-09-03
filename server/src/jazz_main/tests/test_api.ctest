@@ -46,7 +46,6 @@ Agency		EPI		  (&LOGGER, &CONFIG);
 
 Api			TT_API	  (&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
 
-
 // Tests
 // -----
 
@@ -186,6 +185,41 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(!TT_API.parse_nested(loc, (pChar) "/"));
 		REQUIRE(!TT_API.parse_nested(loc, (pChar) "a"));
 		REQUIRE(!TT_API.parse_nested(loc, (pChar) ""));
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//deque/entity/~pop_first"));
+
+		REQUIRE(strcmp(loc.base,   "deque") == 0);
+		REQUIRE(strcmp(loc.entity, "entity") == 0);
+		REQUIRE(strcmp(loc.key,	   "~pop_first") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//deque/entity/key~prev"));
+
+		REQUIRE(strcmp(loc.base,   "deque") == 0);
+		REQUIRE(strcmp(loc.entity, "entity") == 0);
+		REQUIRE(strcmp(loc.key,	   "key~prev") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//index/id/~si"));
+
+		REQUIRE(strcmp(loc.base,   "index") == 0);
+		REQUIRE(strcmp(loc.entity, "id") == 0);
+		REQUIRE(strcmp(loc.key,	   "~si") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//queue/candidates/~5000"));
+
+		REQUIRE(strcmp(loc.base,   "queue") == 0);
+		REQUIRE(strcmp(loc.entity, "candidates") == 0);
+		REQUIRE(strcmp(loc.key,	   "~5000") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//tree/game/node0a7ef~node0244e"));
+
+		REQUIRE(strcmp(loc.base,   "tree") == 0);
+		REQUIRE(strcmp(loc.entity, "game") == 0);
+		REQUIRE(strcmp(loc.key,	   "node0a7ef~node0244e") == 0);
+		REQUIRE(loc.p_extra == nullptr);
 	}
 
 	GIVEN("We want to test expand_url_encoded()") {
