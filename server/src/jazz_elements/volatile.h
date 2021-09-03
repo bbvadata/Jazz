@@ -349,6 +349,7 @@ class Volatile : public Container {
 			\return		  True if the node was found in the tree
 		*/
 		inline bool is_in_tree(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+
 			if (p_tree == nullptr || p_item == nullptr)
 				return false;
 
@@ -393,6 +394,7 @@ class Volatile : public Container {
 					p_kill->p_prev = p_tree->p_prev;	// p_kill is the new p_tree
 
 					return rebalance(p_kill);
+
 				} else {
 					p_deep = p_kill;					// Save p_kill for the end
 
@@ -422,6 +424,7 @@ class Volatile : public Container {
 			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
 		*/
 		inline pVolatileTransaction remove(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+
 			if (p_tree == nullptr || p_item == nullptr)
 				return p_tree;
 
@@ -432,6 +435,7 @@ class Volatile : public Container {
 				else {
 					if (p_tree->p_next == nullptr)
 						return p_tree->p_prev;
+
 					else {
 						pVolatileTransaction p_deep = nullptr;
 						return remove_go_deep(p_tree->p_prev, p_tree, p_tree, p_deep);
@@ -456,6 +460,7 @@ class Volatile : public Container {
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
 		inline void decrease_level(pVolatileTransaction p_item) {
+
 			if (p_item->p_prev == nullptr) {
 				if (p_item->p_next == nullptr)
 					p_item->level = 1;
@@ -576,6 +581,7 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 
 				if (to_left(p_new, p_tree))
 					p_tree->p_prev = insert(p_new, p_tree->p_prev);
+
 				else
 					p_tree->p_next = insert(p_new, p_tree->p_next);
 			}
