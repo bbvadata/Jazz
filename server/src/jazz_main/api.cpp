@@ -57,7 +57,7 @@ namespace jazz_main
 --------------------------------------------------- */
 
 #define REX_SLASH				"[/]"
-#define REX_NAME_FIRST			"[a-zA-Z]"
+#define REX_NAME_FIRST			"[a-zA-Z~]"
 #define REX_NAME_ANY			"[a-zA-Z0-9\\-_~$]"
 #define REX_BASE_SWITCH			"[#]"
 #define REX_INFO_SWITCH			"[\\x00]"
