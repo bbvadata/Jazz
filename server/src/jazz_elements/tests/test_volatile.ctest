@@ -748,4 +748,36 @@ SCENARIO("Testing Volatile struc sizes and simple parts") {
 	REQUIRE(TenBitsAtAddress("ss") == COMMAND_SS_10BIT);
 	REQUIRE(TenBitsAtAddress("xh") == COMMAND_XHIGH_10BIT);
 	REQUIRE(TenBitsAtAddress("xl") == COMMAND_XLOW_10BIT);
+
+	Name nam1 = {"nice_key87.wrong"};
+	Name nam2 = {"nice_key87.right"};
+
+	REQUIRE(VOL.hash(nam1) != VOL.hash(nam2));
+
+	REQUIRE(nam1[15] == 'g');
+	REQUIRE(nam2[15] == 't');
+
+	for (int i = 16; i < NAME_SIZE; i++) {
+		REQUIRE(nam1[i] == 0);
+		REQUIRE(nam2[i] == 0);
+	}
+
+	nam1[10] = 0;
+	nam2[10] = 0;
+
+	REQUIRE(VOL.hash(nam1) == VOL.hash(nam2));
+
+	REQUIRE(strcmp(nam1, nam2) == 0);
+
+	for (int i = 10; i < NAME_SIZE; i++) {
+		REQUIRE(nam1[i] == 0);
+		REQUIRE(nam2[i] == 0);
+	}
+
+	nam1[0] = 0;
+
+	VOL.hash(nam1);
+
+	for (int i = 0; i < NAME_SIZE; i++)
+		REQUIRE(nam1[i] == 0);
 }
