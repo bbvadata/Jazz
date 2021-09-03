@@ -54,6 +54,12 @@
 namespace jazz_elements
 {
 
+#define BASE_DEQUE_10BIT		0x0a4		//< First 10 bits of base "deque"
+#define BASE_INDEX_10BIT		0x1c9		//< First 10 bits of base "index"
+#define BASE_QUEUE_10BIT		0x2b1		//< First 10 bits of base "queue"
+#define BASE_TREE_10BIT			0x254		//< First 10 bits of base "tree"
+
+#define COMMAND_JUST_THE_KEY	0x000		//< No command in the key
 /** \brief A pointer to a Transaction-descendant wrapper over a Block for Volatile blocks.
 */
 typedef struct VolatileTransaction *pVolatileTransaction;
