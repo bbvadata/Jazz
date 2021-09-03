@@ -60,6 +60,29 @@ namespace jazz_elements
 #define BASE_TREE_10BIT			0x254		//< First 10 bits of base "tree"
 
 #define COMMAND_JUST_THE_KEY	0x000		//< No command in the key
+#define COMMAND_CHILD_10BIT		0x103		//< First 10 bits of command "ch{ild}"
+#define COMMAND_FIRST_10BIT		0x126		//< First 10 bits of command "fi{rst}"
+#define COMMAND_GET_10BIT		0x0a7		//< First 10 bits of command "ge{t}"
+#define COMMAND_HIGH_10BIT		0x128		//< First 10 bits of command "hi{ghest}"
+#define COMMAND_II_10BIT		0x129		//< First 10 bits of command "ii"
+#define COMMAND_INSERT_10BIT	0x1c9		//< First 10 bits of command "in{sert}"
+#define COMMAND_IS_10BIT		0x269		//< First 10 bits of command "is"
+#define COMMAND_LAST_10BIT		0x02c		//< First 10 bits of command "la{st}"
+#define COMMAND_LOW_10BIT		0x1ec		//< First 10 bits of command "lo{west}"
+#define COMMAND_NEXT_10BIT		0x0ae		//< First 10 bits of command "ne{xt}"
+#define COMMAND_PARENT_10BIT	0x030		//< First 10 bits of command "pa{rent}"
+#define COMMAND_PFIRST_10BIT	0x0d0		//< First 10 bits of command "pf{irst}"
+#define COMMAND_PLAST_10BIT		0x190		//< First 10 bits of command "pl{ast}"
+#define COMMAND_PREV_10BIT		0x250		//< First 10 bits of command "pr{ev}"
+#define COMMAND_PUT_10BIT		0x2b0		//< First 10 bits of command "pu{t}"
+#define COMMAND_SI_10BIT		0x133		//< First 10 bits of command "si"
+#define COMMAND_SS_10BIT		0x273		//< First 10 bits of command "ss"
+#define COMMAND_XHIGH_10BIT		0x118		//< First 10 bits of command "xh{ighest}"
+#define COMMAND_XLOW_10BIT		0x198		//< First 10 bits of command "xl{owest}"
+#define COMMAND_PARENT_KEY		0x3ff		//< In a put call with a key, the command whatever it is should be considered a parent key.
+#define COMMAND_SIZE			0x400		//< For numbers, defining a queue size, this is added to avoid overlap.
+
+
 /** \brief A pointer to a Transaction-descendant wrapper over a Block for Volatile blocks.
 */
 typedef struct VolatileTransaction *pVolatileTransaction;
