@@ -201,6 +201,7 @@ Methods in tree
 When a tree is created empty, new_entity() //tree/name/, the first node pushed must have just a key and is the only node without
 a parent. Any node is created by put()ing to //tree/name/key~parentname (where parentname must exist). All nodes support querying keys to
 their parent, siblings and first child via: get() //tree/name/key~pa{rent}, //tree/name/key~ne{xt}, //tree/name/key~ch{ild}.
+The root node can be retrieved with get() //tree/entity/~first.
 */
 class Volatile : public Container {
 
