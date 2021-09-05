@@ -66,10 +66,6 @@ namespace jazz_elements
 #define NAME_LENGTH				NAME_SIZE - 1	///< Maximum length of a Name.name
 #define ONE_MB					(1024*1024)		///< Is used in log_printf() of error/warning messages
 
-/// Block API (syntax related)
-
-#define REGEX_VALIDATE_NAME		"^[a-zA-Z][a-zA-Z0-9_]{0,30}$"	///< Regex validating a Name
-
 /** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
 does not normally modify blocks. The few exceptions have a block-specific lock in the Transaction. Services also have a service-specific
 lock. The few services that require full thread awareness (Bebop and API) will allocate a number of Core or APIexecutor objects equal to
