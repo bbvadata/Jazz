@@ -340,9 +340,20 @@ for a Kind or a Tuple, you probably want the types of all its items and need to 
 */
 StatusCode Volatile::header(StaticBlockHeader &hea, Locator &what) {
 
-//TODO: Implement this.
+	pTransaction p_int_txn;
+	pString		 p_str;
+	uint64_t	 pop_ent;
+	StatusCode	 ret;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR || p_int_txn == nullptr)
+		return ret;
+
+	memcpy(&hea, p_int_txn->p_block, sizeof(StaticBlockHeader));
+
+	if (pop_ent != 0)
+		destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+
+	return SERVICE_NO_ERROR;
 }
 
 
