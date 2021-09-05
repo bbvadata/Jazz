@@ -189,6 +189,10 @@ struct StoredTransaction: Transaction {
 typedef StoredTransaction *pStoredTransaction;
 
 
+/// An internal map for managing dimension parsing
+typedef std::map<std::string, int>	MapSI;
+
+
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
