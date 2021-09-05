@@ -330,6 +330,10 @@ class Container : public Service {
 		StatusCode new_block   (pTransaction	   &p_txn,
 								int					cell_type);
 
+		// 8. new_block(): Create a Tuple of (key:STRING[length],value:STRING[length]) with the content of an Index.
+		StatusCode new_block   (pTransaction	   &p_txn,
+								Index			   &index);
+
 		// Support for transactions creation/destruction
 
 		virtual StatusCode new_transaction(pTransaction &p_txn);

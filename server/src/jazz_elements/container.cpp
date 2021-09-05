@@ -1670,29 +1670,29 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 	p_txn->p_hea->cell_type = cell_type;
 	p_txn->p_hea->size	    = 1;
 
-	switch (cell_type) {
-	case CELL_TYPE_INDEX_II:
-		p_txn->p_hea->index.index_ii = {};
-
-		break;
-
-	case CELL_TYPE_INDEX_IS:
-		p_txn->p_hea->index.index_is = {};
-
-		break;
-
-	case CELL_TYPE_INDEX_SI:
-		p_txn->p_hea->index.index_si = {};
-
-		break;
-
-	default:
-		p_txn->p_hea->index.index_ss = {};
-	}
+	p_txn->p_hea->index = {};
 
 	p_txn->status = BLOCK_STATUS_READY;
 
 	return SERVICE_NO_ERROR;
+}
+
+
+/** Create a new Block (8): Create a Tuple of (key:STRING[length],value:STRING[length]) with the content of an Index.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+					it when done.
+	\param index	An Index we want to convert into a Tuple.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+*/
+StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
+
+//TODO: Implement new_block(8)
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
 
