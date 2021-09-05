@@ -119,6 +119,14 @@ struct VolatileTransaction: Transaction {
 */
 struct EntityKeyHash {
 	uint64_t ent_hash, key_hash;
+
+	bool operator==(const EntityKeyHash &o) const {
+		return ent_hash == o.ent_hash && key_hash == o.key_hash;
+	}
+
+	bool operator<(const EntityKeyHash &o) const {
+		return ent_hash < o.ent_hash || (ent_hash == o.ent_hash && key_hash < o.key_hash);
+	}
 };
 
 
