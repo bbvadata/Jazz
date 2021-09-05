@@ -268,31 +268,34 @@ class Volatile : public Container {
 				parent [0] = 0;
 
 				switch (command = TenBitsAtAddress(&key_in[1])) {
-				case COMMAND_CHILD_10BIT:
 				case COMMAND_FIRST_10BIT:
-				case COMMAND_GET_10BIT:
-				case COMMAND_HIGH_10BIT:
-				case COMMAND_II_10BIT:
-				case COMMAND_INSERT_10BIT:
-				case COMMAND_IS_10BIT:
 				case COMMAND_LAST_10BIT:
-				case COMMAND_LOW_10BIT:
-				case COMMAND_NEXT_10BIT:
-				case COMMAND_PARENT_10BIT:
-				case COMMAND_PFIRST_10BIT:
-				case COMMAND_PLAST_10BIT:
-				case COMMAND_PREV_10BIT:
-				case COMMAND_PUT_10BIT:
-				case COMMAND_SI_10BIT:
-				case COMMAND_SS_10BIT:
-				case COMMAND_XHIGH_10BIT:
-				case COMMAND_XLOW_10BIT:
 					return true;
 
-				default:
-					int size;
+				case COMMAND_PUT_10BIT:
+				case COMMAND_INSERT_10BIT:
+					return is_put;
 
-					if (sscanf(&key_in[1], "%i", &size) != 1)
+				case COMMAND_II_10BIT:
+				case COMMAND_IS_10BIT:
+				case COMMAND_SI_10BIT:
+				case COMMAND_SS_10BIT:
+				case COMMAND_PFIRST_10BIT:
+				case COMMAND_PLAST_10BIT:
+				case COMMAND_HIGH_10BIT:
+				case COMMAND_LOW_10BIT:
+				case COMMAND_GET_10BIT:
+				case COMMAND_XHIGH_10BIT:
+				case COMMAND_XLOW_10BIT:
+					return !is_put;
+
+				default:
+					if (!is_put || key_in[1] < '0' || key_in[1] > '9')
+						return false;
+
+					int size, r_len;
+
+					if (sscanf(&key_in[1], "%d%n", &size, &r_len) != 1 || size <= 0 || key_in[r_len + 1] != 0)
 						return false;
 
 					command = COMMAND_SIZE + size;
@@ -311,12 +314,19 @@ class Volatile : public Container {
 			}
 			(*pc++) = 0;
 
+			if (*pc == 0)
+				return false;
+
 			if (is_put) {
+				if (!valid_name(pc))
+					return false;
+
 				strcpy(parent, pc);
 				command = COMMAND_PARENT_KEY;
 
 				return true;
 			}
+			parent[0] = 0;
 
 			switch (command = TenBitsAtAddress(pc)) {
 			case COMMAND_CHILD_10BIT:
