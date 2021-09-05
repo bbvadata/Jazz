@@ -114,6 +114,8 @@ without global variables.
 #define SERVICE_ERROR_PARSING_NAMES		-18		///< Error with format in Container.as_locator().
 #define SERVICE_ERROR_TOO_DEEP			-19		///< Error recursion limit reached.
 #define SERVICE_ERROR_WRONG_BASE		-20		///< Base is not supported by the container.
+#define SERVICE_ERROR_PARSING_COMMAND	-21		///< Error with format in Volatile.parse_command().
+#define SERVICE_ERROR_EMPTY_ENTITY		-22		///< Trying to get from an empty entity in Volatile.
 
 
 /** Default path to config file
