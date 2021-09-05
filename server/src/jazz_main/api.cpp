@@ -505,7 +505,7 @@ StatusCode Api::shut_down() {
 	StatusCode err;
 
 	if (remove_statics)
-		for (IndexSS::iterator it = www.begin(); it != www.end(); ++it)
+		for (Index::iterator it = www.begin(); it != www.end(); ++it)
 			if ((err = p_persisted->remove((pChar) it->second.c_str())) != SERVICE_NO_ERROR)
 				log_printf(LOG_MISS, "Api::shut_down(): Persisted.remove(%s) returned %d", it->second.c_str(), err);
 
@@ -783,7 +783,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 */
 MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
 
-	IndexSS::iterator it = www.find(std::string(p_url));
+	Index::iterator it = www.find(std::string(p_url));
 
 	if (it == www.end())
 		return MHD_HTTP_NOT_FOUND;

@@ -186,7 +186,7 @@ class Api : public Container {
 		pPersisted	p_persisted;
 		pBebop		p_bebop;
 		pAgency		p_agency;
-		IndexSS		www;
+		Index		www;
 		int			remove_statics;
 };
 
