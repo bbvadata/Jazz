@@ -261,28 +261,44 @@ be destroy_transaction()-ed when the caller is done.
 */
 StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 
-	switch (TenBitsAtAddress(what.base)) {
-	case BASE_DEQUE_10BIT:
-		/* code */
-		break;
+	pTransaction p_int_txn;
+	pString		 p_str;
+	uint64_t	 pop_ent;
+	StatusCode	 ret;
 
-	case BASE_INDEX_10BIT:
-		/* code */
-		break;
+	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR) {
+		p_txn = nullptr;
 
-	case BASE_QUEUE_10BIT:
-		/* code */
-		break;
-
-	case BASE_TREE_10BIT:
-		/* code */
-		break;
-
-	default:
-		return SERVICE_ERROR_WRONG_BASE;
+		return ret;
 	}
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
+		return ret;
+
+	if (p_int_txn != nullptr) {
+		int size = p_int_txn->p_block->total_bytes;
+
+		p_txn->p_block = block_malloc(size);
+
+		if (p_txn->p_block == nullptr) {
+			destroy_transaction(p_txn);
+
+			return SERVICE_ERROR_NO_MEM;
+		}
+
+		memcpy(p_txn->p_block, p_int_txn->p_block, size);
+		p_txn->status = BLOCK_STATUS_READY;
+
+		if (pop_ent != 0)
+			destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+
+		return SERVICE_NO_ERROR;
+	}
+
+	if (p_str != nullptr)
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0);
+
+	return new_block(p_txn, index_ent[pop_ent]->p_hea->index);
 }
 
 
