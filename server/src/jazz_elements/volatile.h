@@ -249,16 +249,16 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
-
 		/** Parses a key to find the command and a new key that can be hashed, possibly a key of a parent.
 
 			\param key_out The clean key returned without the command.
 			\param command The command as an integer in COMMAND_CHILD_10BIT..COMMAND_XLOW_10BIT or COMMAND_SIZE + a size
-			\param parent  Possibly a parent node, if the command is not the only thing in the key_in.
+			\param parent  A parent node, when command == COMMAND_PARENT_KEY (In put //tree/ent/aaa~next, "next" is a parent id,
+						   not a command.)
 			\param key_in  The original key to be parsed.
 			\param is_put  We are parsing a put call (if true, the command maybe a parent node id).
 
-			\return		True on success
+			\return		   True on success, all outputs (key_out, command, parent) are defined on success and undefined on failure.
 
 		NOTE: See the reference of the class Volatile for an explanation on commands.
 		*/
