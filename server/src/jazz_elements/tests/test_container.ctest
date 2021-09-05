@@ -5634,70 +5634,70 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_BYTE) == SERVICE_ERROR_WRONG_TYPE);
 		REQUIRE(p_tx_ii == nullptr);
 
-		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_INDEX_II) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx_ii->p_block != nullptr);
 		REQUIRE(p_tx_ii->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(CNT.new_block(p_tx_is, CELL_TYPE_INDEX_IS) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_tx_is, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx_is->p_block != nullptr);
 		REQUIRE(p_tx_is->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(CNT.new_block(p_tx_si, CELL_TYPE_INDEX_SI) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_tx_si, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx_si->p_block != nullptr);
 		REQUIRE(p_tx_si->status  == BLOCK_STATUS_READY);
 
-		REQUIRE(CNT.new_block(p_tx_ss, CELL_TYPE_INDEX_SS) == SERVICE_NO_ERROR);
+		REQUIRE(CNT.new_block(p_tx_ss, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 		REQUIRE(p_tx_ss->p_block != nullptr);
 		REQUIRE(p_tx_ss->status  == BLOCK_STATUS_READY);
 
 		WHEN("we use them") {
-			p_tx_ii->p_hea->index.index_ii[ 1] = 123;
-			p_tx_ii->p_hea->index.index_ii[-2] = 4;
-			p_tx_ii->p_hea->index.index_ii[ 3] = 56789;
+			p_tx_ii->p_hea->index[" 1"] = "123";
+			p_tx_ii->p_hea->index["-2"] = "4";
+			p_tx_ii->p_hea->index[" 3"] = "56789";
 
-			p_tx_is->p_hea->index.index_is[ 1] = "anything";
-			p_tx_is->p_hea->index.index_is[31] = "thirty one";
+			p_tx_is->p_hea->index[" 1"] = "anything";
+			p_tx_is->p_hea->index["31"] = "thirty one";
 
-			p_tx_si->p_hea->index.index_si["key"]	= 123;
-			p_tx_si->p_hea->index.index_si["value"] = 456789;
+			p_tx_si->p_hea->index["key"]   = "123";
+			p_tx_si->p_hea->index["value"] = "456789";
 
-			p_tx_ss->p_hea->index.index_ss["5"]    = "five";
-			p_tx_ss->p_hea->index.index_ss["five"] = "5";
-			p_tx_ss->p_hea->index.index_ss["6"]    = "six";
-			p_tx_ss->p_hea->index.index_ss["six"]  = "?";
+			p_tx_ss->p_hea->index["5"]    = "five";
+			p_tx_ss->p_hea->index["five"] = "5";
+			p_tx_ss->p_hea->index["6"]    = "six";
+			p_tx_ss->p_hea->index["six"]  = "?";
 
 			THEN("they grow dynamically") {
 
-				REQUIRE(p_tx_ii->p_hea->index.index_ii[ 1]		== 123);
-				REQUIRE(p_tx_ii->p_hea->index.index_ii[-2]		== 4);
-				REQUIRE(p_tx_ii->p_hea->index.index_ii[ 3]		== 56789);
+				REQUIRE(p_tx_ii->p_hea->index[" 1"]	== "123");
+				REQUIRE(p_tx_ii->p_hea->index["-2"]	== "4");
+				REQUIRE(p_tx_ii->p_hea->index[" 3"]	== "56789");
 
-				REQUIRE(p_tx_ii->p_hea->index.index_ii.size()  == 3);
-				REQUIRE(p_tx_ii->p_hea->index.index_ii.find(3) != p_tx_ii->p_hea->index.index_ii.end());
-				REQUIRE(p_tx_ii->p_hea->index.index_ii.find(4) == p_tx_ii->p_hea->index.index_ii.end());
+				REQUIRE(p_tx_ii->p_hea->index.size() == 3);
+				REQUIRE(p_tx_ii->p_hea->index.find(" 3") != p_tx_ii->p_hea->index.end());
+				REQUIRE(p_tx_ii->p_hea->index.find( "3") == p_tx_ii->p_hea->index.end());
 
-				REQUIRE(p_tx_is->p_hea->index.index_is[ 1]		== "anything");
-				REQUIRE(p_tx_is->p_hea->index.index_is[31]		== "thirty one");
+				REQUIRE(p_tx_is->p_hea->index[" 1"] == "anything");
+				REQUIRE(p_tx_is->p_hea->index["31"] == "thirty one");
 
-				REQUIRE(p_tx_is->p_hea->index.index_is.size()   == 2);
-				REQUIRE(p_tx_is->p_hea->index.index_is.find(31) != p_tx_is->p_hea->index.index_is.end());
-				REQUIRE(p_tx_is->p_hea->index.index_is.find(4)  == p_tx_is->p_hea->index.index_is.end());
+				REQUIRE(p_tx_is->p_hea->index.size() == 2);
+				REQUIRE(p_tx_is->p_hea->index.find("31") != p_tx_is->p_hea->index.end());
+				REQUIRE(p_tx_is->p_hea->index.find("4")  == p_tx_is->p_hea->index.end());
 
-				REQUIRE(p_tx_si->p_hea->index.index_si["key"]	== 123);
-				REQUIRE(p_tx_si->p_hea->index.index_si["value"]	== 456789);
+				REQUIRE(p_tx_si->p_hea->index["key"]   == "123");
+				REQUIRE(p_tx_si->p_hea->index["value"] == "456789");
 
-				REQUIRE(p_tx_si->p_hea->index.index_si.size()	   == 2);
-				REQUIRE(p_tx_si->p_hea->index.index_si.find("key") != p_tx_si->p_hea->index.index_si.end());
-				REQUIRE(p_tx_si->p_hea->index.index_si.find("Key") == p_tx_si->p_hea->index.index_si.end());
+				REQUIRE(p_tx_si->p_hea->index.size()	  == 2);
+				REQUIRE(p_tx_si->p_hea->index.find("key") != p_tx_si->p_hea->index.end());
+				REQUIRE(p_tx_si->p_hea->index.find("Key") == p_tx_si->p_hea->index.end());
 
-				REQUIRE(p_tx_ss->p_hea->index.index_ss["5"]		== "five");
-				REQUIRE(p_tx_ss->p_hea->index.index_ss["five"]	== "5");
-				REQUIRE(p_tx_ss->p_hea->index.index_ss["6"]		== "six");
-				REQUIRE(p_tx_ss->p_hea->index.index_ss["six"]	== "?");
+				REQUIRE(p_tx_ss->p_hea->index["5"]	  == "five");
+				REQUIRE(p_tx_ss->p_hea->index["five"] == "5");
+				REQUIRE(p_tx_ss->p_hea->index["6"]	  == "six");
+				REQUIRE(p_tx_ss->p_hea->index["six"]  == "?");
 
-				REQUIRE(p_tx_ss->p_hea->index.index_ss.size()	   == 4);
-				REQUIRE(p_tx_ss->p_hea->index.index_ss.find("six") != p_tx_ss->p_hea->index.index_ss.end());
-				REQUIRE(p_tx_ss->p_hea->index.index_ss.find("si")  == p_tx_ss->p_hea->index.index_ss.end());
+				REQUIRE(p_tx_ss->p_hea->index.size()	  == 4);
+				REQUIRE(p_tx_ss->p_hea->index.find("six") != p_tx_ss->p_hea->index.end());
+				REQUIRE(p_tx_ss->p_hea->index.find("si")  == p_tx_ss->p_hea->index.end());
 			}
 		}
 		CNT.destroy_transaction(p_tx_ii);
