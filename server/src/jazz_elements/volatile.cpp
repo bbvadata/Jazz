@@ -44,7 +44,6 @@ namespace jazz_elements
 
 Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
-
 /** \brief Starts the service, checking the configuration and starting the Service.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
@@ -219,34 +218,12 @@ void Volatile::destroy_transaction  (pTransaction &p_txn) {
 	enter_write(p_txn);
 
 	if (p_txn->p_block != nullptr) {
-		switch (p_txn->p_block->cell_type) {
-		case CELL_TYPE_INDEX_II:
-			p_txn->p_hea->index.index_ii.~map();
+		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
+			p_txn->p_hea->index.~map();
 			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		case CELL_TYPE_INDEX_IS:
-			p_txn->p_hea->index.index_is.~map();
-			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		case CELL_TYPE_INDEX_SI:
-			p_txn->p_hea->index.index_si.~map();
-			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		case CELL_TYPE_INDEX_SS:
-			p_txn->p_hea->index.index_ss.~map();
-			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		default:
+		} else
 			alloc_bytes -= p_txn->p_block->total_bytes;
-		};
+
 		free(p_txn->p_block);
 
 		p_txn->p_block = nullptr;
@@ -466,7 +443,6 @@ void Volatile::base_names(BaseNames &base_names) {
 	base_names["queue"] = this;		// The AA-tree priority queue with methods, possibly used instead of keys. E.g. key~_first_
 	base_names["tree"]	= this;		// An APIfied tree. Can use IndexIS to return. E.g. key~_child_
 }
-
 
 } // namespace jazz_elements
 
