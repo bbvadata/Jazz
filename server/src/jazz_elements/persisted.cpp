@@ -241,6 +241,8 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 
 	done_pointer_to_block(p_l_txn);
 
+	p_txn->status = BLOCK_STATUS_READY;
+
 	if (!check_block(p_txn->p_block))
 		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
 
@@ -396,6 +398,8 @@ StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 	memcpy(p_txn->p_block, p_blx, hea_size);
 
 	p_txn->p_block->total_bytes = hea_size;
+
+	p_txn->status = BLOCK_STATUS_READY;
 
 	done_pointer_to_block(p_l_txn);
 
