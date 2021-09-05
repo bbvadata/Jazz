@@ -2174,7 +2174,7 @@ StatusCode Container::destroy_container() {
 
 	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
 */
-bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, IndexSI &dims) {
+bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, MapSI &dims) {
 
 	if (skip_space(p_in, num_bytes) < 7)
 		return false;
