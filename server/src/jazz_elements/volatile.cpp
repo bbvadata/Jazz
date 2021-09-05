@@ -425,9 +425,42 @@ StatusCode Volatile::remove(Locator &where) {
 */
 StatusCode Volatile::copy(Locator &where, Locator &what) {
 
-//TODO: Implement this.
+	pTransaction p_int_txn, p_txn;
+	pString		 p_str;
+	uint64_t	 pop_ent;
+	StatusCode	 ret;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR)
+		return ret;
+
+	if (p_int_txn != nullptr) {
+		ret = put(where, p_int_txn->p_block);
+
+		if (pop_ent != 0)
+			destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+
+		return ret;
+	}
+
+	if (p_str != nullptr) {
+		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
+			return ret;
+
+		ret = put(where, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		return ret;
+	}
+
+	if ((ret = new_block(p_txn, index_ent[pop_ent]->p_hea->index)) != SERVICE_NO_ERROR)
+		return ret;
+
+	ret = put(where, p_txn->p_block);
+
+	destroy_transaction(p_txn);
+
+	return ret;
 }
 
 
