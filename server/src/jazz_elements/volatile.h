@@ -262,6 +262,23 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
+
+		/** Destroy and item froman entity.
+
+			\param p_base	A the base.
+			\param ent_hash	A hash of the entity containing the item to be destroyed.
+			\param p_item	The item tom be destroyed.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+		*/
+		inline StatusCode destroy_item(pChar p_base, uint64_t ent_hash, pVolatileTransaction p_item) {
+
+//TODO: Implement destroy_item()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
 		/** Internal non-copy version of get() form 1.
 
 			\param p_txn	A Transaction **inside the Container** that will be returned for anything except an index.
