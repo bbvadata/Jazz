@@ -262,6 +262,251 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
+		/** Internal non-copy version of get() form 1.
+
+			\param p_txn	A Transaction **inside the Container** that will be returned for anything except an index.
+			\param p_str	A pointer to a std::string.c_str() **inside the Container** for index.
+			\param pop_ent	The hash of the entity from which the returned block is expected to be pop()-ed.
+			\param what		Some Locator to the block, just like what get() expects.
+
+			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+		This is the kernel of get(). The difference is it does not create block to be used by other services, it returns the internal
+		VolatileTransaction without copying neither the transaction nor the block.
+		*/
+		inline StatusCode internal_get(pTransaction &p_txn, pString &p_str, uint64_t &pop_ent, Locator &what) {
+
+			HashVolXctMap *p_ent_map;
+			int base;
+
+			pop_ent = 0;
+
+			switch (base = TenBitsAtAddress(what.base)) {
+			case BASE_DEQUE_10BIT:
+				p_ent_map = &deque_ent;
+				break;
+
+			case BASE_INDEX_10BIT:
+				p_ent_map = &index_ent;
+				break;
+
+			case BASE_QUEUE_10BIT:
+				p_ent_map = &queue_ent;
+				break;
+
+			case BASE_TREE_10BIT:
+				p_ent_map = &tree_ent;
+				break;
+
+			default:
+				return SERVICE_ERROR_WRONG_BASE;
+			}
+
+			EntityKeyHash ek;
+			ek.ent_hash = hash(what.entity);
+
+			HashVolXctMap::iterator it_ent = p_ent_map->find(ek.ent_hash);
+
+			if (it_ent == p_ent_map->end())
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			pVolatileTransaction p_root = it_ent->second;
+
+			Name key, parent;
+			int	 command;
+
+			if (!parse_command(key, command, parent, what.key, false))
+				return SERVICE_ERROR_PARSING_COMMAND;
+
+			switch (command) {
+			case COMMAND_JUST_THE_KEY:
+  				switch (base) {
+				case BASE_DEQUE_10BIT: {
+					ek.key_hash = hash(key);
+					EntKeyVolXctMap::iterator it;
+
+					if ((it = deque_key.find(ek)) == deque_key.end())
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+					p_txn = it->second;
+					p_str = nullptr; }
+
+					return SERVICE_NO_ERROR;
+
+				case BASE_QUEUE_10BIT: {
+					ek.key_hash = hash(key);
+					EntKeyVolXctMap::iterator it;
+
+					if ((it = queue_key.find(ek)) == queue_key.end())
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+					p_txn = it->second;
+					p_str = nullptr; }
+
+					return SERVICE_NO_ERROR;
+
+				case BASE_TREE_10BIT: {
+					ek.key_hash = hash(key);
+					EntKeyVolXctMap::iterator it;
+
+					if ((it = tree_key.find(ek)) == tree_key.end())
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+					p_txn = it->second;
+					p_str = nullptr; }
+
+					return SERVICE_NO_ERROR;
+
+				default: {
+					Index::iterator it;
+
+					if ((it = p_root->p_hea->index.find(key)) == p_root->p_hea->index.end())
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+					p_txn = nullptr;
+					p_str = &it->second; }
+
+					return SERVICE_NO_ERROR;
+				}
+
+			case COMMAND_CHILD_10BIT: {
+				if (base != BASE_TREE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				ek.key_hash = hash(key);
+				EntKeyVolXctMap::iterator it;
+
+				if ((it = tree_key.find(ek)) == tree_key.end())
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				p_txn = it->second->p_child;
+				p_str = nullptr; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_PARENT_10BIT: {
+				if (base != BASE_TREE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				ek.key_hash = hash(key);
+				EntKeyVolXctMap::iterator it;
+
+				if ((it = tree_key.find(ek)) == tree_key.end())
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				p_txn = it->second->p_parent;
+				p_str = nullptr; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_NEXT_10BIT: {
+				if (base != BASE_TREE_10BIT && base != BASE_DEQUE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				ek.key_hash = hash(key);
+				EntKeyVolXctMap::iterator it;
+
+				if ((it = tree_key.find(ek)) == tree_key.end())
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				p_txn = it->second->p_next;
+				p_str = nullptr; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_PREV_10BIT: {
+				if (base != BASE_DEQUE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				ek.key_hash = hash(key);
+				EntKeyVolXctMap::iterator it;
+
+				if ((it = tree_key.find(ek)) == tree_key.end())
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				p_txn = it->second->p_prev;
+				p_str = nullptr; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_HIGH_10BIT:
+			case COMMAND_XHIGH_10BIT: {
+				if (base != BASE_QUEUE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (p_root == nullptr)
+					return SERVICE_ERROR_EMPTY_ENTITY;
+
+				p_txn = highest_priority(p_root);
+				p_str = nullptr;
+
+				if (command == COMMAND_XHIGH_10BIT)
+					pop_ent = ek.ent_hash; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_LOW_10BIT:
+			case COMMAND_XLOW_10BIT: {
+				if (base != BASE_QUEUE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (p_root == nullptr)
+					return SERVICE_ERROR_EMPTY_ENTITY;
+
+				p_txn = lowest_priority(p_root);
+				p_str = nullptr;
+
+				if (command == COMMAND_XLOW_10BIT)
+					pop_ent = ek.ent_hash; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_FIRST_10BIT:
+			case COMMAND_PFIRST_10BIT: {
+				if (base != BASE_DEQUE_10BIT && (base != BASE_TREE_10BIT || command == COMMAND_PFIRST_10BIT))
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (p_root == nullptr)
+					return SERVICE_ERROR_EMPTY_ENTITY;
+
+				p_txn = p_root;
+				p_str = nullptr;
+
+				if (command == COMMAND_PFIRST_10BIT)
+					pop_ent = ek.ent_hash; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_LAST_10BIT:
+			case COMMAND_PLAST_10BIT: {
+				if (base != BASE_DEQUE_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (p_root == nullptr)
+					return SERVICE_ERROR_EMPTY_ENTITY;
+
+				p_txn = p_root->p_prev;
+				p_str = nullptr;
+
+				if (command == COMMAND_PLAST_10BIT)
+					pop_ent = ek.ent_hash; }
+
+				return SERVICE_NO_ERROR;
+
+			case COMMAND_GET_10BIT:
+				if (base != BASE_INDEX_10BIT)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				p_txn = nullptr;
+				p_str = nullptr;
+				pop_ent = ek.ent_hash;
+
+				return SERVICE_NO_ERROR;
+			}
+
+			return SERVICE_ERROR_PARSING_COMMAND;
+		}
+
 		/** Parses a key to find the command and a new key that can be hashed, possibly a key of a parent.
 
 			\param key_out The clean key returned without the command.
