@@ -105,10 +105,7 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define CELL_TYPE_KIND_ITEM		0x128		///< A vector of ItemHeader (in a Kind)
 
 // 48 byte cell types
-#define CELL_TYPE_INDEX_II		0x030		///< An IndexII (accessed via a pBlockHeader instead of a pBlock)
-#define CELL_TYPE_INDEX_IS		0x130		///< An IndexIS (accessed via a pBlockHeader instead of a pBlock)
-#define CELL_TYPE_INDEX_SI		0x230		///< An IndexSI (accessed via a pBlockHeader instead of a pBlock)
-#define CELL_TYPE_INDEX_SS		0x330		///< An IndexSS (accessed via a pBlockHeader instead of a pBlock)
+#define CELL_TYPE_INDEX			0x030		///< An Index (accessed via a pBlockHeader instead of a pBlock)
 
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
@@ -227,19 +224,7 @@ union Tensor {
 typedef std::set<std::string> Dimensions;				///< An set::set with the dimension names returned by kind.dimensions()
 
 
-typedef std::map<int, int>					IndexII;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, int)
-typedef std::map<int, std::string>			IndexIS;	///< An Index kept in RAM by Volatile implemented as an stdlib map (int, string)
-typedef std::map<std::string, int>			IndexSI;	///< An Index kept in RAM by Volatile implemented as an stdlib map (string, int)
-typedef std::map<std::string, std::string>	IndexSS;	///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
-
-
-/// A union abstracting all the individual Index types
-union Index {
-	IndexII index_ii;
-	IndexIS index_is;
-	IndexSI index_si;
-	IndexSS index_ss;
-};
+typedef std::map<std::string, std::string>	Index;		///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
 
 
 /// Header for a Movable Block (Tensor, Kind or Tuple) or a Dynamic Block (Index)
