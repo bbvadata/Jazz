@@ -113,6 +113,601 @@ int recursive_audit_aa_tree(pVolatileTransaction p_tree) {
 // Tests
 // -----
 
+SCENARIO("Auxiliary inline Volatile parts") {
+
+	Name key_out, parent;
+	int command;
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
+
+	REQUIRE(command == COMMAND_JUST_THE_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(parent[0] == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", true));
+
+	REQUIRE(command == COMMAND_JUST_THE_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~child", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~child", true));
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", false));
+
+	REQUIRE(command == COMMAND_CHILD_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "papa") == 0);
+	REQUIRE(parent[0] == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "papa") == 0);
+	REQUIRE(strcmp(parent, "child") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~next", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~next", true));
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
+
+	REQUIRE(command == COMMAND_NEXT_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(parent[0] == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "next") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~parent", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~parent", true));
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
+
+	REQUIRE(command == COMMAND_PARENT_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "child") == 0);
+	REQUIRE(parent[0] == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "child") == 0);
+	REQUIRE(strcmp(parent, "parent") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~prev", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~prev", true));
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", false));
+
+	REQUIRE(command == COMMAND_PREV_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(parent[0] == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "prev") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", false));
+
+	REQUIRE(command == COMMAND_FIRST_10BIT);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", true));
+
+	REQUIRE(command == COMMAND_FIRST_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~first", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~first", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "first") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", false));
+
+	REQUIRE(command == COMMAND_LAST_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", true));
+
+	REQUIRE(command == COMMAND_LAST_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~last", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~last", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "last") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
+
+	REQUIRE(command == COMMAND_GET_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~get", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~get", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~get", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "get") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~highest", false));
+
+	REQUIRE(command == COMMAND_HIGH_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~highest", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~highest", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~highest", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "highest") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", false));
+
+	REQUIRE(command == COMMAND_XHIGH_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~xhigh", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~xhigh", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "xhigh") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~lowest", false));
+
+	REQUIRE(command == COMMAND_LOW_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~lowest", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~lowest", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~lowest", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "lowest") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xlow", false));
+
+	REQUIRE(command == COMMAND_XLOW_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~xlow", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~xlow", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~xlow", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "xlow") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~ii", false));
+
+	REQUIRE(command == COMMAND_II_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~ii", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~ii", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~ii", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "ii") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~is", false));
+
+	REQUIRE(command == COMMAND_IS_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~is", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~is", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~is", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "is") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~si", false));
+
+	REQUIRE(command == COMMAND_SI_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~si", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~si", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~si", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "si") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~ss", false));
+
+	REQUIRE(command == COMMAND_SS_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~ss", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~ss", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~ss", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "ss") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", false));
+
+	REQUIRE(command == COMMAND_PFIRST_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~pfirst", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~pfirst", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "pfirst") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~plast", false));
+
+	REQUIRE(command == COMMAND_PLAST_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~plast", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~plast", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~plast", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "plast") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~insert", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
+
+	REQUIRE(command == COMMAND_INSERT_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~insert", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~insert", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "insert") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~put", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
+
+	REQUIRE(command == COMMAND_PUT_10BIT);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~put", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~put", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "put") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~aabbcc", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~aabbcc", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "aabbcc~xxyyzz", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "aabbcc~xxyyzz", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "aabbcc") == 0);
+	REQUIRE(strcmp(parent, "xxyyzz") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~x", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~x", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "a~x", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "a~x", true));
+
+	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "a") == 0);
+	REQUIRE(strcmp(parent, "x") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "a~", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "a~", true));
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~123", false));
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
+
+	REQUIRE(command >= COMMAND_SIZE);
+	REQUIRE(command - COMMAND_SIZE == 123);
+	REQUIRE(key_out[0] == 0);
+	REQUIRE(parent[0]  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~123", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~123", true));
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~0", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~0", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~0", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~0", true));
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~1.1", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~1.1", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~1.1", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~1.1", true));
+
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~-2", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~-2", true));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~-2", false));
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~-2", true));
+}
+
 SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	pTransaction p_txn[20];
 
