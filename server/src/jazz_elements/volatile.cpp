@@ -363,9 +363,46 @@ For Tuples, it does what you expect: returning a Block with the metadata of all 
 */
 StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 
-//TODO: Implement this.
+	pTransaction p_int_txn;
+	pString		 p_str;
+	uint64_t	 pop_ent;
+	StatusCode	 ret;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR || p_int_txn == nullptr) {
+		p_txn = nullptr;
+
+		return ret;
+	}
+
+	if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
+		return ret;
+
+	int hea_size = sizeof(StaticBlockHeader);
+
+	switch (p_int_txn->p_block->cell_type) {
+	case CELL_TYPE_TUPLE_ITEM:
+	case CELL_TYPE_KIND_ITEM:
+		hea_size += p_int_txn->p_block->size*sizeof(ItemHeader);
+	}
+
+	p_txn->p_block = block_malloc(hea_size);
+
+	if (p_txn->p_block == nullptr) {
+		destroy_transaction(p_txn);
+
+		return SERVICE_ERROR_NO_MEM;
+	}
+
+	memcpy(p_txn->p_block, p_int_txn->p_block, hea_size);
+
+	p_txn->p_block->total_bytes = hea_size;
+
+	p_txn->status = BLOCK_STATUS_READY;
+
+	if (pop_ent != 0)
+		destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+
+	return SERVICE_NO_ERROR;
 }
 
 
