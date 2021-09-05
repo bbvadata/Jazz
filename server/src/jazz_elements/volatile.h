@@ -151,6 +151,10 @@ This map allows doing the reverse conversion to a hash() function finding out th
 typedef std::map<uint64_t, Name> HashNameMap;
 
 
+/// A pointer to an std::string
+typedef std::string* pString;
+
+
 /** \brief Volatile: A Service to manage data objects in RAM.
 
 Node Method Reference
