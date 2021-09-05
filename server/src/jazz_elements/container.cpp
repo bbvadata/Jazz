@@ -495,34 +495,12 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 	enter_write(p_txn);
 
 	if (p_txn->p_block != nullptr) {
-		switch (p_txn->p_block->cell_type) {
-		case CELL_TYPE_INDEX_II:
-			p_txn->p_hea->index.index_ii.~map();
+		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
+			p_txn->p_hea->index.~map();
 			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		case CELL_TYPE_INDEX_IS:
-			p_txn->p_hea->index.index_is.~map();
-			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		case CELL_TYPE_INDEX_SI:
-			p_txn->p_hea->index.index_si.~map();
-			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		case CELL_TYPE_INDEX_SS:
-			p_txn->p_hea->index.index_ss.~map();
-			alloc_bytes -= sizeof(BlockHeader);
-
-			break;
-
-		default:
+		} else
 			alloc_bytes -= p_txn->p_block->total_bytes;
-		};
+
 		free(p_txn->p_block);
 
 		p_txn->p_block = nullptr;
@@ -562,7 +540,6 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
 							If dim == nullptr and p_text != nullptr, dim will be set to the number of lines (see eol) in p_text when
 							cell_type == CELL_TYPE_STRING.
-	\param att				The attributes to set when creating the block. They are immutable.
 	\param fill_tensor		How to fill the tensor. When creating anything that is not a filter, p_bool_filter is ignored and the options
 							are: FILL_NEW_DONT_FILL (don't do anything with the tensor), FILL_NEW_WITH_ZERO (fill with binary zero
 							no matter what the cell_type is), FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
@@ -579,6 +556,7 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 							Also, either dim should be nullptr and set automatically or its resulting size must be the same as the number
 							of lines in p_text.
 	\param eol				A single character that separates the cells in p_text and will not be pushed to the string buffer.
+	\param att				The attributes to set when creating the block. They are immutable.
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be
 	changed	only creating a new block with new = new_jazz_block(p_from = old, att = new_att). String buffer allocation should only be
@@ -1332,7 +1310,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 	case CELL_TYPE_KIND_ITEM: {
-		IndexSI idx_dims = {};
+		MapSI idx_dims = {};
 
 		if (get_char(p_in, num_bytes) != '{')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
@@ -1446,7 +1424,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return ret;
 	}
 	case CELL_TYPE_KIND_ITEM: {
-		IndexSI idx_dims = {};
+		MapSI idx_dims = {};
 
 		get_char(p_in, num_bytes);		// '{')
 
@@ -1473,7 +1451,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		AttributeMap dims = {};
 
-		IndexSI::iterator it;
+		MapSI::iterator it;
 
 		for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
 			dims[it->second] = it->first.c_str();
@@ -1668,7 +1646,7 @@ the Container will take care of freeing the std::map before destroying the trans
 */
 StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
-	if ((cell_type & 0xff) != CELL_TYPE_INDEX_II){
+	if ((cell_type & 0xff) != CELL_TYPE_INDEX){
 		p_txn = nullptr;
 
 		return SERVICE_ERROR_WRONG_TYPE;
