@@ -325,6 +325,9 @@ class Volatile : public Container {
 
 			pVolatileTransaction p_root = it_ent->second;
 
+			if (p_root == nullptr)
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
 			Name key, parent;
 			int	 command;
 
