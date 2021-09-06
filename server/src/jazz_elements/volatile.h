@@ -178,8 +178,8 @@ Methods in index
 ----------------
 
 Index both exposes and serializes Index type blocks. An entity inside index is **one single** Index. When get()ting them by key, you get
-the value stored in the Index. To create a new one, just new_entity() //index/name/~ss (ii, is, si or ss). To populate one just
-put() to //index/name/~pu{t} with a Tuple of the appropriate Kind. To save one, just get() //index/name/~ge{t}.
+the value stored in the Index. To create a new one, just new_entity() //index/name. To populate one, just put() to //index/name/~pu{t}
+with a Tuple of the appropriate Kind. To save one, just get() //index/name/~ge{t}.
 
 Methods in queue
 ----------------
