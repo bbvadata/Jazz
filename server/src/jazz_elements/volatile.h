@@ -64,9 +64,7 @@ namespace jazz_elements
 #define COMMAND_FIRST_10BIT		0x126		//< First 10 bits of command "fi{rst}"
 #define COMMAND_GET_10BIT		0x0a7		//< First 10 bits of command "ge{t}"
 #define COMMAND_HIGH_10BIT		0x128		//< First 10 bits of command "hi{ghest}"
-#define COMMAND_II_10BIT		0x129		//< First 10 bits of command "ii"
 #define COMMAND_INSERT_10BIT	0x1c9		//< First 10 bits of command "in{sert}"
-#define COMMAND_IS_10BIT		0x269		//< First 10 bits of command "is"
 #define COMMAND_LAST_10BIT		0x02c		//< First 10 bits of command "la{st}"
 #define COMMAND_LOW_10BIT		0x1ec		//< First 10 bits of command "lo{west}"
 #define COMMAND_NEXT_10BIT		0x0ae		//< First 10 bits of command "ne{xt}"
@@ -75,8 +73,6 @@ namespace jazz_elements
 #define COMMAND_PLAST_10BIT		0x190		//< First 10 bits of command "pl{ast}"
 #define COMMAND_PREV_10BIT		0x250		//< First 10 bits of command "pr{ev}"
 #define COMMAND_PUT_10BIT		0x2b0		//< First 10 bits of command "pu{t}"
-#define COMMAND_SI_10BIT		0x133		//< First 10 bits of command "si"
-#define COMMAND_SS_10BIT		0x273		//< First 10 bits of command "ss"
 #define COMMAND_XHIGH_10BIT		0x118		//< First 10 bits of command "xh{ighest}"
 #define COMMAND_XLOW_10BIT		0x198		//< First 10 bits of command "xl{owest}"
 #define COMMAND_PARENT_KEY		0x3ff		//< In a put call with a key, the command whatever it is should be considered a parent key.
@@ -551,10 +547,6 @@ class Volatile : public Container {
 				case COMMAND_INSERT_10BIT:
 					return is_put;
 
-				case COMMAND_II_10BIT:
-				case COMMAND_IS_10BIT:
-				case COMMAND_SI_10BIT:
-				case COMMAND_SS_10BIT:
 				case COMMAND_PFIRST_10BIT:
 				case COMMAND_PLAST_10BIT:
 				case COMMAND_HIGH_10BIT:

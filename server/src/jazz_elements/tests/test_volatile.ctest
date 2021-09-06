@@ -448,17 +448,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	parent[0]  = 'y';
 	command	   = -1;
 
-	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~ii", false));
-
-	REQUIRE(command == COMMAND_II_10BIT);
-	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(key_out[0] == 0);
-	REQUIRE(parent[0]  == 0);
-
-	key_out[0] = 'x';
-	parent[0]  = 'y';
-	command	   = -1;
-
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~ii", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~ii", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~ii", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~ii", true));
@@ -472,17 +462,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	parent[0]  = 'y';
 	command	   = -1;
 
-	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~is", false));
-
-	REQUIRE(command == COMMAND_IS_10BIT);
-	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(key_out[0] == 0);
-	REQUIRE(parent[0]  == 0);
-
-	key_out[0] = 'x';
-	parent[0]  = 'y';
-	command	   = -1;
-
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~is", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~is", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~is", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~is", true));
@@ -496,17 +476,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	parent[0]  = 'y';
 	command	   = -1;
 
-	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~si", false));
-
-	REQUIRE(command == COMMAND_SI_10BIT);
-	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(key_out[0] == 0);
-	REQUIRE(parent[0]  == 0);
-
-	key_out[0] = 'x';
-	parent[0]  = 'y';
-	command	   = -1;
-
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~si", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~si", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~si", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~si", true));
@@ -520,17 +490,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	parent[0]  = 'y';
 	command	   = -1;
 
-	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~ss", false));
-
-	REQUIRE(command == COMMAND_SS_10BIT);
-	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(key_out[0] == 0);
-	REQUIRE(parent[0]  == 0);
-
-	key_out[0] = 'x';
-	parent[0]  = 'y';
-	command	   = -1;
-
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~ss", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~ss", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~ss", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~ss", true));
@@ -1501,9 +1461,7 @@ SCENARIO("Testing Volatile struc sizes and simple parts") {
 	REQUIRE(TenBitsAtAddress("fi") == COMMAND_FIRST_10BIT);
 	REQUIRE(TenBitsAtAddress("ge") == COMMAND_GET_10BIT);
 	REQUIRE(TenBitsAtAddress("hi") == COMMAND_HIGH_10BIT);
-	REQUIRE(TenBitsAtAddress("ii") == COMMAND_II_10BIT);
 	REQUIRE(TenBitsAtAddress("in") == COMMAND_INSERT_10BIT);
-	REQUIRE(TenBitsAtAddress("is") == COMMAND_IS_10BIT);
 	REQUIRE(TenBitsAtAddress("la") == COMMAND_LAST_10BIT);
 	REQUIRE(TenBitsAtAddress("lo") == COMMAND_LOW_10BIT);
 	REQUIRE(TenBitsAtAddress("ne") == COMMAND_NEXT_10BIT);
@@ -1512,8 +1470,6 @@ SCENARIO("Testing Volatile struc sizes and simple parts") {
 	REQUIRE(TenBitsAtAddress("pl") == COMMAND_PLAST_10BIT);
 	REQUIRE(TenBitsAtAddress("pr") == COMMAND_PREV_10BIT);
 	REQUIRE(TenBitsAtAddress("pu") == COMMAND_PUT_10BIT);
-	REQUIRE(TenBitsAtAddress("si") == COMMAND_SI_10BIT);
-	REQUIRE(TenBitsAtAddress("ss") == COMMAND_SS_10BIT);
 	REQUIRE(TenBitsAtAddress("xh") == COMMAND_XHIGH_10BIT);
 	REQUIRE(TenBitsAtAddress("xl") == COMMAND_XLOW_10BIT);
 
