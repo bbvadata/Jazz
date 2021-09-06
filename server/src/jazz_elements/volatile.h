@@ -259,6 +259,90 @@ class Volatile : public Container {
 		StatusCode destroy_volatile();
 
 
+		/** Bla
+
+//TODO: Document put_tree()
+
+		*/
+		inline StatusCode put_tree(uint64_t ent_hash, Name &parent, Name &key, pBlock p_block) {
+
+//TODO: Implement put_tree()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** Bla
+
+//TODO: Document populate_index()
+
+		*/
+		inline StatusCode populate_index(Index &index, pBlock p_block) {
+
+//TODO: Implement populate_index()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** Bla
+
+//TODO: Document put_queue_insert()
+
+		*/
+		inline StatusCode put_queue_insert(pVolatileTransaction p_root, Name &key, pBlock p_block) {
+
+//TODO: Implement put_queue_insert()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** Bla
+
+//TODO: Document put_pushing()
+
+		*/
+		inline StatusCode put_pushing(pVolatileTransaction p_root, pBlock p_block) {
+
+//TODO: Implement put_pushing()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** Bla
+
+//TODO: Document put_deque_by_key()
+
+		*/
+		inline StatusCode put_deque_by_key(pVolatileTransaction p_root, uint64_t key_hash, Name &key, pBlock p_block, int mode) {
+
+//TODO: Implement put_deque_by_key()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** Bla
+
+//TODO: Document put_replacing()
+
+		*/
+		inline StatusCode put_replacing(pVolatileTransaction p_replace, pBlock p_block, int mode) {
+
+//TODO: Implement put_replacing()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** Bla
+
+//TODO: Document put_index()
+
+		*/
+		inline StatusCode put_index(Index &index, pChar key, pBlock p_block, int mode) {
+
+//TODO: Implement put_index()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
 		/** Destroy and item froman entity.
 
 			\param base		A the base.
