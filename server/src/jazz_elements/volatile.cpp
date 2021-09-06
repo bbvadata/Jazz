@@ -482,7 +482,98 @@ StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 */
 StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
-//TODO: Implement this.
+	HashVolXctMap *p_ent_map;
+	int base;
+
+	switch (base = TenBitsAtAddress(where.base)) {
+	case BASE_DEQUE_10BIT:
+		p_ent_map = &deque_ent;
+		break;
+
+	case BASE_INDEX_10BIT:
+		p_ent_map = &index_ent;
+		break;
+
+	case BASE_QUEUE_10BIT:
+		p_ent_map = &queue_ent;
+		break;
+
+	case BASE_TREE_10BIT:
+		p_ent_map = &tree_ent;
+		break;
+
+	default:
+		return SERVICE_ERROR_WRONG_BASE;
+	}
+
+	EntityKeyHash ek;
+	ek.ent_hash = hash(where.entity);
+
+	HashVolXctMap::iterator it_ent = p_ent_map->find(ek.ent_hash);
+
+	if (it_ent == p_ent_map->end())
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+	pVolatileTransaction p_root = it_ent->second;
+
+	Name key, parent;
+	int	 command;
+
+	if (!parse_command(key, command, parent, where.key, true))
+		return SERVICE_ERROR_PARSING_COMMAND;
+
+	switch (command) {
+	case COMMAND_JUST_THE_KEY: {
+		if (base == BASE_INDEX_10BIT)
+			return put_index(p_root->p_hea->index, key, p_block, mode);
+
+		if (base != BASE_DEQUE_10BIT)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		ek.key_hash = hash(key);
+		EntKeyVolXctMap::iterator it;
+
+		if ((it = deque_key.find(ek)) == deque_key.end())
+			return put_replacing(it->second, p_block, mode);
+
+		return put_deque_by_key(p_root, ek.key_hash, key, p_block, mode); }
+
+	case COMMAND_FIRST_10BIT:
+		if (base != BASE_DEQUE_10BIT)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		return put_pushing(p_root, p_block);
+
+	case COMMAND_INSERT_10BIT:
+		if (base != BASE_QUEUE_10BIT)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		return put_queue_insert(p_root, key, p_block);
+
+	case COMMAND_LAST_10BIT:
+		if (base != BASE_DEQUE_10BIT)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		if (p_root == nullptr)
+			return put_pushing(p_root, p_block);
+		else
+			return put_pushing(p_root->p_prev, p_block);
+
+	case COMMAND_PUT_10BIT:
+		if (base != BASE_INDEX_10BIT)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		return populate_index(p_root->p_hea->index, p_block);
+
+	case COMMAND_PARENT_KEY:
+		if (base != BASE_TREE_10BIT)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		return put_tree(ek.ent_hash, parent, key, p_block);
+
+	default:
+		break;
+	}
 
 	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
 }
