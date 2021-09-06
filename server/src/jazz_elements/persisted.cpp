@@ -580,7 +580,6 @@ StatusCode Persisted::remove(Locator &where) {
 
 	return SERVICE_NO_ERROR;
 
-
 release_txn_and_fail:
 
 	mdb_txn_abort(p_txn);
