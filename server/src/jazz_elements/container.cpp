@@ -1690,9 +1690,50 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 */
 StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
 
-//TODO: Implement new_block(8)
+	int num_rows = index.size();
+	int bytes_key = 0, bytes_val = 0;
 
-	return SERVICE_NOT_IMPLEMENTED;
+	for (Index::iterator it = index.begin(); it != index.end(); ++it) {
+		bytes_key += it->first.length();
+		bytes_val += it->second.length();
+	}
+
+	pTransaction p_key, p_val;
+
+	int dim[MAX_TENSOR_RANK] = {num_rows, 0, 0, 0, 0, 0};
+
+	int ret;
+
+	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, nullptr, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
+		return ret;
+
+	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, nullptr, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
+		destroy_transaction(p_key);
+
+		return ret;
+	}
+	int i = 0;
+	pBlock key = p_key->p_block, val = p_val->p_block;
+	for (Index::iterator it = index.begin(); it != index.end(); ++it) {
+		key->set_string(i, it->first.c_str());
+		val->set_string(i++, it->second.c_str());
+	}
+
+	StaticBlockHeader hea[2];
+	Name			  name[2]  = {"key", "value"};
+	pBlock			  block[2] = {key, val};
+
+	memcpy(&hea[0], key, sizeof(StaticBlockHeader));
+	memcpy(&hea[1], val, sizeof(StaticBlockHeader));
+	hea[0].range.dim[0] = num_rows;
+	hea[1].range.dim[0] = num_rows;
+
+	ret = new_block(p_txn, 2, hea, name, block);
+
+	destroy_transaction(p_key);
+	destroy_transaction(p_val);
+
+	return ret;
 }
 
 
