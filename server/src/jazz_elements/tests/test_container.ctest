@@ -5721,6 +5721,298 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 }
 
 
+SCENARIO("Testing new_block() (8) Create Tuple from Index") {
+
+	REQUIRE(CNT.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.max_transactions > 0);
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CNT.warn_alloc_bytes > 0);
+	REQUIRE(CNT.fail_alloc_bytes > 0);
+	REQUIRE(CNT.alloc_warning_issued == false);
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == CNT.p_buffer);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 2].p_next == &pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
+	REQUIRE(CNT._lock_ == 0);
+
+	GIVEN("We created some indices") {
+		pTransaction p_tx_ii, p_tx_is, p_tx_si, p_tx_ss;
+
+		p_tx_ii = (pTransaction) &p_tx_is;
+		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_BYTE) == SERVICE_ERROR_WRONG_TYPE);
+		REQUIRE(p_tx_ii == nullptr);
+
+		REQUIRE(CNT.new_block(p_tx_ii, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_ii->p_block != nullptr);
+		REQUIRE(p_tx_ii->status  == BLOCK_STATUS_READY);
+
+		REQUIRE(CNT.new_block(p_tx_is, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_is->p_block != nullptr);
+		REQUIRE(p_tx_is->status  == BLOCK_STATUS_READY);
+
+		REQUIRE(CNT.new_block(p_tx_si, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_si->p_block != nullptr);
+		REQUIRE(p_tx_si->status  == BLOCK_STATUS_READY);
+
+		REQUIRE(CNT.new_block(p_tx_ss, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(p_tx_ss->p_block != nullptr);
+		REQUIRE(p_tx_ss->status  == BLOCK_STATUS_READY);
+
+		WHEN("We fill them and create the blocks") {
+			p_tx_ii->p_hea->index["one"] = "No big áéíóú ÀÈÌÒÙ ÑÇ¡";
+
+			REQUIRE(p_tx_ii->p_hea->index["one"].length() == 35);
+
+			p_tx_ii->p_hea->index["-two"] = "";
+			p_tx_ii->p_hea->index["3"] = "A string with\nmultiple\nlines.";
+
+			p_tx_is->p_hea->index["1234"] = "abcdefghij";
+			p_tx_is->p_hea->index["2345"] = "bcdefghijk";
+			p_tx_is->p_hea->index["3456"] = "cdefghijkl";
+			p_tx_is->p_hea->index["4567"] = "defghijklm";
+			p_tx_is->p_hea->index["5678"] = "efghijklmn";
+			p_tx_is->p_hea->index["6789"] = "fghijklmno";
+			p_tx_is->p_hea->index["7890"] = "ghijklmnop";
+
+			p_tx_ss->p_hea->index["0"] = "true";
+			p_tx_ss->p_hea->index["1"] = "false";
+			p_tx_ss->p_hea->index["2"] = "true";
+			p_tx_ss->p_hea->index["3"] = "false";
+			p_tx_ss->p_hea->index["4"] = "true";
+			p_tx_ss->p_hea->index["5"] = "false";
+			p_tx_ss->p_hea->index["6"] = "true";
+			p_tx_ss->p_hea->index["7"] = "false";
+			p_tx_ss->p_hea->index["8"] = "true";
+			p_tx_ss->p_hea->index["9"] = "false";
+			p_tx_ss->p_hea->index["a"] = "true";
+			p_tx_ss->p_hea->index["b"] = "true";
+			p_tx_ss->p_hea->index["c"] = "true";
+			p_tx_ss->p_hea->index["d"] = "true";
+			p_tx_ss->p_hea->index["e"] = "true";
+			p_tx_ss->p_hea->index["f"] = "true";
+			p_tx_ss->p_hea->index["g"] = "true";
+			p_tx_ss->p_hea->index["h"] = "true";
+			p_tx_ss->p_hea->index["i"] = "true";
+			p_tx_ss->p_hea->index["j"] = "true";
+			p_tx_ss->p_hea->index["k"] = "true";
+			p_tx_ss->p_hea->index["l"] = "true";
+			p_tx_ss->p_hea->index["m"] = "true";
+			p_tx_ss->p_hea->index["n"] = "true";
+			p_tx_ss->p_hea->index["o"] = "true";
+			p_tx_ss->p_hea->index["p"] = "true";
+			p_tx_ss->p_hea->index["q"] = "true";
+			p_tx_ss->p_hea->index["r"] = "true";
+			p_tx_ss->p_hea->index["s"] = "true";
+			p_tx_ss->p_hea->index["t"] = "true";
+			p_tx_ss->p_hea->index["u"] = "true";
+			p_tx_ss->p_hea->index["v"] = "true";
+			p_tx_ss->p_hea->index["w"] = "true";
+			p_tx_ss->p_hea->index["x"] = "nope";
+			p_tx_ss->p_hea->index["y"] = "nope";
+			p_tx_ss->p_hea->index["z"] = "nope";
+
+			pTransaction p_tup_ii, p_tup_is, p_tup_si, p_tup_ss;
+
+			REQUIRE(CNT.new_block(p_tup_ii, p_tx_ii->p_hea->index) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tup_is, p_tx_is->p_hea->index) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tup_si, p_tx_si->p_hea->index) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(p_tup_ss, p_tx_ss->p_hea->index) == SERVICE_NO_ERROR);
+
+			THEN("We check everything inside") {
+				pTuple tup = (pTuple) p_tup_ii->p_block;
+
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->rank == 1);
+				REQUIRE(tup->size == 2);
+
+				REQUIRE(strcmp(tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(tup->item_name(1), "value") == 0);
+
+				REQUIRE(tup->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(0)->rank == 1);
+				REQUIRE(tup->get_block(0)->size == 3);
+
+				REQUIRE(!tup->get_block(0)->p_string_buffer()->alloc_failed);
+
+				REQUIRE(tup->get_block(1)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(1)->rank == 1);
+				REQUIRE(tup->get_block(1)->size == 3);
+
+				REQUIRE(!tup->get_block(1)->p_string_buffer()->alloc_failed);
+
+				int matches = 0;
+
+				for (int i = 0; i < 3; i++) {
+					if (strcmp(tup->get_block(0)->get_string(i), "one") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "No big áéíóú ÀÈÌÒÙ ÑÇ¡") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "-two") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "3") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "A string with\nmultiple\nlines.") == 0);
+						matches++;
+					}
+				}
+				REQUIRE(matches == 3);
+
+				tup = (pTuple) p_tup_is->p_block;
+
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->rank == 1);
+				REQUIRE(tup->size == 2);
+
+				REQUIRE(strcmp(tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(tup->item_name(1), "value") == 0);
+
+				REQUIRE(tup->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(0)->rank == 1);
+				REQUIRE(tup->get_block(0)->size == 7);
+
+				REQUIRE(!tup->get_block(0)->p_string_buffer()->alloc_failed);
+
+				REQUIRE(tup->get_block(1)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(1)->rank == 1);
+				REQUIRE(tup->get_block(1)->size == 7);
+
+				REQUIRE(!tup->get_block(1)->p_string_buffer()->alloc_failed);
+
+				matches = 0;
+				int i_t = -1, i_f = -1, i_n = -1;
+
+				for (int i = 0; i < 7; i++) {
+					if (strcmp(tup->get_block(0)->get_string(i), "1234") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "abcdefghij") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "2345") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "bcdefghijk") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "3456") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "cdefghijkl") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "4567") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "defghijklm") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "5678") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "efghijklmn") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "6789") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "fghijklmno") == 0);
+						matches++;
+					}
+					if (strcmp(tup->get_block(0)->get_string(i), "7890") == 0) {
+						REQUIRE(strcmp(tup->get_block(1)->get_string(i), "ghijklmnop") == 0);
+						matches++;
+					}
+				}
+				REQUIRE(matches == 7);
+
+				tup = (pTuple) p_tup_si->p_block;
+
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->rank == 1);
+				REQUIRE(tup->size == 2);
+
+				REQUIRE(strcmp(tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(tup->item_name(1), "value") == 0);
+
+				REQUIRE(tup->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(0)->rank == 1);
+				REQUIRE(tup->get_block(0)->size == 0);
+
+				REQUIRE(!tup->get_block(0)->p_string_buffer()->alloc_failed);
+
+				REQUIRE(tup->get_block(1)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(1)->rank == 1);
+				REQUIRE(tup->get_block(1)->size == 0);
+
+				REQUIRE(!tup->get_block(1)->p_string_buffer()->alloc_failed);
+
+				tup = (pTuple) p_tup_ss->p_block;
+
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->rank == 1);
+				REQUIRE(tup->size == 2);
+
+				REQUIRE(strcmp(tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(tup->item_name(1), "value") == 0);
+
+				REQUIRE(tup->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(0)->rank == 1);
+				REQUIRE(tup->get_block(0)->size == 36);
+
+				REQUIRE(!tup->get_block(0)->p_string_buffer()->alloc_failed);
+
+				REQUIRE(tup->get_block(1)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(tup->get_block(1)->rank == 1);
+				REQUIRE(tup->get_block(1)->size == 36);
+
+				REQUIRE(!tup->get_block(1)->p_string_buffer()->alloc_failed);
+
+				matches = 0;
+
+				for (int i = 0; i < 36; i++) {
+					if (strcmp(tup->get_block(1)->get_string(i), "true") == 0) {
+						if (i_t >= 0) {
+							REQUIRE(i_t == tup->get_block(1)->tensor.cell_int[i]);
+							matches++;
+						} else
+							i_t = tup->get_block(1)->tensor.cell_int[i];
+					}
+					if (strcmp(tup->get_block(1)->get_string(i), "false") == 0) {
+						if (i_f >= 0) {
+							REQUIRE(i_f == tup->get_block(1)->tensor.cell_int[i]);
+							matches += 100;
+						} else
+							i_f = tup->get_block(1)->tensor.cell_int[i];
+					}
+					if (strcmp(tup->get_block(1)->get_string(i), "nope") == 0) {
+						if (i_n >= 0) {
+							REQUIRE(i_n == tup->get_block(1)->tensor.cell_int[i]);
+							matches += 1000;
+						} else
+							i_n = tup->get_block(1)->tensor.cell_int[i];
+					}
+				}
+				REQUIRE(matches == 2427);
+			}
+			CNT.destroy_transaction(p_tup_ii);
+			CNT.destroy_transaction(p_tup_is);
+			CNT.destroy_transaction(p_tup_si);
+			CNT.destroy_transaction(p_tup_ss);
+		}
+		CNT.destroy_transaction(p_tx_ii);
+		CNT.destroy_transaction(p_tx_is);
+		CNT.destroy_transaction(p_tx_si);
+		CNT.destroy_transaction(p_tx_ss);
+	}
+
+	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CNT.p_buffer != nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
+
+	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CNT.alloc_bytes == 0);
+	REQUIRE(CNT.p_buffer == nullptr);
+	REQUIRE(CNT.p_alloc  == nullptr);
+	REQUIRE(CNT.p_free	 == nullptr);
+	REQUIRE(CNT._lock_	 == 0);
+}
+
+
 SCENARIO("Testing Container::as_locator()") {
 
 	Locator	loc;
