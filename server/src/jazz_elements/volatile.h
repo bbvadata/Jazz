@@ -261,14 +261,14 @@ class Volatile : public Container {
 
 		/** Destroy and item froman entity.
 
-			\param p_base	A the base.
+			\param base		A the base.
 			\param ent_hash	A hash of the entity containing the item to be destroyed.
 			\param p_item	The item tom be destroyed.
 
 			\return	SERVICE_NO_ERROR on success or some negative value (error).
 
 		*/
-		inline StatusCode destroy_item(pChar p_base, uint64_t ent_hash, pVolatileTransaction p_item) {
+		inline StatusCode destroy_item(int base, uint64_t ent_hash, pVolatileTransaction p_item) {
 
 //TODO: Implement destroy_item()
 

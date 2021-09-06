@@ -290,7 +290,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 		p_txn->status = BLOCK_STATUS_READY;
 
 		if (pop_ent != 0)
-			destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+			destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
 
 		return SERVICE_NO_ERROR;
 	}
@@ -336,7 +336,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter
 	ret = new_block(p_txn, p_int_txn->p_block, p_row_filter, &att);
 
 	if (pop_ent != 0)
-		destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
 
 	return ret;
 }
@@ -374,7 +374,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pChar name) {
 	ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name, &att);
 
 	if (pop_ent != 0)
-		destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
 
 	return ret;
 }
@@ -403,7 +403,7 @@ StatusCode Volatile::header(StaticBlockHeader &hea, Locator &what) {
 	memcpy(&hea, p_int_txn->p_block, sizeof(StaticBlockHeader));
 
 	if (pop_ent != 0)
-		destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
 
 	return SERVICE_NO_ERROR;
 }
@@ -463,7 +463,7 @@ StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 	p_txn->status = BLOCK_STATUS_READY;
 
 	if (pop_ent != 0)
-		destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
 
 	return SERVICE_NO_ERROR;
 }
@@ -537,7 +537,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 		ret = put(where, p_int_txn->p_block);
 
 		if (pop_ent != 0)
-			destroy_item(what.base, pop_ent, (pVolatileTransaction) p_int_txn);
+			destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
 
 		return ret;
 	}
