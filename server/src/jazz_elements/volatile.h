@@ -268,6 +268,83 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
+		/** Bla
+
+//TODO: Document remove_deque()
+
+		*/
+		inline StatusCode remove_deque(uint64_t ent_hash) {
+
+//TODO: Implement remove_deque()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+
+		/** Bla
+
+//TODO: Document remove_queue()
+
+		*/
+		inline StatusCode remove_queue(uint64_t ent_hash) {
+
+//TODO: Implement remove_queue()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+
+		/** Bla
+
+//TODO: Document remove_tree()
+
+		*/
+		inline StatusCode remove_tree(uint64_t ent_hash) {
+
+//TODO: Implement remove_tree()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+
+		/** Bla
+
+//TODO: Document remove_in_deque()
+
+		*/
+		inline StatusCode remove_in_deque(EntityKeyHash ek) {
+
+//TODO: Implement remove_in_deque()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+
+		/** Bla
+
+//TODO: Document remove_in_queue()
+
+		*/
+		inline StatusCode remove_in_queue(EntityKeyHash ek) {
+
+//TODO: Implement remove_in_queue()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+
+		/** Bla
+
+//TODO: Document remove_in_tree()
+
+		*/
+		inline StatusCode remove_in_tree(EntityKeyHash ek) {
+
+//TODO: Implement remove_in_tree()
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
 
 		/** Bla
 
