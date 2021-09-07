@@ -140,11 +140,21 @@ This map allows locating any nodes.
 typedef std::map<EntityKeyHash, pVolatileTransaction> EntKeyVolXctMap;
 
 
-/** \brief HashNameMap: A map from hashes to pointers to VolatileTransaction.
+/** \brief NameUse: A pair of Name and number of times the name is used.
+
+This is the value in a HashNameUseMap to do reverse-hash().
+*/
+struct NameUse {
+	int	 use;		///< Number of times name is used. Increase by add_name() calls to the same name, decreased/destroyed by erase_name().
+	Name name;		///< The name in plain text.
+};
+
+
+/** \brief HashNameUseMap: A map from hashes to Name and number of times the name is used.
 
 This map allows doing the reverse conversion to a hash() function finding out the hashed names.
 */
-typedef std::map<uint64_t, Name> HashNameMap;
+typedef std::map<uint64_t, NameUse> HashNameUseMap;
 
 
 /// A pointer to an std::string
@@ -1066,9 +1076,9 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 			return p_tree;
 		};
 
-	HashNameMap		name {};
-	HashVolXctMap	deque_ent {}, queue_ent {}, tree_ent {}, index_ent {};
-	EntKeyVolXctMap deque_key {}, queue_key {}, tree_key {};
+		HashNameUseMap	name {};
+		HashVolXctMap	deque_ent {}, queue_ent {}, tree_ent {}, index_ent {};
+		EntKeyVolXctMap deque_key {}, queue_key {}, tree_key {};
 };
 typedef Volatile *pVolatile;
 
