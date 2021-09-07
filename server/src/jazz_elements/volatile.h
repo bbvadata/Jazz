@@ -395,6 +395,22 @@ class Volatile : public Container {
 
 
 		/** Remove a from the HashNameUseMap by decrasing its use count and destroying it if not used anymore.
+
+			\param hash	hash(key)
+
+		*/
+		inline void erase_name(uint64_t hash) {
+
+			HashNameUseMap::iterator it = name.find(hash);
+
+			if (it == name.end())
+				return;
+
+			if (--name[hash].use == 0)
+				name.erase(it);
+		}
+
+
 		/** Internal non-copy version of get() form 1.
 
 			\param p_txn	A Transaction **inside the Container** that will be returned for anything except an index.
