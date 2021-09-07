@@ -281,6 +281,7 @@ class Volatile : public Container {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
+
 		/** Bla
 
 //TODO: Document populate_index()
@@ -292,6 +293,7 @@ class Volatile : public Container {
 
 			return SERVICE_NOT_IMPLEMENTED;
 		}
+
 
 		/** Bla
 
@@ -305,6 +307,7 @@ class Volatile : public Container {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
+
 		/** Bla
 
 //TODO: Document put_pushing()
@@ -316,6 +319,7 @@ class Volatile : public Container {
 
 			return SERVICE_NOT_IMPLEMENTED;
 		}
+
 
 		/** Bla
 
@@ -329,6 +333,7 @@ class Volatile : public Container {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
+
 		/** Bla
 
 //TODO: Document put_replacing()
@@ -341,6 +346,7 @@ class Volatile : public Container {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
+
 		/** Bla
 
 //TODO: Document put_index()
@@ -352,6 +358,7 @@ class Volatile : public Container {
 
 			return SERVICE_NOT_IMPLEMENTED;
 		}
+
 
 		/** Destroy and item froman entity.
 
@@ -368,6 +375,7 @@ class Volatile : public Container {
 
 			return SERVICE_NOT_IMPLEMENTED;
 		}
+
 
 		/** Define a new name and push it into the HashNameUseMap.
 
@@ -659,6 +667,7 @@ class Volatile : public Container {
 			return SERVICE_ERROR_PARSING_COMMAND;
 		}
 
+
 		/** Parses a key to find the command and a new key that can be hashed, possibly a key of a parent.
 
 			\param key_out The clean key returned without the command.
@@ -744,6 +753,7 @@ class Volatile : public Container {
 
 			return false;
 		}
+
 
 		/** Fills a name with zero after the string and returns the hash of the complete NAME_SIZE-long array.
 
