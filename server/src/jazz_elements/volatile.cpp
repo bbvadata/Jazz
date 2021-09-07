@@ -638,9 +638,87 @@ StatusCode Volatile::new_entity(Locator &where) {
 */
 StatusCode Volatile::remove(Locator &where) {
 
-//TODO: Implement this.
+	int base = TenBitsAtAddress(where.base);
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	EntityKeyHash ek;
+	ek.ent_hash = hash(where.entity);
+
+	if (where.key[0] == 0) {
+		switch (base) {
+		case BASE_DEQUE_10BIT:
+			if (deque_ent.find(ek.ent_hash) == deque_ent.end())
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			return remove_deque(ek.ent_hash);
+
+		case BASE_QUEUE_10BIT:
+			if (queue_ent.find(ek.ent_hash) == queue_ent.end())
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			return remove_queue(ek.ent_hash);
+
+		case BASE_TREE_10BIT:
+			if (tree_ent.find(ek.ent_hash) == tree_ent.end())
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			return remove_tree(ek.ent_hash);
+
+		case BASE_INDEX_10BIT:
+			if (index_ent.find(ek.ent_hash) == index_ent.end())
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			pTransaction p_txn = index_ent[ek.ent_hash];
+			destroy_transaction(p_txn);
+
+			index_ent.erase(ek.ent_hash);
+
+			return SERVICE_NO_ERROR;
+		}
+		return SERVICE_ERROR_WRONG_BASE;
+	}
+
+	Name key, parent;
+	int	 command;
+
+	if (!parse_command(key, command, parent, where.key, true) || command != COMMAND_JUST_THE_KEY)
+		return SERVICE_ERROR_PARSING_COMMAND;
+
+	ek.key_hash = hash(key);
+
+	switch (base) {
+	case BASE_DEQUE_10BIT:
+		if (deque_key.find(ek) == deque_key.end())
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		return remove_in_deque(ek);
+
+	case BASE_QUEUE_10BIT:
+		if (queue_key.find(ek) == queue_key.end())
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		return remove_in_queue(ek);
+
+	case BASE_TREE_10BIT:
+		if (tree_key.find(ek) == tree_key.end())
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		return remove_in_tree(ek);
+
+	case BASE_INDEX_10BIT:
+		HashVolXctMap::iterator it = index_ent.find(ek.ent_hash);
+		if (it == index_ent.end())
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		Index::iterator itk = it->second->p_hea->index.find(key);
+
+		if (itk == it->second->p_hea->index.end())
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		it->second->p_hea->index.erase(itk);
+
+		return SERVICE_NO_ERROR;
+	}
+	return SERVICE_ERROR_WRONG_BASE;
 }
 
 
