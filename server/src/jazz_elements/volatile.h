@@ -369,6 +369,32 @@ class Volatile : public Container {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
+		/** Define a new name and push it into the HashNameUseMap.
+
+			\param hash	hash(key) (It will almost always be already computed in advance, just use of or comoute it. It's inline.)
+			\param key	The name to be added, zero-padded by hash().
+
+			\return	The same hash to ease writing "p_txn->key_hash = add_name(key_hash, key)" when creating something new.
+		*/
+		inline uint64_t add_name(uint64_t hash, Name &key) {
+
+			HashNameUseMap::iterator it = name.find(hash);
+
+			if (it != name.end())
+				name[hash].use++;
+			else {
+				NameUse nu;
+
+				nu.use = 1;
+				memcpy(&nu.name, &key, sizeof(Name));
+
+				name[hash] = nu;
+			}
+			return hash;
+		}
+
+
+		/** Remove a from the HashNameUseMap by decrasing its use count and destroying it if not used anymore.
 		/** Internal non-copy version of get() form 1.
 
 			\param p_txn	A Transaction **inside the Container** that will be returned for anything except an index.
