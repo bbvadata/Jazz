@@ -587,9 +587,46 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 */
 StatusCode Volatile::new_entity(Locator &where) {
 
-//TODO: Implement this.
+	if (where.key[0] != 0)
+		return SERVICE_ERROR_PARSING_COMMAND;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	uint64_t ent_hash = hash(where.entity);
+
+	switch (TenBitsAtAddress(where.base)) {
+	case BASE_DEQUE_10BIT:
+		if (deque_ent.find(ent_hash) !=  deque_ent.end())
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+		deque_ent[ent_hash] = nullptr;
+		return SERVICE_NO_ERROR;
+
+	case BASE_QUEUE_10BIT:
+		if (queue_ent.find(ent_hash) != queue_ent.end())
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+		queue_ent[ent_hash] = nullptr;
+		return SERVICE_NO_ERROR;
+
+	case BASE_TREE_10BIT:
+		if (tree_ent.find(ent_hash) != tree_ent.end())
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+		tree_ent[ent_hash] = nullptr;
+		return SERVICE_NO_ERROR;
+
+	case BASE_INDEX_10BIT:
+		if (index_ent.find(ent_hash) != index_ent.end())
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+		pTransaction p_txn;
+		if (int ret = new_block(p_txn, CELL_TYPE_INDEX) != SERVICE_NO_ERROR)
+			return ret;
+
+		index_ent[ent_hash] = (pVolatileTransaction) p_txn;
+		return SERVICE_NO_ERROR;
+	}
+
+	return SERVICE_ERROR_WRONG_BASE;
 }
 
 
