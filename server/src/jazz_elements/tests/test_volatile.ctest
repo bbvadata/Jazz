@@ -689,13 +689,67 @@ SCENARIO("Strong End-to-end index tests") {
 
 	GIVEN("We have some blocks and indices") {
 
+		Index txt3, txt9;
+
+		txt3["one"]	  = "Monday";
+		txt3["two"]	  = "Tuesday";
+		txt3["three"] = "Wednesday";
+
+		txt9["0ae0"] = "Abc ..";
+		txt9["0ae1"] = "hello!";
+		txt9["0ae2"] = "";
+		txt9["0ae3"] = "A multiline string\nis okay\n";
+		txt9["0ae4"] = "UTF8 ¡what!";
+		txt9["0ae5"] = "Löwe";
+		txt9["0ae6"] = "España";
+		txt9["0ae7"] = "[1,2,3]";
+		txt9["0ae8"] = "z";
+
+		pTransaction p_tx_pop3, p_tx_pop9, p_tx_str1, p_tx_str2, p_tx_chr;
+
+		int dim[MAX_TENSOR_RANK] = {37, 0};
+
+		REQUIRE(VOL.new_block(p_tx_pop3, txt3) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_pop9, txt9) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_str1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Just one string") == 0);
+		REQUIRE(VOL.new_block(p_tx_str2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(VOL.new_block(p_tx_chr,  CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+
 		WHEN("We test new_entity()/remove() of entities") {
 
-//TODO: Write tests Index new_entity()/remove()
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_one/key") == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.remove	  ((pChar) "//index/ent_one")	  == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			REQUIRE(VOL.index_ent.size() == 0);
+
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_one")	  == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.index_ent.size() == 1);
+
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_two")	  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_three")	  == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.index_ent.size() == 3);
 
+				Name ent = "ent_two";
+				uint64_t hash = VOL.hash(ent);
+
+				REQUIRE(VOL.index_ent.find(hash) != VOL.index_ent.end());
+
+				REQUIRE(VOL.index_ent[hash] != nullptr);
+
+				REQUIRE(VOL.index_ent[hash]->p_hea->index.size() == 0);
 			}
+
+			REQUIRE(VOL.remove	  ((pChar) "//index/ent_one")	  == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.index_ent.size() == 2);
+
+			REQUIRE(VOL.remove	  ((pChar) "//index/ent_two")	  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove	  ((pChar) "//index/ent_three")	  == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.index_ent.size() == 0);
 		}
 
 		WHEN("We test put()/get()/remove() of keys") {
@@ -742,6 +796,12 @@ SCENARIO("Strong End-to-end index tests") {
 
 			}
 		}
+
+		VOL.destroy_transaction(p_tx_pop3);
+		VOL.destroy_transaction(p_tx_pop9);
+		VOL.destroy_transaction(p_tx_str1);
+		VOL.destroy_transaction(p_tx_str2);
+		VOL.destroy_transaction(p_tx_chr);
 	}
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
