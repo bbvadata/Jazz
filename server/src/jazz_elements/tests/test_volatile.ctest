@@ -669,7 +669,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 }
 
 
-SCENARIO("Strong End-to-end deque tests") {
+SCENARIO("Strong End-to-end index tests") {
 
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
 
@@ -687,11 +687,58 @@ SCENARIO("Strong End-to-end deque tests") {
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
-	GIVEN("aaa") {
+	GIVEN("We have some blocks and indices") {
 
-		WHEN("aaa") {
+		WHEN("We test new_entity()/remove() of entities") {
 
-			THEN("aaa") {
+//TODO: Write tests Index new_entity()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test put()/get()/remove() of keys") {
+
+//TODO: Write tests Index put()/get()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+
+//TODO: Write tests Index get(2)/get(3)/head(1)/head(2)
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test serializing and populating Index entities") {
+
+//TODO: Write tests Index serializing and populating
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test copy/move/locator") {
+
+//TODO: Write tests Index copy/move/locator
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We try priority updates on Index") {
+
+//TODO: Write tests Index priority updates
+
+			THEN("We get expected structure") {
 
 			}
 		}
@@ -712,7 +759,7 @@ SCENARIO("Strong End-to-end deque tests") {
 }
 
 
-SCENARIO("Strong End-to-end index tests") {
+SCENARIO("Strong End-to-end deque tests") {
 
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
 
@@ -730,11 +777,58 @@ SCENARIO("Strong End-to-end index tests") {
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
-	GIVEN("aaa") {
+	GIVEN("We have some blocks and indices") {
 
-		WHEN("aaa") {
+		WHEN("We test new_entity()/remove() of entities") {
 
-			THEN("aaa") {
+//TODO: Write tests Deque new_entity()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test put()/get()/remove() of keys") {
+
+//TODO: Write tests Deque put()/get()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+
+//TODO: Write tests Deque get(2)/get(3)/head(1)/head(2)
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We try serializing and populating Deque entities") {
+
+//TODO: Write tests Deque serializing and populating
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test copy/move/locator") {
+
+//TODO: Write tests Deque copy/move/locator
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We try priority updates on Deque") {
+
+//TODO: Write tests Deque priority updates
+
+			THEN("We get expected structure") {
 
 			}
 		}
@@ -773,11 +867,58 @@ SCENARIO("Strong End-to-end queue tests") {
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
-	GIVEN("aaa") {
+	GIVEN("We have some blocks and indices") {
 
-		WHEN("aaa") {
+		WHEN("We test new_entity()/remove() of entities") {
 
-			THEN("aaa") {
+//TODO: Write tests Queue new_entity()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test put()/get()/remove() of keys") {
+
+//TODO: Write tests Queue put()/get()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+
+//TODO: Write tests Queue get(2)/get(3)/head(1)/head(2)
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We try serializing and populating Queue entities") {
+
+//TODO: Write tests Queue serializing and populating
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test copy/move/locator") {
+
+//TODO: Write tests Queue copy/move/locator
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test priority updates") {
+
+//TODO: Write tests Queue priority updates
+
+			THEN("We get expected structure") {
 
 			}
 		}
@@ -816,11 +957,58 @@ SCENARIO("Strong End-to-end tree tests") {
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
-	GIVEN("aaa") {
+	GIVEN("We have some blocks and indices") {
 
-		WHEN("aaa") {
+		WHEN("We test new_entity()/remove() of entities") {
 
-			THEN("aaa") {
+//TODO: Write tests Tree new_entity()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test put()/get()/remove() of keys") {
+
+//TODO: Write tests Tree put()/get()/remove()
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+
+//TODO: Write tests Tree get(2)/get(3)/head(1)/head(2)
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We try serializing and populating Tree entities") {
+
+//TODO: Write tests Tree serializing and populating
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We test copy/move/locator") {
+
+//TODO: Write tests Tree copy/move/locator
+
+			THEN("We get expected structure") {
+
+			}
+		}
+
+		WHEN("We try priority updates on Tree") {
+
+//TODO: Write tests Tree priority updates
+
+			THEN("We get expected structure") {
 
 			}
 		}
