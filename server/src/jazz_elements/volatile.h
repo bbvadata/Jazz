@@ -441,16 +441,41 @@ class Volatile : public Container {
 		}
 
 
-		/** Bla
+		/** Write a string into and Index
 
-//TODO: Document put_index()
+			\param index	Some **destination** Index
+			\param key		The key to be written
+			\param p_block	The Block to be written It must be a string of rank == 1 and size == 1.
+			\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA_AS_RAW
+							is the only supported option.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 
 		*/
 		inline StatusCode put_index(Index &index, pChar key, pBlock p_block, int mode) {
 
-//TODO: Implement put_index()
+			if (mode & WRITE_TENSOR_DATA_AS_RAW == 0)
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-			return SERVICE_NOT_IMPLEMENTED;
+			if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
+				return SERVICE_ERROR_BAD_BLOCK;
+
+			Index::iterator it = index.find(key);
+
+			if (it == index.end()) {
+				if (mode & WRITE_ONLY_IF_EXISTS)
+					return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+				index[key] = p_block->get_string(0);
+
+				return SERVICE_NO_ERROR;
+			}
+			if (mode & WRITE_ONLY_IF_NOT_EXISTS)
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+			index[key] = p_block->get_string(0);
+
+			return SERVICE_NO_ERROR;
 		}
 
 
