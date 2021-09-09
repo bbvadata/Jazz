@@ -742,12 +742,12 @@ SCENARIO("Strong End-to-end index tests") {
 				REQUIRE(VOL.index_ent[hash]->p_hea->index.size() == 0);
 			}
 
-			REQUIRE(VOL.remove	  ((pChar) "//index/ent_one")	  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_one")	== SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.index_ent.size() == 2);
 
-			REQUIRE(VOL.remove	  ((pChar) "//index/ent_two")	  == SERVICE_NO_ERROR);
-			REQUIRE(VOL.remove	  ((pChar) "//index/ent_three")	  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_two")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_three")	== SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.index_ent.size() == 0);
 		}
@@ -782,9 +782,9 @@ SCENARIO("Strong End-to-end index tests") {
 		REQUIRE(VOL.remove((pChar) "//index/ent_one") == SERVICE_NO_ERROR);
 
 		WHEN("We test put()/get()/remove() of keys") {
-			REQUIRE(VOL.new_entity((pChar) "//index/ent_one")	  == SERVICE_NO_ERROR);
-			REQUIRE(VOL.new_entity((pChar) "//index/ent_two")	  == SERVICE_NO_ERROR);
-			REQUIRE(VOL.new_entity((pChar) "//index/ent_three")	  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_one")   == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_two")   == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_three") == SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_pop3", p_tx_pop3->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
 			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_pop9", p_tx_pop9->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
@@ -796,6 +796,7 @@ SCENARIO("Strong End-to-end index tests") {
 			REQUIRE(VOL.put((pChar) "//index/ent_three/two", p_tx_str1->p_block, 0) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_one/p_tx_str1") == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
 				REQUIRE(p_txn->p_block->size == 1);
