@@ -512,7 +512,7 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 	HashVolXctMap::iterator it_ent = p_ent_map->find(ek.ent_hash);
 
 	if (it_ent == p_ent_map->end())
-		return SERVICE_ERROR_BLOCK_NOT_FOUND;
+		return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 	pVolatileTransaction p_root = it_ent->second;
 
@@ -575,7 +575,7 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 		break;
 	}
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	return SERVICE_ERROR_PARSING_COMMAND;
 }
 
 
@@ -647,25 +647,25 @@ StatusCode Volatile::remove(Locator &where) {
 		switch (base) {
 		case BASE_DEQUE_10BIT:
 			if (deque_ent.find(ek.ent_hash) == deque_ent.end())
-				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			return remove_deque(ek.ent_hash);
 
 		case BASE_QUEUE_10BIT:
 			if (queue_ent.find(ek.ent_hash) == queue_ent.end())
-				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			return remove_queue(ek.ent_hash);
 
 		case BASE_TREE_10BIT:
 			if (tree_ent.find(ek.ent_hash) == tree_ent.end())
-				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			return remove_tree(ek.ent_hash);
 
 		case BASE_INDEX_10BIT:
 			if (index_ent.find(ek.ent_hash) == index_ent.end())
-				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			pTransaction p_txn = index_ent[ek.ent_hash];
 			destroy_transaction(p_txn);
@@ -707,7 +707,7 @@ StatusCode Volatile::remove(Locator &where) {
 	case BASE_INDEX_10BIT:
 		HashVolXctMap::iterator it = index_ent.find(ek.ent_hash);
 		if (it == index_ent.end())
-			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		Index::iterator itk = it->second->p_hea->index.find(key);
 
