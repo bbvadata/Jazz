@@ -272,10 +272,10 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 		return ret;
 	}
 
-	if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
-		return ret;
-
 	if (p_int_txn != nullptr) {
+		if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
+			return ret;
+
 		int size = p_int_txn->p_block->total_bytes;
 
 		p_txn->p_block = block_malloc(size);
