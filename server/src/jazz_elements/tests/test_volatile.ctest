@@ -834,6 +834,13 @@ SCENARIO("Strong End-to-end index tests") {
 
 		WHEN("We test serializing and populating Index entities") {
 
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
+	// REQUIRE(command == COMMAND_GET_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
+	// REQUIRE(command == COMMAND_PUT_10BIT);
+
+
 //TODO: Write tests Index serializing and populating
 
 			THEN("We get expected structure") {
@@ -909,6 +916,67 @@ SCENARIO("Strong End-to-end deque tests") {
 
 			}
 		}
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
+	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", true));
+	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", false));
+	// REQUIRE(command == COMMAND_CHILD_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
+	// REQUIRE(command == COMMAND_PARENT_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
+	// REQUIRE(command == COMMAND_NEXT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
+	// REQUIRE(command == COMMAND_PARENT_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
+	// REQUIRE(command == COMMAND_PARENT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", false));
+	// REQUIRE(command == COMMAND_PREV_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", false));
+	// REQUIRE(command == COMMAND_FIRST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", false));
+	// REQUIRE(command == COMMAND_LAST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
+	// REQUIRE(command == COMMAND_GET_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~highest", false));
+	// REQUIRE(command == COMMAND_HIGH_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", false));
+	// REQUIRE(command == COMMAND_XHIGH_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~lowest", false));
+	// REQUIRE(command == COMMAND_LOW_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xlow", false));
+	// REQUIRE(command == COMMAND_XLOW_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", false));
+	// REQUIRE(command == COMMAND_PFIRST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~plast", false));
+	// REQUIRE(command == COMMAND_PLAST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
+	// REQUIRE(command == COMMAND_INSERT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
+	// REQUIRE(command == COMMAND_PUT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
+	// REQUIRE(command == COMMAND_SIZE + 123);
+
 
 		WHEN("We test put()/get()/remove() of keys") {
 
@@ -1000,6 +1068,66 @@ SCENARIO("Strong End-to-end queue tests") {
 			}
 		}
 
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
+	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", true));
+	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", false));
+	// REQUIRE(command == COMMAND_CHILD_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
+	// REQUIRE(command == COMMAND_PARENT_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
+	// REQUIRE(command == COMMAND_NEXT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
+	// REQUIRE(command == COMMAND_PARENT_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
+	// REQUIRE(command == COMMAND_PARENT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", false));
+	// REQUIRE(command == COMMAND_PREV_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", false));
+	// REQUIRE(command == COMMAND_FIRST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", false));
+	// REQUIRE(command == COMMAND_LAST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
+	// REQUIRE(command == COMMAND_GET_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~highest", false));
+	// REQUIRE(command == COMMAND_HIGH_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", false));
+	// REQUIRE(command == COMMAND_XHIGH_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~lowest", false));
+	// REQUIRE(command == COMMAND_LOW_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xlow", false));
+	// REQUIRE(command == COMMAND_XLOW_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", false));
+	// REQUIRE(command == COMMAND_PFIRST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~plast", false));
+	// REQUIRE(command == COMMAND_PLAST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
+	// REQUIRE(command == COMMAND_INSERT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
+	// REQUIRE(command == COMMAND_PUT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
+	// REQUIRE(command == COMMAND_SIZE + 123);
+
 		WHEN("We test put()/get()/remove() of keys") {
 
 //TODO: Write tests Queue put()/get()/remove()
@@ -1089,6 +1217,66 @@ SCENARIO("Strong End-to-end tree tests") {
 
 			}
 		}
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
+	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", true));
+	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", false));
+	// REQUIRE(command == COMMAND_CHILD_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
+	// REQUIRE(command == COMMAND_PARENT_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
+	// REQUIRE(command == COMMAND_NEXT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
+	// REQUIRE(command == COMMAND_PARENT_KEY);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
+	// REQUIRE(command == COMMAND_PARENT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", false));
+	// REQUIRE(command == COMMAND_PREV_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", false));
+	// REQUIRE(command == COMMAND_FIRST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", false));
+	// REQUIRE(command == COMMAND_LAST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
+	// REQUIRE(command == COMMAND_GET_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~highest", false));
+	// REQUIRE(command == COMMAND_HIGH_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", false));
+	// REQUIRE(command == COMMAND_XHIGH_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~lowest", false));
+	// REQUIRE(command == COMMAND_LOW_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xlow", false));
+	// REQUIRE(command == COMMAND_XLOW_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", false));
+	// REQUIRE(command == COMMAND_PFIRST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~plast", false));
+	// REQUIRE(command == COMMAND_PLAST_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
+	// REQUIRE(command == COMMAND_INSERT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
+	// REQUIRE(command == COMMAND_PUT_10BIT);
+
+	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
+	// REQUIRE(command == COMMAND_SIZE + 123);
 
 		WHEN("We test put()/get()/remove() of keys") {
 
