@@ -359,16 +359,33 @@ class Volatile : public Container {
 		}
 
 
-		/** Bla
+		/** Populate an Index with the content of a Tuple of (text, text)
 
-//TODO: Document populate_index()
+			\param index	Some **destination** Index
+			\param p_block	The Block to be pushed into the index Volatile. It must be compatible with new_block(8) A Tuple of two string
+							items named "key" and "value" of rank == 1 and the same size.
 
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+		**NOTE**: This is the inverse of new_block(8), except that it does not create the Index from scratch it appends (overriding
+		existing keys) the content of the Index.
 		*/
 		inline StatusCode populate_index(Index &index, pBlock p_block) {
 
-//TODO: Implement populate_index()
+			if (p_block->cell_type != CELL_TYPE_TUPLE_ITEM || p_block->size != 2)
+				return SERVICE_ERROR_BAD_BLOCK;
 
-			return SERVICE_NOT_IMPLEMENTED;
+			pBlock p_key = pTuple(p_block)->get_block(0);
+			pBlock p_val = pTuple(p_block)->get_block(1);
+
+			if (   p_key->cell_type != CELL_TYPE_STRING || p_val->cell_type != CELL_TYPE_STRING
+				|| p_key->rank != 1 || p_val->rank != 1 || p_key->size != p_val->size)
+				return SERVICE_ERROR_BAD_BLOCK;
+
+			for (int i = 0; i < p_key->size; i++)
+				index[p_key->get_string(i)] = p_val->get_string(i);
+
+			return SERVICE_NO_ERROR;
 		}
 
 
