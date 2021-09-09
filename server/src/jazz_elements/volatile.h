@@ -584,12 +584,12 @@ class Volatile : public Container {
 			HashVolXctMap::iterator it_ent = p_ent_map->find(ek.ent_hash);
 
 			if (it_ent == p_ent_map->end())
-				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			pVolatileTransaction p_root = it_ent->second;
 
 			if (p_root == nullptr)
-				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				return SERVICE_ERROR_EMPTY_ENTITY;
 
 			Name key, parent;
 			int	 command;
@@ -650,7 +650,7 @@ class Volatile : public Container {
 
 			case COMMAND_CHILD_10BIT: {
 				if (base != BASE_TREE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
@@ -665,7 +665,7 @@ class Volatile : public Container {
 
 			case COMMAND_PARENT_10BIT: {
 				if (base != BASE_TREE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
@@ -680,7 +680,7 @@ class Volatile : public Container {
 
 			case COMMAND_NEXT_10BIT: {
 				if (base != BASE_TREE_10BIT && base != BASE_DEQUE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
@@ -695,7 +695,7 @@ class Volatile : public Container {
 
 			case COMMAND_PREV_10BIT: {
 				if (base != BASE_DEQUE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
@@ -711,7 +711,7 @@ class Volatile : public Container {
 			case COMMAND_HIGH_10BIT:
 			case COMMAND_XHIGH_10BIT: {
 				if (base != BASE_QUEUE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				if (p_root == nullptr)
 					return SERVICE_ERROR_EMPTY_ENTITY;
@@ -727,7 +727,7 @@ class Volatile : public Container {
 			case COMMAND_LOW_10BIT:
 			case COMMAND_XLOW_10BIT: {
 				if (base != BASE_QUEUE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				if (p_root == nullptr)
 					return SERVICE_ERROR_EMPTY_ENTITY;
@@ -743,7 +743,7 @@ class Volatile : public Container {
 			case COMMAND_FIRST_10BIT:
 			case COMMAND_PFIRST_10BIT: {
 				if (base != BASE_DEQUE_10BIT && (base != BASE_TREE_10BIT || command == COMMAND_PFIRST_10BIT))
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				if (p_root == nullptr)
 					return SERVICE_ERROR_EMPTY_ENTITY;
@@ -759,7 +759,7 @@ class Volatile : public Container {
 			case COMMAND_LAST_10BIT:
 			case COMMAND_PLAST_10BIT: {
 				if (base != BASE_DEQUE_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				if (p_root == nullptr)
 					return SERVICE_ERROR_EMPTY_ENTITY;
@@ -774,7 +774,7 @@ class Volatile : public Container {
 
 			case COMMAND_GET_10BIT:
 				if (base != BASE_INDEX_10BIT)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					return SERVICE_ERROR_PARSING_COMMAND;
 
 				p_txn = nullptr;
 				p_str = nullptr;
