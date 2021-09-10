@@ -752,7 +752,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
 			return ret;
 
-		ret = put(where, p_txn->p_block);
+		ret = put(where, p_txn->p_block, WRITE_TENSOR_DATA);
 
 		destroy_transaction(p_txn);
 
