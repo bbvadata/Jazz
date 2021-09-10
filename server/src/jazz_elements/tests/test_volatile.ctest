@@ -865,18 +865,115 @@ SCENARIO("Strong End-to-end index tests") {
 
 		WHEN("We test serializing and populating Index entities") {
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
-	// REQUIRE(command == COMMAND_GET_10BIT);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_four") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_five") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_six")  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_nope") == SERVICE_NO_ERROR);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
-	// REQUIRE(command == COMMAND_PUT_10BIT);
+			REQUIRE(VOL.put((pChar) "//index/ent_four/~put", p_tx_pop3->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_five/~put", p_tx_pop9->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
 
-
-//TODO: Write tests Index serializing and populating
+			REQUIRE(VOL.put((pChar) "//index/ent_six/~put", p_tx_pop3->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_six/~put", p_tx_pop9->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_six/bali", p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/bali") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "Just one string") == 0);
+				VOL.destroy_transaction(p_txn);
 
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/three") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "Wednesday") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/0ae3") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "A multiline string\nis okay\n") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/0ae8") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "z") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_five/0ae6") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "España") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_five/0ae7") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "[1,2,3]") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_four/two") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "Tuesday") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_four/~get") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				pTuple p_tup = (pTuple) p_txn->p_block;
+				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(p_tup->item_name(1), "value") == 0);
+				pBlock p_key = p_tup->get_block(0), p_val = p_tup->get_block(1);
+				REQUIRE(p_key->size == p_val->size);
+				for (int i = 0; i < p_key->size; i++) {
+					REQUIRE(strcmp(txt3[p_key->get_string(i)].c_str(), p_val->get_string(i)) == 0);
+				}
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_five/~get") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				p_tup = (pTuple) p_txn->p_block;
+				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(p_tup->item_name(1), "value") == 0);
+				p_key = p_tup->get_block(0);
+				p_val = p_tup->get_block(1);
+				REQUIRE(p_key->size == p_val->size);
+				for (int i = 0; i < p_key->size; i++) {
+					REQUIRE(strcmp(txt9[p_key->get_string(i)].c_str(), p_val->get_string(i)) == 0);
+				}
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/~get") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				p_tup = (pTuple) p_txn->p_block;
+				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(p_tup->item_name(1), "value") == 0);
+				p_key = p_tup->get_block(0);
+				p_val = p_tup->get_block(1);
+				REQUIRE(p_key->size == 13);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_nope/~get") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				p_tup = (pTuple) p_txn->p_block;
+				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
+				REQUIRE(strcmp(p_tup->item_name(1), "value") == 0);
+				p_key = p_tup->get_block(0);
+				p_val = p_tup->get_block(1);
+				REQUIRE(p_key->size == 0);
+				VOL.destroy_transaction(p_txn);
 			}
+
+			REQUIRE(VOL.remove((pChar) "//index/ent_four") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_five") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_six")  == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_nope") == SERVICE_NO_ERROR);
 		}
 
 		WHEN("We test copy/move/locator") {
