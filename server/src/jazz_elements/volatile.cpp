@@ -326,7 +326,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter
 	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR || p_int_txn == nullptr) {
 		p_txn = nullptr;
 
-		return ret;
+		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
 	AttributeMap att = {};
@@ -364,7 +364,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pChar name) {
 	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR || p_int_txn == nullptr) {
 		p_txn = nullptr;
 
-		return ret;
+		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
 	AttributeMap att = {};
@@ -398,7 +398,7 @@ StatusCode Volatile::header(StaticBlockHeader &hea, Locator &what) {
 	StatusCode	 ret;
 
 	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR || p_int_txn == nullptr)
-		return ret;
+		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 
 	memcpy(&hea, p_int_txn->p_block, sizeof(StaticBlockHeader));
 
@@ -434,7 +434,7 @@ StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR || p_int_txn == nullptr) {
 		p_txn = nullptr;
 
-		return ret;
+		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
 	if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
