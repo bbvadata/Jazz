@@ -838,12 +838,29 @@ SCENARIO("Strong End-to-end index tests") {
 		}
 
 		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_three") == SERVICE_NO_ERROR);
 
-//TODO: Write tests Index get(2)/get(3)/head(1)/head(2)
+			REQUIRE(VOL.put((pChar) "//index/ent_three/one", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_three/two", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_three/one") == SERVICE_NO_ERROR);
+				VOL.destroy_transaction(p_txn);
 
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_three/one", p_tx_pop9->p_block) == SERVICE_ERROR_PARSING_COMMAND);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_three/two") == SERVICE_NO_ERROR);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_three/two", (pChar) "val") == SERVICE_ERROR_PARSING_COMMAND);
+
+				StaticBlockHeader hea;
+
+				REQUIRE(VOL.header(hea, (pChar) "//index/ent_three/two") == SERVICE_ERROR_PARSING_COMMAND);
+
+				REQUIRE(VOL.header(p_txn, (pChar) "//index/ent_three/two") == SERVICE_ERROR_PARSING_COMMAND);
 			}
+			REQUIRE(VOL.remove((pChar) "//index/ent_three") == SERVICE_NO_ERROR);
 		}
 
 		WHEN("We test serializing and populating Index entities") {
