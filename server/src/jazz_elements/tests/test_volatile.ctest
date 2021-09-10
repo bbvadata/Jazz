@@ -789,14 +789,27 @@ SCENARIO("Strong End-to-end index tests") {
 			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_pop3", p_tx_pop3->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
 			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_pop9", p_tx_pop9->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
 			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_chr",  p_tx_chr->p_block,  0) == SERVICE_ERROR_BAD_BLOCK);
-			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
 			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_str2", p_tx_str2->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
 
-			REQUIRE(VOL.put((pChar) "//index/ent_three/one", p_tx_str1->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//index/ent_three/two", p_tx_str1->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW) == SERVICE_NO_ERROR);
+
+			REQUIRE(   VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW | WRITE_ONLY_IF_NOT_EXISTS)
+					== SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(   VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW | WRITE_ONLY_IF_EXISTS)
+					== SERVICE_NO_ERROR);
+
+			REQUIRE(   VOL.put((pChar) "//index/ent_three/one", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW | WRITE_ONLY_IF_EXISTS)
+					== SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(   VOL.put((pChar) "//index/ent_three/one", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW | WRITE_ONLY_IF_NOT_EXISTS)
+					== SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.put((pChar) "//index/ent_three/two", p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(VOL.put((pChar) "//index/ent_three/two", p_tx_str1->p_block, WRITE_TENSOR_DATA_AS_RAW) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
-
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_one/p_tx_str1") == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
 				REQUIRE(p_txn->p_block->size == 1);
