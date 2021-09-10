@@ -411,7 +411,7 @@ StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 
 	\param where	Some **destination** parsed by as_locator()
 	\param p_block	The Block to be stored in Persistence. The Block hash and dated will be updated by this call!!
-	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA_AS_RAW returns
+	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA returns
 					the error SERVICE_ERROR_WRONG_ARGUMENTS
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
@@ -422,8 +422,8 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	pMDB_txn p_txn;
 
-	if (mode != WRITE_ALWAYS_COMPLETE) {
-		if (mode & WRITE_TENSOR_DATA_AS_RAW)
+	if (mode != WRITE_EVERYTHING) {
+		if (mode & WRITE_TENSOR_DATA)
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 		pBlock p_blx = lock_pointer_to_block(where, p_txn);

@@ -247,7 +247,7 @@ class Volatile : public Container {
 									  Locator			&what);
 		virtual StatusCode put		 (Locator			&where,
 									  pBlock			 p_block,
-									  int				 mode = WRITE_ALWAYS_COMPLETE);
+									  int				 mode = WRITE_EVERYTHING);
 		virtual StatusCode new_entity(Locator			&where);
 		virtual StatusCode remove	 (Locator			&where);
 		virtual StatusCode copy		 (Locator			&where,
@@ -446,7 +446,7 @@ class Volatile : public Container {
 			\param index	Some **destination** Index
 			\param key		The key to be written
 			\param p_block	The Block to be written It must be a string of rank == 1 and size == 1.
-			\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA_AS_RAW
+			\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA
 							is the only supported option.
 
 			\return	SERVICE_NO_ERROR on success or some negative value (error).
@@ -457,7 +457,7 @@ class Volatile : public Container {
 			if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
 				return SERVICE_ERROR_BAD_BLOCK;
 
-			if ((mode & WRITE_TENSOR_DATA_AS_RAW) == 0)
+			if ((mode & WRITE_TENSOR_DATA) == 0)
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 			Index::iterator it = index.find(key);

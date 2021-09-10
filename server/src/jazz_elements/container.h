@@ -104,10 +104,11 @@ namespace jazz_elements
 #define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
 // Writing modes for put()
-#define WRITE_ALWAYS_COMPLETE			  0		///< The default mode with none of the other flags.
+#define WRITE_EVERYTHING				  0		///< The default mode with none of the other flags.
 #define WRITE_ONLY_IF_EXISTS			  1		///< A .put() call can override, but cannot create a new block.
 #define WRITE_ONLY_IF_NOT_EXISTS		  2		///< A .put() call cannot override, it can only create new blocks.
-#define WRITE_TENSOR_DATA_AS_RAW		  4		///< Fails if not a Tensor, writes the raw data. For e.g., writing files.
+#define WRITE_TENSOR_DATA				  4		///< Fails if not a Tensor, writes the raw data without metadata. For e.g., writing files.
+
 
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
@@ -356,7 +357,7 @@ class Container : public Service {
 								pChar				 p_what);
 		StatusCode put		   (pChar				 p_where,
 								pBlock				 p_block,
-								int					 mode = WRITE_ALWAYS_COMPLETE);
+								int					 mode = WRITE_EVERYTHING);
 		StatusCode new_entity  (pChar				 p_where);
 		StatusCode remove	   (pChar				 p_where);
 		StatusCode copy		   (pChar				 p_where,
@@ -381,7 +382,7 @@ class Container : public Service {
 										Locator			   &what);
 		virtual StatusCode put		   (Locator			   &where,
 										pBlock				p_block,
-										int					mode = WRITE_ALWAYS_COMPLETE);
+										int					mode = WRITE_EVERYTHING);
 		virtual StatusCode new_entity  (Locator			   &where);
 		virtual StatusCode remove	   (Locator			   &where);
 		virtual StatusCode copy		   (Locator			   &where,

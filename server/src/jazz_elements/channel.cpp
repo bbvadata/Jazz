@@ -323,7 +323,7 @@ StatusCode Channels::header(pTransaction &p_txn, Locator &what) {
 	\param where	Some Locator to the destination endpoint compiled by Channels::as_locator() that can only be used once.
 	\param p_block	The Block to be written/sent by Channels.
 	\param mode		Some writing restriction that depends on the base. WRITE_ONLY_IF_EXISTS and WRITE_ONLY_IF_NOT_EXISTS can only be used
-					on **file**. WRITE_TENSOR_DATA_AS_RAW should be used as default, otherwise the metadata will also be written/sent.
+					on **file**. WRITE_TENSOR_DATA should be used as default, otherwise the metadata will also be written/sent.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
