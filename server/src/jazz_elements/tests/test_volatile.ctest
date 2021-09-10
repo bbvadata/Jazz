@@ -978,20 +978,61 @@ SCENARIO("Strong End-to-end index tests") {
 
 		WHEN("We test copy/move/locator") {
 
-//TODO: Write tests Index copy/move/locator
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_six")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//index/ent_seven")	== SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.put((pChar) "//index/ent_six/~put", p_tx_pop3->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_six/~put", p_tx_pop9->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//index/ent_six/bali", p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/alibi", (pChar) "//index/ent_six/bali") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_seven/alibi") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "Just one string") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/what_key", (pChar) "//index/ent_six/three") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_seven/what_key") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "Wednesday") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/key-123", (pChar) "//index/ent_six/0ae3") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_seven/key-123") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "A multiline string\nis okay\n") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/NOT_here", (pChar) "//index/ent_six/0ae8") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_seven/NOT_here") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "z") == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/alibi", (pChar) "//index/ent_six/what_the") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/alibi", (pChar) "//index/ent_xxx/bali") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+				REQUIRE(VOL.copy((pChar) "//index/ent_xxx/alibi",	(pChar) "//index/ent_six/bali") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+				REQUIRE(VOL.copy((pChar) "//index/ent_seven/alibi", (pChar) "//index/ent_six/bali") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_seven/alibi") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(strcmp(p_txn->p_block->get_string(0), "Just one string") == 0);
+				VOL.destroy_transaction(p_txn);
 
 			}
-		}
 
-		WHEN("We try priority updates on Index") {
-
-//TODO: Write tests Index priority updates
-
-			THEN("We get expected structure") {
-
-			}
+			REQUIRE(VOL.remove((pChar) "//index/ent_six")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//index/ent_seven")	== SERVICE_NO_ERROR);
 		}
 
 		VOL.destroy_transaction(p_tx_pop3);
