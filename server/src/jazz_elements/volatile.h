@@ -454,9 +454,6 @@ class Volatile : public Container {
 		*/
 		inline StatusCode put_index(Index &index, pChar key, pBlock p_block, int mode) {
 
-			if (mode & WRITE_TENSOR_DATA_AS_RAW == 0)
-				return SERVICE_ERROR_WRONG_ARGUMENTS;
-
 			if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
 				return SERVICE_ERROR_BAD_BLOCK;
 
