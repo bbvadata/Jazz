@@ -457,6 +457,9 @@ class Volatile : public Container {
 			if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
 				return SERVICE_ERROR_BAD_BLOCK;
 
+			if ((mode & WRITE_TENSOR_DATA_AS_RAW) == 0)
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
 			Index::iterator it = index.find(key);
 
 			if (it == index.end()) {
