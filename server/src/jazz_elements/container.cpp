@@ -1813,6 +1813,27 @@ StatusCode Container::get(pTransaction &p_txn, pChar p_what, pChar name) {
 }
 
 
+/** "Easy" interface : Locate a block by some relation that is understandable by the descendant.
+
+	\param location	The solved location of the block.
+	\param p_what	A valid reference to a block. E.g. //deque/ent/~first, //tree/ent/key~parent, //queue/ent/~highest
+
+	\return	SERVICE_NO_ERROR on success (and a valid location), or some negative value (error).
+
+The default behaviour of this is returning the same locator that is given for most Containers. Only containers like Volatile which
+support block relations defined by commands will return actual //base/ent/key locators that are the result of some computation.
+*/
+StatusCode Container::locate(Locator &location, pChar p_what) {
+	Locator what;
+	StatusCode ret;
+
+	if ((ret = as_locator(what, p_what)) != SERVICE_NO_ERROR)
+		return ret;
+
+	return locate(location, what);
+}
+
+
 /** "Easy" interface **metadata of a Block** retrieval. This parses p_what and, on success, calls the native header() equivalent.
 
 	\param hea		A StaticBlockHeader structure that will receive the metadata.
