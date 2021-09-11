@@ -1839,12 +1839,12 @@ StatusCode Container::locate(Locator &location, pChar p_what) {
 	\param hea		A StaticBlockHeader structure that will receive the metadata.
 	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+	\return	SERVICE_NO_ERROR on success (and a valid hea), or some negative value (error).
 
 This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
 for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
 */
-StatusCode Container::header(StaticBlockHeader	&hea, pChar p_what) {
+StatusCode Container::header(StaticBlockHeader &hea, pChar p_what) {
 	Locator loc;
 	StatusCode ret;
 
