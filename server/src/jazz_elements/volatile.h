@@ -178,7 +178,7 @@ Methods in deque
 ----------------
 
 A deque is a key-value store. It is created empty via new_entity() and you can just get(), header(), put(), remove() or copy(). In order
-to  access all the blocks in a deque, the key of the first block will be returned by get()ting //deque/entity/~fi{rst}. And the keys of
+to access all the blocks in a deque, the key of the first block will be returned by get()ting //deque/entity/~fi{rst}. And the keys of
 any node can be obtained by //deque/entity/key~ne{xt} and //deque/entity/key~pr{ev}. Also, //deque/entity/~la{st} returns the last element.
 Aditionally, //deque/entity/~pf{irst} and //deque/entity/~pl{ast} return the corresponding nodes while removing them. For put() calls
 //deque/entity/~fi{rst} and //deque/entity/~la{st} can also be given and the nodes will be created without keys.
@@ -198,7 +198,6 @@ putting to //queue/name/key~0.977 (where 0.977 can be serialized to a double). T
 (where 5000 is a mandatory maximum number of nodes). When the queue fills, lower priority nodes are discarded. You can also get()
 to //queue/name/~xh{ighest} (extracting it), //queue/name/~hi{ghest} (leaving it), equivalently: //queue/name/~xl{owest},
 //queue/name/~lo{west}. And you can get() nodes by key as in a deque (if they haven't been pop()ed or been discarded).
-Aditionally, you can put() to //deque/entity/~in{sert} and the node will be inserted without a key.
 
 Methods in tree
 ---------------
