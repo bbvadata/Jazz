@@ -222,6 +222,7 @@ class Volatile : public Container {
 		using Container::get;
 		using Container::header;
 		using Container::put;
+		using Container::locate;
 		using Container::new_entity;
 		using Container::remove;
 		using Container::copy;
@@ -239,6 +240,8 @@ class Volatile : public Container {
 		virtual StatusCode get		 (pTransaction		&p_txn,
 							  		  Locator			&what,
 							  		  pChar				 name);
+		virtual StatusCode locate	 (Locator			&location,
+									  Locator			&what);
 		virtual StatusCode header	 (StaticBlockHeader	&hea,
 									  Locator			&what);
 		virtual StatusCode header	 (pTransaction		&p_txn,

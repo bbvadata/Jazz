@@ -380,6 +380,44 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pChar name) {
 }
 
 
+/** Native (Volatile) interface: Locate a block by some relation that is understandable by the descendant.
+
+	\param location	The solved location of the block.
+	\param what		A valid reference to a block. E.g. //deque/ent/~first, //tree/ent/key~parent, //queue/ent/~highest
+
+	\return	SERVICE_NO_ERROR on success (and a valid location), or some negative value (error).
+
+*/
+StatusCode Volatile::locate(Locator &location, Locator &what) {
+
+	pTransaction p_int_txn;
+	pString		 p_str;
+	uint64_t	 pop_ent;
+	StatusCode	 ret;
+
+	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR)
+		return ret;
+
+	location.p_extra = nullptr;
+	strcpy(location.base, what.base);
+	strcpy(location.entity, what.entity);
+
+	if (p_int_txn != nullptr) {
+		strcpy(location.key, name[pVolatileTransaction(p_int_txn)->key_hash].name);
+
+		return SERVICE_NO_ERROR;
+	}
+
+	if (p_str != nullptr) {
+		strcpy(location.key, what.key);
+
+		return SERVICE_NO_ERROR;
+	}
+
+	return SERVICE_ERROR_PARSING_COMMAND;
+}
+
+
 /** Native (Volatile) interface **metadata of a Block** retrieval.
 
 	\param hea		A StaticBlockHeader structure that will receive the metadata.
