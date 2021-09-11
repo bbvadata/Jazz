@@ -582,12 +582,6 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 		return put_pushing(p_root, p_block);
 
-	case COMMAND_INSERT_10BIT:
-		if (base != BASE_QUEUE_10BIT)
-			return SERVICE_ERROR_PARSING_COMMAND;
-
-		return put_queue_insert(p_root, key, p_block);
-
 	case COMMAND_LAST_10BIT:
 		if (base != BASE_DEQUE_10BIT)
 			return SERVICE_ERROR_PARSING_COMMAND;
@@ -603,11 +597,18 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 		return populate_index(p_root->p_hea->index, p_block);
 
-	case COMMAND_PARENT_KEY:
-		if (base != BASE_TREE_10BIT)
-			return SERVICE_ERROR_PARSING_COMMAND;
+	case COMMAND_SECOND_ARG:
+		if (base == BASE_QUEUE_10BIT) {
+			double priority;
+			if (sscanf(second, "%lf", &priority) != 1)
+				return SERVICE_ERROR_PARSING_COMMAND;
 
-		return put_tree(ek.ent_hash, parent, key, p_block);
+			put_queue_insert(p_root, key, priority, p_block);
+		}
+		if (base == BASE_TREE_10BIT)
+			return put_tree(ek.ent_hash, second, key, p_block);
+
+		return SERVICE_ERROR_PARSING_COMMAND;
 
 	default:
 		break;
