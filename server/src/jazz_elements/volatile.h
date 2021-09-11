@@ -395,7 +395,7 @@ class Volatile : public Container {
 //TODO: Document put_queue_insert()
 
 		*/
-		inline StatusCode put_queue_insert(pVolatileTransaction p_root, Name &key, pBlock p_block) {
+		inline StatusCode put_queue_insert(pVolatileTransaction p_root, Name &key, double priority, pBlock p_block) {
 
 //TODO: Implement put_queue_insert()
 
