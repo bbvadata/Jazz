@@ -4108,6 +4108,149 @@ int Container::tensor_kind_as_text(pKind p_kind, pChar p_dest) {
 	return 0;
 }
 
+
+#if defined CATCH_TEST
+void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
+
+	REQUIRE(p_bl1->cell_type == p_bl2->cell_type);
+	REQUIRE(p_bl1->size == p_bl2->size);
+	REQUIRE(p_bl1->rank == p_bl2->rank);
+
+	for (int i = 0; i < p_bl1->rank; i++) {
+		REQUIRE(p_bl1->range.dim[i] == p_bl2->range.dim[i]);
+	}
+
+	bool all_cells_equal = true;
+
+	switch (p_bl1->cell_type) {
+	case CELL_TYPE_BYTE:
+	case CELL_TYPE_BYTE_BOOLEAN:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_byte[i] != p_bl2->tensor.cell_byte[i]) {
+				all_cells_equal = false;
+
+				break;
+			}
+		}
+		break;
+
+	case CELL_TYPE_INTEGER:
+	case CELL_TYPE_FACTOR:
+	case CELL_TYPE_GRADE:
+	case CELL_TYPE_BOOLEAN:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_uint[i] != p_bl2->tensor.cell_uint[i]) {
+				all_cells_equal = false;
+
+				break;
+			}
+		}
+		break;
+
+	case CELL_TYPE_LONG_INTEGER:
+	case CELL_TYPE_TIME:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_ulongint[i] != p_bl2->tensor.cell_ulongint[i]) {
+				all_cells_equal = false;
+
+				break;
+			}
+		}
+		break;
+
+	case CELL_TYPE_SINGLE:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_uint[i] == SINGLE_NA_UINT32) {
+				if (p_bl2->tensor.cell_uint[i] != SINGLE_NA_UINT32)
+					all_cells_equal = false;
+			} else {
+				if (p_bl2->tensor.cell_uint[i] == SINGLE_NA_UINT32)
+					all_cells_equal = false;
+				if (fabs(p_bl1->tensor.cell_single[i] - p_bl2->tensor.cell_single[i]) > 1e-5)
+					all_cells_equal = false;
+			}
+		}
+		break;
+
+	case CELL_TYPE_DOUBLE:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_ulongint[i] == DOUBLE_NA_UINT64) {
+				if (p_bl2->tensor.cell_ulongint[i] != DOUBLE_NA_UINT64)
+					all_cells_equal = false;
+			} else {
+				if (p_bl2->tensor.cell_ulongint[i] == DOUBLE_NA_UINT64)
+					all_cells_equal = false;
+				if (fabs(p_bl1->tensor.cell_double[i] - p_bl2->tensor.cell_double[i]) > 1e-9)
+					all_cells_equal = false;
+			}
+		}
+		break;
+
+	case CELL_TYPE_STRING:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (strcmp(p_bl1->get_string(i), p_bl2->get_string(i)) != 0) {
+				all_cells_equal = false;
+
+				break;
+			}
+		}
+		break;
+
+	case CELL_TYPE_KIND_ITEM:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
+				all_cells_equal = false;
+
+			if (p_bl1->tensor.cell_item[i].rank != p_bl2->tensor.cell_item[i].rank)
+				all_cells_equal = false;
+
+			if (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0)
+				all_cells_equal = false;
+
+			for (int j = 0; j < p_bl1->tensor.cell_item[i].rank; j++) {
+				int d1 = p_bl1->tensor.cell_item[i].dim[j];
+				int d2 = p_bl2->tensor.cell_item[i].dim[j];
+
+				if (d1 > 0) {
+ 					if (d2 != d1)
+						all_cells_equal = false;
+				} else if (d2 >= 0)
+					all_cells_equal = false;
+				else {
+					pChar nd1 = (&p_bl1->p_string_buffer()->buffer[-d1]);
+					pChar nd2 = (&p_bl2->p_string_buffer()->buffer[-d2]);
+
+					if (strcmp(nd1, nd2) != 0)
+						all_cells_equal = false;
+				}
+			}
+		}
+		break;
+
+	case CELL_TYPE_TUPLE_ITEM:
+		for (int i = 0; i < p_bl1->size; i++) {
+			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
+				all_cells_equal = false;
+
+			if (p_bl1->tensor.cell_item[i].rank != p_bl2->tensor.cell_item[i].rank)
+				all_cells_equal = false;
+
+			if (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0)
+				all_cells_equal = false;
+
+			compare_full_blocks(reinterpret_cast<pTuple>(p_bl1)->get_block(i), reinterpret_cast<pTuple>(p_bl1)->get_block(i));
+		}
+		break;
+
+	default:
+		REQUIRE(strcmp("HALT:", "Wrong cell_type.") == 0);
+	}
+
+	if (!skip_value_check)
+		REQUIRE(all_cells_equal);
+}
+#endif
+
 } // namespace jazz_elements
 
 #if defined CATCH_TEST

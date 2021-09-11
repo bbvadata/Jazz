@@ -905,6 +905,11 @@ class Container : public Service {
 		}
 };
 
+
+#if defined CATCH_TEST
+void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check = false);
+#endif
+
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINER
