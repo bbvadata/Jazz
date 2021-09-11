@@ -74,7 +74,7 @@ namespace jazz_elements
 #define COMMAND_PUT_10BIT		0x2b0		//< First 10 bits of command "pu{t}"
 #define COMMAND_XHIGH_10BIT		0x118		//< First 10 bits of command "xh{ighest}"
 #define COMMAND_XLOW_10BIT		0x198		//< First 10 bits of command "xl{owest}"
-#define COMMAND_PARENT_KEY		0x3ff		//< In a put call with a key, the command whatever it is should be considered a parent key.
+#define COMMAND_SECOND_ARG		0x3ff		//< In a put call with a key, it is either a parent key or a priority.
 #define COMMAND_SIZE			0x400		//< For numbers, defining a queue size, this is added to avoid overlap.
 
 
@@ -590,10 +590,10 @@ class Volatile : public Container {
 			if (p_root == nullptr)
 				return SERVICE_ERROR_EMPTY_ENTITY;
 
-			Name key, parent;
+			Name key, second;
 			int	 command;
 
-			if (!parse_command(key, command, parent, what.key, false))
+			if (!parse_command(key, command, second, what.key, false))
 				return SERVICE_ERROR_PARSING_COMMAND;
 
 			switch (command) {
@@ -840,7 +840,7 @@ class Volatile : public Container {
 
 			if (pc == nullptr) {
 				command	  = COMMAND_JUST_THE_KEY;
-				parent[0] = 0;
+				second[0] = 0;
 
 				return true;
 			}
@@ -853,12 +853,12 @@ class Volatile : public Container {
 				if (!valid_name(pc))
 					return false;
 
-				strcpy(parent, pc);
-				command = COMMAND_PARENT_KEY;
+				strcpy(second, pc);
+				command = COMMAND_SECOND_ARG;
 
 				return true;
 			}
-			parent[0] = 0;
+			second[0] = 0;
 
 			switch (command = TenBitsAtAddress(pc)) {
 			case COMMAND_CHILD_10BIT:

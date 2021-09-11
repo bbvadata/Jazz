@@ -165,7 +165,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "papa") == 0);
 	REQUIRE(strcmp(parent, "child") == 0);
@@ -194,7 +194,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "next") == 0);
@@ -223,7 +223,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "child") == 0);
 	REQUIRE(strcmp(parent, "parent") == 0);
@@ -252,7 +252,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "prev") == 0);
@@ -285,7 +285,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~first", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~first", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "first") == 0);
@@ -319,7 +319,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~last", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~last", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "last") == 0);
@@ -343,7 +343,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~get", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~get", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "get") == 0);
@@ -367,7 +367,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~highest", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~highest", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "highest") == 0);
@@ -391,7 +391,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~xhigh", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~xhigh", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "xhigh") == 0);
@@ -415,7 +415,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~lowest", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~lowest", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "lowest") == 0);
@@ -439,7 +439,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~xlow", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~xlow", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "xlow") == 0);
@@ -453,7 +453,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~ii", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~ii", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "ii") == 0);
@@ -467,7 +467,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~is", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~is", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "is") == 0);
@@ -481,7 +481,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~si", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~si", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "si") == 0);
@@ -495,7 +495,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~ss", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~ss", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "ss") == 0);
@@ -519,7 +519,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~pfirst", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~pfirst", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "pfirst") == 0);
@@ -543,7 +543,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~plast", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~plast", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "plast") == 0);
@@ -557,7 +557,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~insert", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~insert", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "insert") == 0);
@@ -581,7 +581,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~put", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~put", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
 	REQUIRE(strcmp(parent, "put") == 0);
@@ -595,7 +595,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "aabbcc~xxyyzz", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "aabbcc~xxyyzz", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "aabbcc") == 0);
 	REQUIRE(strcmp(parent, "xxyyzz") == 0);
@@ -609,7 +609,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "a~x", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "a~x", true));
 
-	REQUIRE(command == COMMAND_PARENT_KEY);
+	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "a") == 0);
 	REQUIRE(strcmp(parent, "x") == 0);

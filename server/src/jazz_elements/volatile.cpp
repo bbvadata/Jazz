@@ -516,10 +516,10 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 	pVolatileTransaction p_root = it_ent->second;
 
-	Name key, parent;
+	Name key, second;
 	int	 command;
 
-	if (!parse_command(key, command, parent, where.key, true))
+	if (!parse_command(key, command, second, where.key, true))
 		return SERVICE_ERROR_PARSING_COMMAND;
 
 	switch (command) {
@@ -677,10 +677,10 @@ StatusCode Volatile::remove(Locator &where) {
 		return SERVICE_ERROR_WRONG_BASE;
 	}
 
-	Name key, parent;
+	Name key, second;
 	int	 command;
 
-	if (!parse_command(key, command, parent, where.key, true) || command != COMMAND_JUST_THE_KEY)
+	if (!parse_command(key, command, second, where.key, true) || command != COMMAND_JUST_THE_KEY)
 		return SERVICE_ERROR_PARSING_COMMAND;
 
 	ek.key_hash = hash(key);
