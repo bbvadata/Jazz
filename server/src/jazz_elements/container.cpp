@@ -2076,6 +2076,23 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 }
 
 
+/** The "native" interface: The default behavior for most Container descendants that do not support commands is just copying.
+
+	\param location	The solved location of the block.
+	\param what		A valid reference to a block. E.g. //deque/ent/~first, //tree/ent/key~parent, //queue/ent/~highest
+
+	\return	SERVICE_NO_ERROR on success (and a valid location), or some negative value (error).
+
+This just copies what into location
+*/
+StatusCode Container::locate(Locator &location, Locator &what) {
+
+	memcpy(&location, &what, sizeof(Locator));
+
+	return SERVICE_NO_ERROR;
+}
+
+
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
 
 **NOTE**: The root Container class does not implement this.
