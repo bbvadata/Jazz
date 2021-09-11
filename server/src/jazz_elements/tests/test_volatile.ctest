@@ -1572,19 +1572,110 @@ SCENARIO("Strong End-to-end queue tests") {
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
-	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next == &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
+	REQUIRE(	pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next
+			== &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
 	GIVEN("We have some blocks and indices") {
+		Index txt;
 
+		txt["one__"] = "Abc ..";
+		txt["two__"] = "[[1,2,3],%20[1,2,3]]";
+		txt["three"] = "";
+		txt["_four"] = "A multiline string\nis okay\n";
+		txt["fi_ve"] = "UTF8 ¡what!\n\nLöwe\n";
+
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil;
+
+		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
+
+		REQUIRE(VOL.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(VOL.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
+
+		dim[1] = 8;
+		REQUIRE(VOL.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_int->p_block->tensor.cell_int[0]	= 1;
+		p_tx_int->p_block->tensor.cell_int[159] = 159;
+
+		dim[1] = 4;
+		REQUIRE(VOL.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[79] = 21.345;
+
+		dim[1] = 1;
+		REQUIRE(VOL.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 20; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
+
+		dim[1] = 0;
+		REQUIRE(VOL.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_fil->p_block->range.filter.length = 2;
+		p_tx_fil->p_block->tensor.cell_int[0] = 0;
+		p_tx_fil->p_block->tensor.cell_int[1] = 2;
+
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_tim->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_rea->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_int->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
+/*
 		WHEN("We test new_entity()/remove() of entities") {
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/key") == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.remove	  ((pChar) "//queue/ent_one")	  == SERVICE_ERROR_ENTITY_NOT_FOUND);
 
-//TODO: Write tests Queue new_entity()/remove()
+			REQUIRE(VOL.deque_ent.size() == 0);
+
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one")	 	== SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/~1024") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.deque_ent.size() == 1);
+
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_two/~0")	== SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_two/~1")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_three/~20") == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.deque_ent.size() == 3);
 
+				Name ent = "ent_two";
+				uint64_t hash = VOL.hash(ent);
+
+				REQUIRE(VOL.deque_ent.find(hash) != VOL.deque_ent.end());
+				REQUIRE(VOL.deque_ent[hash] == nullptr);
+
+				strcpy(ent, "ent_three");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.deque_ent.find(hash) != VOL.deque_ent.end());
+				REQUIRE(VOL.deque_ent[hash] == nullptr);
 			}
+
+			REQUIRE(VOL.remove((pChar) "//queue/ent_one")	== SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.index_ent.size() == 2);
+
+			REQUIRE(VOL.remove((pChar) "//queue/ent_two")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//queue/ent_three")	== SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.index_ent.size() == 0);
 		}
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
@@ -1597,13 +1688,13 @@ SCENARIO("Strong End-to-end queue tests") {
 	// REQUIRE(command == COMMAND_CHILD_10BIT);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
-	// REQUIRE(command == COMMAND_PARENT_KEY);
+	// REQUIRE(command == COMMAND_SECOND_ARG);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
 	// REQUIRE(command == COMMAND_NEXT_10BIT);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
-	// REQUIRE(command == COMMAND_PARENT_KEY);
+	// REQUIRE(command == COMMAND_SECOND_ARG);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
 	// REQUIRE(command == COMMAND_PARENT_10BIT);
@@ -1674,23 +1765,22 @@ SCENARIO("Strong End-to-end queue tests") {
 			}
 		}
 
-		WHEN("We test copy/move/locator") {
+		WHEN("We test copy") {
 
-//TODO: Write tests Queue copy/move/locator
-
-			THEN("We get expected structure") {
-
-			}
-		}
-
-		WHEN("We test priority updates") {
-
-//TODO: Write tests Queue priority updates
+//TODO: Write tests Queue copy
 
 			THEN("We get expected structure") {
 
 			}
 		}
+*/
+		VOL.destroy_transaction(p_tx_pop);
+		VOL.destroy_transaction(p_tx_str);
+		VOL.destroy_transaction(p_tx_chr);
+		VOL.destroy_transaction(p_tx_int);
+		VOL.destroy_transaction(p_tx_rea);
+		VOL.destroy_transaction(p_tx_tim);
+		VOL.destroy_transaction(p_tx_fil);
 	}
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
@@ -1722,12 +1812,12 @@ SCENARIO("Strong End-to-end tree tests") {
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
-	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next == &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
+	REQUIRE(	pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next
+			== &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
 	GIVEN("We have some blocks and indices") {
-
 		WHEN("We test new_entity()/remove() of entities") {
 
 //TODO: Write tests Tree new_entity()/remove()
@@ -1747,13 +1837,13 @@ SCENARIO("Strong End-to-end tree tests") {
 	// REQUIRE(command == COMMAND_CHILD_10BIT);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
-	// REQUIRE(command == COMMAND_PARENT_KEY);
+	// REQUIRE(command == COMMAND_SECOND_ARG);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
 	// REQUIRE(command == COMMAND_NEXT_10BIT);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
-	// REQUIRE(command == COMMAND_PARENT_KEY);
+	// REQUIRE(command == COMMAND_SECOND_ARG);
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
 	// REQUIRE(command == COMMAND_PARENT_10BIT);
@@ -1824,18 +1914,9 @@ SCENARIO("Strong End-to-end tree tests") {
 			}
 		}
 
-		WHEN("We test copy/move/locator") {
+		WHEN("We test copy") {
 
-//TODO: Write tests Tree copy/move/locator
-
-			THEN("We get expected structure") {
-
-			}
-		}
-
-		WHEN("We try priority updates on Tree") {
-
-//TODO: Write tests Tree priority updates
+//TODO: Write tests Tree copy
 
 			THEN("We get expected structure") {
 
@@ -1859,6 +1940,7 @@ SCENARIO("Strong End-to-end tree tests") {
 
 
 SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
+
 	pTransaction p_txn[20];
 
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
@@ -1873,7 +1955,8 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
-	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next == &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
+	REQUIRE(	pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 2].p_next
+			== &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
 
@@ -2071,6 +2154,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 
 
 SCENARIO("Testing internal AA tree functionality") {
+
 	pVolatileTransaction p_root = nullptr, p_item;
 	VolatileTransaction buff[10000];
 	int alloc_items = 0;
