@@ -553,17 +553,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	command	   = -1;
 
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~insert", false));
-	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
-
-	REQUIRE(command == COMMAND_INSERT_10BIT);
-	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(key_out[0] == 0);
-	REQUIRE(parent[0]  == 0);
-
-	key_out[0] = 'x';
-	parent[0]  = 'y';
-	command	   = -1;
-
+	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~insert", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~insert", true));
 
@@ -2128,7 +2118,6 @@ SCENARIO("Testing Volatile struc sizes and simple parts") {
 	REQUIRE(TenBitsAtAddress("fi") == COMMAND_FIRST_10BIT);
 	REQUIRE(TenBitsAtAddress("ge") == COMMAND_GET_10BIT);
 	REQUIRE(TenBitsAtAddress("hi") == COMMAND_HIGH_10BIT);
-	REQUIRE(TenBitsAtAddress("in") == COMMAND_INSERT_10BIT);
 	REQUIRE(TenBitsAtAddress("la") == COMMAND_LAST_10BIT);
 	REQUIRE(TenBitsAtAddress("lo") == COMMAND_LOW_10BIT);
 	REQUIRE(TenBitsAtAddress("ne") == COMMAND_NEXT_10BIT);

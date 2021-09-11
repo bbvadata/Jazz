@@ -64,7 +64,6 @@ namespace jazz_elements
 #define COMMAND_FIRST_10BIT		0x126		//< First 10 bits of command "fi{rst}"
 #define COMMAND_GET_10BIT		0x0a7		//< First 10 bits of command "ge{t}"
 #define COMMAND_HIGH_10BIT		0x128		//< First 10 bits of command "hi{ghest}"
-#define COMMAND_INSERT_10BIT	0x1c9		//< First 10 bits of command "in{sert}"
 #define COMMAND_LAST_10BIT		0x02c		//< First 10 bits of command "la{st}"
 #define COMMAND_LOW_10BIT		0x1ec		//< First 10 bits of command "lo{west}"
 #define COMMAND_NEXT_10BIT		0x0ae		//< First 10 bits of command "ne{xt}"
@@ -811,7 +810,6 @@ class Volatile : public Container {
 					return true;
 
 				case COMMAND_PUT_10BIT:
-				case COMMAND_INSERT_10BIT:
 					return is_put;
 
 				case COMMAND_PFIRST_10BIT:
