@@ -4243,7 +4243,7 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 		break;
 
 	default:
-		REQUIRE(strcmp("HALT:", "Wrong cell_type.") == 0);
+		REQUIRE(strcmp("HALT:", "Wrong cell_type.") == 0);		// cppcheck-suppress staticStringCompare
 	}
 
 	if (!skip_value_check)
