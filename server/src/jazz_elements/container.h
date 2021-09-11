@@ -351,6 +351,8 @@ class Container : public Service {
 		StatusCode get		   (pTransaction		&p_txn,
 								pChar				 p_what,
 								pChar				 name);
+		StatusCode locate	   (Locator				&location,
+								pChar				 p_what);
 		StatusCode header	   (StaticBlockHeader	&hea,
 								pChar				 p_what);
 		StatusCode header	   (pTransaction		&p_txn,
@@ -376,6 +378,8 @@ class Container : public Service {
 		virtual StatusCode get		   (pTransaction	   &p_txn,
 							  			Locator			   &what,
 							  			pChar				name);
+		virtual StatusCode locate	   (Locator			   &location,
+										Locator			   &what);
 		virtual StatusCode header	   (StaticBlockHeader  &hea,
 										Locator			   &what);
 		virtual StatusCode header	   (pTransaction	   &p_txn,
