@@ -1095,8 +1095,8 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(size == pjf->size);
 
-		REQUIRE(pjf->filter_type()	 == FILTER_TYPE_INTEGER);
-		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->filter_type()	== FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->filter_audit()	== FILTER_TYPE_INTEGER);
 		REQUIRE(pjf->can_filter(pjb));
 
 		pjf->range.filter.length = -1;
