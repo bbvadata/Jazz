@@ -792,19 +792,19 @@ class Volatile : public Container {
 
 			\param key_out The clean key returned without the command.
 			\param command The command as an integer in COMMAND_CHILD_10BIT..COMMAND_XLOW_10BIT or COMMAND_SIZE + a size
-			\param parent  A parent node, when command == COMMAND_PARENT_KEY (In put //tree/ent/aaa~next, "next" is a parent id,
-						   not a command.)
+			\param second  A parent node, when command == COMMAND_SECOND_ARG (In put //tree/ent/aaa~next, "next" is a parent id,
+						   not a command.) or a priority in put //queue/ent/key~0.95
 			\param key_in  The original key to be parsed.
-			\param is_put  We are parsing a put call (if true, the command maybe a parent node id).
+			\param is_put  We are parsing a put call (if true, the command maybe a parent or priority).
 
-			\return		   True on success, all outputs (key_out, command, parent) are defined on success and undefined on failure.
+			\return		   True on success, all outputs (key_out, command, second) are defined on success and undefined on failure.
 
 		NOTE: See the reference of the class Volatile for an explanation on commands.
 		*/
-		inline bool parse_command(Name &key_out, int &command, Name &parent, Name key_in, bool is_put) {
+		inline bool parse_command(Name &key_out, int &command, Name &second, Name key_in, bool is_put) {
 			if (key_in[0] == '~') {
 				key_out[0] = 0;
-				parent [0] = 0;
+				second [0] = 0;
 
 				switch (command = TenBitsAtAddress(&key_in[1])) {
 				case COMMAND_FIRST_10BIT:
