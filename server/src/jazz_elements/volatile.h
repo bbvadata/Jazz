@@ -269,16 +269,14 @@ class Volatile : public Container {
 		StatusCode new_volatile();
 		StatusCode destroy_volatile();
 
-		/** Bla
+		/** Creates a new 15 character long key starting with a 'k' followed by 14 lowercase hexadecimal digits.
 
-//TODO: Document remove_deque()
+			\param key	The generated key.
 
+			It starts with a random seed and just increments it by 1 on each call
 		*/
-		inline StatusCode remove_deque(uint64_t ent_hash) {
-
-//TODO: Implement remove_deque()
-
-			return SERVICE_NOT_IMPLEMENTED;
+		inline void new_key(Name &key) {
+			sprintf(key, "k%014lx", ++key_seed);
 		}
 
 
