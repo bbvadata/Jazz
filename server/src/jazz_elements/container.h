@@ -91,6 +91,7 @@ namespace jazz_elements
 /// Block API (error and status codes)
 #define BLOCK_STATUS_READY				  0		///< Transaction.status: p_block-> is safe to use
 #define BLOCK_STATUS_EMPTY				  1		///< Transaction.status: successful new_transaction() and new_block() or get() in progress.
+#define BLOCK_STATUS_DESTROYED			  2		///< Transaction.status: transaction belongs to the container inside the free list.
 
 /// Thread safety
 #define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()

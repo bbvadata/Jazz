@@ -2178,15 +2178,16 @@ StatusCode Container::new_container() {
 	if (p_buffer == nullptr)
 		return SERVICE_ERROR_NO_MEM;
 
-	p_alloc = nullptr;
-	p_free  = p_buffer;
+	p_free = p_buffer;
 
 	pStoredTransaction pt = (pStoredTransaction) p_buffer;
 
 	for (int i = 1; i < max_transactions; i++) {
+		pt->status = BLOCK_STATUS_DESTROYED;
 		pStoredTransaction l_pt = pt++;
 		l_pt->p_next = pt;
 	}
+	pt->status = BLOCK_STATUS_DESTROYED;
 	pt->p_next = nullptr;
 
 	return SERVICE_NO_ERROR;
@@ -2200,14 +2201,19 @@ StatusCode Container::new_container() {
 StatusCode Container::destroy_container() {
 
 	if (p_buffer != nullptr) {
-		while (p_alloc != nullptr) {
-			pTransaction pt = p_alloc;
-			destroy_transaction(pt);
+		pStoredTransaction pt = (pStoredTransaction) p_buffer;
+
+		for (int i = 0; i < max_transactions; i++) {
+			if (pt->status != BLOCK_STATUS_DESTROYED) {
+				pTransaction p_txn = pt;
+				destroy_transaction(p_txn);
+			}
+			pt++;
 		}
 		free(p_buffer);
 	}
 	alloc_bytes = 0;
-	p_buffer = p_alloc = p_free = nullptr;
+	p_buffer = p_free = nullptr;
 	_lock_ = 0;
 
 	return SERVICE_NO_ERROR;
