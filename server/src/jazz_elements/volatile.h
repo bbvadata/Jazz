@@ -365,12 +365,12 @@ class Volatile : public Container {
 		/** Inserts an element in a deque that does not match an existing key. This makes the deque grow.
 
 			\param it_ent	The iterator to the found entity.
-			\param key_hash hash(key) to avoid computing it twice.
+			\param ek		Both hash keys.
 			\param key		The key
 			\param p_block	The block to be put (a copy of it).
 			\param first	An optional parameter to allow inserting from the bottom of the queue, rather than the end.
 		*/
-		inline StatusCode put_in_deque(HashVolXctMap::iterator it_ent, uint64_t key_hash, Name &key, pBlock p_block, bool first = false) {
+		inline StatusCode put_in_deque(HashVolXctMap::iterator it_ent, EntityKeyHash &ek, Name &key, pBlock p_block, bool first = false) {
 
 			pTransaction p_txn;
 			int			 ret;
@@ -388,7 +388,8 @@ class Volatile : public Container {
 			p_txn->p_block = p_new;
 			p_txn->status  = BLOCK_STATUS_READY;
 
-			pVolatileTransaction(p_txn)->key_hash = add_name(key_hash, key);
+			deque_key[ek] = (pVolatileTransaction) p_txn;
+			pVolatileTransaction(p_txn)->key_hash = add_name(ek.key_hash, key);
 
 			if (it_ent->second == nullptr) {
 				it_ent->second = (pVolatileTransaction) p_txn;
