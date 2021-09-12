@@ -113,7 +113,7 @@ StatusCode Volatile::new_volatile() {
 	if (p_buffer == nullptr)
 		return SERVICE_ERROR_NO_MEM;
 
-	p_free	= p_buffer;
+	p_free = p_buffer;
 
 	pVolatileTransaction pt = (pVolatileTransaction) p_buffer;
 
