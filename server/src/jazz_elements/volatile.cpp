@@ -113,15 +113,16 @@ StatusCode Volatile::new_volatile() {
 	if (p_buffer == nullptr)
 		return SERVICE_ERROR_NO_MEM;
 
-	p_alloc = nullptr;
 	p_free	= p_buffer;
 
 	pVolatileTransaction pt = (pVolatileTransaction) p_buffer;
 
 	for (int i = 1; i < max_transactions; i++) {
+		pt->status = BLOCK_STATUS_DESTROYED;
 		pVolatileTransaction l_pt = pt++;
 		l_pt->p_next = pt;
 	}
+	pt->status = BLOCK_STATUS_DESTROYED;
 	pt->p_next = nullptr;
 
 	return SERVICE_NO_ERROR;
@@ -135,15 +136,19 @@ StatusCode Volatile::new_volatile() {
 StatusCode Volatile::destroy_volatile() {
 
 	if (p_buffer != nullptr) {
-		while (p_alloc != nullptr) {
-			pTransaction pt = p_alloc;
-			destroy_transaction(pt);
-		}
+		pVolatileTransaction pt = (pVolatileTransaction) p_buffer;
 
+		for (int i = 0; i < max_transactions; i++) {
+			if (pt->status != BLOCK_STATUS_DESTROYED) {
+				pTransaction p_txn = pt;
+				destroy_transaction(p_txn);
+			}
+			pt++;
+		}
 		free(p_buffer);
 	}
 	alloc_bytes = 0;
-	p_buffer = p_alloc = p_free = nullptr;
+	p_buffer = p_free = nullptr;
 	_lock_ = 0;
 
 	return SERVICE_NO_ERROR;
@@ -184,14 +189,6 @@ StatusCode Volatile::new_transaction(pTransaction &p_txn) {
 	p_txn->status  = BLOCK_STATUS_EMPTY;
 	p_txn->_lock_  = 0;
 	p_txn->p_owner = this;
-
-	pVolatileTransaction(p_txn)->p_next = (pVolatileTransaction) p_alloc;
-	pVolatileTransaction(p_txn)->p_prev = nullptr;
-
-	if (p_alloc != nullptr)
-		pVolatileTransaction(p_alloc)->p_prev = (pVolatileTransaction) p_txn;
-
-	p_alloc = p_txn;
 
 	unlock_container();
 
@@ -235,15 +232,9 @@ void Volatile::destroy_transaction  (pTransaction &p_txn) {
 
 	lock_container();
 
-	if (pVolatileTransaction(p_txn)->p_prev == nullptr)
-		p_alloc = pVolatileTransaction(p_txn)->p_next;
-	else
-		pVolatileTransaction(p_txn)->p_prev->p_next = pVolatileTransaction(p_txn)->p_next;
-
-	if (pVolatileTransaction(p_txn)->p_next != nullptr)
-		pVolatileTransaction(p_txn)->p_next->p_prev = pVolatileTransaction(p_txn)->p_prev;
-
 	pVolatileTransaction(p_txn)->p_next = (pVolatileTransaction) p_free;
+
+	p_txn->status = BLOCK_STATUS_DESTROYED;
 
 	p_free = p_txn;
 	p_txn  = nullptr;
