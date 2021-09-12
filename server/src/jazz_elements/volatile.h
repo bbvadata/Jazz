@@ -928,15 +928,12 @@ class Volatile : public Container {
 		*/
 		inline uint64_t hash(Name &name) {
 
-			bool fill = false;
+			int len = strnlen(name, sizeof(Name));
+			int siz = sizeof(Name) - len;
 
-			for (int i = 0; i < NAME_SIZE; i++) {
-				if (name[i] != 0) {
-					if (fill)
-						name[i] = 0;
-				} else
-					fill = true;
-			}
+			if (siz > 1)
+				memset(&name[len], 0, siz);
+
 			return MurmurHash64A(&name, NAME_SIZE);
 		}
 
