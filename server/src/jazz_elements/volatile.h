@@ -362,35 +362,65 @@ class Volatile : public Container {
 		}
 
 
-		/** Bla
+		/** Inserts an element in a deque that does not match an existing key. This makes the deque grow.
 
-//TODO: Document put_pushing()
-
+			\param it_ent	The iterator to the found entity.
+			\param key_hash hash(key) to avoid computing it twice.
+			\param key		The key
+			\param p_block	The block to be put (a copy of it).
+			\param first	An optional parameter to allow inserting from the bottom of the queue, rather than the end.
 		*/
-		inline StatusCode put_pushing(pVolatileTransaction p_root, pBlock p_block) {
+		inline StatusCode put_in_deque(HashVolXctMap::iterator it_ent, uint64_t key_hash, Name &key, pBlock p_block, bool first = false) {
 
-//TODO: Implement put_pushing()
+			pTransaction p_txn;
+			int			 ret;
 
-			return SERVICE_NOT_IMPLEMENTED;
+			if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
+				return ret;
+
+			pBlock p_new = block_malloc(p_block->total_bytes);
+			if (p_new == nullptr) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NO_MEM;
+			}
+			memcpy(p_new, p_block, p_block->total_bytes);
+			p_txn->p_block = p_new;
+			p_txn->status  = BLOCK_STATUS_READY;
+
+			pVolatileTransaction(p_txn)->key_hash = add_name(key_hash, key);
+
+			if (it_ent->second == nullptr) {
+				it_ent->second = (pVolatileTransaction) p_txn;
+				pVolatileTransaction(p_txn)->p_next = (pVolatileTransaction) p_txn;
+				pVolatileTransaction(p_txn)->p_prev = (pVolatileTransaction) p_txn;
+
+				return SERVICE_NO_ERROR;
+			}
+
+			if (first) {
+				pVolatileTransaction p_2nd  = it_ent->second;
+				pVolatileTransaction p_last = p_2nd->p_prev;
+
+				pVolatileTransaction(p_txn)->p_next = p_2nd;
+				p_2nd->p_prev						= (pVolatileTransaction) p_txn;
+				pVolatileTransaction(p_txn)->p_prev = p_last;
+				p_last->p_next						= (pVolatileTransaction) p_txn;
+
+				it_ent->second = (pVolatileTransaction) p_txn;
+
+				return SERVICE_NO_ERROR;
+			}
+			pVolatileTransaction p_last = it_ent->second->p_prev;
+
+			pVolatileTransaction(p_txn)->p_prev = p_last;
+			it_ent->second->p_prev				= (pVolatileTransaction) p_txn;
+			pVolatileTransaction(p_txn)->p_next = it_ent->second;
+			p_last->p_next						= (pVolatileTransaction) p_txn;
+
+			return SERVICE_NO_ERROR;
 		}
 
-
-		/** Bla
-
-//TODO: Document put_deque_by_key()
-
-		*/
-		inline StatusCode put_deque_by_key(pVolatileTransaction p_root, uint64_t key_hash, Name &key, pBlock p_block, int mode) {
-
-//TODO: Implement put_deque_by_key()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
-		/** Bla
-
-//TODO: Document put_replacing()
 
 		*/
 		inline StatusCode put_replacing(pVolatileTransaction p_replace, pBlock p_block, int mode) {
