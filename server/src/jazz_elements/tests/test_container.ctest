@@ -3351,44 +3351,6 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 
 			REQUIRE(CNT.new_block(pcp, p_st_r6->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 			REQUIRE(pcp == nullptr);
-
-			AttributeMap all_att {};
-
-			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_st_r6->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_st_r6->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_st_r6->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_st_r6->p_block, (pBlock) nullptr, &all_att) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
 		}
 
 		WHEN("I create identical blocks") {
