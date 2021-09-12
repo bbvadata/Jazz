@@ -51,6 +51,10 @@ Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 */
 StatusCode Volatile::start() {
 
+	time_t rawtime;
+	time(&rawtime);
+	key_seed = MurmurHash64A(&rawtime, sizeof(rawtime)) & 0x0fffffFFFFFFFF;
+
 	if (!get_conf_key("VOLATILE_MAX_TRANSACTIONS", max_transactions)) {
 		log(LOG_ERROR, "Config key VOLATILE_MAX_TRANSACTIONS not found in Container::start");
 
