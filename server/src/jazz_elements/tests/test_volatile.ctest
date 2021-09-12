@@ -1189,15 +1189,17 @@ SCENARIO("Strong End-to-end deque tests") {
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~next")	   == SERVICE_ERROR_EMPTY_ENTITY);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~123")		   == SERVICE_ERROR_EMPTY_ENTITY);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~get")		   == SERVICE_ERROR_EMPTY_ENTITY);
+/*
+		REQUIRE(VOL.put((pChar) "//deque/ent_one/something", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/papa~child")   == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/child~parent") == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~prev")	   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~prev")	   == SERVICE_ERROR_BLOCK_NOT_FOUND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~highest")	   == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~xhigh")	   == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~lowest")	   == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~xlow")		   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~next")	   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~next")	   == SERVICE_ERROR_BLOCK_NOT_FOUND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~123")		   == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~get")		   == SERVICE_ERROR_PARSING_COMMAND);
 
@@ -1209,15 +1211,16 @@ SCENARIO("Strong End-to-end deque tests") {
 		REQUIRE(VOL.put((pChar) "//deque/ent_one/key~next",   p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.put((pChar) "//deque/ent_one/~put",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
 
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key_first")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_two/key_first")	   == SERVICE_ERROR_EMPTY_ENTITY);
 
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~first")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~last")		   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~pfirst")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~plast")	   == SERVICE_ERROR_EMPTY_ENTITY);
-
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_two/~first")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_two/~last")		   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_two/~pfirst")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_two/~plast")	   == SERVICE_ERROR_EMPTY_ENTITY);
+*/
 		REQUIRE(VOL.remove((pChar) "//deque/ent_one") == SERVICE_NO_ERROR);
-
+		REQUIRE(VOL.remove((pChar) "//deque/ent_two") == SERVICE_NO_ERROR);
+/*
 		WHEN("We test put()/get()/remove() of keys") {
 			REQUIRE(VOL.new_entity((pChar) "//deque/ent_small") == SERVICE_NO_ERROR);
 			REQUIRE(VOL.new_entity((pChar) "//deque/ent_big") == SERVICE_NO_ERROR);
@@ -1556,6 +1559,7 @@ SCENARIO("Strong End-to-end deque tests") {
 			REQUIRE(VOL.deque_ent.size() == 0);
 			REQUIRE(VOL.deque_key.size() == 0);
 		}
+*/
 		VOL.destroy_transaction(p_tx_pop);
 		VOL.destroy_transaction(p_tx_str);
 		VOL.destroy_transaction(p_tx_chr);
