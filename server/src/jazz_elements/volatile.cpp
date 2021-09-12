@@ -585,23 +585,23 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 		if (mode & WRITE_ONLY_IF_EXISTS)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-		return put_in_deque(it_ent, ek.key_hash, key, p_block); }
+		return put_in_deque(it_ent, ek, key, p_block); }
 
 	case COMMAND_FIRST_10BIT:
 		if (base != BASE_DEQUE_10BIT)
 			return SERVICE_ERROR_PARSING_COMMAND;
 
-		new_key(key);
+		new_key(key);ek.key_hash = hash(key);
 
-		return put_in_deque(it_ent, hash(key), key, p_block, true);
+		return put_in_deque(it_ent, ek, key, p_block, true);
 
 	case COMMAND_LAST_10BIT:
 		if (base != BASE_DEQUE_10BIT)
 			return SERVICE_ERROR_PARSING_COMMAND;
 
-		new_key(key);
+		new_key(key);ek.key_hash = hash(key);
 
-		return put_in_deque(it_ent, hash(key), key, p_block);
+		return put_in_deque(it_ent, ek, key, p_block);
 
 	case COMMAND_PUT_10BIT:
 		if (base != BASE_INDEX_10BIT)
