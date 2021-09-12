@@ -2604,4 +2604,13 @@ SCENARIO("Testing Volatile struc sizes and simple parts") {
 
 	for (int i = 0; i < NAME_SIZE; i++)
 		REQUIRE(nam1[i] == 0);
+
+	std::regex rex("^k[a-f0-9]{14}$");
+
+	Name key;
+
+	for (int i = 0; i < 20; i++) {
+		VOL.new_key(key);
+		REQUIRE(std::regex_match(key, rex));
+	}
 }
