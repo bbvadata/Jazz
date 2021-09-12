@@ -716,19 +716,29 @@ class Volatile : public Container {
 				return SERVICE_NO_ERROR;
 
 			case COMMAND_NEXT_10BIT: {
-				if (base != BASE_TREE_10BIT && base != BASE_DEQUE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
-
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
 
-				if ((it = tree_key.find(ek)) == tree_key.end())
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				switch (base) {
+				case BASE_TREE_10BIT: {
+					if ((it = tree_key.find(ek)) == tree_key.end())
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-				p_txn = it->second->p_next;
-				p_str = nullptr; }
+					p_txn = it->second->p_next;
+					p_str = nullptr; }
 
-				return SERVICE_NO_ERROR;
+					return SERVICE_NO_ERROR;
+
+				case BASE_DEQUE_10BIT: {
+					if ((it = deque_key.find(ek)) == deque_key.end())
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+					p_txn = it->second->p_next;
+					p_str = nullptr; }
+
+					return SERVICE_NO_ERROR;
+				}
+				return SERVICE_ERROR_PARSING_COMMAND; }
 
 			case COMMAND_PREV_10BIT: {
 				if (base != BASE_DEQUE_10BIT)
@@ -737,10 +747,10 @@ class Volatile : public Container {
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
 
-				if ((it = tree_key.find(ek)) == tree_key.end())
+				if ((it = deque_key.find(ek)) == deque_key.end())
 					return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-				p_txn = it->second->p_prev;
+				p_txn = it->second->p_parent;
 				p_str = nullptr; }
 
 				return SERVICE_NO_ERROR;
