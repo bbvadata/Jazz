@@ -308,45 +308,6 @@ class Volatile : public Container {
 
 		/** Bla
 
-//TODO: Document remove_in_deque()
-
-		*/
-		inline StatusCode remove_in_deque(EntityKeyHash ek) {
-
-//TODO: Implement remove_in_deque()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
-		/** Bla
-
-//TODO: Document remove_in_queue()
-
-		*/
-		inline StatusCode remove_in_queue(EntityKeyHash ek) {
-
-//TODO: Implement remove_in_queue()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
-		/** Bla
-
-//TODO: Document remove_in_tree()
-
-		*/
-		inline StatusCode remove_in_tree(EntityKeyHash ek) {
-
-//TODO: Implement remove_in_tree()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
-		/** Bla
-
 //TODO: Document put_tree()
 
 		*/
