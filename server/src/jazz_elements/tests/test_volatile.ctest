@@ -669,7 +669,6 @@ SCENARIO("Strong End-to-end index tests") {
 	REQUIRE(VOL.fail_alloc_bytes > 0);
 	REQUIRE(VOL.alloc_warning_issued == false);
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
@@ -1040,14 +1039,12 @@ SCENARIO("Strong End-to-end index tests") {
 	}
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 
 	REQUIRE(VOL.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(VOL.alloc_bytes == 0);
 	REQUIRE(VOL.p_buffer == nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 }
@@ -1063,7 +1060,6 @@ SCENARIO("Strong End-to-end deque tests") {
 	REQUIRE(VOL.fail_alloc_bytes > 0);
 	REQUIRE(VOL.alloc_warning_issued == false);
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
@@ -1571,14 +1567,12 @@ SCENARIO("Strong End-to-end deque tests") {
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 
 	REQUIRE(VOL.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(VOL.alloc_bytes == 0);
 	REQUIRE(VOL.p_buffer == nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 }
@@ -1594,7 +1588,6 @@ SCENARIO("Strong End-to-end queue tests") {
 	REQUIRE(VOL.fail_alloc_bytes > 0);
 	REQUIRE(VOL.alloc_warning_issued == false);
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
@@ -1811,14 +1804,12 @@ SCENARIO("Strong End-to-end queue tests") {
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 
 	REQUIRE(VOL.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(VOL.alloc_bytes == 0);
 	REQUIRE(VOL.p_buffer == nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 }
@@ -1834,7 +1825,6 @@ SCENARIO("Strong End-to-end tree tests") {
 	REQUIRE(VOL.fail_alloc_bytes > 0);
 	REQUIRE(VOL.alloc_warning_issued == false);
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
@@ -1952,14 +1942,12 @@ SCENARIO("Strong End-to-end tree tests") {
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 
 	REQUIRE(VOL.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(VOL.alloc_bytes == 0);
 	REQUIRE(VOL.p_buffer == nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 }
@@ -1977,7 +1965,6 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	REQUIRE(VOL.fail_alloc_bytes > 0);
 	REQUIRE(VOL.alloc_warning_issued == false);
 	REQUIRE(VOL.p_buffer != nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == VOL.p_buffer);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next == &pVolatileTransaction(VOL.p_buffer)[1]);
 	REQUIRE(pVolatileTransaction(VOL.p_free)->p_next->p_next == &pVolatileTransaction(VOL.p_buffer)[2]);
@@ -1996,8 +1983,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	VOL.max_transactions  = 16;
 	REQUIRE(VOL.new_volatile() == SERVICE_NO_ERROR);
 
-	REQUIRE(VOL.p_alloc  == nullptr);
-	REQUIRE(VOL.p_free	 != nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
 	REQUIRE(VOL.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
 	REQUIRE(p_txn[0] != nullptr);
@@ -2008,8 +1994,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[0]->p_owner == &VOL);
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
-	REQUIRE(VOL.p_alloc != nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
 	REQUIRE(!VOL.alloc_warning_issued);
 	p_txn[0]->p_block = VOL.block_malloc(5000);
@@ -2029,16 +2014,12 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	VOL.destroy_transaction(p_txn[0]);
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
-	REQUIRE(VOL.p_alloc == nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
-	REQUIRE(VOL.p_alloc == nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
 	REQUIRE(VOL.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
-	REQUIRE(VOL.p_alloc != nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
 	p_txn[0]->p_block = VOL.block_malloc(50000);
 	REQUIRE(p_txn[0]->p_block == nullptr);
@@ -2048,8 +2029,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[0] == nullptr);
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
-	REQUIRE(VOL.p_alloc == nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
 	for (int t = 1; t < 17; t++) {
 		for (int i = 0; i < t; i++) {
@@ -2068,8 +2048,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 			VOL.destroy_transaction(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
-		REQUIRE(VOL.p_alloc == nullptr);
-		REQUIRE(VOL.p_free	!= nullptr);
+		REQUIRE(VOL.p_free != nullptr);
 	}
 
 	for (int t = 1; t < 17; t++) {
@@ -2084,8 +2063,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 			VOL.destroy_transaction(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
-		REQUIRE(VOL.p_alloc == nullptr);
-		REQUIRE(VOL.p_free	!= nullptr);
+		REQUIRE(VOL.p_free != nullptr);
 	}
 
 	for (int t = 3; t < 17; t++) {
@@ -2105,8 +2083,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 			VOL.destroy_transaction(p_txn[j]);
 			REQUIRE(p_txn[j] == nullptr);
 		}
-		REQUIRE(VOL.p_alloc == nullptr);
-		REQUIRE(VOL.p_free	!= nullptr);
+		REQUIRE(VOL.p_free != nullptr);
 	}
 
 	for (int i = 0; i < 16; i++) {
@@ -2122,8 +2099,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 		VOL.destroy_transaction(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
-	REQUIRE(VOL.p_alloc == nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 
@@ -2164,8 +2140,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 		VOL.destroy_transaction(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
-	REQUIRE(VOL.p_alloc == nullptr);
-	REQUIRE(VOL.p_free	!= nullptr);
+	REQUIRE(VOL.p_free != nullptr);
 
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 
@@ -2173,7 +2148,6 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 
 	REQUIRE(VOL.alloc_bytes == 0);
 	REQUIRE(VOL.p_buffer == nullptr);
-	REQUIRE(VOL.p_alloc  == nullptr);
 	REQUIRE(VOL.p_free	 == nullptr);
 	REQUIRE(VOL._lock_	 == 0);
 }
