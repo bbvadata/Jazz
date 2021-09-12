@@ -185,7 +185,7 @@ struct Locator {
 
 /// An internal (for Container) Transaction with pointers for a deque
 struct StoredTransaction: Transaction {
-	StoredTransaction *p_prev, *p_next;
+	StoredTransaction *p_next;
 };
 typedef StoredTransaction *pStoredTransaction;
 
