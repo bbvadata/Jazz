@@ -201,7 +201,7 @@ SCENARIO("Testing (container) structure sizes.") {
 	REQUIRE(sizeof(Name)			  == 32);
 	REQUIRE(sizeof(Lock32)			  == 4);
 	REQUIRE(sizeof(Transaction)		  == 24);
-	REQUIRE(sizeof(StoredTransaction) == 40);
+	REQUIRE(sizeof(StoredTransaction) == 32);
 	REQUIRE(sizeof(Locator)			  == 80);
 }
 
@@ -402,7 +402,6 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -420,8 +419,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	CNT.max_transactions  = 16;
 	REQUIRE(CNT.new_container() == SERVICE_NO_ERROR);
 
-	REQUIRE(CNT.p_alloc  == nullptr);
-	REQUIRE(CNT.p_free	 != nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
 	REQUIRE(CNT.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
 	REQUIRE(p_txn[0] != nullptr);
@@ -432,8 +430,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[0]->p_owner == &CNT);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
-	REQUIRE(CNT.p_alloc != nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
 	REQUIRE(!CNT.alloc_warning_issued);
 	p_txn[0]->p_block = CNT.block_malloc(5000);
@@ -453,16 +450,12 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	CNT.destroy_transaction(p_txn[0]);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
-	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
-	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
 	REQUIRE(CNT.new_transaction(p_txn[0]) == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
-	REQUIRE(CNT.p_alloc != nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
 	p_txn[0]->p_block = CNT.block_malloc(50000);
 	REQUIRE(p_txn[0]->p_block == nullptr);
@@ -472,8 +465,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[0] == nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
-	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
 	for (int t = 1; t < 17; t++) {
 		for (int i = 0; i < t; i++) {
@@ -492,8 +484,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 			CNT.destroy_transaction(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
-		REQUIRE(CNT.p_alloc == nullptr);
-		REQUIRE(CNT.p_free	!= nullptr);
+		REQUIRE(CNT.p_free != nullptr);
 	}
 
 	for (int t = 1; t < 17; t++) {
@@ -508,8 +499,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 			CNT.destroy_transaction(p_txn[i]);
 			REQUIRE(p_txn[i] == nullptr);
 		}
-		REQUIRE(CNT.p_alloc == nullptr);
-		REQUIRE(CNT.p_free	!= nullptr);
+		REQUIRE(CNT.p_free != nullptr);
 	}
 
 	for (int t = 3; t < 17; t++) {
@@ -529,8 +519,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 			CNT.destroy_transaction(p_txn[j]);
 			REQUIRE(p_txn[j] == nullptr);
 		}
-		REQUIRE(CNT.p_alloc == nullptr);
-		REQUIRE(CNT.p_free	!= nullptr);
+		REQUIRE(CNT.p_free != nullptr);
 	}
 
 	for (int i = 0; i < 16; i++) {
@@ -546,8 +535,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 		CNT.destroy_transaction(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
-	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
@@ -588,8 +576,7 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 		CNT.destroy_transaction(p_txn[i]);
 		REQUIRE(p_txn[i] == nullptr);
 	}
-	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(CNT.p_free	!= nullptr);
+	REQUIRE(CNT.p_free != nullptr);
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 
@@ -597,7 +584,6 @@ SCENARIO("Stress-testing new_transaction()/destroy_transaction()") {
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -617,7 +603,6 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -631,10 +616,8 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 	REQUIRE(p_txn->status  == BLOCK_STATUS_EMPTY);
 	REQUIRE(p_txn->_lock_  == 0);
 
-	REQUIRE(CNT.p_alloc != nullptr);
 	CNT.destroy_transaction(p_txn);
-	REQUIRE(CNT.p_alloc == nullptr);
-	REQUIRE(p_txn		== nullptr);
+	REQUIRE(p_txn == nullptr);
 
 	WHEN("I force all the possible error conditions, I get nullptr.") {
 		char const *buffer	= "One Two Three Four Five Six Seven";
@@ -2636,14 +2619,12 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -2659,7 +2640,6 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -3053,14 +3033,12 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -3103,7 +3081,6 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -4489,14 +4466,12 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -4512,7 +4487,6 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -4747,14 +4721,12 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -4780,7 +4752,6 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -5454,14 +5425,12 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -5477,7 +5446,6 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -5567,14 +5535,12 @@ SCENARIO("Testing new_block() (7) Create an empty Index block.") {
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
@@ -5590,7 +5556,6 @@ SCENARIO("Testing new_block() (8) Create Tuple from Index") {
 	REQUIRE(CNT.fail_alloc_bytes > 0);
 	REQUIRE(CNT.alloc_warning_issued == false);
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == CNT.p_buffer);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next == &pStoredTransaction(CNT.p_buffer)[1]);
 	REQUIRE(pStoredTransaction(CNT.p_free)->p_next->p_next == &pStoredTransaction(CNT.p_buffer)[2]);
@@ -5859,14 +5824,12 @@ SCENARIO("Testing new_block() (8) Create Tuple from Index") {
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CNT.p_buffer != nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 
 	REQUIRE(CNT.shut_down() == SERVICE_NO_ERROR);
 
 	REQUIRE(CNT.alloc_bytes == 0);
 	REQUIRE(CNT.p_buffer == nullptr);
-	REQUIRE(CNT.p_alloc  == nullptr);
 	REQUIRE(CNT.p_free	 == nullptr);
 	REQUIRE(CNT._lock_	 == 0);
 }
