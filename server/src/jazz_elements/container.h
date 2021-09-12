@@ -464,7 +464,7 @@ class Container : public Service {
 
 		int max_transactions;
 		uint64_t warn_alloc_bytes, fail_alloc_bytes, alloc_bytes;
-		pTransaction p_buffer, p_alloc, p_free;
+		pTransaction p_buffer, p_free;
 		bool alloc_warning_issued;
 
 		Lock32 _lock_;
