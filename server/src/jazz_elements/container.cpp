@@ -628,6 +628,9 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
+	if (att != nullptr && att->size() == 0)
+		att = nullptr;
+
 	if (att	== nullptr) {
 		hea.total_bytes += 2*sizeof(int);
 		hea.num_attributes++;
@@ -883,6 +886,9 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
+	if (att != nullptr && att->size() == 0)
+		att = nullptr;
+
 	if (att	== nullptr) {
 		hea.total_bytes += 2*sizeof(int);
 		hea.num_attributes++;
@@ -1056,6 +1062,9 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	int attrib_diff		   = 0,
 		new_num_attributes = 0;
+
+	if (att != nullptr && att->size() == 0)
+		att = nullptr;
 
 	if (att	!= nullptr) {
 		int new_attrib_bytes = 0;
