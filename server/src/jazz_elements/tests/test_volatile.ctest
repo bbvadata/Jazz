@@ -761,10 +761,15 @@ SCENARIO("Strong End-to-end index tests") {
 
 		REQUIRE(VOL.put((pChar) "//aa/ent_one/~insert", p_tx_str1->p_block, 0) == SERVICE_ERROR_WRONG_BASE);
 
-		REQUIRE(VOL.put((pChar) "//index/ent_one/~insert",	  p_tx_str1->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//index/ent_one/~123",		  p_tx_str1->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//index/ent_one/papa~child", p_tx_str1->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//index/ent_one/key~next",   p_tx_str1->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/~insert",	  p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/~123",		  p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/papa~child", p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/key~next",   p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(VOL.put((pChar) "//index/ent_one/~insert",	  p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/~123",		  p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/papa~child", p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//index/ent_one/key~next",   p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_PARSING_COMMAND);
 
 		REQUIRE(VOL.remove((pChar) "//index/ent_one") == SERVICE_NO_ERROR);
 
@@ -773,11 +778,16 @@ SCENARIO("Strong End-to-end index tests") {
 			REQUIRE(VOL.new_entity((pChar) "//index/ent_two")   == SERVICE_NO_ERROR);
 			REQUIRE(VOL.new_entity((pChar) "//index/ent_three") == SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_pop3", p_tx_pop3->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
-			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_pop9", p_tx_pop9->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
-			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_chr",  p_tx_chr->p_block,  0) == SERVICE_ERROR_BAD_BLOCK);
+			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_pop3", p_tx_pop3->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_pop9", p_tx_pop9->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_chr",  p_tx_chr->p_block,  0) == SERVICE_ERROR_WRITE_FORBIDDEN);
 			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
-			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_str2", p_tx_str2->p_block, 0) == SERVICE_ERROR_BAD_BLOCK);
+			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_str2", p_tx_str2->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_pop3", p_tx_pop3->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_BAD_BLOCK);
+			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_pop9", p_tx_pop9->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_BAD_BLOCK);
+			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_chr",  p_tx_chr->p_block,  WRITE_TENSOR_DATA) == SERVICE_ERROR_BAD_BLOCK);
+			REQUIRE(VOL.put((pChar) "//index/ent_two/p_tx_str2", p_tx_str2->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_BAD_BLOCK);
 
 			REQUIRE(VOL.put((pChar) "//index/ent_one/p_tx_str1", p_tx_str1->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
 
@@ -1134,7 +1144,7 @@ SCENARIO("Strong End-to-end deque tests") {
 
 			REQUIRE(VOL.new_entity((pChar) "//deque/ent_two/~0") == SERVICE_ERROR_PARSING_COMMAND);
 			REQUIRE(VOL.new_entity((pChar) "//deque/ent_two")	 == SERVICE_NO_ERROR);
-			REQUIRE(VOL.new_entity((pChar) "//deque/ent_three/") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//deque/ent_three")	 == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
 				REQUIRE(VOL.deque_ent.size() == 3);
@@ -1154,19 +1164,31 @@ SCENARIO("Strong End-to-end deque tests") {
 
 			REQUIRE(VOL.remove((pChar) "//deque/ent_one")	== SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.index_ent.size() == 2);
+			REQUIRE(VOL.deque_ent.size() == 2);
 
 			REQUIRE(VOL.remove((pChar) "//deque/ent_two")	== SERVICE_NO_ERROR);
 			REQUIRE(VOL.remove((pChar) "//deque/ent_three")	== SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.index_ent.size() == 0);
+			REQUIRE(VOL.deque_ent.size() == 0);
 		}
 		pTransaction p_txn;
 		Locator location;
 
 		REQUIRE(VOL.get(p_txn, (pChar) "//zz/ent_one/key")			 == SERVICE_ERROR_WRONG_BASE);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/papa~child") == SERVICE_ERROR_ENTITY_NOT_FOUND);
-		REQUIRE(VOL.new_entity((pChar) "//deque/ent_one/")			 == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_entity((pChar) "//deque/ent_one")			 == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_entity((pChar) "//deque/ent_two")			 == SERVICE_NO_ERROR);
+
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/papa~child")   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/child~parent") == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~prev")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~highest")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~xhigh")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~lowest")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~xlow")		   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~next")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~123")		   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~get")		   == SERVICE_ERROR_EMPTY_ENTITY);
 
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/papa~child")   == SERVICE_ERROR_PARSING_COMMAND);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/child~parent") == SERVICE_ERROR_PARSING_COMMAND);
