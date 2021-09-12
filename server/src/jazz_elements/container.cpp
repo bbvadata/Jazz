@@ -271,7 +271,7 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 
 	max_transactions = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
-	p_buffer = p_alloc = p_free = nullptr;
+	p_buffer = p_free = nullptr;
 	_lock_ = 0;
 }
 
@@ -457,14 +457,6 @@ StatusCode Container::new_transaction(pTransaction &p_txn) {
 	p_txn->status  = BLOCK_STATUS_EMPTY;
 	p_txn->_lock_  = 0;
 	p_txn->p_owner = this;
-
-	pStoredTransaction(p_txn)->p_next = (pStoredTransaction) p_alloc;
-	pStoredTransaction(p_txn)->p_prev = nullptr;
-
-	if (p_alloc != nullptr)
-		pStoredTransaction(p_alloc)->p_prev = (pStoredTransaction) p_txn;
-
-	p_alloc = p_txn;
 
 	unlock_container();
 
