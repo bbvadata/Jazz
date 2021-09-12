@@ -422,12 +422,28 @@ class Volatile : public Container {
 		}
 
 
+		/** Replaces the block used in a VolatileTransaction without altering any other part of the transaction.
+
+			\param p_replace The VolatileTransaction whose block will be replaced
+			\param p_block	 The new block.
+
+			This does not support Index, it is assumed that the pVolatileTransaction was located by key and the key does not change
+			and therefore, ther is no need to do name[] mingling or destroy_transaction()
 		*/
-		inline StatusCode put_replacing(pVolatileTransaction p_replace, pBlock p_block, int mode) {
+		inline StatusCode put_replace(pVolatileTransaction p_replace, pBlock p_block) {
 
-//TODO: Implement put_replacing()
+			pBlock p_new = block_malloc(p_block->total_bytes);
+			if (p_new == nullptr)
+				return SERVICE_ERROR_NO_MEM;
 
-			return SERVICE_NOT_IMPLEMENTED;
+			alloc_bytes -= p_replace->p_block->total_bytes;
+			free(p_replace->p_block);
+
+			memcpy(p_new, p_block, p_block->total_bytes);
+
+			p_replace->p_block = p_new;
+
+			return SERVICE_NO_ERROR;
 		}
 
 
