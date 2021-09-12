@@ -500,15 +500,9 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 
 	lock_container();
 
-	if (pStoredTransaction(p_txn)->p_prev == nullptr)
-		p_alloc = pStoredTransaction(p_txn)->p_next;
-	else
-		pStoredTransaction(p_txn)->p_prev->p_next = pStoredTransaction(p_txn)->p_next;
-
-	if (pStoredTransaction(p_txn)->p_next != nullptr)
-		pStoredTransaction(p_txn)->p_next->p_prev = pStoredTransaction(p_txn)->p_prev;
-
 	pStoredTransaction(p_txn)->p_next = (pStoredTransaction) p_free;
+
+	p_txn->status = BLOCK_STATUS_DESTROYED;
 
 	p_free = p_txn;
 	p_txn  = nullptr;
