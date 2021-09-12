@@ -704,37 +704,51 @@ StatusCode Volatile::remove(Locator &where) {
 	ek.ent_hash = hash(where.entity);
 
 	if (where.key[0] == 0) {
+		HashVolXctMap::iterator it;
+
 		switch (base) {
-		case BASE_DEQUE_10BIT:
-			if (deque_ent.find(ek.ent_hash) == deque_ent.end())
+		case BASE_DEQUE_10BIT: {
+			if ((it = deque_ent.find(ek.ent_hash)) == deque_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			return remove_deque(ek.ent_hash);
+			pVolatileTransaction p_item = it->second, p_next;
 
-		case BASE_QUEUE_10BIT:
-			if (queue_ent.find(ek.ent_hash) == queue_ent.end())
+			while (p_item != nullptr) {
+				p_next = p_item->p_next == p_item ? nullptr : p_item->p_next;
+				destroy_item(BASE_DEQUE_10BIT, ek.ent_hash, p_item);
+				p_item = p_next;
+			}
+			deque_ent.erase(it); }
+			break;
+
+		case BASE_QUEUE_10BIT: {
+			if ((it = queue_ent.find(ek.ent_hash)) == queue_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			return remove_queue(ek.ent_hash);
+			remove_queue(ek.ent_hash); }
+			break;
 
-		case BASE_TREE_10BIT:
-			if (tree_ent.find(ek.ent_hash) == tree_ent.end())
+		case BASE_TREE_10BIT: {
+			if ((it = tree_ent.find(ek.ent_hash)) == tree_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			return remove_tree(ek.ent_hash);
+			remove_tree(ek.ent_hash); }
+			break;
 
-		case BASE_INDEX_10BIT:
-			if (index_ent.find(ek.ent_hash) == index_ent.end())
+		case BASE_INDEX_10BIT: {
+			if ((it = index_ent.find(ek.ent_hash)) == index_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			pTransaction p_txn = index_ent[ek.ent_hash];
 			destroy_transaction(p_txn);
 
-			index_ent.erase(ek.ent_hash);
+			index_ent.erase(it); }
+			break;
 
-			return SERVICE_NO_ERROR;
+		default:
+			return SERVICE_ERROR_WRONG_BASE;
 		}
-		return SERVICE_ERROR_WRONG_BASE;
+		return SERVICE_NO_ERROR;
 	}
 
 	Name key, second;
@@ -745,40 +759,47 @@ StatusCode Volatile::remove(Locator &where) {
 
 	ek.key_hash = hash(key);
 
+	EntKeyVolXctMap::iterator it_key;
+
 	switch (base) {
-	case BASE_DEQUE_10BIT:
-		if (deque_key.find(ek) == deque_key.end())
+	case BASE_DEQUE_10BIT: {
+		if ((it_key = deque_key.find(ek)) == deque_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		return remove_in_deque(ek);
+		destroy_item(base, ek.ent_hash, it_key->second); }
+		break;
 
-	case BASE_QUEUE_10BIT:
-		if (queue_key.find(ek) == queue_key.end())
+	case BASE_QUEUE_10BIT: {
+		if ((it_key = queue_key.find(ek)) == queue_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		return remove_in_queue(ek);
+		destroy_item(base, ek.ent_hash, it_key->second); }
+		break;
 
-	case BASE_TREE_10BIT:
-		if (tree_key.find(ek) == tree_key.end())
+	case BASE_TREE_10BIT: {
+		if ((it_key = tree_key.find(ek)) == tree_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		return remove_in_tree(ek);
+		destroy_item(base, ek.ent_hash, it_key->second); }
+		break;
 
-	case BASE_INDEX_10BIT:
-		HashVolXctMap::iterator it = index_ent.find(ek.ent_hash);
-		if (it == index_ent.end())
+	case BASE_INDEX_10BIT: {
+		HashVolXctMap::iterator it_ent = index_ent.find(ek.ent_hash);
+		if (it_ent == index_ent.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-		Index::iterator itk = it->second->p_hea->index.find(key);
+		Index::iterator it_itm = it_ent->second->p_hea->index.find(key);
 
-		if (itk == it->second->p_hea->index.end())
+		if (it_itm == it_ent->second->p_hea->index.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		it->second->p_hea->index.erase(itk);
+		it_ent->second->p_hea->index.erase(it_itm); }
+		break;
 
-		return SERVICE_NO_ERROR;
+	default:
+		return SERVICE_ERROR_WRONG_BASE;
 	}
-	return SERVICE_ERROR_WRONG_BASE;
+	return SERVICE_NO_ERROR;
 }
 
 
