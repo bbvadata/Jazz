@@ -482,20 +482,53 @@ class Volatile : public Container {
 		}
 
 
-		/** Destroy and item froman entity.
+		/** Destroy and item from an entity.
 
-			\param base		A the base.
+			\param base		A base.
 			\param ent_hash	A hash of the entity containing the item to be destroyed.
 			\param p_item	The item tom be destroyed.
 
-			\return	SERVICE_NO_ERROR on success or some negative value (error).
+			NOTE: This does not check if the entity and the block already exists, the base is correct, etc. That is done by the caller.
 
 		*/
-		inline StatusCode destroy_item(int base, uint64_t ent_hash, pVolatileTransaction p_item) {
+		inline void destroy_item(int base, uint64_t ent_hash, pVolatileTransaction p_item) {
 
-//TODO: Implement destroy_item()
+			EntityKeyHash ek = {ent_hash, p_item->key_hash};
+			pTransaction  p_txn = p_item;
 
-			return SERVICE_NOT_IMPLEMENTED;
+			switch (base) {
+			case BASE_DEQUE_10BIT: {
+				HashVolXctMap::iterator it_ent = deque_ent.find(ent_hash);
+				if (p_item == it_ent->second) {
+					if (p_item->p_next == p_item)
+						it_ent->second = nullptr;
+					else {
+						p_item->p_next->p_prev = p_item->p_prev;
+						p_item->p_prev->p_next = p_item->p_next;
+						it_ent->second = p_item->p_next;
+					}
+				} else {
+					p_item->p_next->p_prev = p_item->p_prev;
+					p_item->p_prev->p_next = p_item->p_next;
+				}
+				erase_name(ek.key_hash);
+				deque_key.erase(ek);
+				destroy_transaction(p_txn); }
+
+				return;
+
+			case BASE_QUEUE_10BIT:
+				erase_name(ek.key_hash);
+				queue_key.erase(ek);
+				destroy_transaction(p_txn);
+
+				return;
+
+			case BASE_TREE_10BIT:
+				erase_name(ek.key_hash);
+				destroy_transaction(p_txn);
+				tree_key.erase(ek);
+			}
 		}
 
 
