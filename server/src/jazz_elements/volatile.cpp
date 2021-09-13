@@ -515,49 +515,60 @@ StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 */
 StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
-	HashVolXctMap *p_ent_map;
 	int base;
+	EntityKeyHash ek;
+	HashVolXctMap::iterator	it_ent;
+	HashQueueEntMap::iterator it_queue;
+	ek.ent_hash = hash(where.entity);
 
 	switch (base = TenBitsAtAddress(where.base)) {
 	case BASE_DEQUE_10BIT:
 		if (mode & WRITE_TENSOR_DATA)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-		p_ent_map = &deque_ent;
+		it_ent = deque_ent.find(ek.ent_hash);
+
+		if (it_ent == deque_ent.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
 		break;
 
 	case BASE_INDEX_10BIT:
 		if ((mode & WRITE_TENSOR_DATA) == 0)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-		p_ent_map = &index_ent;
+		it_ent = index_ent.find(ek.ent_hash);
+
+		if (it_ent == index_ent.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
 		break;
 
 	case BASE_QUEUE_10BIT:
 		if (mode & WRITE_TENSOR_DATA)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-		p_ent_map = &queue_ent;
+		it_queue = queue_ent.find(ek.ent_hash);
+
+		if (it_queue == queue_ent.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
 		break;
 
 	case BASE_TREE_10BIT:
 		if (mode & WRITE_TENSOR_DATA)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-		p_ent_map = &tree_ent;
+		it_ent = tree_ent.find(ek.ent_hash);
+
+		if (it_ent == tree_ent.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
 		break;
 
 	default:
 		return SERVICE_ERROR_WRONG_BASE;
 	}
-
-	EntityKeyHash ek;
-	ek.ent_hash = hash(where.entity);
-
-	HashVolXctMap::iterator it_ent = p_ent_map->find(ek.ent_hash);
-
-	if (it_ent == p_ent_map->end())
-		return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 	Name key, second;
 	int	 command;
@@ -615,7 +626,7 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 			if (sscanf(second, "%lf", &priority) != 1)
 				return SERVICE_ERROR_PARSING_COMMAND;
 
-			put_queue_insert(it_ent, key, priority, p_block);
+			put_queue_insert(it_queue, key, priority, p_block);
 		}
 		if (base == BASE_TREE_10BIT)
 			return put_tree(ek.ent_hash, second, key, p_block);
