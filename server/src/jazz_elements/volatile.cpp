@@ -715,10 +715,10 @@ StatusCode Volatile::remove(Locator &where) {
 	ek.ent_hash = hash(where.entity);
 
 	if (where.key[0] == 0) {
-		HashVolXctMap::iterator it;
-
 		switch (base) {
 		case BASE_DEQUE_10BIT: {
+			HashVolXctMap::iterator it;
+
 			if ((it = deque_ent.find(ek.ent_hash)) == deque_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
@@ -733,20 +733,25 @@ StatusCode Volatile::remove(Locator &where) {
 			break;
 
 		case BASE_QUEUE_10BIT: {
+			HashQueueEntMap::iterator it;
 			if ((it = queue_ent.find(ek.ent_hash)) == queue_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			remove_queue(ek.ent_hash); }
+			destroy_queue(ek.ent_hash, it->second.p_root);
+
+			queue_ent.erase(it); }
 			break;
 
 		case BASE_TREE_10BIT: {
-			if ((it = tree_ent.find(ek.ent_hash)) == tree_ent.end())
+			if (tree_ent.find(ek.ent_hash) == tree_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			remove_tree(ek.ent_hash); }
 			break;
 
 		case BASE_INDEX_10BIT: {
+			HashVolXctMap::iterator it;
+
 			if ((it = index_ent.find(ek.ent_hash)) == index_ent.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
