@@ -976,19 +976,18 @@ class Volatile : public Container {
 
 		/** Free all the blocks in the sub-tree calling destroy_transaction() recursively.
 
-			\param p_txn The root of the AA subtree from which we the free all the blocks.
+			\param ent_hash The hash of the queue entity being destroyed, required by destroy_item().
+			\param p_txn	The root of the AA subtree from which we the free all the blocks.
 
 			Note: This does not dealloc the tree and should only be used inside destroy_keeprs(). It is NOT thread safe.
 		*/
-		inline void recursive_destroy_queue(pVolatileTransaction &p_txn) {
+		inline void destroy_queue(uint64_t ent_hash, pVolatileTransaction p_txn) {
 
 			if (p_txn != nullptr) {
-				recursive_destroy_queue(p_txn->p_prev);
-				recursive_destroy_queue(p_txn->p_next);
+				destroy_queue(ent_hash, p_txn->p_prev);
+				destroy_queue(ent_hash, p_txn->p_next);
 
-				pTransaction p_txn2 = p_txn;	// Ugly, this should be: destroy_transaction(p_txn)
-				destroy_transaction(p_txn2);
-				p_txn = nullptr;
+				destroy_item(BASE_QUEUE_10BIT, ent_hash, p_txn);
 			}
 		};
 
