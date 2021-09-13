@@ -125,11 +125,29 @@ struct EntityKeyHash {
 };
 
 
+/** \brief QueueEnt: An entity to store a priority queue.
+
+This is the value in a HashQueueEntMap to control queues with individual sizes.
+*/
+struct QueueEnt {
+	int					 queue_size;	///< The maximum number of nodes supported by the queue.
+	int					 queue_use;		///< Number of node inserted.
+	pVolatileTransaction p_root;		///< The root node.
+};
+
+
 /** \brief HashVolXctMap: A map from hashes to pointers to VolatileTransaction.
 
 This map allows locating entity root VolatileTransactions for creating and destroying entities.
 */
 typedef std::map<uint64_t, pVolatileTransaction> HashVolXctMap;
+
+
+/** \brief HashQueueEntMap: A map from hashes to QueueEnt.
+
+This map allows locating entity root VolatileTransactions for creating and destroying queues.
+*/
+typedef std::map<uint64_t, QueueEnt> HashQueueEntMap;
 
 
 /** \brief EntKeyVolXctMap: A map from (entity,key) hashes to pointers to VolatileTransaction.
@@ -1292,7 +1310,8 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 
 		uint64_t		key_seed;
 		HashNameUseMap	name {};
-		HashVolXctMap	deque_ent {}, queue_ent {}, tree_ent {}, index_ent {};
+		HashQueueEntMap queue_ent {};
+		HashVolXctMap	deque_ent {}, tree_ent {}, index_ent {};
 		EntKeyVolXctMap deque_key {}, queue_key {}, tree_key {};
 };
 typedef Volatile *pVolatile;
