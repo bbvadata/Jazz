@@ -354,12 +354,14 @@ class Volatile : public Container {
 		}
 
 
-		/** Bla
+		/** Inserts or replaces an element in a queue. In case the queue is full, the lowest priority node is removed.
 
-//TODO: Document put_queue_insert()
-
+			\param it_queue	The iterator to the found queue.
+			\param key		The key on the new (or existing) block.
+			\param priority	The priority with which the element will be inserted. Not at all if below the lowest priority of a full queue.
+			\param p_block	The block to be put (a copy of it).
 		*/
-		inline StatusCode put_queue_insert(HashVolXctMap::iterator it_ent, Name &key, double priority, pBlock p_block) {
+		inline StatusCode put_queue_insert(HashQueueEntMap::iterator it_queue, Name &key, double priority, pBlock p_block) {
 
 //TODO: Implement put_queue_insert()
 
