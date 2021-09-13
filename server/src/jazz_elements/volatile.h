@@ -300,19 +300,6 @@ class Volatile : public Container {
 
 		/** Bla
 
-//TODO: Document remove_queue()
-
-		*/
-		inline StatusCode remove_queue(uint64_t ent_hash) {
-
-//TODO: Implement remove_queue()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
-		/** Bla
-
 //TODO: Document remove_tree()
 
 		*/
