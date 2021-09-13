@@ -662,14 +662,23 @@ StatusCode Volatile::new_entity(Locator &where) {
 		deque_ent[ent_hash] = nullptr;
 		return SERVICE_NO_ERROR;
 
-	case BASE_QUEUE_10BIT:
+	case BASE_QUEUE_10BIT: {
 		if (queue_ent.find(ent_hash) != queue_ent.end())
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-		queue_ent[ent_hash] = nullptr;
+		Name key, second;
+		int	 command;
+
+		if (!parse_command(key, command, second, where.key, true) || command <= COMMAND_SIZE)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
+		QueueEnt queue = {command - COMMAND_SIZE, 0, nullptr};
+
+		queue_ent[ent_hash] = queue; }
 		return SERVICE_NO_ERROR;
 
 	case BASE_TREE_10BIT:
+
 		if (tree_ent.find(ent_hash) != tree_ent.end())
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
