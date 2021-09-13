@@ -786,7 +786,7 @@ class Volatile : public Container {
 				if (p_root == nullptr)
 					return SERVICE_ERROR_EMPTY_ENTITY;
 
-				p_txn = highest_priority(p_root);
+				p_txn = aat_highest_priority(p_root);
 				p_str = nullptr;
 
 				if (command == COMMAND_XHIGH_10BIT)
@@ -802,7 +802,7 @@ class Volatile : public Container {
 				if (p_root == nullptr)
 					return SERVICE_ERROR_EMPTY_ENTITY;
 
-				p_txn = lowest_priority(p_root);
+				p_txn = aat_lowest_priority(p_root);
 				p_str = nullptr;
 
 				if (command == COMMAND_XLOW_10BIT)
@@ -968,7 +968,7 @@ class Volatile : public Container {
 
 			Note: This should be the only way to break ties when p_item->priority == p_tree->priority.
 		*/
-		inline bool to_left(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+		inline bool aat_to_left(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
 
 			return p_item->priority == p_tree->priority ? (uintptr_t) p_item < (uintptr_t) p_tree : p_item->priority < p_tree->priority;
 		}
@@ -1000,7 +1000,7 @@ class Volatile : public Container {
 
 			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
 		*/
-		inline pVolatileTransaction highest_priority(pVolatileTransaction p_item) {
+		inline pVolatileTransaction aat_highest_priority(pVolatileTransaction p_item) {
 
 			if (p_item != nullptr) {
 				while (p_item->p_next != nullptr)
@@ -1019,7 +1019,7 @@ class Volatile : public Container {
 
 			Note: This does not alter the tree and is thread safe with other reading threads, but incompatible with writing threads.
 		*/
-		inline pVolatileTransaction lowest_priority(pVolatileTransaction p_item) {
+		inline pVolatileTransaction aat_lowest_priority(pVolatileTransaction p_item) {
 
 			if (p_item != nullptr) {
 				while (p_item->p_prev != nullptr)
@@ -1030,29 +1030,29 @@ class Volatile : public Container {
 		};
 
 
-		/** Rebalance the tree after remove().
+		/** Rebalance the tree after aat_remove().
 
-			\param	p_tree The tree resulting of (a recursive step) in remove
+			\param	p_tree The tree resulting of (a recursive step) in aat_remove
 
 			\return The balanced tree
 
-		 Decrease the level of all nodes in this level if necessary, and then skew and split all nodes in the new level.
+			Decrease the level of all nodes in this level if necessary, and then aat_skew and aat_split all nodes in the new level.
 		*/
-		inline pVolatileTransaction rebalance(pVolatileTransaction p_tree) {
+		inline pVolatileTransaction aat_rebalance(pVolatileTransaction p_tree) {
 
-			decrease_level(p_tree);
+			aat_decrease_level(p_tree);
 
-			p_tree = skew(p_tree);
+			p_tree = aat_skew(p_tree);
 			if (p_tree->p_next != nullptr) {
-				p_tree->p_next = skew(p_tree->p_next);
+				p_tree->p_next = aat_skew(p_tree->p_next);
 
 				if (p_tree->p_next->p_next != nullptr)
-					p_tree->p_next->p_next = skew(p_tree->p_next->p_next);
+					p_tree->p_next->p_next = aat_skew(p_tree->p_next->p_next);
 			};
-			p_tree = split(p_tree);
+			p_tree = aat_split(p_tree);
 
 			if (p_tree->p_next != nullptr)
-				p_tree->p_next = split(p_tree->p_next);
+				p_tree->p_next = aat_split(p_tree->p_next);
 
 			return p_tree;
 		}
@@ -1065,7 +1065,7 @@ class Volatile : public Container {
 
 			\return		  True if the node was found in the tree
 		*/
-		inline bool is_in_tree(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+		inline bool aat_is_in_tree(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
 
 			if (p_tree == nullptr || p_item == nullptr)
 				return false;
@@ -1073,35 +1073,35 @@ class Volatile : public Container {
 			if (p_item == p_tree)
 				return true;
 
-			if (to_left(p_item, p_tree))
-				return is_in_tree(p_item, p_tree->p_prev);
+			if (aat_to_left(p_item, p_tree))
+				return aat_is_in_tree(p_item, p_tree->p_prev);
 
-			return is_in_tree(p_item, p_tree->p_next);
+			return aat_is_in_tree(p_item, p_tree->p_next);
 		};
 
 
 		/** Implements the "deep case" of AA tree removal.
 
 			\param p_kill	The node that we are following towards HPLoT found by recursion
-			\param p_parent The parent of p_kill (required to rebalance the tree after every recursive step)
-			\param p_tree	The (never changing) root of the subtree (we want to remove it)
+			\param p_parent The parent of p_kill (required to aat_rebalance the tree after every recursive step)
+			\param p_tree	The (never changing) root of the subtree (we want to aat_remove it)
 			\param p_deep	A variable to store the HPLoT (found in the deepest level, applied in the shallowest)
 
 			\return			The rebalanced HPLoT converted in the new subtree root
 
 			Note: Against what is stated in AA tree literature, it is not always easy to convert an arbitrary node that has to be
-			removed into a leaf. (Many applications only remove high or low priority node and that does not apply then.) When we need
-			to remove a node high in the tree (far away for leaves) skewing the tree to make its predecessor the new root is feasible,
+			removed into a leaf. (Many applications only aat_remove high or low priority node and that does not apply then.) When we need
+			to aat_remove a node high in the tree (far away for leaves) skewing the tree to make its predecessor the new root is feasible,
 			but that still does not solve the problem of removing it. The safest option is removing the HPLoT (Highest Priority to the
 			Left of Tree) which at least will have no successor, rebalancing the tree after removal and inserting it back as the root
 			in replacement of the previous root. That is what is function does.
 		*/
-		inline pVolatileTransaction remove_go_deep(pVolatileTransaction p_kill,
-												   pVolatileTransaction p_parent,
-												   pVolatileTransaction p_tree,
-												   pVolatileTransaction &p_deep) {
+		inline pVolatileTransaction aat_remove_deep(pVolatileTransaction  p_kill,
+													pVolatileTransaction  p_parent,
+													pVolatileTransaction  p_tree,
+													pVolatileTransaction &p_deep) {
 			if (p_kill->p_next != nullptr)
-				p_kill->p_next = remove_go_deep(p_kill->p_next, p_kill, p_tree, p_deep);
+				p_kill->p_next = aat_remove_deep(p_kill->p_next, p_kill, p_tree, p_deep);
 
 			else {
 				if (p_parent == p_tree) {
@@ -1110,7 +1110,7 @@ class Volatile : public Container {
 					p_kill->p_next = p_tree->p_next;
 					p_kill->p_prev = p_tree->p_prev;	// p_kill is the new p_tree
 
-					return rebalance(p_kill);
+					return aat_rebalance(p_kill);
 
 				} else {
 					p_deep = p_kill;					// Save p_kill for the end
@@ -1119,14 +1119,14 @@ class Volatile : public Container {
 				}
 			}
 			if (p_parent != p_tree)
-				return rebalance(p_kill);
+				return aat_rebalance(p_kill);
 
 			else {
 				p_deep->level		 = p_tree->level;
 				p_deep->p_next = p_tree->p_next;
-				p_deep->p_prev = rebalance(p_kill);
+				p_deep->p_prev = aat_rebalance(p_kill);
 
-				return rebalance(p_deep);
+				return aat_rebalance(p_deep);
 			}
 		}
 
@@ -1140,7 +1140,7 @@ class Volatile : public Container {
 
 			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
 		*/
-		inline pVolatileTransaction remove(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
+		inline pVolatileTransaction aat_remove(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
 
 			if (p_tree == nullptr || p_item == nullptr)
 				return p_tree;
@@ -1155,28 +1155,28 @@ class Volatile : public Container {
 
 					else {
 						pVolatileTransaction p_deep = nullptr;
-						return remove_go_deep(p_tree->p_prev, p_tree, p_tree, p_deep);
+						return aat_remove_deep(p_tree->p_prev, p_tree, p_tree, p_deep);
 					}
 				}
 			} else {
-				if (to_left(p_item, p_tree))
-					p_tree->p_prev = remove(p_item, p_tree->p_prev);
+				if (aat_to_left(p_item, p_tree))
+					p_tree->p_prev = aat_remove(p_item, p_tree->p_prev);
 
 				else
-					p_tree->p_next = remove(p_item, p_tree->p_next);
+					p_tree->p_next = aat_remove(p_item, p_tree->p_next);
 			}
 
-			return rebalance(p_tree);
+			return aat_rebalance(p_tree);
 		};
 
 
 		/** Remove links that skip level in an AA subtree
 
-			\param p_item A tree for which we want to remove links that skip levels.
+			\param p_item A tree for which we want to aat_remove links that skip levels.
 
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
-		inline void decrease_level(pVolatileTransaction p_item) {
+		inline void aat_decrease_level(pVolatileTransaction p_item) {
 
 			if (p_item->p_prev == nullptr) {
 				if (p_item->p_next == nullptr)
@@ -1213,14 +1213,14 @@ class Volatile : public Container {
 		};
 
 
-		/** Try to rebalance an AA subtree on its left (prev) side
+		/** Try to aat_rebalance an AA subtree on its left (prev) side
 
 			\param p_item a node representing an AA tree that needs to be rebalanced.
 			\return		  Another node representing the rebalanced AA tree.
 
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
-		inline pVolatileTransaction skew(pVolatileTransaction p_item) {
+		inline pVolatileTransaction aat_skew(pVolatileTransaction p_item) {
 			// rotate p_next if p_prev child has same level
 
 			if (p_item->p_prev != nullptr && p_item->level == p_item->p_prev->level) {
@@ -1236,14 +1236,14 @@ class Volatile : public Container {
 		};
 
 
-		/** Try to rebalance an AA subtree on its right (next) side
+		/** Try to aat_rebalance an AA subtree on its right (next) side
 
 			\param p_item A node representing an AA tree that needs to be rebalanced.
 			\return		  Another node representing the rebalanced AA tree.
 
 			Note: This does alter the tree and requires exclusive access to the AA.
 		*/
-		inline pVolatileTransaction split(pVolatileTransaction p_item) {
+		inline pVolatileTransaction aat_split(pVolatileTransaction p_item) {
 			// rotate p_prev if there are two p_next children on same level
 
 			if (   p_item->p_next != nullptr
@@ -1282,7 +1282,7 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 
 			Note: This is NOT thread safe and should only be used inside public methods providing the safety mechanisms.
 		*/
-		inline pVolatileTransaction insert(pVolatileTransaction p_new, pVolatileTransaction p_tree) {
+		inline pVolatileTransaction aat_insert(pVolatileTransaction p_new, pVolatileTransaction p_tree) {
 			// Do the normal binary tree insertion procedure. Set the result of the
 			// recursive call to the correct child in case a new node was created or the
 			// root of the subtree changes.
@@ -1296,18 +1296,18 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 
 			} else {
 
-				if (to_left(p_new, p_tree))
-					p_tree->p_prev = insert(p_new, p_tree->p_prev);
+				if (aat_to_left(p_new, p_tree))
+					p_tree->p_prev = aat_insert(p_new, p_tree->p_prev);
 
 				else
-					p_tree->p_next = insert(p_new, p_tree->p_next);
+					p_tree->p_next = aat_insert(p_new, p_tree->p_next);
 			}
 
-			// Perform skew and then split.	The conditionals that determine whether or
+			// Perform aat_skew and then aat_split.	The conditionals that determine whether or
 			// not a rotation will occur or not are inside of the procedures, as given above.
 
-			p_tree = skew(p_tree);
-			p_tree = split(p_tree);
+			p_tree = aat_skew(p_tree);
+			p_tree = aat_split(p_tree);
 
 			return p_tree;
 		};
