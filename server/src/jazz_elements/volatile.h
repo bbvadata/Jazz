@@ -1106,7 +1106,7 @@ class Volatile : public Container {
 			else {
 				if (p_parent == p_tree) {
 					p_tree->p_prev = p_kill->p_prev;	// Disconnect p_kill
-					p_kill->level		 = p_tree->level;
+					p_kill->level  = p_tree->level;
 					p_kill->p_next = p_tree->p_next;
 					p_kill->p_prev = p_tree->p_prev;	// p_kill is the new p_tree
 
@@ -1122,7 +1122,7 @@ class Volatile : public Container {
 				return aat_rebalance(p_kill);
 
 			else {
-				p_deep->level		 = p_tree->level;
+				p_deep->level  = p_tree->level;
 				p_deep->p_next = p_tree->p_next;
 				p_deep->p_prev = aat_rebalance(p_kill);
 
