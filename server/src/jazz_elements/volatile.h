@@ -596,41 +596,57 @@ class Volatile : public Container {
 		*/
 		inline StatusCode internal_get(pTransaction &p_txn, pString &p_str, uint64_t &pop_ent, Locator &what) {
 
-			HashVolXctMap *p_ent_map;
 			int base;
+			pVolatileTransaction p_root;
+			EntityKeyHash ek;
+			ek.ent_hash = hash(what.entity);
 
 			pop_ent = 0;
 
 			switch (base = TenBitsAtAddress(what.base)) {
-			case BASE_DEQUE_10BIT:
-				p_ent_map = &deque_ent;
+			case BASE_DEQUE_10BIT: {
+				HashVolXctMap::iterator it_ent = deque_ent.find(ek.ent_hash);
+
+				if (it_ent == deque_ent.end())
+					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+				p_root = it_ent->second; }
+
 				break;
 
-			case BASE_INDEX_10BIT:
-				p_ent_map = &index_ent;
+			case BASE_INDEX_10BIT: {
+				HashVolXctMap::iterator it_ent = index_ent.find(ek.ent_hash);
+
+				if (it_ent == index_ent.end())
+					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+				p_root = it_ent->second; }
+
 				break;
 
-			case BASE_QUEUE_10BIT:
-				p_ent_map = &queue_ent;
+			case BASE_QUEUE_10BIT: {
+				HashQueueEntMap::iterator it_ent = queue_ent.find(ek.ent_hash);
+
+				if (it_ent == queue_ent.end())
+					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+				p_root = it_ent->second.p_root; }
+
 				break;
 
-			case BASE_TREE_10BIT:
-				p_ent_map = &tree_ent;
+			case BASE_TREE_10BIT: {
+				HashVolXctMap::iterator it_ent = tree_ent.find(ek.ent_hash);
+
+				if (it_ent == tree_ent.end())
+					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+				p_root = it_ent->second; }
+
 				break;
 
 			default:
 				return SERVICE_ERROR_WRONG_BASE;
 			}
-
-			EntityKeyHash ek;
-			ek.ent_hash = hash(what.entity);
-
-			HashVolXctMap::iterator it_ent = p_ent_map->find(ek.ent_hash);
-
-			if (it_ent == p_ent_map->end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
-
-			pVolatileTransaction p_root = it_ent->second;
 
 			if (p_root == nullptr)
 				return SERVICE_ERROR_EMPTY_ENTITY;
