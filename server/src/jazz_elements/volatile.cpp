@@ -649,13 +649,13 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 */
 StatusCode Volatile::new_entity(Locator &where) {
 
-	if (where.key[0] != 0)
-		return SERVICE_ERROR_PARSING_COMMAND;
-
 	uint64_t ent_hash = hash(where.entity);
 
 	switch (TenBitsAtAddress(where.base)) {
 	case BASE_DEQUE_10BIT:
+		if (where.key[0] != 0)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
 		if (deque_ent.find(ent_hash) !=  deque_ent.end())
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
@@ -678,6 +678,8 @@ StatusCode Volatile::new_entity(Locator &where) {
 		return SERVICE_NO_ERROR;
 
 	case BASE_TREE_10BIT:
+		if (where.key[0] != 0)
+			return SERVICE_ERROR_PARSING_COMMAND;
 
 		if (tree_ent.find(ent_hash) != tree_ent.end())
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
@@ -686,6 +688,9 @@ StatusCode Volatile::new_entity(Locator &where) {
 		return SERVICE_NO_ERROR;
 
 	case BASE_INDEX_10BIT:
+		if (where.key[0] != 0)
+			return SERVICE_ERROR_PARSING_COMMAND;
+
 		if (index_ent.find(ent_hash) != index_ent.end())
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
