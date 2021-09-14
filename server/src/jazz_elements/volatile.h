@@ -231,6 +231,7 @@ class Volatile : public Container {
 
 		Volatile(pLogger	 a_logger,
 				 pConfigFile a_config);
+	   ~Volatile();
 
 		StatusCode start	();
 		StatusCode shut_down();

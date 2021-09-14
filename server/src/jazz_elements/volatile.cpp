@@ -44,6 +44,10 @@ namespace jazz_elements
 
 Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
+
+Volatile::~Volatile() { destroy_volatile(); }
+
+
 /** \brief Starts the service, checking the configuration and starting the Service.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
@@ -95,12 +99,14 @@ StatusCode Volatile::shut_down() {
 */
 StatusCode Volatile::new_volatile() {
 
-	if (p_buffer != nullptr || max_transactions <= 0)
+	if (p_buffer != nullptr || max_transactions <= 0) {
 #if defined CATCH_TEST
-		destroy_container();
+		destroy_volatile();
 #else
+		log(LOG_ERROR, "new_volatile() called on a running Volatile().");
 		return SERVICE_ERROR_STARTING;
 #endif
+	}
 
 	alloc_bytes = 0;
 
