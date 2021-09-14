@@ -1980,17 +1980,32 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 
 	int	  section = 0;
 	int	  size	  = LOCATOR_SIZE[section];
-	bool  written = false;
+	bool  written = false, number = false;
 	pChar p_out	  = (pChar) &result.base;
 
 	while (true) {
 		switch (char ch = *(p_what++)) {
-		case '0' ... '9':
+		case '~':
+			number = section == 2;
+
+			if (--size < 0)
+				return SERVICE_ERROR_PARSING_NAMES;
+
+			*(p_out++) = ch;
+			written	   = true;
+
+			break;
+
+		case '.':
+			if (!number)
+				return SERVICE_ERROR_PARSING_NUMBERS;
+
 		case 'a' ... 'z':
 		case 'A' ... 'Z':
-		case '-':
 		case '_':
-		case '~':
+			number = false;
+		case '0' ... '9':
+		case '-':
 			if (--size < 0)
 				return SERVICE_ERROR_PARSING_NAMES;
 
@@ -2163,12 +2178,14 @@ void Container::base_names(BaseNames &base_names) {}
 */
 StatusCode Container::new_container() {
 
-	if (p_buffer != nullptr || max_transactions <= 0)
+	if (p_buffer != nullptr || max_transactions <= 0) {
 #if defined CATCH_TEST
 		destroy_container();
 #else
+		log(LOG_ERROR, "new_container() called on a running Container().");
 		return SERVICE_ERROR_STARTING;
 #endif
+	}
 
 	alloc_bytes = 0;
 

@@ -5923,4 +5923,52 @@ SCENARIO("Testing Container::as_locator()") {
 	REQUIRE(strcmp(loc.entity, "game") == 0);
 	REQUIRE(strcmp(loc.key,	   "node0a7ef~node0244e") == 0);
 	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//.ree/game/node0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tr.e/game/node0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tre./game/node0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/.ame/node0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/ga.e/node0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/gam./node0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/game/.ode0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/game/nod.0a7ef~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/game/node0a7e.~node0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/game/node0a7ef~n.de0244e") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//tree/game/node0a7ef~node024.e") == SERVICE_ERROR_PARSING_NUMBERS);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/1.1") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/-1.1") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/-.1") == SERVICE_ERROR_PARSING_NUMBERS);
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/.1") == SERVICE_ERROR_PARSING_NUMBERS);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/node0a7ef~1.2") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "abc") == 0);
+	REQUIRE(strcmp(loc.entity, "def") == 0);
+	REQUIRE(strcmp(loc.key,	   "node0a7ef~1.2") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/node0a7ef~-1.2") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "abc") == 0);
+	REQUIRE(strcmp(loc.entity, "def") == 0);
+	REQUIRE(strcmp(loc.key,	   "node0a7ef~-1.2") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/node0a7ef~.2") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "abc") == 0);
+	REQUIRE(strcmp(loc.entity, "def") == 0);
+	REQUIRE(strcmp(loc.key,	   "node0a7ef~.2") == 0);
+	REQUIRE(loc.p_extra == nullptr);
+
+	REQUIRE(CNT.as_locator(loc, (pChar) "//abc/def/node0a7ef~-.2") == SERVICE_NO_ERROR);
+
+	REQUIRE(strcmp(loc.base,   "abc") == 0);
+	REQUIRE(strcmp(loc.entity, "def") == 0);
+	REQUIRE(strcmp(loc.key,	   "node0a7ef~-.2") == 0);
+	REQUIRE(loc.p_extra == nullptr);
 }
