@@ -2343,13 +2343,45 @@ SCENARIO("Strong End-to-end tree tests") {
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_rea->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_int->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
-		WHEN("We test new_entity()/remove() of entities") {
 
-//TODO: Write tests Tree new_entity()/remove()
+		WHEN("We test new_entity()/remove() of entities") {
+			REQUIRE(VOL.new_entity((pChar) "//tree/ent_one/key") == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.remove	  ((pChar) "//tree/ent_one")	 == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
+			REQUIRE(VOL.tree_ent.size() == 0);
+
+			REQUIRE(VOL.new_entity((pChar) "//tree/ent_one") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.tree_ent.size() == 1);
+
+			REQUIRE(VOL.new_entity((pChar) "//tree/ent_two/~0") == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.new_entity((pChar) "//tree/ent_two")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//tree/ent_three")	== SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.tree_ent.size() == 3);
 
+				Name ent = "ent_two";
+				uint64_t hash = VOL.hash(ent);
+
+				REQUIRE(VOL.tree_ent.find(hash) != VOL.tree_ent.end());
+				REQUIRE(VOL.tree_ent[hash] == nullptr);
+
+				strcpy(ent, "ent_three");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.tree_ent.find(hash) != VOL.tree_ent.end());
+				REQUIRE(VOL.tree_ent[hash] == nullptr);
 			}
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_one") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.tree_ent.size() == 2);
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_two")   == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//tree/ent_three") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.tree_ent.size() == 0);
 		}
 
 	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
