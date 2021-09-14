@@ -195,27 +195,30 @@ below, but, of course, it cannot be written with the brackets.
 Methods in deque
 ----------------
 
-A deque is a key-value store. It is created empty via new_entity() and you can just get(), header(), put(), remove() or copy(). In order
-to access all the blocks in a deque, the key of the first block will be returned by get()ting //deque/entity/~fi{rst}. And the keys of
-any node can be obtained by //deque/entity/key~ne{xt} and //deque/entity/key~pr{ev}. Also, //deque/entity/~la{st} returns the last element.
-Aditionally, //deque/entity/~pf{irst} and //deque/entity/~pl{ast} return the corresponding nodes while removing them. For put() calls
-//deque/entity/~fi{rst} and //deque/entity/~la{st} can also be given and the nodes will be created without keys.
+A deque is a double linked list with a key-value store. It is created empty via new_entity() and you can just get(), header(), put(),
+remove() or copy() by key. You can also put to both //deque/entity/~fi{rst} and //deque/entity/~la{st} and the nodes will be pushed
+to either side of the deque with automatically created keys. Keys can be found using locate() and any node relation command.
+The first and last can be peeked by get()ting //deque/entity/~fi{rst} and //deque/entity/~la{st} or popped with //deque/entity/~pf{irst}
+and //deque/entity/~pl{ast}. Also the list supports //deque/entity/key~ne{xt} and //deque/entity/key~pr{ev} for get(), header()
+and locate() or as the what of copy(), but not for put(), remove() or as the where of copy().
 
 Methods in index
 ----------------
 
 Index both exposes and serializes Index type blocks. An entity inside index is **one single** Index. When get()ting them by key, you get
-the value stored in the Index. To create a new one, just new_entity() //index/name. To populate one, just put() to //index/name/~pu{t}
-with a Tuple of the appropriate Kind. To save one, just get() //index/name/~ge{t}.
+the value stored in the Index. To put a new one, just new_entity() //index/name. To populate one, just put() to //index/name/~pu{t}
+with a Tuple of the appropriate Kind. To save one, just get() //index/name/~ge{t}. Since Index only stores strings, at the levels at which
+the interface expects a block, it must be a block containing just one string.
 
 Methods in queue
 ----------------
 
-A priority queue is implemented as self balanced binary trees. Each time you push a block, you must put() to a key with a priority by
-putting to //queue/name/key~0.977 (where 0.977 can be serialized to a double). The queue is created by new_entity() //queue/name/~5000
-(where 5000 is a mandatory maximum number of nodes). When the queue fills, lower priority nodes are discarded. You can also get()
-to //queue/name/~xh{ighest} (extracting it), //queue/name/~hi{ghest} (leaving it), equivalently: //queue/name/~xl{owest},
-//queue/name/~lo{west}. And you can get() nodes by key as in a deque (if they haven't been pop()ed or been discarded).
+A priority queue is implemented as self balanced binary trees with a maximum number of nodes. The nodes can also be accessed by key.
+Each time you push a block, you must put() to a key with a priority by putting to //queue/name/key~0.977 (where 0.977 is a double).
+The queue is created by new_entity() //queue/name/~5000 (where 5000 is a mandatory maximum number of nodes). When the queue fills, lower
+priority nodes are discarded. You can also get() to //queue/name/~xh{ighest} (extracting it), //queue/name/~hi{ghest} (leaving it),
+equivalently: //queue/name/~xl{owest}, //queue/name/~lo{west}. And you can get() nodes by key as in a deque (if they haven't been pop()ed
+or been discarded).
 
 Methods in tree
 ---------------
