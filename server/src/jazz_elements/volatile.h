@@ -1078,6 +1078,40 @@ class Volatile : public Container {
 		}
 
 
+		/** Free all the blocks in the sub-tree calling destroy_transaction() recursively.
+
+			\param ent_hash The hash of the queue entity being destroyed, required by destroy_item().
+			\param p_txn	The root of the AA subtree from which we the free all the blocks.
+
+		*/
+		inline void destroy_queue(uint64_t ent_hash, pVolatileTransaction p_txn) {
+
+			if (p_txn != nullptr) {
+				destroy_queue(ent_hash, p_txn->p_prev);
+				destroy_queue(ent_hash, p_txn->p_next);
+
+				destroy_item(BASE_QUEUE_10BIT, ent_hash, p_txn);
+			}
+		}
+
+
+		/** Free all the blocks in a tree entity calling destroy_tree() recursively.
+
+			\param ent_hash The hash of the tree entity being destroyed, required by destroy_item().
+			\param p_txn	The root of the subtree from which we the free all the blocks.
+
+		*/
+		inline void destroy_tree(uint64_t ent_hash, pVolatileTransaction p_txn) {
+
+			if (p_txn != nullptr) {
+				destroy_tree(ent_hash, p_txn->p_next);
+				destroy_tree(ent_hash, p_txn->p_child);
+
+				destroy_item(BASE_TREE_10BIT, ent_hash, p_txn);
+			}
+		}
+
+
 		/** Check the relative position (left or right) between an item and a tree for inserting a deleting.
 
 			\param p_item The item that will be inserted or deleted.
@@ -1089,24 +1123,6 @@ class Volatile : public Container {
 
 			return p_item->priority == p_tree->priority ? (uintptr_t) p_item < (uintptr_t) p_tree : p_item->priority < p_tree->priority;
 		}
-
-
-		/** Free all the blocks in the sub-tree calling destroy_transaction() recursively.
-
-			\param ent_hash The hash of the queue entity being destroyed, required by destroy_item().
-			\param p_txn	The root of the AA subtree from which we the free all the blocks.
-
-			Note: This does not dealloc the tree and should only be used inside destroy_keeprs(). It is NOT thread safe.
-		*/
-		inline void destroy_queue(uint64_t ent_hash, pVolatileTransaction p_txn) {
-
-			if (p_txn != nullptr) {
-				destroy_queue(ent_hash, p_txn->p_prev);
-				destroy_queue(ent_hash, p_txn->p_next);
-
-				destroy_item(BASE_QUEUE_10BIT, ent_hash, p_txn);
-			}
-		};
 
 
 		/** Return the highest priority node in the AA subtree without modifying the tree
