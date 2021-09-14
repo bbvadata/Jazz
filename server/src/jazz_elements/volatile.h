@@ -605,10 +605,15 @@ class Volatile : public Container {
 
 				return;
 
-			case BASE_QUEUE_10BIT:
+			case BASE_QUEUE_10BIT: {
+				HashQueueEntMap::iterator it_ent = queue_ent.find(ent_hash);
+
+				it_ent->second.p_root = aat_remove(p_item, it_ent->second.p_root);
+				it_ent->second.queue_use--;
+
 				erase_name(ek.key_hash);
 				queue_key.erase(ek);
-				destroy_transaction(p_txn);
+				destroy_transaction(p_txn); }
 
 				return;
 
