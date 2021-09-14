@@ -1006,9 +1006,6 @@ class Volatile : public Container {
 				return false;
 
 			if (is_put) {
-				if (!valid_name(pc))
-					return false;
-
 				strcpy(second, pc);
 				command = COMMAND_SECOND_ARG;
 
