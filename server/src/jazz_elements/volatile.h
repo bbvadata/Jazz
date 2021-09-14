@@ -360,16 +360,92 @@ class Volatile : public Container {
 
 		/** Inserts or replaces an element in a queue. In case the queue is full, the lowest priority node is removed.
 
-			\param it_queue	The iterator to the found queue.
+			\param ent_hash	The entity hash (that may not even exist).
 			\param key		The key on the new (or existing) block.
 			\param priority	The priority with which the element will be inserted. Not at all if below the lowest priority of a full queue.
 			\param p_block	The block to be put (a copy of it).
+			\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA
+							is the only supported option.
 		*/
-		inline StatusCode put_queue_insert(HashQueueEntMap::iterator it_queue, Name &key, double priority, pBlock p_block) {
+		inline StatusCode put_queue_insert(uint64_t ent_hash, Name &key, double priority, pBlock p_block, int mode) {
+			HashQueueEntMap::iterator it_queue = queue_ent.find(ent_hash);
 
-//TODO: Implement put_queue_insert()
+			if (it_queue == queue_ent.end())
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			return SERVICE_NOT_IMPLEMENTED;
+			EntityKeyHash ek = {ent_hash, hash(key)};
+			EntKeyVolXctMap::iterator it_item = queue_key.find(ek);
+
+			if (it_item != queue_key.end()) {
+				if (mode == WRITE_ONLY_IF_NOT_EXISTS)
+					return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+				pVolatileTransaction p_item = it_item->second;
+
+				pBlock p_new = block_malloc(p_block->total_bytes);
+				if (p_new == nullptr)
+					return SERVICE_ERROR_NO_MEM;
+
+				alloc_bytes -= p_item->p_block->total_bytes;
+				free(p_item->p_block);
+
+				memcpy(p_new, p_block, p_block->total_bytes);
+
+				p_item->status = BLOCK_STATUS_EMPTY;
+
+				it_queue->second.p_root = aat_remove(p_item, it_queue->second.p_root);
+
+				p_item->priority = priority;
+				p_item->times_used++;
+				p_item->p_block = p_new;
+
+				p_item->status = BLOCK_STATUS_READY;
+
+				it_queue->second.p_root = aat_insert(p_item, it_queue->second.p_root);
+
+				queue_key[ek] = p_item;
+
+				return SERVICE_NO_ERROR;
+			}
+			if (mode == WRITE_ONLY_IF_EXISTS)
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+			if (it_queue->second.queue_use == it_queue->second.queue_size) {
+				pVolatileTransaction p_lowest = aat_lowest_priority(it_queue->second.p_root);
+
+				if (p_lowest->priority >= priority)
+					return SERVICE_ERROR_LOW_PRIORITY;
+
+				destroy_item(BASE_QUEUE_10BIT, ent_hash, p_lowest);
+			}
+
+			pTransaction p_txn;
+
+			int ret = new_transaction(p_txn);
+
+			if (ret != SERVICE_NO_ERROR)
+				return ret;
+
+			pBlock p_new = block_malloc(p_block->total_bytes);
+			if (p_new == nullptr) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NO_MEM;
+			}
+			memcpy(p_new, p_block, p_block->total_bytes);
+
+			pVolatileTransaction(p_txn)->priority	= priority;
+			pVolatileTransaction(p_txn)->times_used	= 0;
+			pVolatileTransaction(p_txn)->key_hash	= add_name(ek.key_hash, key);
+			pVolatileTransaction(p_txn)->p_block	= p_new;
+			pVolatileTransaction(p_txn)->status		= BLOCK_STATUS_READY;
+
+			it_queue->second.p_root = aat_insert((pVolatileTransaction) p_txn, it_queue->second.p_root);
+			it_queue->second.queue_use++;
+
+			queue_key[ek] = (pVolatileTransaction) p_txn;
+
+			return SERVICE_NO_ERROR;
 		}
 
 
