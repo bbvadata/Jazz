@@ -287,7 +287,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(key_out, "key")  == 0);
 	REQUIRE(strcmp(parent, "first") == 0);
 
 	key_out[0] = 'x';
@@ -346,7 +346,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
-	REQUIRE(strcmp(parent, "get") == 0);
+	REQUIRE(strcmp(parent, "get")  == 0);
 
 	key_out[0] = 'x';
 	parent[0]  = 'y';
@@ -393,7 +393,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(key_out, "key")  == 0);
 	REQUIRE(strcmp(parent, "xhigh") == 0);
 
 	key_out[0] = 'x';
@@ -545,7 +545,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
-	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(key_out, "key")  == 0);
 	REQUIRE(strcmp(parent, "plast") == 0);
 
 	key_out[0] = 'x';
@@ -584,7 +584,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "key") == 0);
-	REQUIRE(strcmp(parent, "put") == 0);
+	REQUIRE(strcmp(parent, "put")  == 0);
 
 	key_out[0] = 'x';
 	parent[0]  = 'y';
@@ -598,7 +598,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "aabbcc") == 0);
-	REQUIRE(strcmp(parent, "xxyyzz") == 0);
+	REQUIRE(strcmp(parent, "xxyyzz")  == 0);
 
 	key_out[0] = 'x';
 	parent[0]  = 'y';
@@ -612,7 +612,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(command == COMMAND_SECOND_ARG);
 	REQUIRE(command  < COMMAND_SIZE);
 	REQUIRE(strcmp(key_out, "a") == 0);
-	REQUIRE(strcmp(parent, "x") == 0);
+	REQUIRE(strcmp(parent, "x")  == 0);
 
 	key_out[0] = 'x';
 	parent[0]  = 'y';
@@ -856,9 +856,9 @@ SCENARIO("Strong End-to-end index tests") {
 				Locator location;
 				REQUIRE(VOL.locate(location, (pChar) "//index/ent_three/one") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"index")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_three") == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.key,	"one")		 == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"index")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_three") == 0);
+				REQUIRE(strcmp(location.key,	"one")		 == 0);
 			}
 			REQUIRE(VOL.remove((pChar) "//index/ent_three") == SERVICE_NO_ERROR);
 		}
@@ -1290,9 +1290,9 @@ SCENARIO("Strong End-to-end deque tests") {
 
 				REQUIRE(VOL.locate(location, (pChar) "//deque/ent_small/~last") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"deque")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_small") == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.key,	"tx_str")	 == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"deque")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"tx_str")	 == 0);
 
 				REQUIRE(VOL.name.size() == 6);
 				REQUIRE(VOL.deque_ent.size() == 2);
@@ -1317,9 +1317,9 @@ SCENARIO("Strong End-to-end deque tests") {
 
 				REQUIRE(VOL.locate(location, (pChar) "//deque/ent_small/tx_chr~prev") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"deque")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_small") == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.key,	"tx_str")	 == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"deque")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"tx_str")	 == 0);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_small/tx_chr~prev") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
@@ -1327,9 +1327,9 @@ SCENARIO("Strong End-to-end deque tests") {
 
 				REQUIRE(VOL.locate(location, (pChar) "//deque/ent_small/tx_chr~next") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"deque")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_small") == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.key,	"tx_int")	 == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"deque")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"tx_int")	 == 0);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_small/tx_chr~next") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
@@ -1339,15 +1339,15 @@ SCENARIO("Strong End-to-end deque tests") {
 
 				REQUIRE(VOL.locate(location, (pChar) "//deque/ent_small/~last") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"deque")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_small") == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.key,	"tx_tim")	 == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"deque")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"tx_tim")	 == 0);
 
 				REQUIRE(VOL.locate(location, (pChar) "//deque/ent_small/~first") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"deque")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_small") == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.key,	"tx_pop")	 == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"deque")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"tx_pop")	 == 0);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_small/~plast") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
@@ -1404,8 +1404,8 @@ SCENARIO("Strong End-to-end deque tests") {
 
 				REQUIRE(VOL.locate(location, (pChar) "//deque/ent_small/~last") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"deque")	 == SERVICE_NO_ERROR);
-				REQUIRE(strcmp(location.entity, "ent_small") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"deque")	 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
 				REQUIRE(location.key[0] == 'k');
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_small/~pfirst") == SERVICE_NO_ERROR);
