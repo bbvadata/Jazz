@@ -1759,144 +1759,491 @@ SCENARIO("Strong End-to-end queue tests") {
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_rea->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_int->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
-/*
+
 		WHEN("We test new_entity()/remove() of entities") {
 			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/key") == SERVICE_ERROR_PARSING_COMMAND);
 			REQUIRE(VOL.remove	  ((pChar) "//queue/ent_one")	  == SERVICE_ERROR_ENTITY_NOT_FOUND);
 
-			REQUIRE(VOL.deque_ent.size() == 0);
+			REQUIRE(VOL.queue_ent.size() == 0);
 
 			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one")	 	== SERVICE_ERROR_PARSING_COMMAND);
 			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/~1024") == SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.deque_ent.size() == 1);
+			REQUIRE(VOL.queue_ent.size() == 1);
 
 			REQUIRE(VOL.new_entity((pChar) "//queue/ent_two/~0")	== SERVICE_ERROR_PARSING_COMMAND);
 			REQUIRE(VOL.new_entity((pChar) "//queue/ent_two/~1")	== SERVICE_NO_ERROR);
 			REQUIRE(VOL.new_entity((pChar) "//queue/ent_three/~20") == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
-				REQUIRE(VOL.deque_ent.size() == 3);
+				REQUIRE(VOL.queue_ent.size() == 3);
 
 				Name ent = "ent_two";
 				uint64_t hash = VOL.hash(ent);
 
-				REQUIRE(VOL.deque_ent.find(hash) != VOL.deque_ent.end());
-				REQUIRE(VOL.deque_ent[hash] == nullptr);
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   == nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 1);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 0);
 
 				strcpy(ent, "ent_three");
 				hash = VOL.hash(ent);
 
-				REQUIRE(VOL.deque_ent.find(hash) != VOL.deque_ent.end());
-				REQUIRE(VOL.deque_ent[hash] == nullptr);
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   == nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 20);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 0);
 			}
 
 			REQUIRE(VOL.remove((pChar) "//queue/ent_one")	== SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.index_ent.size() == 2);
+			REQUIRE(VOL.queue_ent.size() == 2);
 
 			REQUIRE(VOL.remove((pChar) "//queue/ent_two")	== SERVICE_NO_ERROR);
 			REQUIRE(VOL.remove((pChar) "//queue/ent_three")	== SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.index_ent.size() == 0);
+			REQUIRE(VOL.queue_ent.size() == 0);
 		}
-/*
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
-	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+		pTransaction p_txn;
+		Locator location;
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", true));
-	// REQUIRE(command == COMMAND_JUST_THE_KEY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//zz/ent_one/key")			 == SERVICE_ERROR_WRONG_BASE);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/papa~child") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+		REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/~100")		 == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_entity((pChar) "//queue/ent_two/~10")		 == SERVICE_NO_ERROR);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", false));
-	// REQUIRE(command == COMMAND_CHILD_10BIT);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/papa~child")   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/child~parent") == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key~prev")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~highest")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xhigh")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~lowest")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xlow")		   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key~next")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~123")		   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~get")		   == SERVICE_ERROR_EMPTY_ENTITY);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
-	// REQUIRE(command == COMMAND_SECOND_ARG);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01",   p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01~5", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
-	// REQUIRE(command == COMMAND_NEXT_10BIT);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key01~child")  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key01~parent") == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key01~prev")   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key01~next")   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key02~child")  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key02~parent") == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key02~prev")   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key02~next")   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~123")		   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~get")		   == SERVICE_ERROR_PARSING_COMMAND);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
-	// REQUIRE(command == COMMAND_SECOND_ARG);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~first")	   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~last")		   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~pfirst")	   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~plast")	   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~get")		   == SERVICE_ERROR_PARSING_COMMAND);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
-	// REQUIRE(command == COMMAND_PARENT_10BIT);
+		REQUIRE(VOL.put((pChar) "//aa/ent_one/~insert", p_tx_str->p_block, 0) == SERVICE_ERROR_WRONG_BASE);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", false));
-	// REQUIRE(command == COMMAND_PREV_10BIT);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/~insert",	  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/~first",	  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/~last",	  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/~123",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/papa~child", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01~next", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01~prev", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key02~next", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key02~prev", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/~put",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", false));
-	// REQUIRE(command == COMMAND_FIRST_10BIT);
+		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_two/key_first")	   == SERVICE_ERROR_EMPTY_ENTITY);
 
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", false));
-	// REQUIRE(command == COMMAND_LAST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
-	// REQUIRE(command == COMMAND_GET_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~highest", false));
-	// REQUIRE(command == COMMAND_HIGH_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", false));
-	// REQUIRE(command == COMMAND_XHIGH_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~lowest", false));
-	// REQUIRE(command == COMMAND_LOW_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xlow", false));
-	// REQUIRE(command == COMMAND_XLOW_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", false));
-	// REQUIRE(command == COMMAND_PFIRST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~plast", false));
-	// REQUIRE(command == COMMAND_PLAST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
-	// REQUIRE(command == COMMAND_INSERT_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
-	// REQUIRE(command == COMMAND_PUT_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
-	// REQUIRE(command == COMMAND_SIZE + 123);
+		REQUIRE(VOL.remove((pChar) "//queue/ent_one") == SERVICE_NO_ERROR);
+		REQUIRE(VOL.remove((pChar) "//queue/ent_two") == SERVICE_NO_ERROR);
 
 		WHEN("We test put()/get()/remove() of keys") {
-
-//TODO: Write tests Queue put()/get()/remove()
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/~6") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_two/~25") == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/pop~7",   p_tx_pop->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_WRITE_FORBIDDEN);
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/pop~7",   p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/str~6.6", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/chr~.25", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/int~0",   p_tx_int->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+				REQUIRE(   VOL.put((pChar) "//queue/ent_one/rea~-.5", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS)
+						== SERVICE_ERROR_WRITE_FORBIDDEN);
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/rea~-.5", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/tim~-3",  p_tx_tim->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
+				REQUIRE(VOL.put((pChar) "//queue/ent_two/pop2~5", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_two/str2~4", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_two/chr2~3", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.name.size() == 9);
+				REQUIRE(VOL.queue_ent.size() == 2);
+				REQUIRE(VOL.queue_key.size() == 9);
+
+				Name ent = "ent_one";
+				uint64_t hash = VOL.hash(ent);
+
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   != nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 6);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 6);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/pop") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/str") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/rea") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~highest") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~lowest") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/timH~-9", p_tx_tim->p_block, 0) == SERVICE_ERROR_LOW_PRIORITY);
+
+				REQUIRE(VOL.locate(location, (pChar) "//queue/ent_one/~lowest") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"queue")   == 0);
+				REQUIRE(strcmp(location.entity, "ent_one") == 0);
+				REQUIRE(strcmp(location.key,	"tim")	   == 0);
+
+				REQUIRE(VOL.put((pChar) "//queue/ent_one/timH~9", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.locate(location, (pChar) "//queue/ent_one/~lowest") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"queue")   == 0);
+				REQUIRE(strcmp(location.entity, "ent_one") == 0);
+				REQUIRE(strcmp(location.key,	"rea")	   == 0);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~lowest") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.locate(location, (pChar) "//queue/ent_one/~highest") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"queue")   == 0);
+				REQUIRE(strcmp(location.entity, "ent_one") == 0);
+				REQUIRE(strcmp(location.key,	"timH")	   == 0);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xhigh") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.locate(location, (pChar) "//queue/ent_one/~highest") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"queue")   == 0);
+				REQUIRE(strcmp(location.entity, "ent_one") == 0);
+				REQUIRE(strcmp(location.key,	"pop")	   == 0);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xhigh") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xhigh") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xlow") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xlow") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xlow") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xlow") == SERVICE_ERROR_EMPTY_ENTITY);
+
+				strcpy(ent, "ent_one");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   == nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 6);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 0);
+
+				strcpy(ent, "ent_two");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   != nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 25);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 3);
+
+				REQUIRE(VOL.put((pChar) "//queue/ent_two/pop2~5", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.put((pChar) "//queue/ent_two/str2~4", p_tx_str->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_NO_ERROR);
+				REQUIRE(   VOL.put((pChar) "//queue/ent_two/chr2~3", p_tx_chr->p_block, WRITE_ONLY_IF_NOT_EXISTS)
+						== SERVICE_ERROR_WRITE_FORBIDDEN);
+
+				REQUIRE(VOL.locate(location, (pChar) "//queue/ent_two/str2") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"queue")   == 0);
+				REQUIRE(strcmp(location.entity, "ent_two") == 0);
+				REQUIRE(strcmp(location.key,	"str2")	   == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//queue/ent_two/~high") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"queue")   == 0);
+				REQUIRE(strcmp(location.entity, "ent_two") == 0);
+				REQUIRE(strcmp(location.key,	"pop2")	   == 0);
+
+				strcpy(ent, "ent_two");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   != nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 25);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 3);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_two/pop2") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.remove((pChar) "//queue/ent_two/pop2") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_two/pop2") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.remove((pChar) "//queue/ent_two/pop2") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(VOL.remove((pChar) "//queue/ent_two/str2") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_two/str2") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.remove((pChar) "//queue/ent_two/str2") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(VOL.remove((pChar) "//queue/ent_two/whatnot") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.remove((pChar) "//queue/ent_four/str2") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.remove((pChar) "//qq/ent_two/str2") == SERVICE_ERROR_WRONG_BASE);
+
+				strcpy(ent, "ent_two");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   != nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 25);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 1);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_two/~xhigh") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_two/~xhigh") == SERVICE_ERROR_EMPTY_ENTITY);
+
+				strcpy(ent, "ent_two");
+				hash = VOL.hash(ent);
+
+				REQUIRE(VOL.queue_ent.find(hash) != VOL.queue_ent.end());
+				REQUIRE(VOL.queue_ent[hash].p_root	   == nullptr);
+				REQUIRE(VOL.queue_ent[hash].queue_size == 25);
+				REQUIRE(VOL.queue_ent[hash].queue_use  == 0);
 			}
-		}
+			REQUIRE(VOL.remove((pChar) "//queue/ent_one") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//queue/ent_two") == SERVICE_NO_ERROR);
 
+			REQUIRE(VOL.name.size() == 0);
+			REQUIRE(VOL.queue_ent.size() == 0);
+			REQUIRE(VOL.queue_key.size() == 0);
+		}
 		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_one/~50") == SERVICE_NO_ERROR);
 
-//TODO: Write tests Queue get(2)/get(3)/head(1)/head(2)
-
-			THEN("We get expected structure") {
-
-			}
-		}
-
-		WHEN("We try serializing and populating Queue entities") {
-
-//TODO: Write tests Queue serializing and populating
+			REQUIRE(VOL.put((pChar) "//queue/ent_one/pop~5", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_one/rea~4", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_one/txt~3", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_one/int~2", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_one/tim~1", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/pop") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				REQUIRE(p_txn->p_block->rank == 1);
 
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].dim[0] == 5);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].dim[0] == 5);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/pop", (pChar) "item_name") == SERVICE_ERROR_WRONG_NAME);
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/pop", (pChar) "value") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 5);
+				REQUIRE(p_txn->p_block->rank == 1);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/rea", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+				REQUIRE(p_txn->p_block->size == 8);
+				REQUIRE(p_txn->p_block->rank == 2);
+				REQUIRE(p_txn->p_block->tensor.cell_double[0] == 1.23);
+				REQUIRE(p_txn->p_block->tensor.cell_double[1] == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/tim", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+				REQUIRE(p_txn->p_block->size == 2);
+				REQUIRE(p_txn->p_block->rank == 2);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/int", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(p_txn->p_block->size == 16);
+				REQUIRE(p_txn->p_block->rank == 2);
+				REQUIRE(p_txn->p_block->tensor.cell_int[0] == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_int[1] == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/txt", p_tx_rea->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/int", (pChar) "value") == SERVICE_ERROR_WRONG_TYPE);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xhigh", (pChar) "key") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 5);
+				REQUIRE(p_txn->p_block->rank == 1);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~xhigh", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+				REQUIRE(p_txn->p_block->size == 8);
+				REQUIRE(p_txn->p_block->rank == 2);
+				REQUIRE(p_txn->p_block->tensor.cell_double[0] == 1.23);
+				REQUIRE(p_txn->p_block->tensor.cell_double[1] == 0);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/tim") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+				REQUIRE(p_txn->p_block->size == 20);
+				REQUIRE(p_txn->p_block->rank == 2);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/~xlow") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+				REQUIRE(p_txn->p_block->size == 20);
+				REQUIRE(p_txn->p_block->rank == 2);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.header(p_txn, (pChar) "//queue/oops/oops") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
+				StaticBlockHeader hea;
+
+				REQUIRE(VOL.header(hea, (pChar) "//queue/ent_one/txt") == SERVICE_NO_ERROR);
+				REQUIRE(hea.cell_type == CELL_TYPE_STRING);
+				REQUIRE(hea.size == 3);
+				REQUIRE(hea.rank == 1);
+
+				REQUIRE(VOL.header(hea, (pChar) "//queue/ent_one/int") == SERVICE_NO_ERROR);
+				REQUIRE(hea.cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(hea.size == 160);
+				REQUIRE(hea.rank == 2);
+
+				REQUIRE(VOL.header(hea, (pChar) "//queue/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.header(hea, (pChar) "//queue/oops/oops") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
+				REQUIRE(VOL.header(hea, (pChar) "//queue/ent_one/~xhigh") == SERVICE_NO_ERROR);
+				REQUIRE(hea.cell_type == CELL_TYPE_STRING);
+				REQUIRE(hea.size == 3);
+				REQUIRE(hea.rank == 1);
+
+				REQUIRE(VOL.header(hea, (pChar) "//queue/ent_one/~xlow") == SERVICE_NO_ERROR);
+				REQUIRE(hea.cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(hea.size == 160);
+				REQUIRE(hea.rank == 2);
+
+				REQUIRE(VOL.header(hea, (pChar) "//queue/ent_one/~xlow") == SERVICE_ERROR_EMPTY_ENTITY);
 			}
+			REQUIRE(VOL.remove((pChar) "//queue/ent_one") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.name.size() == 0);
+			REQUIRE(VOL.queue_ent.size() == 0);
+			REQUIRE(VOL.queue_key.size() == 0);
 		}
 
 		WHEN("We test copy") {
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_source/~50") == SERVICE_NO_ERROR);
 
-//TODO: Write tests Queue copy
+			REQUIRE(VOL.put((pChar) "//queue/ent_source/pop~5", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_source/rea~4", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_source/txt~3", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//queue/ent_source/tim~2", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.new_entity((pChar) "//queue/ent_dest/~20") == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_pop") == SERVICE_ERROR_EMPTY_ENTITY);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/copy_pop~1", (pChar) "//queue/ent_source/pop") == SERVICE_NO_ERROR);
 
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/bla_bla") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_pop") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_rea") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/copy_rea~2", (pChar) "//queue/ent_source/rea") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_rea") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_txt") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/copy_txt~3", (pChar) "//queue/ent_source/txt") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_txt") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/copy_tim~4", (pChar) "//queue/ent_source/tim") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/copy_tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_source/~lowest") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_source/tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/more_tim~5", (pChar) "//queue/ent_source/~xlow") == SERVICE_NO_ERROR);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_dest/more_tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_source/tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/more_tim~5", (pChar) "//queue/ent_source/~xhigh") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/more_tim~5", (pChar) "//queue/ent_source/~xhigh") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/more_tim~5", (pChar) "//queue/ent_source/~xhigh") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//queue/ent_dest/more_tim~5", (pChar) "//queue/ent_source/~xhigh") == SERVICE_ERROR_EMPTY_ENTITY);
 			}
+			REQUIRE(VOL.remove((pChar) "//queue/ent_source") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//queue/ent_dest")	 == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.name.size() == 0);
+			REQUIRE(VOL.queue_ent.size() == 0);
+			REQUIRE(VOL.queue_key.size() == 0);
 		}
-*/
 		VOL.destroy_transaction(p_tx_pop);
 		VOL.destroy_transaction(p_tx_str);
 		VOL.destroy_transaction(p_tx_chr);
