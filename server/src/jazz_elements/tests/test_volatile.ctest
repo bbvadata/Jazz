@@ -627,6 +627,50 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	parent[0]  = 'y';
 	command	   = -1;
 
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~123", true));
+
+	REQUIRE(command == COMMAND_SECOND_ARG);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "key") == 0);
+	REQUIRE(strcmp(parent, "123")  == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "keys~0", true));
+
+	REQUIRE(command == COMMAND_SECOND_ARG);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "keys") == 0);
+	REQUIRE(strcmp(parent, "0") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "keyA~1.1", true));
+
+	REQUIRE(command == COMMAND_SECOND_ARG);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "keyA") == 0);
+	REQUIRE(strcmp(parent, "1.1") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
+	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "keyK~-2", true));
+
+	REQUIRE(command == COMMAND_SECOND_ARG);
+	REQUIRE(command  < COMMAND_SIZE);
+	REQUIRE(strcmp(key_out, "keyK") == 0);
+	REQUIRE(strcmp(parent, "-2") == 0);
+
+	key_out[0] = 'x';
+	parent[0]  = 'y';
+	command	   = -1;
+
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~123", false));
 	REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
 
@@ -640,22 +684,17 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	command	   = -1;
 
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~123", false));
-	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~123", true));
-
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~0", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~0", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~0", false));
-	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~0", true));
 
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~1.1", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~1.1", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~1.1", false));
-	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~1.1", true));
 
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~-2", false));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "~-2", true));
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~-2", false));
-	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~-2", true));
 }
 
 
