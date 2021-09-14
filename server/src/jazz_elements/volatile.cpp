@@ -524,7 +524,6 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 	int base;
 	EntityKeyHash ek;
 	HashVolXctMap::iterator	it_ent;
-	HashQueueEntMap::iterator it_queue;
 	ek.ent_hash = hash(where.entity);
 
 	switch (base = TenBitsAtAddress(where.base)) {
@@ -553,11 +552,6 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 	case BASE_QUEUE_10BIT:
 		if (mode & WRITE_TENSOR_DATA)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
-
-		it_queue = queue_ent.find(ek.ent_hash);
-
-		if (it_queue == queue_ent.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		break;
 
@@ -632,7 +626,7 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 			if (sscanf(second, "%lf", &priority) != 1)
 				return SERVICE_ERROR_PARSING_COMMAND;
 
-			put_queue_insert(it_queue, key, priority, p_block);
+			return put_queue_insert(ek.ent_hash, key, priority, p_block, mode);
 		}
 		if (base == BASE_TREE_10BIT)
 			return put_tree(ek.ent_hash, second, key, p_block);
