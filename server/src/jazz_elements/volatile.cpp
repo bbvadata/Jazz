@@ -787,21 +787,21 @@ StatusCode Volatile::remove(Locator &where) {
 		if ((it_key = deque_key.find(ek)) == deque_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		destroy_item(base, ek.ent_hash, it_key->second); }
+		destroy_item(BASE_DEQUE_10BIT, ek.ent_hash, it_key->second); }
 		break;
 
 	case BASE_QUEUE_10BIT: {
 		if ((it_key = queue_key.find(ek)) == queue_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		destroy_item(base, ek.ent_hash, it_key->second); }
+		destroy_item(BASE_QUEUE_10BIT, ek.ent_hash, it_key->second); }
 		break;
 
 	case BASE_TREE_10BIT: {
 		if ((it_key = tree_key.find(ek)) == tree_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		destroy_item(base, ek.ent_hash, it_key->second); }
+		destroy_item(BASE_TREE_10BIT, ek.ent_hash, it_key->second); }
 		break;
 
 	case BASE_INDEX_10BIT: {
