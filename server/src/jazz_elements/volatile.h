@@ -223,10 +223,13 @@ or been discarded).
 Methods in tree
 ---------------
 
-When a tree is created empty, new_entity() //tree/name/, the first node pushed must have just a key and is the only node without
-a parent. Any node is created by put()ing to //tree/name/key~parentname (where parentname must exist). All nodes support querying keys to
-their parent, siblings and first child via: get() //tree/name/key~pa{rent}, //tree/name/key~ne{xt}, //tree/name/key~ch{ild}.
-The root node can be retrieved with get() //tree/entity/~first.
+A tree is created empty, new_entity() //tree/name/ Nodes are pushed with their parent key by put()ing to //tree/name/key~parentname
+(where parentname must exist). The only exception is the empty tree, it can be started by either a push with just a key or a push
+with a parent name that will be ignored. E.g., //tree/name/key~void. All nodes support get()/header()/locate() by //tree/name/key or by
+//tree/name/key~pa{rent}, //tree/name/key~ne{xt}, //tree/name/key~ch{ild}. The root node can be get()/header()/locate() by
+//tree/name/~first. put() only supports an existing parent. Remove //tree/name/key removes a whole subtree, all the descendants and the
+node itself. Remove //tree/name removes the whole entity.
+
 */
 class Volatile : public Container {
 
