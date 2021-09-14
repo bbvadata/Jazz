@@ -628,8 +628,11 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 			return put_queue_insert(ek.ent_hash, key, priority, p_block, mode);
 		}
-		if (base == BASE_TREE_10BIT)
-			return put_tree(ek.ent_hash, second, key, p_block);
+		if (base == BASE_TREE_10BIT) {
+			ek.key_hash = hash(key);
+
+			return put_in_tree(it_ent, ek, key, second, p_block);
+		}
 
 		return SERVICE_ERROR_PARSING_COMMAND;
 
