@@ -109,14 +109,16 @@ without global variables.
 #define SERVICE_ERROR_WRITE_FORBIDDEN	-13		///< Conflict with a block existing and the argument mode in a put()
 #define SERVICE_ERROR_WRITE_FAILED		-14		///< put() failed
 #define SERVICE_ERROR_REMOVE_FAILED		-15		///< remove() failed (either on a key or an entity)
-#define SERVICE_ERROR_BLOCK_NOT_FOUND	-16		///< get() failed (either on a key or an entity)
+#define SERVICE_ERROR_BLOCK_NOT_FOUND	-16		///< get() failed on a key
 #define SERVICE_ERROR_CREATE_FAILED		-17		///< new_entity() failed
-#define SERVICE_ERROR_PARSING_NAMES		-18		///< Error with format in Container.as_locator().
-#define SERVICE_ERROR_TOO_DEEP			-19		///< Error recursion limit reached.
-#define SERVICE_ERROR_WRONG_BASE		-20		///< Base is not supported by the container.
-#define SERVICE_ERROR_PARSING_COMMAND	-21		///< Error with format in Volatile.parse_command().
-#define SERVICE_ERROR_EMPTY_ENTITY		-22		///< Trying to get from an empty entity in Volatile.
-#define SERVICE_ERROR_ENTITY_NOT_FOUND	-23		///< get() failed (either on a key or an entity)
+#define SERVICE_ERROR_PARSING_NAMES		-18		///< Error with format in Container.as_locator() with anything except decimal point
+#define SERVICE_ERROR_PARSING_NUMBERS	-19		///< Error with format in Container.as_locator() with decimal point only in a number
+#define SERVICE_ERROR_TOO_DEEP			-20		///< Error recursion limit reached.
+#define SERVICE_ERROR_WRONG_BASE		-21		///< Base is not supported by the container.
+#define SERVICE_ERROR_PARSING_COMMAND	-22		///< Error with format in Volatile.parse_command().
+#define SERVICE_ERROR_EMPTY_ENTITY		-23		///< Trying to get from an empty entity in Volatile.
+#define SERVICE_ERROR_ENTITY_NOT_FOUND	-24		///< get() failed on an entity
+#define SERVICE_ERROR_LOW_PRIORITY		-25		///< put() to a full queue failed because priority is lower than lowest in queue.
 
 
 /** Default path to config file
