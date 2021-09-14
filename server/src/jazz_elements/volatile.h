@@ -305,32 +305,6 @@ class Volatile : public Container {
 		}
 
 
-		/** Bla
-
-//TODO: Document remove_tree()
-
-		*/
-		inline StatusCode remove_tree(uint64_t ent_hash) {
-
-//TODO: Implement remove_tree()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
-		/** Bla
-
-//TODO: Document put_tree()
-
-		*/
-		inline StatusCode put_tree(uint64_t ent_hash, Name &parent, Name &key, pBlock p_block) {
-
-//TODO: Implement put_tree()
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-
 		/** Populate an Index with the content of a Tuple of (text, text)
 
 			\param index	Some **destination** Index
@@ -508,6 +482,64 @@ class Volatile : public Container {
 			it_ent->second->p_prev				= (pVolatileTransaction) p_txn;
 			pVolatileTransaction(p_txn)->p_next = it_ent->second;
 			p_last->p_next						= (pVolatileTransaction) p_txn;
+
+			return SERVICE_NO_ERROR;
+		}
+
+
+		/** Inserts an element in a tree.
+
+			\param it_ent	The iterator to the found entity.
+			\param ek		Both hash keys.
+			\param key		The key
+			\param parent	The parent key the must exist unless the tree entity is empty, in which case it should be ~void
+			\param p_block	The block to be put (a copy of it).
+		*/
+		inline StatusCode put_in_tree(HashVolXctMap::iterator it_ent, EntityKeyHash &ek, Name &key, Name &parent, pBlock p_block) {
+
+			pVolatileTransaction p_root, p_parent = nullptr, p_next = nullptr;;
+
+			if ((p_root = it_ent->second) != nullptr) {
+				EntityKeyHash parent_ek = {ek.ent_hash, hash(parent)};
+
+				EntKeyVolXctMap::iterator it;
+
+				if ((it = tree_key.find(parent_ek)) == tree_key.end())
+					return SERVICE_ERROR_PARENT_NOT_FOUND;
+
+				p_parent = it->second;
+				p_next	 = p_parent->p_next;
+			}
+
+			pTransaction p_txn;
+			int			 ret;
+
+			if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
+				return ret;
+
+			pBlock p_new = block_malloc(p_block->total_bytes);
+			if (p_new == nullptr) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NO_MEM;
+			}
+			memcpy(p_new, p_block, p_block->total_bytes);
+			p_txn->p_block = p_new;
+			p_txn->status  = BLOCK_STATUS_READY;
+
+			tree_key[ek] = (pVolatileTransaction) p_txn;
+
+			pVolatileTransaction(p_txn)->p_parent	= p_parent;
+			pVolatileTransaction(p_txn)->p_child	= nullptr;
+			pVolatileTransaction(p_txn)->p_next		= p_next;
+			pVolatileTransaction(p_txn)->num_wins	= 0;
+			pVolatileTransaction(p_txn)->num_visits	= 0;
+			pVolatileTransaction(p_txn)->key_hash	= add_name(ek.key_hash, key);
+
+			if (p_root == nullptr)
+				it_ent->second = (pVolatileTransaction) p_txn;
+			else
+				it_ent->second->p_child = (pVolatileTransaction) p_txn;
 
 			return SERVICE_NO_ERROR;
 		}
