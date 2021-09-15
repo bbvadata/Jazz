@@ -2383,7 +2383,7 @@ SCENARIO("Strong End-to-end tree tests") {
 
 			REQUIRE(VOL.tree_ent.size() == 0);
 		}
-/*
+
 		pTransaction p_txn;
 		Locator location;
 
@@ -2403,96 +2403,32 @@ SCENARIO("Strong End-to-end tree tests") {
 		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~123")		  == SERVICE_ERROR_EMPTY_ENTITY);
 		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~get")		  == SERVICE_ERROR_EMPTY_ENTITY);
 
-		REQUIRE(VOL.put((pChar) "//tree/ent_one/something", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/key_first") == SERVICE_ERROR_EMPTY_ENTITY);
 
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/papa~child")   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/child~parent") == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/key~prev")	  == SERVICE_ERROR_BLOCK_NOT_FOUND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~highest")	  == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~xhigh")		  == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~lowest")	  == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~xlow")		  == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/key~next")	  == SERVICE_ERROR_BLOCK_NOT_FOUND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~123")		  == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~get")		  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/something", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.put((pChar) "//tree/ent_two/some~void", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/key~prev") == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~highest") == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~xhigh")	  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~lowest")  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~xlow")	  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~123")	  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~get")	  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~last")	  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~pfirst")  == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~plast")	  == SERVICE_ERROR_PARSING_COMMAND);
 
 		REQUIRE(VOL.put((pChar) "//aa/ent_one/~insert", p_tx_str->p_block, 0) == SERVICE_ERROR_WRONG_BASE);
 
-		REQUIRE(VOL.put((pChar) "//tree/ent_one/~insert",	  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//tree/ent_one/~123",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//tree/ent_one/papa~child", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//tree/ent_one/key~next",   p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(VOL.put((pChar) "//tree/ent_one/~put",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/key_first")	   == SERVICE_ERROR_EMPTY_ENTITY);
-
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~first")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~last")		   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~pfirst")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/~plast")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/~insert",	 p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/~123",		 p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/papa~child", p_tx_str->p_block, 0) == SERVICE_ERROR_PARENT_NOT_FOUND);
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/key~next",   p_tx_str->p_block, 0) == SERVICE_ERROR_PARENT_NOT_FOUND);
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/~put",		 p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
 
 		REQUIRE(VOL.remove((pChar) "//tree/ent_one") == SERVICE_NO_ERROR);
 		REQUIRE(VOL.remove((pChar) "//tree/ent_two") == SERVICE_NO_ERROR);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", false));
-	// REQUIRE(command == COMMAND_JUST_THE_KEY);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key", true));
-	// REQUIRE(command == COMMAND_JUST_THE_KEY);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", false));
-	// REQUIRE(command == COMMAND_CHILD_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "papa~child", true));
-	// REQUIRE(command == COMMAND_SECOND_ARG);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", false));
-	// REQUIRE(command == COMMAND_NEXT_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~next", true));
-	// REQUIRE(command == COMMAND_SECOND_ARG);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "child~parent", false));
-	// REQUIRE(command == COMMAND_PARENT_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "key~prev", false));
-	// REQUIRE(command == COMMAND_PREV_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~first", false));
-	// REQUIRE(command == COMMAND_FIRST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~last", false));
-	// REQUIRE(command == COMMAND_LAST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~get", false));
-	// REQUIRE(command == COMMAND_GET_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~highest", false));
-	// REQUIRE(command == COMMAND_HIGH_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xhigh", false));
-	// REQUIRE(command == COMMAND_XHIGH_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~lowest", false));
-	// REQUIRE(command == COMMAND_LOW_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~xlow", false));
-	// REQUIRE(command == COMMAND_XLOW_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~pfirst", false));
-	// REQUIRE(command == COMMAND_PFIRST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~plast", false));
-	// REQUIRE(command == COMMAND_PLAST_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~insert", true));
-	// REQUIRE(command == COMMAND_INSERT_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~put", true));
-	// REQUIRE(command == COMMAND_PUT_10BIT);
-
-	// REQUIRE(VOL.parse_command(key_out, command, parent, (pChar) "~123", true));
-	// REQUIRE(command == COMMAND_SIZE + 123);
 
 		WHEN("We test put()/get()/remove() of keys") {
 			REQUIRE(VOL.new_entity((pChar) "//tree/ent_small") == SERVICE_NO_ERROR);
@@ -2500,19 +2436,24 @@ SCENARIO("Strong End-to-end tree tests") {
 
 			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_pop", p_tx_pop->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_WRITE_FORBIDDEN);
 			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_int", p_tx_int->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_rea", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_ERROR_WRITE_FORBIDDEN);
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_tim", p_tx_tim->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_str~tx_pop", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_chr~tx_pop", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_int~tx_str", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_rea~tx_str", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_tim~tx_rea", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/a~tx_chr", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/b~a", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/c~b", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/more", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(VOL.put((pChar) "//tree/ent_big/c~tx_pop", p_tx_int->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
 
-			REQUIRE(   VOL.put((pChar) "//tree/ent_big/tx_chr", p_tx_chr->p_block, WRITE_ONLY_IF_NOT_EXISTS)
-					== SERVICE_ERROR_WRITE_FORBIDDEN);
-
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_str", p_tx_str->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_NO_ERROR);
-
-			REQUIRE(VOL.put((pChar) "//tree/ent_big/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/aaa~void", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/c~aaa", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/b~aaa", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/a~aaa", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/d~c", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/e~c", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_small/a~aaa", p_tx_rea->p_block, 0) == SERVICE_ERROR_WRITE_FORBIDDEN);
 
 			THEN("We get expected structure") {
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_pop") == SERVICE_NO_ERROR);
@@ -2542,196 +2483,192 @@ SCENARIO("Strong End-to-end tree tests") {
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_four/two") == SERVICE_ERROR_ENTITY_NOT_FOUND);
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/four") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-				REQUIRE(VOL.name.size() == 6);
+				REQUIRE(VOL.name.size() == 12);
 				REQUIRE(VOL.tree_ent.size() == 2);
-				REQUIRE(VOL.tree_key.size() == 6);
+				REQUIRE(VOL.tree_key.size() == 15);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/tx_pop") == SERVICE_ERROR_EMPTY_ENTITY);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-
-				REQUIRE(VOL.name.size() == 6);
-				REQUIRE(VOL.tree_ent.size() == 2);
-				REQUIRE(VOL.tree_key.size() == 7);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/tx_str") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~first") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~last") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/~last") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"tree")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_str")	 == 0);
-
-				REQUIRE(VOL.name.size() == 6);
-				REQUIRE(VOL.tree_ent.size() == 2);
-				REQUIRE(VOL.tree_key.size() == 7);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.name.size() == 6);
-				REQUIRE(VOL.tree_ent.size() == 2);
-				REQUIRE(VOL.tree_key.size() == 6);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/tx_pop") == SERVICE_ERROR_EMPTY_ENTITY);
-
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/tx_tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
-
-				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/tx_chr~prev") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"tree")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_str")	 == 0);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/tx_chr~prev") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/tx_chr~next") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"tree")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_int")	 == 0);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/tx_chr~next") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/b") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.remove((pChar) "//tree/ent_small/tx_chr~next") == SERVICE_ERROR_PARSING_COMMAND);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/b") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/~last") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/~last") == SERVICE_ERROR_PARSING_COMMAND);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/~first") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"tree")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_tim")	 == 0);
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_pop")  == 0);
 
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/~first") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/~last") == SERVICE_ERROR_PARSING_COMMAND);
 				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/~first") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"tree")	 == 0);
+				REQUIRE(strcmp(location.base,	"tree")		 == 0);
 				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_pop")	 == 0);
+				REQUIRE(strcmp(location.key,	"aaa")		 == 0);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~plast") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~plast") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~first") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~plast") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
-				VOL.destroy_transaction(p_txn);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_pop~child") == SERVICE_NO_ERROR);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~plast") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
-				VOL.destroy_transaction(p_txn);
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_chr")  == 0);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~plast") == SERVICE_ERROR_EMPTY_ENTITY);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_pop~next")	 == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_pop~parent") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/~last", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/~last", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/~last", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/~first", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/~first", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_small/~first", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_chr~child") == SERVICE_NO_ERROR);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"a")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_chr~next")	 == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_str")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_chr~parent") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_pop")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_str~child") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_rea")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_str~next") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_str~parent") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_pop")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_rea~child") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_tim")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_rea~next")	 == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_int")  == 0);
+
+				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_rea~parent") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"tree")	   == 0);
+				REQUIRE(strcmp(location.entity, "ent_big") == 0);
+				REQUIRE(strcmp(location.key,	"tx_str")  == 0);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_rea~child") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_rea~next") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_rea~parent") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
 				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/~last") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"tree")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(location.key[0] == 'k');
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_small/~pfirst") == SERVICE_ERROR_EMPTY_ENTITY);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_pop") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_str") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_chr") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_pop") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-
-				REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_str") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_str") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_chr") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_chr") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/tx_chr") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			}
+			REQUIRE(VOL.name.size() == 12);
+			REQUIRE(VOL.tree_ent.size() == 2);
+			REQUIRE(VOL.tree_key.size() == 15);
+
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_rea~child") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "tx_tim") == 0);
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_tim") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_rea~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			REQUIRE(VOL.name.size() == 11);
+			REQUIRE(VOL.tree_ent.size() == 2);
+			REQUIRE(VOL.tree_key.size() == 14);
+
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_str~child") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "tx_rea") == 0);
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_rea~next") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "tx_int") == 0);
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_rea") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_str~child") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "tx_int") == 0);
+
+			REQUIRE(VOL.name.size() == 10);
+			REQUIRE(VOL.tree_ent.size() == 2);
+			REQUIRE(VOL.tree_key.size() == 13);
+
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/b~next") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "c")  == 0);
+			REQUIRE(VOL.remove((pChar) "//tree/ent_small/c") == SERVICE_NO_ERROR);
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_small/b~next") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			REQUIRE(VOL.name.size() == 8);
+			REQUIRE(VOL.tree_ent.size() == 2);
+			REQUIRE(VOL.tree_key.size() == 10);
+
 			REQUIRE(VOL.remove((pChar) "//tree/ent_small") == SERVICE_NO_ERROR);
-			REQUIRE(VOL.remove((pChar) "//tree/ent_big")	== SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.name.size() == 7);
+			REQUIRE(VOL.tree_ent.size() == 1);
+			REQUIRE(VOL.tree_key.size() == 7);
+
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_pop~child") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "tx_chr")  == 0);
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_pop~child") == SERVICE_ERROR_PARSING_COMMAND);
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_chr") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.locate(location, (pChar) "//tree/ent_big/tx_pop~child") == SERVICE_NO_ERROR);
+			REQUIRE(strcmp(location.key, "tx_str")  == 0);
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_str") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.name.size() == 1);
+			REQUIRE(VOL.tree_ent.size() == 1);
+			REQUIRE(VOL.tree_key.size() == 1);
+
+			REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/bla_bla") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big/tx_pop") == SERVICE_NO_ERROR);
+
+			REQUIRE(VOL.name.size() == 0);
+			REQUIRE(VOL.tree_ent.size() == 1);
+			REQUIRE(VOL.tree_key.size() == 0);
+
+			REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_big/bla_bla") == SERVICE_ERROR_EMPTY_ENTITY);
+
+			REQUIRE(VOL.remove((pChar) "//tree/ent_big") == SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.name.size() == 0);
 			REQUIRE(VOL.tree_ent.size() == 0);
 			REQUIRE(VOL.tree_key.size() == 0);
 		}
-
 		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
 			REQUIRE(VOL.new_entity((pChar) "//tree/ent_one") == SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.put((pChar) "//tree/ent_one/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_one/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_one/txt", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_one/tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_one/int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_one/str~pop", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_one/chr~pop", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_one/int~str", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_one/rea~str", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_one/tim~rea", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/pop", (pChar) "key") == SERVICE_NO_ERROR);
@@ -2760,25 +2697,6 @@ SCENARIO("Strong End-to-end tree tests") {
 				REQUIRE(p_txn->p_block->rank == 2);
 				REQUIRE(p_txn->p_block->tensor.cell_int[0] == 1);
 				REQUIRE(p_txn->p_block->tensor.cell_int[1] == 0);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/txt", p_tx_rea->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-
-				REQUIRE(VOL.put((pChar) "//tree/ent_one/~last", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(VOL.put((pChar) "//tree/ent_one/~last", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~plast", p_tx_fil->p_block) == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
-				REQUIRE(p_txn->p_block->size == 8);
-				REQUIRE(p_txn->p_block->rank == 2);
-				REQUIRE(p_txn->p_block->tensor.cell_double[0] == 1.23);
-				REQUIRE(p_txn->p_block->tensor.cell_double[1] == 0);
-				VOL.destroy_transaction(p_txn);
-
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/~plast", (pChar) "key") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_txn->p_block->size == 5);
-				REQUIRE(p_txn->p_block->rank == 1);
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.header(p_txn, (pChar) "//tree/ent_one/pop") == SERVICE_NO_ERROR);
@@ -2818,10 +2736,6 @@ SCENARIO("Strong End-to-end tree tests") {
 
 				REQUIRE(VOL.header(hea, (pChar) "//tree/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 				REQUIRE(VOL.header(hea, (pChar) "//tree/oops/oops") == SERVICE_ERROR_ENTITY_NOT_FOUND);
-
-				REQUIRE(VOL.header(hea, (pChar) "//tree/ent_one/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.header(p_txn, (pChar) "//tree/ent_one/~pfirst") == SERVICE_NO_ERROR);
-				VOL.destroy_transaction(p_txn);
 			}
 			REQUIRE(VOL.remove((pChar) "//tree/ent_one") == SERVICE_NO_ERROR);
 
@@ -2832,10 +2746,10 @@ SCENARIO("Strong End-to-end tree tests") {
 		WHEN("We test copy") {
 			REQUIRE(VOL.new_entity((pChar) "//tree/ent_source") == SERVICE_NO_ERROR);
 
-			REQUIRE(VOL.put((pChar) "//tree/ent_source/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_source/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_source/txt", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-			REQUIRE(VOL.put((pChar) "//tree/ent_source/tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_source/pop~top", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_source/rea~pop", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_source/txt~rea", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(VOL.put((pChar) "//tree/ent_source/tim~rea", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.new_entity((pChar) "//tree/ent_dest") == SERVICE_NO_ERROR);
 
@@ -2850,55 +2764,52 @@ SCENARIO("Strong End-to-end tree tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/copy_rea") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/copy_rea", (pChar) "//tree/ent_source/rea") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/copy_rea~copy_pop", (pChar) "//tree/ent_source/rea") == SERVICE_NO_ERROR);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/copy_rea") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/copy_txt") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/copy_txt", (pChar) "//tree/ent_source/txt") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/copy_txt~copy_pop", (pChar) "//tree/ent_source/txt") == SERVICE_NO_ERROR);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/copy_txt") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/copy_tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/copy_tim", (pChar) "//tree/ent_source/tim") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/copy_tim~copy_pop", (pChar) "//tree/ent_source/tim") == SERVICE_NO_ERROR);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/copy_tim") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_source/~last") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_source/~last") == SERVICE_ERROR_PARSING_COMMAND);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_source/~first") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_source/tim") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/more_tim", (pChar) "//tree/ent_source/~plast") == SERVICE_NO_ERROR);
+				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/more_tim~copy_pop", (pChar) "//tree/ent_dest/copy_txt") == SERVICE_NO_ERROR);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/more_tim") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_dest/~first") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
 				VOL.destroy_transaction(p_txn);
 
-				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_source/tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/more_tim", (pChar) "//tree/ent_source/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/more_tim", (pChar) "//tree/ent_source/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/more_tim", (pChar) "//tree/ent_source/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(VOL.copy((pChar) "//tree/ent_dest/more_tim", (pChar) "//tree/ent_source/~plast") == SERVICE_ERROR_EMPTY_ENTITY);
+				REQUIRE(   VOL.copy((pChar) "//tree/ent_dest/more_tim~copy_pop", (pChar) "//tree/ent_dest/copy_txt")
+						== SERVICE_ERROR_WRITE_FORBIDDEN);
 			}
 			REQUIRE(VOL.remove((pChar) "//tree/ent_source") == SERVICE_NO_ERROR);
-			REQUIRE(VOL.remove((pChar) "//tree/ent_dest")	 == SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//tree/ent_dest") == SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.name.size() == 0);
 			REQUIRE(VOL.tree_ent.size() == 0);
 			REQUIRE(VOL.tree_key.size() == 0);
 		}
-*/
 		VOL.destroy_transaction(p_tx_pop);
 		VOL.destroy_transaction(p_tx_str);
 		VOL.destroy_transaction(p_tx_chr);
