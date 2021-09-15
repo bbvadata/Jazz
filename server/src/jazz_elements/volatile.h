@@ -500,6 +500,9 @@ class Volatile : public Container {
 			pVolatileTransaction p_root, p_parent = nullptr, p_next = nullptr;;
 
 			if ((p_root = it_ent->second) != nullptr) {
+				if (tree_key.find(ek) != tree_key.end())
+					return SERVICE_ERROR_WRITE_FORBIDDEN;
+
 				EntityKeyHash parent_ek = {ek.ent_hash, hash(parent)};
 
 				EntKeyVolXctMap::iterator it;
@@ -508,7 +511,7 @@ class Volatile : public Container {
 					return SERVICE_ERROR_PARENT_NOT_FOUND;
 
 				p_parent = it->second;
-				p_next	 = p_parent->p_next;
+				p_next	 = p_parent->p_child;
 			}
 
 			pTransaction p_txn;
@@ -539,7 +542,7 @@ class Volatile : public Container {
 			if (p_root == nullptr)
 				it_ent->second = (pVolatileTransaction) p_txn;
 			else
-				it_ent->second->p_child = (pVolatileTransaction) p_txn;
+				p_parent->p_child = (pVolatileTransaction) p_txn;
 
 			return SERVICE_NO_ERROR;
 		}
