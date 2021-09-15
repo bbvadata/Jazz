@@ -578,25 +578,34 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 	switch (command) {
 	case COMMAND_JUST_THE_KEY: {
-		if (base == BASE_INDEX_10BIT)
+		switch (base) {
+		case BASE_INDEX_10BIT:
 			return put_index(it_ent->second->p_hea->index, key, p_block, mode);
 
-		if (base != BASE_DEQUE_10BIT)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		case BASE_TREE_10BIT:
+			if (it_ent->second != nullptr)
+				return SERVICE_ERROR_PARSING_COMMAND;
 
-		ek.key_hash = hash(key);
-		EntKeyVolXctMap::iterator it;
+			ek.key_hash = hash(key);
 
-		if ((it = deque_key.find(ek)) != deque_key.end()) {
-			if (mode & WRITE_ONLY_IF_NOT_EXISTS)
+			return put_in_tree(it_ent, ek, key, second, p_block);
+
+		case BASE_DEQUE_10BIT: {
+			ek.key_hash = hash(key);
+			EntKeyVolXctMap::iterator it;
+
+			if ((it = deque_key.find(ek)) != deque_key.end()) {
+				if (mode & WRITE_ONLY_IF_NOT_EXISTS)
+					return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+				return put_replace(it->second, p_block);
+			}
+			if (mode & WRITE_ONLY_IF_EXISTS)
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-			return put_replace(it->second, p_block);
+			return put_in_deque(it_ent, ek, key, p_block); }
 		}
-		if (mode & WRITE_ONLY_IF_EXISTS)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
-
-		return put_in_deque(it_ent, ek, key, p_block); }
+		return SERVICE_ERROR_PARSING_COMMAND; }
 
 	case COMMAND_FIRST_10BIT:
 		if (base != BASE_DEQUE_10BIT)
