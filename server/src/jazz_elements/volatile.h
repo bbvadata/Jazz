@@ -842,6 +842,10 @@ class Volatile : public Container {
 					return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_txn = it->second->p_child;
+
+				if (p_txn == nullptr)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
 				p_str = nullptr; }
 
 				return SERVICE_NO_ERROR;
@@ -857,6 +861,10 @@ class Volatile : public Container {
 					return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_txn = it->second->p_parent;
+
+				if (p_txn == nullptr)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
 				p_str = nullptr; }
 
 				return SERVICE_NO_ERROR;
@@ -871,6 +879,10 @@ class Volatile : public Container {
 						return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = it->second->p_next;
+
+					if (p_txn == nullptr)
+						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
 					p_str = nullptr; }
 
 					return SERVICE_NO_ERROR;
