@@ -805,21 +805,51 @@ StatusCode Volatile::remove(Locator &where) {
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		destroy_item(BASE_DEQUE_10BIT, ek.ent_hash, it_key->second); }
-		break;
+
+		return SERVICE_NO_ERROR;
 
 	case BASE_QUEUE_10BIT: {
 		if ((it_key = queue_key.find(ek)) == queue_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		destroy_item(BASE_QUEUE_10BIT, ek.ent_hash, it_key->second); }
-		break;
+
+		return SERVICE_NO_ERROR;
 
 	case BASE_TREE_10BIT: {
 		if ((it_key = tree_key.find(ek)) == tree_key.end())
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-		destroy_item(BASE_TREE_10BIT, ek.ent_hash, it_key->second); }
-		break;
+		pVolatileTransaction p_item = it_key->second;
+
+		if (p_item->p_parent == nullptr) {
+			tree_ent[ek.ent_hash] = nullptr;
+
+			destroy_tree(ek.ent_hash, p_item->p_child);
+			destroy_item(BASE_TREE_10BIT, ek.ent_hash, p_item);
+
+			return SERVICE_NO_ERROR;
+		}
+		if (p_item->p_parent->p_child == p_item) {
+			p_item->p_parent->p_child = p_item->p_next;
+
+			destroy_tree(ek.ent_hash, p_item->p_child);
+			destroy_item(BASE_TREE_10BIT, ek.ent_hash, p_item);
+
+			return SERVICE_NO_ERROR;
+		}
+
+		pVolatileTransaction p_prev = p_item->p_parent->p_child;
+
+		while (p_prev->p_next != p_item)
+			p_prev = p_prev->p_next;
+
+		p_prev->p_next = p_item->p_next;
+
+		destroy_tree(ek.ent_hash, p_item->p_child);
+		destroy_item(BASE_TREE_10BIT, ek.ent_hash, p_item); }
+
+		return SERVICE_NO_ERROR;
 
 	case BASE_INDEX_10BIT: {
 		HashVolXctMap::iterator it_ent = index_ent.find(ek.ent_hash);
@@ -832,12 +862,10 @@ StatusCode Volatile::remove(Locator &where) {
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		it_ent->second->p_hea->index.erase(it_itm); }
-		break;
 
-	default:
-		return SERVICE_ERROR_WRONG_BASE;
+		return SERVICE_NO_ERROR;
 	}
-	return SERVICE_NO_ERROR;
+	return SERVICE_ERROR_WRONG_BASE;
 }
 
 
