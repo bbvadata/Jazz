@@ -98,6 +98,7 @@ class Persisted : public Container {
 
 		Persisted(pLogger	  a_logger,
 				  pConfigFile a_config);
+	   ~Persisted();
 
 		StatusCode start	();
 		StatusCode shut_down();

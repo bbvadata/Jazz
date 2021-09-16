@@ -50,6 +50,9 @@ namespace jazz_elements
 Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
+Persisted::~Persisted() { destroy_container(); }
+
+
 /** \brief Starts the service, checking the environment and building the databases.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
@@ -57,6 +60,11 @@ Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logge
 	This service initialization checks configuration values related with persistence and starts LMDB with configured values.
 */
 StatusCode Persisted::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
 
 	if (lmdb_env != nullptr) {
 		log(LOG_ERROR, "Persisted::start() failed: nested start() call.");
@@ -154,7 +162,7 @@ StatusCode Persisted::start() {
 
 	log_printf(LOG_INFO, "Opening LMDB environment at : \"%s\"", lmdb_opt.path);
 
-	if (int ret = mdb_env_open(lmdb_env, lmdb_opt.path, lmdb_opt.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS) {
+	if (ret = mdb_env_open(lmdb_env, lmdb_opt.path, lmdb_opt.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS) {
 		log_lmdb_err(ret, "Persisted::start() failed: mdb_env_open() failed.");
 
 		return SERVICE_ERROR_STARTING;
@@ -193,7 +201,7 @@ StatusCode Persisted::shut_down() {
 		lmdb_env = nullptr;
 	}
 
-	return SERVICE_NO_ERROR;
+	return Container::shut_down();	// Closes the one-shot functionality.
 }
 
 
