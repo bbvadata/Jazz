@@ -45,12 +45,22 @@ namespace jazz_agency
 Agency::Agency(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
+Agency::~Agency() { destroy_container(); }
+
+
 /** \brief Starts the service, checking the configuration and starting the Service.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
 
 */
 StatusCode Agency::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement the Agency-specific start()
 
 	return SERVICE_NO_ERROR;
 }
@@ -60,7 +70,9 @@ StatusCode Agency::start() {
 */
 StatusCode Agency::shut_down() {
 
-	return SERVICE_NO_ERROR;
+//TODO: Implement the Agency-specific shut_down()
+
+	return Container::shut_down();	// Closes the one-shot functionality.
 }
 
 } // namespace jazz_agency

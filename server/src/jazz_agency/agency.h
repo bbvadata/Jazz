@@ -76,6 +76,7 @@ class Agency : public Container {
 
 		Agency(pLogger	   a_logger,
 			   pConfigFile a_config);
+	   ~Agency();
 
 		StatusCode start();
 		StatusCode shut_down();
