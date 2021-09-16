@@ -46,7 +46,633 @@ Persisted	PER(&LOG2, &CNF2);
 // Tests
 // -----
 
-SCENARIO("Testing persisted") {
+SCENARIO("Write/read some blocks in new sources jzzBLOCKS.") {
+/*
+	jzzBLOCKS jb;
+	jCommons.load_config_file("./serverconf/jazz_config.ini");
+
+	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
+
+	REQUIRE(jb.start());
+
+	REQUIRE(jb.new_source("a_bool"));
+	REQUIRE(jb.new_source("some_int"));
+	REQUIRE(jb.new_source("some_double"));
+	REQUIRE(jb.new_source("a_string"));
+	REQUIRE(jb.new_source("a_raw"));
+
+	GIVEN("Some block_C_OFFS_CHARS") {
+		pBoolBlock p_boo;
+		pIntBlock  pbi1, pbi2;
+		pRealBlock pbr1, pbr2;
+		pCharBlock p_st;
+		pRawBlock  p_rw;
+
+		REQUIRE(jb.new_block_C_BOOL_rep	  (p_boo, true, 3));
+		REQUIRE(jb.new_block_C_INTEGER_rep(pbi1, 123, 4));
+		REQUIRE(jb.new_block_C_INTEGER_seq(pbi2, 6, 15, 3));
+		REQUIRE(jb.new_block_C_REAL_rep	  (pbr1, 1.234, 5));
+		REQUIRE(jb.new_block_C_REAL_seq	  (pbr2, 6, 7, 0.1));
+		REQUIRE(jb.new_block_C_CHARS_rep  (p_st, "Penny!", 3));
+		REQUIRE(jb.new_block_C_RAW_once	  (p_rw, "Something", strlen("Something")));
+
+		persistedKey key;
+		jb.char_to_key("boo", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("a_bool"),	   key, (pJazzBlock) p_boo));
+		jb.char_to_key("in1", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("some_int"),	   key, (pJazzBlock) pbi1));
+		jb.char_to_key("in2", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("some_int"),	   key, (pJazzBlock) pbi2));
+		jb.char_to_key("rr1", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("some_double"), key, (pJazzBlock) pbr1));
+		jb.char_to_key("rr2", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("some_double"), key, (pJazzBlock) pbr2));
+		jb.char_to_key("str", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("a_string"),	   key, (pJazzBlock) p_st));
+		jb.char_to_key("raw", key);
+		REQUIRE(jb.block_put(jb.get_source_idx("a_raw"),	   key, (pJazzBlock) p_rw));
+
+		THEN("The content is identical") {
+			pJazzBlock p_jazz;
+
+			jb.char_to_key("boo", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("a_bool"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_boo));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_boo));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("in1", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi1));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi1));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("in2", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi2));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi2));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("rr1", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr1));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr1));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("rr2", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr2));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr2));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("str", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("a_string"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_st));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_st));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("raw", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("a_raw"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_rw));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_rw));
+			REQUIRE(jb.block_unprotect(p_jazz));
+		}
+
+		JAZZFREE(p_boo, AUTOTYPEBLOCK(p_boo));
+		JAZZFREE(pbi1, AUTOTYPEBLOCK(pbi1));
+		JAZZFREE(pbi2, AUTOTYPEBLOCK(pbi2));
+		JAZZFREE(pbr1, AUTOTYPEBLOCK(pbr1));
+		JAZZFREE(pbr2, AUTOTYPEBLOCK(pbr2));
+		JAZZFREE(p_st, AUTOTYPEBLOCK(p_st));
+		JAZZFREE(p_rw, AUTOTYPEBLOCK(p_rw));
+
+		REQUIRE(p_boo == NULL);
+		REQUIRE(pbi1 == NULL);
+		REQUIRE(pbi2 == NULL);
+		REQUIRE(pbr1 == NULL);
+		REQUIRE(pbr2 == NULL);
+		REQUIRE(p_st == NULL);
+		REQUIRE(p_rw == NULL);
+
+		REQUIRE(jazzPtrTrackClose());
+	}
+
+	jb.stop();
+*/
+}
+
+
+SCENARIO("Read again previous blocks in new sources jzzBLOCKS.") {
+/*
+	jzzBLOCKS jb;
+	jCommons.load_config_file("./serverconf/jazz_config.ini");
+
+	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
+
+	REQUIRE(jb.start());
+
+	GIVEN("Open again block_C_OFFS_CHARS") {
+		pBoolBlock p_boo;
+		pIntBlock  pbi1, pbi2;
+		pRealBlock pbr1, pbr2;
+		pCharBlock p_st;
+		pRawBlock  p_rw;
+
+		REQUIRE(jb.new_block_C_BOOL_rep	  (p_boo, true, 3));
+		REQUIRE(jb.new_block_C_INTEGER_rep(pbi1, 123, 4));
+		REQUIRE(jb.new_block_C_INTEGER_seq(pbi2, 6, 15, 3));
+		REQUIRE(jb.new_block_C_REAL_rep	  (pbr1, 1.234, 5));
+		REQUIRE(jb.new_block_C_REAL_seq	  (pbr2, 6, 7, 0.1));
+		REQUIRE(jb.new_block_C_CHARS_rep  (p_st, "Penny!", 3));
+		REQUIRE(jb.new_block_C_RAW_once	  (p_rw, "Something", strlen("Something")));
+
+		persistedKey key;
+
+		THEN("The content is identical") {
+			pJazzBlock p_jazz;
+
+			jb.char_to_key("boo", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("a_bool"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_boo));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_boo));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("in1", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi1));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi1));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("in2", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi2));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi2));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("rr1", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr1));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr1));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("rr2", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr2));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr2));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("str", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("a_string"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_st));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_st));
+			REQUIRE(jb.block_unprotect(p_jazz));
+
+			jb.char_to_key("raw", key);
+			REQUIRE(jb.block_get(jb.get_source_idx("a_raw"),	   key, p_jazz));
+			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_rw));
+			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_rw));
+			REQUIRE(jb.block_unprotect(p_jazz));
+		}
+
+		JAZZFREE(p_boo, AUTOTYPEBLOCK(p_boo));
+		JAZZFREE(pbi1, AUTOTYPEBLOCK(pbi1));
+		JAZZFREE(pbi2, AUTOTYPEBLOCK(pbi2));
+		JAZZFREE(pbr1, AUTOTYPEBLOCK(pbr1));
+		JAZZFREE(pbr2, AUTOTYPEBLOCK(pbr2));
+		JAZZFREE(p_st, AUTOTYPEBLOCK(p_st));
+		JAZZFREE(p_rw, AUTOTYPEBLOCK(p_rw));
+
+		REQUIRE(p_boo == NULL);
+		REQUIRE(pbi1 == NULL);
+		REQUIRE(pbi2 == NULL);
+		REQUIRE(pbr1 == NULL);
+		REQUIRE(pbr2 == NULL);
+		REQUIRE(p_st == NULL);
+		REQUIRE(p_rw == NULL);
+
+		REQUIRE(jazzPtrTrackClose());
+	}
+
+	jb.stop();
+*/
+}
+
+
+SCENARIO("Testing all LMDB functions.") {
+/*
+	jzzBLOCKS jb;
+
+	jCommons.load_config_file("./serverconf/jazz_config.ini");
+
+	struct stat sb;
+
+	if (stat(TEST_LMDB_PATH, &sb) == 0 && S_ISDIR(sb.st_mode))
+	{
+		remove(TEST_LMDB_DBI);
+
+		REQUIRE(remove(TEST_LMDB_PATH) == 0);
+	}
+	REQUIRE(stat(TEST_LMDB_PATH, &sb) != 0);
+
+	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
+	jCommons.debug_config_put("JazzPERSISTENCE.MDB_ENV_SET_MAXDBS", "32");				// MAX_POSSIBLE_SOURCES
+
+	persistedKey key1, key2 = {"0_aZ_xy__"};
+
+	REQUIRE( jb.char_to_key ("09_AZ_az", key1));
+	REQUIRE( jb.char_to_key ("123456789012345", key1));
+	REQUIRE( jb.char_to_key ("Yes_alpha", key1));
+	REQUIRE( jb.char_to_key ("0_aZ_xy__", key1));
+
+	REQUIRE(!jb.char_to_key ("This_is_too_long_for_a_key", key1));
+	REQUIRE(!jb.char_to_key ("1234567890123456", key1));
+	REQUIRE(!jb.char_to_key (" abc", key1));
+	REQUIRE(!jb.char_to_key ("/abc", key1));
+	REQUIRE(!jb.char_to_key (":abc", key1));
+	REQUIRE(!jb.char_to_key ("@abc", key1));
+	REQUIRE(!jb.char_to_key ("[abc", key1));
+	REQUIRE(!jb.char_to_key ("`abc", key1));
+	REQUIRE(!jb.char_to_key ("{abc", key1));
+	REQUIRE(!jb.char_to_key ("abc ", key1));
+	REQUIRE(!jb.char_to_key ("abc/", key1));
+	REQUIRE(!jb.char_to_key ("abc:", key1));
+	REQUIRE(!jb.char_to_key ("abc@", key1));
+	REQUIRE(!jb.char_to_key ("abc[", key1));
+	REQUIRE(!jb.char_to_key ("abc`", key1));
+	REQUIRE(!jb.char_to_key ("abc{", key1));
+	REQUIRE(!jb.char_to_key ("", key1));
+
+	REQUIRE(!jb.strcmp_keys(key1, key2));
+
+	REQUIRE(jb.start());
+
+	REQUIRE(jb.open_all_sources());
+	REQUIRE(jb.num_sources() == 2);
+
+	REQUIRE(jb.source_idx[0] == -1);
+	REQUIRE(jb.source_idx[1] == -1);
+	REQUIRE(jb.source_idx[tenbits("sys")] == 0);
+	REQUIRE(jb.source_idx[tenbits("www")] == 1);
+	REQUIRE(jb.source_idx[1023] == -1);
+
+	sourceName name0, name1, name2, name3, nameI;
+
+	REQUIRE( jb.source_name(0, name0));
+	REQUIRE( jb.source_name(1, name1));
+	REQUIRE(!jb.source_name(2, name2));
+
+	REQUIRE(!strcmp(name0.key, "sys"));
+	REQUIRE(!strcmp(name1.key, "www"));
+
+	REQUIRE(!jb.new_source("This_name_is_way_too_long_for_a_source"));
+	REQUIRE(!jb.new_source("Not@alpha"));
+	REQUIRE( jb.new_source("Yes_alpha"));
+
+	REQUIRE( jb.source_name(2, name2));
+	REQUIRE(!strcmp(name2.key, "Yes_alpha"));
+
+	REQUIRE(jb.num_sources() == 3);
+
+	REQUIRE(!jb.new_source("Yes_alpha"));
+
+	REQUIRE(jb.num_sources() == 3);
+
+	REQUIRE( jb.source_name(2, name2));
+	REQUIRE(!strcmp(name2.key, "Yes_alpha"));
+
+	REQUIRE(jb.num_sources() == 3);
+
+	REQUIRE(!jb.kill_source("unknown"));
+	REQUIRE( jb.kill_source("Yes_alpha"));
+	REQUIRE(!jb.kill_source("sys"));
+	REQUIRE(!jb.kill_source("www"));
+
+	REQUIRE(jb.num_sources() == 2);
+
+	REQUIRE(!jb.new_source("1234567890123456"));
+	REQUIRE( jb.new_source("123456789012345"));
+
+	REQUIRE(jb.num_sources() == 3);
+
+	REQUIRE( jb.kill_source("123456789012345"));
+
+	REQUIRE(jb.num_sources() == 2);
+
+	for (int i = 0; i < 30; i++)
+	{
+		nameI.key[0] = 'a' + (char) i / 16;
+		nameI.key[1] = 'a' + (char) i % 16;
+		nameI.key[2] = 0;
+
+		REQUIRE( jb.new_source(nameI.key));
+		REQUIRE( jb.num_sources() == i + 3);
+		REQUIRE( jb.source_name(i + 2, name3));
+		REQUIRE(!strcmp(name3.key, nameI.key));
+
+		int fi = jb.get_source_idx(nameI.key);
+
+		REQUIRE(fi == i + 2);
+	}
+	REQUIRE( jb.num_sources() == 32);
+	REQUIRE(!jb.new_source("toomany"));
+	REQUIRE( jb.num_sources() == 32);
+
+	for (int i = 0; i < 30; i++)
+	{
+		nameI.key[0] = 'a' + (char) i / 16;
+		nameI.key[1] = 'a' + (char) i % 16;
+		nameI.key[2] = 0;
+
+		REQUIRE(jb.get_source_idx(nameI.key) == 2);
+
+		REQUIRE(jb.kill_source(nameI.key));
+
+		REQUIRE(jb.num_sources() == 31 - i);
+	}
+
+	REQUIRE(jb.num_sources() == 2);
+
+	REQUIRE(jb.new_source("test1"));
+	REQUIRE(jb.new_source("test2"));
+
+	REQUIRE(jb.num_sources() == 4);
+
+	REQUIRE(jb.source_idx[0] == -1);
+	REQUIRE(jb.source_idx[1] == -1);
+	REQUIRE(jb.source_idx[tenbits("sys")]	== 0);
+	REQUIRE(jb.source_idx[tenbits("www")]	== 1);
+	REQUIRE(jb.source_idx[tenbits("test1")] == 3);
+	REQUIRE(jb.source_idx[1023] == -1);
+
+	jb.close_all_sources();
+
+	REQUIRE(jb.num_sources() == 0);
+
+	REQUIRE(jb.source_idx[0] == -1);
+	REQUIRE(jb.source_idx[1] == -1);
+	REQUIRE(jb.source_idx[tenbits("sys")]	== -1);
+	REQUIRE(jb.source_idx[tenbits("www")]	== -1);
+	REQUIRE(jb.source_idx[tenbits("test1")] == -1);
+	REQUIRE(jb.source_idx[1023] == -1);
+
+	REQUIRE(jb.get_source_idx("") < 0);
+	REQUIRE(jb.get_source_idx("\0.") < 0);
+
+	REQUIRE(jb.get_source_idx("sys") < 0);
+	REQUIRE(jb.get_source_idx("www") < 0);
+
+	REQUIRE(jb.open_all_sources());
+
+	REQUIRE(jb.num_sources() == 4);
+
+	REQUIRE(jb.get_source_idx("") < 0);
+	REQUIRE(jb.get_source_idx("\0■") < 0);
+
+	REQUIRE(jb.get_source_idx("sys") == 0);
+	REQUIRE(jb.get_source_idx("www") == 1);
+	REQUIRE(jb.get_source_idx("test1") == 2);
+	REQUIRE(jb.get_source_idx("test2") == 3);
+
+	REQUIRE(jb.get_source_idx("") < 0);
+	REQUIRE(jb.get_source_idx("\0\1") < 0);
+
+	pRawBlock  p_raw1, p_raw2;
+
+	static const char* const sss1[] = {"", "Hello, world!\0"};
+	static const char* const sss2[] = {"", "Hallo, world?\0"};
+
+	bool ok_p_raw1 = jb.new_block_C_RAW_once(p_raw1, sss1[1], strlen(sss1[1]) + 1);
+	bool ok_p_raw2 = jb.new_block_C_RAW_once(p_raw2, sss2[1], strlen(sss2[1]) + 1);
+
+	REQUIRE(ok_p_raw1);
+	REQUIRE(ok_p_raw2);
+
+	REQUIRE(p_raw1->type	  == BLOCKTYPE_RAW_ANYTHING);
+	REQUIRE(p_raw1->length == 1);
+	REQUIRE(p_raw1->size	  == 14);
+
+	REQUIRE(p_raw1->data[ 0] == 'H');
+	REQUIRE(p_raw1->data[ 1] == 'e');
+	REQUIRE(p_raw1->data[12] == '!');
+	REQUIRE(p_raw1->data[13] == 0);
+
+	REQUIRE(jb.reinterpret_cast_block(p_raw1, BLOCKTYPE_RAW_MIME_TXT));
+
+	REQUIRE(p_raw1->type == BLOCKTYPE_RAW_MIME_TXT);
+
+	REQUIRE(p_raw2->type	  == BLOCKTYPE_RAW_ANYTHING);
+	REQUIRE(p_raw2->length == 1);
+	REQUIRE(p_raw2->size	  == 14);
+
+	REQUIRE(p_raw2->data[ 0] == 'H');
+	REQUIRE(p_raw2->data[ 1] == 'a');
+	REQUIRE(p_raw2->data[12] == '?');
+	REQUIRE(p_raw2->data[13] == 0);
+
+	persistedKey kk[] = {"0_zer0", "1_o1e", "2_t2o", "3_thr33", "987654321012345"};
+	persistedKey KK[] = {"0_ZER0", "1_O1E", "2_T2O", "3_THR33"};
+	persistedKey searchK;
+	pJazzBlock	pLbl0 = NULL, pLbl1 = NULL, pLbl2 = NULL, pLbl3 = NULL, pLbl4 = NULL, pLblN = NULL;
+
+	REQUIRE(!jb.block_get(2, kk[0], pLbl0));
+	REQUIRE( jb.block_put(2, kk[0], p_raw1));
+	REQUIRE( jb.block_get(2, kk[0], pLbl0));
+	REQUIRE(!jb.block_get(2, KK[0], pLblN));
+
+	REQUIRE(p_raw1 != pLbl0);
+	REQUIRE(p_raw1->type	  == pLbl0->type);
+	REQUIRE(p_raw1->length == pLbl0->length);
+	REQUIRE(p_raw1->size	  == pLbl0->size);
+	REQUIRE(p_raw1->hash64 == pLbl0->hash64);
+	REQUIRE(!strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl0)->data));
+
+	REQUIRE( jb.block_unprotect(pLbl0));
+	REQUIRE(!jb.block_unprotect(pLbl0));
+	REQUIRE(!jb.block_unprotect(pLbl1));
+
+	REQUIRE(!jb.block_get(2, kk[1], pLbl1));
+	REQUIRE( jb.block_put(2, kk[1], p_raw1));
+	REQUIRE( jb.block_get(2, kk[1], pLbl1));
+	REQUIRE(!jb.block_get(2, KK[1], pLblN));
+
+	REQUIRE(!jb.block_get(2, kk[2], pLbl2));
+	REQUIRE( jb.block_put(2, kk[2], p_raw1));
+	REQUIRE( jb.block_get(2, kk[2], pLbl2));
+	REQUIRE(!jb.block_get(2, KK[2], pLblN));
+
+	REQUIRE(!jb.block_get(2, kk[3], pLbl3));
+	REQUIRE( jb.block_put(2, kk[3], p_raw1));
+	REQUIRE( jb.block_get(2, kk[3], pLbl3));
+	REQUIRE(!jb.block_get(2, KK[3], pLblN));
+
+	REQUIRE(!jb.block_get(2, kk[4], pLbl4));
+	REQUIRE( jb.block_put(2, kk[4], p_raw1));
+	REQUIRE( jb.block_get(2, kk[4], pLbl4));
+
+	REQUIRE(p_raw1 != pLbl4);
+	REQUIRE(!strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+	REQUIRE( strcmp(p_raw2->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+
+	REQUIRE(jb.block_unprotect(pLbl4));
+
+	REQUIRE( jb.block_put(2, kk[4], p_raw2));
+	REQUIRE( jb.block_get(2, kk[4], pLbl4));
+
+	REQUIRE(p_raw2 != pLbl4);
+	REQUIRE( strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+	REQUIRE(!strcmp(p_raw2->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+
+	REQUIRE(jb.block_unprotect(pLbl4));
+
+	REQUIRE( jb.block_put(2, kk[4], p_raw1));
+	REQUIRE( jb.block_get(2, kk[4], pLbl4));
+
+	REQUIRE(p_raw1 != pLbl4);
+	REQUIRE(!strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+	REQUIRE( strcmp(p_raw2->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+
+	REQUIRE(jb.block_unprotect(pLbl4));
+
+	REQUIRE( jb.block_unprotect(pLbl1));
+	REQUIRE( jb.block_unprotect(pLbl2));
+	REQUIRE( jb.block_unprotect(pLbl3));
+	REQUIRE(!jb.block_unprotect(pLbl1));
+	REQUIRE(!jb.block_unprotect(pLbl2));
+	REQUIRE(!jb.block_unprotect(pLbl3));
+
+	REQUIRE( jb.block_get(2, kk[0], pLbl0));
+	REQUIRE( jb.block_get(2, kk[1], pLbl1));
+	REQUIRE( jb.block_get(2, kk[2], pLbl2));
+	REQUIRE( jb.block_get(2, kk[3], pLbl3));
+
+	REQUIRE( jb.block_unprotect(pLbl0));
+	REQUIRE( jb.block_unprotect(pLbl1));
+	REQUIRE( jb.block_unprotect(pLbl2));
+	REQUIRE( jb.block_unprotect(pLbl3));
+
+	REQUIRE(!jb.block_get(3, kk[0], pLbl0));
+	REQUIRE(!jb.block_get(3, kk[1], pLbl1));
+	REQUIRE(!jb.block_get(3, kk[2], pLbl2));
+	REQUIRE(!jb.block_get(3, kk[3], pLbl3));
+
+	REQUIRE(!jb.block_get(3, KK[0], pLbl0));
+	REQUIRE(!jb.block_get(3, KK[1], pLbl1));
+	REQUIRE(!jb.block_get(3, KK[2], pLbl2));
+	REQUIRE(!jb.block_get(3, KK[3], pLbl3));
+
+	REQUIRE( jb.block_put(3, KK[0], p_raw1));
+	REQUIRE( jb.block_put(3, KK[1], p_raw1));
+	REQUIRE( jb.block_put(3, KK[2], p_raw1));
+	REQUIRE( jb.block_put(3, KK[3], p_raw1));
+
+	REQUIRE( jb.block_get(3, KK[0], pLbl0));
+	REQUIRE( jb.block_get(3, KK[1], pLbl1));
+	REQUIRE( jb.block_get(3, KK[2], pLbl2));
+	REQUIRE( jb.block_get(3, KK[3], pLbl3));
+
+	REQUIRE( jb.block_unprotect(pLbl0));
+	REQUIRE( jb.block_unprotect(pLbl1));
+	REQUIRE( jb.block_unprotect(pLbl2));
+	REQUIRE( jb.block_unprotect(pLbl3));
+
+	REQUIRE(!jb.block_unprotect(pLbl0));
+	REQUIRE(!jb.block_unprotect(pLbl1));
+	REQUIRE(!jb.block_unprotect(pLbl2));
+	REQUIRE(!jb.block_unprotect(pLbl3));
+
+	REQUIRE(!jb.char_to_key ("This_is_too_long_for_a_key", searchK));
+	REQUIRE(!jb.char_to_key ("1234567890123456", searchK));
+	REQUIRE( jb.char_to_key ("123456789012345", searchK));
+	REQUIRE(!jb.char_to_key ("Not@alpha", searchK));
+	REQUIRE( jb.char_to_key ("Yes_alpha", searchK));
+	REQUIRE( jb.char_to_key ("0_zer0", searchK));
+	REQUIRE(!jb.char_to_key ("", searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[0]));
+
+	jb.set_first_key(searchK);
+
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_START));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[0]));
+	REQUIRE(!jb.is_last_key(searchK));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[1]));
+	REQUIRE(!jb.is_last_key(searchK));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[2]));
+	REQUIRE(!jb.is_last_key(searchK));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[3]));
+	REQUIRE(!jb.is_last_key(searchK));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[4]));
+	REQUIRE(!jb.is_last_key(searchK));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
+	REQUIRE( jb.is_last_key(searchK));
+
+	REQUIRE(!jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
+	REQUIRE( jb.is_last_key(searchK));
+
+	REQUIRE( jb.block_kill(2, kk[0]));
+	REQUIRE( jb.block_kill(2, kk[1]));
+	REQUIRE( jb.block_kill(2, kk[2]));
+	REQUIRE( jb.block_kill(2, kk[3]));
+
+	REQUIRE(!jb.block_kill(2, kk[0]));
+	REQUIRE(!jb.block_kill(2, kk[1]));
+	REQUIRE(!jb.block_kill(2, kk[2]));
+	REQUIRE(!jb.block_kill(2, kk[3]));
+
+	jb.set_first_key(searchK);
+
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_START));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, kk[4]));
+	REQUIRE(!jb.is_last_key(searchK));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
+	REQUIRE( jb.is_last_key(searchK));
+
+	REQUIRE(!jb.next_key(2, searchK));
+
+	REQUIRE( jb.block_kill(2, kk[4]));
+
+	jb.set_first_key(searchK);
+
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_START));
+
+	REQUIRE( jb.next_key(2, searchK));
+	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
+	REQUIRE( jb.is_last_key(searchK));
+
+	REQUIRE(!jb.next_key(2, searchK));
+
+	REQUIRE(!jb.reinterpret_cast_block(p_raw1, BLOCKTYPE_C_BOOL));
+	REQUIRE( jb.reinterpret_cast_block(p_raw1, BLOCKTYPE_SOURCE_ATTRIB));
+
+	JAZZFREE(p_raw1, RAM_ALLOC_C_RAW);
+	JAZZFREE(p_raw2, RAM_ALLOC_C_RAW);
+
+	REQUIRE(p_raw1 == NULL);
+	REQUIRE(p_raw2 == NULL);
+
+	REQUIRE(jazzPtrTrackClose());
+
+	jb.stop();
+*/
+}
+
+
 
 //TODO: Write tests for this!
 
