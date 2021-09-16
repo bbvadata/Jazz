@@ -121,9 +121,19 @@ bool remote_testing_point() {			// cppcheck-suppress unusedFunction
 
 Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
+
+Channels::~Channels() { destroy_container(); }
+
+
 /** Reads config variables and sets jazz_node_* public variables.
 */
 StatusCode Channels::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
 	if (!get_conf_key("FILESYSTEM_ROOT", filesystem_root)) {
 		log(LOG_ERROR, "Channels::start() failed to find FILESYSTEM_ROOT");
 
@@ -194,9 +204,9 @@ StatusCode Channels::start() {
 */
 StatusCode Channels::shut_down() {
 
-//TODO: Implement Channels::shut_down()
+//TODO: Implement the Channels-specific shut_down()
 
-	return SERVICE_NO_ERROR;
+	return Container::shut_down();	// Closes the one-shot functionality.
 }
 
 

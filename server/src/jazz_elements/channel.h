@@ -127,6 +127,7 @@ class Channels : public Container {
 
 		Channels(pLogger	 a_logger,
 				 pConfigFile a_config);
+	   ~Channels();
 
 		StatusCode start	();
 		StatusCode shut_down();
