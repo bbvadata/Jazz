@@ -458,8 +458,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 		return SERVICE_ERROR_WRITE_FAILED;
 	}
 
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn)) {
 		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::put().");
 
 		return SERVICE_ERROR_WRITE_FAILED;
@@ -468,7 +467,6 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 	MDB_dbi hh = i->second;
 
 	if (hh == INVALID_MDB_DBI) {
-
 		if (int err = mdb_dbi_open(p_txn, where.entity, MDB_CREATE, &hh)) {
 			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::put().");
 
@@ -670,8 +668,7 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &p_txn) {
 		return nullptr;
 	}
 
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn))
-	{
+	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn)) {
 		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::lock_pointer_to_block().");
 
 		return nullptr;
