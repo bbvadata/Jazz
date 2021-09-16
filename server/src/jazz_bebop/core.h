@@ -76,6 +76,7 @@ class Bebop : public Container {
 
 		Bebop(pLogger	  a_logger,
 			  pConfigFile a_config);
+	   ~Bebop();
 
 		StatusCode start();
 		StatusCode shut_down();

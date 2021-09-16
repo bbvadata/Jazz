@@ -45,12 +45,22 @@ namespace jazz_bebop
 Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
+Bebop::~Bebop() { destroy_container(); }
+
+
 /** \brief Starts the service, checking the configuration and starting the Service.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
 
 */
 StatusCode Bebop::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement the Bebop-specific start()
 
 	return SERVICE_NO_ERROR;
 }
@@ -60,7 +70,9 @@ StatusCode Bebop::start() {
 */
 StatusCode Bebop::shut_down() {
 
-	return SERVICE_NO_ERROR;
+//TODO: Implement the Bebop-specific shut_down()
+
+	return Container::shut_down();	// Closes the one-shot functionality.
 }
 
 
