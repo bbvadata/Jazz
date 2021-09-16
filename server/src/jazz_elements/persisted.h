@@ -142,12 +142,6 @@ class Persisted : public Container {
 	private:
 #endif
 
-//TODO: Use Block finish_creation() instead (renaming it to close_block())
-		inline void close_block(pBlock p_block) {
-			p_block->hash64  = MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(StaticBlockHeader));
-			p_block->created = std::chrono::steady_clock::now();
-		}
-
 		inline bool check_block(pBlock p_block) {
 			return p_block->hash64 == MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(StaticBlockHeader));
 		}

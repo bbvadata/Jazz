@@ -149,7 +149,7 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
 #define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
 
-/// Values for argument set_has_NA of finish_creation()
+/// Values for argument set_has_NA of close_block()
 #define SET_HAS_NA_
 
 #define SET_HAS_NA_FALSE		0			///< Set to false without checking

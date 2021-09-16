@@ -144,7 +144,7 @@ void check_and_finish(pBlock p_block, int set_has_NA = SET_HAS_NA_AUTO, bool set
 
 	REQUIRE(pt2 > pt1);
 
-	p_block->finish_creation(set_has_NA, set_hash, set_time);
+	p_block->close_block(set_has_NA, set_hash, set_time);
 }
 
 

@@ -440,7 +440,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 	}
 
-	close_block(p_block);
+	p_block->close_block();
 
 	DBImap::iterator i = source_dbi.find(where.entity);
 
