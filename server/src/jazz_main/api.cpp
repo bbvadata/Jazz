@@ -446,6 +446,9 @@ Api::Api(pLogger	 a_logger,
 }
 
 
+Api::~Api() { destroy_container(); }
+
+
 /** Starts the API service
 
 Configuration-wise the API has just two keys:
@@ -456,6 +459,11 @@ Configuration-wise the API has just two keys:
 Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
 StatusCode Api::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
 
 	BaseNames base = {};
 
@@ -482,7 +490,7 @@ StatusCode Api::start() {
 	std::string statics_path;
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
-		int ret = load_statics((pChar) statics_path.c_str(), (pChar) "/", 0);
+		ret = load_statics((pChar) statics_path.c_str(), (pChar) "/", 0);
 
 		if (ret != SERVICE_NO_ERROR) {
 			log_printf(LOG_ERROR, "Api::start(): load_statics() failed loading \"%s\"", statics_path.c_str());
@@ -494,7 +502,7 @@ StatusCode Api::start() {
 	if (!get_conf_key("REMOVE_STATICS_ON_CLOSE", remove_statics))
 		remove_statics = false;
 
-	return Container::start();	// This initializes the one-shot functionality.
+	return SERVICE_NO_ERROR;
 }
 
 

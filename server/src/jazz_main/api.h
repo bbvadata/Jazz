@@ -136,6 +136,7 @@ class Api : public Container {
 			pPersisted	a_persisted,
 			pBebop		a_bebop,
 			pAgency		a_agency);
+	   ~Api();
 
 		StatusCode start	();
 		StatusCode shut_down();
