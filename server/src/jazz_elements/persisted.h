@@ -156,8 +156,8 @@ class Persisted : public Container {
 
 		bool open_all_databases	();
 		void close_all_databases();
-		bool new_database		(pChar name);
-		bool remove_database	(pChar name);
+		StatusCode new_database	  (pChar name);
+		StatusCode remove_database(pChar name);
 
 		// Logger with full messages for lmdb errors.
 

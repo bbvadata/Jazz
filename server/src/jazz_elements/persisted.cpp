@@ -821,9 +821,9 @@ void Persisted::close_all_databases() {
 
 	\param name The name of the source to be added.
 
-	\return true if successful, false and log(LOG_MISS, "further details") if not.
+	\return	SERVICE_NO_ERROR on success or some negative value and log(LOG_MISS, "further details") on failure.
 */
-bool Persisted::new_database(pChar name) {
+StatusCode Persisted::new_database(pChar name) {
 
 	char key [] = {"."};
 	int	 val	= 0xbadF00D;
@@ -901,12 +901,12 @@ release_lock_and_fail:
 /** Kill a source, both from the LMDB persistence and from the source[] vector.
 	\param name The name of the source to be killed.
 
-	\return true if successful, false and log(LOG_MISS, "further details") if not.
+	\return	SERVICE_NO_ERROR on success or some negative value and log(LOG_MISS, "further details") on failure.
 
 	NOTE: kill_source() is EXTREMELY not thread safe! Indices to ALL sources may change. Unsafe use of: numsources, source_nam, source_open,
 source_dbi.
 */
-bool Persisted::remove_database(pChar name) {
+StatusCode Persisted::remove_database(pChar name) {
 
 	if (source_dbi.find(name) == source_dbi.end()) {
 		log(LOG_MISS, "Persisted::remove_database(): source does not exist.");
