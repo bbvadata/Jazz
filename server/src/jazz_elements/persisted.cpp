@@ -514,12 +514,9 @@ release_txn_and_fail:
 StatusCode Persisted::new_entity(Locator &where) {
 
 	if (where.key[0] != 0)
-		return SERVICE_ERROR_CREATE_FAILED;
+		return SERVICE_ERROR_PARSING_COMMAND;
 
-	if (new_database(where.entity))
-		return SERVICE_NO_ERROR;
-
-	return SERVICE_ERROR_CREATE_FAILED;
+	return new_database(where.entity);
 }
 
 
@@ -531,12 +528,8 @@ StatusCode Persisted::new_entity(Locator &where) {
 */
 StatusCode Persisted::remove(Locator &where) {
 
-	if (where.key[0] == 0) {
-		if (remove_database(where.entity))
-			return SERVICE_NO_ERROR;
-
-		return SERVICE_ERROR_REMOVE_FAILED;
-	}
+	if (where.key[0] == 0)
+		return remove_database(where.entity);
 
 	DBImap::iterator i = source_dbi.find(where.entity);
 
