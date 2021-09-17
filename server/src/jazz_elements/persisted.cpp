@@ -826,12 +826,14 @@ void Persisted::close_all_databases() {
 StatusCode Persisted::new_database(pChar name) {
 
 	char key [] = {"."};
-	int	 val	= 0xbadF00D;
+	int	 val	= 0xbadF00D, ret;
 
 	lock_container();
 
 	if (source_dbi.size() >= MAX_POSSIBLE_SOURCES) {
 		log(LOG_MISS, "Persisted::new_database(): too many sources.");
+
+		ret = SERVICE_ERROR_TOO_MANY_ENTITIES;
 
 		goto release_lock_and_fail;
 	}
@@ -839,12 +841,16 @@ StatusCode Persisted::new_database(pChar name) {
 	if (source_dbi.find(name) != source_dbi.end()) {
 		log(LOG_MISS, "Persisted::new_database(): source already exists.");
 
+		ret = SERVICE_ERROR_WRITE_FORBIDDEN;
+
 		goto release_lock_and_fail;
 	}
 
 	MDB_txn *txn;
 	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
 		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::new_database().");
+
+		ret = SERVICE_ERROR_CREATE_FAILED;
 
 		goto release_lock_and_fail;
 	}
@@ -880,7 +886,7 @@ StatusCode Persisted::new_database(pChar name) {
 
 	unlock_container();
 
-	return true;
+	return SERVICE_NO_ERROR;
 
 release_dbi_and_fail:
 
@@ -890,11 +896,13 @@ release_txn_and_fail:
 
 	mdb_txn_abort(txn);
 
+	ret = SERVICE_ERROR_CREATE_FAILED;
+
 release_lock_and_fail:
 
 	unlock_container();
 
-	return false;
+	return ret;
 }
 
 
@@ -911,7 +919,7 @@ StatusCode Persisted::remove_database(pChar name) {
 	if (source_dbi.find(name) == source_dbi.end()) {
 		log(LOG_MISS, "Persisted::remove_database(): source does not exist.");
 
-		return false;
+		return SERVICE_ERROR_ENTITY_NOT_FOUND;
 	}
 
 	lock_container();
@@ -951,7 +959,7 @@ StatusCode Persisted::remove_database(pChar name) {
 
 	unlock_container();
 
-	return true;
+	return SERVICE_NO_ERROR;
 
 release_txn_and_fail:
 
@@ -961,7 +969,7 @@ release_lock_and_fail:
 
 	unlock_container();
 
-	return false;
+	return SERVICE_ERROR_REMOVE_FAILED;
 }
 
 
