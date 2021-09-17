@@ -473,7 +473,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 			goto release_txn_and_fail;
 		}
 
-		source_dbi [where.entity] = hh;
+		source_dbi[where.entity] = hh;
 	}
 
 	MDB_val l_key, l_data;
@@ -875,7 +875,7 @@ StatusCode Persisted::new_database(pChar name) {
 		goto release_dbi_and_fail;
 	}
 
-	source_dbi [name] = hh;
+	source_dbi[name] = hh;
 
 	unlock_container();
 
