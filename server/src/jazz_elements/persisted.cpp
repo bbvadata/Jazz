@@ -450,21 +450,21 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	p_block->close_block();
 
-	DBImap::iterator i = source_dbi.find(where.entity);
+	DBImap::iterator it = source_dbi.find(where.entity);
 
-	if (i == source_dbi.end()) {
+	if (it == source_dbi.end()) {
 		log(LOG_MISS, "Invalid source in Persisted::put().");
 
 		return SERVICE_ERROR_WRITE_FAILED;
 	}
 
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn)) {
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &p_txn)) {
 		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::put().");
 
 		return SERVICE_ERROR_WRITE_FAILED;
 	}
 
-	MDB_dbi hh = i->second;
+	MDB_dbi hh = it->second;
 
 	if (hh == INVALID_MDB_DBI) {
 		if (int err = mdb_dbi_open(p_txn, where.entity, MDB_CREATE, &hh)) {
@@ -531,9 +531,9 @@ StatusCode Persisted::remove(Locator &where) {
 	if (where.key[0] == 0)
 		return remove_database(where.entity);
 
-	DBImap::iterator i = source_dbi.find(where.entity);
+	DBImap::iterator it = source_dbi.find(where.entity);
 
-	if (i == source_dbi.end()) {
+	if (it == source_dbi.end()) {
 		log(LOG_MISS, "Invalid source in Persisted::remove().");
 
 		return SERVICE_ERROR_REMOVE_FAILED;
@@ -541,13 +541,13 @@ StatusCode Persisted::remove(Locator &where) {
 
 	pMDB_txn p_txn;
 
-	if (int err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &p_txn)) {
+	if (int err = mdb_txn_begin(lmdb_env, NULL, 0, &p_txn)) {
 		log_lmdb_err(err, "mdb_txn_begin() failed in Persisted::remove().");
 
 		return SERVICE_ERROR_REMOVE_FAILED;
 	}
 
-	MDB_dbi hh = i->second;
+	MDB_dbi hh = it->second;
 
 	if (hh == INVALID_MDB_DBI) {
 
@@ -653,9 +653,9 @@ NOTE: This requires a subsequent done_pointer_to_block() call.
 */
 pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &p_txn) {
 
-	DBImap::iterator i = source_dbi.find(what.entity);
+	DBImap::iterator it = source_dbi.find(what.entity);
 
-	if (i == source_dbi.end()) {
+	if (it == source_dbi.end()) {
 		log(LOG_MISS, "Invalid source in Persisted::lock_pointer_to_block().");
 
 		return nullptr;
@@ -667,7 +667,7 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &p_txn) {
 		return nullptr;
 	}
 
-	MDB_dbi hh = i->second;
+	MDB_dbi hh = it->second;
 
 	if (hh == INVALID_MDB_DBI) {
 
