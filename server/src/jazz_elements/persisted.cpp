@@ -928,7 +928,7 @@ StatusCode Persisted::remove_database(pChar name) {
 		MDB_dbi hh;
 
 		if (int err = mdb_dbi_open(txn, name, MDB_CREATE, &hh)) {
-			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::new_database().");
+			log_lmdb_err(err, "mdb_dbi_open() failed in Persisted::remove_database().");
 
 			goto release_txn_and_fail;
 		}
