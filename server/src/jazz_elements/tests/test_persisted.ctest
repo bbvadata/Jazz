@@ -690,7 +690,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
 	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
 	REQUIRE(PER._lock_ == 0);
-/*
+
 	GIVEN("We have some blocks and indices") {
 		Index txt;
 
@@ -753,93 +753,65 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 		WHEN("We test new_entity()/remove() of entities") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one/key") == SERVICE_ERROR_PARSING_COMMAND);
-			REQUIRE(PER.remove	  ((pChar) "//lmdb/ent_one")	  == SERVICE_ERROR_ENTITY_NOT_FOUND);
+			REQUIRE(PER.remove	  ((pChar) "//lmdb/ent_one")	 == SERVICE_ERROR_ENTITY_NOT_FOUND);
 
-			REQUIRE(PER.deque_ent.size() == 0);
+			REQUIRE(PER.source_dbi.size() == 0);
 
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
 
-			REQUIRE(PER.deque_ent.size() == 1);
+			REQUIRE(PER.source_dbi.size() == 1);
 
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two/~0") == SERVICE_ERROR_PARSING_COMMAND);
-			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")	 == SERVICE_NO_ERROR);
-			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_three")	 == SERVICE_NO_ERROR);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")	== SERVICE_NO_ERROR);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_three")	== SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
-				REQUIRE(PER.deque_ent.size() == 3);
+				REQUIRE(PER.source_dbi.size() == 3);
 
-				Name ent = "ent_two";
-				uint64_t hash = PER.hash(ent);
-
-				REQUIRE(PER.deque_ent.find(hash) != PER.deque_ent.end());
-				REQUIRE(PER.deque_ent[hash] == nullptr);
-
-				strcpy(ent, "ent_three");
-				hash = PER.hash(ent);
-
-				REQUIRE(PER.deque_ent.find(hash) != PER.deque_ent.end());
-				REQUIRE(PER.deque_ent[hash] == nullptr);
+				REQUIRE(PER.source_dbi["ent_two"]	!= INVALID_MDB_DBI);
+				REQUIRE(PER.source_dbi["ent_three"] != INVALID_MDB_DBI);
 			}
 
-			REQUIRE(PER.remove((pChar) "//lmdb/ent_one")	== SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
 
-			REQUIRE(PER.deque_ent.size() == 2);
+			REQUIRE(PER.source_dbi.size() == 2);
 
-			REQUIRE(PER.remove((pChar) "//lmdb/ent_two")	== SERVICE_NO_ERROR);
-			REQUIRE(PER.remove((pChar) "//lmdb/ent_three")	== SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_two")   == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_three") == SERVICE_NO_ERROR);
 
-			REQUIRE(PER.deque_ent.size() == 0);
+			REQUIRE(PER.source_dbi.size() == 0);
 		}
 		pTransaction p_txn;
 		Locator location;
 
-		REQUIRE(PER.get(p_txn, (pChar) "//zz/ent_one/key")			 == SERVICE_ERROR_WRONG_BASE);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_ENTITY_NOT_FOUND);
-		REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one")			 == SERVICE_NO_ERROR);
-		REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")			 == SERVICE_NO_ERROR);
+		REQUIRE(PER.get(p_txn, (pChar) "//zz/ent_one/key")		    == SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child")   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/child~parent") == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/key~prev")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~xhigh")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~lowest")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~xlow")		   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/key~next")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123")		   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~get")		   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one")			== SERVICE_NO_ERROR);
+		REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")			== SERVICE_NO_ERROR);
 
-		REQUIRE(PER.put((pChar) "//lmdb/ent_one/something", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123~abc~Z")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/any-thing")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child")   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/child~parent") == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/key~prev")	   == SERVICE_ERROR_BLOCK_NOT_FOUND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~xhigh")	   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~lowest")	   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~xlow")		   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/key~next")	   == SERVICE_ERROR_BLOCK_NOT_FOUND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123")		   == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~get")		   == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/something", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
 
-		REQUIRE(PER.put((pChar) "//aa/ent_one/~insert", p_tx_str->p_block, 0) == SERVICE_ERROR_WRONG_BASE);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123~abc~Z")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/any-thing")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~insert",	  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~123",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.put((pChar) "//lmdb/ent_one/papa~child", p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.put((pChar) "//lmdb/ent_one/key~next",   p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
-		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~put",		  p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+		REQUIRE(PER.put((pChar) "//aa/ent_one/~insert", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_two/key_first")	   == SERVICE_ERROR_EMPTY_ENTITY);
-
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_two/~first")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_two/~last")		   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_two/~pfirst")	   == SERVICE_ERROR_EMPTY_ENTITY);
-		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_two/~plast")	   == SERVICE_ERROR_EMPTY_ENTITY);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/papa~child", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~highest",	 p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~123~abc~Z", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/any-thing",  p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
 
 		REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
 		REQUIRE(PER.remove((pChar) "//lmdb/ent_two") == SERVICE_NO_ERROR);
-
+/*
 		WHEN("We test put()/get()/remove() of keys") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_small") == SERVICE_NO_ERROR);
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_big") == SERVICE_NO_ERROR);
@@ -1244,6 +1216,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 			REQUIRE(PER.deque_ent.size() == 0);
 			REQUIRE(PER.deque_key.size() == 0);
 		}
+*/
 		PER.destroy_transaction(p_tx_pop);
 		PER.destroy_transaction(p_tx_str);
 		PER.destroy_transaction(p_tx_chr);
@@ -1252,7 +1225,6 @@ SCENARIO("Strong End-to-end lmdb tests") {
 		PER.destroy_transaction(p_tx_tim);
 		PER.destroy_transaction(p_tx_fil);
 	}
-*/
 	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(PER.p_buffer != nullptr);
 	REQUIRE(PER._lock_	 == 0);
