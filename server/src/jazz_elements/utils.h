@@ -120,7 +120,7 @@ without global variables.
 #define SERVICE_ERROR_ENTITY_NOT_FOUND	-24		///< get() failed on an entity
 #define SERVICE_ERROR_LOW_PRIORITY		-25		///< put() to a full queue failed because priority is lower than lowest in queue.
 #define SERVICE_ERROR_PARENT_NOT_FOUND	-26		///< put() to a tree specifies a non-existing parent.
-
+#define SERVICE_ERROR_TOO_MANY_ENTITIES	-27		///< new_entity() in Persistence failed by MAX_POSSIBLE_SOURCES limit
 
 /** Default path to config file
 */
