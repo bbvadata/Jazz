@@ -308,7 +308,7 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 	pMDB_txn p_l_txn;
 
-	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);
+	pTuple p_blx = (pTuple) lock_pointer_to_block(what, p_l_txn);
 
 	if (p_blx == nullptr) {
 		p_txn = nullptr;
