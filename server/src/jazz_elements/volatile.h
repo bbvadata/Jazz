@@ -372,6 +372,8 @@ class Volatile : public Container {
 				p_item->times_used++;
 				p_item->p_block = p_new;
 
+				p_item->p_block->hash64 = 0;
+
 				p_item->status = BLOCK_STATUS_READY;
 
 				it_queue->second.p_root = aat_insert(p_item, it_queue->second.p_root);
@@ -406,6 +408,8 @@ class Volatile : public Container {
 				return SERVICE_ERROR_NO_MEM;
 			}
 			memcpy(p_new, p_block, p_block->total_bytes);
+
+			p_new->hash64 = 0;
 
 			pVolatileTransaction(p_txn)->priority	= priority;
 			pVolatileTransaction(p_txn)->times_used	= 0;
@@ -446,6 +450,7 @@ class Volatile : public Container {
 			}
 			memcpy(p_new, p_block, p_block->total_bytes);
 			p_txn->p_block = p_new;
+			p_txn->p_block->hash64 = 0;
 			p_txn->status  = BLOCK_STATUS_READY;
 
 			deque_key[ek] = (pVolatileTransaction) p_txn;
@@ -524,6 +529,7 @@ class Volatile : public Container {
 			}
 			memcpy(p_new, p_block, p_block->total_bytes);
 			p_txn->p_block = p_new;
+			p_txn->p_block->hash64 = 0;
 			p_txn->status  = BLOCK_STATUS_READY;
 
 			tree_key[ek] = (pVolatileTransaction) p_txn;
