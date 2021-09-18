@@ -2988,6 +2988,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[0] != nullptr);
 	REQUIRE(p_txn[0]->p_block != nullptr);
 	REQUIRE(p_txn[0]->status  == BLOCK_STATUS_READY);
+	REQUIRE(p_txn[0]->p_block->hash64 == 0);
 
 	REQUIRE(VOL.new_block(p_txn[1], p_txn[0]->p_block, (pBlock) nullptr) == SERVICE_ERROR_NO_MEM);
 	REQUIRE(p_txn[1] == nullptr);
@@ -3006,6 +3007,7 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 	REQUIRE(p_txn[15] != nullptr);
 	REQUIRE(p_txn[15]->p_block != nullptr);
 	REQUIRE(p_txn[15]->status  == BLOCK_STATUS_READY);
+	REQUIRE(p_txn[15]->p_block->hash64 == 0);
 
 	REQUIRE(VOL.p_free == nullptr);
 
