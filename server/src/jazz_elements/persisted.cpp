@@ -207,9 +207,9 @@ StatusCode Persisted::shut_down() {
 
 /** Native (Persistence) interface **complete Block** retrieval.
 
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container.
-	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+	\param p_txn A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+				 Transaction inside the Container.
+	\param what	 Some Locator to the block. E.g. //lmdb/entity/key
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -294,10 +294,10 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what, pBlock p_row_filte
 
 /** Native (Persistence) interface **selection of a tensor in a Tuple** retrieval.
 
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container.
-	\param what		Some Locator to the block. E.g. //lmdb/entity/key
-	\param name		The name of the item to be selected.
+	\param p_txn A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+				 Transaction inside the Container.
+	\param what	 Some Locator to the block. E.g. //lmdb/entity/key
+	\param name	 The name of the item to be selected.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -353,9 +353,9 @@ StatusCode Persisted::header(StaticBlockHeader &hea, Locator &what) {
 
 /** Native (Persistence) interface **metadata of a Block** retrieval.
 
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container.
-	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+	\param p_txn A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+				 Transaction inside the Container.
+	\param what	 Some Locator to the block. E.g. //lmdb/entity/key
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
