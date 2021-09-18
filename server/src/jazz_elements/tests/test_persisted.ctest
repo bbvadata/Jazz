@@ -982,7 +982,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 			REQUIRE(PER.remove((pChar) "//lmdb/ent_small") == SERVICE_NO_ERROR);
 			REQUIRE(PER.remove((pChar) "//lmdb/ent_big")	== SERVICE_NO_ERROR);
 		}
-/*
+
 		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
 
@@ -993,6 +993,22 @@ SCENARIO("Strong End-to-end lmdb tests") {
 			REQUIRE(PER.put((pChar) "//lmdb/ent_one/int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				REQUIRE(p_txn->p_block->rank == 1);
+
+				REQUIRE(pTuple(p_txn->p_block)->index((pChar) "key") == 0);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].dim[0] == 5);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].dim[0] == 5);
+				PER.destroy_transaction(p_txn);
+
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop", (pChar) "key") == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
 				REQUIRE(p_txn->p_block->size == 5);
@@ -1026,20 +1042,6 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				REQUIRE(PER.put((pChar) "//lmdb/ent_one/~last", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
 				REQUIRE(PER.put((pChar) "//lmdb/ent_one/~last", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~plast", p_tx_fil->p_block) == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
-				REQUIRE(p_txn->p_block->size == 8);
-				REQUIRE(p_txn->p_block->rank == 2);
-				REQUIRE(p_txn->p_block->tensor.cell_double[0] == 1.23);
-				REQUIRE(p_txn->p_block->tensor.cell_double[1] == 0);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~plast", (pChar) "key") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_txn->p_block->size == 5);
-				REQUIRE(p_txn->p_block->rank == 1);
-				PER.destroy_transaction(p_txn);
-
 				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 				REQUIRE(p_txn->p_block->size == 2);
@@ -1061,7 +1063,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				PER.destroy_transaction(p_txn);
 
 				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/oops/oops") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/oops/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 				StaticBlockHeader hea;
 
@@ -1076,17 +1078,9 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				REQUIRE(hea.rank == 2);
 
 				REQUIRE(PER.header(hea, (pChar) "//lmdb/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-				REQUIRE(PER.header(hea, (pChar) "//lmdb/oops/oops") == SERVICE_ERROR_ENTITY_NOT_FOUND);
-
-				REQUIRE(PER.header(hea, (pChar) "//lmdb/ent_one/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/~pfirst") == SERVICE_NO_ERROR);
-				PER.destroy_transaction(p_txn);
+				REQUIRE(PER.header(hea, (pChar) "//lmdb/oops/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			}
 			REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
-
-			REQUIRE(PER.name.size() == 0);
-			REQUIRE(PER.deque_ent.size() == 0);
-			REQUIRE(PER.deque_key.size() == 0);
 		}
 		WHEN("We test copy") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_source") == SERVICE_NO_ERROR);
@@ -1099,7 +1093,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_dest") == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_pop") == SERVICE_ERROR_EMPTY_ENTITY);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/copy_pop", (pChar) "//lmdb/ent_source/pop") == SERVICE_NO_ERROR);
 
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/bla_bla") == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -1129,35 +1123,19 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_source/~last") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
-				PER.destroy_transaction(p_txn);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_source/~last") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_source/tim") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_NO_ERROR);
+				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/more_tim") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_source/tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-
-				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_NO_ERROR);
-				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_ERROR_EMPTY_ENTITY);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/more_tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			}
 			REQUIRE(PER.remove((pChar) "//lmdb/ent_source") == SERVICE_NO_ERROR);
-			REQUIRE(PER.remove((pChar) "//lmdb/ent_dest")	 == SERVICE_NO_ERROR);
-
-			REQUIRE(PER.name.size() == 0);
-			REQUIRE(PER.deque_ent.size() == 0);
-			REQUIRE(PER.deque_key.size() == 0);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_dest")	== SERVICE_NO_ERROR);
 		}
-*/
 		PER.destroy_transaction(p_tx_pop);
 		PER.destroy_transaction(p_tx_str);
 		PER.destroy_transaction(p_tx_chr);
