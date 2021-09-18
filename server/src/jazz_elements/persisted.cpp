@@ -326,8 +326,8 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 /** Native (Persistence) interface **metadata of a Block** retrieval.
 
-	\param hea		A StaticBlockHeader structure that will receive the metadata.
-	\param what		Some Locator to the block. E.g. //lmdb/entity/key
+	\param hea	A StaticBlockHeader structure that will receive the metadata.
+	\param what	Some Locator to the block. E.g. //lmdb/entity/key
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
