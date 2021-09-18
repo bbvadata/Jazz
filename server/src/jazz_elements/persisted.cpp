@@ -565,10 +565,12 @@ StatusCode Persisted::remove(Locator &where) {
 	l_key.mv_size = strlen(where.key);
 	l_key.mv_data = (void *) &where.key;
 
-	if (int err = mdb_del(p_txn, hh, &l_key, NULL)) {
-		log_lmdb_err(err, "mdb_del() failed in Persisted::remove().");
+	if (int lmdb_err = mdb_del(lm_tx, hh, &l_key, NULL)) {
+		log_lmdb_err(LOG_MISS, lmdb_err, "mdb_del() failed in Persisted::remove().");
 
-		goto release_txn_and_fail;
+		mdb_txn_abort(lm_tx);
+
+		return SERVICE_ERROR_BLOCK_NOT_FOUND;
 	}
 
 	if (int lmdb_err = mdb_txn_commit(lm_tx)) {
