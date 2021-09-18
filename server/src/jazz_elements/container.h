@@ -454,6 +454,8 @@ class Container : public Service {
 			_lock_ = 0;
 		}
 
+		StatusCode destroy_container();
+
 		/** Returns the binary value of a hex char assuming it is in range.
 
 			\param c	The character which is either 0-9, a-f or A-F
@@ -476,8 +478,7 @@ class Container : public Service {
 
 		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-		StatusCode new_container	();
-		StatusCode destroy_container();
+		StatusCode new_container();
 
 		/** Skip space or tab character while parsing
 
