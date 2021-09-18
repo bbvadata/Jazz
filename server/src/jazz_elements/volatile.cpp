@@ -288,6 +288,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 		}
 
 		memcpy(p_txn->p_block, p_int_txn->p_block, size);
+		p_txn->p_block->hash64 = 0;
 		p_txn->status = BLOCK_STATUS_READY;
 
 		if (pop_ent != 0)
@@ -498,6 +499,7 @@ StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 	memcpy(p_txn->p_block, p_int_txn->p_block, hea_size);
 
 	p_txn->p_block->total_bytes = hea_size;
+	p_txn->p_block->hash64 = 0;
 
 	p_txn->status = BLOCK_STATUS_READY;
 
