@@ -412,6 +412,11 @@ class Container : public Service {
 			if (ret != nullptr)
 				alloc_bytes += size;
 
+#ifdef CATCH_TEST
+			if ((uint64_t) ret & 0x7)
+				log(LOG_ERROR, "Misaligned block !!");
+#endif
+
 			return ret;
 		}
 
