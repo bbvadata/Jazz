@@ -404,15 +404,19 @@ class Block: public StaticBlockHeader {
 			}
 
 #ifdef DEBUG	// Initialize the RAM between the end of the string buffer and last allocated byte for Valgrind.
-			pStringBuffer psb = p_string_buffer();
 
-			char *pt1 = (char *) &psb->buffer[psb->last_idx],
-				 *pt2 = (char *) &cell_type + total_bytes;
-
-			while (pt1 < pt2) {
-				pt1[0] = 0;
-				pt1++;
+			void *p_start;
+			if (cell_type != CELL_TYPE_TUPLE_ITEM) {
+				pStringBuffer psb = p_string_buffer();
+				p_start			  = &psb->buffer[psb->last_idx];
+			} else {
+				pBlock p_blk = (pBlock) ((uintptr_t) &tensor + tensor.cell_item[size - 1].data_start);
+				p_start		 = (void *) ((uintptr_t) p_blk + p_blk->total_bytes);
 			}
+			uintptr_t void_size = total_bytes + (uintptr_t) &cell_type - (uintptr_t) p_start;
+
+			if (void_size > 0)
+				memset(p_start, 0, void_size);
 #endif
 			if (set_hash)
 				hash64 = MurmurHash64A(&tensor, total_bytes - sizeof(BlockHeader));
