@@ -428,18 +428,18 @@ StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 */
 StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
-	pMDB_txn p_txn;
+	pMDB_txn lm_tx;
 
 	if (mode != WRITE_EVERYTHING) {
 		if (mode & WRITE_TENSOR_DATA)
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-		pBlock p_blx = lock_pointer_to_block(where, p_txn);
+		pBlock p_blx = lock_pointer_to_block(where, lm_tx);
 
 		bool already_exists = p_blx != nullptr;
 
 		if (already_exists) {
-			done_pointer_to_block(p_txn);
+			done_pointer_to_block(lm_tx);
 
 			if (mode & WRITE_ONLY_IF_NOT_EXISTS)
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
@@ -499,7 +499,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 release_txn_and_fail:
 
-	mdb_txn_abort(p_txn);
+	mdb_txn_abort(lm_tx);
 
 	return SERVICE_ERROR_WRITE_FAILED;
 }
@@ -581,7 +581,7 @@ StatusCode Persisted::remove(Locator &where) {
 
 release_txn_and_fail:
 
-	mdb_txn_abort(p_txn);
+	mdb_txn_abort(lm_tx);
 
 	return SERVICE_ERROR_REMOVE_FAILED;
 }
@@ -644,14 +644,14 @@ bool Persisted::dbi_exists(Name dbi_name) {
 /** \brief Locates a block doing an mdb_get() leaving the transaction open.
 
 	\param what	 The location of a Block inside LMDB.
-	\param p_txn the transcation created by a lock_pointer_to_block() call.
+	\param lm_tx the transcation created by a lock_pointer_to_block() call.
 
 	\return	The pointer to the block (can **only** be read and **requires** a done_pointer_to_block() to close the transaction) or
 			nullptr (+ log INFO) on error.
 
 NOTE: This requires a subsequent done_pointer_to_block() call.
 */
-pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &p_txn) {
+pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 
 	DBImap::iterator it = source_dbi.find(what.entity);
 
@@ -692,12 +692,11 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &p_txn) {
 
 	return (pBlock) l_data.mv_data;
 
-
 release_txn_and_fail:
 
-	mdb_txn_abort(p_txn);
+	mdb_txn_abort(lm_tx);
 
-	p_txn = nullptr;
+	lm_tx = nullptr;
 
 	return nullptr;
 }
@@ -705,9 +704,9 @@ release_txn_and_fail:
 
 /** \brief Completes the transaction started by lock_pointer_to_block() doing a mdb_txn_commit() which invalidates the pointer.
 
-	\param p_txn the transcation created by a lock_pointer_to_block() call.
+	\param lm_tx the transcation created by a lock_pointer_to_block() call.
 */
-void Persisted::done_pointer_to_block(pMDB_txn &p_txn) {
+void Persisted::done_pointer_to_block(pMDB_txn &lm_tx) {
 
 	if (int lmdb_err = mdb_txn_commit(lm_tx)) {
 		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::done_pointer_to_block().");
