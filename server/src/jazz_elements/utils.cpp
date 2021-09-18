@@ -570,13 +570,12 @@ void Logger::log(int loglevel, const char *message) {
 	if (loglevel == LOG_DEBUG) loglevel = LOG_WARN;		// Should not exist in case of NDEBUG. It becomes a LOG_WARN to force removing it.
 #endif
 
-	char buffer [256];
+	char buffer[256];
 
 #define LEFTAUTO	28
 
 	sprintf(buffer, "%12.6f : %02d : %5zu : ", sec, loglevel, syscall(SYS_gettid));	// This fills LEFTAUTO char
-	while (strlen(buffer) > LEFTAUTO)
-	{
+	while (strlen(buffer) > LEFTAUTO) {
 		int j = strlen(buffer);
 		for (int i = 1; i < j; i++) buffer[i] = buffer[i + 1];
 		buffer[0] = '+';
