@@ -885,167 +885,71 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_four/two") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_four/two") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/four") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-				REQUIRE(PER.name.size() == 6);
-				REQUIRE(PER.deque_ent.size() == 2);
-				REQUIRE(PER.deque_key.size() == 6);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_ERROR_EMPTY_ENTITY);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-
-				REQUIRE(PER.name.size() == 6);
-				REQUIRE(PER.deque_ent.size() == 2);
-				REQUIRE(PER.deque_key.size() == 7);
 
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_str") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~first") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				PER.destroy_transaction(p_txn);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~first") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~last") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~last") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				PER.destroy_transaction(p_txn);
+				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent small/~last") == SERVICE_ERROR_PARSING_NAMES);
 
 				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/~last") == SERVICE_NO_ERROR);
 
-				REQUIRE(strcmp(location.base,	"lmdb")	 == 0);
+				REQUIRE(strcmp(location.base,	"lmdb")		 == 0);
 				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_str")	 == 0);
+				REQUIRE(strcmp(location.key,	"~last")	 == 0);
 
-				REQUIRE(PER.name.size() == 6);
-				REQUIRE(PER.deque_ent.size() == 2);
-				REQUIRE(PER.deque_key.size() == 7);
+				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_NO_ERROR);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.name.size() == 6);
-				REQUIRE(PER.deque_ent.size() == 2);
-				REQUIRE(PER.deque_key.size() == 6);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_ERROR_EMPTY_ENTITY);
-
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
-
-				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/tx_chr~prev") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"lmdb")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_str")	 == 0);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_chr~prev") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"lmdb")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_int")	 == 0);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_ERROR_PARSING_COMMAND);
-
-				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/~last") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"lmdb")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(strcmp(location.key,	"tx_tim")	 == 0);
-
-				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/~first") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"lmdb")	 == 0);
+				REQUIRE(strcmp(location.base,	"lmdb")		 == 0);
 				REQUIRE(strcmp(location.entity, "ent_small") == 0);
 				REQUIRE(strcmp(location.key,	"tx_pop")	 == 0);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~plast") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_chr~prev") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tim") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/pop") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/str") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~plast") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/rea") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~plast") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/int") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
 				PER.destroy_transaction(p_txn);
 
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~plast") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~plast") == SERVICE_ERROR_EMPTY_ENTITY);
-
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/~last", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/~last", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/~last", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/~first", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/~first", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
-				REQUIRE(PER.put((pChar) "//lmdb/ent_small/~first", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/~last") == SERVICE_NO_ERROR);
-
-				REQUIRE(strcmp(location.base,	"lmdb")	 == 0);
-				REQUIRE(strcmp(location.entity, "ent_small") == 0);
-				REQUIRE(location.key[0] == 'k');
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_ERROR_EMPTY_ENTITY);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_pop") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_str") == SERVICE_NO_ERROR);
-				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
-				PER.destroy_transaction(p_txn);
-
-				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_chr") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/chr") == SERVICE_NO_ERROR);
 				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
 				PER.destroy_transaction(p_txn);
 
@@ -1061,15 +965,24 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 				REQUIRE(PER.remove((pChar) "//lmdb/ent_big/tx_chr") == SERVICE_NO_ERROR);
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_chr") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/rea") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/rea") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/pop") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/int") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/int") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/int") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			}
 			REQUIRE(PER.remove((pChar) "//lmdb/ent_small") == SERVICE_NO_ERROR);
 			REQUIRE(PER.remove((pChar) "//lmdb/ent_big")	== SERVICE_NO_ERROR);
-
-			REQUIRE(PER.name.size() == 0);
-			REQUIRE(PER.deque_ent.size() == 0);
-			REQUIRE(PER.deque_key.size() == 0);
 		}
-
+/*
 		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
 
