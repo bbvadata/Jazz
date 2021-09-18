@@ -118,8 +118,8 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define TIME_POINT_NA			0			///< NA for a CELL_TYPE_TIME is a 64-bit zero. Type does not exist in R.
 #define DOUBLE_NA				R_NA		///< NA for a double. This is R compatible.
 
-#define SINGLE_NA_UINT32		F_NA_uint32		///< An unsigned int32 version to .cell_uint[] ==
-#define DOUBLE_NA_UINT64		R_NA_uint64		///< An unsigned int64 version to .cell_ulongint[] ==
+#define SINGLE_NA_UINT32		F_NA_uint32	///< An unsigned int32 version to .cell_uint[] ==
+#define DOUBLE_NA_UINT64		R_NA_uint64	///< An unsigned int64 version to .cell_ulongint[] ==
 
 /// Possible return values of Block.filter_type() and Block.filter_audit()
 
