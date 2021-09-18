@@ -967,6 +967,12 @@ release_lock_and_fail:
 
 
 /** \brief A nicer presentation for LMDB error messages.
+
+	\param loglevel	The log level with which the messages have to be delivered.
+	\param lmdb_err	The error code returned by lmdb.
+	\param msg		An additional explanatory message about the circumstances how it happened.
+
+NOTE: One call to this produces two log lines: one with the translation of the lmdb code the second one with msg.
 */
 void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 
