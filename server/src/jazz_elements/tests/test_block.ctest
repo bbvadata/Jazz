@@ -74,19 +74,19 @@ SCENARIO("Testing Cell Sizes") {
 			jb_tup.size = siz;
 			jb_kin.size = siz;
 
-			REQUIRE(jb_byt.p_attribute_keys() == jb_byt.align_128bit((uintptr_t) &jb_byt.tensor + siz*sizeof(uint8_t)));
-			REQUIRE(jb_byb.p_attribute_keys() == jb_byb.align_128bit((uintptr_t) &jb_byb.tensor + siz*sizeof(bool)));
-			REQUIRE(jb_int.p_attribute_keys() == jb_int.align_128bit((uintptr_t) &jb_int.tensor + siz*sizeof(int)));
-			REQUIRE(jb_fac.p_attribute_keys() == jb_fac.align_128bit((uintptr_t) &jb_fac.tensor + siz*sizeof(int)));
-			REQUIRE(jb_gra.p_attribute_keys() == jb_gra.align_128bit((uintptr_t) &jb_gra.tensor + siz*sizeof(int)));
-			REQUIRE(jb_boo.p_attribute_keys() == jb_boo.align_128bit((uintptr_t) &jb_boo.tensor + siz*sizeof(uint32_t)));
-			REQUIRE(jb_sin.p_attribute_keys() == jb_sin.align_128bit((uintptr_t) &jb_sin.tensor + siz*sizeof(float)));
-			REQUIRE(jb_str.p_attribute_keys() == jb_str.align_128bit((uintptr_t) &jb_str.tensor + siz*sizeof(uint32_t)));
-			REQUIRE(jb_lin.p_attribute_keys() == jb_lin.align_128bit((uintptr_t) &jb_lin.tensor + siz*sizeof(long long)));
-			REQUIRE(jb_tim.p_attribute_keys() == jb_tim.align_128bit((uintptr_t) &jb_tim.tensor + siz*sizeof(uint64_t)));
-			REQUIRE(jb_dob.p_attribute_keys() == jb_dob.align_128bit((uintptr_t) &jb_dob.tensor + siz*sizeof(double)));
-			REQUIRE(jb_tup.p_attribute_keys() == jb_tup.align_128bit((uintptr_t) &jb_tup.tensor + siz*sizeof(ItemHeader)));
-			REQUIRE(jb_kin.p_attribute_keys() == jb_kin.align_128bit((uintptr_t) &jb_kin.tensor + siz*sizeof(ItemHeader)));
+			REQUIRE(jb_byt.p_attribute_keys() == jb_byt.align64bit((uintptr_t) &jb_byt.tensor + siz*sizeof(uint8_t)));
+			REQUIRE(jb_byb.p_attribute_keys() == jb_byb.align64bit((uintptr_t) &jb_byb.tensor + siz*sizeof(bool)));
+			REQUIRE(jb_int.p_attribute_keys() == jb_int.align64bit((uintptr_t) &jb_int.tensor + siz*sizeof(int)));
+			REQUIRE(jb_fac.p_attribute_keys() == jb_fac.align64bit((uintptr_t) &jb_fac.tensor + siz*sizeof(int)));
+			REQUIRE(jb_gra.p_attribute_keys() == jb_gra.align64bit((uintptr_t) &jb_gra.tensor + siz*sizeof(int)));
+			REQUIRE(jb_boo.p_attribute_keys() == jb_boo.align64bit((uintptr_t) &jb_boo.tensor + siz*sizeof(uint32_t)));
+			REQUIRE(jb_sin.p_attribute_keys() == jb_sin.align64bit((uintptr_t) &jb_sin.tensor + siz*sizeof(float)));
+			REQUIRE(jb_str.p_attribute_keys() == jb_str.align64bit((uintptr_t) &jb_str.tensor + siz*sizeof(uint32_t)));
+			REQUIRE(jb_lin.p_attribute_keys() == jb_lin.align64bit((uintptr_t) &jb_lin.tensor + siz*sizeof(long long)));
+			REQUIRE(jb_tim.p_attribute_keys() == jb_tim.align64bit((uintptr_t) &jb_tim.tensor + siz*sizeof(uint64_t)));
+			REQUIRE(jb_dob.p_attribute_keys() == jb_dob.align64bit((uintptr_t) &jb_dob.tensor + siz*sizeof(double)));
+			REQUIRE(jb_tup.p_attribute_keys() == jb_tup.align64bit((uintptr_t) &jb_tup.tensor + siz*sizeof(ItemHeader)));
+			REQUIRE(jb_kin.p_attribute_keys() == jb_kin.align64bit((uintptr_t) &jb_kin.tensor + siz*sizeof(ItemHeader)));
 		}
 	}
 }
@@ -805,16 +805,6 @@ SCENARIO("Testing String and Attribute logic") {
 
 		REQUIRE(pjb->num_attributes == 4);
 
-// Removed, since it assumes maps are sorted by key
-		// REQUIRE(pti[0] == 2477);
-		// REQUIRE(pti[1] == 3185);
-		// REQUIRE(pti[2] == 4420);
-		// REQUIRE(pti[3] == 6217);
-		// REQUIRE(pti[4] == 2);
-		// REQUIRE(pti[5] == 24);
-		// REQUIRE(pti[6] == 30);
-		// REQUIRE(pti[7] == 56);
-
 		for (int i = 5; i < 140; i++)
 			pjb->set_string(i, sstr[(i - 5) % 9]);
 
@@ -855,54 +845,9 @@ SCENARIO("Testing String and Attribute logic") {
 		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
 		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
 
-// Removed, since it assumes maps are sorted by key
-		// REQUIRE(pti[0] == 2477);
-		// REQUIRE(pti[1] == 3185);
-		// REQUIRE(pti[2] == 4420);
-		// REQUIRE(pti[3] == 6217);
-		// REQUIRE(pti[4] == 2);
-		// REQUIRE(pti[5] == 24);
-		// REQUIRE(pti[6] == 30);
-		// REQUIRE(pti[7] == 56);
-
-
 		char *pt = reinterpret_cast<char *>(&pjb->p_string_buffer()->buffer[2]);
 
 		REQUIRE((uintptr_t) pt == (uintptr_t) psb + 14);
-
-// Removed, since it assumes maps are sorted by key
-		// REQUIRE(pt[ 0] == 'h');
-		// REQUIRE(pt[ 1] == 't');
-		// REQUIRE(pt[ 2] == 't');
-		// REQUIRE(pt[ 3] == 'p');
-		// REQUIRE(pt[ 4] == ':');
-		// REQUIRE(pt[ 5] == '/');
-		// REQUIRE(pt[ 6] == '/');
-		// REQUIRE(pt[ 7] == 'w');
-		// REQUIRE(pt[ 8] == 'w');
-		// REQUIRE(pt[ 9] == 'w');
-
-		// REQUIRE(pt[10] == '.');
-		// REQUIRE(pt[11] == 'g');
-		// REQUIRE(pt[12] == 'o');
-		// REQUIRE(pt[13] == 'o');
-		// REQUIRE(pt[14] == 'g');
-		// REQUIRE(pt[15] == 'l');
-		// REQUIRE(pt[16] == 'e');
-		// REQUIRE(pt[17] == '.');
-		// REQUIRE(pt[18] == 'c');
-		// REQUIRE(pt[19] == 'o');
-
-		// REQUIRE(pt[20] == 'm');
-		// REQUIRE(pt[21] == 0);
-		// REQUIRE(pt[22] == 'e');
-		// REQUIRE(pt[23] == 'n');
-		// REQUIRE(pt[24] == '_');
-		// REQUIRE(pt[25] == 'u');
-		// REQUIRE(pt[26] == 's');
-		// REQUIRE(pt[27] == 0);
-		// REQUIRE(pt[28] == 'T');
-		// REQUIRE(pt[29] == 'h');
 
 		REQUIRE(!strcmp(pjb->get_attribute(2477), "http://www.google.com"));
 		REQUIRE(!strcmp(pjb->get_attribute(3185), "en_us"));
@@ -980,7 +925,7 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
-		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
 	}
 
 	GIVEN("A valid boolean filter pjf for pjb") {
@@ -1010,7 +955,7 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
-		REQUIRE( pjf->p_string_buffer()->buffer_size == 4);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 12);
 
 		for (int i = 0; i < 17; i++)
 			pjf->tensor.cell_byte[i] = 0;
@@ -1076,7 +1021,7 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
-		REQUIRE( pjf->p_string_buffer()->buffer_size == 4);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 12);
 
 		for (int i = 0; i < 4; i++)
 			pjf->tensor.cell_int[i] = 2*i;
@@ -1506,7 +1451,7 @@ SCENARIO("Testing Block::find_NAs_in_tensor() checking boundaries") {
 
 		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
-		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
 	}
 
 	uint64_t *pt64 = reinterpret_cast<uint64_t *>(&pjb->tensor);

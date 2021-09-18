@@ -671,7 +671,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 #ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
 	{
 		char *pt1 = (char *) &p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size,
-			 *pt2 = (char *) p_txn->p_block->align_128bit((uintptr_t) pt1);
+			 *pt2 = (char *) p_txn->p_block->align64bit((uintptr_t) pt1);
 
 		while (pt1 < pt2) {
 			*(pt1++) = 0;
