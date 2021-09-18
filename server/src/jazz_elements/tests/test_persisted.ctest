@@ -705,6 +705,10 @@ SCENARIO("Strong End-to-end lmdb tests") {
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
 		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
 		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
@@ -795,7 +799,13 @@ SCENARIO("Strong End-to-end lmdb tests") {
 		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123~abc~Z")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
 		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/any-thing")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
 
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
 		REQUIRE(PER.put((pChar) "//lmdb/ent_one/something", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
 
 		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -811,13 +821,21 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 		REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
 		REQUIRE(PER.remove((pChar) "//lmdb/ent_two") == SERVICE_NO_ERROR);
-/*
+
 		WHEN("We test put()/get()/remove() of keys") {
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_small") == SERVICE_NO_ERROR);
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_big") == SERVICE_NO_ERROR);
 
 			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_pop", p_tx_pop->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
 			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+
+			REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
 			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
 			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_int", p_tx_int->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
@@ -832,8 +850,18 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
 
+			REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
 			THEN("We get expected structure") {
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_pop") == SERVICE_NO_ERROR);
+
+				REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+				REQUIRE(pTuple(p_txn->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(strcmp(pTuple(p_txn->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
 				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
 				PER.destroy_transaction(p_txn);
 
