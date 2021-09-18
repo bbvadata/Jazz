@@ -1562,3 +1562,44 @@ SCENARIO("Testing Block::find_NAs_in_tensor() checking boundaries") {
 
 	REQUIRE(!pjb->find_NAs_in_tensor());
 }
+
+
+SCENARIO("Testing AlignToThis") {
+	char buf[4096];
+
+	int6 d1 = {5, 4, 0, 0, 0, 0};
+
+	AttributeMap att;
+	att[666] = nullptr;
+
+	for (int b_ofs = 0; b_ofs < 16; b_ofs++) {
+		pBlock p_bl = (pBlock) &buf[b_ofs];
+
+		REQUIRE(((uintptr_t) p_bl & 0xf) == b_ofs);
+
+		p_bl->cell_type = CELL_TYPE_BYTE;
+
+		p_bl->set_dimensions(d1);
+		REQUIRE(p_bl->rank ==  2);
+		REQUIRE(p_bl->size == 20);
+
+		p_bl->num_attributes = 0;
+		p_bl->total_bytes = 64 + 20 + 64;
+
+		p_bl->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(p_bl->num_attributes == 1);
+
+		REQUIRE(!p_bl->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!p_bl->p_string_buffer()->alloc_failed);
+		REQUIRE( p_bl->p_string_buffer()->buffer_size == 40);
+
+		for (int i = 0; i < 16; i++) {
+			void *pt = &p_bl->tensor.cell_byte[i];
+
+			void *pt2 = p_bl->align64bit((uintptr_t) pt);
+
+			REQUIRE(((uintptr_t) pt2 & 0x7) == (b_ofs & 0x7));
+		}
+	}
+}
