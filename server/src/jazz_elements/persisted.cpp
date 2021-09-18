@@ -968,11 +968,11 @@ release_lock_and_fail:
 
 /** \brief A nicer presentation for LMDB error messages.
 */
-void Persisted::log_lmdb_err(int err, const char * msg) {
+void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 
 	char errmsg [128];
 
-	switch (err) {
+	switch (lmdb_err) {
 	case MDB_KEYEXIST:
 		strcpy(errmsg, "LMDB MDB_KEYEXIST: Key/data pair already exists.");
 		break;
@@ -1052,11 +1052,11 @@ void Persisted::log_lmdb_err(int err, const char * msg) {
 		strcpy(errmsg, "LMDB ENOMEM: Out of memory.");
 		break;
 	default:
-		sprintf(errmsg,"LMDB Unknown code %d.", err);
+		sprintf(errmsg,"LMDB Unknown code %d.", lmdb_err);
 	}
 
-	log(LOG_ERROR, errmsg);
-	log(LOG_MISS, msg);
+	log(loglevel, errmsg);
+	log(loglevel, msg);
 }
 
 } // namespace jazz_elements

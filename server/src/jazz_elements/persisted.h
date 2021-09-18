@@ -161,7 +161,7 @@ class Persisted : public Container {
 
 		// Logger with full messages for lmdb errors.
 
-		void log_lmdb_err(int err, const char *msg);
+		void log_lmdb_err(int loglevel, int lmdb_err, const char *msg);
 
 		DBImap source_dbi = {};
 		JazzLmdbOptions lmdb_opt;
