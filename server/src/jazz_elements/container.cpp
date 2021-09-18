@@ -821,11 +821,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		}
 	}
 
+	p_txn->p_block->hash64 = 0;
 	p_txn->status = BLOCK_STATUS_READY;
-
-#ifdef CATCH_TEST		// Avoid cppcheck incorrectly considering MurmurHash64A() is not used
-	p_txn->p_block->hash64 = MurmurHash64A(&p_txn->p_block->tensor, p_txn->p_block->total_bytes - sizeof(StaticBlockHeader));
-#endif
 
 	return SERVICE_NO_ERROR;
 }
@@ -967,6 +964,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 				}
 			}
 		}
+		p_txn->p_block->hash64 = 0;
 		p_txn->status = BLOCK_STATUS_READY;
 
 		return SERVICE_NO_ERROR;
@@ -976,9 +974,10 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		AttributeMap void_att = {};
 		ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, void_att);
 
-		if (ret == SERVICE_NO_ERROR)
+		if (ret == SERVICE_NO_ERROR) {
+			p_txn->p_block->hash64 = 0;
 			p_txn->status = BLOCK_STATUS_READY;
-		else
+		} else
 			destroy_transaction(p_txn);
 
 		return ret;
@@ -986,9 +985,10 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 	ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att);
 
-	if (ret == SERVICE_NO_ERROR)
+	if (ret == SERVICE_NO_ERROR) {
+		p_txn->p_block->hash64 = 0;
 		p_txn->status = BLOCK_STATUS_READY;
-	else
+	} else
 		destroy_transaction(p_txn);
 
 	return ret;
@@ -1053,8 +1053,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			bytes_per_row		= old_tensor_size/tensor_rows;
 			int new_tensor_size = selected_rows*bytes_per_row;
 
-			old_tensor_size = (uintptr_t) p_from->align_128bit(old_tensor_size);
-			new_tensor_size = (uintptr_t) p_from->align_128bit(new_tensor_size);
+			old_tensor_size = (uintptr_t) p_from->align64bit(old_tensor_size);
+			new_tensor_size = (uintptr_t) p_from->align64bit(new_tensor_size);
 
 			tensor_diff = new_tensor_size - old_tensor_size;
 		}
@@ -1167,6 +1167,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		memcpy(p_nsb, p_osb, p_osb->buffer_size + sizeof(StringBuffer));
 	}
 
+	p_txn->p_block->hash64 = 0;
+
 	p_txn->status = BLOCK_STATUS_READY;
 
 	return SERVICE_NO_ERROR;
@@ -1199,7 +1201,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_WRONG_TYPE;
 	}
 
-	int idx = reinterpret_cast<pTuple>(p_from)->index(name);
+	int idx = p_from->index(name);
 
 	if (idx < 0) {
 		p_txn = nullptr;
@@ -1207,9 +1209,9 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_WRONG_NAME;
 	}
 
-	pBlock block = reinterpret_cast<pTuple>(p_from)->get_block(idx);
+	pBlock p_block = p_from->get_block(idx);
 
-	return new_block(p_txn, block, (pBlock) nullptr, att);	// This manages the alloc issues of att and possible strings already.
+	return new_block(p_txn, p_block, (pBlock) nullptr, att);	// This manages the alloc issues of att and possible strings already.
 }
 
 
@@ -1666,6 +1668,8 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 	p_txn->p_hea->size	    = 1;
 
 	p_txn->p_hea->index = {};
+
+	p_txn->p_block->hash64 = 0;
 
 	p_txn->status = BLOCK_STATUS_READY;
 
