@@ -2093,7 +2093,8 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 
 	\return	SERVICE_NO_ERROR on success (and a valid location), or some negative value (error).
 
-This just copies what into location
+NOTE: This just copies what into location. It will not verify the existence of the block. The function of locate() is to
+evaluate commands in Containers supporting them (E.g, Volatile). Otherwise, it is a trivial conversion from the easy into the native API.
 */
 StatusCode Container::locate(Locator &location, Locator &what) {
 
