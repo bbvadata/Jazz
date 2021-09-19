@@ -254,113 +254,121 @@ SCENARIO("Write/read some blocks in a new source and close the Container.") {
 }
 
 
-	REQUIRE(jb.new_source("test1"));
-	REQUIRE(jb.new_source("test2"));
+SCENARIO("Read again previous blocks in a new Container.") {
 
-	REQUIRE(jb.num_sources() == 4);
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(jb.source_idx[0] == -1);
-	REQUIRE(jb.source_idx[1] == -1);
-	REQUIRE(jb.source_idx[tenbits("sys")]	== 0);
-	REQUIRE(jb.source_idx[tenbits("www")]	== 1);
-	REQUIRE(jb.source_idx[tenbits("test1")] == 3);
-	REQUIRE(jb.source_idx[1023] == -1);
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
 
-	jb.close_all_sources();
+	GIVEN("We have some blocks and indices") {
+		Index txt;
 
-	REQUIRE(jb.num_sources() == 0);
+		txt["this"]	  = "Whatever we write here";
+		txt["thing"]  = "[[1,2,3,4,5]]";
+		txt["gets"]	  = "";
+		txt["stored"] = "A multiline string\nis okay\nEñe";
 
-	REQUIRE(jb.source_idx[0] == -1);
-	REQUIRE(jb.source_idx[1] == -1);
-	REQUIRE(jb.source_idx[tenbits("sys")]	== -1);
-	REQUIRE(jb.source_idx[tenbits("www")]	== -1);
-	REQUIRE(jb.source_idx[tenbits("test1")] == -1);
-	REQUIRE(jb.source_idx[1023] == -1);
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim;
 
-	REQUIRE(jb.get_source_idx("") < 0);
-	REQUIRE(jb.get_source_idx("\0.") < 0);
+		int dim[MAX_TENSOR_RANK] = {10, 3, 2};
 
-	REQUIRE(jb.get_source_idx("sys") < 0);
-	REQUIRE(jb.get_source_idx("www") < 0);
+		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
 
-	REQUIRE(jb.open_all_sources());
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
 
-	REQUIRE(jb.num_sources() == 4);
+		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
 
-	REQUIRE(jb.get_source_idx("") < 0);
-	REQUIRE(jb.get_source_idx("\0■") < 0);
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_int->p_block->tensor.cell_int[0]  = 1;
+		p_tx_int->p_block->tensor.cell_int[59] = 59;
 
-	REQUIRE(jb.get_source_idx("sys") == 0);
-	REQUIRE(jb.get_source_idx("www") == 1);
-	REQUIRE(jb.get_source_idx("test1") == 2);
-	REQUIRE(jb.get_source_idx("test2") == 3);
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
 
-	REQUIRE(jb.get_source_idx("") < 0);
-	REQUIRE(jb.get_source_idx("\0\1") < 0);
+		REQUIRE(PER.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
 
-	pRawBlock  p_raw1, p_raw2;
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
 
-	static const char* const sss1[] = {"", "Hello, world!\0"};
-	static const char* const sss2[] = {"", "Hallo, world?\0"};
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
 
-	bool ok_p_raw1 = jb.new_block_C_RAW_once(p_raw1, sss1[1], strlen(sss1[1]) + 1);
-	bool ok_p_raw2 = jb.new_block_C_RAW_once(p_raw2, sss2[1], strlen(sss2[1]) + 1);
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
 
-	REQUIRE(ok_p_raw1);
-	REQUIRE(ok_p_raw2);
+		REQUIRE(timeinfo->tm_mday == 1);
 
-	REQUIRE(p_raw1->type	  == BLOCKTYPE_RAW_ANYTHING);
-	REQUIRE(p_raw1->length == 1);
-	REQUIRE(p_raw1->size	  == 14);
+		for (int i = 0; i < 60; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
 
-	REQUIRE(p_raw1->data[ 0] == 'H');
-	REQUIRE(p_raw1->data[ 1] == 'e');
-	REQUIRE(p_raw1->data[12] == '!');
-	REQUIRE(p_raw1->data[13] == 0);
+		pTransaction p_txn;
 
-	REQUIRE(jb.reinterpret_cast_block(p_raw1, BLOCKTYPE_RAW_MIME_TXT));
+		WHEN("We get recover the previous blocks") {
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+			PER.destroy_transaction(p_txn);
 
-	REQUIRE(p_raw1->type == BLOCKTYPE_RAW_MIME_TXT);
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/str-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+			PER.destroy_transaction(p_txn);
 
-	REQUIRE(p_raw2->type	  == BLOCKTYPE_RAW_ANYTHING);
-	REQUIRE(p_raw2->length == 1);
-	REQUIRE(p_raw2->size	  == 14);
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/chr-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+			PER.destroy_transaction(p_txn);
 
-	REQUIRE(p_raw2->data[ 0] == 'H');
-	REQUIRE(p_raw2->data[ 1] == 'a');
-	REQUIRE(p_raw2->data[12] == '?');
-	REQUIRE(p_raw2->data[13] == 0);
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/int-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+			PER.destroy_transaction(p_txn);
 
-	persistedKey kk[] = {"0_zer0", "1_o1e", "2_t2o", "3_thr33", "987654321012345"};
-	persistedKey KK[] = {"0_ZER0", "1_O1E", "2_T2O", "3_THR33"};
-	persistedKey searchK;
-	pJazzBlock	pLbl0 = NULL, pLbl1 = NULL, pLbl2 = NULL, pLbl3 = NULL, pLbl4 = NULL, pLblN = NULL;
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/rea-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+			PER.destroy_transaction(p_txn);
 
-	REQUIRE(!jb.block_get(2, kk[0], pLbl0));
-	REQUIRE( jb.block_put(2, kk[0], p_raw1));
-	REQUIRE( jb.block_get(2, kk[0], pLbl0));
-	REQUIRE(!jb.block_get(2, KK[0], pLblN));
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/tim-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+			PER.destroy_transaction(p_txn);
+		}
+		REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing") == SERVICE_NO_ERROR);
 
-	REQUIRE(p_raw1 != pLbl0);
-	REQUIRE(p_raw1->type	  == pLbl0->type);
-	REQUIRE(p_raw1->length == pLbl0->length);
-	REQUIRE(p_raw1->size	  == pLbl0->size);
-	REQUIRE(p_raw1->hash64 == pLbl0->hash64);
-	REQUIRE(!strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl0)->data));
+		PER.destroy_transaction(p_tx_pop);
+		PER.destroy_transaction(p_tx_str);
+		PER.destroy_transaction(p_tx_chr);
+		PER.destroy_transaction(p_tx_int);
+		PER.destroy_transaction(p_tx_rea);
+		PER.destroy_transaction(p_tx_tim);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
 
-	REQUIRE( jb.block_unprotect(pLbl0));
-	REQUIRE(!jb.block_unprotect(pLbl0));
-	REQUIRE(!jb.block_unprotect(pLbl1));
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.block_get(2, kk[1], pLbl1));
-	REQUIRE( jb.block_put(2, kk[1], p_raw1));
-	REQUIRE( jb.block_get(2, kk[1], pLbl1));
-	REQUIRE(!jb.block_get(2, KK[1], pLblN));
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
+}
 
-	REQUIRE(!jb.block_get(2, kk[2], pLbl2));
-	REQUIRE( jb.block_put(2, kk[2], p_raw1));
-	REQUIRE( jb.block_get(2, kk[2], pLbl2));
-	REQUIRE(!jb.block_get(2, KK[2], pLblN));
 
 	REQUIRE(!jb.block_get(2, kk[3], pLbl3));
 	REQUIRE( jb.block_put(2, kk[3], p_raw1));
