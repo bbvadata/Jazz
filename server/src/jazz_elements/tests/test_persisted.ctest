@@ -581,13 +581,18 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 			REQUIRE(PER.source_dbi.size() == 0);
 
+			REQUIRE(!PER.dbi_exists((pChar) "ent_one"));
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
+			REQUIRE(PER.dbi_exists((pChar) "ent_one"));
 
 			REQUIRE(PER.source_dbi.size() == 1);
 
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two/~0") == SERVICE_ERROR_PARSING_COMMAND);
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")	== SERVICE_NO_ERROR);
 			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_three")	== SERVICE_NO_ERROR);
+
+			REQUIRE( PER.dbi_exists((pChar) "ent_three"));
+			REQUIRE(!PER.dbi_exists((pChar) "ent_four"));
 
 			THEN("We get expected structure") {
 				REQUIRE(PER.source_dbi.size() == 3);
