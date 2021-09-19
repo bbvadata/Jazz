@@ -2016,7 +2016,7 @@ mdb_page_malloc(MDB_txn *txn, unsigned num)
 	if ((ret = malloc(sz)) != NULL) {
 		VGMEMP_ALLOC(env, ret, sz);
 		if (!(env->me_flags & MDB_NOMEMINIT)) {
-			memset((char *)ret + off, 0, psize);
+			memset(ret, 0, sz);
 			ret->mp_pad = 0;
 		}
 	} else {
