@@ -840,6 +840,8 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				REQUIRE(p_txn->p_block->rank == 1);
 				PER.destroy_transaction(p_txn);
 
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop_ooo", (pChar) "key") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/rea", p_tx_fil->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
 				REQUIRE(p_txn->p_block->size == 8);
@@ -847,6 +849,8 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				REQUIRE(p_txn->p_block->tensor.cell_double[0] == 1.23);
 				REQUIRE(p_txn->p_block->tensor.cell_double[1] == 0);
 				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/rea_ooo", p_tx_fil->p_block) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/tim", p_tx_fil->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
