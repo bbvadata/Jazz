@@ -20,7 +20,7 @@ mkdir dynamic_analysis_reports
 valgrind --leak-check=yes --suppressions=../valgrind_suppress_lmdb.conf --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
 
 #This displays in the listing code to superess each message:
-#valgrind --leak-check=yes --gen-suppressions=all --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
+#valgrind --leak-check=yes --gen-suppressions=all --suppressions=../valgrind_suppress_lmdb.conf --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
 
 #This is a completely non-suppressed version:
 #valgrind --leak-check=yes --log-file=dynamic_analysis_reports/memcheck.txt ./tjazz
