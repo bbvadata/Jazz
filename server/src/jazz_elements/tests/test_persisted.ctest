@@ -43,140 +43,91 @@ Logger		LOG2(CNF2, "LOGGER_PATH");
 Persisted	PER(&LOG2, &CNF2);
 
 
-// Tests
-// -----
+void test_block_names(pChar prefix, pBlock p_block) {
 
-SCENARIO("Write/read some blocks in new sources jzzBLOCKS.") {
-/*
-	jzzBLOCKS jb;
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
+char		 buf[128];
+pTransaction p_txn;
 
-	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
+	sprintf(buf, "%s/-", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
 
-	REQUIRE(jb.start());
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-	REQUIRE(jb.new_source("a_bool"));
-	REQUIRE(jb.new_source("some_int"));
-	REQUIRE(jb.new_source("some_double"));
-	REQUIRE(jb.new_source("a_string"));
-	REQUIRE(jb.new_source("a_raw"));
+	sprintf(buf, "%s/~", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
 
-	GIVEN("Some block_C_OFFS_CHARS") {
-		pBoolBlock p_boo;
-		pIntBlock  pbi1, pbi2;
-		pRealBlock pbr1, pbr2;
-		pCharBlock p_st;
-		pRawBlock  p_rw;
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-		REQUIRE(jb.new_block_C_BOOL_rep	  (p_boo, true, 3));
-		REQUIRE(jb.new_block_C_INTEGER_rep(pbi1, 123, 4));
-		REQUIRE(jb.new_block_C_INTEGER_seq(pbi2, 6, 15, 3));
-		REQUIRE(jb.new_block_C_REAL_rep	  (pbr1, 1.234, 5));
-		REQUIRE(jb.new_block_C_REAL_seq	  (pbr2, 6, 7, 0.1));
-		REQUIRE(jb.new_block_C_CHARS_rep  (p_st, "Penny!", 3));
-		REQUIRE(jb.new_block_C_RAW_once	  (p_rw, "Something", strlen("Something")));
+	sprintf(buf, "%s/_", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
 
-		persistedKey key;
-		jb.char_to_key("boo", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("a_bool"),	   key, (pJazzBlock) p_boo));
-		jb.char_to_key("in1", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("some_int"),	   key, (pJazzBlock) pbi1));
-		jb.char_to_key("in2", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("some_int"),	   key, (pJazzBlock) pbi2));
-		jb.char_to_key("rr1", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("some_double"), key, (pJazzBlock) pbr1));
-		jb.char_to_key("rr2", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("some_double"), key, (pJazzBlock) pbr2));
-		jb.char_to_key("str", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("a_string"),	   key, (pJazzBlock) p_st));
-		jb.char_to_key("raw", key);
-		REQUIRE(jb.block_put(jb.get_source_idx("a_raw"),	   key, (pJazzBlock) p_rw));
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-		THEN("The content is identical") {
-			pJazzBlock p_jazz;
+	sprintf(buf, "%s/a", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
 
-			jb.char_to_key("boo", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("a_bool"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_boo));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_boo));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-			jb.char_to_key("in1", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi1));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi1));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	sprintf(buf, "%s/A", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
-			jb.char_to_key("in2", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi2));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi2));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-			jb.char_to_key("rr1", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr1));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr1));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	sprintf(buf, "%s/3", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
-			jb.char_to_key("rr2", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr2));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr2));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-			jb.char_to_key("str", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("a_string"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_st));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_st));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	sprintf(buf, "%s/~~~~~~~~~~0123456789~~~~~~~~~~-", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
-			jb.char_to_key("raw", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("a_raw"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_rw));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_rw));
-			REQUIRE(jb.block_unprotect(p_jazz));
-		}
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-		JAZZFREE(p_boo, AUTOTYPEBLOCK(p_boo));
-		JAZZFREE(pbi1, AUTOTYPEBLOCK(pbi1));
-		JAZZFREE(pbi2, AUTOTYPEBLOCK(pbi2));
-		JAZZFREE(pbr1, AUTOTYPEBLOCK(pbr1));
-		JAZZFREE(pbr2, AUTOTYPEBLOCK(pbr2));
-		JAZZFREE(p_st, AUTOTYPEBLOCK(p_st));
-		JAZZFREE(p_rw, AUTOTYPEBLOCK(p_rw));
+	sprintf(buf, "%s/----------0123456789----------~", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
-		REQUIRE(p_boo == NULL);
-		REQUIRE(pbi1 == NULL);
-		REQUIRE(pbi2 == NULL);
-		REQUIRE(pbr1 == NULL);
-		REQUIRE(pbr2 == NULL);
-		REQUIRE(p_st == NULL);
-		REQUIRE(p_rw == NULL);
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 
-		REQUIRE(jazzPtrTrackClose());
-	}
+	sprintf(buf, "%s/__________0123456789__________~", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
-	jb.stop();
-*/
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/abcdefghij0123456789ABCDEFGHIJ_", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/abcdefghij012345-cd8_ef~ZTX~1.2", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
 }
 
-
-SCENARIO("Read again previous blocks in new sources jzzBLOCKS.") {
-/*
-	jzzBLOCKS jb;
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
-
-	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
-
-	REQUIRE(jb.start());
-
-	GIVEN("Open again block_C_OFFS_CHARS") {
-		pBoolBlock p_boo;
-		pIntBlock  pbi1, pbi2;
-		pRealBlock pbr1, pbr2;
-		pCharBlock p_st;
-		pRawBlock  p_rw;
+// Tests
+// -----
 
 		REQUIRE(jb.new_block_C_BOOL_rep	  (p_boo, true, 3));
 		REQUIRE(jb.new_block_C_INTEGER_rep(pbi1, 123, 4));
