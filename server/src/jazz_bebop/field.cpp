@@ -41,6 +41,6 @@ namespace jazz_bebop
 
 } // namespace jazz_bebop
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_bebop/tests/test_field.ctest"
 #endif

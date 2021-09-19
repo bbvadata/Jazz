@@ -37,7 +37,7 @@
 
 #include "src/jazz_elements/kind.h"
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 

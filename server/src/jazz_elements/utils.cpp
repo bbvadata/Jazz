@@ -496,7 +496,7 @@ Logger::Logger(const char *output_file_name) {
 	.. if failed, clears the file_name (that can be queried via get_output_file_name())
 */
 void Logger::InitLogger() {
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 	SkipLogOnce = false;
 #endif
 
@@ -557,7 +557,7 @@ int Logger::get_output_file_name(char *buff, int buff_size) {
 	If loglevel >= LOG_WARN, the output also goes to stderr.
 */
 void Logger::log(int loglevel, const char *message) {
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 	if (SkipLogOnce) {
 		SkipLogOnce = false;
 		return;
@@ -676,6 +676,6 @@ StatusCode Service::shut_down() {
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_utils.ctest"
 #endif

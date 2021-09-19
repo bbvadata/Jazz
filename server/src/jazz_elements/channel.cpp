@@ -466,6 +466,6 @@ MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_channel.ctest"
 #endif

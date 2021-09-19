@@ -76,6 +76,6 @@ int Tuple::audit() {
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_tuple.ctest"
 #endif

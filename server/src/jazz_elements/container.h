@@ -40,7 +40,7 @@
 
 #include "src/jazz_elements/tuple.h"
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -913,7 +913,7 @@ class Container : public Service {
 };
 
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check = false);
 #endif
 

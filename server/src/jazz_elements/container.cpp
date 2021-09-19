@@ -2184,7 +2184,7 @@ void Container::base_names(BaseNames &base_names) {}
 StatusCode Container::new_container() {
 
 	if (p_buffer != nullptr || max_transactions <= 0) {
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 		destroy_container();
 #else
 		log(LOG_ERROR, "new_container() called on a running Container().");
@@ -4132,7 +4132,7 @@ int Container::tensor_kind_as_text(pKind p_kind, pChar p_dest) {
 }
 
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 
 	REQUIRE(p_bl1->cell_type == p_bl2->cell_type);
@@ -4276,6 +4276,6 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_container.ctest"
 #endif

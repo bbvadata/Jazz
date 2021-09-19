@@ -77,6 +77,6 @@ StatusCode Agency::shut_down() {
 
 } // namespace jazz_agency
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_agency/tests/test_agency.ctest"
 #endif

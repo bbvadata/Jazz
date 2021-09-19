@@ -48,7 +48,7 @@
 
 #include "src/jazz_elements/types.h"
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -243,7 +243,7 @@ class Logger {
 		void log_printf(int loglevel, const char *fmt, ...);
 		void log_printf(int loglevel, const char *fmt, va_list args);
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 		bool SkipLogOnce;
 #endif
 

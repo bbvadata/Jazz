@@ -93,6 +93,6 @@ StatusCode Bebop::call(pTransaction &p_txn, Locator function, pTuple args) {
 
 } // namespace jazz_bebop
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_bebop/tests/test_core.ctest"
 #endif

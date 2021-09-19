@@ -100,7 +100,7 @@ StatusCode Volatile::shut_down() {
 StatusCode Volatile::new_volatile() {
 
 	if (p_buffer != nullptr || max_transactions <= 0) {
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 		destroy_volatile();
 #else
 		log(LOG_ERROR, "new_volatile() called on a running Volatile().");
@@ -934,6 +934,6 @@ void Volatile::base_names(BaseNames &base_names) {
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_volatile.ctest"
 #endif

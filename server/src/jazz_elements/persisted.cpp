@@ -1058,6 +1058,6 @@ void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_persisted.ctest"
 #endif

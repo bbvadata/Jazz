@@ -56,6 +56,6 @@ double R_NA = R_ValueOfNA();
 
 } // namespace jazz_elements
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_elements/tests/test_types.ctest"
 #endif

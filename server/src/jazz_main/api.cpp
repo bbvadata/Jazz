@@ -1631,6 +1631,6 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const) {
 
 } // namespace jazz_main
 
-#if defined CATCH_TEST
+#ifdef CATCH_TEST
 #include "src/jazz_main/tests/test_api.ctest"
 #endif
