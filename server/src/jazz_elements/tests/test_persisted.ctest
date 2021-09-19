@@ -370,176 +370,126 @@ SCENARIO("Read again previous blocks in a new Container.") {
 }
 
 
-	REQUIRE(!jb.block_get(2, kk[3], pLbl3));
-	REQUIRE( jb.block_put(2, kk[3], p_raw1));
-	REQUIRE( jb.block_get(2, kk[3], pLbl3));
-	REQUIRE(!jb.block_get(2, KK[3], pLblN));
+SCENARIO("Testing LMDB entity and key names.") {
 
-	REQUIRE(!jb.block_get(2, kk[4], pLbl4));
-	REQUIRE( jb.block_put(2, kk[4], p_raw1));
-	REQUIRE( jb.block_get(2, kk[4], pLbl4));
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
-	REQUIRE(p_raw1 != pLbl4);
-	REQUIRE(!strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
-	REQUIRE( strcmp(p_raw2->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
 
-	REQUIRE(jb.block_unprotect(pLbl4));
+	GIVEN("We have some blocks and indices") {
+		pTransaction p_tx_int;
 
-	REQUIRE( jb.block_put(2, kk[4], p_raw2));
-	REQUIRE( jb.block_get(2, kk[4], pLbl4));
+		int dim[MAX_TENSOR_RANK] = {5, 3, 2};
 
-	REQUIRE(p_raw2 != pLbl4);
-	REQUIRE( strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
-	REQUIRE(!strcmp(p_raw2->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
 
-	REQUIRE(jb.block_unprotect(pLbl4));
+		for (int i = 0; i < 30; i++)
+			p_tx_int->p_block->tensor.cell_int[i] = (7*i - 3)*i + 11;
 
-	REQUIRE( jb.block_put(2, kk[4], p_raw1));
-	REQUIRE( jb.block_get(2, kk[4], pLbl4));
+		pTransaction p_txn;
 
-	REQUIRE(p_raw1 != pLbl4);
-	REQUIRE(!strcmp(p_raw1->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
-	REQUIRE( strcmp(p_raw2->data, reinterpret_cast<pRawBlock>(pLbl4)->data));
+		WHEN("We bot entity names and block names") {
+			REQUIRE(PER.new_entity((pChar) "//lmdb/~") == SERVICE_NO_ERROR);
 
-	REQUIRE(jb.block_unprotect(pLbl4));
+			test_block_names((pChar) "//lmdb/~", p_tx_int->p_block);
 
-	REQUIRE( jb.block_unprotect(pLbl1));
-	REQUIRE( jb.block_unprotect(pLbl2));
-	REQUIRE( jb.block_unprotect(pLbl3));
-	REQUIRE(!jb.block_unprotect(pLbl1));
-	REQUIRE(!jb.block_unprotect(pLbl2));
-	REQUIRE(!jb.block_unprotect(pLbl3));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/~~") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.block_get(2, kk[0], pLbl0));
-	REQUIRE( jb.block_get(2, kk[1], pLbl1));
-	REQUIRE( jb.block_get(2, kk[2], pLbl2));
-	REQUIRE( jb.block_get(2, kk[3], pLbl3));
+			test_block_names((pChar) "//lmdb/~~", p_tx_int->p_block);
 
-	REQUIRE( jb.block_unprotect(pLbl0));
-	REQUIRE( jb.block_unprotect(pLbl1));
-	REQUIRE( jb.block_unprotect(pLbl2));
-	REQUIRE( jb.block_unprotect(pLbl3));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/~~~~~~~~~~0123456789~~~~~~~~~~-") == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.block_get(3, kk[0], pLbl0));
-	REQUIRE(!jb.block_get(3, kk[1], pLbl1));
-	REQUIRE(!jb.block_get(3, kk[2], pLbl2));
-	REQUIRE(!jb.block_get(3, kk[3], pLbl3));
+			test_block_names((pChar) "//lmdb/~~~~~~~~~~0123456789~~~~~~~~~~-", p_tx_int->p_block);
 
-	REQUIRE(!jb.block_get(3, KK[0], pLbl0));
-	REQUIRE(!jb.block_get(3, KK[1], pLbl1));
-	REQUIRE(!jb.block_get(3, KK[2], pLbl2));
-	REQUIRE(!jb.block_get(3, KK[3], pLbl3));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/----------0123456789----------~") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.block_put(3, KK[0], p_raw1));
-	REQUIRE( jb.block_put(3, KK[1], p_raw1));
-	REQUIRE( jb.block_put(3, KK[2], p_raw1));
-	REQUIRE( jb.block_put(3, KK[3], p_raw1));
+			test_block_names((pChar) "//lmdb/----------0123456789----------~", p_tx_int->p_block);
 
-	REQUIRE( jb.block_get(3, KK[0], pLbl0));
-	REQUIRE( jb.block_get(3, KK[1], pLbl1));
-	REQUIRE( jb.block_get(3, KK[2], pLbl2));
-	REQUIRE( jb.block_get(3, KK[3], pLbl3));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/__________0123456789__________~") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.block_unprotect(pLbl0));
-	REQUIRE( jb.block_unprotect(pLbl1));
-	REQUIRE( jb.block_unprotect(pLbl2));
-	REQUIRE( jb.block_unprotect(pLbl3));
+			test_block_names((pChar) "//lmdb/__________0123456789__________~", p_tx_int->p_block);
 
-	REQUIRE(!jb.block_unprotect(pLbl0));
-	REQUIRE(!jb.block_unprotect(pLbl1));
-	REQUIRE(!jb.block_unprotect(pLbl2));
-	REQUIRE(!jb.block_unprotect(pLbl3));
+			REQUIRE(PER.remove((pChar) "//lmdb/~") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/~~") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/~~~~~~~~~~0123456789~~~~~~~~~~-") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/----------0123456789----------~") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/__________0123456789__________~") == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.char_to_key ("This_is_too_long_for_a_key", searchK));
-	REQUIRE(!jb.char_to_key ("1234567890123456", searchK));
-	REQUIRE( jb.char_to_key ("123456789012345", searchK));
-	REQUIRE(!jb.char_to_key ("Not@alpha", searchK));
-	REQUIRE( jb.char_to_key ("Yes_alpha", searchK));
-	REQUIRE( jb.char_to_key ("0_zer0", searchK));
-	REQUIRE(!jb.char_to_key ("", searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[0]));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/a") == SERVICE_NO_ERROR);
 
-	jb.set_first_key(searchK);
+			test_block_names((pChar) "//lmdb/a", p_tx_int->p_block);
 
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_START));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/7") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[0]));
-	REQUIRE(!jb.is_last_key(searchK));
+			test_block_names((pChar) "//lmdb/7", p_tx_int->p_block);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[1]));
-	REQUIRE(!jb.is_last_key(searchK));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/A") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[2]));
-	REQUIRE(!jb.is_last_key(searchK));
+			test_block_names((pChar) "//lmdb/A", p_tx_int->p_block);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[3]));
-	REQUIRE(!jb.is_last_key(searchK));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ab7-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[4]));
-	REQUIRE(!jb.is_last_key(searchK));
+			test_block_names((pChar) "//lmdb/ab7-cd8_ef~ZTX~1-2", p_tx_int->p_block);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
-	REQUIRE( jb.is_last_key(searchK));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/abcdefghij0123456789ABCDEFGHIJ_") == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
-	REQUIRE( jb.is_last_key(searchK));
+			test_block_names((pChar) "//lmdb/abcdefghij0123456789ABCDEFGHIJ_", p_tx_int->p_block);
 
-	REQUIRE( jb.block_kill(2, kk[0]));
-	REQUIRE( jb.block_kill(2, kk[1]));
-	REQUIRE( jb.block_kill(2, kk[2]));
-	REQUIRE( jb.block_kill(2, kk[3]));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/-") == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.block_kill(2, kk[0]));
-	REQUIRE(!jb.block_kill(2, kk[1]));
-	REQUIRE(!jb.block_kill(2, kk[2]));
-	REQUIRE(!jb.block_kill(2, kk[3]));
+			test_block_names((pChar) "//lmdb/-", p_tx_int->p_block);
 
-	jb.set_first_key(searchK);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/abcdefghij012345-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_START));
+			test_block_names((pChar) "//lmdb/abcdefghij012345-cd8_ef~ZTX~1-2", p_tx_int->p_block);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, kk[4]));
-	REQUIRE(!jb.is_last_key(searchK));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/_") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
-	REQUIRE( jb.is_last_key(searchK));
+			test_block_names((pChar) "//lmdb/_", p_tx_int->p_block);
 
-	REQUIRE(!jb.next_key(2, searchK));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/nice") == SERVICE_NO_ERROR);
 
-	REQUIRE( jb.block_kill(2, kk[4]));
+			test_block_names((pChar) "//lmdb/nice", p_tx_int->p_block);
 
-	jb.set_first_key(searchK);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/Nice") == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_START));
+			test_block_names((pChar) "//lmdb/Nice", p_tx_int->p_block);
 
-	REQUIRE( jb.next_key(2, searchK));
-	REQUIRE(!jb.strcmp_keys(searchK, KEY_SPACE_END));
-	REQUIRE( jb.is_last_key(searchK));
+			REQUIRE(PER.remove((pChar) "//lmdb/a") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/7") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/A") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ab7-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/abcdefghij0123456789ABCDEFGHIJ_") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/-") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/abcdefghij012345-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/_") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/nice") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/Nice") == SERVICE_NO_ERROR);
+		}
+		PER.destroy_transaction(p_tx_int);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
 
-	REQUIRE(!jb.next_key(2, searchK));
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
 
-	REQUIRE(!jb.reinterpret_cast_block(p_raw1, BLOCKTYPE_C_BOOL));
-	REQUIRE( jb.reinterpret_cast_block(p_raw1, BLOCKTYPE_SOURCE_ATTRIB));
-
-	JAZZFREE(p_raw1, RAM_ALLOC_C_RAW);
-	JAZZFREE(p_raw2, RAM_ALLOC_C_RAW);
-
-	REQUIRE(p_raw1 == NULL);
-	REQUIRE(p_raw2 == NULL);
-
-	REQUIRE(jazzPtrTrackClose());
-
-	jb.stop();
-*/
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
 }
 
 
