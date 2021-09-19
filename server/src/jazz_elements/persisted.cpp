@@ -96,6 +96,10 @@ StatusCode Persisted::start() {
 		 && get_conf_key("MDB_NOREADAHEAD",		   noreadahead)
 		 && get_conf_key("MDB_NOMEMINIT",		   nomeminit);
 
+#ifdef CATCH_TEST
+	nomeminit = 0;	// Minimize Valgrind noise
+#endif
+
 	if (!ok) {
 		log(LOG_ERROR, "Persisted::start() failed. Invalid MHD_* config (integer values).");
 
