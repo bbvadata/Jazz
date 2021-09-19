@@ -469,11 +469,10 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	if (hh == INVALID_MDB_DBI) {
 		if (int lmdb_err = mdb_dbi_open(lm_tx, where.entity, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed in Persisted::put().");
+			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::put().");
 
 			goto release_txn_and_fail;
 		}
-
 		source_dbi[where.entity] = hh;
 	}
 
@@ -551,13 +550,11 @@ StatusCode Persisted::remove(Locator &where) {
 	MDB_dbi hh = it->second;
 
 	if (hh == INVALID_MDB_DBI) {
-
 		if (int lmdb_err = mdb_dbi_open(lm_tx, where.entity, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed in Persisted::remove().");
+			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::remove().");
 
 			goto release_txn_and_fail;
 		}
-
 		source_dbi [where.entity] = hh;
 	}
 
@@ -674,11 +671,10 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 
 	if (hh == INVALID_MDB_DBI) {
 		if (int lmdb_err = mdb_dbi_open(lm_tx, what.entity, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed in Persisted::lock_pointer_to_block().");
+			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::lock_pointer_to_block().");
 
 			goto release_txn_and_fail;
 		}
-
 		source_dbi [what.entity] = hh;
 	}
 
@@ -928,7 +924,6 @@ StatusCode Persisted::remove_database(pChar name) {
 
 			goto release_txn_and_fail;
 		}
-
 		source_dbi [name] = hh;
 	}
 
