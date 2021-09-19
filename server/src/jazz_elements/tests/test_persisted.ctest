@@ -129,219 +129,130 @@ pTransaction p_txn;
 // Tests
 // -----
 
-		REQUIRE(jb.new_block_C_BOOL_rep	  (p_boo, true, 3));
-		REQUIRE(jb.new_block_C_INTEGER_rep(pbi1, 123, 4));
-		REQUIRE(jb.new_block_C_INTEGER_seq(pbi2, 6, 15, 3));
-		REQUIRE(jb.new_block_C_REAL_rep	  (pbr1, 1.234, 5));
-		REQUIRE(jb.new_block_C_REAL_seq	  (pbr2, 6, 7, 0.1));
-		REQUIRE(jb.new_block_C_CHARS_rep  (p_st, "Penny!", 3));
-		REQUIRE(jb.new_block_C_RAW_once	  (p_rw, "Something", strlen("Something")));
+SCENARIO("Write/read some blocks in a new source and close the Container.") {
 
-		persistedKey key;
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
-		THEN("The content is identical") {
-			pJazzBlock p_jazz;
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
 
-			jb.char_to_key("boo", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("a_bool"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_boo));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_boo));
-			REQUIRE(jb.block_unprotect(p_jazz));
+	GIVEN("We have some blocks and indices") {
+		Index txt;
 
-			jb.char_to_key("in1", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi1));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi1));
-			REQUIRE(jb.block_unprotect(p_jazz));
+		txt["this"]	  = "Whatever we write here";
+		txt["thing"]  = "[[1,2,3,4,5]]";
+		txt["gets"]	  = "";
+		txt["stored"] = "A multiline string\nis okay\nEñe";
 
-			jb.char_to_key("in2", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_int"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbi2));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbi2));
-			REQUIRE(jb.block_unprotect(p_jazz));
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim;
 
-			jb.char_to_key("rr1", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr1));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr1));
-			REQUIRE(jb.block_unprotect(p_jazz));
+		int dim[MAX_TENSOR_RANK] = {10, 3, 2};
 
-			jb.char_to_key("rr2", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("some_double"), key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) pbr2));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) pbr2));
-			REQUIRE(jb.block_unprotect(p_jazz));
+		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
 
-			jb.char_to_key("str", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("a_string"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_st));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_st));
-			REQUIRE(jb.block_unprotect(p_jazz));
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
 
-			jb.char_to_key("raw", key);
-			REQUIRE(jb.block_get(jb.get_source_idx("a_raw"),	   key, p_jazz));
-			REQUIRE(jb.compare_headers(p_jazz, (pJazzBlock) p_rw));
-			REQUIRE(jb.compare_content(p_jazz, (pJazzBlock) p_rw));
-			REQUIRE(jb.block_unprotect(p_jazz));
+		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_int->p_block->tensor.cell_int[0]  = 1;
+		p_tx_int->p_block->tensor.cell_int[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
+
+		REQUIRE(PER.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 60; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
 
-		JAZZFREE(p_boo, AUTOTYPEBLOCK(p_boo));
-		JAZZFREE(pbi1, AUTOTYPEBLOCK(pbi1));
-		JAZZFREE(pbi2, AUTOTYPEBLOCK(pbi2));
-		JAZZFREE(pbr1, AUTOTYPEBLOCK(pbr1));
-		JAZZFREE(pbr2, AUTOTYPEBLOCK(pbr2));
-		JAZZFREE(p_st, AUTOTYPEBLOCK(p_st));
-		JAZZFREE(p_rw, AUTOTYPEBLOCK(p_rw));
+		REQUIRE(PER.new_entity((pChar) "//lmdb/save_this_thing") == SERVICE_NO_ERROR);
 
-		REQUIRE(p_boo == NULL);
-		REQUIRE(pbi1 == NULL);
-		REQUIRE(pbi2 == NULL);
-		REQUIRE(pbr1 == NULL);
-		REQUIRE(pbr2 == NULL);
-		REQUIRE(p_st == NULL);
-		REQUIRE(p_rw == NULL);
+		pTransaction p_txn;
 
-		REQUIRE(jazzPtrTrackClose());
+		WHEN("We test put()/get() of keys") {
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/pop-saved", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/str-saved", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/chr-saved", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/int-saved", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/rea-saved", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/tim-saved", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/str-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/chr-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/int-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/rea-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/tim-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+			}
+		}
+		PER.destroy_transaction(p_tx_pop);
+		PER.destroy_transaction(p_tx_str);
+		PER.destroy_transaction(p_tx_chr);
+		PER.destroy_transaction(p_tx_int);
+		PER.destroy_transaction(p_tx_rea);
+		PER.destroy_transaction(p_tx_tim);
 	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
 
-	jb.stop();
-*/
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
 }
 
-
-SCENARIO("Testing all LMDB functions.") {
-/*
-	jzzBLOCKS jb;
-
-	jCommons.load_config_file("./serverconf/jazz_config.ini");
-
-	struct stat sb;
-
-	if (stat(TEST_LMDB_PATH, &sb) == 0 && S_ISDIR(sb.st_mode))
-	{
-		remove(TEST_LMDB_DBI);
-
-		REQUIRE(remove(TEST_LMDB_PATH) == 0);
-	}
-	REQUIRE(stat(TEST_LMDB_PATH, &sb) != 0);
-
-	jCommons.debug_config_put("JazzPERSISTENCE.MDB_PERSISTENCE_PATH", TEST_LMDB_PATH);
-	jCommons.debug_config_put("JazzPERSISTENCE.MDB_ENV_SET_MAXDBS", "32");				// MAX_POSSIBLE_SOURCES
-
-	persistedKey key1, key2 = {"0_aZ_xy__"};
-
-	REQUIRE( jb.char_to_key ("09_AZ_az", key1));
-	REQUIRE( jb.char_to_key ("123456789012345", key1));
-	REQUIRE( jb.char_to_key ("Yes_alpha", key1));
-	REQUIRE( jb.char_to_key ("0_aZ_xy__", key1));
-
-	REQUIRE(!jb.char_to_key ("This_is_too_long_for_a_key", key1));
-	REQUIRE(!jb.char_to_key ("1234567890123456", key1));
-	REQUIRE(!jb.char_to_key (" abc", key1));
-	REQUIRE(!jb.char_to_key ("/abc", key1));
-	REQUIRE(!jb.char_to_key (":abc", key1));
-	REQUIRE(!jb.char_to_key ("@abc", key1));
-	REQUIRE(!jb.char_to_key ("[abc", key1));
-	REQUIRE(!jb.char_to_key ("`abc", key1));
-	REQUIRE(!jb.char_to_key ("{abc", key1));
-	REQUIRE(!jb.char_to_key ("abc ", key1));
-	REQUIRE(!jb.char_to_key ("abc/", key1));
-	REQUIRE(!jb.char_to_key ("abc:", key1));
-	REQUIRE(!jb.char_to_key ("abc@", key1));
-	REQUIRE(!jb.char_to_key ("abc[", key1));
-	REQUIRE(!jb.char_to_key ("abc`", key1));
-	REQUIRE(!jb.char_to_key ("abc{", key1));
-	REQUIRE(!jb.char_to_key ("", key1));
-
-	REQUIRE(!jb.strcmp_keys(key1, key2));
-
-	REQUIRE(jb.start());
-
-	REQUIRE(jb.open_all_sources());
-	REQUIRE(jb.num_sources() == 2);
-
-	REQUIRE(jb.source_idx[0] == -1);
-	REQUIRE(jb.source_idx[1] == -1);
-	REQUIRE(jb.source_idx[tenbits("sys")] == 0);
-	REQUIRE(jb.source_idx[tenbits("www")] == 1);
-	REQUIRE(jb.source_idx[1023] == -1);
-
-	sourceName name0, name1, name2, name3, nameI;
-
-	REQUIRE( jb.source_name(0, name0));
-	REQUIRE( jb.source_name(1, name1));
-	REQUIRE(!jb.source_name(2, name2));
-
-	REQUIRE(!strcmp(name0.key, "sys"));
-	REQUIRE(!strcmp(name1.key, "www"));
-
-	REQUIRE(!jb.new_source("This_name_is_way_too_long_for_a_source"));
-	REQUIRE(!jb.new_source("Not@alpha"));
-	REQUIRE( jb.new_source("Yes_alpha"));
-
-	REQUIRE( jb.source_name(2, name2));
-	REQUIRE(!strcmp(name2.key, "Yes_alpha"));
-
-	REQUIRE(jb.num_sources() == 3);
-
-	REQUIRE(!jb.new_source("Yes_alpha"));
-
-	REQUIRE(jb.num_sources() == 3);
-
-	REQUIRE( jb.source_name(2, name2));
-	REQUIRE(!strcmp(name2.key, "Yes_alpha"));
-
-	REQUIRE(jb.num_sources() == 3);
-
-	REQUIRE(!jb.kill_source("unknown"));
-	REQUIRE( jb.kill_source("Yes_alpha"));
-	REQUIRE(!jb.kill_source("sys"));
-	REQUIRE(!jb.kill_source("www"));
-
-	REQUIRE(jb.num_sources() == 2);
-
-	REQUIRE(!jb.new_source("1234567890123456"));
-	REQUIRE( jb.new_source("123456789012345"));
-
-	REQUIRE(jb.num_sources() == 3);
-
-	REQUIRE( jb.kill_source("123456789012345"));
-
-	REQUIRE(jb.num_sources() == 2);
-
-	for (int i = 0; i < 30; i++)
-	{
-		nameI.key[0] = 'a' + (char) i / 16;
-		nameI.key[1] = 'a' + (char) i % 16;
-		nameI.key[2] = 0;
-
-		REQUIRE( jb.new_source(nameI.key));
-		REQUIRE( jb.num_sources() == i + 3);
-		REQUIRE( jb.source_name(i + 2, name3));
-		REQUIRE(!strcmp(name3.key, nameI.key));
-
-		int fi = jb.get_source_idx(nameI.key);
-
-		REQUIRE(fi == i + 2);
-	}
-	REQUIRE( jb.num_sources() == 32);
-	REQUIRE(!jb.new_source("toomany"));
-	REQUIRE( jb.num_sources() == 32);
-
-	for (int i = 0; i < 30; i++)
-	{
-		nameI.key[0] = 'a' + (char) i / 16;
-		nameI.key[1] = 'a' + (char) i % 16;
-		nameI.key[2] = 0;
-
-		REQUIRE(jb.get_source_idx(nameI.key) == 2);
-
-		REQUIRE(jb.kill_source(nameI.key));
-
-		REQUIRE(jb.num_sources() == 31 - i);
-	}
-
-	REQUIRE(jb.num_sources() == 2);
 
 	REQUIRE(jb.new_source("test1"));
 	REQUIRE(jb.new_source("test2"));
