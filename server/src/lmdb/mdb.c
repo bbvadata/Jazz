@@ -1995,7 +1995,7 @@ mdb_page_malloc(MDB_txn *txn, unsigned num)
 {
 	MDB_env *env = txn->mt_env;
 	MDB_page *ret = env->me_dpages;
-	size_t psize = env->me_psize, sz = psize, off;
+	size_t psize = env->me_psize, sz = psize;
 	/* For ! #MDB_NOMEMINIT, psize counts how much to init.
 	 * For a single page alloc, we init everything after the page header.
 	 * For multi-page, we init the final page; if the caller needed that
@@ -2008,10 +2008,8 @@ mdb_page_malloc(MDB_txn *txn, unsigned num)
 			env->me_dpages = ret->mp_next;
 			return ret;
 		}
-		psize -= off = PAGEHDRSZ;
 	} else {
 		sz *= num;
-		off = sz - psize;
 	}
 	if ((ret = malloc(sz)) != NULL) {
 		VGMEMP_ALLOC(env, ret, sz);
