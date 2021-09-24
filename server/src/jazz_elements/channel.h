@@ -107,15 +107,73 @@ See: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 typedef unsigned int MHD_StatusCode;
 
 
-/** \brief Channels: A Container doing block transactions across media (files, folders, shell, urls, other Containers, ..)
+/** \brief Channels: A Container doing block transactions across media (files, folders, shell, http urls and zeroMQ servers)
 
-ExtraLocators
--------------
+NOTES: 1. This is the only container that does not have a native interface. Since urls and file names can be very long the easy interface
+is all you need, there is no as_locator() parsing.
+2. The container itself does not store (almost) anything. Of course, files and folders are permanent storage and the http call may be
+stored by some remote server.
+3. Channels support four bases: "0-mq", "bash", "file" and "http". The reference for each base is this docstring.
+4. copy() copies across any enabled channels as long as the corresponding get() and put() are correct.
 
-This Container extends the short (80 bytes) Locator structure with an extra (2 Kbytes) ExtraLocator. The structures are owned by Channels.
-When you use the "easy" interface, you can ignore this. When you parse using as_locator() and use the Native API, notice that the Locator
-returned is linked to an ExtraLocator and **must** be used (by the native API) or disposed (by destroy_extra_locator()).
+"0-mq" Reference
+----------------
 
+The 0-mq implementation in jazz_elements is only a zeroMQ client, not a server. The only operation it supports is a translate() call.
+For a translate() call to succeed, you must first have created a pipeline using a put call with a string. E.g,
+put("//0-mq/pipeline/speech2text") with a block containing the string "tcp://localhost:5555" creates a pipeline named speech2text.
+Outside Jazz, you set up a zeroMQ server that does speech to text, expecting, say 32-bit int vectors as input and returning a buffer of
+char as output. In your translate call you must provide a tuple with two Tensors with item names "input" and "result". The translate()
+call will send the raw tensor of the item "input" to the server and write whatever the server answers into the tensor named "result".
+This operation expects the tensor to be binary (i.e., no variable length strings) and their shapes and types known by the caller.
+In terms of the Jazz server API, this is a function call: either get("//0-mq/pipeline/speech2text(//lmdb/stuff/my_tensor)") or
+get("//0-mq/pipeline/speech2text(#[1,2,3];)") the argument can be anything in Persisted, Volatile, even a file or an //http get or
+a (%-encoded) constant as in the second case.
+
+Besides this, get("//0-mq/pipeline/speech2text") will return just a block with "tcp://localhost:5555" and
+remove("//0-mq/pipeline/speech2text") will destroy the pipeline. Any other call using "0-mq" returns SERVICE_ERROR_NOT_APPLICABLE.
+
+"0-mq" operation must be enabled via configuration by setting ENABLE_ZEROMQ_CLIENT to something non-zero.
+
+"bash" Reference
+----------------
+
+This is also a translate() call, the difference is you don't create the pipline, it always exists and is called "//bash/exec". The Tuple
+is an array of byte, both ways "input" and "result". If the size of the "result" buffer is too small for the answer it will be filled up to
+the available size and something will be lost. The answer includes both stderr and stout in whatever order the execution writes. "bash"
+operation must be enabled via configuration by setting ENABLE_BASH_EXEC to something non-zero. There is no security in place, it can be
+used for pushing AI creations to github or kill the server with //bash/exec(# jazz%20stop ;)
+
+"file" Reference
+----------------
+
+This read/writes/deletes to the filesystem. Since the API does not use locators, there is no hardcoded name restriction. Via the http
+server, just use the URL (#...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/#whatever%20you%20want;")
+get() gets files as arrays of byte and folders as arrays of strings (the file names, obviously). put() writes either Jazz blocks with
+all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor (if mode == WRITE_TENSOR_DATA). WRITE_ONLY_IF_EXISTS and
+WRITE_ONLY_IF_NOT_EXISTS work as expected. remove() deletes whatever matches the path either a file or a folder (with anything inside it).
+new_entity() creates a new folder.
+
+"file" operation must be enabled via configuration by setting ENABLE_FILE_LEVEL to 0 (disable everything), 1 (just read), 2 (cannot
+override == no remove and WRITE_ONLY_IF_NOT_EXISTS) or 3 (enable everything).
+
+"http" Reference
+----------------
+
+Besides being an http server, Jazz is also an http client. The simplest mode of operation is just forwarding get(), put() and delete()
+calls that are intended for other nodes in a Jazz cluster. This is done at the top API level by just adding a node name. E.g.,
+get("///node_x//lmdb/things/this") will forward the call to the node_x (if anything is well configured see JAZZ_NODE_NAME_.., etc.)
+and return the result just as if is was a local call. At the class level, this is done by forward_get(), forward_put() and forward_del().
+You can also send simple GET, PUT and DELETE http calls to random urls by either using the get(), put() and remove() or using the API
+get("//http#https://google.com;")
+
+The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Index to: //http/connection/a_name
+the index requires the mandatory key URL and the optional keys: CURLOPT_USERNAME, CURLOPT_USERPWD, CURLOPT_COOKIEFILE and CURLOPT_COOKIEJAR
+(see https://curl.se/libcurl/c/CURLOPT_USERNAME.html and https://everything.curl.dev/libcurl-http/cookies) Once the connection exists, you
+can get(), put() and remove() to just its name (without the word connection) get("//http/a_name"), etc. If you remove() to
+"//http/connection/a_name" you destroy the connection. get("//http/connection/a_name") returns the Index used to create the connection.
+
+"http" operation must be enabled via configuration by setting ENABLE_HTTP_CLIENT to something non-zero.
 */
 class Channels : public Container {
 
