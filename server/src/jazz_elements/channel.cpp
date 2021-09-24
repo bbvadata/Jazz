@@ -521,19 +521,29 @@ StatusCode Channels::remove(pChar p_where) {
 }
 
 
-	\param where Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
+/** Easy Channels interface for **Block copying** (possibly across bases but inside the Channels).
+
+	\param p_where Some destination endpoint.
+	\param p_what  Some source endpoint.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-This only supports the bases **file** (for both files and folders) and **http** (will send an HTTP_DELETE).
-
-**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
+**NOTE**: This is just a get() and a put(). See the description of Channels for reference.
 */
-StatusCode Channels::remove(Locator &where) {
+StatusCode Channels::copy(pChar p_where, pChar p_what) {
 
-//TODO: Implement this.
+	pTransaction p_txn;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	int ret = get(p_txn, p_what);
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+	ret = put(p_where, p_txn->p_block);
+
+	destroy_transaction(p_txn);
+
+	return ret;
 }
 
 
