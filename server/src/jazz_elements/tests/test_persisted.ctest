@@ -506,6 +506,11 @@ SCENARIO("Strong End-to-end lmdb tests") {
 	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
 	REQUIRE(PER._lock_ == 0);
 
+	if (PER.dbi_exists((pChar) "www")) {
+		Locator loc = {"lmdb", "www", "", 0};
+		REQUIRE(PER.remove(loc) == SERVICE_NO_ERROR);
+	}
+
 	GIVEN("We have some blocks and indices") {
 		Index txt;
 
