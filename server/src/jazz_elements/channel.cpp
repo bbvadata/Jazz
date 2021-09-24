@@ -479,24 +479,47 @@ StatusCode Channels::new_entity(pChar p_where) {
 	return SERVICE_ERROR_WRONG_BASE;
 }
 
-/** Native (Channels) interface for **creating databases**
 
-	\param where Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once. It only supports the base
-				**file** and will mkdir()
+/** Easy Channels interface for **deleting**:
+
+	\param p_where Some endpoint to be deleted.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
+**NOTE**: See the description of Channels for reference.
 */
-StatusCode Channels::new_entity(Locator &where) {
+StatusCode Channels::remove(pChar p_where) {
 
-//TODO: Implement this.
+	if ((*p_where++ != '/') || (*p_where++ != '/') || (*p_where == 0))
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	int base = TenBitsAtAddress(p_where);
+
+	switch (base) {
+	case BASE_BASH_10BIT:
+		if (!can_bash)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_FILE_10BIT:
+		if (file_lev < 1)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_HTTP_10BIT:
+		if (!curl_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_0_MQ_10BIT:
+		if (!zmq_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+	}
+
+	return SERVICE_ERROR_WRONG_BASE;
 }
 
-
-/** Native (Channels) interface for **deleting databases and blocks**:
 
 	\param where Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
 
