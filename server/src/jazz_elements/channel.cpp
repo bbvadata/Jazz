@@ -446,14 +446,38 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 	return SERVICE_ERROR_WRONG_BASE;
 }
 
+
+/** Easy Channels interface for **creating folders**
+
+	\param p_where The path to the folder to be created via mkdir()
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+**NOTE**: This is only used with //file.
 */
-StatusCode Channels::put(Locator &where, pBlock p_block, int mode) {
+StatusCode Channels::new_entity(pChar p_where) {
 
-//TODO: Implement this.
+	if ((*p_where++ != '/') || (*p_where++ != '/') || (*p_where == 0))
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	int base = TenBitsAtAddress(p_where);
+
+	if (base == BASE_FILE_10BIT) {
+		if (file_lev != 3)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+
+		p_where += 4;
+		if (*p_where++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		if (mkdir(p_where, 0700) == 0)
+			return SERVICE_NO_ERROR;
+
+		return SERVICE_ERROR_IO_ERROR;
+	}
+
+	return SERVICE_ERROR_WRONG_BASE;
 }
-
 
 /** Native (Channels) interface for **creating databases**
 
