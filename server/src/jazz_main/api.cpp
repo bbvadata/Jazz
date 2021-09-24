@@ -514,10 +514,14 @@ StatusCode Api::shut_down() {
 
 	StatusCode err;
 
-	if (remove_statics)
-		for (Index::iterator it = www.begin(); it != www.end(); ++it)
-			if ((err = p_persisted->remove((pChar) it->second.c_str())) != SERVICE_NO_ERROR)
-				log_printf(LOG_MISS, "Api::shut_down(): Persisted.remove(%s) returned %d", it->second.c_str(), err);
+	if (remove_statics) {
+		Locator loc = {"lmdb", "www"};
+		for (Index::iterator it = www.begin(); it != www.end(); ++it) {
+			strcpy(loc.key, it->second.c_str());
+			if ((err = p_persisted->remove(loc)) != SERVICE_NO_ERROR)
+				log_printf(LOG_MISS, "Api::shut_down(): Persisted.remove(//lmdb/www/%s) returned %d", it->second.c_str(), err);
+		}
+	}
 
 	www.clear();
 
