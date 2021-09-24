@@ -547,22 +547,40 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 }
 
 
-/** Native (Channels) interface for **Block copying** (possibly across bases but inside the Channels).
+/** "Easy" interface for **Tuple translate**
 
-	\param where Some Locator to the destination endpoint compiled by Channels::as_locator() that can only be used once.
-	\param what	 Some Locator to the source endpoint compiled by Channels::as_locator() that can only be used once.
+	\param p_tuple	A Tuple with two items, "input" with the data passed to the service and "result" with the data returned. the
+					result will be overridden in-place without any allocation.
+	\param p_pipe	Some **service** does some computation on "input" and returns "result".
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-At least one of the endpoints must have the base **file**.
-
-**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where** and **what**.
+This is what most frameworks would call predict(), something that takes any tensor as an input and returns another tensor. In channels,
+it just gives support to some other service doing that connected via zeroMQ or bash. Outside jazz_elements, the services use this
+to run their own models.
 */
-StatusCode Channels::copy(Locator &where, Locator &what) {
+StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
 
-//TODO: Implement this.
+	if (   p_tuple->cell_type != CELL_TYPE_TUPLE_ITEM || p_tuple->size != 2
+		|| p_tuple->index((pChar) "input") != 0 || p_tuple->index((pChar) "result") != 1
+		|| (*p_pipe++ != '/') || (*p_pipe++ != '/') || (*p_pipe == 0))
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	int base = TenBitsAtAddress(p_pipe);
+
+	switch (base) {
+	case BASE_BASH_10BIT:
+		if (!can_bash)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_0_MQ_10BIT:
+		if (!zmq_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+	}
+
+	return SERVICE_ERROR_WRONG_BASE;
 }
 
 
