@@ -588,6 +588,7 @@ void Logger::log(int loglevel, const char *message) {
 	if (file_name[0]) {
 		f_buff->sputn(buffer, strlen(buffer));
 		f_buff->sputc('\n');
+		f_stream.flush();
 	}
 }
 
