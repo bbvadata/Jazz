@@ -464,6 +464,12 @@ MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 	return MHD_HTTP_FORBIDDEN;
 }
 
+#ifdef CATCH_TEST
+
+Channels CHN(&LOGGER, &CONFIG);
+
+#endif
+
 } // namespace jazz_elements
 
 #ifdef CATCH_TEST

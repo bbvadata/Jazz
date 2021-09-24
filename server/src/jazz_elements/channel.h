@@ -286,6 +286,15 @@ typedef Channels *pChannels;
 
 		// StatusCode shell_exec  ();
 
+#ifdef CATCH_TEST
+
+// Instancing Channels
+// -------------------
+
+extern Channels CHN;
+
+#endif
+
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_CHANNEL

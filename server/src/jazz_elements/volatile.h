@@ -1470,6 +1470,15 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 };
 typedef Volatile *pVolatile;
 
+#ifdef CATCH_TEST
+
+// Instancing Volatile
+// -------------------
+
+extern Volatile VOL;
+
+#endif
+
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_VOLATILE

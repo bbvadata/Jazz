@@ -35,13 +35,8 @@
 using namespace jazz_elements;
 
 
-// Instancing container, logger and config
-// ---------------------------------------
-
-ConfigFile	CNF2(JAZZ_DEFAULT_CONFIG_PATH);
-Logger		LOG2(CNF2, "LOGGER_PATH");
-Persisted	PER(&LOG2, &CNF2);
-
+// Utils
+// -----
 
 void test_block_names(pChar prefix, pBlock p_block) {
 

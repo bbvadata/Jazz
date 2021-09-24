@@ -169,6 +169,15 @@ class Persisted : public Container {
 };
 typedef Persisted *pPersisted;
 
+#ifdef CATCH_TEST
+
+// Instancing Persisted
+// --------------------
+
+extern Persisted PER;
+
+#endif
+
 } // namespace jazz_elements
 
 #endif // ifndef INCLUDED_JAZZ_ELEMENTS_PERSISTED

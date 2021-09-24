@@ -1629,6 +1629,14 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const) {
 	return true;
 }
 
+#ifdef CATCH_TEST
+
+Bebop  BOP	 (&jazz_elements::LOGGER, &jazz_elements::CONFIG);
+Agency EPI	 (&jazz_elements::LOGGER, &jazz_elements::CONFIG);
+Api	   TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &BOP, &EPI);
+
+#endif
+
 } // namespace jazz_main
 
 #ifdef CATCH_TEST

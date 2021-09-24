@@ -932,6 +932,12 @@ void Volatile::base_names(BaseNames &base_names) {
 	base_names["tree"]	= this;		// An APIfied tree. Can use IndexIS to return. E.g. key~_child_
 }
 
+#ifdef CATCH_TEST
+
+Volatile VOL(&LOGGER, &CONFIG);
+
+#endif
+
 } // namespace jazz_elements
 
 #ifdef CATCH_TEST

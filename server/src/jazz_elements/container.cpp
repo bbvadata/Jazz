@@ -4133,6 +4133,7 @@ int Container::tensor_kind_as_text(pKind p_kind, pChar p_dest) {
 
 
 #ifdef CATCH_TEST
+
 void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 
 	REQUIRE(p_bl1->cell_type == p_bl2->cell_type);
@@ -4272,6 +4273,11 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 	if (!skip_value_check)
 		REQUIRE(all_cells_equal);
 }
+
+ConfigFile CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+Logger	   LOGGER(CONFIG, "LOGGER_PATH");
+Container  CNT(&LOGGER, &CONFIG);
+
 #endif
 
 } // namespace jazz_elements

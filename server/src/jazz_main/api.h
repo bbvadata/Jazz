@@ -191,7 +191,20 @@ class Api : public Container {
 		int			remove_statics;
 };
 
+#ifdef CATCH_TEST
+
+// Instancing Bebop, Agency and Api
+// --------------------------------
+
+extern Bebop  BOP;
+extern Agency EPI;
+extern Api	  TT_API;
+
+#else
+
 extern Api	API;			// The API interface
+
+#endif
 
 } // namespace jazz_main
 

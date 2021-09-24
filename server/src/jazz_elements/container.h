@@ -914,7 +914,16 @@ class Container : public Service {
 
 
 #ifdef CATCH_TEST
+
 void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check = false);
+
+// Instancing container, logger and config
+// ---------------------------------------
+
+extern ConfigFile CONFIG;
+extern Logger	  LOGGER;
+extern Container  CNT;
+
 #endif
 
 } // namespace jazz_elements

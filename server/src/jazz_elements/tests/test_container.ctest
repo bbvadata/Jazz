@@ -35,14 +35,6 @@
 using namespace jazz_elements;
 
 
-// Instancing container, logger and config
-// ---------------------------------------
-
-ConfigFile	CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
-Logger		LOGGER(CONFIG, "LOGGER_PATH");
-Container	CNT	  (&LOGGER, &CONFIG);
-
-
 // Functions to support testing
 // ----------------------------
 
