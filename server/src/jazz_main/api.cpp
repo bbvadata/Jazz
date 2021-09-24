@@ -151,7 +151,6 @@ int	state_upload_badrequest		= 3;	///< PUT query is call malformed. Returns MHD_
 char response_put_ok[]			= "0";
 char response_put_fail[]		= "1";
 
-int tenbit_double_slash;				///< The binary ten bits of "//" double-slash to identify web source interface.
 TenBitIntLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
 TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method int an integer code.
 
@@ -249,7 +248,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 			std::string allow;
 
-			if (TenBitsAtAddress(url) != tenbit_double_slash) {
+			if (url[0] != '/' || url[1] != '/') {
 				if (API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)
 					allow = "HEAD,GET,";
 
@@ -279,7 +278,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	case HTTP_HEAD:
 	case HTTP_GET:
-		if (TenBitsAtAddress(url) != tenbit_double_slash) {
+		if (url[0] != '/' || url[1] != '/') {
 
 			if ((status = API.get_static(response, (pChar) url)) != MHD_HTTP_OK)
 				return API.return_error_message(connection, (pChar) url, status);
@@ -292,7 +291,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 		break;
 
 	default:
-		if (TenBitsAtAddress(url) != tenbit_double_slash)
+		if (url[0] != '/' || url[1] != '/')
 			return API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
 
 		else if (!API.parse(q_state, (pChar) url, http_method)) {
@@ -438,8 +437,6 @@ Api::Api(pLogger	 a_logger,
 	http_methods[TenBitsAtAddress("GET")]	  = HTTP_GET;
 	http_methods[TenBitsAtAddress("PUT")]	  = HTTP_PUT;
 	http_methods[TenBitsAtAddress("DELETE")]  = HTTP_DELETE;
-
-	tenbit_double_slash = TenBitsAtAddress("//");
 
 	p_channels	= a_channels;
 	p_volatile	= a_volatile;
