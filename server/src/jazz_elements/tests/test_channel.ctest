@@ -38,13 +38,58 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-SCENARIO("Testing (channel) structure sizes.") {
+SCENARIO("Basics tests") {
 
-	REQUIRE(sizeof(ExtraLocator) == 2048);
+	REQUIRE(TenBitsAtAddress("0-mq") == BASE_0_MQ_10BIT);
+	REQUIRE(TenBitsAtAddress("bash") == BASE_BASH_10BIT);
+	REQUIRE(TenBitsAtAddress("file") == BASE_FILE_10BIT);
+	REQUIRE(TenBitsAtAddress("http") == BASE_HTTP_10BIT);
 }
 
 
-SCENARIO("Testing channel") {
+SCENARIO("Testing bash end-to-end") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing file end-to-end") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing http end-to-end") {
+
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
+
+
+SCENARIO("Testing tcp end-to-end") {
 
 //TODO: Write tests for this!
 
