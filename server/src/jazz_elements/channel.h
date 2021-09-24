@@ -177,16 +177,19 @@ class Channels : public Container {
 		std::string filesystem_root = {};
 
 #ifndef CATCH_TEST
-	protected:
+	private:
 #endif
 
-		inline void destroy_extra_locator(Locator &loc) {
-			if (loc.p_extra != nullptr) {
-				alloc_bytes -= sizeof(ExtraLocator);
-				free(loc.p_extra);
-			}
-			loc.p_extra = nullptr;
-		}
+		int can_curl = false, curl_ok = false;
+		int can_zmq  = false, zmq_ok  = false;
+		int can_bash = false;
+		int file_lev = 0;
+
+		Index	pipes	= {};
+		ConnMap connect = {};
+
+		void *zmq_context	= nullptr;
+		void *zmq_requester = nullptr;
 };
 typedef Channels *pChannels;
 
