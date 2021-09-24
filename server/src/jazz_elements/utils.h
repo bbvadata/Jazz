@@ -123,6 +123,10 @@ without global variables.
 #define SERVICE_ERROR_LOW_PRIORITY		-25		///< put() to a full queue failed because priority is lower than lowest in queue.
 #define SERVICE_ERROR_PARENT_NOT_FOUND	-26		///< put() to a tree specifies a non-existing parent.
 #define SERVICE_ERROR_TOO_MANY_ENTITIES	-27		///< new_entity() in Persistence failed by MAX_POSSIBLE_SOURCES limit
+#define SERVICE_ERROR_NOT_APPLICABLE	-28		///< All the methods that do not make sense when applied to Channels and are not supported.
+#define SERVICE_ERROR_IO_ERROR			-29		///< Any reading or writing error that is unexpected (not not found, forbidden, etc.).
+#define SERVICE_ERROR_BLOCK_TOO_BIG		-30		///< File size (or some other way to get a block) exceeds MAX_BLOCK_SIZE
+#define SERVICE_ERROR_BASE_FORBIDDEN	-31		///< base in channels disabled by conf.
 
 /** Default path to config file
 */
