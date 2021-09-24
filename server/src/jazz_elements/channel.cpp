@@ -134,12 +134,6 @@ StatusCode Channels::start() {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-	if (!get_conf_key("FILESYSTEM_ROOT", filesystem_root)) {
-		log(LOG_ERROR, "Channels::start() failed to find FILESYSTEM_ROOT");
-
-		return EXIT_FAILURE;
-	}
-
 	std::string my_name;
 
 	if (!get_conf_key("JAZZ_NODE_MY_NAME", my_name)) {
