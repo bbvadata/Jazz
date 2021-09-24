@@ -352,37 +352,54 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 }
 
 
-/** Native (Channels) interface **metadata of a Block** retrieval.
+/** Easy Channels interface **get(2)** is not applicable.
 
-	\param hea	A StaticBlockHeader structure that will receive the metadata.
-	\param what	Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
-
-Note that, unlike in other containers, this does the whole .get() just to return the header which is predictable except for the
-data size. For the base "file", this will just verify if the file exists and return its size in a StaticBlockHeader efficiently,
-for any other base, it makes sense to use get() instead to avoid downloading the same data twice.
-
-**NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
+**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get(1) instead.
 */
-StatusCode Channels::header(StaticBlockHeader &hea, Locator &what) {
+StatusCode Channels::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
 
-//TODO: Implement this.
-
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
+	return SERVICE_ERROR_NOT_APPLICABLE;
 }
 
 
-/** Native (Channels) interface **metadata of a Block** retrieval.
+/** Easy Channels interface **get(3)** is not applicable.
 
-**NOTE**: This is NOT supported by Channels since the blocks returned by endpoints cannot be Tuples. It does
-call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
+**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get(1) instead.
 */
-StatusCode Channels::header(pTransaction &p_txn, Locator &what) {
+StatusCode Channels::get(pTransaction &p_txn, pChar p_what, pChar name) {
 
-	destroy_extra_locator(what);
+	return SERVICE_ERROR_NOT_APPLICABLE;
+}
 
-	return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+/** Easy Channels interface **locate** is not applicable.
+
+**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
+*/
+StatusCode Channels::locate(Locator &location, pChar p_what) {
+
+	return SERVICE_ERROR_NOT_APPLICABLE;
+}
+
+
+/** Easy Channels interface **header** is not applicable.
+
+**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
+*/
+StatusCode Channels::header(StaticBlockHeader &hea, pChar p_what) {
+
+	return SERVICE_ERROR_NOT_APPLICABLE;
+}
+
+
+
+/** Easy Channels interface **header** is not applicable.
+
+**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
+*/
+StatusCode Channels::header(pTransaction &p_txn, pChar p_what) {
+
+	return SERVICE_ERROR_NOT_APPLICABLE;
 }
 
 
