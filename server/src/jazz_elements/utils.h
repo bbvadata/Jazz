@@ -91,6 +91,8 @@ without global variables.
 /// Maximum length for file names in ConfigFile and Logger.
 #define MAX_FILENAME_LENGTH	256
 
+#define MAX_BLOCK_SIZE			0x40000000		///< 1Gb
+
 /** Constants for StatusCode values
 */
 #define SERVICE_NO_ERROR				  0		///< No errors found processing the API call.
