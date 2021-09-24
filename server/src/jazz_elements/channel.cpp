@@ -190,21 +190,29 @@ StatusCode Channels::start() {
 		return EXIT_FAILURE;
 	}
 
-	return SERVICE_NO_ERROR;
-}
+	if (!get_conf_key("ENABLE_ZEROMQ_CLIENT", can_zmq)) {
+		log(LOG_ERROR, "Channels::start() failed to find ENABLE_ZEROMQ_CLIENT");
 
+		return EXIT_FAILURE;
+	}
 
-/** Shuts down the Persisted Service
-*/
-StatusCode Channels::shut_down() {
+	if (!get_conf_key("ENABLE_HTTP_CLIENT", can_curl)) {
+		log(LOG_ERROR, "Channels::start() failed to find ENABLE_HTTP_CLIENT");
 
-//TODO: Implement the Channels-specific shut_down()
+		return EXIT_FAILURE;
+	}
 
-	return Container::shut_down();	// Closes the one-shot functionality.
-}
+	if (!get_conf_key("ENABLE_BASH_EXEC", can_bash)) {
+		log(LOG_ERROR, "Channels::start() failed to find ENABLE_BASH_EXEC");
 
+		return EXIT_FAILURE;
+	}
 
-/** The parser: An overwrite of the same method in Container to handle long and realistic file names, URL quirks, etc.
+	if (!get_conf_key("ENABLE_FILE_LEVEL", file_lev)) {
+		log(LOG_ERROR, "Channels::start() failed to find ENABLE_FILE_LEVEL");
+
+		return EXIT_FAILURE;
+	}
 
 	\param result	A Locator to contained the parsed result on success. (Undefined content on error.) It uses the p_extra-> pointer
 					in the Locator structure to match an ExtraLocator structure containing the long paths. The structure is owned by
