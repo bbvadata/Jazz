@@ -85,8 +85,8 @@ namespace jazz_elements
 typedef std::map<int, std::string>	MapIS;
 
 
-/// A map for defining http config names
-typedef std::map<int, int>	MapII;
+/// A structure holding connections.
+typedef std::map<std::string, Index> ConnMap;
 
 
 /// A map for defining http config ports
