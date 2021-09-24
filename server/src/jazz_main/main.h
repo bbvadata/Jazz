@@ -55,7 +55,7 @@
 // F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_main
 // =======================================   -----------------------------
 
-//TODO: Implement http API access control.
+//FUTURE: Implement http API access control.
 	// This can be done combining two ways:
 	//   1. By defining MHD_AcceptPolicyCallback and pass it to MHD_start_daemon() in HttpServer::start(), includes:
 	//		  * Caller IP

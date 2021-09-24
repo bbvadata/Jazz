@@ -60,8 +60,6 @@ StatusCode Bebop::start() {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-//TODO: Implement the Bebop-specific start()
-
 	return SERVICE_NO_ERROR;
 }
 
@@ -69,8 +67,6 @@ StatusCode Bebop::start() {
 /** Shuts down the Bebop Service
 */
 StatusCode Bebop::shut_down() {
-
-//TODO: Implement the Bebop-specific shut_down()
 
 	return Container::shut_down();	// Closes the one-shot functionality.
 }

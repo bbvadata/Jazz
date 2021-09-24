@@ -60,8 +60,6 @@ StatusCode Agency::start() {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-//TODO: Implement the Agency-specific start()
-
 	return SERVICE_NO_ERROR;
 }
 
@@ -69,8 +67,6 @@ StatusCode Agency::start() {
 /** Shuts down the Agency Service
 */
 StatusCode Agency::shut_down() {
-
-//TODO: Implement the Agency-specific shut_down()
 
 	return Container::shut_down();	// Closes the one-shot functionality.
 }
