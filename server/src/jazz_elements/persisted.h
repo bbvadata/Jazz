@@ -139,6 +139,10 @@ class Persisted : public Container {
 		void base_names(BaseNames &base_names);
 		bool dbi_exists(Name	   dbi_name);
 
+		inline bool is_running() {
+			return lmdb_env != nullptr;
+		}
+
 #ifndef CATCH_TEST
 	private:
 #endif
