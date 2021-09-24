@@ -43,6 +43,8 @@ namespace jazz_main
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
+#ifndef CATCH_TEST
+
 ConfigFile	CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
 Logger		LOGGER(CONFIG, "LOGGER_PATH");
 
@@ -57,10 +59,14 @@ Agency		EPI		 (&LOGGER, &CONFIG);
 Api			API	(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
 HttpServer	HTTP(&LOGGER, &CONFIG);
 
+#endif
+
 // Callbacks
 
 pMHD_Daemon	Jazz_MHD_Daemon;
 
+
+#ifndef CATCH_TEST
 
 bool start_service(pService service, char const *service_name) {
 	cout << "Starting " << service_name << " ... ";
@@ -95,6 +101,8 @@ bool stop_service(pService service, char const *service_name) {
 	}
 }
 
+#endif
+
 
 /** Capture SIGTERM. This callback procedure stops a running server.
 
@@ -109,6 +117,8 @@ void signalHandler_SIGTERM(int signum) {
 
 	bool stop_ok = true;
 
+#ifndef CATCH_TEST
+
 	if (!stop_service(&HTTP,	  "HttpServer")) stop_ok = false;
 	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
 	if (!stop_service(&EPI,		  "Agency"))	 stop_ok = false;
@@ -116,6 +126,8 @@ void signalHandler_SIGTERM(int signum) {
 	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
 	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
 	if (!stop_service(&CHANNELS,  "Channels"))	 stop_ok = false;
+
+#endif
 
 	if (stop_ok) exit(EXIT_SUCCESS); else exit(EXIT_FAILURE);
 }

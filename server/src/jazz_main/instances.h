@@ -59,17 +59,19 @@ using namespace jazz_agency;
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
+#ifndef CATCH_TEST
+
 // Higher level Services:
 
-extern Agency	  EPI;			// (As in epistrophy.) The service managing agents.
-extern Bebop	  BOP;			// (as in Bebop.) The service managing cores and fields.
+extern Agency EPI;				// (As in epistrophy.) The service managing agents.
+extern Bebop  BOP;				// (as in Bebop.) The service managing cores and fields.
 
 // Block containers:
 
-extern Channels	  CHANNELS;		// The container channeling blocks.
-extern Volatile	  VOLATILE;		// The container allocating volatile blocks.
-extern Persisted  PERSISTED;	// The container allocating persisted blocks.
-extern Api		  API;			// The API interface is also a one-shot container.
+extern Channels	 CHANNELS;		// The container channeling blocks.
+extern Volatile	 VOLATILE;		// The container allocating volatile blocks.
+extern Persisted PERSISTED;		// The container allocating persisted blocks.
+extern Api		 API;			// The API interface is also a one-shot container.
 
 // Http server:
 
@@ -79,6 +81,8 @@ extern HttpServer HTTP;			// The server
 
 extern pMHD_Daemon Jazz_MHD_Daemon;
 void signalHandler_SIGTERM(int signum);
+
+#endif
 
 // Utils for starting and stopping Services:
 

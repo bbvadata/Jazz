@@ -35,35 +35,22 @@
 using namespace jazz_main;
 
 
-// Instancing of different containers for API testing
-// --------------------------------------------------
-
-Channels	CHANNELS  (&LOGGER, &CONFIG);
-Volatile	VOLATILE  (&LOGGER, &CONFIG);
-Persisted	PERSISTED (&LOGGER, &CONFIG);
-Bebop		BOP		  (&LOGGER, &CONFIG);
-Agency		EPI		  (&LOGGER, &CONFIG);
-
-Api			TT_API	  (&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
-
 // Tests
 // -----
 
 SCENARIO("Testing all Containers start()/shut_down()") {
 
 	GIVEN("The instances are constructed, but not yet started") {
-		REQUIRE(tenbit_double_slash == TenBitsAtAddress("//"));
-
-		REQUIRE(TT_API.p_channels	== &CHANNELS);
-		REQUIRE(TT_API.p_volatile	== &VOLATILE);
-		REQUIRE(TT_API.p_persisted	== &PERSISTED);
+		REQUIRE(TT_API.p_channels	== &CHN);
+		REQUIRE(TT_API.p_volatile	== &VOL);
+		REQUIRE(TT_API.p_persisted	== &PER);
 		REQUIRE(TT_API.p_bebop		== &BOP);
 		REQUIRE(TT_API.p_agency		== &EPI);
 	}
 
-	REQUIRE(CHANNELS.start()  == 0);
-	REQUIRE(VOLATILE.start()  == 0);
-	REQUIRE(PERSISTED.start() == 0);
+	REQUIRE(CHN.start()  == 0);
+	REQUIRE(VOL.start()  == 0);
+	REQUIRE(PER.start() == 0);
 
 	REQUIRE(BOP.start() == 0);
 	REQUIRE(EPI.start() == 0);
@@ -71,15 +58,15 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 	REQUIRE(TT_API.start() == 0);
 
 	GIVEN("The instances are started") {
-		REQUIRE(base_server[TenBitsAtAddress("bash")]  == &CHANNELS);
-		REQUIRE(base_server[TenBitsAtAddress("file")]  == &CHANNELS);
-		REQUIRE(base_server[TenBitsAtAddress("http")]  == &CHANNELS);
-		REQUIRE(base_server[TenBitsAtAddress("tcp")]   == &CHANNELS);
-		REQUIRE(base_server[TenBitsAtAddress("deque")] == &VOLATILE);
-		REQUIRE(base_server[TenBitsAtAddress("index")] == &VOLATILE);
-		REQUIRE(base_server[TenBitsAtAddress("queue")] == &VOLATILE);
-		REQUIRE(base_server[TenBitsAtAddress("tree")]  == &VOLATILE);
-		REQUIRE(base_server[TenBitsAtAddress("lmdb")]  == &PERSISTED);
+		REQUIRE(base_server[TenBitsAtAddress("bash")]  == &CHN);
+		REQUIRE(base_server[TenBitsAtAddress("file")]  == &CHN);
+		REQUIRE(base_server[TenBitsAtAddress("http")]  == &CHN);
+		REQUIRE(base_server[TenBitsAtAddress("0-mq")]  == &CHN);
+		REQUIRE(base_server[TenBitsAtAddress("deque")] == &VOL);
+		REQUIRE(base_server[TenBitsAtAddress("index")] == &VOL);
+		REQUIRE(base_server[TenBitsAtAddress("queue")] == &VOL);
+		REQUIRE(base_server[TenBitsAtAddress("tree")]  == &VOL);
+		REQUIRE(base_server[TenBitsAtAddress("lmdb")]  == &PER);
 		REQUIRE(base_server[TenBitsAtAddress("zqt")]   == nullptr);
 	}
 
@@ -88,9 +75,9 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 	REQUIRE(BOP.shut_down() == 0);
 	REQUIRE(EPI.shut_down() == 0);
 
-	REQUIRE(CHANNELS.shut_down()  == 0);
-	REQUIRE(VOLATILE.shut_down()  == 0);
-	REQUIRE(PERSISTED.shut_down() == 0);
+	REQUIRE(CHN.shut_down() == 0);
+	REQUIRE(VOL.shut_down() == 0);
+	REQUIRE(PER.shut_down() == 0);
 }
 
 

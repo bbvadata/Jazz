@@ -131,12 +131,14 @@ ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
 #define MHD_HTTP_ANYERROR true
 
+#ifndef CATCH_TEST
 #ifdef DEBUG
 MHD_Result print_out_key(void *cls, enum MHD_ValueKind kind, const char *key, const char *value) {
 	LOGGER.log_printf(LOG_DEBUG, "| HTTP callback - conn (key:value) : %s:%.40s", key, value);
 
 	return MHD_YES;
 }
+#endif
 #endif
 
 
@@ -153,6 +155,7 @@ int tenbit_double_slash;				///< The binary ten bits of "//" double-slash to ide
 TenBitIntLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
 TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method int an integer code.
 
+#ifndef CATCH_TEST
 
 /** Callback function for MHD. See: https://www.gnu.org/software/libmicrohttpd/tutorial.html
 
@@ -410,6 +413,8 @@ continue_in_put_ok:
 
 	return MHD_NO;
 }
+
+#endif
 
 /*	-----------------------------------------------
 	 Api : I m p l e m e n t a t i o n
