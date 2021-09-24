@@ -591,10 +591,10 @@ StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
 */
 void Channels::base_names(BaseNames &base_names) {
 
-	base_names["bash"]	= this;		// Runs shell scripts
-	base_names["file"]	= this;		// Returns arrays of bytes with attributes for files, IndexIS for folders.
-	base_names["http"]	= this;		// libCURL
-	base_names["tcp"]	= this;		// zeroMQ (client)
+	base_names["bash"] = this;		// Runs shell scripts
+	base_names["file"] = this;		// Returns arrays of bytes with attributes for files, IndexIS for folders.
+	base_names["http"] = this;		// libCURL
+	base_names["0-mq"] = this;		// zeroMQ (client)
 }
 
 
