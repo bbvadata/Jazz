@@ -258,7 +258,7 @@ class Logger {
 		void InitLogger();
 
 		char file_name [MAX_FILENAME_LENGTH];
-		std::ifstream f_stream;
+		std::ofstream f_stream;
 		std::filebuf *f_buff;
 		TimePoint big_bang;
 };
