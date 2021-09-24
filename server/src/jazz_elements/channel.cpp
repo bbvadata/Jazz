@@ -214,18 +214,15 @@ StatusCode Channels::start() {
 		return EXIT_FAILURE;
 	}
 
-	\param result	A Locator to contained the parsed result on success. (Undefined content on error.) It uses the p_extra-> pointer
-					in the Locator structure to match an ExtraLocator structure containing the long paths. The structure is owned by
-					Channels and has to be released using destroy_extra_locator() which happens automatically when you use the native API.
-	\param p_what	Some string to be parsed. (See Syntax below) E.g. //http/http://www.google.com?xy or //http[USERNAME:me]http://ibm.com
+	if (!curl_ok)
+		curl_ok = can_curl && curl_global_init(CURL_GLOBAL_SSL) == CURLE_OK;
 
-	\return	SERVICE_NO_ERROR on success or some negative value (error).
+	if (!zmq_ok)
+		zmq_ok = can_zmq && ((zmq_context = zmq_ctx_new()) != nullptr) && ((zmq_requester = zmq_socket(zmq_context, ZMQ_REQ)) != nullptr);
 
-**NOTE**: Because Locators are being replaced by ExtraLocator, all calls to as_locator() **must** be used **just once** by the Native API.
-If an ExtraLocator returned by this is not used, you must explicitely call destroy_extra_locator().
+	return SERVICE_NO_ERROR;
+}
 
-Syntax
-------
 
 The general syntax is: //{base}/{url} or //{base}[]{url}
 
