@@ -89,18 +89,8 @@ typedef std::map<int, std::string>	MapIS;
 typedef std::map<int, int>	MapII;
 
 
-/** \brief ExtraLocator: A structure that replaces the entity/key in a Locator by a long URL or file name and some http quirks.
-
-**Valid characters**: Most non-zero characters should be usable or will be rejected by the endpoint, not the parser. See the doc
-on Channels::as_locator for details.
-*/
-struct ExtraLocator {
-	Name	user_name;							///< An optional CURLOPT_USERNAME for http calls
-	Name	user_pw;							///< An optional CURLOPT_USERNAME for http calls
-	Locator	cookie_file;						///< An optional CURLOPT_USERNAME for http calls
-	Locator	cookie_jar;							///< An optional CURLOPT_USERNAME for http calls
-	char	url[MAX_FILE_OR_URL_SIZE];			///< The endpoint (an URL, file name, folder name, bash script)
-};
+/// A map for defining http config ports
+typedef std::map<int, int>	MapII;
 
 
 /*! \brief A proper type for specifying http status codes
@@ -135,53 +125,41 @@ class Channels : public Container {
 				 pConfigFile a_config);
 	   ~Channels();
 
-		StatusCode start	();
-		StatusCode shut_down();
+		StatusCode	   start	   ();
+		StatusCode	   shut_down   ();
 
-		// The easy interface (Requires explicit pulling because of the native interface using the same names.)
-
-		using Container::get;
-		using Container::header;
-		using Container::put;
-		using Container::new_entity;
-		using Container::remove;
-		using Container::copy;
-
-		// The parser: This overrides the parser in Channels.
-
-		virtual StatusCode as_locator (Locator			 &result,
-									   pChar			  p_what);
-
-		// The "native" interface
-
-		virtual StatusCode get		  (pTransaction		 &p_txn,
-									   Locator			 &what);
-		virtual StatusCode get		  (pTransaction		 &p_txn,
-									   Locator			 &what,
-									   pBlock			  p_row_filter);
-		virtual StatusCode get		  (pTransaction		 &p_txn,
-							  		   Locator			 &what,
-							  		   pChar			  name);
-		virtual StatusCode header	  (StaticBlockHeader &hea,
-									   Locator			 &what);
-		virtual StatusCode header	  (pTransaction		 &p_txn,
-									   Locator			 &what);
-		virtual StatusCode put		  (Locator			 &where,
-									   pBlock			  p_block,
-									   int				  mode = WRITE_EVERYTHING);
-		virtual StatusCode new_entity (Locator			 &where);
-		virtual StatusCode remove	  (Locator			 &where);
-		virtual StatusCode copy		  (Locator			 &where,
-									   Locator			 &what);
-		MHD_StatusCode	   forward_get(pTransaction		 &p_txn,
-									   Name				  node,
-									   pChar			  p_url,
-									   int				  apply);
-		MHD_StatusCode	   forward_put(Name				  node,
-									   pChar			  p_url,
-									   pBlock			  p_block);
-		MHD_StatusCode	   forward_del(Name				  node,
-									   pChar			  p_url);
+		StatusCode	   get		   (pTransaction		&p_txn,
+									pChar				 p_what);
+		StatusCode	   get		   (pTransaction		&p_txn,
+									pChar				 p_what,
+									pBlock				 p_row_filter);
+		StatusCode	   get		   (pTransaction		&p_txn,
+									pChar				 p_what,
+									pChar				 name);
+		StatusCode	   locate	   (Locator				&location,
+									pChar				 p_what);
+		StatusCode	   header	   (StaticBlockHeader	&hea,
+									pChar				 p_what);
+		StatusCode	   header	   (pTransaction		&p_txn,
+									pChar				 p_what);
+		StatusCode	   put		   (pChar				 p_where,
+									pBlock				 p_block,
+									int					 mode = WRITE_EVERYTHING);
+		StatusCode	   new_entity  (pChar				 p_where);
+		StatusCode	   remove	   (pChar				 p_where);
+		StatusCode	   copy		   (pChar				 p_where,
+									pChar				 p_what);
+		StatusCode	   translate   (pTuple				 p_tuple,
+									pChar				 p_pipe);
+		MHD_StatusCode forward_get (pTransaction		&p_txn,
+									Name				 node,
+									pChar				 p_url,
+									int					 apply);
+		MHD_StatusCode forward_put (Name				 node,
+									pChar				 p_url,
+									pBlock				 p_block);
+		MHD_StatusCode forward_del (Name				 node,
+									pChar				 p_url);
 
 		// Support for container names in the API .base_names()
 
