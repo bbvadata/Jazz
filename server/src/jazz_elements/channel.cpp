@@ -263,46 +263,92 @@ StatusCode Channels::shut_down() {
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 					Transaction inside the Container. The data read from the endpoint will be stored as a rank == 1 CELL_TYPE_BYTE
 					for all bases except "bash" shell output is returned as a rank == 1 CELL_TYPE_STRING
-	\param what		Some Locator to the endpoint compiled by Channels::as_locator() that can only be used once.
+	\param p_what	The endpoint.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy_transaction()-ed when the caller is done.
 
-**NOTE**: This can only be used once since it calls destroy_extra_locator() on **what**.
+**NOTE**: See the description of Channels for reference.
 */
-StatusCode Channels::get(pTransaction &p_txn, Locator &what) {
+StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 
-//TODO: Implement this.
+	if ((*p_what++ != '/') || (*p_what++ != '/') || (*p_what == 0))
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-	return SERVICE_NOT_IMPLEMENTED;		// API Only: One-shot container does not support this.
-}
+	int base = TenBitsAtAddress(p_what);
 
+	switch (base) {
+	case BASE_BASH_10BIT:
+		if (!can_bash)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
 
-/** Native (Channels) interface **selection of rows in a Block** retrieval.
+	case BASE_FILE_10BIT: {
+		if (file_lev < 1)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-**NOTE**: This is NOT supported by Channels since the blocks returned by endpoints would need other types for filtering. It does
-call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
+		p_what += 4;
+		if (*p_what++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+	    struct stat p_stat;
+    	int ret = stat(p_what, &p_stat);
+		if (ret != 0)
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		if (S_ISDIR(p_stat.st_mode)) {
+/*
+			ret = new_block(p_txn, CELL_TYPE_INDEX);
+
+			if (ret != SERVICE_NO_ERROR)
+				return ret;
 */
-StatusCode Channels::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+			return SERVICE_NOT_IMPLEMENTED;
+		}
 
-	destroy_extra_locator(what);
+		if (S_ISREG(p_stat.st_mode)) {
+			if (p_stat.st_size > MAX_BLOCK_SIZE)
+				return SERVICE_ERROR_BLOCK_TOO_BIG;
 
-	return SERVICE_ERROR_WRONG_ARGUMENTS;
-}
+			int dim[MAX_TENSOR_RANK] = {(int) p_stat.st_size, 0};
 
+			ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
 
-/** Native (Channels) interface **selection of a tensor in a Tuple** retrieval.
+			if (ret != SERVICE_NO_ERROR)
+				return ret;
 
-**NOTE**: This is NOT supported by Channels since the blocks returned by endpoints cannot be Tuples. It does
-call destroy_extra_locator() on **what** to avoid possible leakage and returns SERVICE_ERROR_WRONG_ARGUMENTS.
-*/
-StatusCode Channels::get(pTransaction &p_txn, Locator &what, pChar name) {
+			bool read_ok = false;
+			FILE *fp;
+			fp = fopen(p_what, "rb");
+			if (fp != nullptr) {
+				read_ok = fread(&p_txn->p_block->tensor.cell_byte, 1, p_stat.st_size, fp) == p_stat.st_size;
 
-	destroy_extra_locator(what);
+				fclose(fp);
+			}
 
-	return SERVICE_ERROR_WRONG_ARGUMENTS;
+			if (!read_ok) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_IO_ERROR;
+			}
+			return SERVICE_NO_ERROR;
+		}}
+		return SERVICE_ERROR_IO_ERROR;
+
+	case BASE_HTTP_10BIT:
+		if (!curl_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_0_MQ_10BIT:
+		if (!zmq_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+	}
+
+	return SERVICE_ERROR_WRONG_BASE;
 }
 
 
