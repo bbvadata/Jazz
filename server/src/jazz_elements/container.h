@@ -365,6 +365,8 @@ class Container : public Service {
 		StatusCode remove	   (pChar				 p_where);
 		StatusCode copy		   (pChar				 p_where,
 								pChar				 p_what);
+		StatusCode translate   (pTuple				 p_tuple,
+								pChar				 p_pipe);
 
 		// The parser: This simple regex-based parser only needs override for Channels.
 		virtual StatusCode as_locator  (Locator			   &result,
