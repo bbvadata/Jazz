@@ -1307,6 +1307,12 @@ It also assigns attributes:
 */
 StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_level) {
 
+	if (!p_persisted->is_running()) {
+		log(LOG_MISS, "Api::load_statics(): Skipped because Persistence is not running.");
+
+		return SERVICE_NO_ERROR;
+	}
+
 	if (rec_level > MAX_RECURSE_LEVEL_ON_STATICS)
 		return SERVICE_ERROR_TOO_DEEP;
 
@@ -1434,6 +1440,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 
 					return ret;
 				}
+				log_printf(LOG_INFO, "www static %s loaded as %s", mime_type, fn);
 			} else if (ent->d_type == DT_DIR && ent->d_name[0] != '.') {
 				char next_relative_path[1024];
 				int ret = snprintf(next_relative_path, 1024, "%s%s/", p_relative_path, ent->d_name);
