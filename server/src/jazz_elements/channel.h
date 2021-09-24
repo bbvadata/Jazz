@@ -54,6 +54,12 @@
 namespace jazz_elements
 {
 
+#define BASE_BASH_10BIT				0x022		//< First 10 bits of base "bash"
+#define BASE_FILE_10BIT				0x126		//< First 10 bits of base "file"
+#define BASE_HTTP_10BIT				0x288		//< First 10 bits of base "http"
+#define BASE_0_MQ_10BIT				0x1b0		//< First 10 bits of base "0-mq"
+
+
 #define MAX_FILE_OR_URL_SIZE		1824		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
 
 /// HttpQueryState apply values (on state == PSTATE_COMPLETE_OK)
