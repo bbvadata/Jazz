@@ -403,18 +403,49 @@ StatusCode Channels::header(pTransaction &p_txn, pChar p_what) {
 }
 
 
-/** Native (Channels) interface for **Block storing**
+/** Easy Channels interface for **Block writing**
 
-	\param where	Some Locator to the destination endpoint compiled by Channels::as_locator() that can only be used once.
+	\param p_where	The destination endpoint.
 	\param p_block	The Block to be written/sent by Channels.
 	\param mode		Some writing restriction that depends on the base. WRITE_ONLY_IF_EXISTS and WRITE_ONLY_IF_NOT_EXISTS can only be used
 					on **file**. WRITE_TENSOR_DATA should be used as default, otherwise the metadata will also be written/sent.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-This does not support the **bash** base. For the **tcp** base, it will normally be followed by a get() to the same channel to get the result.
+**NOTE**: See the description of Channels for reference.
+*/
+StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 
-**NOTE**: This can only be used once since it calls destroy_extra_locator() on **where**.
+	if ((*p_where++ != '/') || (*p_where++ != '/') || (*p_where == 0))
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+	int base = TenBitsAtAddress(p_where);
+
+	switch (base) {
+	case BASE_BASH_10BIT:
+		if (!can_bash)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_FILE_10BIT:
+		if (file_lev < 1)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_HTTP_10BIT:
+		if (!curl_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+
+	case BASE_0_MQ_10BIT:
+		if (!zmq_ok)
+			return SERVICE_ERROR_BASE_FORBIDDEN;
+		break;
+	}
+
+	return SERVICE_ERROR_WRONG_BASE;
+}
+
 */
 StatusCode Channels::put(Locator &where, pBlock p_block, int mode) {
 
