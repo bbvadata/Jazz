@@ -224,24 +224,37 @@ StatusCode Channels::start() {
 }
 
 
-The general syntax is: //{base}/{url} or //{base}[]{url}
-
-The parser will accept anything as the URL or file name, without imposing on character ranges, with the exception of the (optional)
-initial []. If the **first** character is a [, a closing ] will be found and anything inside the [] are the **quirks**, the rest is the
-URL (or file name).
-
-The quirks have the format [USERNAME:xxx,USERPW:xxx,COOKIEFILE://base/entity/key,COOKIEJAR://base/entity/key] When any of these fields is
-given it will populate the corresponding field of the ExtraLocator which will otherwise be NULL.
-Both the COOKIEFILE (cookies emitted) and COOKIEJAR (cookies accepted) will be files with short names in a format good for
-curl_easy_setopt() https://everything.curl.dev/libcurl-http/cookies The USERNAME is https://curl.se/libcurl/c/CURLOPT_USERNAME.html and
-the USERPW https://curl.se/libcurl/c/CURLOPT_USERPWD.html
-
+/** Shuts down the Persisted Service
 */
-StatusCode Channels::as_locator(Locator &result, pChar p_what) {
+StatusCode Channels::shut_down() {
 
-//TODO: Implement this.
+	if (curl_ok) {
+		curl_global_cleanup();
 
-	return SERVICE_NOT_IMPLEMENTED;
+		curl_ok = false;
+	}
+
+	if (zmq_ok) {
+		if (zmq_requester != nullptr)
+			zmq_close(zmq_requester);
+
+		if (zmq_context != nullptr)
+			zmq_ctx_destroy(zmq_context);
+
+		zmq_requester = nullptr;
+		zmq_context	  = nullptr;
+
+		zmq_ok = false;
+	}
+
+	pipes.clear();
+
+	for (ConnMap::iterator it = connect.begin(); it != connect.end(); ++it) {
+		it->second.clear();
+	}
+	connect.clear();
+
+	return Container::shut_down();	// Closes the one-shot functionality.
 }
 
 
