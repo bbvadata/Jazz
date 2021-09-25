@@ -300,13 +300,30 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		if (S_ISDIR(p_stat.st_mode)) {
-/*
 			ret = new_block(p_txn, CELL_TYPE_INDEX);
-
 			if (ret != SERVICE_NO_ERROR)
 				return ret;
-*/
-			return SERVICE_NOT_IMPLEMENTED;
+
+			DIR *dir;
+			if ((dir = opendir(p_what)) == nullptr)
+				return SERVICE_ERROR_IO_ERROR;
+
+			struct dirent *ent;
+
+			while ((ent = readdir(dir)) != nullptr) {	// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
+														// readdir() (3) is thread safe.
+				switch (ent->d_type) {
+				case DT_REG:
+					p_txn->p_hea->index[ent->d_name] = "file";
+					break;
+				case DT_DIR:
+					if (ent->d_name[0] != '.')
+						p_txn->p_hea->index[ent->d_name] = "folder";
+				}
+			}
+	  		closedir(dir);
+
+			return SERVICE_NO_ERROR;
 		}
 
 		if (S_ISREG(p_stat.st_mode)) {
