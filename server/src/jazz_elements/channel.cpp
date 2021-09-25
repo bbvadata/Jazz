@@ -627,7 +627,12 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-	ret = put(p_where, p_txn->p_block);
+	int mode = WRITE_EVERYTHING;
+
+	if (TenBitsAtAddress(p_what + 2) == BASE_FILE_10BIT)
+		mode = WRITE_TENSOR_DATA;
+
+	ret = put(p_where, p_txn->p_block, mode);
 
 	destroy_transaction(p_txn);
 
