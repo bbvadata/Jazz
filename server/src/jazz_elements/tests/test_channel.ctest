@@ -198,9 +198,23 @@ SCENARIO("Testing file end-to-end") {
 
 		pTransaction p_txn;
 
+		CHN.remove((pChar) "//file//tmp/jzz_ftest");
+		CHN.new_entity((pChar) "//file//tmp/jzz_ftest");
+
 		WHEN("We test new_entity()/remove()") {
-			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest")		 == SERVICE_NO_ERROR);
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
+
+			CHN.file_lev = 1;
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder/ff") == SERVICE_ERROR_BASE_FORBIDDEN);
+			CHN.file_lev = 2;
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder/ff") == SERVICE_NO_ERROR);
+			CHN.file_lev = 3;
+			REQUIRE(CHN.new_entity((pChar) "//files//tmp/jzz_ftest/folder/ff") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder/ff") == SERVICE_ERROR_IO_ERROR);
+			CHN.file_lev = 2;
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder/ff") == SERVICE_ERROR_BASE_FORBIDDEN);
+			CHN.file_lev = 3;
+
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/folder/blk", p_tx_int->p_block) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
@@ -211,17 +225,20 @@ SCENARIO("Testing file end-to-end") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder/blk4") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
-				REQUIRE(p_txn->p_block->size == 1);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
+				REQUIRE(p_txn->p_hea->index["blk"] == "file");
+				REQUIRE(p_txn->p_hea->index["ff"] == "folder");
+				REQUIRE(p_txn->p_hea->index.size() == 2);
 				CHN.destroy_transaction(p_txn);
 			}
+
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder/blk/aaa") == SERVICE_ERROR_IO_ERROR);
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder/blk") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest") == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
 			CHN.destroy_transaction(p_txn);
 		}
 		WHEN("We test put()/get()/remove() of keys") {
@@ -235,6 +252,15 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea_t", p_tx_rea->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+
+			CHN.file_lev = 1;
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_BASE_FORBIDDEN);
+			CHN.file_lev = 2;
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_BASE_FORBIDDEN);
+			CHN.file_lev = 3;
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//files//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_WRONG_BASE);
 
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
@@ -260,6 +286,11 @@ SCENARIO("Testing file end-to-end") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/str_t") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_tensor(p_txn, p_tx_str));
 				CHN.destroy_transaction(p_txn);
+
+				CHN.file_lev = 0;
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/str_t") == SERVICE_ERROR_BASE_FORBIDDEN);
+				CHN.file_lev = 3;
+				REQUIRE(CHN.get(p_txn, (pChar) "//files//tmp/jzz_ftest/fff/str_t") == SERVICE_ERROR_WRONG_BASE);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/chr_t") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_tensor(p_txn, p_tx_chr));
@@ -309,6 +340,21 @@ SCENARIO("Testing file end-to-end") {
 				REQUIRE(compare_to_block(p_txn, p_tx_fil));
 				CHN.destroy_transaction(p_txn);
 			}
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_NO_ERROR);
+			CHN.destroy_transaction(p_txn);
+
+			CHN.file_lev = 2;
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_ERROR_BASE_FORBIDDEN);
+			CHN.file_lev = 3;
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			REQUIRE(CHN.remove((pChar) "//files//tmp/jzz_ftest/fff/fil") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff/fil") == SERVICE_NO_ERROR);
+
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 		}
 
@@ -374,7 +420,16 @@ SCENARIO("Testing file end-to-end") {
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
+				CHN.file_lev = 2;
 				REQUIRE(CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/pop", (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
+				REQUIRE(   CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/pop", (pChar) "//file//tmp/jzz_ftest/fff/pop")
+						== SERVICE_ERROR_BASE_FORBIDDEN);
+
+				CHN.file_lev = 3;
+				REQUIRE(CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/pop", (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
+
+				REQUIRE(   CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/pop", (pChar) "//files//tmp/jzz_ftest/fff/pop")
+						== SERVICE_ERROR_WRONG_BASE);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/pop") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_pop));
@@ -408,7 +463,8 @@ SCENARIO("Testing file end-to-end") {
 		}
 
 		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_pop->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.translate((pTuple) p_tx_pop->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_BASE);
 		}
 
 		CHN.destroy_transaction(p_tx_pop);
