@@ -185,7 +185,7 @@ SCENARIO("Testing file end-to-end") {
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
 
 		StaticBlockHeader hea[2]	 = {0, 0};
-		Name			  names[2] = {"input", "result"};
+		Name			  names[2]	 = {"input", "result"};
 		pBlock			  p_block[2] = {p_tx_rea->p_block, p_tx_int->p_block};
 
 		memcpy(&hea[0], p_block[0], sizeof(StaticBlockHeader));
