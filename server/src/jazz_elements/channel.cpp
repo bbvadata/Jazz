@@ -33,6 +33,8 @@
 
 
 #include <sys/stat.h>
+#include <filesystem>
+
 #include <curl/curl.h>
 #include <zmq.h>
 #include <microhttpd.h>
@@ -567,9 +569,30 @@ StatusCode Channels::remove(pChar p_where) {
 		break;
 
 	case BASE_FILE_10BIT:
-		if (file_lev < 1)
+		if (file_lev < 3)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_where += 4;
+		if (*p_where++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+	    struct stat p_stat;
+		if (stat(p_where, &p_stat) != 0)
+			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+		if (S_ISREG(p_stat.st_mode)) {
+			if (std::remove(p_where) != 0)
+				return SERVICE_ERROR_IO_ERROR;
+
+			return SERVICE_NO_ERROR;
+		}
+		if (S_ISDIR(p_stat.st_mode)) {
+			if (std::filesystem::remove_all(p_where) < 1)	// Returns the number of items removed
+				return SERVICE_ERROR_IO_ERROR;
+
+			return SERVICE_NO_ERROR;
+		}
+		return SERVICE_ERROR_IO_ERROR;
 
 	case BASE_HTTP_10BIT:
 		if (!curl_ok)
