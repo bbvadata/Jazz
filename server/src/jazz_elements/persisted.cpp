@@ -131,7 +131,7 @@ StatusCode Persisted::start() {
 
 	strcpy(lmdb_opt.path, db_path.c_str());
 
-	struct stat st = {0};
+	struct stat st;
 	if (stat(lmdb_opt.path, &st) != 0) {
 		log_printf(LOG_INFO, "Path \"%s\" does not exist, creating it.", db_path.c_str());
 
