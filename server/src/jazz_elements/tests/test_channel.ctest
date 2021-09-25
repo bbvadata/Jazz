@@ -94,15 +94,350 @@ SCENARIO("Testing bash end-to-end") {
 
 SCENARIO("Testing file end-to-end") {
 
-//TODO: Write tests for this!
+	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
+	REQUIRE(CHN.max_transactions > 0);
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.warn_alloc_bytes > 0);
+	REQUIRE(CHN.fail_alloc_bytes > 0);
+	REQUIRE(CHN.alloc_warning_issued == false);
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN.p_free	 == CHN.p_buffer);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next == &pStoredTransaction(CHN.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next->p_next == &pStoredTransaction(CHN.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 2].p_next
+			== &pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1].p_next == nullptr);
+	REQUIRE(CHN._lock_ == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context	  != nullptr);
+	REQUIRE(CHN.zmq_requester != nullptr);
+
+	GIVEN("We have some blocks and indices") {
+		Index txt;
+
+		txt["one__"] = "Abc ..";
+		txt["two__"] = "[[1,2,3],%20[1,2,3]]";
+		txt["three"] = "";
+		txt["_four"] = "A multiline string\nis okay\n";
+		txt["fi_ve"] = "UTF8 ¡what!\n\nLöwe\n";
+
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil;
+
+		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
+
+		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(CHN.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
+
+		dim[1] = 8;
+		REQUIRE(CHN.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_int->p_block->tensor.cell_int[0]	= 1;
+		p_tx_int->p_block->tensor.cell_int[159] = 159;
+
+		dim[1] = 4;
+		REQUIRE(CHN.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[79] = 21.345;
+
+		dim[1] = 1;
+		REQUIRE(CHN.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 20; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
+
+		dim[1] = 0;
+		REQUIRE(CHN.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_fil->p_block->range.filter.length = 2;
+		p_tx_fil->p_block->tensor.cell_int[0] = 0;
+		p_tx_fil->p_block->tensor.cell_int[1] = 2;
+
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_tim->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_rea->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_int->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
+
+		pTransaction p_txn;
+
+		WHEN("We test new_entity()/remove()") {
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest")		 == SERVICE_NO_ERROR);
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/folder/blk", p_tx_int->p_block) == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder/blk") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder/blk4") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 1);
+				CHN.destroy_transaction(p_txn);
+			}
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder/blk/aaa") == SERVICE_ERROR_IO_ERROR);
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder/blk") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest") == SERVICE_NO_ERROR);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			CHN.destroy_transaction(p_txn);
+		}
+		WHEN("We test put()/get()/remove() of keys") {
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
+
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop_t", p_tx_pop->p_block, WRITE_TENSOR_DATA)
+					== SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str_t", p_tx_str->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr_t", p_tx_chr->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea_t", p_tx_rea->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr", p_tx_chr->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim", p_tx_tim->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS)
+					== SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_NO_ERROR);
+
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea2", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS)
+					== SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop_t") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/str_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_str));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/chr_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_chr));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_int));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/rea_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_rea));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/tim_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_tim));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/fil_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_fil));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_pop));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/str") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_str));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_chr));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_int));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/rea") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_rea));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/tim") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_tim));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/fil") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_fil));
+				CHN.destroy_transaction(p_txn);
+			}
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
+		}
+
+		WHEN("We check all the non applicable") {
+			StaticBlockHeader hea;
+			Locator loc;
+
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
+			CHN.destroy_transaction(p_txn);
+
+			REQUIRE(CHN.locate(loc, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop", (pChar) "value") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(hea, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int") == SERVICE_NO_ERROR);
+			CHN.destroy_transaction(p_txn);
+
+			REQUIRE(CHN.locate(loc, (pChar) "//file//tmp/jzz_ftest/fff/int") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_fil->p_block) == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(hea, (pChar) "//file//tmp/jzz_ftest/fff/int") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
+		}
+
+		WHEN("We test copy") {
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/ggg") == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop",   p_tx_pop->p_block, WRITE_EVERYTHING)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str",   p_tx_str->p_block, WRITE_EVERYTHING)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_pop));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/str") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_str));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_int));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/tim_t") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_tim));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/pop", (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/pop") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_pop));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/str") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/str", (pChar) "//file//tmp/jzz_ftest/fff/str") == SERVICE_NO_ERROR);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/str") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_block(p_txn, p_tx_str));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/int") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/int", (pChar) "//file//tmp/jzz_ftest/fff/int_t") == SERVICE_NO_ERROR);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/int") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_int));
+				CHN.destroy_transaction(p_txn);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(CHN.copy((pChar) "//file//tmp/jzz_ftest/ggg/tim", (pChar) "//file//tmp/jzz_ftest/fff/tim_t") == SERVICE_NO_ERROR);
+
+				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/ggg/tim") == SERVICE_NO_ERROR);
+				REQUIRE(compare_to_tensor(p_txn, p_tx_tim));
+				CHN.destroy_transaction(p_txn);
+			}
+			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
+		}
+
+		WHEN("We test translate") {
+			REQUIRE(CHN.translate((pTuple) p_tx_pop->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_BASE);
+		}
+
+		CHN.destroy_transaction(p_tx_pop);
+		CHN.destroy_transaction(p_tx_str);
+		CHN.destroy_transaction(p_tx_chr);
+		CHN.destroy_transaction(p_tx_int);
+		CHN.destroy_transaction(p_tx_rea);
+		CHN.destroy_transaction(p_tx_tim);
+		CHN.destroy_transaction(p_tx_fil);
 	}
+
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context	  != nullptr);
+	REQUIRE(CHN.zmq_requester != nullptr);
+
+	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CHN.alloc_bytes == 0);
+	REQUIRE(CHN.p_buffer == nullptr);
+	REQUIRE(CHN.p_free	 == nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.curl_ok == 0);
+	REQUIRE(CHN.zmq_ok	== 0);
+
+	REQUIRE(CHN.zmq_context	  == nullptr);
+	REQUIRE(CHN.zmq_requester == nullptr);
 }
 
 
