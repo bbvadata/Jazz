@@ -35,6 +35,37 @@
 using namespace jazz_elements;
 
 
+// Utils
+// -----
+
+bool compare_to_tensor(pTransaction &p_txn, pTransaction &p_txo) {
+	REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+
+	REQUIRE((p_txo->p_block->cell_type & 0xff) <= 8);
+
+	REQUIRE(p_txn->p_block->size == p_txo->p_block->size*(p_txo->p_block->cell_type & 0xff));
+
+	for (int i = 0; i < p_txn->p_block->size; i++)
+		if (p_txn->p_block->tensor.cell_byte[i] != p_txo->p_block->tensor.cell_byte[i])
+			return false;
+
+	return true;
+}
+
+bool compare_to_block(pTransaction &p_txn, pTransaction &p_txo) {
+	REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+
+	REQUIRE(p_txn->p_block->size == p_txo->p_block->total_bytes);
+
+	pChar p_bl = (pChar) p_txo->p_block;
+
+	for (int i = 0; i < p_txn->p_block->size; i++)
+		if (p_txn->p_block->tensor.cell_byte[i] != p_bl[i])
+			return false;
+
+	return true;
+}
+
 // Tests
 // -----
 
