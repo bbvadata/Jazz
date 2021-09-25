@@ -80,15 +80,183 @@ SCENARIO("Basics tests") {
 
 SCENARIO("Testing bash end-to-end") {
 
-//TODO: Write tests for this!
+	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
+	REQUIRE(CHN.max_transactions > 0);
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.warn_alloc_bytes > 0);
+	REQUIRE(CHN.fail_alloc_bytes > 0);
+	REQUIRE(CHN.alloc_warning_issued == false);
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN.p_free	 == CHN.p_buffer);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next == &pStoredTransaction(CHN.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next->p_next == &pStoredTransaction(CHN.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 2].p_next
+			== &pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1].p_next == nullptr);
+	REQUIRE(CHN._lock_ == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context	  != nullptr);
+	REQUIRE(CHN.zmq_requester != nullptr);
+
+	GIVEN("We have some blocks and indices") {
+		pTransaction p_tx_int, p_tx_inp, p_tx_res, p_tx_xlt;
+
+		char input[] = {"for line in {0..4}; do\n"
+						"  case $line in\n"
+						"    0)\n"
+						"      printf \"There was an Old Man in a boat, \\n\"\n"
+						"	  ;;\n"
+						"    1)\n"
+						"      printf \"Who said: I'm afloat! I'm afloat! \\n\"\n"
+						"	  ;;\n"
+						"    2)\n"
+						"      printf \"When they said: No, you ain't! \\n\"\n"
+						"	  ;;\n"
+						"    3)\n"
+						"      printf \"He was ready to faint, \\n\"\n"
+						"	  ;;\n"
+						"    *)\n"
+						"      printf \"That unhappy Old Man in a boat. \\n\"\n"
+						"      ;;\n"
+						"  esac\n"};
+
+		char result[] = {"There was an Old Man in a boat, \n"
+						 "Who said: I'm afloat! I'm afloat! \n"
+						 "When they said: No, you ain't! \n"
+						 "He was ready to faint, \n"
+						 "That unhappy Old Man in a boat. \n"};
+
+		int dim[MAX_TENSOR_RANK] = {160, 0};
+
+		REQUIRE(CHN.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		p_tx_int->p_block->tensor.cell_int[0]	= 1;
+		p_tx_int->p_block->tensor.cell_int[159] = 159;
+
+		dim[0] = strlen(input) + 1;
+
+		REQUIRE(CHN.new_block(p_tx_inp, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+
+		memcpy(&p_tx_inp->p_block->tensor.cell_byte[0], input, dim[0]);
+
+		dim[0] = strlen(result) + 100;
+
+		REQUIRE(CHN.new_block(p_tx_res, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+
+		StaticBlockHeader hea[2]	 = {0, 0};
+		Name			  names[2]	 = {"input", "result"};
+		pBlock			  p_block[2] = {p_tx_inp->p_block, p_tx_res->p_block};
+
+		memcpy(&hea[0], p_block[0], sizeof(StaticBlockHeader));
+		memcpy(&hea[1], p_block[1], sizeof(StaticBlockHeader));
+
+		p_block[0]->get_dimensions(hea[0].range.dim);
+		p_block[1]->get_dimensions(hea[1].range.dim);
+
+		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
+
+		pTransaction p_txn;
+
+		WHEN("We test new_entity()/put()/get()/remove()") {
+			REQUIRE(CHN.new_entity((pChar) "//bash//anything") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.new_entity((pChar) "/bash//anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			REQUIRE(CHN.remove((pChar) "//bash//anything") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.remove((pChar) "/bash//anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//bash//this/that") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.get(p_txn, (pChar) "/bash//this/that") == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			REQUIRE(CHN.put((pChar) "//bash//this/that", p_tx_int->p_block) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.put((pChar) "/bash//this/that", p_tx_int->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
 		}
+		WHEN("We check all the non applicable") {
+			StaticBlockHeader hea;
+			Locator loc;
+
+			REQUIRE(CHN.locate(loc, (pChar) "//bash//tmp/jzz_ftest/fff/pop") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//bash//tmp/jzz_ftest/fff/pop", (pChar) "value") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(p_txn, (pChar) "//bash//tmp/jzz_ftest/fff/pop") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(hea, (pChar) "//bash//tmp/jzz_ftest/fff/pop") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.locate(loc, (pChar) "//bash//tmp/jzz_ftest/fff/int") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//bash//tmp/jzz_ftest/fff/int", p_tx_int->p_block) == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(p_txn, (pChar) "//bash//tmp/jzz_ftest/fff/int") == SERVICE_ERROR_NOT_APPLICABLE);
+
+			REQUIRE(CHN.header(hea, (pChar) "//bash//tmp/jzz_ftest/fff/int") == SERVICE_ERROR_NOT_APPLICABLE);
+		}
+
+		WHEN("We test copy") {
+			REQUIRE(CHN.copy((pChar) "//bash/where", (pChar) "//bash/what") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.copy((pChar) "//bash/where", (pChar) "/bash/what") == SERVICE_ERROR_WRONG_ARGUMENTS);
+		}
+
+		WHEN("We test translate") {
+			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_NO_ERROR);
+
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->size == 2);
+			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
+			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
+			REQUIRE(pTuple(p_tx_xlt->p_block)->get_block(0)->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(pTuple(p_tx_xlt->p_block)->get_block(1)->cell_type == CELL_TYPE_BYTE);
+
+			REQUIRE(strcmp((pChar) &pTuple(p_tx_xlt->p_block)->get_block(1)->tensor.cell_byte[0], result) == 0);
+		}
+
+		CHN.destroy_transaction(p_tx_int);
+		CHN.destroy_transaction(p_tx_inp);
+		CHN.destroy_transaction(p_tx_res);
+		CHN.destroy_transaction(p_tx_xlt);
 	}
+
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context	  != nullptr);
+	REQUIRE(CHN.zmq_requester != nullptr);
+
+	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CHN.alloc_bytes == 0);
+	REQUIRE(CHN.p_buffer == nullptr);
+	REQUIRE(CHN.p_free	 == nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.curl_ok == 0);
+	REQUIRE(CHN.zmq_ok	== 0);
+
+	REQUIRE(CHN.zmq_context	  == nullptr);
+	REQUIRE(CHN.zmq_requester == nullptr);
 }
 
 
