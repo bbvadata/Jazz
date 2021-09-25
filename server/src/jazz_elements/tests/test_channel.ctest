@@ -133,7 +133,7 @@ SCENARIO("Testing file end-to-end") {
 		txt["_four"] = "A multiline string\nis okay\n";
 		txt["fi_ve"] = "UTF8 ¡what!\n\nLöwe\n";
 
-		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil;
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil, p_tx_xlt;
 
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
@@ -176,13 +176,25 @@ SCENARIO("Testing file end-to-end") {
 		dim[1] = 0;
 		REQUIRE(CHN.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
 		p_tx_fil->p_block->range.filter.length = 2;
-		p_tx_fil->p_block->tensor.cell_int[0] = 0;
-		p_tx_fil->p_block->tensor.cell_int[1] = 2;
+		p_tx_fil->p_block->tensor.cell_int[0]  = 0;
+		p_tx_fil->p_block->tensor.cell_int[1]  = 2;
 
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_tim->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_rea->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_int->p_block));
 		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
+
+		StaticBlockHeader hea[2]	 = {0, 0};
+		Name			  names[2] = {"input", "result"};
+		pBlock			  p_block[2] = {p_tx_rea->p_block, p_tx_int->p_block};
+
+		memcpy(&hea[0], p_block[0], sizeof(StaticBlockHeader));
+		memcpy(&hea[1], p_block[1], sizeof(StaticBlockHeader));
+
+		p_block[0]->get_dimensions(hea[0].range.dim);
+		p_block[1]->get_dimensions(hea[1].range.dim);
+
+		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
 		pTransaction p_txn;
 
@@ -406,6 +418,7 @@ SCENARIO("Testing file end-to-end") {
 		CHN.destroy_transaction(p_tx_rea);
 		CHN.destroy_transaction(p_tx_tim);
 		CHN.destroy_transaction(p_tx_fil);
+		CHN.destroy_transaction(p_tx_xlt);
 	}
 
 	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
