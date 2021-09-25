@@ -445,10 +445,51 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 		break;
 
-	case BASE_FILE_10BIT:
-		if (file_lev < 1)
+	case BASE_FILE_10BIT: {
+		if (file_lev < 2)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_where += 4;
+		if (*p_where++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		if (((mode & (WRITE_ONLY_IF_EXISTS | WRITE_ONLY_IF_NOT_EXISTS)) != 0) || (file_lev == 2)) {
+		    struct stat p_stat;
+			bool exists = stat(p_where, &p_stat) == 0;
+			if ((exists && (mode == WRITE_ONLY_IF_NOT_EXISTS)) || (!exists && (mode == WRITE_ONLY_IF_EXISTS)))
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+			if (exists && (file_lev == 2))
+				return SERVICE_ERROR_BASE_FORBIDDEN;
+		}
+
+		void *p_buff;
+		int size;
+
+		if ((mode & WRITE_TENSOR_DATA) != 0) {
+			int cell_size = p_block->cell_type & 0xff;
+
+			if (cell_size < 1 || cell_size > 8)
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+			p_buff = &p_block->tensor;
+			size   = p_block->size*cell_size;
+		} else {
+			p_buff = p_block;
+			size   = p_block->total_bytes;
+		}
+
+		FILE *fp;
+		fp = fopen(p_where, "wb");
+		if (fp == nullptr)
+			return SERVICE_ERROR_IO_ERROR;
+
+		size_t w_len = fwrite(p_buff, 1, size, fp);
+		fclose(fp);
+
+		if (w_len != size)
+			return SERVICE_ERROR_IO_ERROR;}
+
+		return SERVICE_NO_ERROR;
 
 	case BASE_HTTP_10BIT:
 		if (!curl_ok)
