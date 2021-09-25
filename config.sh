@@ -214,7 +214,7 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath
+CXXFLAGS     := -std=c++17 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version
