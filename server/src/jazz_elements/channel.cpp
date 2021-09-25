@@ -522,12 +522,18 @@ StatusCode Channels::new_entity(pChar p_where) {
 	int base = TenBitsAtAddress(p_where);
 
 	if (base == BASE_FILE_10BIT) {
-		if (file_lev != 3)
+		if (file_lev < 2)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		p_where += 4;
 		if (*p_where++ != '/')
 			return SERVICE_ERROR_WRONG_BASE;
+
+		if (file_lev == 2) {
+		    struct stat p_stat;
+			if (stat(p_where, &p_stat) == 0)
+				return SERVICE_ERROR_BASE_FORBIDDEN;
+		}
 
 		if (mkdir(p_where, 0700) == 0)
 			return SERVICE_NO_ERROR;
