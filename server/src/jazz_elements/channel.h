@@ -148,10 +148,12 @@ used for pushing AI creations to github or kill the server with //bash/exec(# ja
 ----------------
 
 This read/writes/deletes to the filesystem. Since the API does not use locators, there is no hardcoded name restriction. Via the http
-server, just use the URL (#...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/#whatever%20you%20want;")
-get() gets files as arrays of byte and folders as arrays of strings (the file names, obviously). put() writes either Jazz blocks with
-all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor (if mode == WRITE_TENSOR_DATA). WRITE_ONLY_IF_EXISTS and
-WRITE_ONLY_IF_NOT_EXISTS work as expected. remove() deletes whatever matches the path either a file or a folder (with anything inside it).
+server, just use the URL (#...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/#whatever%20you%20want;").
+Note that "//file/" is a mandatory prefix, therefore "//file/aa" is "aa" and //file//aa" is "/aa".
+get() gets files as arrays of byte and folders as an Index (the keys are file names and the values either "file" or "folder"). put() writes
+either Jazz blocks with all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor (if mode == WRITE_TENSOR_DATA).
+WRITE_ONLY_IF_EXISTS and WRITE_ONLY_IF_NOT_EXISTS work as expected. remove() deletes whatever matches the path either a file or a folder
+(with anything inside it).
 new_entity() creates a new folder.
 
 "file" operation must be enabled via configuration by setting ENABLE_FILE_LEVEL to 0 (disable everything), 1 (just read), 2 (cannot
