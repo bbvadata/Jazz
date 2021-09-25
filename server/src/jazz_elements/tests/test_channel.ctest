@@ -57,7 +57,7 @@ bool compare_to_block(pTransaction &p_txn, pTransaction &p_txo) {
 
 	REQUIRE(p_txn->p_block->size == p_txo->p_block->total_bytes);
 
-	pChar p_bl = (pChar) p_txo->p_block;
+	uint8_t *p_bl = (uint8_t *) p_txo->p_block;
 
 	for (int i = 0; i < p_txn->p_block->size; i++)
 		if (p_txn->p_block->tensor.cell_byte[i] != p_bl[i])
