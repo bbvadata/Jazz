@@ -283,11 +283,6 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 	int base = TenBitsAtAddress(p_what);
 
 	switch (base) {
-	case BASE_BASH_10BIT:
-		if (!can_bash)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
-
 	case BASE_FILE_10BIT: {
 		if (file_lev < 1)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
@@ -442,11 +437,6 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 	int base = TenBitsAtAddress(p_where);
 
 	switch (base) {
-	case BASE_BASH_10BIT:
-		if (!can_bash)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
-
 	case BASE_FILE_10BIT: {
 		if (file_lev < 2)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
@@ -563,11 +553,6 @@ StatusCode Channels::remove(pChar p_where) {
 	int base = TenBitsAtAddress(p_where);
 
 	switch (base) {
-	case BASE_BASH_10BIT:
-		if (!can_bash)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
-
 	case BASE_FILE_10BIT:
 		if (file_lev < 3)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
