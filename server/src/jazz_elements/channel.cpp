@@ -505,7 +505,25 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_where += 4;
+		if (*p_where++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		if (strncmp(p_where, "pipeline/", 9) != 0)
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+		p_where += 9;
+
+		if (pipes.find(p_where) != pipes.end())
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+		if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+		pipes[p_where] = p_block->get_string(0);
+
+		return SERVICE_NO_ERROR;
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
