@@ -222,7 +222,9 @@ SCENARIO("Testing bash end-to-end") {
 			REQUIRE(pTuple(p_tx_xlt->p_block)->get_block(0)->cell_type == CELL_TYPE_BYTE);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->get_block(1)->cell_type == CELL_TYPE_BYTE);
 
-			REQUIRE(strcmp((pChar) &pTuple(p_tx_xlt->p_block)->get_block(1)->tensor.cell_byte[0], result) == 0);
+			pChar p_res = (pChar) &pTuple(p_tx_xlt->p_block)->get_block(1)->tensor.cell_byte[0];
+
+			REQUIRE(strcmp(p_res, result) == 0);
 		}
 
 		CHN.destroy_transaction(p_tx_int);
