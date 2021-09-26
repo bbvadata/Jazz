@@ -619,7 +619,23 @@ StatusCode Channels::remove(pChar p_where) {
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_where += 4;
+		if (*p_where++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		if (strncmp(p_where, "pipeline/", 9) != 0)
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+		p_where += 9;
+		Index::iterator it = pipes.find(p_where);
+
+		if (it == pipes.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+		pipes.erase(it);
+
+		return SERVICE_NO_ERROR;
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
