@@ -898,9 +898,9 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//0-mq/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
 
-			CHN.can_zmq = 0;
+			CHN.zmq_ok = 0;
 			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/exec") == SERVICE_ERROR_BASE_FORBIDDEN);
-			CHN.can_zmq = 1;
+			CHN.zmq_ok = 1;
 
 			REQUIRE(CHN.put((pChar) "//0-mq/pipeline/alpha", p_tx_pi1->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.put((pChar) "//0-mq/pipeline/a2m", p_tx_pi2->p_block) == SERVICE_NO_ERROR);
