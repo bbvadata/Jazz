@@ -933,6 +933,9 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(strcmp(p_res, res_a2m) == 0);
 
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mqq/exec") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/what") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/alpha") == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/a2m") == SERVICE_NO_ERROR);
 
