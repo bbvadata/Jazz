@@ -110,7 +110,7 @@ SCENARIO("Testing bash end-to-end") {
 	REQUIRE(CHN.zmq_context	  != nullptr);
 	REQUIRE(CHN.zmq_requester != nullptr);
 
-	GIVEN("We have some blocks and indices") {
+	GIVEN("We have some blocks") {
 		pTransaction p_tx_int, p_tx_inp, p_tx_res, p_tx_xlt;
 
 		char input[] = {"for line in {0..4}; do\n"
@@ -119,10 +119,10 @@ SCENARIO("Testing bash end-to-end") {
 						"      printf \"There was an Old Man in a boat, \\n\"\n"
 						"	  ;;\n"
 						"    1)\n"
-						"      printf \"Who said: I'm afloat! I'm afloat! \\n\"\n"
+						"      printf \"Who said: \\\"I'm afloat! I'm afloat!\\\" \\n\"\n"
 						"	  ;;\n"
 						"    2)\n"
-						"      printf \"When they said: No, you ain't! \\n\"\n"
+						"      printf \"When they said: \\\"No, you ain't!\\\" \\n\"\n"
 						"	  ;;\n"
 						"    3)\n"
 						"      printf \"He was ready to faint, \\n\"\n"
@@ -130,11 +130,12 @@ SCENARIO("Testing bash end-to-end") {
 						"    *)\n"
 						"      printf \"That unhappy Old Man in a boat. \\n\"\n"
 						"      ;;\n"
-						"  esac\n"};
+						"  esac\n"
+						"done\n"};
 
 		char result[] = {"There was an Old Man in a boat, \n"
-						 "Who said: I'm afloat! I'm afloat! \n"
-						 "When they said: No, you ain't! \n"
+						 "Who said: \"I'm afloat! I'm afloat!\" \n"
+						 "When they said: \"No, you ain't!\" \n"
 						 "He was ready to faint, \n"
 						 "That unhappy Old Man in a boat. \n"};
 
