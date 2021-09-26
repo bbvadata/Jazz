@@ -747,7 +747,61 @@ StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_pipe += 4;
+		if (*p_pipe++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		switch (p_tuple->get_block(0)->cell_type) {
+		case CELL_TYPE_BYTE:
+		case CELL_TYPE_BYTE_BOOLEAN:
+		case CELL_TYPE_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_BOOLEAN:
+		case CELL_TYPE_SINGLE:
+		case CELL_TYPE_LONG_INTEGER:
+		case CELL_TYPE_TIME:
+		case CELL_TYPE_DOUBLE:
+			break;
+		default:
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+		}
+		switch (p_tuple->get_block(1)->cell_type) {
+		case CELL_TYPE_BYTE:
+		case CELL_TYPE_BYTE_BOOLEAN:
+		case CELL_TYPE_INTEGER:
+		case CELL_TYPE_FACTOR:
+		case CELL_TYPE_GRADE:
+		case CELL_TYPE_BOOLEAN:
+		case CELL_TYPE_SINGLE:
+		case CELL_TYPE_LONG_INTEGER:
+		case CELL_TYPE_TIME:
+		case CELL_TYPE_DOUBLE:
+			break;
+		default:
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+		}
+		PipeMap::iterator it = pipes.find(p_pipe);
+
+		if (it == pipes.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+		int size_input  = p_tuple->get_block(0)->size;
+		int size_result = p_tuple->get_block(1)->size;
+
+		pChar p_input  = (pChar) &p_tuple->get_block(0)->tensor.cell_byte[0];
+		pChar p_result = (pChar) &p_tuple->get_block(1)->tensor.cell_byte[0];
+
+		memset(p_result, 0, size_result);
+
+		if (zmq_send(it->second.requester, p_input, size_input, 0) < 0)
+			return SERVICE_ERROR_IO_ERROR;
+
+		if (zmq_recv(it->second.requester, p_result, size_result, 0) < 0)
+			return SERVICE_ERROR_IO_ERROR;
+
+		return SERVICE_NO_ERROR;
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
