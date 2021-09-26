@@ -151,6 +151,9 @@ SCENARIO("Testing bash end-to-end") {
 
 		memcpy(&p_tx_inp->p_block->tensor.cell_byte[0], input, dim[0]);
 
+		REQUIRE(p_tx_inp->p_block->tensor.cell_byte[0] == 'f');
+		REQUIRE(input[0] == 'f');
+
 		dim[0] = strlen(result) + 100;
 
 		REQUIRE(CHN.new_block(p_tx_res, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
