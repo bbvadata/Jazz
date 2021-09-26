@@ -142,8 +142,9 @@ remove("//0-mq/pipeline/speech2text") will destroy the pipeline. Any other call 
 
 This is also a translate() call, the difference is you don't create the pipline, it always exists and is called "//bash/exec". The Tuple
 is an array of byte, both ways "input" and "result". If the size of the "result" buffer is too small for the answer it will be filled up to
-the available size and something will be lost. The answer includes both stderr and stout in whatever order the execution writes. "bash"
-operation must be enabled via configuration by setting ENABLE_BASH_EXEC to something non-zero. There is no security in place, it can be
+the available size and something will be lost. The answer includes whatever a popen("bash script.sh") writes to stdout / stderr (where
+script.sh is the content of the "input" tensor).
+"bash" operation must be enabled via configuration by setting ENABLE_BASH_EXEC to something non-zero. There is no security check: it can be
 used for pushing AI creations to github or kill the server with //bash/exec(# jazz%20stop ;)
 
 "file" Reference
