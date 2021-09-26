@@ -907,7 +907,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.pipes.size() == 2);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/pipeline/alpha") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/alpha") == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -920,7 +920,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(strcmp(p_res, res_alpha) == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/pipeline/a2m") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/a2m") == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
