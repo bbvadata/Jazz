@@ -360,7 +360,21 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_what += 4;
+		if (*p_what++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		if (strncmp(p_what, "pipeline/", 9) != 0)
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+		p_what += 9;
+		Index::iterator it = pipes.find(p_what);
+
+		if (it == pipes.end())
+			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, it->second.c_str());
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
