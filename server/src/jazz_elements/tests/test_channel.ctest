@@ -71,6 +71,8 @@ bool compare_to_block(pTransaction &p_txn, pTransaction &p_txo) {
 
 SCENARIO("Basics tests") {
 
+	REQUIRE(sizeof(Socket) == 128);
+
 	REQUIRE(TenBitsAtAddress("0-mq") == BASE_0_MQ_10BIT);
 	REQUIRE(TenBitsAtAddress("bash") == BASE_BASH_10BIT);
 	REQUIRE(TenBitsAtAddress("file") == BASE_FILE_10BIT);
