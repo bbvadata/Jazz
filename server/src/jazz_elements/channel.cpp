@@ -221,7 +221,7 @@ StatusCode Channels::start() {
 		curl_ok = can_curl && curl_global_init(CURL_GLOBAL_SSL) == CURLE_OK;
 
 	if (!zmq_ok)
-		zmq_ok = can_zmq && ((zmq_context = zmq_ctx_new()) != nullptr) && ((zmq_requester = zmq_socket(zmq_context, ZMQ_REQ)) != nullptr);
+		zmq_ok = can_zmq && ((zmq_context = zmq_ctx_new()) != nullptr);
 
 	return SERVICE_NO_ERROR;
 }
@@ -238,19 +238,17 @@ StatusCode Channels::shut_down() {
 	}
 
 	if (zmq_ok) {
-		if (zmq_requester != nullptr)
-			zmq_close(zmq_requester);
+		for (PipeMap::iterator it = pipes.begin(); it != pipes.end(); ++it)
+			zmq_close(it->second.requester);
+
+		pipes.clear();
 
 		if (zmq_context != nullptr)
 			zmq_ctx_destroy(zmq_context);
 
-		zmq_requester = nullptr;
-		zmq_context	  = nullptr;
-
-		zmq_ok = false;
+		zmq_context	= nullptr;
+		zmq_ok		= false;
 	}
-
-	pipes.clear();
 
 	for (ConnMap::iterator it = connect.begin(); it != connect.end(); ++it) {
 		it->second.clear();
@@ -369,12 +367,12 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 		p_what += 9;
-		Index::iterator it = pipes.find(p_what);
+		PipeMap::iterator it = pipes.find(p_what);
 
 		if (it == pipes.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, it->second.c_str());
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, it->second.endpoint);
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
@@ -521,7 +519,18 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-		pipes[p_where] = p_block->get_string(0);
+		Socket sock;
+		strncpy(sock.endpoint, p_block->get_string(0), sizeof(sock.endpoint));
+
+		if (   (zmq_context == nullptr) || ((sock.requester = zmq_socket(zmq_context, ZMQ_REQ)) == nullptr)
+			|| (zmq_connect(sock.requester, sock.endpoint) != 0)) {
+			if (sock.requester != nullptr)
+				zmq_close(sock.requester);
+
+			return SERVICE_ERROR_IO_ERROR;
+		}
+
+		pipes[p_where] = sock;
 
 		return SERVICE_NO_ERROR;
 	}
@@ -628,10 +637,12 @@ StatusCode Channels::remove(pChar p_where) {
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 		p_where += 9;
-		Index::iterator it = pipes.find(p_where);
+		PipeMap::iterator it = pipes.find(p_where);
 
 		if (it == pipes.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+		zmq_close(it->second.requester);
 
 		pipes.erase(it);
 

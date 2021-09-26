@@ -89,6 +89,17 @@ typedef std::map<int, std::string>	MapIS;
 typedef std::map<std::string, Index> ConnMap;
 
 
+/// A structure to hold a single pipeline
+struct Socket {
+	char endpoint[120];		///< The endpoint at which the socket is connected.
+	void *requester;		///< The (connected) zmq socket
+};
+
+
+/// A structure holding pipeline.
+typedef std::map<std::string, Socket> PipeMap;
+
+
 /// A map for defining http config ports
 typedef std::map<int, int>	MapII;
 
@@ -248,11 +259,10 @@ class Channels : public Container {
 		int can_bash = false;
 		int file_lev = 0;
 
-		Index	pipes	= {};
+		PipeMap	pipes	= {};
 		ConnMap connect = {};
 
-		void *zmq_context	= nullptr;
-		void *zmq_requester = nullptr;
+		void *zmq_context = nullptr;
 };
 typedef Channels *pChannels;
 
