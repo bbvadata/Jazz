@@ -213,6 +213,10 @@ SCENARIO("Testing bash end-to-end") {
 
 		WHEN("We test translate") {
 			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.can_bash = 0;
+			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_BASE_FORBIDDEN);
+			CHN.can_bash = 1;
 			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
