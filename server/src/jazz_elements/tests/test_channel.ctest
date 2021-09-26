@@ -109,8 +109,7 @@ SCENARIO("Testing bash end-to-end") {
 	REQUIRE(CHN.pipes.size()   == 0);
 	REQUIRE(CHN.connect.size() == 0);
 
-	REQUIRE(CHN.zmq_context	  != nullptr);
-	REQUIRE(CHN.zmq_requester != nullptr);
+	REQUIRE(CHN.zmq_context	!= nullptr);
 
 	GIVEN("We have some blocks") {
 		pTransaction p_tx_int, p_tx_inp, p_tx_res, p_tx_xlt;
@@ -254,8 +253,7 @@ SCENARIO("Testing bash end-to-end") {
 	REQUIRE(CHN.pipes.size()   == 0);
 	REQUIRE(CHN.connect.size() == 0);
 
-	REQUIRE(CHN.zmq_context	  != nullptr);
-	REQUIRE(CHN.zmq_requester != nullptr);
+	REQUIRE(CHN.zmq_context != nullptr);
 
 	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
 
@@ -267,8 +265,7 @@ SCENARIO("Testing bash end-to-end") {
 	REQUIRE(CHN.curl_ok == 0);
 	REQUIRE(CHN.zmq_ok	== 0);
 
-	REQUIRE(CHN.zmq_context	  == nullptr);
-	REQUIRE(CHN.zmq_requester == nullptr);
+	REQUIRE(CHN.zmq_context == nullptr);
 }
 
 
@@ -301,8 +298,7 @@ SCENARIO("Testing file end-to-end") {
 	REQUIRE(CHN.pipes.size()   == 0);
 	REQUIRE(CHN.connect.size() == 0);
 
-	REQUIRE(CHN.zmq_context	  != nullptr);
-	REQUIRE(CHN.zmq_requester != nullptr);
+	REQUIRE(CHN.zmq_context	!= nullptr);
 
 	GIVEN("We have some blocks and indices") {
 		Index txt;
@@ -672,8 +668,7 @@ SCENARIO("Testing file end-to-end") {
 	REQUIRE(CHN.pipes.size()   == 0);
 	REQUIRE(CHN.connect.size() == 0);
 
-	REQUIRE(CHN.zmq_context	  != nullptr);
-	REQUIRE(CHN.zmq_requester != nullptr);
+	REQUIRE(CHN.zmq_context != nullptr);
 
 	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
 
@@ -685,8 +680,7 @@ SCENARIO("Testing file end-to-end") {
 	REQUIRE(CHN.curl_ok == 0);
 	REQUIRE(CHN.zmq_ok	== 0);
 
-	REQUIRE(CHN.zmq_context	  == nullptr);
-	REQUIRE(CHN.zmq_requester == nullptr);
+	REQUIRE(CHN.zmq_context == nullptr);
 }
 
 
@@ -719,8 +713,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 	REQUIRE(CHN.pipes.size()   == 0);
 	REQUIRE(CHN.connect.size() == 0);
 
-	REQUIRE(CHN.zmq_context	  != nullptr);
-	REQUIRE(CHN.zmq_requester != nullptr);
+	REQUIRE(CHN.zmq_context	!= nullptr);
 
 	GIVEN("We have some blocks") {
 		pTransaction p_tx_int, p_tx_inp, p_tx_res, p_tx_xlt, p_tx_pi1, p_tx_pi2;
@@ -969,8 +962,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 	REQUIRE(CHN.pipes.size()   == 0);
 	REQUIRE(CHN.connect.size() == 0);
 
-	REQUIRE(CHN.zmq_context	  != nullptr);
-	REQUIRE(CHN.zmq_requester != nullptr);
+	REQUIRE(CHN.zmq_context != nullptr);
 
 	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
 
@@ -982,8 +974,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 	REQUIRE(CHN.curl_ok == 0);
 	REQUIRE(CHN.zmq_ok	== 0);
 
-	REQUIRE(CHN.zmq_context	  == nullptr);
-	REQUIRE(CHN.zmq_requester == nullptr);
+	REQUIRE(CHN.zmq_context == nullptr);
 }
 
 
