@@ -141,13 +141,13 @@ SCENARIO("Testing bash end-to-end") {
 
 		int dim[MAX_TENSOR_RANK] = {160, 0};
 
-		REQUIRE(CHN.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_int->p_block->tensor.cell_int[0]	= 1;
 		p_tx_int->p_block->tensor.cell_int[159] = 159;
 
 		dim[0] = strlen(input) + 1;
 
-		REQUIRE(CHN.new_block(p_tx_inp, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_inp, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 
 		memcpy(&p_tx_inp->p_block->tensor.cell_byte[0], input, dim[0]);
 
@@ -156,7 +156,7 @@ SCENARIO("Testing bash end-to-end") {
 
 		dim[0] = strlen(result) + 100;
 
-		REQUIRE(CHN.new_block(p_tx_res, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_res, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 
 		StaticBlockHeader hea[2]	 = {0, 0};
 		Name			  names[2]	 = {"input", "result"};
@@ -317,17 +317,17 @@ SCENARIO("Testing file end-to-end") {
 
 		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
 		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
-		REQUIRE(CHN.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
 
 		dim[1] = 8;
-		REQUIRE(CHN.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_int->p_block->tensor.cell_int[0]	= 1;
 		p_tx_int->p_block->tensor.cell_int[159] = 159;
 
 		dim[1] = 4;
-		REQUIRE(CHN.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
 		p_tx_rea->p_block->tensor.cell_double[79] = 21.345;
 
@@ -352,7 +352,7 @@ SCENARIO("Testing file end-to-end") {
 		}
 
 		dim[1] = 0;
-		REQUIRE(CHN.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(CHN.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_fil->p_block->range.filter.length = 2;
 		p_tx_fil->p_block->tensor.cell_int[0]  = 0;
 		p_tx_fil->p_block->tensor.cell_int[1]  = 2;

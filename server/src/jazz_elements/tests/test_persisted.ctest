@@ -160,15 +160,15 @@ SCENARIO("Write/read some blocks in a new source and close the Container.") {
 		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
 
 		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
-		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
 
-		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_int->p_block->tensor.cell_int[0]  = 1;
 		p_tx_int->p_block->tensor.cell_int[59] = 59;
 
-		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
 		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
 
@@ -285,15 +285,15 @@ SCENARIO("Read again previous blocks in a new Container.") {
 		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
 
 		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
-		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
 
-		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_int->p_block->tensor.cell_int[0]  = 1;
 		p_tx_int->p_block->tensor.cell_int[59] = 59;
 
-		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
 		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
 
@@ -388,7 +388,7 @@ SCENARIO("Testing LMDB entity and key names.") {
 
 		int dim[MAX_TENSOR_RANK] = {5, 3, 2};
 
-		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 
 		for (int i = 0; i < 30; i++)
 			p_tx_int->p_block->tensor.cell_int[i] = (7*i - 3)*i + 11;
@@ -530,17 +530,17 @@ SCENARIO("Strong End-to-end lmdb tests") {
 		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
 
 		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
-		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
 
 		dim[1] = 8;
-		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_int->p_block->tensor.cell_int[0]	= 1;
 		p_tx_int->p_block->tensor.cell_int[159] = 159;
 
 		dim[1] = 4;
-		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
 		p_tx_rea->p_block->tensor.cell_double[79] = 21.345;
 
@@ -565,7 +565,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 		}
 
 		dim[1] = 0;
-		REQUIRE(PER.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == FILL_NEW_DONT_FILL);
+		REQUIRE(PER.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_fil->p_block->range.filter.length = 2;
 		p_tx_fil->p_block->tensor.cell_int[0] = 0;
 		p_tx_fil->p_block->tensor.cell_int[1] = 2;
