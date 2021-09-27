@@ -634,6 +634,10 @@ SCENARIO("Testing String and Attribute logic") {
 		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
 
 		REQUIRE(psb->last_idx == 106);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
 	}
 
 	GIVEN("Same thing failing on a smaller allocation size") {
@@ -764,6 +768,10 @@ SCENARIO("Testing String and Attribute logic") {
 		REQUIRE(pjb->get_string_offset(psb, sstr[0]) == STRING_NA);
 		REQUIRE(pjb->get_string_offset(psb, nullptr) == STRING_NA);
 		REQUIRE(pjb->get_string_offset(psb, sstr[7]) == STRING_NA);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
 	}
 
 	GIVEN("The big test again, with attributes") {
@@ -895,6 +903,10 @@ SCENARIO("Testing String and Attribute logic") {
 		REQUIRE(!strcmp(read_att[8691], "Halaaa"));
 		REQUIRE(!strcmp(read_att[0206], "Wof"));
 		REQUIRE(!strcmp(read_att[3157], "Wof, wof, wof"));
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
 	}
 }
 
@@ -926,6 +938,10 @@ SCENARIO("Testing Filters") {
 		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
 		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
 	}
 
 	GIVEN("A valid boolean filter pjf for pjb") {
