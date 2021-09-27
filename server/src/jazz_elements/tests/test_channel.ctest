@@ -373,6 +373,7 @@ SCENARIO("Testing file end-to-end") {
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
 		pTransaction p_txn;
+		pBlock p_blk;
 
 		CHN.remove((pChar) "//file//tmp/jzz_ftest");
 		CHN.new_entity((pChar) "//file//tmp/jzz_ftest");
@@ -438,12 +439,19 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.put((pChar) "//files//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_WRONG_BASE);
 
+			p_tx_pop->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			p_tx_str->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			p_tx_chr->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr", p_tx_chr->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			p_tx_int->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			p_tx_rea->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			p_tx_tim->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim", p_tx_tim->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			p_tx_fil->p_block->close_block();
 			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
 
 			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS)
@@ -490,30 +498,44 @@ SCENARIO("Testing file end-to-end") {
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_pop));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/str") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_str));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/chr") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_chr));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/int") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_int));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/rea") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_rea));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/tim") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_tim));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/fil") == SERVICE_NO_ERROR);
 				REQUIRE(compare_to_block(p_txn, p_tx_fil));
+				p_blk = (pBlock) &p_txn->p_block->tensor;
+				REQUIRE(p_blk->check_hash());
 				CHN.destroy_transaction(p_txn);
 			}
 
