@@ -429,6 +429,10 @@ class Block: public StaticBlockHeader {
 			if (set_time)
 				created = std::chrono::steady_clock::now();
 		}
+
+		inline bool check_hash() {
+			return hash64 == MurmurHash64A(&tensor, total_bytes - sizeof(BlockHeader));
+		}
 };
 
 } // namespace jazz_elements

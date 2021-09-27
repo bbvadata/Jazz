@@ -147,10 +147,6 @@ class Persisted : public Container {
 	private:
 #endif
 
-		inline bool check_block(pBlock p_block) {
-			return p_block->hash64 == MurmurHash64A(&p_block->tensor, p_block->total_bytes - sizeof(StaticBlockHeader));
-		}
-
 		// Hot LMDB get
 
 		pBlock lock_pointer_to_block(Locator &what, pMDB_txn &p_txn);
