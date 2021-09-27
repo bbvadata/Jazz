@@ -255,7 +255,7 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 
 	p_txn->status = BLOCK_STATUS_READY;
 
-	if (!check_block(p_txn->p_block))
+	if (!p_txn->p_block->check_hash())
 		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
 
 	return SERVICE_NO_ERROR;
