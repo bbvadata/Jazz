@@ -827,11 +827,10 @@ void Channels::base_names(BaseNames &base_names) {
 	\param p_txn  A pTransaction owned by Channels. It must be destroy_transaction()-ed after successful use.
 	\param node	  The name of the endpoint node. It must be found in the cluster config.
 	\param p_url  The unparsed url (server excluded) the remote Jazz server can serve.
-	\param apply  A code parsed by the API in range APPLY_NOTHING .. APPLY_NEW_ENTITY
 
 	\return		  MHD_HTTP_OK on success, or some valid http status error code.
 */
-MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url, int apply) {
+MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url) {
 
 //TODO: Implement this.
 

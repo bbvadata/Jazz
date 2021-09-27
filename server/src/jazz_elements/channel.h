@@ -227,8 +227,7 @@ class Channels : public Container {
 									pChar				 p_pipe);
 		MHD_StatusCode forward_get (pTransaction		&p_txn,
 									Name				 node,
-									pChar				 p_url,
-									int					 apply);
+									pChar				 p_url);
 		MHD_StatusCode forward_put (Name				 node,
 									pChar				 p_url,
 									pBlock				 p_block);
