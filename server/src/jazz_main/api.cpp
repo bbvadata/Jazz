@@ -900,7 +900,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		if (continue_upload) {
 			pTransaction p_prev;
 
-			if (p_channels->forward_get(p_prev, q_state.node, q_state.url, APPLY_NOTHING) != MHD_HTTP_OK)
+			if (p_channels->forward_get(p_prev, q_state.node, q_state.url) != MHD_HTTP_OK)
 				return MHD_HTTP_BAD_GATEWAY;
 
 			if (p_prev->p_block->cell_type != CELL_TYPE_BYTE || p_prev->p_block->rank != 1) {
@@ -1049,7 +1049,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 	if (q_state.node[0] != 0) {
 		pTransaction p_txn;
 
-		int ret = p_channels->forward_get(p_txn, q_state.node, q_state.url, q_state.apply);
+		int ret = p_channels->forward_get(p_txn, q_state.node, q_state.url);
 
 		if (ret != MHD_HTTP_OK)
 			return ret;
