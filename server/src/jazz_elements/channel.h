@@ -131,6 +131,8 @@ See: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 */
 typedef unsigned int MHD_StatusCode;
 
+extern size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container);
+extern size_t put_callback(char *ptr, size_t size, size_t nmemb, void *container);
 
 /** \brief Channels: A Container doing block transactions across media (files, folders, shell, http urls and zeroMQ servers)
 
