@@ -269,6 +269,82 @@ class Channels : public Container {
 		std::string filesystem_root = {};
 
 #ifndef CATCH_TEST
+	protected:
+#endif
+
+		/** \brief The most low level get function.
+
+			\param p_txn A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						 Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						 it when done.
+			\param url	 The url to be got.
+			\param p_idx Additional curl_easy_setopt() options passed in an Index.
+
+			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+		*/
+		inline StatusCode curl_get(pTransaction &p_txn, void *url, Index *p_idx = nullptr) {
+			CURL *curl;
+			CURLcode c_ret;
+
+			curl = curl_easy_init();
+			if (!curl)
+				return SERVICE_ERROR_NOT_READY;
+
+			GetBuffer buff = {};
+
+			curl_easy_setopt(curl, CURLOPT_URL, url);
+			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, get_callback);
+			curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) &buff);
+
+			if (p_idx != nullptr) {
+				Index:: iterator it;
+				if ((it = p_idx->find("CURLOPT_USERNAME")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_USERNAME, it->second.c_str());
+
+				if ((it = p_idx->find("CURLOPT_USERPWD")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_USERPWD, it->second.c_str());
+
+				if ((it = p_idx->find("CURLOPT_COOKIEFILE")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_COOKIEFILE, it->second.c_str());
+
+				if ((it = p_idx->find("CURLOPT_COOKIEJAR")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_COOKIEJAR, it->second.c_str());
+			}
+			c_ret = curl_easy_perform(curl);
+			curl_easy_cleanup(curl);
+
+			switch (c_ret) {
+			case CURLE_REMOTE_ACCESS_DENIED:
+			case CURLE_AUTH_ERROR:
+				return SERVICE_ERROR_READ_FORBIDDEN;
+
+			case CURLE_REMOTE_FILE_NOT_FOUND:
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			case CURLE_OK:
+				break;
+
+			default:
+				return SERVICE_ERROR_IO_ERROR;
+			}
+
+			if (buff.size() > MAX_BLOCK_SIZE)
+				return SERVICE_ERROR_BLOCK_TOO_BIG;
+
+			int size				 = (int) buff.size();
+			int dim[MAX_TENSOR_RANK] = {size, 0};
+			int ret					 = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
+
+			if (ret == SERVICE_NO_ERROR)
+				memcpy(&p_txn->p_block->tensor.cell_byte[0], &buff[0], size);
+
+			return ret;
+		}
+
+#ifndef CATCH_TEST
 	private:
 #endif
 
