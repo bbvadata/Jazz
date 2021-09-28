@@ -46,21 +46,19 @@
 namespace jazz_elements
 {
 
-/** \brief A test write callback (libCURL stuff to be modified).
+/** \brief A callback for libCURL GET.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
-size_t write_callback(char * ptr, size_t size, size_t nmemb, void *userdata) {
+size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {
 	size = size*nmemb;
 
-	// if ((uintptr_t) userdata == 0xbaaadc0ffee)
+	if (size) {
+		size_t ix = pGetBuffer(container)->size();
 
-	printf("\n");
-
-	for (int i = 0; i < size; i++)
-		printf("%c", ptr[i]);
-
-	printf("\n\n");
+		pGetBuffer(container)->resize(ix + size);
+		memcpy(&pGetBuffer(container)[ix], ptr, size);
+	}
 
 	return size;
 }
