@@ -127,6 +127,8 @@ without global variables.
 #define SERVICE_ERROR_IO_ERROR			-29		///< Any reading or writing error that is unexpected (not not found, forbidden, etc.).
 #define SERVICE_ERROR_BLOCK_TOO_BIG		-30		///< File size (or some other way to get a block) exceeds MAX_BLOCK_SIZE
 #define SERVICE_ERROR_BASE_FORBIDDEN	-31		///< base in channels disabled by conf.
+#define SERVICE_ERROR_READ_FORBIDDEN	-32		///< libCURL get returns CURLE_REMOTE_ACCESS_DENIED, CURLE_AUTH_ERROR
+#define SERVICE_ERROR_NOT_READY			-33		///< libCURL not wanting to init or perform.
 
 /** Default path to config file
 */
