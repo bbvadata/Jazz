@@ -64,33 +64,22 @@ size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {
 }
 
 
-/** \brief A remote testing point (libCURL stuff to be modified).
+/** \brief A callback for libCURL PUT.
 
-	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
+	(see https://curl.haxx.se/libcurl/c/CURLOPT_READFUNCTION.html)
 */
-bool remote_testing_point() {			// cppcheck-suppress unusedFunction
-	CURL *curl;
-	CURLcode res;
+size_t put_callback(char *ptr, size_t size, size_t nmemb, void *container) {
+	size = size*nmemb;
 
-	curl = curl_easy_init();
-	if (!curl) {
-		return false;
+	if (size) {
+		size = std::min(size, pPutBuffer(container)->to_send);
+		memcpy(ptr, pPutBuffer(container)->p_base, size);
+
+		pPutBuffer(container)->p_base  += size;
+		pPutBuffer(container)->to_send -= size;
 	}
 
-	curl_easy_setopt(curl, CURLOPT_URL, "http://...");
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
-	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *) 0xbaaadc0ffee);
-
-	res = curl_easy_perform(curl);
-	if (res != CURLE_OK) {
-		return false;
-	}
-
-	curl_easy_cleanup(curl);
-
-	return true;
+	return size;
 }
 
 /*	-----------------------------------------------
