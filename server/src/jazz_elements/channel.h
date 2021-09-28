@@ -180,14 +180,17 @@ Besides being an http server, Jazz is also an http client. The simplest mode of 
 calls that are intended for other nodes in a Jazz cluster. This is done at the top API level by just adding a node name. E.g.,
 get("///node_x//lmdb/things/this") will forward the call to the node_x (if anything is well configured see JAZZ_NODE_NAME_.., etc.)
 and return the result just as if is was a local call. At the class level, this is done by forward_get(), forward_put() and forward_del().
-You can also send simple GET, PUT and DELETE http calls to random urls by either using the get(), put() and remove() or using the API
-get("//http#https://google.com;")
+You can also send simple GET, PUT and DELETE http calls to random urls by either using the get(), put() and remove() or using the Jazz http
+server API GET "//http#https://google.com;"
 
 The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Index to: //http/connection/a_name
 the index requires the mandatory key URL and the optional keys: CURLOPT_USERNAME, CURLOPT_USERPWD, CURLOPT_COOKIEFILE and CURLOPT_COOKIEJAR
 (see https://curl.se/libcurl/c/CURLOPT_USERNAME.html and https://everything.curl.dev/libcurl-http/cookies) Once the connection exists, you
-can get(), put() and remove() to just its name (without the word connection) get("//http/a_name"), etc. If you remove() to
-"//http/connection/a_name" you destroy the connection. get("//http/connection/a_name") returns the Index used to create the connection.
+can get(), put() and remove() to just its name (without the word connection). I.e, get(txn, "//http/a_name") or
+get(txn, "//http/a_name/args") will send the http GET to connection[URL] + "args". Same for put() and remove().
+
+ If you remove("//http/connection/a_name"), you destroy the connection. get("//http/connection/a_name") returns an Index with all the
+connection parameters.
 
 "http" operation must be enabled via configuration by setting ENABLE_HTTP_CLIENT to something non-zero.
 */
