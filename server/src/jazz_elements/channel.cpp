@@ -35,7 +35,6 @@
 #include <sys/stat.h>
 #include <filesystem>
 
-#include <curl/curl.h>
 #include <zmq.h>
 #include <microhttpd.h>
 

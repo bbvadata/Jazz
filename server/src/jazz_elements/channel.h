@@ -34,6 +34,7 @@
 
 #include <map>
 
+#include <curl/curl.h>
 
 #include "src/jazz_elements/container.h"
 
@@ -94,6 +95,19 @@ struct Socket {
 	char endpoint[120];		///< The endpoint at which the socket is connected.
 	void *requester;		///< The (connected) zmq socket
 };
+
+
+/// A structure to share with the libcurl get callback.
+typedef std::vector<uint8_t> GetBuffer;
+typedef GetBuffer *pGetBuffer;
+
+
+/// A structure keep state inside a put callback.
+struct PutBuffer {
+	uint64_t to_send;		///< Number of bytes to be sent.
+	uint8_t *p_base;		///< The pointer (updated after each call) to the data.
+};
+typedef PutBuffer *pPutBuffer;
 
 
 /// A structure holding pipeline.
