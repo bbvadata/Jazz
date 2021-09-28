@@ -544,7 +544,6 @@ StatusCode Channels::new_entity(pChar p_where) {
 			if (stat(p_where, &p_stat) == 0)
 				return SERVICE_ERROR_BASE_FORBIDDEN;
 		}
-
 		if (mkdir(p_where, 0700) == 0)
 			return SERVICE_NO_ERROR;
 
