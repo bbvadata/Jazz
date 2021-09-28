@@ -410,6 +410,59 @@ class Channels : public Container {
 			return SERVICE_ERROR_IO_ERROR;
 		}
 
+
+		/** \brief The most low level remove function.
+
+			\param url	 The url to put to.
+			\param p_idx Additional curl_easy_setopt() options passed in an Index.
+
+			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+		*/
+		inline StatusCode curl_remove(void *url, Index *p_idx = nullptr) {
+			CURL *curl;
+			CURLcode c_ret;
+
+			curl = curl_easy_init();
+			if (!curl)
+				return SERVICE_ERROR_NOT_READY;
+
+			curl_easy_setopt(curl, CURLOPT_URL, url);
+			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
+			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
+			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+
+			if (p_idx != nullptr) {
+				Index:: iterator it;
+				if ((it = p_idx->find("CURLOPT_USERNAME")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_USERNAME, it->second.c_str());
+
+				if ((it = p_idx->find("CURLOPT_USERPWD")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_USERPWD, it->second.c_str());
+
+				if ((it = p_idx->find("CURLOPT_COOKIEFILE")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_COOKIEFILE, it->second.c_str());
+
+				if ((it = p_idx->find("CURLOPT_COOKIEJAR")) != p_idx->end())
+					curl_easy_setopt(curl, CURLOPT_COOKIEJAR, it->second.c_str());
+			}
+			c_ret = curl_easy_perform(curl);
+			curl_easy_cleanup(curl);
+
+			switch (c_ret) {
+			case CURLE_REMOTE_ACCESS_DENIED:
+			case CURLE_AUTH_ERROR:
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+			case CURLE_REMOTE_FILE_NOT_FOUND:
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+			case CURLE_OK:
+				return SERVICE_NO_ERROR;
+			}
+			return SERVICE_ERROR_IO_ERROR;
+		}
+
 #ifndef CATCH_TEST
 	private:
 #endif
