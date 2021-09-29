@@ -976,9 +976,15 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 */
 MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 
-//TODO: Implement this.
+	char buffer[1024];
 
-	return MHD_HTTP_FORBIDDEN;
+	if (!compose_url(buffer, (pChar) &node, p_url, sizeof(buffer)))
+		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
+
+	if (p_block->hash64 == 0)
+		p_block->close_block();
+
+	return curl_put(buffer, p_block, WRITE_EVERYTHING);
 }
 
 
