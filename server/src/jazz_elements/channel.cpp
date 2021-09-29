@@ -56,7 +56,10 @@ size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {
 		size_t ix = pGetBuffer(container)->size();
 
 		pGetBuffer(container)->resize(ix + size);
-		memcpy(&pGetBuffer(container)[ix], ptr, size);
+
+		uint8_t *p_dest = pGetBuffer(container)->data();
+
+		memcpy(p_dest, ptr, size);
 	}
 
 	return size;
