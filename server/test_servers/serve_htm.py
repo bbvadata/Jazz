@@ -36,10 +36,10 @@ def get_capital(country_id):
 def put_capital(country_id):
 	country_id = country_id.lower()
 
-	if not request.values:
+	if not request.data:
 		abort(400)
 
-	countries[country_id] = next(iter(request.values.keys()))
+	countries[country_id] = request.data.decode('utf-8')
 
 	return jsonify('Ok.')
 
