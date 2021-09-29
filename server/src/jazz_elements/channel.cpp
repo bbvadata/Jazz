@@ -327,10 +327,53 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 		}}
 		return SERVICE_ERROR_IO_ERROR;
 
-	case BASE_HTTP_10BIT:
+	case BASE_HTTP_10BIT: {
 		if (!curl_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_what += 4;
+		if (*p_what++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		ConnMap::iterator it;
+
+		if (strncmp(p_what, "connection/", 11) == 0) {
+			p_what += 11;
+
+			it = connect.find(p_what);
+
+			if (it == connect.end())
+				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+
+			int ret = new_block(p_txn, CELL_TYPE_INDEX);
+			if (ret != SERVICE_NO_ERROR)
+				return ret;
+
+			for (Index::iterator itx = it->second.begin(); itx != it->second.end(); ++itx)
+				p_txn->p_hea->index[itx->first] = itx->second;
+
+			return SERVICE_NO_ERROR;
+		}
+		pChar pt = strchr(p_what, '/');
+		if (pt == nullptr)
+			it = connect.find(p_what);
+		else {
+			*pt = 0;
+			it  = connect.find(p_what);
+			*pt = '/';
+		}
+		if (it != connect.end()) {
+			std::string url = it->second["URL"];
+
+			if (pt != nullptr)
+				url += ++pt;
+
+			if (it->second.size() > 1)
+				return curl_get(p_txn, (void *) url.c_str(), &it->second);
+			else
+				return curl_get(p_txn, (void *) url.c_str());
+		}
+		return curl_get(p_txn, (void *) p_what); }
 
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
