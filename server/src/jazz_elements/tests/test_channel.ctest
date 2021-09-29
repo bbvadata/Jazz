@@ -1168,25 +1168,30 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.connect.size() == 2);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/Estonia") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/Malaysia") == SERVICE_NO_ERROR);
+			strcpy(url, "//http/cap/Estonia");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url, "//http/cap/Malaysia");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Kuala Lumpur") == 0);
+			REQUIRE(strcmp(p_ret, "\"Kuala Lumpur\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Tallinn");
 
-			REQUIRE(CHN.put((pChar) "//http/cap/Estonia", p_tx_buf->p_block) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url, "//http/cap/Estonia");
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/capitals/ESTONIA") == SERVICE_NO_ERROR);
+			strcpy(url, "//http/capitals/ESTONIA");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Tallinn") == 0);
+			REQUIRE(strcmp(p_ret, "\"Tallinn\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
-			REQUIRE(CHN.remove((pChar) "//http/capitals/ESTONIA") == SERVICE_NO_ERROR);
-			REQUIRE(CHN.remove((pChar) "//http/cap/Estonia") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
+			strcpy(url, "//http/cap/Estonia");
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/capitals") == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
@@ -1200,13 +1205,15 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.remove((pChar) "//http/connection/capitals") == SERVICE_ERROR_ENTITY_NOT_FOUND);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/France") == SERVICE_NO_ERROR);
+			strcpy(url, "//http/cap/France");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Paris") == 0);
+			REQUIRE(strcmp(p_ret, "\"Paris\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/Japan") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url, "//http/cap/Japan");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/cap") == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
