@@ -515,10 +515,52 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 
 		return SERVICE_NO_ERROR;
 
-	case BASE_HTTP_10BIT:
+	case BASE_HTTP_10BIT: {
 		if (!curl_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
-		break;
+
+		p_where += 4;
+		if (*p_where++ != '/')
+			return SERVICE_ERROR_WRONG_BASE;
+
+		ConnMap::iterator it;
+
+		if (strncmp(p_where, "connection/", 11) == 0) {
+			p_where += 11;
+
+			it = connect.find(p_where);
+
+			if (it != connect.end())
+				return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+			if (p_block->cell_type != CELL_TYPE_INDEX || pBlockHeader(p_block)->index.find("URL") == pBlockHeader(p_block)->index.end())
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+			Index idx(pBlockHeader(p_block)->index);
+			connect[p_where] = idx;
+
+			return SERVICE_NO_ERROR;
+		}
+		pChar pt = strchr(p_where, '/');
+		if (pt == nullptr)
+			it = connect.find(p_where);
+		else {
+			*pt = 0;
+			it  = connect.find(p_where);
+			*pt = '/';
+		}
+		if (it != connect.end()) {
+			std::string url = it->second["URL"];
+
+			if (pt != nullptr)
+				url += ++pt;
+
+			if (it->second.size() > 1)
+				return curl_put((void *) url.c_str(), p_block, mode, &it->second);
+			else
+				return curl_put((void *) url.c_str(), p_block, mode);
+		}
+		return curl_put((void *) p_where, p_block, mode); }
 
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
