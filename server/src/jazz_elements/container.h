@@ -109,6 +109,7 @@ namespace jazz_elements
 #define WRITE_ONLY_IF_EXISTS			  1		///< A .put() call can override, but cannot create a new block.
 #define WRITE_ONLY_IF_NOT_EXISTS		  2		///< A .put() call cannot override, it can only create new blocks.
 #define WRITE_TENSOR_DATA				  4		///< Fails if not a Tensor, writes the raw data without metadata. For e.g., writing files.
+#define WRITE_C_STR						  8		///< Fails if not a Tensor of byte, writes until the first zero.
 
 
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
