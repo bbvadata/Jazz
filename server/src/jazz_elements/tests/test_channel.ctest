@@ -1290,37 +1290,45 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.connect.size() == 1);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/UK") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/England") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url,  "//http/cap/UK");
+			strcpy(url2, "//http/cap/England");
+			REQUIRE(CHN.get(p_txn, url)  == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.get(p_txn, url2) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "London");
 
-			REQUIRE(CHN.put((pChar) "//http/cap/UK", p_tx_buf->p_block) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/UK") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "London") == 0);
+			REQUIRE(strcmp(p_ret, "\"London\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/England") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-			REQUIRE(CHN.copy((pChar) "//http/cap/England", (pChar) "//http/cap/UK") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.get(p_txn, url2) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/UK") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.copy(url2, url) == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "London") == 0);
+			REQUIRE(strcmp(p_ret, "\"London\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/cap/England") == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.get(p_txn, url2) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "London") == 0);
+			REQUIRE(strncmp(p_ret, "\"\\\"London\\", 10) == 0);		// Note:  put will get mode == WRITE_TENSOR_DATA & python is a mess.
 			CHN.destroy_transaction(p_txn);
 
-			REQUIRE(CHN.copy((pChar) "//http/cap/Holland", (pChar) "//http/cap/Netherlands") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url,  "//http/cap/Holland");
+			strcpy(url2, "//http/cap/Netherlands");
+			REQUIRE(CHN.copy(url, url2) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-			REQUIRE(CHN.remove((pChar) "//http/cap/UK") == SERVICE_NO_ERROR);
-			REQUIRE(CHN.remove((pChar) "//http/cap/England") == SERVICE_NO_ERROR);
+			strcpy(url,  "//http/cap/UK");
+			strcpy(url2, "//http/cap/England");
+			REQUIRE(CHN.remove(url)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.remove(url2) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove((pChar) "//http/connection/cap") == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 0);
