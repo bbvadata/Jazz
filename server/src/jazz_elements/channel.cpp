@@ -770,10 +770,16 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-	int mode = WRITE_EVERYTHING;
+	int mode;
 
-	if (TenBitsAtAddress(p_what + 2) == BASE_FILE_10BIT)
+	switch (TenBitsAtAddress(p_what + 2)) {
+	case BASE_FILE_10BIT:
+	case BASE_HTTP_10BIT:
 		mode = WRITE_TENSOR_DATA;
+		break;
+	default:
+		mode = WRITE_EVERYTHING;
+	}
 
 	ret = put(p_where, p_txn->p_block, mode);
 
