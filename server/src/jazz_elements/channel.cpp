@@ -63,6 +63,17 @@ size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {
 }
 
 
+/** \brief A callback for libCURL GET to ignore all the blocks sent by the server in PUT and DELETE calls.
+
+	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
+*/
+size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {
+	size = size*nmemb;
+
+	return size;
+}
+
+
 /** \brief A callback for libCURL PUT.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_READFUNCTION.html)

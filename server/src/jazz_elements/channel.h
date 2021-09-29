@@ -133,6 +133,7 @@ typedef unsigned int MHD_StatusCode;
 
 extern size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container);
 extern size_t put_callback(char *ptr, size_t size, size_t nmemb, void *container);
+extern size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2);
 
 /** \brief Channels: A Container doing block transactions across media (files, folders, shell, http urls and zeroMQ servers)
 
