@@ -1100,6 +1100,8 @@ SCENARIO("Testing http end-to-end") {
 		pTransaction p_txn;
 		pChar p_ret;
 
+		char url[256], url2[256];
+
 		WHEN("We test new_entity()/remove()") {
 			REQUIRE(CHN.new_entity((pChar) "//http/anything") == SERVICE_ERROR_WRONG_BASE);
 			REQUIRE(CHN.new_entity((pChar) "/http/anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
@@ -1107,44 +1109,52 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.connect.size() == 0);
 		}
 		WHEN("We test put()/get()/remove() on direct links") {
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/http://127.0.0.1:5000/test/capital/Germany") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/http://127.0.0.1:5000/test/capital/Spain") == SERVICE_NO_ERROR);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Spain");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Madrid") == 0);
+			REQUIRE(strcmp(p_ret, "\"Madrid\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Berlin");
 
-			REQUIRE(CHN.put((pChar) "//http/http://127.0.0.1:5000/test/capital/Germany", p_tx_buf->p_block) == SERVICE_NO_ERROR);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/http://127.0.0.1:5000/test/capital/Germany") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Berlin") == 0);
+			REQUIRE(strcmp(p_ret, "\"Berlin\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
-			REQUIRE(CHN.remove((pChar) "//http/http://127.0.0.1:5000/test/capital/Germany") == SERVICE_NO_ERROR);
-			REQUIRE(CHN.remove((pChar) "//http/http://127.0.0.1:5000/test/capital/Germany") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/http://127.0.0.1:5000/test/capital/madAGASCAR") == SERVICE_NO_ERROR);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/madAGASCAR");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Antananarivo") == 0);
+			REQUIRE(strcmp(p_ret, "\"Antananarivo\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Rome");
 
-			REQUIRE(CHN.put((pChar) "//http/http://127.0.0.1:5000/test/capital/Italy", p_tx_buf->p_block) == SERVICE_NO_ERROR);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Italy");
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.get(p_txn, (pChar) "//http/http://127.0.0.1:5000/test/capital/italy") == SERVICE_NO_ERROR);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
 			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "Rome") == 0);
+			REQUIRE(strcmp(p_ret, "\"Rome\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
-			REQUIRE(CHN.remove((pChar) "//http/http://127.0.0.1:5000/test/capital/ITALY") == SERVICE_NO_ERROR);
-			REQUIRE(CHN.remove((pChar) "//http/http://127.0.0.1:5000/test/capital/Italy") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
+			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Italy");
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 		}
 		WHEN("We test put()/get()/remove() on a connection") {
 			REQUIRE(CHN.connect.size() == 0);
