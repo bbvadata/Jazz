@@ -77,6 +77,18 @@ SCENARIO("Basics tests") {
 	REQUIRE(TenBitsAtAddress("bash") == BASE_BASH_10BIT);
 	REQUIRE(TenBitsAtAddress("file") == BASE_FILE_10BIT);
 	REQUIRE(TenBitsAtAddress("http") == BASE_HTTP_10BIT);
+
+	char buffer[16] = "abcdefghij12345";
+	REQUIRE(strnlen(buffer, 16) == 15);
+
+	buffer[15] = '6';
+	REQUIRE(strnlen(buffer, 16) == 16);
+
+	buffer[1] = 0;
+	REQUIRE(strnlen(buffer, 16) == 1);
+
+	buffer[0] = 0;
+	REQUIRE(strnlen(buffer, 16) == 0);
 }
 
 
