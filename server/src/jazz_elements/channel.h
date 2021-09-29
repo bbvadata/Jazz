@@ -377,7 +377,7 @@ class Channels : public Container {
 
 			\param url	 The url to put to.
 			\param p_blk The Block to be sent by Channels.
-			\param mode  WRITE_TENSOR_DATA or WRITE_EVERYTHING
+			\param mode  WRITE_TENSOR_DATA, WRITE_C_STR or WRITE_EVERYTHING
 			\param p_idx Additional curl_easy_setopt() options passed in an Index.
 
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
@@ -393,10 +393,19 @@ class Channels : public Container {
 
 			PutBuffer put_buff;
 
-			if (mode & WRITE_TENSOR_DATA) {
+			switch (mode & (WRITE_TENSOR_DATA | WRITE_C_STR | WRITE_EVERYTHING)) {
+			case WRITE_TENSOR_DATA:
 				put_buff.to_send = p_blk->size*(p_blk->cell_type & 0xff);
 				put_buff.p_base  = &p_blk->tensor.cell_byte[0];
-			} else {
+				break;
+
+			case WRITE_C_STR: {
+				int size = p_blk->size*(p_blk->cell_type & 0xff);
+				put_buff.p_base   = &p_blk->tensor.cell_byte[0];
+				put_buff.to_send  = strnlen((const char *) put_buff.p_base, size); }
+				break;
+
+			default:
 				put_buff.to_send = p_blk->total_bytes;
 				put_buff.p_base  = (uint8_t *) p_blk;
 			}
@@ -404,8 +413,11 @@ class Channels : public Container {
 			curl_easy_setopt(curl, CURLOPT_URL, url);
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
 			curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1);
+			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, dev_null);
 			curl_easy_setopt(curl, CURLOPT_READFUNCTION, put_callback);
 			curl_easy_setopt(curl, CURLOPT_READDATA, (void *) &put_buff);
+			curl_easy_setopt(curl, CURLOPT_UPLOAD, 1L);
+ 			curl_easy_setopt(curl, CURLOPT_INFILESIZE_LARGE, (curl_off_t) put_buff.to_send);
 
 			if (p_idx != nullptr) {
 				Index:: iterator it;
@@ -422,18 +434,46 @@ class Channels : public Container {
 					curl_easy_setopt(curl, CURLOPT_COOKIEJAR, it->second.c_str());
 			}
 			c_ret = curl_easy_perform(curl);
+
+			uint64_t response_code;
+
+			if (c_ret == CURLE_OK)
+    			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+
 			curl_easy_cleanup(curl);
 
 			switch (c_ret) {
+			case CURLE_OK:
+				break;
 			case CURLE_REMOTE_ACCESS_DENIED:
 			case CURLE_AUTH_ERROR:
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
-
 			case CURLE_REMOTE_FILE_NOT_FOUND:
 				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+			default:
+			return SERVICE_ERROR_IO_ERROR;
+			}
 
-			case CURLE_OK:
+			switch (response_code) {
+			case MHD_HTTP_OK:
+			case MHD_HTTP_CREATED:
+			case MHD_HTTP_ACCEPTED:
 				return SERVICE_NO_ERROR;
+			case MHD_HTTP_NOT_FOUND:
+			case MHD_HTTP_GONE:
+				return SERVICE_ERROR_BLOCK_NOT_FOUND;
+			case MHD_HTTP_BAD_REQUEST:
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+			case MHD_HTTP_UNAUTHORIZED:
+			case MHD_HTTP_PAYMENT_REQUIRED:
+			case MHD_HTTP_FORBIDDEN:
+			case MHD_HTTP_METHOD_NOT_ALLOWED:
+			case MHD_HTTP_NOT_ACCEPTABLE:
+			case MHD_HTTP_PROXY_AUTHENTICATION_REQUIRED:
+			case MHD_HTTP_TOO_MANY_REQUESTS:
+				return SERVICE_ERROR_READ_FORBIDDEN;
+			case MHD_HTTP_INTERNAL_SERVER_ERROR ... MHD_HTTP_LOOP_DETECTED:
+				return SERVICE_ERROR_MISC_SERVER;
 			}
 			return SERVICE_ERROR_IO_ERROR;
 		}
