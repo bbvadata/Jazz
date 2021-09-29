@@ -129,6 +129,7 @@ without global variables.
 #define SERVICE_ERROR_BASE_FORBIDDEN	-31		///< base in channels disabled by conf.
 #define SERVICE_ERROR_READ_FORBIDDEN	-32		///< libCURL get returns CURLE_REMOTE_ACCESS_DENIED, CURLE_AUTH_ERROR
 #define SERVICE_ERROR_NOT_READY			-33		///< libCURL not wanting to init or perform.
+#define SERVICE_ERROR_MISC_SERVER		-34		///< MHD_HTTP_INTERNAL_SERVER_ERROR 500 to MHD_HTTP_LOOP_DETECTED 508 in http call
 
 /** Default path to config file
 */
