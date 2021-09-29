@@ -565,6 +565,23 @@ class Channels : public Container {
 	private:
 #endif
 
+		inline bool compose_url(pChar p_dest, pChar p_node, pChar p_url, int buff_size) {
+			int nix;
+
+			for (MapIS::iterator it = jazz_node_name.begin(); true; ++it) {
+				if (it == jazz_node_name.end())
+					return false;
+
+				if (it->second == p_node) {
+					nix = it->first;
+					break;
+				}
+			}
+			int ret = snprintf(p_dest, buff_size, "http://%s:%i%s", jazz_node_ip[nix].c_str(), jazz_node_port[nix], p_url);
+
+			return ret > 0 && ret < buff_size;
+		}
+
 		int can_curl = false, curl_ok = false;
 		int can_zmq  = false, zmq_ok  = false;
 		int can_bash = false;
