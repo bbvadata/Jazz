@@ -991,9 +991,12 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 */
 MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 
-//TODO: Implement this.
+	char buffer[1024];
 
-	return MHD_HTTP_FORBIDDEN;
+	if (!compose_url(buffer, (pChar) &node, p_url, sizeof(buffer)))
+		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
+
+	return curl_remove(buffer);
 }
 
 #ifdef CATCH_TEST
