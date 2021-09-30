@@ -962,7 +962,7 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 
 	char buffer[1024];
 
-	if (!compose_url(buffer, (pChar) &node, p_url, sizeof(buffer)))
+	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
 	int ret = curl_get(p_txn, buffer);
@@ -1009,7 +1009,7 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 
 	char buffer[1024];
 
-	if (!compose_url(buffer, (pChar) &node, p_url, sizeof(buffer)))
+	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
 	if (p_block->hash64 == 0)
@@ -1030,7 +1030,7 @@ MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 
 	char buffer[1024];
 
-	if (!compose_url(buffer, (pChar) &node, p_url, sizeof(buffer)))
+	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
 	return curl_remove(buffer);
