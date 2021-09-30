@@ -962,6 +962,9 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 
 	char buffer[1024];
 
+	if (!curl_ok)
+		return SERVICE_ERROR_BASE_FORBIDDEN;
+
 	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
@@ -1009,6 +1012,9 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 
 	char buffer[1024];
 
+	if (!curl_ok)
+		return SERVICE_ERROR_BASE_FORBIDDEN;
+
 	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
@@ -1029,6 +1035,9 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 
 	char buffer[1024];
+
+	if (!curl_ok)
+		return SERVICE_ERROR_BASE_FORBIDDEN;
 
 	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
