@@ -505,7 +505,8 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic") {
 
 
 SCENARIO("Testing String and Attribute logic") {
-	char buff[16384];
+	char buff[16384] = {0};
+
 	pBlock pjb = reinterpret_cast<pBlock>(&buff);
 
 	static const char* const sstr[] = {"ABC", "January", "February", "March", "Monday", "Red", "Hello world!", "", "123",
@@ -912,7 +913,9 @@ SCENARIO("Testing String and Attribute logic") {
 
 
 SCENARIO("Testing Filters") {
-	char buf1[4096], buf2[4096];
+	char buf1[4096] = {0};
+	char buf2[4096] = {0};
+
 	pBlock pjb = reinterpret_cast<pBlock>(&buf1);
 	pBlock pjf = reinterpret_cast<pBlock>(&buf2);
 
