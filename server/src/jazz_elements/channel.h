@@ -223,37 +223,37 @@ class Channels : public Container {
 		StatusCode	   start	   ();
 		StatusCode	   shut_down   ();
 
-		StatusCode	   get		   (pTransaction		&p_txn,
-									pChar				 p_what);
-		StatusCode	   get		   (pTransaction		&p_txn,
-									pChar				 p_what,
-									pBlock				 p_row_filter);
-		StatusCode	   get		   (pTransaction		&p_txn,
-									pChar				 p_what,
-									pChar				 name);
-		StatusCode	   locate	   (Locator				&location,
-									pChar				 p_what);
-		StatusCode	   header	   (StaticBlockHeader	&hea,
-									pChar				 p_what);
-		StatusCode	   header	   (pTransaction		&p_txn,
-									pChar				 p_what);
-		StatusCode	   put		   (pChar				 p_where,
-									pBlock				 p_block,
-									int					 mode = WRITE_EVERYTHING);
-		StatusCode	   new_entity  (pChar				 p_where);
-		StatusCode	   remove	   (pChar				 p_where);
-		StatusCode	   copy		   (pChar				 p_where,
-									pChar				 p_what);
-		StatusCode	   translate   (pTuple				 p_tuple,
-									pChar				 p_pipe);
-		MHD_StatusCode forward_get (pTransaction		&p_txn,
-									Name				 node,
-									pChar				 p_url);
-		MHD_StatusCode forward_put (Name				 node,
-									pChar				 p_url,
-									pBlock				 p_block);
-		MHD_StatusCode forward_del (Name				 node,
-									pChar				 p_url);
+		StatusCode	   get		  (pTransaction		 &p_txn,
+								   pChar			  p_what);
+		StatusCode	   get		  (pTransaction		 &p_txn,
+								   pChar			  p_what,
+								   pBlock			  p_row_filter);
+		StatusCode	   get		  (pTransaction		 &p_txn,
+								   pChar			  p_what,
+								   pChar			  name);
+		StatusCode	   locate	  (Locator			 &location,
+								   pChar			  p_what);
+		StatusCode	   header	  (StaticBlockHeader &hea,
+								   pChar			  p_what);
+		StatusCode	   header	  (pTransaction		 &p_txn,
+								   pChar			  p_what);
+		StatusCode	   put		  (pChar			  p_where,
+								   pBlock			  p_block,
+								   int				  mode = WRITE_EVERYTHING);
+		StatusCode	   new_entity (pChar			  p_where);
+		StatusCode	   remove	  (pChar			  p_where);
+		StatusCode	   copy		  (pChar			  p_where,
+								   pChar			  p_what);
+		StatusCode	   translate  (pTuple			  p_tuple,
+								   pChar			  p_pipe);
+		MHD_StatusCode forward_get(pTransaction		 &p_txn,
+								   Name				  node,
+								   pChar			  p_url);
+		MHD_StatusCode forward_put(Name				  node,
+								   pChar			  p_url,
+								   pBlock			  p_block);
+		MHD_StatusCode forward_del(Name				  node,
+								   pChar			  p_url);
 
 		// Support for container names in the API .base_names()
 

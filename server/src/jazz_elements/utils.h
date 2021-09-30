@@ -141,11 +141,11 @@ without global variables.
 typedef int StatusCode;
 
 
-bool		 FileExists			   (const char* file_name);
-char		*ExpandEscapeSequences (char *buff);
-pid_t		 FindProcessIdByName   (const char *name);
-uint64_t	 MurmurHash64A		   (const void *key, int len);
-std::string	 CleanConfigArgument   (std::string s);
+bool		 FileExists			  (const char* file_name);
+char		*ExpandEscapeSequences(char *buff);
+pid_t		 FindProcessIdByName  (const char *name);
+uint64_t	 MurmurHash64A		  (const void *key, int len);
+std::string	 CleanConfigArgument  (std::string s);
 
 
 /// A lookup table for all the possible results of a TenBitsAtAddress() call -> integer.
