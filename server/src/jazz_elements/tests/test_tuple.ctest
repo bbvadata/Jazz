@@ -1,0 +1,660 @@
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+	  exclusively for the use in the Jazz server software.
+
+	  Copyright 2009-2012 Jacques Basaldúa
+
+	2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+      Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+      This product includes software developed at
+
+      BBVA (https://www.bbva.com/)
+
+	3. LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+	  Licensed under http://www.OpenLDAP.org/license.html
+
+
+	  Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	  http://www.apache.org/licenses/LICENSE-2.0
+
+	  Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+
+using namespace jazz_elements;
+
+
+// Tests
+// -----
+
+SCENARIO("Testing tuple") {
+
+	char buff0[16384], buff1[16384], buff2[16384], buff3[16384], buff4[16384];
+
+	pBlock p_bl1 = (pBlock) &buff0, p_bl2 = (pBlock) &buff1, p_bl3 = (pBlock) &buff2, p_bl4 = (pBlock) &buff3, p_bl5 = (pBlock) &buff4;
+
+	char buff5[65536], buff6[65536], buff7[65536], buff8[65536], buff9[65536], buff10[65536];
+
+	pTuple p_tup1 = (pTuple) &buff5, p_tup2 = (pTuple) &buff6, p_tup3 = (pTuple) &buff7;
+	pTuple p_tup4 = (pTuple) &buff8, p_tup5 = (pTuple) &buff9, p_tup6 = (pTuple) &buff10;
+
+	char k1[4096], k2[4096], k3[4096];
+
+	pKind p_kind1 = (pKind) &k1, p_kind2 = (pKind) &k2, p_kind3 = (pKind) &k3;
+
+	TensorDim image_fixed = {16, 9, 3, 0, 0, 0};
+	TensorDim image_var	  = {-640, -480, 3, 0, 0, 0};
+	TensorDim image_sol1  = {32, 16, 3, 0, 0, 0};
+	TensorDim video_var	  = {-999, -640, -480, 3, 0, 0};
+	TensorDim video_sol1  = {21, 17, 11, 3, 0, 0};
+	TensorDim audio_var	  = {-999, 40, 0, 0, 0, 0};
+	TensorDim audio_sol1  = {21, 40, 0, 0, 0, 0};
+	TensorDim title		  = {1, 0, 0, 0, 0, 0};
+
+	AttributeMap dims  = {};
+
+	dims[-640] = (pChar) "width";
+	dims[-480] = (pChar) "height";
+	dims[-999] = (pChar) "num_frames";
+
+	// Build the blocks
+
+	AttributeMap attr_block = {}, attr_title = {};
+
+	attr_block[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "Tensor";
+	attr_block[BLOCK_ATTRIB_MIMETYPE]  = (pChar) "Small pic";
+
+	attr_title[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "Tensor";
+	attr_title[BLOCK_ATTRIB_MIMETYPE]  = (pChar) "UTF8 text";
+	attr_title[BLOCK_ATTRIB_LANGUAGE]  = (pChar) "en-us";
+
+	p_bl1->cell_type = CELL_TYPE_BYTE;
+
+	p_bl1->size			  = 0;
+	p_bl1->num_attributes = 0;
+	p_bl1->total_bytes	  = 8192;
+
+	p_bl1->set_dimensions(image_fixed.dim);
+
+	p_bl1->tensor.cell_byte[0]	 = 0xCA;
+	p_bl1->tensor.cell_byte[431] = 0xFE;
+
+	p_bl1->set_attributes(&attr_block);
+
+	p_bl2->cell_type = CELL_TYPE_BYTE;
+
+	p_bl2->size			  = 0;
+	p_bl2->num_attributes = 0;
+	p_bl2->total_bytes	  = 8192;
+
+	p_bl2->set_dimensions(image_sol1.dim);
+
+	p_bl2->tensor.cell_byte[0]	  = 0xCA;
+	p_bl2->tensor.cell_byte[431]  = 0xBA;
+	p_bl2->tensor.cell_byte[1535] = 0xFE;
+
+	p_bl2->set_attributes(&attr_block);
+
+	p_bl3->cell_type = CELL_TYPE_BYTE;
+
+	p_bl3->size			  = 0;
+	p_bl3->num_attributes = 0;
+	p_bl3->total_bytes	  = 16384;
+
+	p_bl3->set_dimensions(video_sol1.dim);
+
+	p_bl3->tensor.cell_byte[0]	   = 0xCA;
+	p_bl3->tensor.cell_byte[431]   = 0xBA;
+	p_bl3->tensor.cell_byte[1535]  = 0xBE;
+	p_bl3->tensor.cell_byte[11780] = 0xFE;
+
+	p_bl3->init_string_buffer();
+
+	p_bl4->cell_type = CELL_TYPE_INTEGER;
+
+	p_bl4->size			  = 0;
+	p_bl4->num_attributes = 0;
+	p_bl4->total_bytes	  = 6144;
+
+	p_bl4->set_dimensions(audio_sol1.dim);
+
+	p_bl4->tensor.cell_int[0]	= 0xCAFE;
+	p_bl4->tensor.cell_int[839]	= 0xBABE;
+
+	p_bl4->init_string_buffer();
+
+	p_bl5->cell_type = CELL_TYPE_STRING;
+
+	p_bl5->size			  = 0;
+	p_bl5->num_attributes = 0;
+	p_bl5->total_bytes	  = 4096;
+
+	p_bl5->set_dimensions(title.dim);
+
+	p_bl5->set_attributes(&attr_title);
+	p_bl5->set_string(0, "[PIRATE COPY] Game of Thrones");
+
+	// Check the blocks
+
+	REQUIRE(p_bl1->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_bl1->rank == 3);
+	REQUIRE(p_bl1->size == 432);
+	REQUIRE(p_bl1->total_bytes == 8192);
+	REQUIRE(p_bl1->num_attributes == 2);
+	REQUIRE(p_bl1->tensor.cell_byte[0]	 == 0xCA);
+	REQUIRE(p_bl1->tensor.cell_byte[431] == 0xFE);
+	REQUIRE(!strcmp(p_bl1->get_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
+
+	REQUIRE(p_bl2->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_bl2->rank == 3);
+	REQUIRE(p_bl2->size == 1536);
+	REQUIRE(p_bl2->total_bytes == 8192);
+	REQUIRE(p_bl2->num_attributes == 2);
+	REQUIRE(p_bl2->tensor.cell_byte[0]	  == 0xCA);
+	REQUIRE(p_bl2->tensor.cell_byte[431]  == 0xBA);
+	REQUIRE(p_bl2->tensor.cell_byte[1535] == 0xFE);
+	REQUIRE(!strcmp(p_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+
+	REQUIRE(p_bl3->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_bl3->rank == 4);
+	REQUIRE(p_bl3->size == 11781);
+	REQUIRE(p_bl3->total_bytes == 16384);
+	REQUIRE(p_bl3->num_attributes == 0);
+	REQUIRE(p_bl3->tensor.cell_byte[0]	   == 0xCA);
+	REQUIRE(p_bl3->tensor.cell_byte[431]   == 0xBA);
+	REQUIRE(p_bl3->tensor.cell_byte[1535]  == 0xBE);
+	REQUIRE(p_bl3->tensor.cell_byte[11780] == 0xFE);
+
+	REQUIRE(p_bl4->cell_type == CELL_TYPE_INTEGER);
+	REQUIRE(p_bl4->rank == 2);
+	REQUIRE(p_bl4->size == 840);
+	REQUIRE(p_bl4->total_bytes == 6144);
+	REQUIRE(p_bl4->num_attributes == 0);
+	REQUIRE(p_bl4->tensor.cell_int[0]	== 0xCAFE);
+	REQUIRE(p_bl4->tensor.cell_int[839] == 0xBABE);
+
+	REQUIRE(p_bl5->cell_type == CELL_TYPE_STRING);
+	REQUIRE(p_bl5->rank == 1);
+	REQUIRE(p_bl5->size == 1);
+	REQUIRE(p_bl5->total_bytes == 4096);
+	REQUIRE(p_bl5->num_attributes == 3);
+	REQUIRE(!strcmp(p_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(p_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(p_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
+
+	// Build the kinds
+
+	AttributeMap attr_kind = {}, empty_map = {};
+
+	attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
+	attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
+
+	REQUIRE(p_kind1->new_kind(1, 4096, attr_kind));
+	REQUIRE(p_kind1->add_item(0, "buffer", image_fixed.dim, CELL_TYPE_BYTE, empty_map));
+
+	REQUIRE(p_kind2->new_kind(2, 4096, attr_kind));
+	REQUIRE(p_kind2->add_item(0, "buffer", image_var.dim, CELL_TYPE_BYTE,	dims));
+	REQUIRE(p_kind2->add_item(1, "title",  title.dim,	  CELL_TYPE_STRING, dims));
+
+	REQUIRE(p_kind3->new_kind(3, 4096, attr_kind));
+	REQUIRE(p_kind3->add_item(0, "buffer", video_var.dim, CELL_TYPE_BYTE,	 dims));
+	REQUIRE(p_kind3->add_item(1, "audio",  audio_var.dim, CELL_TYPE_INTEGER, dims));
+	REQUIRE(p_kind3->add_item(2, "title",  title.dim,	  CELL_TYPE_STRING,  dims));
+
+	// Check the kinds
+
+	REQUIRE(p_kind1->audit() == MIXED_TYPE_KIND);
+
+	REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind1->rank		  == 1);
+	REQUIRE(p_kind1->range.dim[0] == 1);
+	REQUIRE(p_kind1->size		  == 1);
+	REQUIRE(p_kind1->has_NA		  == false);
+
+	REQUIRE(p_kind1->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_kind1->tensor.cell_item[0].rank	   == 3);
+
+	REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
+
+	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+
+	REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
+
+	REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind2->rank		  == 1);
+	REQUIRE(p_kind2->range.dim[0] == 1);
+	REQUIRE(p_kind2->size		  == 2);
+	REQUIRE(p_kind2->has_NA		  == false);
+
+	REQUIRE(p_kind2->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_kind2->tensor.cell_item[0].rank	   == 3);
+
+	REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+	REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
+
+	REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
+
+	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+
+	Dimensions kdims = {};
+	p_kind2->dimensions(kdims);
+	REQUIRE(kdims.size() == 2);
+
+	REQUIRE(p_kind3->audit() == MIXED_TYPE_KIND);
+
+	REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind3->rank		  == 1);
+	REQUIRE(p_kind3->range.dim[0] == 1);
+	REQUIRE(p_kind3->size		  == 3);
+	REQUIRE(p_kind3->has_NA		  == false);
+
+	REQUIRE(p_kind3->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+	REQUIRE(p_kind3->tensor.cell_item[0].rank	   == 4);
+
+	REQUIRE(p_kind3->tensor.cell_item[1].cell_type == CELL_TYPE_INTEGER);
+	REQUIRE(p_kind3->tensor.cell_item[1].rank	   == 2);
+
+	REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
+	REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
+
+	REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_kind3->item_name(1), "audio"));
+	REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
+
+	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+
+	Dimensions kdims2 = {};
+	p_kind3->dimensions(kdims2);
+	REQUIRE(kdims2.size() == 3);
+
+	// Build the tuples
+
+	Name tup_fix[] = {"buffer"};
+	Name tup_pic[] = {"buffer", "title"};
+	Name tup_pcc[] = {"buffer", "title", "more"};
+	Name tup_vid[] = {"buffer", "audio", "title"};
+	Name tup_oth[] = {"pic", "buffer", "audio", "title"};
+	pBlock blocks[4];
+
+	AttributeMap attr_tuple = {};
+
+	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "tuple";
+	attr_tuple[BLOCK_ATTRIB_SOURCE]	   = (pChar) "ThisTuple";
+
+	// p_bl1->set_dimensions(image_fixed.dim);
+	// p_bl2->set_dimensions(image_sol1.dim);
+	// p_bl3->set_dimensions(video_sol1.dim);
+	// p_bl4->set_dimensions(audio_sol1.dim);
+	// p_bl5->set_dimensions(title.dim);
+
+	blocks[0] = p_bl1;
+	REQUIRE(p_tup1->new_tuple(1, blocks, tup_fix, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup1->item_name(0), "buffer"));
+	REQUIRE(p_tup1->item_name( 1) == nullptr);
+	REQUIRE(p_tup1->item_name(-1) == nullptr);
+	REQUIRE(p_tup1->index((pChar) "buffer")	 ==  0);
+	REQUIRE(p_tup1->index((pChar) "buffe")	 == -1);
+	REQUIRE(p_tup1->index((pChar) "buffer ") == -1);
+	REQUIRE(p_tup1->get_block( 1) == nullptr);
+	REQUIRE(p_tup1->get_block(-1) == nullptr);
+	REQUIRE(p_tup1->is_a(p_kind1));
+	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
+
+	blocks[0] = p_bl2;
+	REQUIRE(p_tup2->new_tuple(1, blocks, tup_fix, 65536, empty_map) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup2->item_name(0), "buffer"));
+	REQUIRE(p_tup2->item_name( 1) == nullptr);
+	REQUIRE(p_tup2->item_name(-1) == nullptr);
+	REQUIRE(p_tup2->index((pChar) "buffer")	 ==  0);
+	REQUIRE(p_tup2->index((pChar) "buffe")	 == -1);
+	REQUIRE(p_tup2->index((pChar) "buffer ") == -1);
+	REQUIRE(p_tup2->get_block( 1) == nullptr);
+	REQUIRE(p_tup2->get_block(-1) == nullptr);
+	REQUIRE(!p_tup2->is_a(p_kind1));
+	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
+
+	blocks[1] = p_bl5;
+	REQUIRE(p_tup3->new_tuple(2, blocks, tup_pic, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup3->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_tup3->item_name(1), "title"));
+	REQUIRE(p_tup3->item_name( 2) == nullptr);
+	REQUIRE(p_tup3->item_name(-1) == nullptr);
+	REQUIRE(p_tup3->index((pChar) "buffer")	 ==  0);
+	REQUIRE(p_tup3->index((pChar) "title")	 ==  1);
+	REQUIRE(p_tup3->index((pChar) "titl")	 == -1);
+	REQUIRE(p_tup3->index((pChar) "buffer ") == -1);
+	REQUIRE(p_tup3->get_block( 2) == nullptr);
+	REQUIRE(p_tup3->get_block(-1) == nullptr);
+	REQUIRE(p_tup3->is_a(p_kind2));
+	REQUIRE(p_tup3->audit() == MIXED_TYPE_TUPLE);
+
+	blocks[2] = p_bl5;
+	REQUIRE(p_tup4->new_tuple(3, blocks, tup_pcc, 65536, empty_map) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup4->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_tup4->item_name(1), "title"));
+	REQUIRE(!strcmp(p_tup4->item_name(2), "more"));
+	REQUIRE(p_tup4->item_name( 3) == nullptr);
+	REQUIRE(p_tup4->item_name(-1) == nullptr);
+	REQUIRE(p_tup4->index((pChar) "buffer")	==  0);
+	REQUIRE(p_tup4->index((pChar) "title")	==  1);
+	REQUIRE(p_tup4->index((pChar) "more")	==  2);
+	REQUIRE(p_tup4->index((pChar) "titl")	== -1);
+	REQUIRE(p_tup4->index((pChar) "more ")	== -1);
+	REQUIRE(p_tup4->get_block( 3) == nullptr);
+	REQUIRE(p_tup4->get_block(-1) == nullptr);
+	REQUIRE(!p_tup4->is_a(p_kind2));
+	REQUIRE(p_tup4->audit() == MIXED_TYPE_TUPLE);
+
+	blocks[0] = p_bl3;
+	blocks[1] = p_bl4;
+	blocks[2] = p_bl5;
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup5->item_name(0), "buffer"));
+	REQUIRE(!strcmp(p_tup5->item_name(1), "audio"));
+	REQUIRE(!strcmp(p_tup5->item_name(2), "title"));
+	REQUIRE(p_tup5->item_name( 3) == nullptr);
+	REQUIRE(p_tup5->item_name(-1) == nullptr);
+	REQUIRE(p_tup5->index((pChar) "buffer")	==  0);
+	REQUIRE(p_tup5->index((pChar) "audio")	==  1);
+	REQUIRE(p_tup5->index((pChar) "title")	==  2);
+	REQUIRE(p_tup5->index((pChar) "titl")	== -1);
+	REQUIRE(p_tup5->index((pChar) "Audio")	== -1);
+	REQUIRE(p_tup5->get_block( 3) == nullptr);
+	REQUIRE(p_tup5->get_block(-1) == nullptr);
+	REQUIRE(p_tup5->is_a(p_kind3));
+	REQUIRE(p_tup5->audit() == MIXED_TYPE_TUPLE);
+
+	blocks[0] = p_bl2;
+	blocks[1] = p_bl3;
+	blocks[2] = p_bl4;
+	blocks[3] = p_bl5;
+	REQUIRE(p_tup6->new_tuple(4, blocks, tup_oth, 65536, empty_map) == SERVICE_NO_ERROR);
+
+	REQUIRE(!strcmp(p_tup6->item_name(0), "pic"));
+	REQUIRE(!strcmp(p_tup6->item_name(1), "buffer"));
+	REQUIRE(!strcmp(p_tup6->item_name(2), "audio"));
+	REQUIRE(!strcmp(p_tup6->item_name(3), "title"));
+	REQUIRE(p_tup6->item_name( 4) == nullptr);
+	REQUIRE(p_tup6->item_name(-1) == nullptr);
+	REQUIRE(p_tup6->index((pChar) "pic")	==  0);
+	REQUIRE(p_tup6->index((pChar) "buffer")	==  1);
+	REQUIRE(p_tup6->index((pChar) "audio")	==  2);
+	REQUIRE(p_tup6->index((pChar) "title")	==  3);
+	REQUIRE(p_tup6->index((pChar) "titl")	== -1);
+	REQUIRE(p_tup6->index((pChar) "Audio")	== -1);
+	REQUIRE(p_tup6->get_block( 4) == nullptr);
+	REQUIRE(p_tup6->get_block(-1) == nullptr);
+	REQUIRE(!p_tup6->is_a(p_kind3));
+	REQUIRE(p_tup6->audit() == MIXED_TYPE_TUPLE);
+
+	// Check all blocks
+
+	pBlock pt_bl1, pt_bl2, pt_bl3, pt_bl4, pt_bl5;
+
+	pt_bl1 = p_tup1->get_block(0);
+
+	REQUIRE(pt_bl1->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(pt_bl1->rank == 3);
+	REQUIRE(pt_bl1->size == 432);
+	REQUIRE(pt_bl1->total_bytes == 8192);
+	REQUIRE(pt_bl1->num_attributes == 2);
+	REQUIRE(pt_bl1->tensor.cell_byte[0]	  == 0xCA);
+	REQUIRE(pt_bl1->tensor.cell_byte[431] == 0xFE);
+	REQUIRE(!strcmp(pt_bl1->get_attribute(BLOCK_ATTRIB_MIMETYPE), "Small pic"));
+
+	pt_bl2 = p_tup2->get_block(0);
+
+	REQUIRE(pt_bl2->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(pt_bl2->rank == 3);
+	REQUIRE(pt_bl2->size == 1536);
+	REQUIRE(pt_bl2->total_bytes == 8192);
+	REQUIRE(pt_bl2->num_attributes == 2);
+	REQUIRE(pt_bl2->tensor.cell_byte[0]	   == 0xCA);
+	REQUIRE(pt_bl2->tensor.cell_byte[431]  == 0xBA);
+	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
+	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+
+	pt_bl2 = p_tup3->get_block(0);
+	pt_bl5 = p_tup3->get_block(1);
+
+	REQUIRE(pt_bl2->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(pt_bl2->rank == 3);
+	REQUIRE(pt_bl2->size == 1536);
+	REQUIRE(pt_bl2->total_bytes == 8192);
+	REQUIRE(pt_bl2->num_attributes == 2);
+	REQUIRE(pt_bl2->tensor.cell_byte[0]	   == 0xCA);
+	REQUIRE(pt_bl2->tensor.cell_byte[431]  == 0xBA);
+	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
+	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+
+	REQUIRE(pt_bl5->cell_type == CELL_TYPE_STRING);
+	REQUIRE(pt_bl5->rank == 1);
+	REQUIRE(pt_bl5->size == 1);
+	REQUIRE(pt_bl5->total_bytes == 4096);
+	REQUIRE(pt_bl5->num_attributes == 3);
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
+
+	pt_bl5 = p_tup4->get_block(2);
+
+	REQUIRE(pt_bl5->cell_type == CELL_TYPE_STRING);
+	REQUIRE(pt_bl5->rank == 1);
+	REQUIRE(pt_bl5->size == 1);
+	REQUIRE(pt_bl5->total_bytes == 4096);
+	REQUIRE(pt_bl5->num_attributes == 3);
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
+
+	pt_bl3 = p_tup5->get_block(0);
+	pt_bl4 = p_tup5->get_block(1);
+	pt_bl5 = p_tup5->get_block(2);
+
+	REQUIRE(pt_bl3->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(pt_bl3->rank == 4);
+	REQUIRE(pt_bl3->size == 11781);
+	REQUIRE(pt_bl3->total_bytes == 16384);
+	REQUIRE(pt_bl3->num_attributes == 0);
+	REQUIRE(pt_bl3->tensor.cell_byte[0]	    == 0xCA);
+	REQUIRE(pt_bl3->tensor.cell_byte[431]   == 0xBA);
+	REQUIRE(pt_bl3->tensor.cell_byte[1535]  == 0xBE);
+	REQUIRE(pt_bl3->tensor.cell_byte[11780] == 0xFE);
+
+	REQUIRE(pt_bl4->cell_type == CELL_TYPE_INTEGER);
+	REQUIRE(pt_bl4->rank == 2);
+	REQUIRE(pt_bl4->size == 840);
+	REQUIRE(pt_bl4->total_bytes == 6144);
+	REQUIRE(pt_bl4->num_attributes == 0);
+	REQUIRE(pt_bl4->tensor.cell_int[0]	 == 0xCAFE);
+	REQUIRE(pt_bl4->tensor.cell_int[839] == 0xBABE);
+
+	REQUIRE(pt_bl5->cell_type == CELL_TYPE_STRING);
+	REQUIRE(pt_bl5->rank == 1);
+	REQUIRE(pt_bl5->size == 1);
+	REQUIRE(pt_bl5->total_bytes == 4096);
+	REQUIRE(pt_bl5->num_attributes == 3);
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
+
+	pt_bl2 = p_tup6->get_block(0);
+	pt_bl3 = p_tup6->get_block(1);
+	pt_bl4 = p_tup6->get_block(2);
+	pt_bl5 = p_tup6->get_block(3);
+
+	REQUIRE(pt_bl2->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(pt_bl2->rank == 3);
+	REQUIRE(pt_bl2->size == 1536);
+	REQUIRE(pt_bl2->total_bytes == 8192);
+	REQUIRE(pt_bl2->num_attributes == 2);
+	REQUIRE(pt_bl2->tensor.cell_byte[0]	   == 0xCA);
+	REQUIRE(pt_bl2->tensor.cell_byte[431]  == 0xBA);
+	REQUIRE(pt_bl2->tensor.cell_byte[1535] == 0xFE);
+	REQUIRE(!strcmp(pt_bl2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "Tensor"));
+
+	REQUIRE(pt_bl3->cell_type == CELL_TYPE_BYTE);
+	REQUIRE(pt_bl3->rank == 4);
+	REQUIRE(pt_bl3->size == 11781);
+	REQUIRE(pt_bl3->total_bytes == 16384);
+	REQUIRE(pt_bl3->num_attributes == 0);
+	REQUIRE(pt_bl3->tensor.cell_byte[0]	    == 0xCA);
+	REQUIRE(pt_bl3->tensor.cell_byte[431]   == 0xBA);
+	REQUIRE(pt_bl3->tensor.cell_byte[1535]  == 0xBE);
+	REQUIRE(pt_bl3->tensor.cell_byte[11780] == 0xFE);
+
+	REQUIRE(pt_bl4->cell_type == CELL_TYPE_INTEGER);
+	REQUIRE(pt_bl4->rank == 2);
+	REQUIRE(pt_bl4->size == 840);
+	REQUIRE(pt_bl4->total_bytes == 6144);
+	REQUIRE(pt_bl4->num_attributes == 0);
+	REQUIRE(pt_bl4->tensor.cell_int[0]	 == 0xCAFE);
+	REQUIRE(pt_bl4->tensor.cell_int[839] == 0xBABE);
+
+	REQUIRE(pt_bl5->cell_type == CELL_TYPE_STRING);
+	REQUIRE(pt_bl5->rank == 1);
+	REQUIRE(pt_bl5->size == 1);
+	REQUIRE(pt_bl5->total_bytes == 4096);
+	REQUIRE(pt_bl5->num_attributes == 3);
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_MIMETYPE), "UTF8 text"));
+	REQUIRE(!strcmp(pt_bl5->get_attribute(BLOCK_ATTRIB_LANGUAGE), "en-us"));
+	REQUIRE(!strcmp(pt_bl5->get_string(0), "[PIRATE COPY] Game of Thrones"));
+
+	// Force all errors
+
+	pt_bl1 = p_tup1->get_block(0);
+
+	REQUIRE(!p_tup1->is_a((pKind) pt_bl1));
+	REQUIRE(!p_tup1->is_a((pKind) p_tup1));
+	REQUIRE( p_tup1->is_a(p_kind1));
+
+	REQUIRE(pTuple(pt_bl1)->audit() == MIXED_TYPE_INVALID);
+
+	Name tup_oth_bad[] = {"pic", "bu--er", "audio", "title"};
+	Name tup_fx_long[] = {"b123456789012345678901234567890", "c123456789012345678901234567890"};
+
+	blocks[0] = p_bl1;
+	blocks[1] = nullptr;
+
+	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8, attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, attr_tuple) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+	blocks[1] = p_bl2;
+
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_oth_bad, 8192, attr_tuple) == SERVICE_ERROR_WRONG_NAME);
+
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 32768, attr_tuple) == SERVICE_NO_ERROR);
+
+	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = "short";
+
+	// below rq_sz == 188
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 160, attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	// above rq_sz == 188 enough for metadata, but not for the first block
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 200, attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	// above rq_sz == 188 enough for metadata + 1 block, but not for the second block
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = "long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long";
+
+	// above rq_sz == 188 enough for metadata, but not for the first block
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 200, attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	// above rq_sz == 188 enough for metadata, but not for the first block
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_fx_long, 240, attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	REQUIRE(!p_tup1->is_a(p_kind2));
+	REQUIRE(!p_tup1->is_a(p_kind3));
+
+	blocks[0] = p_bl2;
+	blocks[1] = p_bl5;
+
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup5->is_a(p_kind2));
+
+	REQUIRE( p_tup5->new_tuple(2, blocks, tup_fx_long, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(!p_tup5->is_a(p_kind2));
+
+	blocks[1] = p_bl3;
+
+	REQUIRE( p_tup5->new_tuple(2, blocks, tup_pic, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(!p_tup5->is_a(p_kind2));
+
+	blocks[0] = p_bl3;
+	blocks[1] = p_bl4;
+	blocks[2] = p_bl5;
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(p_tup5->is_a(p_kind3));
+
+	p_bl4->cell_type = CELL_TYPE_INTEGER;
+
+	p_bl4->size			  = 0;
+	p_bl4->num_attributes = 0;
+	p_bl4->total_bytes	  = 8192;
+
+	audio_sol1.dim[0] = 33;
+
+	p_bl4->set_dimensions(audio_sol1.dim);
+
+	p_bl4->init_string_buffer();
+
+	// Same everything, just num_frames is 21 in p_bl3 and 33 in p_bl4
+	blocks[0] = p_bl3;
+	blocks[1] = p_bl4;
+	blocks[2] = p_bl5;
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+
+	REQUIRE(!p_tup5->is_a(p_kind3));
+
+	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
+
+	pt_bl1 = p_tup1->get_block(0);
+	pt_bl1->cell_type = CELL_TYPE_TIME;
+
+	REQUIRE(p_tup1->audit() == MIXED_TYPE_INVALID);
+
+	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
+
+	pt_bl2 = p_tup2->get_block(0);
+	pt_bl2->range.dim[0] = 97;
+
+	REQUIRE(p_tup2->audit() == MIXED_TYPE_INVALID);
+
+	REQUIRE(p_tup3->audit() == MIXED_TYPE_TUPLE);
+
+	p_tup3->tensor.cell_item[0].name = 0;
+
+	REQUIRE(p_tup3->audit() == MIXED_TYPE_INVALID);
+
+	REQUIRE(p_tup4->audit() == MIXED_TYPE_TUPLE);
+
+	pStringBuffer psb = p_tup4->p_string_buffer();
+
+	REQUIRE(psb->buffer[4] == 'f');	// buffer[2] = "buffer"
+	psb->buffer[4] = '.';
+
+	REQUIRE(p_tup4->audit() == MIXED_TYPE_INVALID);
+}

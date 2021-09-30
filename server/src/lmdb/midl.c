@@ -3,8 +3,8 @@
 /* $OpenLDAP$ */
 /* This work is part of OpenLDAP Software <http://www.openldap.org/>.
  *
- * Copyright 2000-2016 The OpenLDAP Foundation.
- * Portions Copyright 2001-2017 Howard Chu, Symas Corp.
+ * Copyright 2000-2021 The OpenLDAP Foundation.
+ * Portions Copyright 2001-2021 Howard Chu, Symas Corp.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -119,27 +119,26 @@ void mdb_midl_free(MDB_IDL ids)
 
 void mdb_midl_shrink( MDB_IDL *idp )
 {
-	MDB_IDL next_ids, ids = *idp;
-	if (*(--ids) > MDB_IDL_UM_MAX) {
-		next_ids = realloc(ids, (MDB_IDL_UM_MAX+2) * sizeof(MDB_ID));
-		if (!next_ids) free(ids);
-		else {
-			*next_ids++ = MDB_IDL_UM_MAX;
-			*idp = next_ids;
-		}
+	MDB_IDL ids = *idp;
+	if (*(--ids) > MDB_IDL_UM_MAX &&
+		(ids = realloc(ids, (MDB_IDL_UM_MAX+2) * sizeof(MDB_ID))))
+	{
+		*ids++ = MDB_IDL_UM_MAX;
+		*idp = ids;
 	}
 }
 
 static int mdb_midl_grow( MDB_IDL *idp, int num )
 {
-	MDB_IDL next_idn, idn = *idp-1;
+	MDB_IDL idn = *idp-1;
 	/* grow it */
-	next_idn = realloc(idn, (*idn + num + 2) * sizeof(MDB_ID));
-	if (!next_idn) {
-		free(idn);
+	MDB_IDL idn_copy = idn;
+	idn = realloc(idn, (*idn + num + 2) * sizeof(MDB_ID));
+	if (!idn) {
+		free(idn_copy);		// Avoid potential memory leak when realloc() returns nullptr
 		return ENOMEM;
 	}
-	idn = next_idn;
+
 	*idn++ += num;
 	*idp = idn;
 
@@ -206,11 +205,11 @@ int mdb_midl_append_range( MDB_IDL *idp, MDB_ID id, unsigned n )
 
 void mdb_midl_xmerge( MDB_IDL idl, MDB_IDL merge )
 {
-	MDB_ID old_id, merge_id, i = merge[0], j = idl[0], k = i+j, total = k;
+	MDB_ID old_id, i = merge[0], j = idl[0], k = i+j, total = k;
 	idl[0] = (MDB_ID)-1;		/* delimiter for idl scan below */
 	old_id = idl[j];
 	while (i) {
-		merge_id = merge[i--];
+		MDB_ID merge_id = merge[i--];
 		for (; old_id < merge_id; old_id = idl[--j])
 			idl[k--] = old_id;
 		idl[k--] = merge_id;
@@ -321,7 +320,7 @@ unsigned mdb_mid2l_search( MDB_ID2L ids, MDB_ID id )
 
 int mdb_mid2l_insert( MDB_ID2L ids, MDB_ID2 *id )
 {
-	unsigned x, i;
+	unsigned x;
 
 	x = mdb_mid2l_search( ids, id->mid );
 
@@ -342,7 +341,7 @@ int mdb_mid2l_insert( MDB_ID2L ids, MDB_ID2 *id )
 	} else {
 		/* insert id */
 		ids[0].mid++;
-		for (i=(unsigned)ids[0].mid; i>x; i--)
+		for (unsigned i = (unsigned)ids[0].mid; i>x; i--)
 			ids[i] = ids[i-1];
 		ids[x] = *id;
 	}
@@ -360,68 +359,6 @@ int mdb_mid2l_append( MDB_ID2L ids, MDB_ID2 *id )
 	ids[ids[0].mid] = *id;
 	return 0;
 }
-
-#ifdef MDB_VL32
-unsigned mdb_mid3l_search( MDB_ID3L ids, MDB_ID id )
-{
-	/*
-	 * binary search of id in ids
-	 * if found, returns position of id
-	 * if not found, returns first position greater than id
-	 */
-	unsigned base = 0;
-	unsigned cursor = 1;
-	int val = 0;
-	unsigned n = (unsigned)ids[0].mid;
-
-	while( 0 < n ) {
-		unsigned pivot = n >> 1;
-		cursor = base + pivot + 1;
-		val = CMP( id, ids[cursor].mid );
-
-		if( val < 0 ) {
-			n = pivot;
-
-		} else if ( val > 0 ) {
-			base = cursor;
-			n -= pivot + 1;
-
-		} else {
-			return cursor;
-		}
-	}
-
-	if( val > 0 ) {
-		++cursor;
-	}
-	return cursor;
-}
-
-int mdb_mid3l_insert( MDB_ID3L ids, MDB_ID3 *id )
-{
-	unsigned x, i;
-
-	x = mdb_mid3l_search( ids, id->mid );
-
-	if( x < 1 ) {
-		/* internal error */
-		return -2;
-	}
-
-	if ( x <= ids[0].mid && ids[x].mid == id->mid ) {
-		/* duplicate */
-		return -1;
-	}
-
-	/* insert id */
-	ids[0].mid++;
-	for (i=(unsigned)ids[0].mid; i>x; i--)
-		ids[i] = ids[i-1];
-	ids[x] = *id;
-
-	return 0;
-}
-#endif /* MDB_VL32 */
 
 /** @} */
 /** @} */

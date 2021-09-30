@@ -1,0 +1,986 @@
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+	  exclusively for the use in the Jazz server software.
+
+	  Copyright 2009-2012 Jacques Basaldúa
+
+	2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+      Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+      This product includes software developed at
+
+      BBVA (https://www.bbva.com/)
+
+	3. LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+	  Licensed under http://www.OpenLDAP.org/license.html
+
+
+	  Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	  http://www.apache.org/licenses/LICENSE-2.0
+
+	  Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+
+using namespace jazz_elements;
+
+
+// Utils
+// -----
+
+void test_block_names(pChar prefix, pBlock p_block) {
+
+char		 buf[128];
+pTransaction p_txn;
+
+	sprintf(buf, "%s/-", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/~", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/_", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/a", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/A", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/3", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/~~~~~~~~~~0123456789~~~~~~~~~~-", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/----------0123456789----------~", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/__________0123456789__________~", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/abcdefghij0123456789ABCDEFGHIJ_", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+
+	sprintf(buf, "%s/abcdefghij012345-cd8_ef~ZTX~1.2", prefix);
+	REQUIRE(PER.put((pChar) &buf, p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.get(p_txn, (pChar) &buf) == SERVICE_NO_ERROR);
+	compare_full_blocks(p_txn->p_block, p_block);
+	PER.destroy_transaction(p_txn);
+}
+
+// Tests
+// -----
+
+SCENARIO("Write/read some blocks in a new source and close the Container.") {
+
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
+
+	GIVEN("We have some blocks and indices") {
+		Index txt;
+
+		txt["this"]	  = "Whatever we write here";
+		txt["thing"]  = "[[1,2,3,4,5]]";
+		txt["gets"]	  = "";
+		txt["stored"] = "A multiline string\nis okay\nEñe";
+
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim;
+
+		int dim[MAX_TENSOR_RANK] = {10, 3, 2};
+
+		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
+
+		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_int->p_block->tensor.cell_int[0]  = 1;
+		p_tx_int->p_block->tensor.cell_int[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
+
+		REQUIRE(PER.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 60; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
+
+		REQUIRE(PER.new_entity((pChar) "//lmdb/save_this_thing") == SERVICE_NO_ERROR);
+
+		pTransaction p_txn;
+
+		WHEN("We test put()/get() of keys") {
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/pop-saved", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/str-saved", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/chr-saved", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/int-saved", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/rea-saved", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/tim-saved", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/str-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/chr-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/int-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/rea-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/tim-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+			}
+		}
+		PER.destroy_transaction(p_tx_pop);
+		PER.destroy_transaction(p_tx_str);
+		PER.destroy_transaction(p_tx_chr);
+		PER.destroy_transaction(p_tx_int);
+		PER.destroy_transaction(p_tx_rea);
+		PER.destroy_transaction(p_tx_tim);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
+
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
+}
+
+
+SCENARIO("Read again previous blocks in a new Container.") {
+
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
+
+	GIVEN("We have some blocks and indices") {
+		Index txt;
+
+		txt["this"]	  = "Whatever we write here";
+		txt["thing"]  = "[[1,2,3,4,5]]";
+		txt["gets"]	  = "";
+		txt["stored"] = "A multiline string\nis okay\nEñe";
+
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim;
+
+		int dim[MAX_TENSOR_RANK] = {10, 3, 2};
+
+		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
+
+		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_int->p_block->tensor.cell_int[0]  = 1;
+		p_tx_int->p_block->tensor.cell_int[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
+
+		REQUIRE(PER.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 60; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
+
+		pTransaction p_txn;
+
+		WHEN("We get recover the previous blocks") {
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+			PER.destroy_transaction(p_txn);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/str-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+			PER.destroy_transaction(p_txn);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/chr-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+			PER.destroy_transaction(p_txn);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/int-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+			PER.destroy_transaction(p_txn);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/rea-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+			PER.destroy_transaction(p_txn);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/tim-saved") == SERVICE_NO_ERROR);
+			compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+			PER.destroy_transaction(p_txn);
+		}
+		REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing") == SERVICE_NO_ERROR);
+
+		PER.destroy_transaction(p_tx_pop);
+		PER.destroy_transaction(p_tx_str);
+		PER.destroy_transaction(p_tx_chr);
+		PER.destroy_transaction(p_tx_int);
+		PER.destroy_transaction(p_tx_rea);
+		PER.destroy_transaction(p_tx_tim);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
+
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
+}
+
+
+SCENARIO("Testing LMDB entity and key names.") {
+
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
+
+	GIVEN("We have some blocks and indices") {
+		pTransaction p_tx_int;
+
+		int dim[MAX_TENSOR_RANK] = {5, 3, 2};
+
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+
+		for (int i = 0; i < 30; i++)
+			p_tx_int->p_block->tensor.cell_int[i] = (7*i - 3)*i + 11;
+
+		pTransaction p_txn;
+
+		WHEN("We bot entity names and block names") {
+			REQUIRE(PER.new_entity((pChar) "//lmdb/~") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/~", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/~~") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/~~", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/~~~~~~~~~~0123456789~~~~~~~~~~-") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/~~~~~~~~~~0123456789~~~~~~~~~~-", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/----------0123456789----------~") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/----------0123456789----------~", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/__________0123456789__________~") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/__________0123456789__________~", p_tx_int->p_block);
+
+			REQUIRE(PER.remove((pChar) "//lmdb/~") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/~~") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/~~~~~~~~~~0123456789~~~~~~~~~~-") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/----------0123456789----------~") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/__________0123456789__________~") == SERVICE_NO_ERROR);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/a") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/a", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/7") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/7", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/A") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/A", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ab7-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/ab7-cd8_ef~ZTX~1-2", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/abcdefghij0123456789ABCDEFGHIJ_") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/abcdefghij0123456789ABCDEFGHIJ_", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/-") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/-", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/abcdefghij012345-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/abcdefghij012345-cd8_ef~ZTX~1-2", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/_") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/_", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/nice") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/nice", p_tx_int->p_block);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/Nice") == SERVICE_NO_ERROR);
+
+			test_block_names((pChar) "//lmdb/Nice", p_tx_int->p_block);
+
+			REQUIRE(PER.remove((pChar) "//lmdb/a") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/7") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/A") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ab7-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/abcdefghij0123456789ABCDEFGHIJ_") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/-") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/abcdefghij012345-cd8_ef~ZTX~1-2") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/_") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/nice") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/Nice") == SERVICE_NO_ERROR);
+		}
+		PER.destroy_transaction(p_tx_int);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
+
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
+}
+
+
+SCENARIO("Strong End-to-end lmdb tests") {
+
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
+
+	if (PER.dbi_exists((pChar) "www")) {
+		Locator loc = {"lmdb", "www", "", 0};
+		REQUIRE(PER.remove(loc) == SERVICE_NO_ERROR);
+	}
+
+	GIVEN("We have some blocks and indices") {
+		Index txt;
+
+		txt["one__"] = "Abc ..";
+		txt["two__"] = "[[1,2,3],%20[1,2,3]]";
+		txt["three"] = "";
+		txt["_four"] = "A multiline string\nis okay\n";
+		txt["fi_ve"] = "UTF8 ¡what!\n\nLöwe\n";
+
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil;
+
+		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
+
+		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
+
+		dim[1] = 8;
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_int->p_block->tensor.cell_int[0]	= 1;
+		p_tx_int->p_block->tensor.cell_int[159] = 159;
+
+		dim[1] = 4;
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[79] = 21.345;
+
+		dim[1] = 1;
+		REQUIRE(PER.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 20; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
+
+		dim[1] = 0;
+		REQUIRE(PER.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_fil->p_block->range.filter.length = 2;
+		p_tx_fil->p_block->tensor.cell_int[0] = 0;
+		p_tx_fil->p_block->tensor.cell_int[1] = 2;
+
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_tim->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_rea->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_int->p_block));
+		REQUIRE(p_tx_fil->p_block->can_filter(p_tx_chr->p_block));
+
+		WHEN("We test new_entity()/remove() of entities") {
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one/key") == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(PER.remove	  ((pChar) "//lmdb/ent_one")	 == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
+			REQUIRE(PER.source_dbi.size() == 0);
+
+			REQUIRE(!PER.dbi_exists((pChar) "ent_one"));
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
+			REQUIRE(PER.dbi_exists((pChar) "ent_one"));
+
+			REQUIRE(PER.source_dbi.size() == 1);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two/~0") == SERVICE_ERROR_PARSING_COMMAND);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")	== SERVICE_NO_ERROR);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_three")	== SERVICE_NO_ERROR);
+
+			REQUIRE( PER.dbi_exists((pChar) "ent_three"));
+			REQUIRE(!PER.dbi_exists((pChar) "ent_four"));
+
+			THEN("We get expected structure") {
+				REQUIRE(PER.source_dbi.size() == 3);
+
+				REQUIRE(PER.source_dbi["ent_two"]	!= INVALID_MDB_DBI);
+				REQUIRE(PER.source_dbi["ent_three"] != INVALID_MDB_DBI);
+			}
+
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
+
+			REQUIRE(PER.source_dbi.size() == 2);
+
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_two")   == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_three") == SERVICE_NO_ERROR);
+
+			REQUIRE(PER.source_dbi.size() == 0);
+		}
+		pTransaction p_txn;
+		Locator location;
+
+		REQUIRE(PER.get(p_txn, (pChar) "//zz/ent_one/key")		    == SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+		REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one")			== SERVICE_NO_ERROR);
+		REQUIRE(PER.new_entity((pChar) "//lmdb/ent_two")			== SERVICE_NO_ERROR);
+
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123~abc~Z")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/any-thing")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/something", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/papa~child") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~highest")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/~123~abc~Z")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+		REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/any-thing")	== SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+		REQUIRE(PER.put((pChar) "//aa/ent_one/~insert", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/papa~child", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~highest",	 p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/~123~abc~Z", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+		REQUIRE(PER.put((pChar) "//lmdb/ent_one/any-thing",  p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+		REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
+		REQUIRE(PER.remove((pChar) "//lmdb/ent_two") == SERVICE_NO_ERROR);
+
+		WHEN("We test put()/get()/remove() of keys") {
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_small") == SERVICE_NO_ERROR);
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_big") == SERVICE_NO_ERROR);
+
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_pop", p_tx_pop->p_block, WRITE_TENSOR_DATA) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+			p_tx_pop->p_block->hash64 = 0;	// Valgrind: Tuples have uninitialized values in their blocks.
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+
+			REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_int", p_tx_int->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_rea", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_tim", p_tx_tim->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+
+			REQUIRE(   PER.put((pChar) "//lmdb/ent_big/tx_chr", p_tx_chr->p_block, WRITE_ONLY_IF_NOT_EXISTS)
+					== SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_str", p_tx_str->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_NO_ERROR);
+			p_tx_pop->p_block->hash64 = 0;	// Valgrind: Tuples have uninitialized values in their blocks.
+			REQUIRE(PER.put((pChar) "//lmdb/ent_big/tx_pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+
+			REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+			THEN("We get expected structure") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_pop") == SERVICE_NO_ERROR);
+
+				REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+				REQUIRE(pTuple(p_txn->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+				REQUIRE(strcmp(pTuple(p_txn->p_block)->get_block(0)->get_string(0), txt.begin()->first.c_str()) == 0);
+
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_str") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_chr") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_int") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_rea") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_four/two") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/four") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tx_str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_str") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~first") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~last") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent small/~last") == SERVICE_ERROR_PARSING_NAMES);
+
+				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/~last") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"lmdb")		 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"~last")	 == 0);
+
+				REQUIRE(PER.locate(location, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_NO_ERROR);
+
+				REQUIRE(strcmp(location.base,	"lmdb")		 == 0);
+				REQUIRE(strcmp(location.entity, "ent_small") == 0);
+				REQUIRE(strcmp(location.key,	"tx_pop")	 == 0);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/~pfirst") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				p_tx_pop->p_block->hash64 = 0;	// Valgrind: Tuples have uninitialized values in their blocks.
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/str", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/chr", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_small/tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_chr~prev") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/tx_chr~next") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/pop") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/str") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/rea") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/int") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/chr") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_big/tx_pop") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_big/tx_str") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_str") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_chr") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_big/tx_chr") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_big/tx_chr") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/rea") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/rea") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/pop") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/int") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.remove((pChar) "//lmdb/ent_small/int") == SERVICE_NO_ERROR);
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_small/int") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			}
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_small") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_big")	== SERVICE_NO_ERROR);
+		}
+
+		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
+			p_tx_pop->p_block->hash64 = 0;	// Valgrind: Tuples have uninitialized values in their blocks.
+			REQUIRE(PER.put((pChar) "//lmdb/ent_one/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_one/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_one/txt", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_one/tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_one/int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				REQUIRE(p_txn->p_block->rank == 1);
+
+				REQUIRE(pTuple(p_txn->p_block)->index((pChar) "key") == 0);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].dim[0] == 5);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].dim[0] == 5);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop", (pChar) "key") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->size == 5);
+				REQUIRE(p_txn->p_block->rank == 1);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop_ooo", (pChar) "key") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/rea", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+				REQUIRE(p_txn->p_block->size == 8);
+				REQUIRE(p_txn->p_block->rank == 2);
+				REQUIRE(p_txn->p_block->tensor.cell_double[0] == 1.23);
+				REQUIRE(p_txn->p_block->tensor.cell_double[1] == 0);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/rea_ooo", p_tx_fil->p_block) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/tim", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+				REQUIRE(p_txn->p_block->size == 2);
+				REQUIRE(p_txn->p_block->rank == 2);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/int", p_tx_fil->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(p_txn->p_block->size == 16);
+				REQUIRE(p_txn->p_block->rank == 2);
+				REQUIRE(p_txn->p_block->tensor.cell_int[0] == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_int[1] == 0);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/txt", p_tx_rea->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+				p_tx_pop->p_block->hash64 = 0;	// Valgrind: Tuples have uninitialized values in their blocks.
+				REQUIRE(PER.put((pChar) "//lmdb/ent_one/~last", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+				REQUIRE(PER.put((pChar) "//lmdb/ent_one/~last", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->size == 2);
+				REQUIRE(p_txn->p_block->rank == 1);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[0].dim[0] == 5);
+
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].rank == 1);
+				REQUIRE(p_txn->p_block->tensor.cell_item[1].dim[0] == 5);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/tim") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TIME);
+				REQUIRE(p_txn->p_block->size == 20);
+				REQUIRE(p_txn->p_block->rank == 2);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/oops/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				StaticBlockHeader hea;
+
+				REQUIRE(PER.header(hea, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
+				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(hea.size == 2);
+				REQUIRE(hea.rank == 1);
+
+				REQUIRE(PER.header(hea, (pChar) "//lmdb/ent_one/tim") == SERVICE_NO_ERROR);
+				REQUIRE(hea.cell_type == CELL_TYPE_TIME);
+				REQUIRE(hea.size == 20);
+				REQUIRE(hea.rank == 2);
+
+				REQUIRE(PER.header(hea, (pChar) "//lmdb/ent_one/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.header(hea, (pChar) "//lmdb/oops/oops") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			}
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_one") == SERVICE_NO_ERROR);
+		}
+		WHEN("We test copy") {
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_source") == SERVICE_NO_ERROR);
+			p_tx_pop->p_block->hash64 = 0;	// Valgrind: Tuples have uninitialized values in their blocks.
+			REQUIRE(PER.put((pChar) "//lmdb/ent_source/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_source/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_source/txt", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/ent_source/tim", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+
+			REQUIRE(PER.new_entity((pChar) "//lmdb/ent_dest") == SERVICE_NO_ERROR);
+
+			THEN("We get expected structure") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_pop") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/copy_pop", (pChar) "//lmdb/ent_source/pop") == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/bla_bla") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_pop") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_rea") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/copy_rea", (pChar) "//lmdb/ent_source/rea") == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_rea") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_txt") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/copy_txt", (pChar) "//lmdb/ent_source/txt") == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_txt") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/copy_tim", (pChar) "//lmdb/ent_source/tim") == SERVICE_NO_ERROR);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/copy_tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_source/~last") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_source/tim") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.copy((pChar) "//lmdb/ent_dest/more_tim", (pChar) "//lmdb/ent_source/~plast") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_dest/more_tim") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			}
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_source") == SERVICE_NO_ERROR);
+			REQUIRE(PER.remove((pChar) "//lmdb/ent_dest")	== SERVICE_NO_ERROR);
+		}
+		PER.destroy_transaction(p_tx_pop);
+		PER.destroy_transaction(p_tx_str);
+		PER.destroy_transaction(p_tx_chr);
+		PER.destroy_transaction(p_tx_int);
+		PER.destroy_transaction(p_tx_rea);
+		PER.destroy_transaction(p_tx_tim);
+		PER.destroy_transaction(p_tx_fil);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
+
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
+}

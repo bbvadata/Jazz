@@ -1,0 +1,258 @@
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+	  exclusively for the use in the Jazz server software.
+
+	  Copyright 2009-2012 Jacques Basaldúa
+
+	2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+      Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+      This product includes software developed at
+
+      BBVA (https://www.bbva.com/)
+
+	3. LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+	  Licensed under http://www.OpenLDAP.org/license.html
+
+
+	  Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	  http://www.apache.org/licenses/LICENSE-2.0
+
+	  Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+
+using namespace jazz_elements;
+
+
+// Tests
+// -----
+
+SCENARIO("Testing kind") {
+
+	GIVEN("We have some kinds") {
+		char a1[4096], a2[4096], a3[4096], a4[4096], a5[4096], a6[4096];
+
+		pKind p_kind1 = (pKind) &a1, p_kind2 = (pKind) &a2, p_kind3 = (pKind) &a3;
+		pKind p_kind4 = (pKind) &a4, p_kind5 = (pKind) &a5, p_kind6 = (pKind) &a6;
+
+		Name nam_bl_type = "kind";
+		Name nam_at_type = "sys.kinds.ThisKind";
+
+		Name nam_width	= "width";
+		Name nam_height	= "height";
+		Name nam_buffer	= "buffer";
+		Name nam_title	= "title";
+		Name nam_title_	= "_title";
+		Name nam_wave	= "wave";
+		Name nam_frame	= "frame.2";
+
+		TensorDim one_cell	= {1, 0, 0, 0, 0, 0};
+		TensorDim vector_10	= {10, 0, 0, 0, 0, 0};
+		TensorDim image_rgb	= {640, 480, 3, 0, 0, 0};
+		TensorDim video_rgb	= {10000, 640, 480, 3, 0, 0};
+
+		AttributeMap attr = {}, dims = {};
+
+		attr[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) &nam_bl_type;
+		attr[BLOCK_ATTRIB_SOURCE]	 = (pChar) &nam_at_type;
+
+		REQUIRE(p_kind1->new_kind(1, 4096, attr));
+
+		REQUIRE(p_kind1->add_item(0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE, dims));
+
+		REQUIRE(p_kind2->new_kind(2, 4096, attr));
+
+		image_rgb.dim[0] = -640;
+		dims[-640] = (const char *) &nam_width;
+		image_rgb.dim[1] = -480;
+		dims[-480] = (const char *) &nam_height;
+
+		REQUIRE(p_kind2->add_item(0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind2->add_item(1, nam_title_, one_cell.dim,  CELL_TYPE_STRING, dims));
+
+		REQUIRE(p_kind3->new_kind(3, 4096, attr));
+
+		video_rgb.dim[0] = -999;
+		video_rgb.dim[1] = -640;
+		video_rgb.dim[2] = -480;
+		dims[-999] = (const char *) &nam_frame;
+		REQUIRE(p_kind3->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE, dims));
+
+		vector_10.dim[0] = -999;
+		REQUIRE(p_kind3->add_item(1, nam_wave,  vector_10.dim, CELL_TYPE_INTEGER, dims));
+		REQUIRE(p_kind3->add_item(2, nam_title, one_cell.dim,  CELL_TYPE_STRING,  dims));
+
+		REQUIRE(p_kind4->new_kind(2, 4096, attr));
+
+		REQUIRE(p_kind4->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind4->add_item(1, nam_frame,  one_cell.dim,  CELL_TYPE_STRING, dims));
+
+		REQUIRE(!p_kind5->new_kind(2, sizeof(BlockHeader) + 4, attr));
+		REQUIRE(!p_kind5->new_kind(2, sizeof(BlockHeader) + sizeof(StringBuffer) + 2*sizeof(ItemHeader), attr));
+
+		REQUIRE(p_kind5->new_kind(2, 4096, attr));
+
+		REQUIRE(p_kind5->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	  dims));
+		REQUIRE(p_kind5->add_item(1, nam_buffer, one_cell.dim,	CELL_TYPE_STRING, dims));
+
+		REQUIRE(p_kind6->new_kind(3, 4096, attr));
+
+		REQUIRE( p_kind6->add_item( 0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE,	 dims));
+		REQUIRE(!p_kind6->add_item(-1, nam_wave,   vector_10.dim, CELL_TYPE_INTEGER, dims));
+		REQUIRE(!p_kind6->add_item( 3, nam_title,  one_cell.dim,  CELL_TYPE_STRING,  dims));
+		vector_10.dim[0] = -888;
+		REQUIRE(!p_kind6->add_item( 1, nam_wave,   vector_10.dim, CELL_TYPE_INTEGER, dims));
+		REQUIRE( p_kind6->add_item( 2, nam_title,  one_cell.dim,  CELL_TYPE_STRING,  dims));
+
+		WHEN("Kind 1 passes .audit()") {
+			REQUIRE(p_kind1->audit() == MIXED_TYPE_KIND);
+
+			THEN("We can check a few things") {
+				REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind1->rank		  == 1);
+				REQUIRE(p_kind1->range.dim[0] == 1);
+				REQUIRE(p_kind1->size		  == 1);
+				REQUIRE(p_kind1->has_NA		  == false);
+
+				REQUIRE(p_kind1->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_kind1->tensor.cell_item[0].rank	   == 3);
+
+				REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
+				REQUIRE(p_kind1->item_name( 1) == nullptr);
+				REQUIRE(p_kind1->item_name(-1) == nullptr);
+
+				REQUIRE(p_kind1->index((pChar) "buffer")   ==  0);
+				REQUIRE(p_kind1->index((pChar) "buffe")	   == -1);
+				REQUIRE(p_kind1->index((pChar) "buffer ")  == -1);
+
+				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+
+				Dimensions dims = {};
+				p_kind1->dimensions(dims);
+
+				REQUIRE(dims.size() == 0);
+			}
+		}
+
+		WHEN("Kind 2 passes .audit()") {
+			REQUIRE(p_kind2->audit() == MIXED_TYPE_INVALID);
+
+			THEN("We can check a few types") {
+				REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind2->rank		  == 1);
+				REQUIRE(p_kind2->range.dim[0] == 1);
+				REQUIRE(p_kind2->size		  == 2);
+				REQUIRE(p_kind2->has_NA		  == false);
+
+				REQUIRE(p_kind2->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_kind2->tensor.cell_item[0].rank	   == 3);
+
+				REQUIRE(p_kind2->tensor.cell_item[1].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_kind2->tensor.cell_item[1].rank	   == 1);
+
+				REQUIRE(!strcmp(p_kind2->item_name(0), "buffer"));
+				REQUIRE(!strcmp(p_kind2->item_name(1), "_title"));
+				REQUIRE(p_kind2->item_name( 2) == nullptr);
+				REQUIRE(p_kind2->item_name(-1) == nullptr);
+
+				REQUIRE(p_kind2->index((pChar) "buffer")  ==  0);
+				REQUIRE(p_kind2->index((pChar) "_title")  ==  1);
+				REQUIRE(p_kind2->index((pChar) "_titl")   == -1);
+				REQUIRE(p_kind2->index((pChar) "_titlee") == -1);
+
+				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+
+				Dimensions dims = {};
+				p_kind2->dimensions(dims);
+
+				REQUIRE(dims.size() == 2);
+
+				REQUIRE(dims.find("height")	!= dims.end());
+				REQUIRE(dims.find("width")	!= dims.end());
+			}
+		}
+
+		WHEN("Kind 3 passes .audit()") {
+			REQUIRE(p_kind3->audit() == MIXED_TYPE_INVALID);
+
+			THEN("We can check a few types") {
+				REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind3->rank		  == 1);
+				REQUIRE(p_kind3->range.dim[0] == 1);
+				REQUIRE(p_kind3->size		  == 3);
+				REQUIRE(p_kind3->has_NA		  == false);
+
+				REQUIRE(p_kind3->tensor.cell_item[0].cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_kind3->tensor.cell_item[0].rank	   == 4);
+
+				REQUIRE(p_kind3->tensor.cell_item[1].cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(p_kind3->tensor.cell_item[1].rank	   == 1);
+
+				REQUIRE(p_kind3->tensor.cell_item[2].cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_kind3->tensor.cell_item[2].rank	   == 1);
+
+				REQUIRE(!strcmp(p_kind3->item_name(0), "buffer"));
+				REQUIRE(!strcmp(p_kind3->item_name(1), "wave"));
+				REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
+				REQUIRE(p_kind3->item_name( 3) == nullptr);
+				REQUIRE(p_kind3->item_name(-1) == nullptr);
+
+				REQUIRE(p_kind3->index((pChar) "buffer") ==  0);
+				REQUIRE(p_kind3->index((pChar) "wave")	 ==  1);
+				REQUIRE(p_kind3->index((pChar) "title")  ==  2);
+				REQUIRE(p_kind3->index((pChar) "wav")	 == -1);
+				REQUIRE(p_kind3->index((pChar) "wave ")  == -1);
+
+				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
+				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+
+				Dimensions dims = {};
+				p_kind3->dimensions(dims);
+
+				REQUIRE(dims.size() == 3);
+
+				REQUIRE(dims.find("frame.2") != dims.end());
+				REQUIRE(dims.find("width")	 != dims.end());
+				REQUIRE(dims.find("height")	 != dims.end());
+			}
+		}
+
+		WHEN("Kind 4 fails .audit()") {
+			REQUIRE(p_kind4->audit() == MIXED_TYPE_INVALID);
+
+			THEN("We do nothing else") {
+				REQUIRE(true);
+			}
+		}
+
+		WHEN("Kind 5 fails .audit()") {
+			REQUIRE(p_kind5->audit() == MIXED_TYPE_INVALID);
+
+			THEN("We do nothing else") {
+				REQUIRE(true);
+			}
+		}
+
+		WHEN("Kind 6 fails .audit()") {
+			REQUIRE(p_kind6->audit() == MIXED_TYPE_INVALID);
+
+			THEN("We do nothing else") {
+				REQUIRE(true);
+			}
+		}
+	}
+}
+

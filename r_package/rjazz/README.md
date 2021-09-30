@@ -9,20 +9,11 @@ This is the official R Jazz client maintained by the Authors of Jazz.
 
  - [kaalam.ai](http://kaalam.github.io/kaalam/)
  - [Jazz Reference](http://kaalam.github.io/jazz_reference/)
- - [Jazz Blog](http://kaalam.github.io/blog/)
- - [Jazz News](http://kaalam.github.io/news/)
- - [Jazz Python client](http://kaalam.github.io/pyjazz/)
-
-
-## The simplest way to start
-
- - [Using the R package without a server](http://kaalam.github.io/jazz_reference/rjazz_walkthough_client_only.html)
- - [Using the R client with a server](http://kaalam.github.io/jazz_reference/rjazz_walkthough_with_server.html)
 
 
 ## License
 
-     Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
+     Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
      BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 

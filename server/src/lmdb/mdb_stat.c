@@ -1,6 +1,6 @@
 /* mdb_stat.c - memory-mapped database status tool */
 /*
- * Copyright 2011-2017 Howard Chu, Symas Corp.
+ * Copyright 2011-2021 Howard Chu, Symas Corp.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@ static void prstat(MDB_stat *ms)
 
 static void usage(char *prog)
 {
-	fprintf(stderr, "usage: %s [-V] [-n] [-e] [-r[r]] [-f[f[f]]] [-a|-s subdb] dbpath\n", prog);
+	fprintf(stderr, "usage: %s [-V] [-n] [-e] [-r[r]] [-f[f[f]]] [-v] [-a|-s subdb] dbpath\n", prog);
 	exit(EXIT_FAILURE);
 }
 
@@ -61,10 +61,11 @@ int main(int argc, char *argv[])
 	 * -f: print freelist info
 	 * -r: print reader info
 	 * -n: use NOSUBDIR flag on env_open
+	 * -v: use previous snapshot
 	 * -V: print version and exit
 	 * (default) print stat of only the main DB
 	 */
-	while ((i = getopt(argc, argv, "Vaefnrs:")) != EOF) {
+	while ((i = getopt(argc, argv, "Vaefnrs:v")) != EOF) {
 		switch(i) {
 		case 'V':
 			printf("%s\n", MDB_VERSION_STRING);
@@ -83,6 +84,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'n':
 			envflags |= MDB_NOSUBDIR;
+			break;
+		case 'v':
+			envflags |= MDB_PREVSNAPSHOT;
 			break;
 		case 'r':
 			rdrinfo++;
@@ -174,24 +178,22 @@ int main(int argc, char *argv[])
 			if (freinfo > 1) {
 				char *bad = "";
 				mdb_size_t pg, prev;
-				ssize_t i, j, span = 0;
-				j = *iptr++;
-				for (i = j, prev = 1; --i >= 0; ) {
-					pg = iptr[i];
+				ssize_t j, k, span = 0;
+				k = *iptr++;
+				for (j = k, prev = 1; --j >= 0; ) {
+					pg = iptr[j];
 					if (pg <= prev)
 						bad = " [bad sequence]";
 					prev = pg;
 					pg += span;
-					for (; i >= span && iptr[i-span] == pg; span++, pg++) ;
+					for (; j >= span && iptr[j-span] == pg; span++, pg++) ;
 				}
-				printf("    Transaction %"Yu", %"Z"d pages, maxspan %"Z"d%s\n",
-					*(mdb_size_t *)key.mv_data, j, span, bad);
+				printf("    Transaction %"Yu", %zd pages, maxspan %zd%s\n", *(mdb_size_t *)key.mv_data, k, span, bad);
 				if (freinfo > 2) {
-					for (--j; j >= 0; ) {
-						pg = iptr[j];
-						for (span=1; --j >= 0 && iptr[j] == pg+span; span++) ;
-						printf(span>1 ? "     %9"Yu"[%"Z"d]\n" : "     %9"Yu"\n",
-							pg, span);
+					for (--k; k >= 0; ) {
+						pg = iptr[k];
+						for (span=1; --k >= 0 && iptr[k] == pg+span; span++) ;
+						printf("     %9"Yu"[%zd]\n", pg, span);
 					}
 				}
 			}

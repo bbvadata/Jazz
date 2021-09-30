@@ -1,0 +1,1624 @@
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+	  exclusively for the use in the Jazz server software.
+
+	  Copyright 2009-2012 Jacques Basaldúa
+
+	2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+      Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+      This product includes software developed at
+
+      BBVA (https://www.bbva.com/)
+
+	3. LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+	  Licensed under http://www.OpenLDAP.org/license.html
+
+
+	  Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	  http://www.apache.org/licenses/LICENSE-2.0
+
+	  Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+
+using namespace jazz_elements;
+
+
+// Tests
+// -----
+
+SCENARIO("Testing Cell Sizes") {
+	Block jb_byt, jb_byb, jb_int, jb_fac, jb_gra, jb_boo, jb_sin, jb_str, jb_lin, jb_tim, jb_dob, jb_tup, jb_kin;
+	int sizes[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29};
+
+	WHEN("We set prime sizes of all tensors") {
+		jb_byt.cell_type = CELL_TYPE_BYTE;
+		jb_byb.cell_type = CELL_TYPE_BYTE_BOOLEAN;
+		jb_int.cell_type = CELL_TYPE_INTEGER;
+		jb_fac.cell_type = CELL_TYPE_FACTOR;
+		jb_gra.cell_type = CELL_TYPE_GRADE;
+		jb_boo.cell_type = CELL_TYPE_BOOLEAN;
+		jb_sin.cell_type = CELL_TYPE_SINGLE;
+		jb_str.cell_type = CELL_TYPE_STRING;
+		jb_lin.cell_type = CELL_TYPE_LONG_INTEGER;
+		jb_tim.cell_type = CELL_TYPE_TIME;
+		jb_dob.cell_type = CELL_TYPE_DOUBLE;
+		jb_tup.cell_type = CELL_TYPE_TUPLE_ITEM;
+		jb_kin.cell_type = CELL_TYPE_KIND_ITEM;
+
+		for (int i = 0; i < 10; i++) {
+			int siz = sizes[i];
+
+			jb_byt.size = siz;
+			jb_byb.size = siz;
+			jb_int.size = siz;
+			jb_fac.size = siz;
+			jb_gra.size = siz;
+			jb_boo.size = siz;
+			jb_sin.size = siz;
+			jb_str.size = siz;
+			jb_lin.size = siz;
+			jb_tim.size = siz;
+			jb_dob.size = siz;
+			jb_tup.size = siz;
+			jb_kin.size = siz;
+
+			REQUIRE(jb_byt.p_attribute_keys() == jb_byt.align64bit((uintptr_t) &jb_byt.tensor + siz*sizeof(uint8_t)));
+			REQUIRE(jb_byb.p_attribute_keys() == jb_byb.align64bit((uintptr_t) &jb_byb.tensor + siz*sizeof(bool)));
+			REQUIRE(jb_int.p_attribute_keys() == jb_int.align64bit((uintptr_t) &jb_int.tensor + siz*sizeof(int)));
+			REQUIRE(jb_fac.p_attribute_keys() == jb_fac.align64bit((uintptr_t) &jb_fac.tensor + siz*sizeof(int)));
+			REQUIRE(jb_gra.p_attribute_keys() == jb_gra.align64bit((uintptr_t) &jb_gra.tensor + siz*sizeof(int)));
+			REQUIRE(jb_boo.p_attribute_keys() == jb_boo.align64bit((uintptr_t) &jb_boo.tensor + siz*sizeof(uint32_t)));
+			REQUIRE(jb_sin.p_attribute_keys() == jb_sin.align64bit((uintptr_t) &jb_sin.tensor + siz*sizeof(float)));
+			REQUIRE(jb_str.p_attribute_keys() == jb_str.align64bit((uintptr_t) &jb_str.tensor + siz*sizeof(uint32_t)));
+			REQUIRE(jb_lin.p_attribute_keys() == jb_lin.align64bit((uintptr_t) &jb_lin.tensor + siz*sizeof(long long)));
+			REQUIRE(jb_tim.p_attribute_keys() == jb_tim.align64bit((uintptr_t) &jb_tim.tensor + siz*sizeof(uint64_t)));
+			REQUIRE(jb_dob.p_attribute_keys() == jb_dob.align64bit((uintptr_t) &jb_dob.tensor + siz*sizeof(double)));
+			REQUIRE(jb_tup.p_attribute_keys() == jb_tup.align64bit((uintptr_t) &jb_tup.tensor + siz*sizeof(ItemHeader)));
+			REQUIRE(jb_kin.p_attribute_keys() == jb_kin.align64bit((uintptr_t) &jb_kin.tensor + siz*sizeof(ItemHeader)));
+		}
+	}
+}
+
+typedef int int6[MAX_TENSOR_RANK];
+
+SCENARIO("Testing Block Sizes, NAs and indexing logic") {
+	GIVEN("We want to check absolute sizes and offsets") {
+		WHEN("We have a Block") {
+			Block jb;
+
+			REQUIRE(sizeof(Block) == 64);
+
+			THEN("We can check sizes and offsets") {
+				REQUIRE(sizeof(jb.created) == 8);
+				REQUIRE(sizeof(jb.hash64)  == 8);
+				REQUIRE((uintptr_t) &jb == (uintptr_t) &jb.cell_type);	// Assumed by init_string_buffer()
+				REQUIRE((uintptr_t) &jb.range.filter.one == (uintptr_t) &jb.range.dim[0]);
+				REQUIRE((uintptr_t) &jb.range.filter.length == (uintptr_t) &jb.range.dim[1]);
+			}
+		}
+	}
+	GIVEN("We want to check NA values") {
+		WHEN("We instantiate the definitions with the appropriate sizes") {
+			unsigned char bb = BYTE_BOOLEAN_NA;
+			int	 ib = BOOLEAN_NA;
+			int	 ia = INTEGER_NA;
+			float fa = SINGLE_NA;
+			int sa = STRING_NA;
+			int sb = STRING_EMPTY;
+			long long lla = LONG_INTEGER_NA;
+			long long llb = TIME_POINT_NA;
+			double da = DOUBLE_NA;
+
+			THEN("We get the expected values") {
+				REQUIRE(bb == 0xff);
+				REQUIRE(ib == 0xff);
+				REQUIRE(ia == (int) 0x80000000);
+				REQUIRE((int)fa == (int)F_NA);
+				REQUIRE(sa == 0);
+				REQUIRE(sb == 1);
+				REQUIRE(lla == 0x8000000000000000);
+				REQUIRE(llb == 0);
+				REQUIRE((long long)da == (long long)R_NA);
+			}
+		}
+	}
+	GIVEN("We want to check the compiler's way to store arrays.") {
+		THEN("We instantiate an array and check it.") {
+			int video[3][5][4][3];
+
+			int *pvi;
+
+			pvi = reinterpret_cast<int *>(&video);
+
+			REQUIRE((uintptr_t) pvi == (uintptr_t) &video);
+			REQUIRE((uintptr_t) pvi == (uintptr_t) &video[0][0][0][0]);
+			REQUIRE(pvi[0] == video[0][0][0][0]);
+
+			for (int i = 0; i < 3*5*4*3; i++) pvi[i] = i;
+
+			REQUIRE(video[0][0][0][0] == 0);
+			REQUIRE(video[0][0][0][1] == 1);
+			REQUIRE(video[0][0][0][2] == 2);
+			REQUIRE(video[0][0][1][0] == 3);
+			REQUIRE(video[0][1][0][0] == 12);
+			REQUIRE(video[1][0][0][0] == 60);
+
+			int rank = 4;
+			int6 dims = { 5*4*3, 4*3, 3, 1, 0, 0 };
+
+			for (int t = 0; t < 3; t++) {
+				for (int x = 0; x < 5; x++) {
+					for (int y = 0; y < 4; y++) {
+						for (int c = 0; c < 3; c++) {
+							int6 index = {t, x, y, c, 0, 0};
+
+							int ix = 0;
+							for (int i = 0; i < rank; i++) ix += index[i]*dims[i];
+
+							REQUIRE(video[t][x][y][c] == pvi[ix]);
+						}
+					}
+				}
+			}
+
+			for (int ix = 0; ix < 3*5*4*3; ix++) {
+				int6 index;
+
+				int j = ix;
+				for (int i = 0; i < rank; i++) { index[i] = j/dims[i]; j -= index[i]*dims[i]; }
+
+
+				int t = index[0], x = index[1], y = index[2], c = index[3];
+				REQUIRE(video[t][x][y][c] == pvi[ix]);
+			}
+		}
+	}
+	GIVEN("A 4K Block with strings and attributes") {
+		char fourK[4096];
+		pBlock pjb = reinterpret_cast<pBlock>(&fourK);
+
+		pjb->cell_type = CELL_TYPE_STRING;
+
+		int6 d1 = {3, 2, 4, 0, 0, 0}, d2 = {3, 2, 4, 1, 0, 0}, d3 = {3, 1, 0, 1, 0, 0}, d4 = {8, 5, 0, 5, 3, 0},
+			 d5 = {1, 1, 0, 1, 0, 0}, d6 = {0, 0, 0, 0, 0, 0}, d7 = {1, 0, 0, 0, 0, 0}, d8 = {7, 11, 13, 19, 23, 31},
+			 t1 = {2, 1, 3, 0, 0, 0}, t2 = {3, 1, 3, 0, 0, 0}, t3 = {2, 2, 3, 0, 0, 0}, t4 = {2, 1, 4, 0, 0, 0},
+			 t5 = {1, 0, 0, 0, 0, 0}, tz = {0, 0, 0, 0, 0, 0}, tm = {-1, 0, 0, 0, 0, 0},
+			 ta = {6, 10, 12, 18, 22, 30}, tb = {7, 10, 12, 18, 22, 30}, tc = {6, 11, 12, 18, 22, 30}, td = {6, 10, 13, 18, 22, 30},
+			 te = {6, 10, 12, 19, 22, 30}, tf = {6, 10, 12, 18, 23, 30}, tg = {6, 10, 12, 18, 22, 31},
+			 s1 = {0, 0, 0, 0, 0, 0}, s2 = {1, 0, 0, 0, 0, 0}, s3 = {0, 4, 2, 0, 0, 0}, s4 = {1, 4, 2, 0, 0, 0};
+
+		pjb->set_dimensions(d2);
+
+		REQUIRE(pjb->rank == 4);
+		REQUIRE(pjb->size == 24);
+		REQUIRE(pjb->range.dim[0] == 8);
+		REQUIRE(pjb->range.dim[1] == 4);
+		REQUIRE(pjb->range.dim[2] == 1);
+		REQUIRE(pjb->range.dim[3] == 1);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 3);
+		REQUIRE(d2[1] == 2);
+		REQUIRE(d2[2] == 4);
+		REQUIRE(d2[3] == 1);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(d3);
+
+		REQUIRE(pjb->rank == 2);
+		REQUIRE(pjb->size == 3);
+		REQUIRE(pjb->range.dim[0] == 1);
+		REQUIRE(pjb->range.dim[1] == 1);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 3);
+		REQUIRE(d2[1] == 1);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(d4);
+
+		REQUIRE(pjb->rank == 2);
+		REQUIRE(pjb->size == 40);
+		REQUIRE(pjb->range.dim[0] == 5);
+		REQUIRE(pjb->range.dim[1] == 1);
+		REQUIRE(pjb->range.dim[2] == 0);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 8);
+		REQUIRE(d2[1] == 5);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(d5);
+
+		REQUIRE(pjb->rank == 2);
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->range.dim[0] == 1);
+		REQUIRE(pjb->range.dim[1] == 1);
+		REQUIRE(pjb->range.dim[2] == 0);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 1);
+		REQUIRE(d2[1] == 1);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(d6);
+
+		REQUIRE(pjb->rank == 1);
+		REQUIRE(pjb->size == 0);
+		REQUIRE(pjb->range.dim[0] == 1);
+		REQUIRE(pjb->range.dim[1] == 0);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 0);
+		REQUIRE(d2[1] == 0);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		REQUIRE(!pjb->validate_index(tz));
+		REQUIRE(!pjb->validate_index(t5));
+		REQUIRE(!pjb->validate_index(tm));
+
+		REQUIRE(!pjb->validate_offset(-1));
+		REQUIRE(!pjb->validate_offset( 0));
+		REQUIRE(!pjb->validate_offset( 1));
+		REQUIRE(!pjb->validate_offset( 2));
+
+		pjb->set_dimensions(d7);
+
+		REQUIRE(pjb->rank == 1);
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->range.dim[0] == 1);
+		REQUIRE(pjb->range.dim[1] == 0);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 1);
+		REQUIRE(d2[1] == 0);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		REQUIRE( pjb->validate_index(tz));
+		REQUIRE(!pjb->validate_index(t5));
+		REQUIRE(!pjb->validate_index(tm));
+
+		REQUIRE(!pjb->validate_offset(-1));
+		REQUIRE( pjb->validate_offset( 0));
+		REQUIRE(!pjb->validate_offset( 1));
+		REQUIRE(!pjb->validate_offset( 2));
+
+		d2[0] = 0xbabe;
+		d2[1] = 0xcafe;
+		pjb->get_index(0, d2);
+		REQUIRE(d2[0] == 0);
+		REQUIRE(d2[1] == 0xcafe);
+		REQUIRE(pjb->get_offset(d2) == 0);
+
+		pjb->set_dimensions(d8);
+
+		REQUIRE(pjb->rank == 6);
+		REQUIRE(pjb->size == 13560547);
+		REQUIRE(pjb->range.dim[0] == 1937221);
+		REQUIRE(pjb->range.dim[1] == 176111);
+		REQUIRE(pjb->range.dim[2] == 13547);
+		REQUIRE(pjb->range.dim[3] == 713);
+		REQUIRE(pjb->range.dim[4] == 31);
+		REQUIRE(pjb->range.dim[5] == 1);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 7);
+		REQUIRE(d2[1] == 11);
+		REQUIRE(d2[2] == 13);
+		REQUIRE(d2[3] == 19);
+		REQUIRE(d2[4] == 23);
+		REQUIRE(d2[5] == 31);
+
+		REQUIRE( pjb->validate_index(tz));
+		REQUIRE( pjb->validate_index(ta));
+		REQUIRE(!pjb->validate_index(tm));
+		REQUIRE(!pjb->validate_index(tb));
+		REQUIRE(!pjb->validate_index(tc));
+		REQUIRE(!pjb->validate_index(td));
+		REQUIRE(!pjb->validate_index(te));
+		REQUIRE(!pjb->validate_index(tf));
+		REQUIRE(!pjb->validate_index(tg));
+
+		REQUIRE(!pjb->validate_offset(-1));
+		REQUIRE( pjb->validate_offset( 0));
+		REQUIRE( pjb->validate_offset(13560546));
+		REQUIRE(!pjb->validate_offset(13560547));
+
+		d2[0] = 0xbabe;
+		d2[1] = 0xbabe;
+		d2[2] = 0xbabe;
+		d2[3] = 0xbabe;
+		d2[4] = 0xbabe;
+		d2[5] = 0xbabe;
+		pjb->get_index(0, d2);
+		REQUIRE(d2[0] == 0);
+		REQUIRE(d2[1] == 0);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+		REQUIRE(pjb->get_offset(d2) == 0);
+
+		pjb->get_index(13560546, d2);
+		REQUIRE(d2[0] ==  6);
+		REQUIRE(d2[1] == 10);
+		REQUIRE(d2[2] == 12);
+		REQUIRE(d2[3] == 18);
+		REQUIRE(d2[4] == 22);
+		REQUIRE(d2[5] == 30);
+		REQUIRE(pjb->get_offset(d2) == 13560546);
+
+		pjb->set_dimensions(d1);
+
+		REQUIRE(pjb->rank == 3);
+		REQUIRE(pjb->size == 24);
+		REQUIRE(pjb->range.dim[0] == 8);
+		REQUIRE(pjb->range.dim[1] == 4);
+		REQUIRE(pjb->range.dim[2] == 1);
+		REQUIRE(pjb->range.dim[3] == 0);
+
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 3);
+		REQUIRE(d2[1] == 2);
+		REQUIRE(d2[2] == 4);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		REQUIRE( pjb->validate_index(tz));
+		REQUIRE( pjb->validate_index(t1));
+		REQUIRE(!pjb->validate_index(tm));
+		REQUIRE(!pjb->validate_index(t2));
+		REQUIRE(!pjb->validate_index(t3));
+		REQUIRE(!pjb->validate_index(t4));
+
+		REQUIRE(!pjb->validate_offset(-1));
+		REQUIRE( pjb->validate_offset( 0));
+		REQUIRE( pjb->validate_offset(23));
+		REQUIRE(!pjb->validate_offset(24));
+
+		d2[0] = 0xbabe;
+		d2[1] = 0xcafe;
+		d2[2] = 0xbaad;
+		pjb->get_index(0, d2);
+		REQUIRE(d2[0] == 0);
+		REQUIRE(d2[1] == 0);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(pjb->get_offset(d2) == 0);
+		pjb->get_index(23, d2);
+		REQUIRE(d2[0] == 2);
+		REQUIRE(d2[1] == 1);
+		REQUIRE(d2[2] == 3);
+		REQUIRE(pjb->get_offset(d2) == 23);
+
+		// Dimension for selectors
+
+		pjb->set_dimensions(s1);
+
+		REQUIRE(pjb->rank == 1);
+		REQUIRE(pjb->size == 0);
+		REQUIRE(pjb->range.dim[0] == 1);
+		REQUIRE(pjb->range.dim[1] == 0);
+
+		memcpy(&d2, &ta, sizeof(d2));
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 0);
+		REQUIRE(d2[1] == 0);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(s2);
+
+		REQUIRE(pjb->rank == 1);
+		REQUIRE(pjb->size == 1);
+		REQUIRE(pjb->range.dim[0] == 1);
+		REQUIRE(pjb->range.dim[1] == 0);
+
+		memcpy(&d2, &ta, sizeof(d2));
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 1);
+		REQUIRE(d2[1] == 0);
+		REQUIRE(d2[2] == 0);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(s3);
+
+		REQUIRE(pjb->rank == 3);
+		REQUIRE(pjb->size == 0);
+		REQUIRE(pjb->range.dim[0] == 8);
+		REQUIRE(pjb->range.dim[1] == 2);
+		REQUIRE(pjb->range.dim[2] == 1);
+		REQUIRE(pjb->range.dim[3] == 0);
+
+		memcpy(&d2, &ta, sizeof(d2));
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 0);
+		REQUIRE(d2[1] == 4);
+		REQUIRE(d2[2] == 2);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+
+		pjb->set_dimensions(s4);
+
+		REQUIRE(pjb->rank == 3);
+		REQUIRE(pjb->size == 8);
+		REQUIRE(pjb->range.dim[0] == 8);
+		REQUIRE(pjb->range.dim[1] == 2);
+		REQUIRE(pjb->range.dim[2] == 1);
+		REQUIRE(pjb->range.dim[3] == 0);
+
+		memcpy(&d2, &ta, sizeof(d2));
+		pjb->get_dimensions(d2);
+
+		REQUIRE(d2[0] == 1);
+		REQUIRE(d2[1] == 4);
+		REQUIRE(d2[2] == 2);
+		REQUIRE(d2[3] == 0);
+		REQUIRE(d2[4] == 0);
+		REQUIRE(d2[5] == 0);
+	}
+}
+
+
+SCENARIO("Testing String and Attribute logic") {
+	char buff[16384] = {0};
+
+	pBlock pjb = reinterpret_cast<pBlock>(&buff);
+
+	static const char* const sstr[] = {"ABC", "January", "February", "March", "Monday", "Red", "Hello world!", "", "123",
+									   "This is not Shakespeare", "Halaaa", "Wof", "Wof, wof, wof"};
+
+	int idx;
+
+	int6 d1 = {0, 0, 1, 0, 0, 0}, d2 = {0, 1, 0, 0, 0, 0}, d3 = {6, 0, 3, 0, 0, 0}, d4 = {6, 4, 3, 0, 0, 0};
+
+	pStringBuffer psb;
+
+	GIVEN("We want to check absolute sizes and offsets") {
+		pjb->cell_type = CELL_TYPE_STRING;
+
+		int6 dim = {7, 5, 4, 0, 0, 0};
+		pjb->set_dimensions(dim);
+		REQUIRE(pjb->size == 140);
+
+		pjb->num_attributes = 0;
+
+		pjb->total_bytes = 64 + 140*4 + 12 + 4096;
+		pjb->init_string_buffer();
+
+		psb = pjb->p_string_buffer();
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 2);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE((uint8_t) psb->buffer[2] == 0);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb + 64 + 140*4);
+
+		idx = pjb->get_string_offset(psb, sstr[0]);
+
+		REQUIRE(idx == 2);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 6);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE(psb->buffer[2] == 'A');
+
+		pjb->set_string(0, sstr[0]);
+
+		REQUIRE(pjb->tensor.cell_int[0] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
+
+		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
+
+		pjb->set_string(1, nullptr);
+
+		REQUIRE(pjb->tensor.cell_int[1] == STRING_NA);
+
+		pjb->set_string(2, sstr[7]);
+
+		REQUIRE(pjb->tensor.cell_int[2] == STRING_EMPTY);
+
+		pjb->set_string(3, sstr[0]);
+
+		REQUIRE(pjb->tensor.cell_int[3] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
+
+		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
+
+		pjb->set_string(4, sstr[6]);
+
+		REQUIRE(pjb->tensor.cell_int[4] == 6);
+
+		REQUIRE(!strcmp(pjb->get_string(4), "Hello world!"));
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 19);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer[6] == 'H');
+
+		for (int i = 5; i < 140; i++)
+			pjb->set_string(i, sstr[(i - 5) % 9]);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 57);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE(psb->buffer[53] == '1');
+
+		REQUIRE(!strcmp(pjb->get_string( 1), ""));
+		REQUIRE(!strcmp(pjb->get_string( 2), ""));
+
+		REQUIRE(!strcmp(pjb->get_string( 5), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string( 6), "January"));
+		REQUIRE(!strcmp(pjb->get_string( 7), "February"));
+		REQUIRE(!strcmp(pjb->get_string( 8), "March"));
+		REQUIRE(!strcmp(pjb->get_string( 9), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(10), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(11), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(12), ""));
+		REQUIRE(!strcmp(pjb->get_string(13), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(131), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string(132), "January"));
+		REQUIRE(!strcmp(pjb->get_string(133), "February"));
+		REQUIRE(!strcmp(pjb->get_string(134), "March"));
+		REQUIRE(!strcmp(pjb->get_string(135), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(136), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(137), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(138), ""));
+		REQUIRE(!strcmp(pjb->get_string(139), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(d1), ""));
+		REQUIRE(!strcmp(pjb->get_string(d2), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(d3), "January"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "123"));
+
+		pjb->set_string(d1, sstr[ 9]);
+		pjb->set_string(d2, sstr[10]);
+		pjb->set_string(d3, sstr[11]);
+		pjb->set_string(d4, sstr[12]);
+
+		REQUIRE(!strcmp(pjb->get_string(d1), "This is not Shakespeare"));
+		REQUIRE(!strcmp(pjb->get_string(d2), "Halaaa"));
+		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
+
+		REQUIRE(psb->last_idx == 106);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
+	}
+
+	GIVEN("Same thing failing on a smaller allocation size") {
+		pjb->cell_type = CELL_TYPE_STRING;
+
+		int6 dim = {7, 5, 4, 0, 0, 0};
+		pjb->set_dimensions(dim);
+		REQUIRE(pjb->size == 140);
+
+		pjb->num_attributes = 0;
+
+		pjb->total_bytes = 64 + 140*4 + 12 + 105;
+		pjb->init_string_buffer();
+
+		psb = pjb->p_string_buffer();
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 2);
+		REQUIRE(psb->buffer_size == 105);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE((uint8_t) psb->buffer[2] == 0);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb + 64 + 140*4);
+
+		idx = pjb->get_string_offset(psb, sstr[0]);
+
+		REQUIRE(idx == 2);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 6);
+		REQUIRE(psb->buffer_size == 105);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE(psb->buffer[2] == 'A');
+
+		pjb->set_string(0, sstr[0]);
+
+		REQUIRE(pjb->tensor.cell_int[0] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
+
+		REQUIRE(!strcmp(pjb->get_string(0), "ABC"));
+
+		pjb->set_string(1, nullptr);
+
+		REQUIRE(pjb->tensor.cell_int[1] == STRING_NA);
+
+		pjb->set_string(2, sstr[7]);
+
+		REQUIRE(pjb->tensor.cell_int[2] == STRING_EMPTY);
+
+		pjb->set_string(3, sstr[0]);
+
+		REQUIRE(pjb->tensor.cell_int[3] == 2);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pjb->p_string_buffer());
+
+		REQUIRE(!strcmp(pjb->get_string(3), "ABC"));
+
+		pjb->set_string(4, sstr[6]);
+
+		REQUIRE(pjb->tensor.cell_int[4] == 6);
+
+		REQUIRE(!strcmp(pjb->get_string(4), "Hello world!"));
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 19);
+		REQUIRE(psb->buffer_size == 105);
+		REQUIRE(psb->buffer[6] == 'H');
+
+		for (int i = 5; i < 140; i++)
+			pjb->set_string(i, sstr[(i - 5) % 9]);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 57);
+		REQUIRE(psb->buffer_size == 105);
+		REQUIRE(psb->buffer[53] == '1');
+
+		REQUIRE(!strcmp(pjb->get_string( 1), ""));
+		REQUIRE(!strcmp(pjb->get_string( 2), ""));
+
+		REQUIRE(!strcmp(pjb->get_string( 5), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string( 6), "January"));
+		REQUIRE(!strcmp(pjb->get_string( 7), "February"));
+		REQUIRE(!strcmp(pjb->get_string( 8), "March"));
+		REQUIRE(!strcmp(pjb->get_string( 9), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(10), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(11), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(12), ""));
+		REQUIRE(!strcmp(pjb->get_string(13), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(131), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string(132), "January"));
+		REQUIRE(!strcmp(pjb->get_string(133), "February"));
+		REQUIRE(!strcmp(pjb->get_string(134), "March"));
+		REQUIRE(!strcmp(pjb->get_string(135), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(136), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(137), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(138), ""));
+		REQUIRE(!strcmp(pjb->get_string(139), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(d1), ""));
+		REQUIRE(!strcmp(pjb->get_string(d2), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(d3), "January"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "123"));
+
+		pjb->set_string(d1, sstr[ 9]);
+		pjb->set_string(d2, sstr[10]);
+		pjb->set_string(d3, sstr[11]);
+
+		REQUIRE(!psb->alloc_failed);
+
+		pjb->set_string(d4, sstr[12]);
+
+		REQUIRE(psb->alloc_failed);
+
+		REQUIRE(!strcmp(pjb->get_string(d1), "This is not Shakespeare"));
+		REQUIRE(!strcmp(pjb->get_string(d2), "Halaaa"));
+		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
+		REQUIRE(!strcmp(pjb->get_string(d4), ""));
+
+		idx = pjb->get_offset(d4);
+
+		REQUIRE(pjb->tensor.cell_int[idx] == STRING_NA);
+
+		REQUIRE(pjb->get_string_offset(psb, sstr[0]) == STRING_NA);
+		REQUIRE(pjb->get_string_offset(psb, nullptr) == STRING_NA);
+		REQUIRE(pjb->get_string_offset(psb, sstr[7]) == STRING_NA);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
+	}
+
+	GIVEN("The big test again, with attributes") {
+		pjb->cell_type = CELL_TYPE_STRING;
+
+		int6 dim = {7, 5, 4, 0, 0, 0};
+		pjb->set_dimensions(dim);
+		REQUIRE(pjb->size == 140);
+
+		pjb->num_attributes = 0;
+
+		pjb->total_bytes = 64 + 140*4 + 32 + 12 + 4096;
+
+		AttributeMap att;
+		static const char* const att_val[] = {"http://www.google.com", "en_us", "This is a stupid sentence", "mp17/hologram"};
+
+		att[4420] = att_val[0];
+
+		att[2477] = att_val[0];
+		att[3185] = att_val[1];
+		att[4420] = att_val[2];
+		att[6217] = att_val[3];
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		int *pti = pjb->p_attribute_keys();
+		psb = pjb->p_string_buffer();
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->last_idx == 70);
+		REQUIRE(psb->buffer_size == 4096);
+		REQUIRE((uint8_t) psb->buffer[0] == 0);
+		REQUIRE((uint8_t) psb->buffer[1] == 0);
+		REQUIRE(psb->buffer[2] == 'h');
+
+		REQUIRE((uintptr_t) pti == (uintptr_t) pjb + 64 + 140*4);
+		REQUIRE((uintptr_t) psb == (uintptr_t) pti + 32);
+
+		REQUIRE(pjb->num_attributes == 4);
+
+		for (int i = 5; i < 140; i++)
+			pjb->set_string(i, sstr[(i - 5) % 9]);
+
+		REQUIRE(!psb->stop_check_4_match);
+		REQUIRE(!psb->alloc_failed);
+		REQUIRE(psb->buffer_size == 4096);
+
+		REQUIRE(!strcmp(pjb->get_string( 5), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string( 6), "January"));
+		REQUIRE(!strcmp(pjb->get_string( 7), "February"));
+		REQUIRE(!strcmp(pjb->get_string( 8), "March"));
+		REQUIRE(!strcmp(pjb->get_string( 9), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(10), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(11), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(12), ""));
+		REQUIRE(!strcmp(pjb->get_string(13), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(131), "ABC"));
+		REQUIRE(!strcmp(pjb->get_string(132), "January"));
+		REQUIRE(!strcmp(pjb->get_string(133), "February"));
+		REQUIRE(!strcmp(pjb->get_string(134), "March"));
+		REQUIRE(!strcmp(pjb->get_string(135), "Monday"));
+		REQUIRE(!strcmp(pjb->get_string(136), "Red"));
+		REQUIRE(!strcmp(pjb->get_string(137), "Hello world!"));
+		REQUIRE(!strcmp(pjb->get_string(138), ""));
+		REQUIRE(!strcmp(pjb->get_string(139), "123"));
+
+		REQUIRE(!strcmp(pjb->get_string(d3), "January"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "123"));
+
+		pjb->set_string(d1, sstr[ 9]);
+		pjb->set_string(d2, sstr[10]);
+		pjb->set_string(d3, sstr[11]);
+		pjb->set_string(d4, sstr[12]);
+
+		REQUIRE(!strcmp(pjb->get_string(d1), "This is not Shakespeare"));
+		REQUIRE(!strcmp(pjb->get_string(d2), "Halaaa"));
+		REQUIRE(!strcmp(pjb->get_string(d3), "Wof"));
+		REQUIRE(!strcmp(pjb->get_string(d4), "Wof, wof, wof"));
+
+		char *pt = reinterpret_cast<char *>(&pjb->p_string_buffer()->buffer[2]);
+
+		REQUIRE((uintptr_t) pt == (uintptr_t) psb + 14);
+
+		REQUIRE(!strcmp(pjb->get_attribute(2477), "http://www.google.com"));
+		REQUIRE(!strcmp(pjb->get_attribute(3185), "en_us"));
+		REQUIRE(!strcmp(pjb->get_attribute(4420), "This is a stupid sentence"));
+		REQUIRE(!strcmp(pjb->get_attribute(6217), "mp17/hologram"));
+
+		REQUIRE(pjb->get_attribute(123) == nullptr);
+
+		AttributeMap read_att;
+
+		pjb->get_attributes(&read_att);
+
+		REQUIRE(!strcmp(read_att[2477], "http://www.google.com"));
+		REQUIRE(!strcmp(read_att[3185], "en_us"));
+		REQUIRE(!strcmp(read_att[4420], "This is a stupid sentence"));
+		REQUIRE(!strcmp(read_att[6217], "mp17/hologram"));
+
+		read_att[8210] = pjb->get_string(d1);
+		read_att[8691] = pjb->get_string(d2);
+		read_att[0206] = pjb->get_string(d3);
+		read_att[3157] = pjb->get_string(d4);
+
+		REQUIRE(!strcmp(read_att[8210], "This is not Shakespeare"));
+		REQUIRE(!strcmp(read_att[8691], "Halaaa"));
+		REQUIRE(!strcmp(read_att[0206], "Wof"));
+		REQUIRE(!strcmp(read_att[3157], "Wof, wof, wof"));
+
+		read_att[2477] = pjb->get_string(d1);
+		read_att[3185] = pjb->get_string(d2);
+		read_att[4420] = pjb->get_string(d3);
+		read_att[6217] = pjb->get_string(d4);
+
+		REQUIRE(!strcmp(read_att[2477], "This is not Shakespeare"));
+		REQUIRE(!strcmp(read_att[3185], "Halaaa"));
+		REQUIRE(!strcmp(read_att[4420], "Wof"));
+		REQUIRE(!strcmp(read_att[6217], "Wof, wof, wof"));
+
+		pjb->get_attributes(&read_att);
+
+		REQUIRE(!strcmp(read_att[2477], "http://www.google.com"));
+		REQUIRE(!strcmp(read_att[3185], "en_us"));
+		REQUIRE(!strcmp(read_att[4420], "This is a stupid sentence"));
+		REQUIRE(!strcmp(read_att[6217], "mp17/hologram"));
+		REQUIRE(!strcmp(read_att[8210], "This is not Shakespeare"));
+		REQUIRE(!strcmp(read_att[8691], "Halaaa"));
+		REQUIRE(!strcmp(read_att[0206], "Wof"));
+		REQUIRE(!strcmp(read_att[3157], "Wof, wof, wof"));
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
+	}
+}
+
+
+SCENARIO("Testing Filters") {
+	char buf1[4096] = {0};
+	char buf2[4096] = {0};
+
+	pBlock pjb = reinterpret_cast<pBlock>(&buf1);
+	pBlock pjf = reinterpret_cast<pBlock>(&buf2);
+
+	GIVEN("A block pjb") {
+		int6 d1 = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_TIME;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 255);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 255*8 + 12 + 20;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
+	}
+
+	GIVEN("A valid boolean filter pjf for pjb") {
+		int6 dimblk = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_TIME;
+
+		pjb->set_dimensions(dimblk);
+
+		int6 d2 = {17};
+
+		pjf->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+
+		pjf->set_dimensions(d2);
+		REQUIRE(pjf->rank ==  1);
+		REQUIRE(pjf->size == 17);
+
+		pjf->num_attributes = 0;
+		pjf->total_bytes = 64 + 17 + 12 + 27;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjf->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjf->num_attributes == 1);
+
+		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 12);
+
+		for (int i = 0; i < 17; i++)
+			pjf->tensor.cell_byte[i] = 0;
+
+		pjf->has_NA	= false;
+
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(!pjf->has_NA);
+		REQUIRE(pjf->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+
+		int size = pjb->size/pjb->range.dim[0];
+
+		REQUIRE(size == pjf->size);
+
+		REQUIRE(pjf->filter_type()	 == FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->can_filter(pjb));
+
+		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor);
+		pt[17] = 17;
+
+		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_BOOLEAN);
+
+		pt[16] = 16;
+
+		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_NOTAFILTER);
+
+		pt[16] = 1;
+
+		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_BOOLEAN);
+
+		pt[0] = 2;
+
+		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_NOTAFILTER);
+	}
+
+	GIVEN("A valid integer filter pjf for pjb") {
+		int6 dimblk = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_TIME;
+
+		pjb->set_dimensions(dimblk);
+
+		int6 d2 = {17};
+
+		pjf->cell_type = CELL_TYPE_INTEGER;
+
+		pjf->set_dimensions(d2);
+		REQUIRE(pjf->rank ==  1);
+		REQUIRE(pjf->size == 17);
+
+		pjf->num_attributes = 0;
+		pjf->total_bytes = 64 + 17*4 + 12 + 24;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjf->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjf->num_attributes == 1);
+
+		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 12);
+
+		for (int i = 0; i < 4; i++)
+			pjf->tensor.cell_int[i] = 2*i;
+
+		pjf->range.filter.length = 4;
+
+		pjf->has_NA	= false;
+
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->num_attributes == 1);
+		REQUIRE(!pjf->has_NA);
+		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
+
+		int size = pjb->size/pjb->range.dim[0];
+
+		REQUIRE(size == pjf->size);
+
+		REQUIRE(pjf->filter_type()	== FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->filter_audit()	== FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->can_filter(pjb));
+
+		pjf->range.filter.length = -1;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+
+		pjf->range.filter.length = 18;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+
+		pjf->range.filter.length = 0;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->range.filter.length = 17;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->range.filter.length = 5;
+		pjf->tensor.cell_int[4]	 = 6;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+
+		pjf->tensor.cell_int[4] = 7;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->tensor.cell_int[4] = 17;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+
+		pjf->range.filter.length = 0;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->range.filter.length = 17;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->range.filter.length = 5;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+
+		pjf->range.filter.length = 1;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->tensor.cell_int[0] = -1;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+
+		pjf->tensor.cell_int[0] = 0;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->tensor.cell_int[0] = 16;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
+
+		pjf->tensor.cell_int[0] = 17;
+
+		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+	}
+}
+
+
+SCENARIO("Testing Block::find_NAs_in_tensor() checking boundaries") {
+	char buf1[4096], buf2[4096];
+	pBlock pjb = reinterpret_cast<pBlock>(&buf1);
+
+	int6 d1 = {3, 15, 7, 0, 0, 0};
+
+	GIVEN("A block pjb with 1 byte cells") {
+		pjb->cell_type = CELL_TYPE_BYTE;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 315);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 315*1 + 12 + 17;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
+	}
+
+	u_char *pt8 = reinterpret_cast<u_char *>(&pjb->tensor);
+
+	pjb->cell_type = CELL_TYPE_BYTE;
+	pjb->set_dimensions(d1);
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_byte[i] = i % 0x10;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());	// No such thing as NA for CELL_TYPE_BYTE
+
+	pjb->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_byte[i] = i % 7 == 0;
+
+	REQUIRE(pjb->tensor.cell_byte[21] == true);
+	REQUIRE(pjb->tensor.cell_byte[22] == false);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[22] = BYTE_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[22] = true;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[0] = BYTE_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[0] = false;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[315] = BYTE_BOOLEAN_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt8[314] = BYTE_BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[314] = 2;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt8[314] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	GIVEN("A block pjb with 4 byte cells") {
+		pjb->cell_type = CELL_TYPE_INTEGER;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 315);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 315*4 + 12 + 16;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 4);
+	}
+
+	int *pt32 = reinterpret_cast<int *>(&pjb->tensor);
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_int[i] = 321*i;
+
+	pjb->cell_type = CELL_TYPE_INTEGER;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = 654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pjb->cell_type = CELL_TYPE_FACTOR;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = 654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pjb->cell_type = CELL_TYPE_GRADE;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = 654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pjb->cell_type = CELL_TYPE_BOOLEAN;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_uint[i] = i % 7 == 0;
+
+	REQUIRE(pjb->tensor.cell_uint[21] == true);
+	REQUIRE(pjb->tensor.cell_uint[22] == false);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[22] = BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[22] = true;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = false;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = BOOLEAN_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = BOOLEAN_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 2;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_int[i] = 321*i;
+
+	pjb->cell_type = CELL_TYPE_STRING;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[0] = STRING_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[315] = STRING_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt32[314] = STRING_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt32[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_single[i] = 32.1*i;
+
+	pjb->cell_type = CELL_TYPE_SINGLE;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	float *ptf32 = reinterpret_cast<float *>(&pjb->tensor);
+
+	ptf32[22] = SINGLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptf32[22] = 654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptf32[0] = SINGLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptf32[0] = 987654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptf32[315] = SINGLE_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptf32[314] = SINGLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptf32[314] = 5.55;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	GIVEN("A block pjb with 8 byte cells") {
+		pjb->cell_type = CELL_TYPE_LONG_INTEGER;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 315);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 315*8 + 12 + 20;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
+	}
+
+	uint64_t *pt64 = reinterpret_cast<uint64_t *>(&pjb->tensor);
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_longint[i] = 987654321*i;
+
+	pjb->cell_type = CELL_TYPE_LONG_INTEGER;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[22] = LONG_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[22] = 65432123456789;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[0] = LONG_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[315] = LONG_INTEGER_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[314] = LONG_INTEGER_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_longint[i] = 987654321*i;
+
+	pjb->cell_type = CELL_TYPE_TIME;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[0] = 1;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[0] = TIME_POINT_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[0] = 987654321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[315] = TIME_POINT_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	pt64[314] = TIME_POINT_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	pt64[314] = 555;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	for (int i = 0; i < pjb->size; i++)
+		pjb->tensor.cell_double[i] = 987654321.23456789*i;
+
+	pjb->cell_type = CELL_TYPE_DOUBLE;
+	pjb->set_dimensions(d1);
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	double *ptd64 = reinterpret_cast<double *>(&pjb->tensor);
+
+	ptd64[22] = DOUBLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptd64[22] = 654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptd64[0] = DOUBLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptd64[0] = 987654.321;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptd64[315] = DOUBLE_NA;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+
+	ptd64[314] = DOUBLE_NA;
+
+	REQUIRE(pjb->find_NAs_in_tensor());
+
+	ptd64[314] = 5.55;
+
+	REQUIRE(!pjb->find_NAs_in_tensor());
+}
+
+
+SCENARIO("Testing AlignToThis") {
+	char buf[4096];
+
+	int6 d1 = {5, 4, 0, 0, 0, 0};
+
+	AttributeMap att;
+	att[666] = nullptr;
+
+	for (int b_ofs = 0; b_ofs < 16; b_ofs++) {
+		pBlock p_bl = (pBlock) &buf[b_ofs];
+
+		REQUIRE(((uintptr_t) p_bl & 0xf) == b_ofs);
+
+		p_bl->cell_type = CELL_TYPE_BYTE;
+
+		p_bl->set_dimensions(d1);
+		REQUIRE(p_bl->rank ==  2);
+		REQUIRE(p_bl->size == 20);
+
+		p_bl->num_attributes = 0;
+		p_bl->total_bytes = 64 + 20 + 64;
+
+		p_bl->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(p_bl->num_attributes == 1);
+
+		REQUIRE(!p_bl->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!p_bl->p_string_buffer()->alloc_failed);
+		REQUIRE( p_bl->p_string_buffer()->buffer_size == 40);
+
+		for (int i = 0; i < 16; i++) {
+			void *pt = &p_bl->tensor.cell_byte[i];
+
+			void *pt2 = p_bl->align64bit((uintptr_t) pt);
+
+			REQUIRE(((uintptr_t) pt2 & 0x7) == (b_ofs & 0x7));
+		}
+	}
+}

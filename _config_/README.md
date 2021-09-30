@@ -6,7 +6,7 @@ You will most probably not have to deal with the content of this folder. Here is
   - Optional settings for compilation including non standard paths for libraries.
   - Chunks to create the Makefile (for C++)
   - Chunks to create the Doxyfile (for Doxygen)
-  - Chunks to create build.sh (for both R and Python packages)
+  - Chunks to create build.sh (for the R package)
   - Chunks to create the Dockerfile (for Docker)
 
 There is no other reference of what is here than the **config.sh** script itself. Use **./config.sh --help** for simple options.

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#    (c) 2018 kaalam.ai (The Authors of Jazz)
+#    (c) 2018-2021 kaalam.ai (The Authors of Jazz)
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -9,7 +9,7 @@
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
 
-pushd server
+pushd server || exit 1
 
 make clean
 
@@ -25,12 +25,17 @@ then
   exit 1
 fi
 
-cppcheck src/ -i src/catch2/ -i src/curl/ --force --xml 2>report.xml
-cppcheck-htmlreport --file=report.xml --title=Jazz --report-dir=static_analysis_reports --source-dir=.
+cppcheck src/ -i src/catch2/ -i src/curl/ --enable=all --inconclusive --library=posix --suppress=missingInclude --inline-suppr --force --xml 2>report.xml
+cppcheck-htmlreport --file=report.xml --title="Jazz (inconclusive)" --report-dir=static_analysis_reports/inconclusive --source-dir=.
 
 rm -f report.xml
 
-popd
+cppcheck src/ -i src/catch2/ -i src/curl/ --force --inline-suppr --xml 2>report.xml
+cppcheck-htmlreport --file=report.xml --title="Jazz (mandatory)" --report-dir=static_analysis_reports/mandatory --source-dir=.
+
+rm -f report.xml
+
+popd || exit 1
 
 reports=$(find server/static_analysis_reports/ | grep "index.html")
 

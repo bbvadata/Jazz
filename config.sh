@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#    (c) 2018 kaalam.ai (The Authors of Jazz)
+#    (c) 2018-2021 kaalam.ai (The Authors of Jazz)
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -76,6 +76,25 @@ if [ ! -e "$curl_libpath/libcurl.so" ]; then
   exit 1
 fi
 
+if [ -e '_config_/zmq_include_path' ]; then zmq_inclpath=$(cat _config_/zmq_include_path); else zmq_inclpath='/usr/local/include'; fi
+
+if [ ! -e "$zmq_inclpath/zmq.h" ]; then
+  echo "** File $zmq_inclpath/zmq.h was not found. **"
+  cat _config_/help_zmq_not_found.txt
+  exit
+fi
+
+if [ -e '_config_/zmq_library_path' ]; then zmq_libpath=$(cat _config_/zmq_library_path)
+else
+  if [ -e '/usr/local/lib/libzmq.so' ]; then zmq_libpath='/usr/local/lib'; else zmq_libpath='/usr/lib/x86_64-linux-gnu'; fi
+fi
+
+if [ ! -e "$zmq_libpath/libzmq.so" ]; then
+  echo "** File $zmq_libpath/libzmq.so was not found. **"
+  cat _config_/help_zmq_not_found.txt
+  exit 1
+fi
+
 cd server || return 1
 
 testp=$(echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' ')
@@ -83,17 +102,17 @@ vpath=$(echo src/*/ "$testp")
 jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
-objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
+objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
 
 recursive_parse_header ( )
 {
-  dep=$(grep -rnw "$1" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
+  dep=$(grep -rnw "$1" -e '^#include[ ]*\"src.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\(src.*h\|src.*ctest\).*/\1/')
 
   for dp in $dep; do
     if [ -e "$dp" ]; then
       # shellcheck disable=SC2001
-      short_name=$(echo "$dp" | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+      short_name=$(echo "$dp" | sed 's/.*\/\(.*h\|test_.*ctest\).*/\1/')
 
       if [[ $recursive_parse_header_result != *"$short_name"* ]]; then
         recursive_parse_header_result="$recursive_parse_header_result $short_name"
@@ -111,13 +130,13 @@ recursive_parse_header ( )
 depends ( )
 {
   for cpp in $cpps; do
-    obj=$(echo "$cpp" | sed 's/.*\(jazz\(01\)\?_.*cpp\)$/\1/' | sed 's/cpp/o/')
+    obj=$(echo "$cpp" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/')
     hea="${cpp//cpp/h}"
 
     unset dep
     unset hea_incl
 
-    dep=$(grep -rnw "$cpp" -e '^#include.*\(jazz.*h\|test_.*ctest\)' | sed 's/.*\(jazz.*h\|test_.*ctest\).*/\1/')
+    dep=$(grep -rnw "$cpp" -e '^#include[ ]*\"src.*\/\(.*h\|test_.*ctest\)' | sed 's/.*\///g' | sed 's/\"//g')
 
     if [ -e "$hea" ]; then
       unset recursive_parse_header_result
@@ -146,6 +165,8 @@ if [[ $mode =~ 'DEBUG' ]]; then
   echo "mhd_libpath   = $mhd_libpath"
   echo "curl_inclpath = $curl_inclpath"
   echo "curl_libpath  = $curl_libpath"
+  echo "zmq_inclpath  = $zmq_inclpath"
+  echo "zmq_libpath   = $zmq_libpath"
   echo "vpath         = $vpath"
   echo "jzpat         = $jzpat"
   echo "cpps          = $cpps"
@@ -193,12 +214,13 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++11 -I. -I$mhd_inclpath -I$curl_inclpath
+CXXFLAGS     := -std=c++17 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version
 mhd_libpath  := $mhd_libpath
 curl_libpath := $curl_libpath
+zmq_libpath  := $zmq_libpath
 
 VPATH = $vpath
 
@@ -241,72 +263,6 @@ R CMD INSTALL rjazz_$jazz_version.tar.gz
 rm -rf rjazz.Rcheck" > r_package/build.sh
 
 chmod 777 r_package/build.sh
-
-printf "Ok.\n"
-
-
-printf "Writing: py_package/pyjazz/pyjazz/get_jazz_version.py ... "
-
-echo "def get_jazz_version():
-    return(\"$jazz_version\")" > py_package/pyjazz/pyjazz/get_jazz_version.py
-
-printf "Ok.\n"
-
-printf "Writing: py_package/pyjazz/setup.py ... "
-
-printf "from setuptools import setup
-
-try:
-    with open('README.md', 'r') as ldf:
-        long_desc = ldf.read()
-except FileNotFoundError:
-    with open('README.rst', 'r') as ldf:
-        long_desc = ldf.read().replace('\n', '')
-
-setup(name='pyjazz',
-    version                 = %s,
-    description             = 'Official Python client for Jazz',
-    long_description        = long_desc,
-    url                     = 'http://github.com/kaalam/jazz',
-    author                  = 'kaalam.ai',
-    author_email            = 'kaalam@kaalam.ai',
-    license                 = 'Apache 2.0',
-    packages                = ['pyjazz'],
-    package_data            = {'pyjazz': ['_jazz_blocks2.so', '_jazz_blocks3.so']},
-    include_package_data    = True,
-    zip_safe                = False,
-    classifiers             = [
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Education',
-        'Intended Audience :: Financial and Insurance Industry',
-        'Intended Audience :: Healthcare Industry',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Manufacturing',
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: System Administrators',
-        'Intended Audience :: Telecommunications Industry',
-        'License :: OSI Approved :: Apache Software License',
-        'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence'
-      ],
-    )" "$jazz_version" > py_package/pyjazz/setup.py
-
-printf "Ok.\n"
-
-
-mkdir -p py_package/html
-
-printf "Writing: py_package/html/index.md ... "
-
-echo "$(cat _config_/pyjazz_index_head)
-
-
-## Reference for version $jazz_version
-
-$(cat _config_/pyjazz_index_tail)" > py_package/html/index.md
 
 printf "Ok.\n"
 

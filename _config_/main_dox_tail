@@ -1,73 +1,48 @@
 Programming Documentation of the Jazz Server
 
+\section jazz_mods Jazz Modules Diagram
 
-You can start with the class <a href="hierarchy.html">hierarchy</a>.
-
-\n
-\section jazz_blocks JazzBlock 101
-
-![Jazz modules](diagrams/jazz_block.png)
-
-This diagram shows the structure of a JazzBlock.\n
-
-1. See jazz_elements/jazz_datablocks.h JazzBlockHeader\n
-2. See jazz_elements/jazz_datablocks.h JazzBlockHeader.tensor[]\n
-3. See jazz_elements/jazz_datablocks.h int * - Address returned by JazzBlock.pAttribute_keys()\n
-4. See jazz_elements/jazz_datablocks.h JazzStringBuffer - Address returned by JazzBlock.pStringBuffer()\n
-
-\n
-\section jazz_keepr JazzBlockKeepr 101
-
-![Jazz modules](diagrams/jazz_block_keeper.png)
-
-By file location:\n
-\n
-A. jazz_elements/jazz_containers.h\n
-B. jazz_elements/jazz_persistence.h\n
-C. jazz_elements/jazz_httpclient.h\n
-D. jazz_elements/jazz_classes.h\n
-E. jazz_functional/jazz_cluster.h\n
-F. jazz_functional/jazz_filesystem.h\n
-G. jazz_functional/jazz_column.h\n
-H. jazz_functional/jazz_dataframe.h\n
-I. jazz_functional/jazz_bebop.h\n
-\n
-
-JazzBlocks can be:\n
-
-1. **One-shot** - Owned by the caller of new_jazz_block()\n
-2. **Volatile** - Owned by some JazzBlockKeepr descendant that is not a JazzPersistence (or descendant)\n
-3. **Persisted** - Owned by a JazzPersistence (or descendant), typically a JazzSource\n
-
-\n
-\section jazz_mods Jazz Modules 101
+This diagram shows how the different Jazz modules fit. \n
 
 ![Jazz modules](diagrams/jazz_modules.png)
 
-This diagram shows how the different Jazz modules fit. Everything except the dotted nodes
-is in the repository.\n
+The maturity level of the different modules is:\n
+
+Maturity | Description
+-------- | -----------
+nothing  | Code is complete and tested.
+[TEST]   | Code is complete, but testing is not complete.
+[PROTO]  | Code under active development, possibly working, but not release quality.
+[DRAFT]  | Code under active development, PoC in Python and API closed, but no working implementation in Jazz.
+[FUTURE] | Code not under active development. Working on PoC.
 \n
-A. Is the folder jazz_elements (all the pieces that work on blocks)\n
-B. Is the folder jazz_functional (all the pieces that support higher level abstractions)\n
-C. Is the folder jazz_main (for the http server only)\n
-F. (not in this repo) Is where front-end developers build, see the [REST API reference](http://kaalam.github.io/jazz_reference/rest_reference.html)\n
+
+There are three C++ namespaces, intended for general c++ Jazz programming, possibly using external Jazz servers, but not necessarily as
+implemented as an http server:
+
+1. jazz_elements (all the pieces: blocks, tuples, storage, fluxes, communication, services, ...)\n
+2. jazz_bebop (everything to create bebop code, run it and expand Formal Fields)\n
+3. jazz_agency (agency as graphs of fields)\n
 \n
-You will typically use (5) for extending the back-end in C++. (noted as (x))\n
-You will typically use (4) for connect to other languages, other than R & Python.\n
-You will typically use (3) to run R & Python scripts for both local and remote sources.\n
-You will typically use (2) build docker images containing your applications.\n
+
+Additionally, there is a namespace for the server:
+\n\n
+
+4. jazz_main (putting it all together, the http API and the server)
 \n
-If you use (1), you are the end user, not a developer. ;-)\n
+
+And, of course, Jazz development is about making the server run Bebop code and interfacing via REST using python or any front-end tech via
+the REST API.\n
 
 \n
 \section repo_sec REPOSITORIES
 
-  The main repository of the Jazz project: https://github.com/kaalam/Jazz
+Everything is in the [Jazz repository](https://github.com/kaalam/Jazz).\n
 
 \n
 \section license_sec LICENSE
 
- Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
+ Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
    1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
       exclusively for the use in the Jazz server software.

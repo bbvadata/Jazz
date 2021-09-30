@@ -1,58 +1,42 @@
-/* Jazz (c) 2018 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
 
-   BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+	  exclusively for the use in the Jazz server software.
 
-   Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+	  Copyright 2009-2012 Jacques Basaldúa
 
-  This product includes software developed at
+	2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
 
-   BBVA (https://www.bbva.com/)
+      Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
 
-   Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+      This product includes software developed at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+      BBVA (https://www.bbva.com/)
 
-   Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+	3. LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+	  Licensed under http://www.OpenLDAP.org/license.html
+
+
+	  Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	  http://www.apache.org/licenses/LICENSE-2.0
+
+	  Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
 */
 
 
-using namespace jazz_utils;
+using namespace jazz_elements;
 
 
-SCENARIO("Testing CountBytesFromUtf8().") {
-	char buf1[80] = {"NineChars"};
-	char buf2[80] = {"ácido"};
-	char buf3[80] = {"eñe"};
-	char buf4[80] = {"\xF0...\xE0..\xC0.Z"};
-
-	REQUIRE(CountBytesFromUtf8(buf1, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf1, 1) ==	1);
-	REQUIRE(CountBytesFromUtf8(buf1, 2) ==	2);
-	REQUIRE(CountBytesFromUtf8(buf1, 9) ==	9);
-
-	REQUIRE(CountBytesFromUtf8(buf2, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf2, 1) ==	2);
-	REQUIRE(CountBytesFromUtf8(buf2, 2) ==	3);
-	REQUIRE(CountBytesFromUtf8(buf2, 5) ==	6);
-
-	REQUIRE(CountBytesFromUtf8(buf3, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf3, 1) ==	1);
-	REQUIRE(CountBytesFromUtf8(buf3, 2) ==	3);
-	REQUIRE(CountBytesFromUtf8(buf3, 3) ==	4);
-
-	REQUIRE(CountBytesFromUtf8(buf4, 0) ==	0);
-	REQUIRE(CountBytesFromUtf8(buf4, 1) ==	4);
-	REQUIRE(CountBytesFromUtf8(buf4, 2) ==	7);
-	REQUIRE(CountBytesFromUtf8(buf4, 3) ==	9);
-	REQUIRE(CountBytesFromUtf8(buf4, 4) == 10);
-}
-
+// Tests
+// -----
 
 SCENARIO("Testing ExpandEscapeSequences().") {
 	char buff[80];
@@ -261,7 +245,6 @@ SCENARIO("Testing ExpandEscapeSequences().") {
 }
 
 
-//TODO: Find a better way to test an existing process by name (creating it?)
 SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
 //	REQUIRE(FindProcessIdByName("/usr/bin/") != 0);
@@ -434,6 +417,120 @@ SCENARIO("Testing TenBitsAtAddress().") {
 }
 
 
+SCENARIO("Testing valid_name().") {
+	REQUIRE(!valid_name((char *)""));
+
+	REQUIRE(!valid_name((char *)"7"));
+	REQUIRE(!valid_name((char *)"_"));
+	REQUIRE( valid_name((char *)"d"));
+	REQUIRE( valid_name((char *)"F"));
+
+	REQUIRE( valid_name((char *)"ThisIsOkay"));
+	REQUIRE(!valid_name((char *)"This Is Not"));
+
+	REQUIRE( valid_name((char *)"abcdefghijABCDEFGHIJ0123456789"));
+	REQUIRE( valid_name((char *)"abcdefghijABCDEFGHIJ0123456789a"));
+	REQUIRE(!valid_name((char *)"abcdefghijABCDEFGHIJ0123456789ab"));
+	REQUIRE( valid_name((char *)"abcdefghij_ABCDEFGHIJ_123456789"));
+
+	REQUIRE( valid_name((char *)"abc_is_okay"));
+	REQUIRE( valid_name((char *)"abc_is_okay_123"));
+	REQUIRE( valid_name((char *)"AbcIsOkay"));
+	REQUIRE( valid_name((char *)"AbcIsOkay123"));
+
+	REQUIRE( valid_name((char *)"abc_is_okay_"));
+	REQUIRE(!valid_name((char *)"_abc_is_not_"));
+
+	REQUIRE( valid_name((char *)"abc_123_is_okay_"));
+	REQUIRE(!valid_name((char *)"123_abc_is_not_"));
+	REQUIRE( valid_name((char *)"Z123_abc_is_OK_"));
+	REQUIRE( valid_name((char *)"z_123_abc_is_OK"));
+
+	REQUIRE(!valid_name((char *)"ácido"));
+	REQUIRE(!valid_name((char *)"más"));
+
+	REQUIRE(!valid_name((char *)"abc def"));
+	REQUIRE(!valid_name((char *)"abc!def"));
+	REQUIRE(!valid_name((char *)"abc\"def"));
+	REQUIRE(!valid_name((char *)"abc#def"));
+	REQUIRE(!valid_name((char *)"abc$def"));
+	REQUIRE(!valid_name((char *)"abc%def"));
+	REQUIRE(!valid_name((char *)"abc&def"));
+	REQUIRE(!valid_name((char *)"abc'def"));
+	REQUIRE(!valid_name((char *)"abc(def"));
+	REQUIRE(!valid_name((char *)"abc)def"));
+	REQUIRE(!valid_name((char *)"abc*def"));
+	REQUIRE(!valid_name((char *)"abc+def"));
+	REQUIRE(!valid_name((char *)"abc,def"));
+	REQUIRE(!valid_name((char *)"abc-def"));
+	REQUIRE(!valid_name((char *)"abc.def"));
+	REQUIRE(!valid_name((char *)"abc/def"));
+	REQUIRE( valid_name((char *)"abc0def"));
+	REQUIRE( valid_name((char *)"abc9def"));
+	REQUIRE(!valid_name((char *)"abc:def"));
+	REQUIRE(!valid_name((char *)"abc;def"));
+	REQUIRE(!valid_name((char *)"abc<def"));
+	REQUIRE(!valid_name((char *)"abc=def"));
+	REQUIRE(!valid_name((char *)"abc>def"));
+	REQUIRE(!valid_name((char *)"abc?def"));
+	REQUIRE(!valid_name((char *)"abc@def"));
+	REQUIRE( valid_name((char *)"abcAdef"));
+	REQUIRE( valid_name((char *)"abcZdef"));
+	REQUIRE(!valid_name((char *)"abc[def"));
+	REQUIRE(!valid_name((char *)"abc\\def"));
+	REQUIRE(!valid_name((char *)"abc]def"));
+	REQUIRE(!valid_name((char *)"abc^def"));
+	REQUIRE( valid_name((char *)"abc_def"));
+	REQUIRE(!valid_name((char *)"abc`def"));
+	REQUIRE( valid_name((char *)"abcadef"));
+	REQUIRE( valid_name((char *)"abczdef"));
+	REQUIRE(!valid_name((char *)"abc{def"));
+	REQUIRE(!valid_name((char *)"abc|def"));
+	REQUIRE(!valid_name((char *)"abc}def"));
+	REQUIRE(!valid_name((char *)"abc~def"));
+
+	REQUIRE(!valid_name((char *)" def"));
+	REQUIRE(!valid_name((char *)"!def"));
+	REQUIRE(!valid_name((char *)"\"def"));
+	REQUIRE(!valid_name((char *)"#def"));
+	REQUIRE(!valid_name((char *)"$def"));
+	REQUIRE(!valid_name((char *)"%def"));
+	REQUIRE(!valid_name((char *)"&def"));
+	REQUIRE(!valid_name((char *)"'def"));
+	REQUIRE(!valid_name((char *)"(def"));
+	REQUIRE(!valid_name((char *)")def"));
+	REQUIRE(!valid_name((char *)"*def"));
+	REQUIRE(!valid_name((char *)"+def"));
+	REQUIRE(!valid_name((char *)",def"));
+	REQUIRE(!valid_name((char *)"-def"));
+	REQUIRE(!valid_name((char *)".def"));
+	REQUIRE(!valid_name((char *)"/def"));
+	REQUIRE(!valid_name((char *)"0def"));
+	REQUIRE(!valid_name((char *)"9def"));
+	REQUIRE(!valid_name((char *)":def"));
+	REQUIRE(!valid_name((char *)";def"));
+	REQUIRE(!valid_name((char *)"<def"));
+	REQUIRE(!valid_name((char *)"=def"));
+	REQUIRE(!valid_name((char *)">def"));
+	REQUIRE(!valid_name((char *)"?def"));
+	REQUIRE(!valid_name((char *)"@def"));
+	REQUIRE( valid_name((char *)"Adef"));
+	REQUIRE( valid_name((char *)"Zdef"));
+	REQUIRE(!valid_name((char *)"[def"));
+	REQUIRE(!valid_name((char *)"\\def"));
+	REQUIRE(!valid_name((char *)"]def"));
+	REQUIRE(!valid_name((char *)"^def"));
+	REQUIRE(!valid_name((char *)"_def"));
+	REQUIRE(!valid_name((char *)"`def"));
+	REQUIRE( valid_name((char *)"adef"));
+	REQUIRE( valid_name((char *)"zdef"));
+	REQUIRE(!valid_name((char *)"{def"));
+	REQUIRE(!valid_name((char *)"|def"));
+	REQUIRE(!valid_name((char *)"}def"));
+	REQUIRE(!valid_name((char *)"~def"));
+}
+
+
 SCENARIO("Testing CleanConfigArgument().") {
 	std::string a("This Is\tIt");
 
@@ -457,8 +554,8 @@ SCENARIO("Testing CleanConfigArgument().") {
 }
 
 
-SCENARIO("Testing class JazzConfigFile") {
-	JazzConfigFile conf1("/tmp/f5d0fb3fbf831bfdb5273d22e8f73af1");
+SCENARIO("Testing class ConfigFile") {
+	ConfigFile conf1("/tmp/f5d0fb3fbf831bfdb5273d22e8f73af1");
 
 	REQUIRE(conf1.num_keys() == 0);
 
@@ -531,7 +628,7 @@ SCENARIO("Testing class JazzConfigFile") {
 	fh << "\\eof\n";
 	fh.close();
 
-	JazzConfigFile conf2("/tmp/93fd8e49efe4b4b2a2623d1f22d4ea40");
+	ConfigFile conf2("/tmp/93fd8e49efe4b4b2a2623d1f22d4ea40");
 
 	REQUIRE(conf2.num_keys() == 11);
 
@@ -603,8 +700,8 @@ SCENARIO("Testing class JazzConfigFile") {
 }
 
 
-SCENARIO("Testing class JazzLogger") {
-	JazzLogger log1("/tmp/b7fcecb99b2947db7a04ef3b8ff684df/906f2f7fabf6dda97410bb508aeb0d35");
+SCENARIO("Testing class Logger") {
+	Logger log1("/tmp/b7fcecb99b2947db7a04ef3b8ff684df/906f2f7fabf6dda97410bb508aeb0d35");
 
 	char file_name [MAX_FILENAME_LENGTH];
 
@@ -612,14 +709,14 @@ SCENARIO("Testing class JazzLogger") {
 
 	remove("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
 
-	JazzLogger log2("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
+	Logger log2("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
 
 	REQUIRE(log2.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
 
 	log2.log(LOG_MISS, "Missed it!");
 	log2.log_printf(LOG_INFO, "log_printf(2+2=%d, name=%s, hex=%08x, pi=%4.2f)", 4, "me", 0xbadf00d, 3.141592);
 
-	JazzLogger log3("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
+	Logger log3("/tmp/6c276a62bfa02bac0a135bf0066b5a99");
 
 	REQUIRE(log3.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
 
@@ -633,7 +730,7 @@ SCENARIO("Testing class JazzLogger") {
 	fh << "\\eof\n";
 	fh.close();
 
-	JazzConfigFile J_CONFIG("/tmp/jzz_unit_cnf.ini");
+	ConfigFile J_CONFIG("/tmp/jzz_unit_cnf.ini");
 
 	std::string key;
 
@@ -641,12 +738,9 @@ SCENARIO("Testing class JazzLogger") {
 
 	REQUIRE(strcmp("/tmp/jzz_unit_log.log", key.c_str()) == 0);
 
-	JazzLogger log4(J_CONFIG, "LOGGER_PATH");
+	Logger log4(J_CONFIG, "LOGGER_PATH");
 
 	REQUIRE(log4.get_output_file_name(file_name, MAX_FILENAME_LENGTH) != 0);
 
 	REQUIRE(strcmp("/tmp/jzz_unit_log.log", file_name) == 0);
 }
-
-
-//TODO: Write test for function FileExists()

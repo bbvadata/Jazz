@@ -24,15 +24,15 @@ compile_mode_test:
 
 djazz: compile_mode_debug $(objects) mdb.o midl.o
 	@echo "Making DEBUG Jazz ..."
-	g++ -o djazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -lmicrohttpd -lpthread -lcurl
+	g++ -o djazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -lmicrohttpd -lpthread -lcurl -lzmq
 
 jazz: compile_mode_release $(objects) mdb.o midl.o
 	@echo "Making RELEASE Jazz ..."
-	g++ -o jazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -lmicrohttpd -lpthread -lcurl
+	g++ -o  jazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -lmicrohttpd -lpthread -lcurl -lzmq
 
 tjazz: compile_mode_test $(objects) mdb.o midl.o
 	@echo "Making DEBUG&TEST Jazz ..."
-	g++ -o tjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -lmicrohttpd -lpthread -lcurl
+	g++ -o tjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -lmicrohttpd -lpthread -lcurl -lzmq
 
 # Targets (3): Phony targets
 # ------------
@@ -43,8 +43,14 @@ clean  :
 	@rm -f *.o
 	@rm -f *jazz
 	@rm -f compile_mode_*
+	@rm -f jazz_dbg.log
+	@rm -f cookiejar
 	@rm -rf static_analysis_reports/
 	@rm -rf dynamic_analysis_reports/
+	@rm -rf jazz_dbg_mdb/
+	@rm -rf src/lmdb/testdb/
+	@rm -f src/lmdb/*.a src/lmdb/*.o src/lmdb/*.lo src/lmdb/*.so
+	@find src/lmdb/ -executable -type f | xargs rm -f
 
 .PHONY : info
 info   :

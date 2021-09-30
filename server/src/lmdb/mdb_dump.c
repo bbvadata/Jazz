@@ -1,6 +1,6 @@
 /* mdb_dump.c - memory-mapped database dump tool */
 /*
- * Copyright 2011-2017 Howard Chu, Symas Corp.
+ * Copyright 2011-2021 Howard Chu, Symas Corp.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,8 @@ static void text(MDB_val *v)
 	end = c + v->mv_size;
 	while (c < end) {
 		if (isprint(*c)) {
+			if (*c == '\\')
+				putchar('\\');
 			putchar(*c);
 		} else {
 			putchar('\\');
@@ -123,13 +125,13 @@ static int dumpit(MDB_txn *txn, MDB_dbi dbi, char *name)
 		if (flags & dbflags[i].bit)
 			printf("%s=1\n", dbflags[i].name);
 
-	printf("db_pagesize=%d\n", ms.ms_psize);
+	printf("db_pagesize=%u\n", ms.ms_psize);
 	printf("HEADER=END\n");
 
 	rc = mdb_cursor_open(txn, dbi, &mc);
 	if (rc) return rc;
 
-	while ((rc = mdb_cursor_get(mc, &key, &data, MDB_NEXT) == MDB_SUCCESS)) {
+	while (((rc = mdb_cursor_get(mc, &key, &data, MDB_NEXT)) == MDB_SUCCESS)) {
 		if (gotsig) {
 			rc = EINTR;
 			break;
@@ -151,7 +153,7 @@ static int dumpit(MDB_txn *txn, MDB_dbi dbi, char *name)
 
 static void usage(char *prog)
 {
-	fprintf(stderr, "usage: %s [-V] [-f output] [-l] [-n] [-p] [-a|-s subdb] dbpath\n", prog);
+	fprintf(stderr, "usage: %s [-V] [-f output] [-l] [-n] [-p] [-v] [-a|-s subdb] dbpath\n", prog);
 	exit(EXIT_FAILURE);
 }
 
@@ -175,10 +177,11 @@ int main(int argc, char *argv[])
 	 * -n: use NOSUBDIR flag on env_open
 	 * -p: use printable characters
 	 * -f: write to file instead of stdout
+	 * -v: use previous snapshot
 	 * -V: print version and exit
 	 * (default) dump only the main DB
 	 */
-	while ((i = getopt(argc, argv, "af:lnps:V")) != EOF) {
+	while ((i = getopt(argc, argv, "af:lnps:vV")) != EOF) {
 		switch(i) {
 		case 'V':
 			printf("%s\n", MDB_VERSION_STRING);
@@ -202,6 +205,9 @@ int main(int argc, char *argv[])
 		case 'n':
 			envflags |= MDB_NOSUBDIR;
 			break;
+		case 'v':
+			envflags |= MDB_PREVSNAPSHOT;
+			break;
 		case 'p':
 			mode |= PRINT;
 			break;
@@ -218,12 +224,6 @@ int main(int argc, char *argv[])
 	if (optind != argc - 1)
 		usage(prog);
 
-#ifdef SIGPIPE
-	signal(SIGPIPE, dumpsig);
-#endif
-#ifdef SIGHUP
-	signal(SIGHUP, dumpsig);
-#endif
 	signal(SIGINT, dumpsig);
 	signal(SIGTERM, dumpsig);
 
