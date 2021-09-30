@@ -49,7 +49,7 @@ namespace jazz_elements
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
-size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {
+size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {	// cppcheck-suppress unusedFunction
 	size = size*nmemb;
 
 	if (size) {
@@ -70,7 +70,7 @@ size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
-size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {
+size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {	// cppcheck-suppress unusedFunction
 	size = size*nmemb;
 
 	return size;
@@ -81,7 +81,7 @@ size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_READFUNCTION.html)
 */
-size_t put_callback(char *ptr, size_t size, size_t nmemb, void *container) {
+size_t put_callback(char *ptr, size_t size, size_t nmemb, void *container) {	// cppcheck-suppress unusedFunction
 	size = size*nmemb;
 
 	if (size) {
