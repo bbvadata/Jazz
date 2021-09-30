@@ -1047,7 +1047,7 @@ SCENARIO("Testing http end-to-end") {
 	REQUIRE(CHN.zmq_context	!= nullptr);
 
 	GIVEN("We have some blocks and indices") {
-		pTransaction p_tx_idx, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
+		pTransaction p_tx_idx, p_tx_ixx, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
 
 		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
 
@@ -1092,6 +1092,14 @@ SCENARIO("Testing http end-to-end") {
 		REQUIRE(CHN.new_block(p_tx_idx, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 
 		p_tx_idx->p_hea->index["URL"] = "http://127.0.0.1:5000/test/capital/";
+
+		REQUIRE(CHN.new_block(p_tx_ixx, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+
+		p_tx_ixx->p_hea->index["URL"] = "http://127.0.0.1:5000/test/str.blk";
+		p_tx_ixx->p_hea->index["CURLOPT_USERNAME"]   = "whoami";
+		p_tx_ixx->p_hea->index["CURLOPT_USERPWD"]    = "XXX";
+		p_tx_ixx->p_hea->index["CURLOPT_COOKIEFILE"] = "./cookiefile";
+		p_tx_ixx->p_hea->index["CURLOPT_COOKIEJAR"]  = "./cookiejar";
 
 		dim[0] = 256;
 		dim[1] = 0;
@@ -1168,6 +1176,37 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.connect.size() == 2);
 
+			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_ixx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_ixx->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//http/connection/quick", p_tx_rea->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.put((pChar) "//https/connection/binblk", p_tx_ixx->p_block) == SERVICE_ERROR_WRONG_BASE);
+
+			REQUIRE(CHN.connect.size() == 3);
+
+			strcpy(url, "//http/binblk");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+			pBlock p_bl = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
+			REQUIRE(p_txn->p_block->size == p_bl->total_bytes);
+			REQUIRE(p_bl->check_hash());
+			CHN.destroy_transaction(p_txn);
+
+			REQUIRE(CHN.put(url, p_tx_str->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/binblk") == SERVICE_NO_ERROR);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
+			REQUIRE(p_txn->p_hea->index.size() == 5);
+			REQUIRE(p_txn->p_hea->index["CURLOPT_USERNAME"] == "whoami");
+			CHN.destroy_transaction(p_txn);
+
+			REQUIRE(CHN.get(p_txn, (pChar) "//https/connection/binblk") == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/cling") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
+			REQUIRE(CHN.remove((pChar) "//http/connection/binblk") == SERVICE_NO_ERROR);
+
+			REQUIRE(CHN.connect.size() == 2);
+
 			strcpy(url, "//http/cap/Estonia");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			strcpy(url, "//http/cap/Malaysia");
@@ -1222,6 +1261,7 @@ SCENARIO("Testing http end-to-end") {
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove((pChar) "//http/connection/cap") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.remove((pChar) "//https/connection/cap") == SERVICE_ERROR_WRONG_BASE);
 
 			REQUIRE(CHN.connect.size() == 0);
 		}
@@ -1237,10 +1277,13 @@ SCENARIO("Testing http end-to-end") {
 			compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
 			CHN.destroy_transaction(p_txn);
 
+			REQUIRE(CHN.forward_get(p_txn, (pChar) "jazz_pybaby", (pChar) "/test/str.blk") == SERVICE_ERROR_UNKNOWN_JAZZNODE);
 			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/str.blah") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/capital/Malaysia") == SERVICE_ERROR_CORRUPTED);
 
 			REQUIRE(CHN.forward_put((pChar) "jzz_pybaby", (pChar) "/test/str.blk", p_tx_tim->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.forward_put((pChar) "jzz_pybaby", (pChar) "/test/str.blah", p_tx_tim->p_block) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.forward_put((pChar) "jazz_pybaby", (pChar) "/test/str.blk", p_tx_tim->p_block) == SERVICE_ERROR_UNKNOWN_JAZZNODE);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Montevideo");
 
@@ -1259,6 +1302,7 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.forward_del((pChar) "jzz_pybaby", (pChar) "/test/capital/Uruguay") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			REQUIRE(CHN.forward_del((pChar) "jzz_pybaby", (pChar) "///") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(CHN.forward_del((pChar) "jazz_pybaby", (pChar) "///") == SERVICE_ERROR_UNKNOWN_JAZZNODE);
 
 			CHN.jazz_node_name.erase(ti);
 			CHN.jazz_node_port.erase(ti);
@@ -1269,6 +1313,31 @@ SCENARIO("Testing http end-to-end") {
 		WHEN("We check all the non applicable") {
 			StaticBlockHeader hea;
 			Locator loc;
+
+			CHN.curl_ok = false;
+
+			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Spain");
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BASE_FORBIDDEN);
+
+			int ti = CHN.jazz_node_cluster_size++;
+
+			CHN.jazz_node_name[ti] = "jzz_pybaby";
+			CHN.jazz_node_port[ti] = 5000;
+			CHN.jazz_node_ip  [ti] = "127.0.0.1";
+
+			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/str.blk") == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.forward_put((pChar) "jzz_pybaby", (pChar) "/test/str.blk", p_tx_tim->p_block) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.forward_del((pChar) "jzz_pybaby", (pChar) "/test/capital/Uruguay") == SERVICE_ERROR_BASE_FORBIDDEN);
+
+			CHN.jazz_node_name.erase(ti);
+			CHN.jazz_node_port.erase(ti);
+			CHN.jazz_node_ip.erase(ti);
+
+			CHN.jazz_node_cluster_size--;
+
+			CHN.curl_ok = true;
 
 			REQUIRE(CHN.locate(loc, (pChar) "//http/anything/pop") == SERVICE_ERROR_NOT_APPLICABLE);
 
@@ -1339,6 +1408,7 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//http/anything") == SERVICE_ERROR_WRONG_BASE);
 		}
 		CHN.destroy_transaction(p_tx_idx);
+		CHN.destroy_transaction(p_tx_ixx);
 		CHN.destroy_transaction(p_tx_str);
 		CHN.destroy_transaction(p_tx_rea);
 		CHN.destroy_transaction(p_tx_tim);
