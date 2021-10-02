@@ -156,9 +156,11 @@ as input and returning a buffer of char as output. In your translate call you mu
 and "result". The translate() call will send the raw tensor of the item "input" to the server and write whatever the server answers into
 the tensor named "result", just overriding the tensor without any dimension change.
 This operation expects the tensor to be binary (i.e., no variable length strings) and their shapes and types known by both parts.
-In terms of the Jazz server API, this is a function call: either GET "//0-mq/pipeline/speech2text(//lmdb/stuff/my_tensor)" or
-GET "//0-mq/pipeline/speech2text(#[1,2,3];)" the argument can be anything in Persisted, Volatile, even a file or an //http get or
-a (%-encoded) constant as in the second example.
+
+In terms of the Jazz server API, this is a function call: either GET "//0-mq/speech2text/(//lmdb/stuff/my_tensor)" or
+GET "//0-mq/speech2text/(#[1,2,3];)" the argument can be anything in Persisted, Volatile, even a file or an //http get or a (%-encoded)
+constant as in the second example.
+
 When using translate() as the method of Channel, you should omit the "pipeline" part, just translate(p_tuple, "//0-mq/speech2text");
 
 Besides this, get("//0-mq/pipeline/speech2text") will return just a block with "tcp://localhost:5555" and
@@ -169,7 +171,7 @@ remove("//0-mq/pipeline/speech2text") will destroy the pipeline. Any other call 
 "bash" Reference
 ----------------
 
-This is also a translate() call, the difference is you don't create the pipline, it always exists and is called "//bash/exec". The Tuple
+This is also a translate() call, the difference is you don't create the pipeline, it always exists and is called "//bash/exec". The Tuple
 is an array of byte, both ways "input" and "result". If the size of the "result" buffer is too small for the answer it will be filled up to
 the available size and something will be lost. The answer includes whatever a popen("bash script.sh") writes to stdout / stderr (where
 script.sh is the content of the "input" tensor).
