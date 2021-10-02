@@ -56,7 +56,7 @@ namespace jazz_elements
 
 /** \brief Tuple: A Jazz Block with multiple Tensors.
 
-Can be simplified as "An instance of a **Kind**" allthough that is not exactly what it is. It is an array of Tensors and it can match
+Can be simplified as "An instance of a **Kind**" although that is not exactly what it is. It is an array of Tensors and it can match
 one or more Kinds if its .is_a(<kind>) method returns true.
 
 Physically, like a Kind, it is a single block with some differences:

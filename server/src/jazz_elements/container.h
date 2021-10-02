@@ -249,7 +249,7 @@ Serialization (to and from text) is done at the Api level, running code in jazz_
 new_block()
 -----------
 
-**NOTE** that new_block() has 7 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
+**NOTE** that new_block() has 8 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
 sharing a pointer to an existing one). Therefore, the container allocates and owns it an requires a destroy_transaction() call when no
 longer needed. The forms cover all the supported ways to do basic operations like filtering and serializing.
 
@@ -260,6 +260,7 @@ longer needed. The forms cover all the supported ways to do basic operations lik
    -# new_block(): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
    -# new_block(): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
    -# new_block(): Create an empty Index block. It is dynamically allocated, an std:map, and is destroy_transaction()-ed like the others.
+   -# new_block(): Create a Tuple of (key:STRING[length],value:STRING[length]) with the content of an Index.
 
 */
 class Container : public Service {
