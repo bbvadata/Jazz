@@ -346,29 +346,29 @@ class Container : public Service {
 		// Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
 
 		// The "easy" interface: Uses strings instead of locators. Is translated to the native interface by an as_locator() call.
-		StatusCode get		   (pTransaction		&p_txn,
-								pChar				 p_what);
-		StatusCode get		   (pTransaction		&p_txn,
-								pChar				 p_what,
-								pBlock				 p_row_filter);
-		StatusCode get		   (pTransaction		&p_txn,
-								pChar				 p_what,
-								pChar				 name);
-		StatusCode locate	   (Locator				&location,
-								pChar				 p_what);
-		StatusCode header	   (StaticBlockHeader	&hea,
-								pChar				 p_what);
-		StatusCode header	   (pTransaction		&p_txn,
-								pChar				 p_what);
-		StatusCode put		   (pChar				 p_where,
-								pBlock				 p_block,
-								int					 mode = WRITE_EVERYTHING);
-		StatusCode new_entity  (pChar				 p_where);
-		StatusCode remove	   (pChar				 p_where);
-		StatusCode copy		   (pChar				 p_where,
-								pChar				 p_what);
-		StatusCode translate   (pTuple				 p_tuple,
-								pChar				 p_pipe);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what,
+										pBlock				p_row_filter);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what,
+										pChar				name);
+		virtual StatusCode locate	   (Locator			   &location,
+										pChar				p_what);
+		virtual StatusCode header	   (StaticBlockHeader  &hea,
+										pChar				p_what);
+		virtual StatusCode header	   (pTransaction	   &p_txn,
+										pChar				p_what);
+		virtual StatusCode put		   (pChar				p_where,
+										pBlock				p_block,
+										int					mode = WRITE_EVERYTHING);
+		virtual StatusCode new_entity  (pChar				p_where);
+		virtual StatusCode remove	   (pChar				p_where);
+		virtual StatusCode copy		   (pChar				p_where,
+										pChar				p_what);
+		virtual StatusCode translate   (pTuple				p_tuple,
+										pChar				p_pipe);
 
 		// The parser: This simple regex-based parser only needs override for Channels.
 		virtual StatusCode as_locator  (Locator			   &result,
