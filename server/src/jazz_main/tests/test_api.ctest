@@ -534,7 +534,7 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(strcmp(hqs.base, "bbb") == 0);
 		REQUIRE(hqs.entity[0] == 0);
 		REQUIRE(hqs.key[0] == 0);
-		REQUIRE(strcmp(hqs.url, "[1,2,3]") == 0);
+		REQUIRE(strcmp(hqs.url, "//bbb/[1,2,3]") == 0);
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_URL);
@@ -543,13 +543,13 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb_w&[1,%202,%203];", HTTP_PUT));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb_w&[1, 2, 3];", HTTP_PUT));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base, "bbb_w") == 0);
 		REQUIRE(hqs.entity[0] == 0);
 		REQUIRE(hqs.key[0] == 0);
-		REQUIRE(strcmp(hqs.url, "[1, 2, 3]") == 0);
+		REQUIRE(strcmp(hqs.url, "//bbb_w/[1, 2, 3]") == 0);
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_URL);
@@ -560,14 +560,21 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(strcmp(hqs.base, "bb_x") == 0);
 		REQUIRE(hqs.entity[0] == 0);
 		REQUIRE(hqs.key[0] == 0);
-		REQUIRE(strcmp(hqs.url, "[1,2,3]") == 0);
+		REQUIRE(strcmp(hqs.url, "//bb_x/[1,2,3]") == 0);
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_URL);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//bb_x&[1, 2,3];", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//bb_x&[1, 2,3];", HTTP_GET));
 
-		REQUIRE(hqs.state == PSTATE_FAILED);
+		REQUIRE(hqs.node[0] == 0);
+		REQUIRE(strcmp(hqs.base, "bb_x") == 0);
+		REQUIRE(hqs.entity[0] == 0);
+		REQUIRE(hqs.key[0] == 0);
+		REQUIRE(strcmp(hqs.url, "//bb_x/[1, 2,3]") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_URL);
 
 		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity/key(//r_base/r_ent)", HTTP_GET));
 
@@ -660,9 +667,18 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1, 2])", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1, 2])", HTTP_GET));
 
-		REQUIRE(hqs.state == PSTATE_FAILED);
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "base_s") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key") == 0);
+
+		REQUIRE(strcmp(hqs.url, "[1, 2]") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_FUNCT_CONST);
 
 		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2,4,6]]", HTTP_GET));
 
@@ -681,15 +697,24 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2, 4,6]]", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2, 4,6]]", HTTP_GET));
 
-		REQUIRE(hqs.state == PSTATE_FAILED);
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "base_s") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity2") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key") == 0);
+
+		REQUIRE(strcmp(hqs.url, "[2, 4,6]") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_FILT_CONST);
 
 		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=&[[2,4],%20[5,6]];", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=&[[2,4],%20[5,6]];", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=&[[2,4], [5,6]];", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base,   "base_s3") == 0);
@@ -811,11 +836,7 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=& en-us;", HTTP_GET));
-
-		REQUIRE(hqs.state == PSTATE_FAILED);
-
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=&%20en-us;", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=& en-us;", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base,   "base")	 == 0);
