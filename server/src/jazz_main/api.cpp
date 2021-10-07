@@ -1539,6 +1539,64 @@ bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 }
 
 
+/** Copy the string "as-is" (without percent-decoding) a string into a buffer.
+
+	\param p_buff	 A buffer to store the result.
+	\param buff_size The size of the output buffer (ending zero included).
+	\param p_url	 The input string.
+	\param p_base	 (optional) Prefix with a base to be prefixed
+
+	\return			'true' if successful. Possible errors are about buffer sizes of start and final characters.
+
+Note: This replaces expand_url_encoded() since the string passed to pares is already %-decoded by libmicrohttpd.
+*/
+bool Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
+
+	if (*(p_url++) != '&')
+		return false;
+
+	int url_len = strlen(p_url) - 1;
+
+	pChar p_end = p_url + url_len;
+
+	if (*p_end != ';' && *p_end != ']' && *p_end != ')')
+		return false;
+
+	if (p_base != nullptr) {
+		if (buff_size < 4 + SHORT_NAME_SIZE)
+			return false;
+
+		*(p_buff++) = '/';
+		*(p_buff++) = '/';
+
+		buff_size -= 2;
+
+		for (int i = 0; i < SHORT_NAME_SIZE; i++) {
+			char c = *(p_base++);
+
+			buff_size--;
+
+			if (c == 0) {
+				*(p_buff++) = '/';
+				break;
+			}
+			*(p_buff++) = c;
+		}
+	}
+
+	if (url_len >= buff_size)
+		return false;
+
+	memcpy(p_buff, p_url, url_len);
+
+	p_buff += url_len;
+
+	*(p_buff) = 0;
+
+	return true;
+}
+
+
 /** Parse a simple //base/entity/key string (Used inside the main Api.parse()).
 
 	\param r_value	A Locator to store the result (that will be left in undetermined on error).
