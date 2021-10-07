@@ -177,6 +177,10 @@ class Api : public Container {
 		bool expand_url_encoded	(pChar			p_buff,
 								 int			buff_size,
 								 pChar			p_url);
+		bool move_const			(pChar			p_buff,
+								 int			buff_size,
+								 pChar			p_url,
+								 pChar			p_base = nullptr);
 		bool parse_nested		(Locator	   &r_value,
 								 pChar			p_url);
 		bool block_from_const	(pTransaction  &p_txn,
