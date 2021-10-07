@@ -212,70 +212,70 @@ SCENARIO("Testing api.parse") {
 	GIVEN("We want to test expand_url_encoded()") {
 		char buff [4096];
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a_stupid_string;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&a_stupid_string;"));
 
 		REQUIRE(strcmp(buff, "a_stupid_string") == 0);
 
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a stupid string;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&a stupid string;"));
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a%20stupid%20string;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&a%20stupid%20string;"));
 
 		REQUIRE(strcmp(buff, "a stupid string") == 0);
 
 		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "a_stupid_string;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#a_stupid_string"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&a_stupid_string"));
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#b_stupid_string)"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&b_stupid_string)"));
 
 		REQUIRE(strcmp(buff, "b_stupid_string") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#c_stupid_string]"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&c_stupid_string]"));
 
 		REQUIRE(strcmp(buff, "c_stupid_string") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#d_stupid_string;;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&d_stupid_string;;"));
 
 		REQUIRE(strcmp(buff, "d_stupid_string;") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#e_stupid_string]]"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&e_stupid_string]]"));
 
 		REQUIRE(strcmp(buff, "e_stupid_string]") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#f_stupid_string];"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&f_stupid_string];"));
 
 		REQUIRE(strcmp(buff, "f_stupid_string]") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#g_stupid_string))"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&g_stupid_string))"));
 
 		REQUIRE(strcmp(buff, "g_stupid_string)") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#!#$&'()*+,/:;=?@[]a-z_A-Z_0-9.e+99~kk;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&!#$&'()*+,/:;=?@[]a-z_A-Z_0-9.e+99~kk;"));
 
 		REQUIRE(strcmp(buff, "!#$&'()*+,/:;=?@[]a-z_A-Z_0-9.e+99~kk") == 0);
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#*%2a%2A;%3b%3B]%5d%5D;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&*%2a%2A;%3b%3B]%5d%5D;"));
 
 		REQUIRE(strcmp(buff, "***;;;]]]") == 0);
 
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#*%2a%2A;%3b%3B]%5d%5;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#*%2a%2A;%3b%3B]%5d%;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc\t;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc<;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc>;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc\\;"));
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "#abc^;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&*%2a%2A;%3b%3B]%5d%5;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&*%2a%2A;%3b%3B]%5d%;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&abc\t;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&abc<;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&abc>;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&abc\\;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 4096, (pChar) "&abc^;"));
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 8, (pChar) "#abc%20123;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 8, (pChar) "&abc%20123;"));
 
 		REQUIRE(strcmp(buff, "abc 123") == 0);
 
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 7, (pChar) "#abc%20123;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 7, (pChar) "&abc%20123;"));
 
-		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4, (pChar) "#abc;"));
+		REQUIRE(TT_API.expand_url_encoded((pChar) &buff, 4, (pChar) "&abc;"));
 
 		REQUIRE(strcmp(buff, "abc") == 0);
 
-		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 3, (pChar) "#abc;"));
+		REQUIRE(!TT_API.expand_url_encoded((pChar) &buff, 3, (pChar) "&abc;"));
 	}
 
 	GIVEN("We want to test parse()") {
@@ -524,11 +524,11 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "///ndd//bbb#[1,2,3];", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///ndd//bbb&[1,2,3];", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb#[1,2,3];", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb&[1,2,3];", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base, "bbb") == 0);
@@ -539,11 +539,11 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_URL);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "///ndd//bbb_w#[1,%202,%203];", HTTP_PUT));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///ndd//bbb_w&[1,%202,%203];", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb_w#[1,%202,%203];", HTTP_PUT));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb_w&[1,%202,%203];", HTTP_PUT));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base, "bbb_w") == 0);
@@ -554,7 +554,7 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_URL);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//bb_x#[1,2,3];", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//bb_x&[1,2,3];", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base, "bb_x") == 0);
@@ -565,7 +565,7 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_URL);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//bb_x#[1, 2,3];", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bb_x&[1, 2,3];", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
@@ -643,7 +643,7 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity/key(#[1,2])", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1,2])", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 
@@ -656,15 +656,15 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_FUNCT_CONST);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(#[1,2])", HTTP_PUT));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1,2])", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(#[1, 2])", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1, 2])", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity2/key[#[2,4,6]]", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2,4,6]]", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 
@@ -677,19 +677,19 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_FILT_CONST);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[#[2,4,6]]", HTTP_PUT));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2,4,6]]", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[#[2, 4,6]]", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2, 4,6]]", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=#[[2,4],%20[5,6]];", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=&[[2,4],%20[5,6]];", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=#[[2,4],%20[5,6]];", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=&[[2,4],%20[5,6]];", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base,   "base_s3") == 0);
@@ -701,11 +701,11 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_CONST);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=#[[2,4],[5,6]];", HTTP_PUT));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=&[[2,4],[5,6]];", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=#[[2,4], [5,6]];", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=&[[2,4], [5,6]];", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
@@ -774,7 +774,7 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=#en-us;", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=&en-us;", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base,   "base")	 == 0);
@@ -787,11 +787,11 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_SET_ATTRIBUTE);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=#en-us;", HTTP_PUT));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=&en-us;", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(what)=#en-us;", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(what)=&en-us;", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
@@ -799,7 +799,7 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(1234)=#en-us;", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(1234)=&en-us;", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
@@ -811,11 +811,11 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=# en-us;", HTTP_GET));
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=& en-us;", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
-		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=#%20en-us;", HTTP_GET));
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=&%20en-us;", HTTP_GET));
 
 		REQUIRE(hqs.node[0] == 0);
 		REQUIRE(strcmp(hqs.base,   "base")	 == 0);

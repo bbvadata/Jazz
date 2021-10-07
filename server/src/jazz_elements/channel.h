@@ -68,19 +68,19 @@ namespace jazz_elements
 
 #define APPLY_NOTHING					 0		///< Just an l_value with {///node}//base/entity or {///node}//base/entity/key
 #define APPLY_NAME						 1		///< //base/entity/key:name (Select an item form a Tuple by name)
-#define APPLY_URL						 2		///< //base# any_url_encoded_url ; (A call to http or file)
+#define APPLY_URL						 2		///< //base& any_url_encoded_url ; (A call to http or file)
 #define APPLY_FUNCTION					 3		///< {///node}//base/entity/key(//r_base/r_entity/r_key) (A function call on a block.)
-#define APPLY_FUNCT_CONST				 4		///< //base/entity/key(# any_url_encoded_const ;) (A function call on a const.)
+#define APPLY_FUNCT_CONST				 4		///< //base/entity/key(& any_url_encoded_const) (A function call on a const.)
 #define APPLY_FILTER					 5		///< {///node}//base/entity/key[//r_base/r_entity/r_key] (A filter on a block.)
-#define APPLY_FILT_CONST				 6		///< //base/entity/key[# any_url_encoded_const ;] (A filter on a const.)
+#define APPLY_FILT_CONST				 6		///< //base/entity/key[& any_url_encoded_const] (A filter on a const.)
 #define APPLY_RAW						 7		///< {///node}//base/entity/key.raw (Serialize text to raw.)
 #define APPLY_TEXT						 8		///< {///node}//base/entity/key.text (Serialize raw to text.)
 #define APPLY_ASSIGN					 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
-#define APPLY_ASSIGN_CONST				10		///< //base/entity/key=# any_url_encoded_const ; (Assign const to block.)
+#define APPLY_ASSIGN_CONST				10		///< //base/entity/key=& any_url_encoded_const ; (Assign const to block.)
 #define APPLY_JAZZ_INFO					11		///< /// Show the server info.
 #define APPLY_NEW_ENTITY				12		///< {///node}//base/entity.new (Create a new entity)
 #define APPLY_GET_ATTRIBUTE				13		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
-#define APPLY_SET_ATTRIBUTE				14		///< //base/entity/key.attribute(123)=# url_encoded ; (set attribute 123 with HTTP_GET)
+#define APPLY_SET_ATTRIBUTE				14		///< //base/entity/key.attribute(123)=& url_encoded ; (set attribute 123 with HTTP_GET)
 
 
 /// A map for defining http config names
@@ -158,7 +158,7 @@ the tensor named "result", just overriding the tensor without any dimension chan
 This operation expects the tensor to be binary (i.e., no variable length strings) and their shapes and types known by both parts.
 
 In terms of the Jazz server API, this is a function call: either GET "//0-mq/speech2text/(//lmdb/stuff/my_tensor)" or
-GET "//0-mq/speech2text/(#[1,2,3];)" the argument can be anything in Persisted, Volatile, even a file or an //http get or a (%-encoded)
+GET "//0-mq/speech2text/(&[1,2,3];)" the argument can be anything in Persisted, Volatile, even a file or an //http get or a (%-encoded)
 constant as in the second example.
 
 When using translate() as the method of Channel, you should omit the "pipeline" part, just translate(p_tuple, "//0-mq/speech2text");
@@ -176,13 +176,13 @@ is an array of byte, both ways "input" and "result". If the size of the "result"
 the available size and something will be lost. The answer includes whatever a popen("bash script.sh") writes to stdout / stderr (where
 script.sh is the content of the "input" tensor).
 "bash" operation must be enabled via configuration by setting ENABLE_BASH_EXEC to something non-zero. There is no security check: it can be
-used for pushing AI creations to github or kill the server with //bash/exec(# jazz%20stop ;)
+used for pushing AI creations to github or kill the server with //bash/exec(& jazz%20stop ;)
 
 "file" Reference
 ----------------
 
 This read/writes/deletes to the filesystem. Since the API does not use locators, there is no hardcoded name restriction. Via the http
-server, just use the URL (#...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/#whatever%20you%20want;").
+server, just use the URL (&...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/&whatever%20you%20want;").
 Note that "//file/" is a mandatory prefix, therefore "//file/aa" is "aa" and //file//aa" is "/aa".
 get() gets files as arrays of byte and folders as an Index (the keys are file names and the values either "file" or "folder"). put() writes
 either Jazz blocks with all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor (if mode == WRITE_TENSOR_DATA).
@@ -201,7 +201,7 @@ calls that are intended for other nodes in a Jazz cluster. This is done at the t
 get("///node_x//lmdb/things/this") will forward the call to the node_x (if anything is well configured see JAZZ_NODE_NAME_.., etc.)
 and return the result just as if is was a local call. At the class level, this is done by forward_get(), forward_put() and forward_del().
 You can also send simple GET, PUT and DELETE http calls to random urls by either using the get(), put() and remove() or using the Jazz http
-server API GET "//http#https://google.com;"
+server API GET "//http&https://google.com;"
 
 The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Index to: //http/connection/a_name
 the index requires the mandatory key URL and the optional keys: CURLOPT_USERNAME, CURLOPT_USERPWD, CURLOPT_COOKIEFILE and CURLOPT_COOKIEJAR

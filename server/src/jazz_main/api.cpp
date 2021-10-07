@@ -59,7 +59,7 @@ namespace jazz_main
 #define REX_SLASH				"[/]"
 #define REX_NAME_FIRST			"[a-zA-Z~]"
 #define REX_NAME_ANY			"[a-zA-Z0-9\\-_~$]"
-#define REX_BASE_SWITCH			"[#]"
+#define REX_BASE_SWITCH			"[&]"
 #define REX_INFO_SWITCH			"[\\x00]"
 #define REX_ENT_SWITCH			"[\\x00\\.\\]\\)]"
 #define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(\\]\\)]"
@@ -79,10 +79,10 @@ namespace jazz_main
 #define PSTATE_IN_ENTITY		 7		///< Name starts after / + letter, stays with valid char
 #define PSTATE_KEY0				 8		///< Already seen / after reading an entity
 #define PSTATE_IN_KEY			 9		///< Name starts after / + letter, stays with valid char
-#define PSTATE_INFO_SWITCH		10		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#
+#define PSTATE_INFO_SWITCH		10		///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
 #define PSTATE_BASE_SWITCH		11		///< Found # while reading a base
 #define PSTATE_ENT_SWITCH		12		///< Found # while reading a base
-#define PSTATE_KEY_SWITCH		13		///< The final switch inside or after a key: END, =, ., :, [, [#, (, or (#
+#define PSTATE_KEY_SWITCH		13		///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
 #define PSTATE_FAILED			98		///< Set by the parser on any error (possibly in the r_value too)
 #define PSTATE_COMPLETE_OK		99		///< Set by the parser on complete success
 
@@ -698,7 +698,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 					return true;
 
 				case '=':
-					if (q_state.node[0] == 0 && *p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url)) {
+					if (q_state.node[0] == 0 && *p_url == '&' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url)) {
 						q_state.state = PSTATE_COMPLETE_OK;
 						q_state.apply = APPLY_SET_ATTRIBUTE;
 
@@ -722,7 +722,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (q_state.node[0] == 0 && *p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+				if (q_state.node[0] == 0 && *p_url == '&' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
 					q_state.apply = APPLY_ASSIGN_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
 					q_state.apply = APPLY_ASSIGN;
@@ -737,7 +737,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (q_state.node[0] == 0 && *p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+				if (q_state.node[0] == 0 && *p_url == '&' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
 					q_state.apply = APPLY_FILT_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
 					q_state.apply = APPLY_FILTER;
@@ -752,7 +752,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (q_state.node[0] == 0 && *p_url == '#' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+				if (q_state.node[0] == 0 && *p_url == '&' && expand_url_encoded((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
 					q_state.apply = APPLY_FUNCT_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
 					q_state.apply = APPLY_FUNCTION;
@@ -1481,7 +1481,7 @@ See https://en.wikipedia.org/wiki/Percent-encoding This is utf-8 compatible, utf
 */
 bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 
-	if (*(p_url++) != '#')
+	if (*(p_url++) != '&')
 		return false;
 
 	pChar p_end = p_url;
