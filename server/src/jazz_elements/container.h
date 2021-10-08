@@ -208,7 +208,8 @@ Container provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - Allocation: .new_block(), .destroy_transaction()
-- Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
+- Crud: .get(), .locate(), .header(), .new_entity(), .put(), .remove(), .copy()
+- Code execution: .exec() and .modify()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
 
@@ -367,8 +368,13 @@ class Container : public Service {
 		virtual StatusCode remove	   (pChar				p_where);
 		virtual StatusCode copy		   (pChar				p_where,
 										pChar				p_what);
-		virtual StatusCode translate   (pTuple				p_tuple,
-										pChar				p_pipe);
+
+		// The function call interface: exec()/modify().
+		virtual StatusCode exec		   (pTransaction	   &p_txn,
+										Locator			   &function,
+										pTuple				p_args);
+		virtual StatusCode modify	   (Locator			   &function,
+										pTuple				p_args);
 
 		// The parser: This simple regex-based parser only needs override for Channels.
 		virtual StatusCode as_locator  (Locator			   &result,
