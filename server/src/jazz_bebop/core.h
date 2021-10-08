@@ -81,9 +81,12 @@ class Bebop : public Container {
 		StatusCode start();
 		StatusCode shut_down();
 
-		StatusCode call(pTransaction &p_txn,
-						Locator		  function,
-						pTuple		  args);
+		// The function call interface: exec()/modify().
+		virtual StatusCode exec	 (pTransaction &p_txn,
+								  Locator	   &function,
+								  pTuple		p_args);
+		virtual StatusCode modify(Locator	   &function,
+								  pTuple		p_args);
 };
 
 } // namespace jazz_bebop

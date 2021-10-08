@@ -72,20 +72,43 @@ StatusCode Bebop::shut_down() {
 }
 
 
-/** Run a function on an argument.
+/** The function call interface for **exec**: Execute an opcode in a formal field.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction() it when done.
-	\param function	The function to be called: entity == field, key == opcode.
-	\param args		A Tuple passed as an argument.
+					Transaction inside the Container.
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	A Tuple passed as argument to the call that is not modified. This may be a pure function in Bebop or have context
+					in Agency.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy_transaction()-ed when the caller is done.
 */
-StatusCode Bebop::call(pTransaction &p_txn, Locator function, pTuple args) {
+StatusCode Bebop::exec(pTransaction &p_txn, Locator &function, pTuple p_args) {
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
+
+/** The function call interface for **modify**: Execute and modify the argument Tuple by reference.
+
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
+					The result will be overridden in-place without any allocation.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+modify() is similar to exec(), but, rather than creating a new block with the result, it modifies the Tuple p_args.
+
+NOTE: The http API will only call this on empty keys, but inside the algorithms, this can be supported to run anything.
+*/
+StatusCode Bebop::modify(Locator &function, pTuple p_args) {
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
 
 } // namespace jazz_bebop
 
