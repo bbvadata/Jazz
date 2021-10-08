@@ -789,11 +789,12 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 }
 
 
-/** "Easy" interface for **Tuple translate**
+/** The function call interface for **modify**: In jazz_elements, this is only implemented in Channels.
 
-	\param p_tuple	A Tuple with two items, "input" with the data passed to the service and "result" with the data returned. the
-					result will be overridden in-place without any allocation.
-	\param p_pipe	Some **service** does some computation on "input" and returns "result".
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
+					The result will be overridden in-place without any allocation.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
@@ -801,7 +802,7 @@ This is what most frameworks would call predict(), something that takes any tens
 it just gives support to some other service doing that connected via zeroMQ or bash. Outside jazz_elements, the services use this
 to run their own models.
 */
-StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
+StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
 	if (   p_tuple->cell_type != CELL_TYPE_TUPLE_ITEM || p_tuple->size != 2
 		|| p_tuple->index((pChar) "input") != 0 || p_tuple->index((pChar) "result") != 1
