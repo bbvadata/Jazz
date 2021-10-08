@@ -1966,19 +1966,38 @@ StatusCode Container::copy(pChar p_where, pChar p_what) {
 }
 
 
-/** "Easy" interface for **Tuple translate**: In jazz_elements, this is only implemented in Channels.
+/** The function call interface for **exec**: Execute an opcode in a formal field.
 
-	\param p_tuple	A Tuple with two items, "input" with the data passed to the service and "result" with the data returned. the
-					result will be overridden in-place without any allocation.
-	\param p_pipe	Some **service** does some computation on "input" and returns "result".
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	A Tuple passed as argument to the call that is not modified. This may be a pure function in Bebop or have context
+					in Agency.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy_transaction()-ed when the caller is done.
+*/
+StatusCode Container::exec(pTransaction &p_txn, Locator &function, pTuple p_args) {
+
+	return SERVICE_ERROR_NOT_APPLICABLE;
+}
+
+
+/** The function call interface for **modify**: In jazz_elements, this is only implemented in Channels.
+
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
+					The result will be overridden in-place without any allocation.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-This is what most frameworks would call predict(), something that takes any tensor as an input and returns another tensor. In channels,
-it just gives support to some other service doing that connected via zeroMQ or bash. Outside jazz_elements, the services use this
-to run their own models.
+modify() is similar to exec(), but, rather than creating a new block with the result, it modifies the Tuple p_args.
 */
-StatusCode Container::translate(pTuple p_tuple, pChar p_pipe) {
+StatusCode Container::modify(Locator &function, pTuple p_args) {
 
 	return SERVICE_ERROR_NOT_APPLICABLE;
 }
