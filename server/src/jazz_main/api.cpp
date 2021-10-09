@@ -730,7 +730,9 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 					return true;
 
 				case '=':
-					if (q_state.node[0] == 0 && *p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url)) {
+					if (   q_state.node[0] == 0
+						&& *p_url == '&'
+						&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
 						q_state.state = PSTATE_COMPLETE_OK;
 						q_state.apply = APPLY_SET_ATTRIBUTE;
 
@@ -754,7 +756,9 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (q_state.node[0] == 0 && *p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+				if (   q_state.node[0] == 0
+					&& *p_url == '&'
+					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_ASSIGN_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
 					q_state.apply = APPLY_ASSIGN;
@@ -769,7 +773,9 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (q_state.node[0] == 0 && *p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+				if (   q_state.node[0] == 0
+					&& *p_url == '&'
+					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_FILT_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
 					q_state.apply = APPLY_FILTER;
@@ -784,7 +790,9 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 				if (method != HTTP_GET)
 					return false;
 
-				if (q_state.node[0] == 0 && *p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url))
+				if (   q_state.node[0] == 0
+					&& *p_url == '&'
+					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_FUNCT_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
 					q_state.apply = APPLY_FUNCTION;
