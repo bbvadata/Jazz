@@ -324,7 +324,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	// Step 6 : The core finished, just distribute the answer as appropriate.
 
 	if (http_method == HTTP_PUT) {
-		if (status == MHD_HTTP_OK) {
+		if (status == MHD_HTTP_CREATED) {
 			if (*upload_data_size) goto continue_in_put_ok;
 			else				   goto create_response_answer_put_ok;
 		} else {
@@ -1199,7 +1199,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
-		if (p_bebop->call(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+		if (p_bebop->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
 			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
@@ -1213,7 +1213,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (!block_from_const(p_base, q_state.url))
 			return MHD_HTTP_BAD_REQUEST;
 
-		if (p_bebop->call(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+		if (p_bebop->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
 			p_container->destroy_transaction(p_base);
 
 			return MHD_HTTP_BAD_REQUEST;
