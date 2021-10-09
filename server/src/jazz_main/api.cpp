@@ -1726,33 +1726,61 @@ bool Api::parse_nested(Locator &r_value, pChar p_url) {
 
 /** Creates a block from a constant read in the URL.
 
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction() it when done.
-	\param p_const	The constant.
+	\param p_txn	  A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					  Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction() when done.
+	\param p_const	  The constant.
+	\param make_tuple Insert it into a Tuple with "input" and "result".
 
 	\return			'true' if successful.
 */
-bool Api::block_from_const(pTransaction &p_txn, pChar p_const) {
+bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) {
 
-	int size = strlen(p_const) + 1;
+	p_txn = nullptr;
+
+	int size = strlen(p_const);
 	int dim[MAX_TENSOR_RANK] = {size, 0, 0, 0, 0, 0};
 
-	pTransaction p_text;
+	pTransaction p_text, p_tensor, p_result;
 
 	if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
 		return false;
 
 	memcpy(&p_text->p_block->tensor, p_const, size);
 
-	if (new_block(p_txn, p_text->p_block, CELL_TYPE_UNDEFINED) !=  SERVICE_NO_ERROR) {
+	if (new_block(p_tensor, p_text->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR)
 		destroy_transaction(p_text);
+	else
+		p_tensor = p_text;
+
+	if (!make_tuple) {
+		p_txn = p_tensor;
+
+		return true;
+	}
+
+	dim[0] = RESULT_BUFFER_SIZE;
+	if (new_block(p_result, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_WITH_ZERO) !=  SERVICE_NO_ERROR) {
+		destroy_transaction(p_tensor);
 
 		return false;
 	}
 
-	destroy_transaction(p_text);
+	StaticBlockHeader hea[2];
+	Name			  names[2]	 = {"input", "result"};
+	pBlock			  p_block[2] = {p_tensor->p_block, p_result->p_block};
 
-	return true;
+	memcpy(&hea[0], p_block[0], sizeof(StaticBlockHeader));
+	memcpy(&hea[1], p_block[1], sizeof(StaticBlockHeader));
+
+	p_block[0]->get_dimensions(hea[0].range.dim);
+	p_block[1]->get_dimensions(hea[1].range.dim);
+
+	int ret = new_block(p_txn, 2, hea, names, p_block);
+
+	destroy_transaction(p_tensor);
+	destroy_transaction(p_result);
+
+	return ret == SERVICE_NO_ERROR;
 }
 
 #ifdef CATCH_TEST
