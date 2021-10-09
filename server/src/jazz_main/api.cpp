@@ -1059,12 +1059,17 @@ MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
 	if (p_container == nullptr)
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-	Locator loc;
+	if (q_state.url[0] == 0) {
+		Locator loc;
 
-	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
-	if (p_container->remove(loc) == SERVICE_NO_ERROR)
-		return MHD_HTTP_OK;
+		if (p_container->remove(loc) == SERVICE_NO_ERROR)
+			return MHD_HTTP_OK;
+	} else {
+		if (p_container->remove((pChar) q_state.url) == SERVICE_NO_ERROR)
+			return MHD_HTTP_OK;
+	}
 
 	return MHD_HTTP_NOT_FOUND;
 }
