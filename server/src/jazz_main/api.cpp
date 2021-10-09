@@ -622,12 +622,14 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 			return false;
 
 		case PSTATE_BASE_SWITCH:
-			if (q_state.node[0] != 0 || !move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.base)) {
+			int mc;
+			if (   q_state.node[0] != 0
+				|| (mc = move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.base)) == RET_MV_CONST_FAILED) {
 				q_state.state = PSTATE_FAILED;
 
 				return false;
 			}
-			q_state.apply	  = APPLY_URL;
+			q_state.apply	  = mc == RET_MV_CONST_NOTHING ? APPLY_URL : APPLY_NEW_ENTITY;
 			q_state.state	  = PSTATE_COMPLETE_OK;
 			q_state.entity[0] = 0;
 			q_state.key[0]	  = 0;
