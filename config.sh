@@ -245,28 +245,6 @@ $(cat _config_/main_dox_tail)" > server/src/main.dox
 printf "Ok.\n"
 
 
-printf "Writing: r_package/rjazz/DESCRIPTION ... "
-
-echo "$(cat _config_/description_head)
-Version: $jazz_version
-Date: $(date +%F)
-$(cat _config_/description_tail)" > r_package/rjazz/DESCRIPTION
-
-printf "Ok.\n"
-
-
-printf "Writing: r_package/build.sh ... "
-
-echo "$(cat _config_/build_r_head)
-R CMD check rjazz_$jazz_version.tar.gz
-R CMD INSTALL rjazz_$jazz_version.tar.gz
-rm -rf rjazz.Rcheck" > r_package/build.sh
-
-chmod 777 r_package/build.sh
-
-printf "Ok.\n"
-
-
 printf "Writing: docker/upload_docker.sh ... "
 
 echo "$(cat _config_/upload_docker_head)
