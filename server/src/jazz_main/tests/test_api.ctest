@@ -158,9 +158,30 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(strcmp(loc.key,	   "k") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//0/e/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/0/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/0"));
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//0/e/k"));
+
+		REQUIRE(strcmp(loc.base,   "0") == 0);
+		REQUIRE(strcmp(loc.entity, "e") == 0);
+		REQUIRE(strcmp(loc.key,	   "k") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//b/0/k"));
+
+		REQUIRE(strcmp(loc.base,   "b") == 0);
+		REQUIRE(strcmp(loc.entity, "0") == 0);
+		REQUIRE(strcmp(loc.key,	   "k") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(TT_API.parse_nested(loc, (pChar) "//b/e/0"));
+
+		REQUIRE(strcmp(loc.base,   "b") == 0);
+		REQUIRE(strcmp(loc.entity, "e") == 0);
+		REQUIRE(strcmp(loc.key,	   "0") == 0);
+		REQUIRE(loc.p_extra == nullptr);
+
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//-/e/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/-/k"));
+		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/-"));
 
 		REQUIRE(!TT_API.parse_nested(loc, (pChar) "/b/e/k"));
 		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b"));
