@@ -1235,31 +1235,61 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		break;
 
-	case APPLY_FUNCTION:
+	case APPLY_FUNCTION: {
 		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
-		if (p_bebop->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy_transaction(p_base);
+		bool mod = (q_state.key[0] == 0);
 
-			return MHD_HTTP_BAD_REQUEST;
+		if (mod) {
+			if (p_container->modify(loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_base);
+
+				return MHD_HTTP_BAD_REQUEST;
+			}
+			Name ent = {"result"};
+			if (p_container->new_block(p_txn, (pTuple) p_base->p_block, ent) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_base);
+
+				return MHD_HTTP_BAD_REQUEST;
+			}
+		} else {
+			if (p_container->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_base);
+
+				return MHD_HTTP_BAD_REQUEST;
+			}
 		}
-		p_container->destroy_transaction(p_base);
-		p_container = p_bebop;
+		p_container->destroy_transaction(p_base); }
 
 		break;
 
-	case APPLY_FUNCT_CONST:
-		if (!block_from_const(p_base, q_state.url))
+	case APPLY_FUNCT_CONST: {
+		bool mod = (q_state.key[0] == 0);
+
+		if (!block_from_const(p_base, q_state.url, mod))
 			return MHD_HTTP_BAD_REQUEST;
 
-		if (p_bebop->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-			p_container->destroy_transaction(p_base);
+		if (mod) {
+			if (p_container->modify(loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_base);
 
-			return MHD_HTTP_BAD_REQUEST;
+				return MHD_HTTP_BAD_REQUEST;
+			}
+			Name ent = {"result"};
+			if (p_container->new_block(p_txn, (pTuple) p_base->p_block, ent) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_base);
+
+				return MHD_HTTP_BAD_REQUEST;
+			}
+		} else {
+			if (p_container->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_base);
+
+				return MHD_HTTP_BAD_REQUEST;
+			}
 		}
-		p_container->destroy_transaction(p_base);
-		p_container = p_bebop;
+		p_container->destroy_transaction(p_base); }
 
 		break;
 
