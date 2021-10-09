@@ -658,7 +658,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 		case PSTATE_KEY_SWITCH:
 			q_state.state = PSTATE_FAILED;
 
-			if (p_out == (pChar) &q_state.key) {
+			if (p_out == (pChar) q_state.key) {
 				if (cursor != '(')
 					return false;
 
@@ -1752,7 +1752,7 @@ bool Api::parse_nested(Locator &r_value, pChar p_url) {
 			r_value.key[0] = 0;
 
 		case PSTATE_KEY_SWITCH:
-			if (p_out == (pChar) &r_value.key)
+			if (p_out == (pChar) r_value.key)
 				return false;
 
 			switch (cursor) {
