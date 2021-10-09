@@ -804,27 +804,26 @@ to run their own models.
 */
 StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
-	if (   p_tuple->cell_type != CELL_TYPE_TUPLE_ITEM || p_tuple->size != 2
-		|| p_tuple->index((pChar) "input") != 0 || p_tuple->index((pChar) "result") != 1
-		|| (*p_pipe++ != '/') || (*p_pipe++ != '/') || (*p_pipe == 0))
+	if (   p_args->cell_type != CELL_TYPE_TUPLE_ITEM || p_args->size != 2
+		|| p_args->index((pChar) "input") != 0 || p_args->index((pChar) "result") != 1)
 		return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-	int base = TenBitsAtAddress(p_pipe);
+	int base = TenBitsAtAddress(function.base);
 
 	switch (base) {
 	case BASE_BASH_10BIT: {
 		if (!can_bash)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-		if (   p_tuple->get_block(0)->cell_type != CELL_TYPE_BYTE || p_tuple->get_block(0)->rank != 1
-			|| p_tuple->get_block(1)->cell_type != CELL_TYPE_BYTE || p_tuple->get_block(1)->rank != 1)
+		if (   p_args->get_block(0)->cell_type != CELL_TYPE_BYTE || p_args->get_block(0)->rank != 1
+			|| p_args->get_block(1)->cell_type != CELL_TYPE_BYTE || p_args->get_block(1)->rank != 1)
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-		int size_input  = p_tuple->get_block(0)->size;
-		int size_result = p_tuple->get_block(1)->size;
+		int size_input  = p_args->get_block(0)->size;
+		int size_result = p_args->get_block(1)->size;
 
-		pChar p_input  = (pChar) &p_tuple->get_block(0)->tensor.cell_byte[0];
-		pChar p_result = (pChar) &p_tuple->get_block(1)->tensor.cell_byte[0];
+		pChar p_input  = (pChar) &p_args->get_block(0)->tensor.cell_byte[0];
+		pChar p_result = (pChar) &p_args->get_block(1)->tensor.cell_byte[0];
 
 		char script[] = "/tmp/jzz-srcXXXXXX";
 		int fd = mkstemp(script);
@@ -877,11 +876,7 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-		p_pipe += 4;
-		if (*p_pipe++ != '/')
-			return SERVICE_ERROR_WRONG_BASE;
-
-		switch (p_tuple->get_block(0)->cell_type) {
+		switch (p_args->get_block(0)->cell_type) {
 		case CELL_TYPE_BYTE:
 		case CELL_TYPE_BYTE_BOOLEAN:
 		case CELL_TYPE_INTEGER:
@@ -896,7 +891,7 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 		}
-		switch (p_tuple->get_block(1)->cell_type) {
+		switch (p_args->get_block(1)->cell_type) {
 		case CELL_TYPE_BYTE:
 		case CELL_TYPE_BYTE_BOOLEAN:
 		case CELL_TYPE_INTEGER:
@@ -911,16 +906,16 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 		}
-		PipeMap::iterator it = pipes.find(p_pipe);
+		PipeMap::iterator it = pipes.find(function.entity);
 
 		if (it == pipes.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-		int size_input  = p_tuple->get_block(0)->size;
-		int size_result = p_tuple->get_block(1)->size;
+		int size_input  = p_args->get_block(0)->size;
+		int size_result = p_args->get_block(1)->size;
 
-		pChar p_input  = (pChar) &p_tuple->get_block(0)->tensor.cell_byte[0];
-		pChar p_result = (pChar) &p_tuple->get_block(1)->tensor.cell_byte[0];
+		pChar p_input  = (pChar) &p_args->get_block(0)->tensor.cell_byte[0];
+		pChar p_result = (pChar) &p_args->get_block(1)->tensor.cell_byte[0];
 
 		memset(p_result, 0, size_result);
 
