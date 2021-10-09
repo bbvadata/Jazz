@@ -566,6 +566,8 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 
 		cursor = *(p_url++);
 		q_state.state = parser_state_switch[q_state.state].next[cursor];
+		if ((q_state.state == PSTATE_KEY_SWITCH) && (cursor == '.') && (p_url[1] <= '9') && (p_url[1] >= '0'))
+			q_state.state = PSTATE_IN_KEY;
 
 		switch (q_state.state) {
 		case PSTATE_NODE0:
