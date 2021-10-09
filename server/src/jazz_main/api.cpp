@@ -1705,6 +1705,9 @@ bool Api::parse_nested(Locator &r_value, pChar p_url) {
 			r_value.key[0] = 0;
 
 		case PSTATE_KEY_SWITCH:
+			if (p_out == (pChar) &r_value.key)
+				return false;
+
 			switch (cursor) {
 			case 0:
 				return true;
