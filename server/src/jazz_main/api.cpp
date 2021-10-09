@@ -656,6 +656,29 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 		case PSTATE_KEY_SWITCH:
 			q_state.state = PSTATE_FAILED;
 
+			if (p_out == (pChar) &q_state.key) {
+				if (cursor != '(')
+					return false;
+
+				q_state.key[0] = 0;
+
+				if (method != HTTP_GET)
+					return false;
+
+				if (   q_state.node[0] == 0
+					&& *p_url == '&'
+					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
+					q_state.apply = APPLY_FUNCT_CONST;
+				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+					q_state.apply = APPLY_FUNCTION;
+				else
+					return false;
+
+				q_state.state = PSTATE_COMPLETE_OK;
+
+				return true;
+			}
+
 			switch (cursor) {
 			case 0:
 				q_state.state = PSTATE_COMPLETE_OK;
