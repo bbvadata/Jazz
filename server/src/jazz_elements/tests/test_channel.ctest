@@ -224,13 +224,15 @@ SCENARIO("Testing bash end-to-end") {
 			REQUIRE(CHN.copy((pChar) "//bash/where", (pChar) "/bash/what") == SERVICE_ERROR_WRONG_ARGUMENTS);
 		}
 
-		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
+		WHEN("We test modify") {
+			Locator fun = {"bash", "exec", "", 0};
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_int->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
 
 			CHN.can_bash = 0;
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.can_bash = 1;
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -672,9 +674,11 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 		}
 
-		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_pop->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_BASE);
+		WHEN("We test modify") {
+			Locator fun = {"file", "anything", "", 0};
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_pop->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
 		}
 
 		CHN.destroy_transaction(p_tx_pop);
@@ -927,13 +931,15 @@ SCENARIO("Testing 0-mq end-to-end") {
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/aaa") == SERVICE_ERROR_ENTITY_NOT_FOUND);
 		}
 
-		WHEN("We test translate") {
+		WHEN("We test modify") {
+			Locator fun = {"0-mq", "exec", "", 0};
+
 			REQUIRE(CHN.pipes.size() == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//0-mq/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_int->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
 
 			CHN.zmq_ok = 0;
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/exec") == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.zmq_ok = 1;
 
 			REQUIRE(CHN.put((pChar) "//0-mq/pipeline/alpha", p_tx_pi1->p_block) == SERVICE_NO_ERROR);
@@ -941,7 +947,9 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.pipes.size() == 2);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/alpha") == SERVICE_NO_ERROR);
+			strcpy(fun.entity, "alpha");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -954,7 +962,9 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(strcmp(p_res, res_alpha) == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/a2m") == SERVICE_NO_ERROR);
+			strcpy(fun.entity, "a2m");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -967,8 +977,14 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(strcmp(p_res, res_a2m) == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mqq/exec") == SERVICE_ERROR_WRONG_BASE);
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/what") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+			strcpy(fun.base, "yy");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
+
+			strcpy(fun.base, "0-mq");
+			strcpy(fun.entity, "what");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_ENTITY_NOT_FOUND);
 
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/alpha") == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/a2m") == SERVICE_NO_ERROR);
@@ -1403,9 +1419,11 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.connect.size() == 0);
 		}
-		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_idx->p_block, (pChar) "//http/anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//http/anything") == SERVICE_ERROR_WRONG_BASE);
+		WHEN("We test modify") {
+			Locator fun = {"http", "anything", "", 0};
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_idx->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
 		}
 		CHN.destroy_transaction(p_tx_idx);
 		CHN.destroy_transaction(p_tx_ixx);
