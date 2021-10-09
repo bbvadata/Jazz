@@ -1195,9 +1195,13 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		return MHD_HTTP_OK;
 
 	case APPLY_NEW_ENTITY:
-		if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
+		if (q_state.url[0] == 0) {
+			if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
+				return MHD_HTTP_BAD_REQUEST;
+		} else {
+			if (p_container->new_entity((pChar) q_state.url) != SERVICE_NO_ERROR)
+				return MHD_HTTP_BAD_REQUEST;
+		}
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
 		return MHD_HTTP_OK;
