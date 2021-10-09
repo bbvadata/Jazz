@@ -1547,25 +1547,37 @@ bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 	\param p_url	 The input string.
 	\param p_base	 (optional) Prefix with a base to be prefixed
 
-	\return			'true' if successful. Possible errors are about buffer sizes of start and final characters.
+	\return			 RET_MV_CONST_FAILED on error (buffer sizes or start and final characters), RET_MV_CONST_NOTHING normal moving or
+					 RET_MV_CONST_NEW_ENTITY there is a ";.new" ending and no errors.
+
 
 Note: This replaces expand_url_encoded() since the string passed to pares is already %-decoded by libmicrohttpd.
 */
-bool Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
+int Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 
 	if (*(p_url++) != '&')
-		return false;
+		return RET_MV_CONST_FAILED;
 
 	int url_len = strlen(p_url) - 1;
 
 	pChar p_end = p_url + url_len;
 
+	int ret = RET_MV_CONST_NOTHING;
+
+	if (*p_end == 'w') {
+		if ((*(--p_end) != 'e') || (*(--p_end) != 'n') || (*(--p_end) != '.') || (*(--p_end) != ';'))
+			return RET_MV_CONST_FAILED;
+
+		ret		 = RET_MV_CONST_NEW_ENTITY;
+		url_len -= 4;
+	}
+
 	if (*p_end != ';' && *p_end != ']' && *p_end != ')')
-		return false;
+		return RET_MV_CONST_FAILED;
 
 	if (p_base != nullptr) {
 		if (buff_size < 4 + SHORT_NAME_SIZE)
-			return false;
+			return RET_MV_CONST_FAILED;
 
 		*(p_buff++) = '/';
 		*(p_buff++) = '/';
@@ -1586,7 +1598,7 @@ bool Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 	}
 
 	if (url_len >= buff_size)
-		return false;
+		return RET_MV_CONST_FAILED;
 
 	memcpy(p_buff, p_url, url_len);
 
@@ -1594,7 +1606,7 @@ bool Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 
 	*(p_buff) = 0;
 
-	return true;
+	return ret;
 }
 
 
