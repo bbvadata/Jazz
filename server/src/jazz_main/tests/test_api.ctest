@@ -1088,6 +1088,18 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_NEW_ENTITY);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//file&/tmp/folder/;.new", HTTP_GET));
+
+		REQUIRE(hqs.node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base, "file") == 0);
+		REQUIRE(hqs.entity[0] == 0);
+		REQUIRE(hqs.key[0]	  == 0);
+		REQUIRE(strcmp(hqs.url, "//file//tmp/folder/") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NEW_ENTITY);
 	}
 
 	REQUIRE(TT_API.shut_down() == 0);
