@@ -82,6 +82,10 @@ using namespace jazz_agency;
 
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
 
+#define RET_MV_CONST_FAILED					-1	///< return value for move_const() failed.
+#define RET_MV_CONST_NOTHING				 0	///< return value for move_const() normal moving.
+#define RET_MV_CONST_NEW_ENTITY				 1	///< return value for move_const() there is a ";.new" ending, otherwise parses ok.
+
 
 /** \brief A buffer to keep the state while parsing/executing a query
 */
@@ -177,7 +181,7 @@ class Api : public Container {
 		bool expand_url_encoded	(pChar			p_buff,
 								 int			buff_size,
 								 pChar			p_url);
-		bool move_const			(pChar			p_buff,
+		int move_const			(pChar			p_buff,
 								 int			buff_size,
 								 pChar			p_url,
 								 pChar			p_base = nullptr);
