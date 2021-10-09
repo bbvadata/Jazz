@@ -65,7 +65,7 @@ namespace jazz_main
 #define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(\\]\\)]"
 
 #define MAX_NUM_PSTATES			14		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	19		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define NUM_STATE_TRANSITIONS	20		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 /// Parser state values
 
@@ -116,6 +116,7 @@ ParseStateTransitions state_tr = {
 	{PSTATE_IN_ENTITY,	PSTATE_ENT_SWITCH,	REX_ENT_SWITCH},
 
 	{PSTATE_KEY0,		PSTATE_IN_KEY,		REX_NAME_FIRST},
+	{PSTATE_KEY0,		PSTATE_KEY_SWITCH,	REX_KEY_SWITCH},
 
 	{PSTATE_IN_KEY,		PSTATE_IN_KEY,		REX_NAME_ANY},
 	{PSTATE_IN_KEY,		PSTATE_KEY_SWITCH,	REX_KEY_SWITCH},
