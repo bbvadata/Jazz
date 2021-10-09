@@ -81,6 +81,7 @@ using namespace jazz_agency;
 
 
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
+#define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
 
 #define RET_MV_CONST_FAILED					-1	///< return value for move_const() failed.
 #define RET_MV_CONST_NOTHING				 0	///< return value for move_const() normal moving.
@@ -188,7 +189,8 @@ class Api : public Container {
 		bool parse_nested		(Locator	   &r_value,
 								 pChar			p_url);
 		bool block_from_const	(pTransaction  &p_txn,
-								 pChar			p_const);
+								 pChar			p_const,
+								 bool			make_tuple = false);
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;
