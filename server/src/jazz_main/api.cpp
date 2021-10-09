@@ -701,6 +701,12 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 
 					return true;
 				}
+				if (strcmp("new", p_url) == 0) {
+					q_state.state = PSTATE_COMPLETE_OK;
+					q_state.apply = APPLY_NEW_ENTITY;
+
+					return true;
+				}
 				if (strncmp(p_url, "attribute(", 10) != 0)
 					return false;
 
