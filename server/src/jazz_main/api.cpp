@@ -1789,7 +1789,7 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 	pTransaction p_text, p_tensor, p_result;
 
-	if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
+	if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
 		return false;
 
 	memcpy(&p_text->p_block->tensor, p_const, size);
