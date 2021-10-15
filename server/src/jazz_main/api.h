@@ -101,7 +101,7 @@ struct HttpQueryState {
 	char name	[NAME_SIZE];					///< A possible item name
 	char url	[MAX_FILE_OR_URL_SIZE];			///< The endpoint (an URL, file name, folder name, bash script)
 
-	Locator r_value;							///< Parsed //r_base/r_entity/r_key
+	Locator r_value, rr_value;					///< Parsed //r_base/r_entity/r_key, //r_base/r_entity/r_key(//rr_base/rr_entity/rr_key)
 };
 
 

@@ -62,7 +62,7 @@ namespace jazz_elements
 #define BASE_0_MQ_10BIT				0x1b0		//< First 10 bits of base "0-mq"
 
 
-#define MAX_FILE_OR_URL_SIZE		1824		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
+#define MAX_FILE_OR_URL_SIZE		1744		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
 
 /// HttpQueryState apply values (on state == PSTATE_COMPLETE_OK)
 
