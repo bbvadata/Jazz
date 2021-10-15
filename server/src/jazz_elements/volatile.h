@@ -219,8 +219,6 @@ The queue is created by new_entity() //queue/name/~5000 (where 5000 is a mandato
 priority nodes are discarded. You can also get() to //queue/name/~xh{ighest} (extracting it), //queue/name/~hi{ghest} (leaving it),
 equivalently: //queue/name/~xl{owest}, //queue/name/~lo{west}. And you can get() nodes by key as in a deque (if they haven't been pop()ed
 or been discarded).
-You can also PUT a block into a deque without giving it a name by putting to //deque/entity/~push. The container will give it a new
-name automatically. This way you avoid finding a name that does not match existing blocks in the deque.
 
 Methods in tree
 ---------------
