@@ -75,12 +75,19 @@ namespace jazz_elements
 #define APPLY_FILT_CONST				 6		///< //base/entity/key[& any_url_encoded_const] (A filter on a const.)
 #define APPLY_RAW						 7		///< {///node}//base/entity/key.raw (Serialize text to raw.)
 #define APPLY_TEXT						 8		///< {///node}//base/entity/key.text (Serialize raw to text.)
-#define APPLY_ASSIGN					 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
-#define APPLY_ASSIGN_CONST				10		///< //base/entity/key=& any_url_encoded_const ; (Assign const to block.)
-#define APPLY_JAZZ_INFO					11		///< /// Show the server info.
-#define APPLY_NEW_ENTITY				12		///< {///node}//base/entity.new (Create a new entity)
-#define APPLY_GET_ATTRIBUTE				13		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
-#define APPLY_SET_ATTRIBUTE				14		///< //base/entity/key.attribute(123)=& url_encoded ; (set attribute 123 with HTTP_GET)
+#define APPLY_ASSIGN_NOTHING			 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
+#define APPLY_ASSIGN_NAME				10		///< {///node}//base/entity/key=//r_base/r_entity/r_key:name (Tuple item -> block)
+#define APPLY_ASSIGN_FUNCTION			11		///< {///node}//base/entity/key=//r_base/r_entity/r_key(//t_base/t_entity/t_key)
+#define APPLY_ASSIGN_FUNCT_CONST		12		///< {///node}//base/entity/key=//r_base/r_entity/r_key(& any_url_encoded_const)
+#define APPLY_ASSIGN_FILTER				13		///< {///node}//base/entity/key=//r_base/r_entity/r_key[//t_base/t_entity/t_key]
+#define APPLY_ASSIGN_FILT_CONST			14		///< {///node}//base/entity/key=//r_base/r_entity/r_key[& any_url_encoded_const]
+#define APPLY_ASSIGN_RAW				15		///< {///node}//base/entity/key=//r_base/r_entity/r_key.raw
+#define APPLY_ASSIGN_TEXT				16		///< {///node}//base/entity/key=//r_base/r_entity/r_key.text
+#define APPLY_ASSIGN_CONST				17		///< //base/entity/key=& any_url_encoded_const ; (Assign const to block.)
+#define APPLY_NEW_ENTITY				18		///< {///node}//base/entity.new (Create a new entity)
+#define APPLY_GET_ATTRIBUTE				19		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
+#define APPLY_SET_ATTRIBUTE				20		///< //base/entity/key.attribute(123)=& url_encoded ; (set attribute 123 with HTTP_GET)
+#define APPLY_JAZZ_INFO					21		///< /// Show the server info.
 
 
 /// A map for defining http config names
