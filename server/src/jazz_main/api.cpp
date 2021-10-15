@@ -763,7 +763,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
 					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_ASSIGN_CONST;
 				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
-					q_state.apply = APPLY_ASSIGN;
+					q_state.apply = APPLY_ASSIGN_NOTHING;
 				else
 					return false;
 
@@ -1184,7 +1184,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		return MHD_HTTP_OK; }
 
-	case APPLY_ASSIGN:
+	case APPLY_ASSIGN_NOTHING:
 		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
