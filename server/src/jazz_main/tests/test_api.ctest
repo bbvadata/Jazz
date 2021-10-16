@@ -1897,6 +1897,18 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_NEW_ENTITY);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//queue/test_q/twelve~0.12", HTTP_PUT));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "queue") == 0);
+		REQUIRE(strcmp(hqs.entity, "test_q") == 0);
+		REQUIRE(strcmp(hqs.key,	   "twelve~0.12") == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
 	}
 
 	REQUIRE(TT_API.shut_down() == 0);
