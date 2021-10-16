@@ -1689,7 +1689,9 @@ bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 
 /** Copy the string "as-is" (without percent-decoding) a string into a buffer.
 
-	\param p_buff	 A buffer to store the result.
+	\param p_buff	 A buffer to store the result. This first char must be a zero on call or it will not write anything, just check for
+					 the return code and return. (This is a trick to avoid overriding the buffer in forward call. This function is an
+					 internal part of parse().)
 	\param buff_size The size of the output buffer (ending zero included).
 	\param p_url	 The input string.
 	\param p_base	 (optional) Prefix with a base to be prefixed
@@ -1721,6 +1723,9 @@ int Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 
 	if (*p_end != ';' && *p_end != ']' && *p_end != ')')
 		return RET_MV_CONST_FAILED;
+
+	if (*p_buff != 0)
+		return ret;
 
 	if (p_base != nullptr) {
 		if (buff_size < 4 + SHORT_NAME_SIZE)
