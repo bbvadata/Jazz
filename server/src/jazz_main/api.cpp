@@ -535,6 +535,7 @@ StatusCode Api::shut_down() {
 	\param q_state	A structure with the parts the url successfully parsed ready to be executed.
 	\param p_url	The http url (that has already been checked to start with //)
 	\param method	The http method in [HTTP_NOTUSED .. HTTP_DELETE]
+	\param recurse	True in an assignment while processing the r_value
 
 	\return			Some error code or SERVICE_NO_ERROR if successful.
 
@@ -549,7 +550,7 @@ HTTP_DELETE | Api.http_delete()
 HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
 
 */
-bool Api::parse(HttpQueryState &q_state, pChar p_url, int method) {
+bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) {
 
 	int buf_size;
 	pChar p_out;

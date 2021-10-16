@@ -151,7 +151,8 @@ class Api : public Container {
 
 		bool parse					   (HttpQueryState &q_state,
 										pChar			p_url,
-										int				method);
+										int				method,
+										bool			recurse = false);
 
 		MHD_StatusCode get_static	   (pMHD_Response  &response,
 										pChar			p_url,
