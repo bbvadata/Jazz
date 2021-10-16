@@ -94,7 +94,8 @@ struct HttpQueryState {
 	int	state;									///< The parser state from PSTATE_INITIAL to PSTATE_COMPLETE_OK
 	int apply;									///< APPLY_NOTHING, APPLY_NAME, APPLY_URL, APPLY_FUNCTION, .. APPLY_ASSIGN_CONST
 
-	char node	[NAME_SIZE];					///< An optional name of a Jazz node.
+	char l_node	[NAME_SIZE];					///< An optional name of a Jazz node that is either the only one or the left of assignment.
+	char r_node	[NAME_SIZE];					///< An additional optional name of a Jazz node for the right part in an assignment.
 	char base	[SHORT_NAME_SIZE];				///< A Locator compatible base for the l_value.
 	char entity	[NAME_SIZE];					///< A Locator compatible entity for the l_value.
 	char key	[NAME_SIZE];					///< A Locator compatible key for the l_value.
