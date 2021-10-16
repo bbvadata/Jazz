@@ -555,10 +555,14 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 	int buf_size;
 	pChar p_out;
 
-	q_state.node[0] = 0;
-	q_state.url[0]	= 0;
-	q_state.apply	= APPLY_NOTHING;
-	q_state.state	= PSTATE_INITIAL;
+	if (!recurse) {
+		q_state.l_node[0] = 0;
+		q_state.r_node[0] = 0;
+		q_state.name[0]	  = 0;
+	}
+	q_state.url[0] = 0;
+	q_state.apply  = APPLY_NOTHING;
+	q_state.state  = PSTATE_INITIAL;
 
 	p_url++;	// parse() is only called after checking the trailing //, this skips the first / to set state to PSTATE_INITIAL
 
@@ -572,25 +576,41 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 
 		switch (q_state.state) {
 		case PSTATE_NODE0:
-			p_out	 = (pChar) &q_state.node;
+			if (recurse)
+				p_out = (pChar) &q_state.r_node;
+			else
+				p_out = (pChar) &q_state.l_node;
+
 			buf_size = NAME_SIZE - 1;
 
 			break;
 
 		case PSTATE_BASE0:
-			p_out	 = (pChar) &q_state.base;
+			if (recurse)
+				p_out = (pChar) &q_state.r_value.base;
+			else
+				p_out = (pChar) &q_state.base;
+
 			buf_size = SHORT_NAME_SIZE - 1;
 
 			break;
 
 		case PSTATE_ENTITY0:
-			p_out	 = (pChar) &q_state.entity;
+			if (recurse)
+				p_out = (pChar) &q_state.r_value.entity;
+			else
+				p_out = (pChar) &q_state.entity;
+
 			buf_size = NAME_SIZE - 1;
 
 			break;
 
 		case PSTATE_KEY0:
-			p_out	 = (pChar) &q_state.key;
+			if (recurse)
+				p_out = (pChar) &q_state.r_value.key;
+			else
+				p_out = (pChar) &q_state.key;
+
 			buf_size = NAME_SIZE - 1;
 
 			break;
@@ -626,22 +646,34 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 
 		case PSTATE_BASE_SWITCH:
 			int mc;
-			if (   q_state.node[0] != 0
-				|| (mc = move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.base)) == RET_MV_CONST_FAILED) {
+			if (recurse)
+				mc = move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.r_value.base);
+			else
+				mc = move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.base);
+
+			if (mc == RET_MV_CONST_FAILED) {
 				q_state.state = PSTATE_FAILED;
 
 				return false;
 			}
-			q_state.apply	  = mc == RET_MV_CONST_NOTHING ? APPLY_URL : APPLY_NEW_ENTITY;
-			q_state.state	  = PSTATE_COMPLETE_OK;
-			q_state.entity[0] = 0;
-			q_state.key[0]	  = 0;
+			q_state.apply = mc == RET_MV_CONST_NOTHING ? APPLY_URL : APPLY_NEW_ENTITY;
+			q_state.state = PSTATE_COMPLETE_OK;
+			if (recurse) {
+				q_state.r_value.entity[0] = 0;
+				q_state.r_value.key[0]	  = 0;
+			} else {
+				q_state.entity[0] = 0;
+				q_state.key[0]	  = 0;
+			}
 
 			return true;
 
 		case PSTATE_ENT_SWITCH:
 			q_state.state  = PSTATE_COMPLETE_OK;
-			q_state.key[0] = 0;
+			if (recurse)
+				q_state.r_value.key[0] = 0;
+			else
+				q_state.key[0] = 0;
 
 			if (cursor != '.')
 				return true;
@@ -659,20 +691,22 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 		case PSTATE_KEY_SWITCH:
 			q_state.state = PSTATE_FAILED;
 
-			if (p_out == (pChar) q_state.key) {
+			if (p_out == (pChar) q_state.key || p_out == (pChar) q_state.r_value.key) {
 				if (cursor != '(')
 					return false;
 
-				q_state.key[0] = 0;
+				if (recurse)
+					q_state.r_value.key[0] = 0;
+				else
+					q_state.key[0] = 0;
 
 				if (method != HTTP_GET)
 					return false;
 
-				if (   q_state.node[0] == 0
-					&& *p_url == '&'
-					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
+				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_FUNCT_CONST;
-				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+				else if (	*p_url == '/'
+						 && ((recurse && parse_locator(q_state.rr_value, p_url)) || (!recurse && parse_locator(q_state.r_value, p_url))))
 					q_state.apply = APPLY_FUNCTION;
 				else
 					return false;
@@ -733,16 +767,13 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 					return true;
 
 				case '=':
-					if (   q_state.node[0] == 0
-						&& *p_url == '&'
-						&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
+					if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
 						q_state.state = PSTATE_COMPLETE_OK;
 						q_state.apply = APPLY_SET_ATTRIBUTE;
 
 						return true;
 					}
 				}
-
 				return false;
 
 			case ':':
@@ -756,31 +787,60 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 				return true;
 
 			case '=':
-				if (method != HTTP_GET)
+				if (recurse || (method != HTTP_GET))
 					return false;
 
-				if (   q_state.node[0] == 0
-					&& *p_url == '&'
-					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
+				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
 					q_state.apply = APPLY_ASSIGN_CONST;
-				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
-					q_state.apply = APPLY_ASSIGN_NOTHING;
-				else
+					q_state.state = PSTATE_COMPLETE_OK;
+
+					return true;
+				}
+				if ((*p_url != '/') || !parse(q_state, p_url, HTTP_GET, true))
 					return false;
 
-				q_state.state = PSTATE_COMPLETE_OK;
+				switch (q_state.apply) {
+				case APPLY_NOTHING:
+					q_state.apply = APPLY_ASSIGN_NOTHING;
+					return true;
+				case APPLY_NAME:
+					q_state.apply = APPLY_ASSIGN_NAME;
+					return true;
+				case APPLY_URL:
+					q_state.apply = APPLY_ASSIGN_URL;
+					return true;
+				case APPLY_FUNCTION:
+					q_state.apply = APPLY_ASSIGN_FUNCTION;
+					return true;
+				case APPLY_FUNCT_CONST:
+					q_state.apply = APPLY_ASSIGN_FUNCT_CONST;
+					return true;
+				case APPLY_FILTER:
+					q_state.apply = APPLY_ASSIGN_FILTER;
+					return true;
+				case APPLY_FILT_CONST:
+					q_state.apply = APPLY_ASSIGN_FILT_CONST;
+					return true;
+				case APPLY_RAW:
+					q_state.apply = APPLY_ASSIGN_RAW;
+					return true;
+				case APPLY_TEXT:
+					q_state.apply = APPLY_ASSIGN_TEXT;
+					return true;
+				}
+				q_state.state = PSTATE_FAILED;
 
-				return true;
+				return false;
 
 			case '[':
 				if (method != HTTP_GET)
 					return false;
 
-				if (   q_state.node[0] == 0
-					&& *p_url == '&'
-					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
+				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_FILT_CONST;
-				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+				else if (	*p_url == '/'
+						 && ((recurse && parse_locator(q_state.rr_value, p_url)) || (!recurse && parse_locator(q_state.r_value, p_url))))
+
 					q_state.apply = APPLY_FILTER;
 				else
 					return false;
@@ -793,11 +853,10 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 				if (method != HTTP_GET)
 					return false;
 
-				if (   q_state.node[0] == 0
-					&& *p_url == '&'
-					&& move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
+				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
 					q_state.apply = APPLY_FUNCT_CONST;
-				else if (*p_url == '/' && parse_nested(q_state.r_value, p_url))
+				else if (	*p_url == '/'
+						 && ((recurse && parse_locator(q_state.rr_value, p_url)) || (!recurse && parse_locator(q_state.r_value, p_url))))
 					q_state.apply = APPLY_FUNCTION;
 				else
 					return false;
@@ -811,12 +870,13 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 
 				return false;
 			}
-
 			break;
 
 		case PSTATE_DONE_NODE:
-			q_state.url[0] = '/';
-			strcpy((pChar) &q_state.url[1], p_url);
+			if (!recurse) {
+				q_state.url[0] = '/';
+				strcpy((pChar) &q_state.url[1], p_url);
+			}
 
 			break;
 
