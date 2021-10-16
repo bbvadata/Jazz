@@ -187,7 +187,7 @@ class Api : public Container {
 								 int			buff_size,
 								 pChar			p_url,
 								 pChar			p_base = nullptr);
-		bool parse_nested		(Locator	   &r_value,
+		bool parse_locator		(Locator	   &loc,
 								 pChar			p_url);
 		bool block_from_const	(pTransaction  &p_txn,
 								 pChar			p_const,

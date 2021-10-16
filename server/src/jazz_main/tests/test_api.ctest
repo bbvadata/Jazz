@@ -84,7 +84,7 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 SCENARIO("Testing api.parse") {
 	REQUIRE(TT_API.start() == 0);
 
-	GIVEN("We want to test parse_nested()") {
+	GIVEN("We want to test parse_locator()") {
 		Locator	loc;
 
 		loc.base[0]	  = 0xba;
@@ -92,14 +92,14 @@ SCENARIO("Testing api.parse") {
 		loc.key[0]	  = 0xda;
 		loc.p_extra	  = (pExtraLocator) &loc;
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base/entity/key"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//base/entity/key"));
 
 		REQUIRE(strcmp(loc.base,   "base")	 == 0);
 		REQUIRE(strcmp(loc.entity, "entity") == 0);
 		REQUIRE(strcmp(loc.key,	   "key")	 == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij)"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij)"));
 
 		REQUIRE(strcmp(loc.base,   "base-_1") == 0);
 		REQUIRE(strcmp(loc.entity, "abcdefghij01234567890123456789~") == 0);
@@ -110,119 +110,119 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(strlen(loc.entity) == sizeof(loc.entity) - 1);
 		REQUIRE(strlen(loc.key)	   == sizeof(loc.key) - 1);
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base-_12/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~2/ABCDEFGHIJ_1234567890abcdefghij"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij2"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//base-_12/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~2/ABCDEFGHIJ_1234567890abcdefghij"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//base-_1/abcdefghij01234567890123456789~/ABCDEFGHIJ_1234567890abcdefghij2"));
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//ase-_10/bcdefghij01234567890123456789~0/ABCDEFGHIJ_0123456789abcdefghij"));
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base1/azAZ_-~09/AZaz_-~09]"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//ase-_10/bcdefghij01234567890123456789~0/ABCDEFGHIJ_0123456789abcdefghij"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//base1/azAZ_-~09/AZaz_-~09]"));
 
 		REQUIRE(strcmp(loc.base,   "base1") == 0);
 		REQUIRE(strcmp(loc.entity, "azAZ_-~09") == 0);
 		REQUIRE(strcmp(loc.key,	   "AZaz_-~09") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base2/azAZ_-~08/AZaz_-~08)"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//base2/azAZ_-~08/AZaz_-~08)"));
 
 		REQUIRE(strcmp(loc.base,   "base2") == 0);
 		REQUIRE(strcmp(loc.entity, "azAZ_-~08") == 0);
 		REQUIRE(strcmp(loc.key,	   "AZaz_-~08") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base2b/azAZ_-~10)"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//base2b/azAZ_-~10)"));
 
 		REQUIRE(strcmp(loc.base,   "base2b") == 0);
 		REQUIRE(strcmp(loc.entity, "azAZ_-~10") == 0);
 		REQUIRE(loc.key[0] == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//base3/azAZ_-~07/AZaz_-~07"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//base3/azAZ_-~07/AZaz_-~07"));
 
 		REQUIRE(strcmp(loc.base,   "base3") == 0);
 		REQUIRE(strcmp(loc.entity, "azAZ_-~07") == 0);
 		REQUIRE(strcmp(loc.key,	   "AZaz_-~07") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09("));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09("));
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09]]"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//base/azAZ_-~09/AZaz_-~09]]"));
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//bas e/azAZ_-~09/AZaz_-~09"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//ba'se/azAZ_-~09/AZaz_-~09"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//ba/se/azAZ_-~09/AZaz_-~09"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//bas e/azAZ_-~09/AZaz_-~09"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//ba'se/azAZ_-~09/AZaz_-~09"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//ba/se/azAZ_-~09/AZaz_-~09"));
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//b/e/k"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//b/e/k"));
 
 		REQUIRE(strcmp(loc.base,   "b") == 0);
 		REQUIRE(strcmp(loc.entity, "e") == 0);
 		REQUIRE(strcmp(loc.key,	   "k") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//0/e/k"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//0/e/k"));
 
 		REQUIRE(strcmp(loc.base,   "0") == 0);
 		REQUIRE(strcmp(loc.entity, "e") == 0);
 		REQUIRE(strcmp(loc.key,	   "k") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//b/0/k"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//b/0/k"));
 
 		REQUIRE(strcmp(loc.base,   "b") == 0);
 		REQUIRE(strcmp(loc.entity, "0") == 0);
 		REQUIRE(strcmp(loc.key,	   "k") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//b/e/0"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//b/e/0"));
 
 		REQUIRE(strcmp(loc.base,   "b") == 0);
 		REQUIRE(strcmp(loc.entity, "e") == 0);
 		REQUIRE(strcmp(loc.key,	   "0") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//-/e/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/-/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/-"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//-/e/k"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//b/-/k"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//b/e/-"));
 
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "/b/e/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//b/e/k/"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "///b/e/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "///n//b/e/k"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "//"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "/"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) "a"));
-		REQUIRE(!TT_API.parse_nested(loc, (pChar) ""));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "/b/e/k"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//b"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//b/e/"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//b/e/k/"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "///b/e/k"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "///n//b/e/k"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "//"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "/"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) "a"));
+		REQUIRE(!TT_API.parse_locator(loc, (pChar) ""));
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//deque/entity/~pop_first"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//deque/entity/~pop_first"));
 
 		REQUIRE(strcmp(loc.base,   "deque") == 0);
 		REQUIRE(strcmp(loc.entity, "entity") == 0);
 		REQUIRE(strcmp(loc.key,	   "~pop_first") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//deque/entity/key~prev"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//deque/entity/key~prev"));
 
 		REQUIRE(strcmp(loc.base,   "deque") == 0);
 		REQUIRE(strcmp(loc.entity, "entity") == 0);
 		REQUIRE(strcmp(loc.key,	   "key~prev") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//index/id/~si"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//index/id/~si"));
 
 		REQUIRE(strcmp(loc.base,   "index") == 0);
 		REQUIRE(strcmp(loc.entity, "id") == 0);
 		REQUIRE(strcmp(loc.key,	   "~si") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//queue/candidates/~5000"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//queue/candidates/~5000"));
 
 		REQUIRE(strcmp(loc.base,   "queue") == 0);
 		REQUIRE(strcmp(loc.entity, "candidates") == 0);
 		REQUIRE(strcmp(loc.key,	   "~5000") == 0);
 		REQUIRE(loc.p_extra == nullptr);
 
-		REQUIRE(TT_API.parse_nested(loc, (pChar) "//tree/game/node0a7ef~node0244e"));
+		REQUIRE(TT_API.parse_locator(loc, (pChar) "//tree/game/node0a7ef~node0244e"));
 
 		REQUIRE(strcmp(loc.base,   "tree") == 0);
 		REQUIRE(strcmp(loc.entity, "game") == 0);

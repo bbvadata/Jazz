@@ -1698,19 +1698,19 @@ int Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 
 /** Parse a simple //base/entity/key string (Used inside the main Api.parse()).
 
-	\param r_value	A Locator to store the result (that will be left in undetermined on error).
-	\param p_url	The input string.
+	\param loc	 A Locator to store the result (that will be left in undetermined on error).
+	\param p_url The input string.
 
-	\return			'true' if successful.
+	\return		 `true` if successful.
 */
-bool Api::parse_nested(Locator &r_value, pChar p_url) {
+bool Api::parse_locator(Locator &loc, pChar p_url) {
 
 	int buf_size, state = PSTATE_INITIAL;
 	pChar p_out;
 
-	r_value.p_extra = nullptr;
+	loc.p_extra = nullptr;
 
-	p_url++;	// parse_nested() is only called after checking the trailing /, this skips the first / to set state to PSTATE_INITIAL
+	p_url++;	// parse_locator() is only called after checking the trailing /, this skips the first / to set state to PSTATE_INITIAL
 
 	while (true) {
 		unsigned char cursor;
@@ -1720,19 +1720,19 @@ bool Api::parse_nested(Locator &r_value, pChar p_url) {
 
 		switch (state) {
 		case PSTATE_BASE0:
-			p_out	 = (pChar) &r_value.base;
+			p_out	 = (pChar) &loc.base;
 			buf_size = SHORT_NAME_SIZE - 1;
 
 			break;
 
 		case PSTATE_ENTITY0:
-			p_out	 = (pChar) &r_value.entity;
+			p_out	 = (pChar) &loc.entity;
 			buf_size = NAME_SIZE - 1;
 
 			break;
 
 		case PSTATE_KEY0:
-			p_out	 = (pChar) &r_value.key;
+			p_out	 = (pChar) &loc.key;
 			buf_size = NAME_SIZE - 1;
 
 			break;
@@ -1749,10 +1749,10 @@ bool Api::parse_nested(Locator &r_value, pChar p_url) {
 			break;
 
 		case PSTATE_ENT_SWITCH:
-			r_value.key[0] = 0;
+			loc.key[0] = 0;
 
 		case PSTATE_KEY_SWITCH:
-			if (p_out == (pChar) r_value.key)
+			if (p_out == (pChar) loc.key)
 				return false;
 
 			switch (cursor) {
