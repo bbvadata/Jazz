@@ -1299,6 +1299,32 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		return MHD_HTTP_OK;
 
+	case APPLY_NEW_ENTITY:
+		if (q_state.l_node[0] != 0) {
+			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
+			p_channels->destroy_transaction(p_txn); }
+		else {
+			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+
+			if (p_container == nullptr)
+				return MHD_HTTP_SERVICE_UNAVAILABLE;
+
+			if (q_state.url[0] == 0) {
+				strcpy(loc.base,   q_state.base);
+				strcpy(loc.entity, q_state.entity);
+				loc.key[0] = 0;
+
+				ret = p_container->new_entity(loc);
+			} else
+				ret = p_container->new_entity((pChar) q_state.url);
+		}
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
 
 		p_channels->destroy_transaction(p_txn);
 
