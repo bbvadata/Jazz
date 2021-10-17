@@ -1274,16 +1274,31 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		return MHD_HTTP_OK;
 
-	if (q_state.l_node[0] != 0) {
-		pTransaction p_txn;
+	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_CONST:
+		if (q_state.r_node[0] != 0)
+			ret = get_right_remote(p_txn, q_state);
+		else
+			ret = get_right_local(p_txn, q_state);
 
-		int ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
 
-		if (ret != MHD_HTTP_OK)
-			return ret;
+		if (q_state.l_node[0] != 0) {
+			sprintf(buffer_1k, "//%s/%s/%s", q_state.base, q_state.entity, q_state.key);
 
-		int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
-		response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+			ret = p_channels->forward_put(q_state.l_node, buffer_1k, p_txn->p_block);
+		} else
+			ret = put_left_local(q_state, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_GATEWAY;
+
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
 
 		p_channels->destroy_transaction(p_txn);
 
