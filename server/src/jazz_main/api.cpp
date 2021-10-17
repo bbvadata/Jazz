@@ -1063,11 +1063,15 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		return MHD_HTTP_OK;
 	}
 
-		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_full->p_block);
+	if (q_state.l_node[0] != 0) {
+		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block);
 
-		destroy_transaction(p_full);
+		destroy_transaction(p_txn);
 
-		return ret;
+		if (ret == SERVICE_NO_ERROR)
+			return MHD_HTTP_CREATED;
+
+		return MHD_HTTP_BAD_GATEWAY;
 	}
 
 	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
