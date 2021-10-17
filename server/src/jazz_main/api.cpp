@@ -885,7 +885,6 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 				q_state.url[0] = '/';
 				strcpy((pChar) &q_state.url[1], p_url);
 			}
-
 			break;
 
 		default:
@@ -1105,7 +1104,6 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		if (p_container->put((pChar) q_state.url, p_full->p_block) == SERVICE_NO_ERROR)
 			ret = MHD_HTTP_CREATED;
 	}
-
 
 	destroy_transaction(p_full);
 
