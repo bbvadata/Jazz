@@ -1232,6 +1232,18 @@ MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
 	This function is **only** called after a successfull parse() of HTTP_GET and HTTP_HEAD queries. It is not private because it is called
 for the callback, but it is not intended for any other context.
 
+Internals
+---------
+
+It supports, basically everything, which is, all apply in many versions:
+
+APPLY_NOTHING, APPLY_NAME, APPLY_URL, APPLY_FUNCTION, APPLY_FUNCT_CONST, APPLY_FILTER, APPLY_FILT_CONST, APPLY_RAW, APPLY_TEXT,
+APPLY_ASSIGN_NOTHING, APPLY_ASSIGN_NAME, APPLY_ASSIGN_URL, APPLY_ASSIGN_FUNCTION, APPLY_ASSIGN_FUNCT_CONST, APPLY_ASSIGN_FILTER,
+APPLY_ASSIGN_FILT_CONST, APPLY_ASSIGN_RAW, APPLY_ASSIGN_TEXT, APPLY_ASSIGN_CONST, APPLY_NEW_ENTITY, APPLY_GET_ATTRIBUTE,
+APPLY_SET_ATTRIBUTE and APPLY_JAZZ_INFO
+
+To simplify, this top level function decomposes the logic into smaller parts.
+
 */
 MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
