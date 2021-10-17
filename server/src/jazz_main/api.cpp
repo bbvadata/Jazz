@@ -984,21 +984,37 @@ MHD_Result Api::return_error_message(pMHD_Connection connection, pChar p_url, in
 
 /**	 Execute a put block using some one-shot block as an intermediate buffer.
 
-	\param p_upload			A pointer to the data uploaded with the http PUT call.
-	\param size				The size of the data uploaded with the http PUT call.
-	\param q_state			The structure containing the parts of the url successfully parsed.
-	\param continue_upload  If true, the upload is added at the end of the already existing block.
+	\param p_upload	A pointer to the data uploaded with the http PUT call.
+	\param size		The size of the data uploaded with the http PUT call.
+	\param q_state	The structure containing the parts of the url successfully parsed.
+	\param sequence SEQUENCE_FIRST_CALL, SEQUENCE_INCREMENT_CALL or SEQUENCE_FINAL_CALL. (See below)
 
-	\return					true if successful, log(LOG_MISS, "further details") if not.
-
-	This function performs block PUT incrementally. The first time, continue_upload == false and the block is created, all other times,
-the block is appended at the end on the existing block.
+	\return			MHD_HTTP_CREATED if SEQUENCE_FINAL_CALL is successful, MHD_HTTP_OK if any othe call is successful, or any HTTP error
+					status code.
 
 	This function is **only** called after a successfull parse() of an HTTP_PUT query. It is not private because it is called for the
 callback, but it is not intended for any other context.
 
+Internals
+---------
+
+It supports any successful HTTP_PUT syntax, that is:
+
+APPLY_NOTHING: With or without node, mandatory base, entity and key.
+APPLY_RAW & APPLY_TEXT: With or without node, mandatory base, entity and key.
+APPLY_URL: With or without node and just a base.
+
+In all cases, calls with a node (it can only be l_node) contain in the url, exactly they way it has to be forwarded.
+
+Call logic:
+-----------
+
+SEQUENCE_FIRST_CALL comes first and is mandatory. On success, the functions keeps the data in a block stored in a pTransaction in
+q_state.rr_value.p_extra (that pointer will be returned in successive call of the same PUT query).
+SEQUENCE_INCREMENT_CALL may or may not come, if it does, it must allocate bigger blocks and store more data in the same pTransaction.
+SEQUENCE_FINAL_CALL is called just once, it must destroy the pTransaction when done
 */
-MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, bool continue_upload) {
+MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, int sequence) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
