@@ -200,6 +200,175 @@ class Api : public Container {
 
 		inline StatusCode get_left_local(pTransaction &p_txn, HttpQueryState &q_state) {
 
+// 	switch (q_state.apply) {	// This does all cases that return immediately (creating a response only on success).
+// 	case APPLY_SET_ATTRIBUTE: {
+// ...
+// 	case APPLY_ASSIGN_NOTHING:
+// 		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_BAD_REQUEST;
+
+// 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+// 		return MHD_HTTP_OK;
+
+// 	case APPLY_ASSIGN_CONST:
+// 		if (!block_from_const(p_txn, q_state.url))
+// 			return MHD_HTTP_BAD_REQUEST;
+
+// 		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
+// 			destroy_transaction(p_txn);
+
+// 			return MHD_HTTP_NOT_ACCEPTABLE;
+// 		}
+// 		destroy_transaction(p_txn);
+
+// 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+// 		return MHD_HTTP_OK;
+
+// 	case APPLY_NEW_ENTITY:
+// ...
+// 	case APPLY_GET_ATTRIBUTE:
+// ...
+// 	}
+
+// 	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy_transaction (or fail).
+// 	case APPLY_NAME:
+// 		if (p_container->get(p_txn, loc, q_state.name) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+
+// 		break;
+
+// 	case APPLY_URL:
+// 		if (p_container->get(p_txn, q_state.url) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+
+// 		break;
+
+// 	case APPLY_FUNCTION: {
+// 		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+
+// 		bool mod = (q_state.key[0] == 0);
+
+// 		if (mod) {
+// 			if (p_container->modify(loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+// 				p_container->destroy_transaction(p_base);
+
+// 				return MHD_HTTP_BAD_REQUEST;
+// 			}
+// 			Name ent = {"result"};
+// 			if (p_container->new_block(p_txn, (pTuple) p_base->p_block, ent) != SERVICE_NO_ERROR) {
+// 				p_container->destroy_transaction(p_base);
+
+// 				return MHD_HTTP_BAD_REQUEST;
+// 			}
+// 		} else {
+// 			if (p_container->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+// 				p_container->destroy_transaction(p_base);
+
+// 				return MHD_HTTP_BAD_REQUEST;
+// 			}
+// 		}
+// 		p_container->destroy_transaction(p_base); }
+
+// 		break;
+
+// 	case APPLY_FUNCT_CONST: {
+// 		bool mod = (q_state.key[0] == 0);
+
+// 		if (!block_from_const(p_base, q_state.url, mod))
+// 			return MHD_HTTP_BAD_REQUEST;
+
+// 		if (mod) {
+// 			if (p_container->modify(loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+// 				p_container->destroy_transaction(p_base);
+
+// 				return MHD_HTTP_BAD_REQUEST;
+// 			}
+// 			Name ent = {"result"};
+// 			if (p_container->new_block(p_txn, (pTuple) p_base->p_block, ent) != SERVICE_NO_ERROR) {
+// 				p_container->destroy_transaction(p_base);
+
+// 				return MHD_HTTP_BAD_REQUEST;
+// 			}
+// 		} else {
+// 			if (p_container->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
+// 				p_container->destroy_transaction(p_base);
+
+// 				return MHD_HTTP_BAD_REQUEST;
+// 			}
+// 		}
+// 		p_container->destroy_transaction(p_base); }
+
+// 		break;
+
+// 	case APPLY_FILTER:
+// 		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+
+// 		if (p_container->get(p_txn, loc, p_base->p_block) != SERVICE_NO_ERROR) {
+// 			p_container->destroy_transaction(p_base);
+
+// 			return MHD_HTTP_BAD_REQUEST;
+// 		}
+// 		p_container->destroy_transaction(p_base);
+
+// 		break;
+
+// 	case APPLY_FILT_CONST:
+// 		if (!block_from_const(p_base, q_state.url))
+// 			return MHD_HTTP_BAD_REQUEST;
+
+// 		if (p_container->get(p_txn, loc, p_base->p_block) != SERVICE_NO_ERROR) {
+// 			p_container->destroy_transaction(p_base);
+
+// 			return MHD_HTTP_BAD_REQUEST;
+// 		}
+// 		p_container->destroy_transaction(p_base);
+
+// 		break;
+
+// 	case APPLY_RAW:
+// 		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+
+// 		if (new_block(p_txn, p_base->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
+// 			p_container->destroy_transaction(p_base);
+
+// 			return MHD_HTTP_BAD_REQUEST;
+// 		}
+// 		p_container->destroy_transaction(p_base);
+// 		p_container = this;
+
+// 		break;
+
+// 	case APPLY_TEXT:
+// 		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+
+// 		if (new_block(p_txn, p_base->p_block) != SERVICE_NO_ERROR) {
+// 			p_container->destroy_transaction(p_base);
+
+// 			return MHD_HTTP_BAD_REQUEST;
+// 		}
+// 		p_container->destroy_transaction(p_base);
+// 		p_container = this;
+
+// 		break;
+
+// 	default:
+// 		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
+// 			return MHD_HTTP_NOT_FOUND;
+// 	}
+
+// 	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+// 	response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+
+// 	p_container->destroy_transaction(p_txn);
+
+// 	return MHD_HTTP_OK;
+
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
