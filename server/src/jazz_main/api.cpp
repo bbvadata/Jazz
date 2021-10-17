@@ -143,11 +143,12 @@ MHD_Result print_out_key(void *cls, enum MHD_ValueKind kind, const char *key, co
 #endif
 
 
-/// Pointers to these global variables control the state of a PUT call.
-int	state_new_call				= 0;	///< Default state: connection open for any call
-int	state_upload_in_progress	= 1;	///< Data was uploaded, the query executed successfully.
-int	state_upload_notacceptable	= 2;	///< Data upload failed, query execution failed locating tagets. Returns MHD_HTTP_NOT_ACCEPTABLE
-int	state_upload_badrequest		= 3;	///< PUT query is call malformed. Returns MHD_HTTP_BAD_REQUEST.
+/// Indices inside state (anything else is a pTransaction of a PUT call).
+#define	STATE_NEW_CALL			0		///< Default state: connection open for any call
+#define	STATE_NOT_ACCEPTABLE	1		///< Data upload failed, query execution failed locating tagets. Returns MHD_HTTP_NOT_ACCEPTABLE
+#define	STATE_BAD_REQUEST		2		///< PUT query is call malformed. Returns MHD_HTTP_BAD_REQUEST.
+
+int state [3];
 
 char response_put_ok[]			= "0";
 char response_put_fail[]		= "1";
@@ -177,7 +178,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	// Step 1: First opportunity to end the connection before uploading or getting. Not used. We initialize con_cls for the next call.
 
 	if (*con_cls == NULL) {
-		*con_cls = &state_new_call;
+		*con_cls = &state[STATE_NEW_CALL];
 
 		return MHD_YES;
 	}
@@ -191,10 +192,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	struct MHD_Response *response = nullptr;
 
-	if (*con_cls == &state_upload_in_progress) {
-		if (*upload_data_size == 0)
-			goto create_response_answer_put_ok;
-
+	if ((uintptr_t) *con_cls < (uintptr_t) &state || (uintptr_t) *con_cls < (uintptr_t) &state[2]) {
 		if (http_method != HTTP_PUT || !API.parse(q_state, (pChar) url, HTTP_PUT)) {
 			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
 
@@ -209,14 +207,14 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	// Step 3 : Get rid of failed uploads without doing anything.
 
-	if (*con_cls == &state_upload_notacceptable) {
+	if (*con_cls == &state[STATE_NOT_ACCEPTABLE]) {
 		if (*upload_data_size == 0)
 			goto create_response_answer_PUT_NOTACCEPTABLE;
 
 		return MHD_YES;
 	}
 
-	if (*con_cls == &state_upload_badrequest) {
+	if (*con_cls == &state[STATE_BAD_REQUEST]) {
 		if (*upload_data_size == 0)
 			goto create_response_answer_PUT_BADREQUEST;
 
@@ -384,7 +382,7 @@ continue_in_put_notacceptable:
 
 	if (*upload_data_size) {
 		*upload_data_size = 0;
-		*con_cls		  = &state_upload_notacceptable;
+		*con_cls		  = &state[STATE_NOT_ACCEPTABLE];
 
 		return MHD_YES;
 	}
@@ -395,7 +393,7 @@ continue_in_put_badrequest:
 
 	if (*upload_data_size) {
 		*upload_data_size = 0;
-		*con_cls		  = &state_upload_badrequest;
+		*con_cls		  = &state[STATE_BAD_REQUEST];
 
 		return MHD_YES;
 	}
