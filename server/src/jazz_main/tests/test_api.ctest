@@ -1911,6 +1911,554 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.apply == APPLY_NOTHING);
 	}
 
+	GIVEN("We test parse() for PUT and DELETE") {
+		HttpQueryState hqs;
+
+		hqs.l_node[0] = 'a';
+		hqs.r_node[0] = 'b';
+		hqs.url[0]	  = 'z';
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///w_node//base/entity/w_key", HTTP_PUT));
+
+		REQUIRE(strcmp(hqs.l_node, "w_node") == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "base") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "w_key") == 0);
+		REQUIRE(strcmp(hqs.url,	   "//base/entity/w_key") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///w_node//base/entity/w_key", HTTP_DELETE));
+
+		REQUIRE(strcmp(hqs.l_node, "w_node") == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "base") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "w_key") == 0);
+		REQUIRE(strcmp(hqs.url,	   "//base/entity/w_key") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb/ee/k", HTTP_PUT));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "bbb") == 0);
+		REQUIRE(strcmp(hqs.entity, "ee") == 0);
+		REQUIRE(strcmp(hqs.key,	   "k") == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//b/eee/kk", HTTP_DELETE));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "b") == 0);
+		REQUIRE(strcmp(hqs.entity, "eee") == 0);
+		REQUIRE(strcmp(hqs.key,	   "kk") == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ee", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//b/eee", HTTP_DELETE));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base,   "b") == 0);
+		REQUIRE(strcmp(hqs.entity, "eee") == 0);
+		REQUIRE(hqs.key[0] == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_NOTHING);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/abcdefg/kk:nn", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/abcdefg/kk:nn", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/abcdefg/kk:nn", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/abcdefg/kk:nn", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//file&README.md;", HTTP_PUT));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base, "file") == 0);
+		REQUIRE(hqs.entity[0] == 0);
+		REQUIRE(hqs.key[0] == 0);
+		REQUIRE(strcmp(hqs.url, "//file/README.md") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_URL);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///nnn//file&main.c;", HTTP_PUT));
+
+		REQUIRE(strcmp(hqs.l_node, "nnn") == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base, "file") == 0);
+		REQUIRE(hqs.entity[0] == 0);
+		REQUIRE(hqs.key[0] == 0);
+		REQUIRE(strcmp(hqs.url, "//file&main.c;") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_URL);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//file&README.md;", HTTP_DELETE));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base, "file") == 0);
+		REQUIRE(hqs.entity[0] == 0);
+		REQUIRE(hqs.key[0] == 0);
+		REQUIRE(strcmp(hqs.url, "//file/README.md") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_URL);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///nnn//file&main.c;", HTTP_DELETE));
+
+		REQUIRE(strcmp(hqs.l_node, "nnn") == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+		REQUIRE(strcmp(hqs.base, "file") == 0);
+		REQUIRE(hqs.entity[0] == 0);
+		REQUIRE(hqs.key[0] == 0);
+		REQUIRE(strcmp(hqs.url, "//file&main.c;") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_URL);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//0-mq/pipe/click(//tree/that/this)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//0-mq/pipe/click(//tree/that/this)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//0-mq/pipe/click(//tree/that/this)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//0-mq/pipe/click(//tree/that/this)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1,2])", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity/key(&[1,2])", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///go//base_s/entity/key(&[1,2])", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///go//base_s/entity/key(&[1,2])", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///qqq//base_s/entity2/key[//r_base2/r_ent2]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///qqq//base_s/entity2/key[//r_base2/r_ent2]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[//r_base2/r_ent2]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[//r_base2/r_ent2]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2,4,6]]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s/entity2/key[&[2,4,6]]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///s//base_s/entity2/key[&[2,4,6]]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///s//base_s/entity2/key[&[2,4,6]]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.raw", HTTP_PUT));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "base") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key") == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_RAW);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.raw", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///nX//base/entity/key.raw", HTTP_PUT));
+
+		REQUIRE(strcmp(hqs.l_node, "nX") == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "base") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key") == 0);
+		REQUIRE(strcmp(hqs.url,	   "//base/entity/key.raw") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_RAW);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nX//base/entity/key.raw", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "//base/entity/key.text", HTTP_PUT));
+
+		REQUIRE(hqs.l_node[0] == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "base") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key") == 0);
+		REQUIRE(hqs.url[0] == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_TEXT);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.text", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		REQUIRE(TT_API.parse(hqs, (pChar) "///nX//base/entity/key.text", HTTP_PUT));
+
+		REQUIRE(strcmp(hqs.l_node, "nX") == 0);
+		REQUIRE(hqs.r_node[0] == 0);
+
+		REQUIRE(strcmp(hqs.base,   "base") == 0);
+		REQUIRE(strcmp(hqs.entity, "entity") == 0);
+		REQUIRE(strcmp(hqs.key,	   "key") == 0);
+		REQUIRE(strcmp(hqs.url,	   "//base/entity/key.text") == 0);
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+		REQUIRE(hqs.apply == APPLY_TEXT);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nX//base/entity/key.text", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_ent/r_key", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_ent/r_key", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=//r_base/r_ent/r_key", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=//r_base/r_ent/r_key", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=///node//r_base/r_ent/r_key", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=///node//r_base/r_ent/r_key", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=///node//r_base/r_ent/r_key", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=///node//r_base/r_ent/r_key", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//base/ent/key:item", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//base/ent/key:item", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///q//bbb/ent/ky=//base/ent/key:item", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///q//bbb/ent/ky=//base/ent/key:item", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///z//base/ent/key:item", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///z//base/ent/key:item", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///q//bbb/ent/ky=///z//base/ent/key:item", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///q//bbb/ent/ky=///z//base/ent/key:item", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=//file&/tmp/new_folder;", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=//file&/tmp/new_folder;", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///o//qqq/ent/ky=//file&/tmp/new_folder;", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///o//qqq/ent/ky=//file&/tmp/new_folder;", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=///p//file&/tmp/new_folder;", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=///p//file&/tmp/new_folder;", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///o//qqq/ent/ky=///p//file&/tmp/new_folder;", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///o//qqq/ent/ky=///p//file&/tmp/new_folder;", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//base/ent/ky(//bb/ea/kk)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//base/ent/ky(//bb/ea/kk)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///nn//base/ent/ky(//bb/ea/kk)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///nn//base/ent/ky(//bb/ea/kk)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///nn//bash/exec/(&ls -la)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///nn//bash/exec/(&ls -la)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//bash/exec/(&ls -la)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//bash/exec/(&ls -la)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=//base/ent/kyy[//bbb/eee/kkk]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=//base/ent/kyy[//bbb/eee/kkk]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///x//qqq/ent/ky=//base/ent/kyy[//bbb/eee/kkk]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=///x//base/ent/kyy[//bbb/eee/kkk]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=///nn2//bash/exec/qq[&[1,2]]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=///nn2//bash/exec/qq[&[1,2]]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///nn2//bash/exec/qq[&[1,2]]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///nn2//bash/exec/qq[&[1,2]]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//bash/exec/qq[&[1,2]]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//bash/exec/qq[&[1,2]]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//bash/exec/qq[&[1,2]]", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//bash/exec/qq[&[1,2]]", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//base/ent/key.raw", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//base/ent/key.raw", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//base/ent/key.raw", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=//base/ent/key.raw", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=///xxx//base/ent/key.text", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=///xxx//base/ent/key.text", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///xxx//base/ent/key.text", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///xxx//base/ent/key.text", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=&[[2,4], [5,6]];", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=&[[2,4], [5,6]];", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=&[[2,4], [5,6]];", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base_s3/entity2/key4=&[[2,4], [5,6]];", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn_dd//bb/entity.new", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn_dd//bb/entity.new", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bb/entity.new", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bb/entity.new", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(123)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base/entity/key.attribute(123)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(123)", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(123)", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=&en-us;", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//base/entity/key.attribute(1234)=&en-us;", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///t//base/entity/key.attribute(1234)=&en-us;", HTTP_PUT));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///t//base/entity/key.attribute(1234)=&en-us;", HTTP_DELETE));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+	}
+
 	REQUIRE(TT_API.shut_down() == 0);
 }
 
