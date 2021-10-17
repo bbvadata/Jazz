@@ -670,7 +670,6 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 				q_state.entity[0] = 0;
 				q_state.key[0]	  = 0;
 			}
-
 			return true;
 
 		case PSTATE_ENT_SWITCH:
@@ -693,7 +692,6 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 
 				return false;
 			}
-
 			q_state.apply = APPLY_NEW_ENTITY;
 
 			return true;
