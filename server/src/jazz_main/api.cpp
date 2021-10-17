@@ -1250,6 +1250,30 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
+	char		 buffer_1k[1024];
+	Locator		 loc;
+	pTransaction p_txn, p_aux;
+	pContainer	 p_container;
+	int			 ret, size;
+	pChar		 p_att;
+
+	switch (q_state.apply) {
+	case APPLY_NOTHING ... APPLY_TEXT:
+		if (q_state.l_node[0] != 0)
+			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
+		else
+			ret = get_left_local(p_txn, q_state);
+
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
+
+		size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+		response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+
+		p_txn->p_owner->destroy_transaction(p_txn);
+
+		return MHD_HTTP_OK;
+
 	if (q_state.l_node[0] != 0) {
 		pTransaction p_txn;
 
