@@ -1038,30 +1038,30 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		q_state.rr_value.p_extra = (pExtraLocator) p_txn; }
 
 		return MHD_HTTP_OK;
-			int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
-			int prev_size = p_prev->p_block->size;
 
-			dim[0] = prev_size + size;
+	case SEQUENCE_INCREMENT_CALL: {
+		int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 
-			if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
-				p_channels->destroy_transaction(p_prev);
+		int prev_size = p_txn->p_block->size;
 
-				return MHD_HTTP_INSUFFICIENT_STORAGE;
-			}
-			memcpy(&p_full->p_block->tensor.cell_byte[0], &p_prev->p_block->tensor.cell_byte[0], prev_size);
-			memcpy(&p_full->p_block->tensor.cell_byte[prev_size], p_upload, size);
+		dim[0] = prev_size + size;
 
-			p_channels->destroy_transaction(p_prev);
-		} else {
-			int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
+		pTransaction p_aux;
 
-			dim[0] = size;
+		if (new_block(p_aux, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
+			destroy_transaction(p_txn);
 
-			if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
-				return MHD_HTTP_INSUFFICIENT_STORAGE;
-
-			memcpy(&p_full->p_block->tensor.cell_byte[0], p_upload, size);
+			return MHD_HTTP_INSUFFICIENT_STORAGE;
 		}
+		memcpy(&p_aux->p_block->tensor.cell_byte[0], &p_txn->p_block->tensor.cell_byte[0], prev_size);
+		memcpy(&p_aux->p_block->tensor.cell_byte[prev_size], p_upload, size);
+
+		std::swap(p_txn->p_block, p_aux->p_block);
+
+		destroy_transaction(p_aux); }
+
+		return MHD_HTTP_OK;
+	}
 
 		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_full->p_block);
 
