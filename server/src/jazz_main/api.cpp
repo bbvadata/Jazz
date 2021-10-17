@@ -1325,86 +1325,87 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		return MHD_HTTP_OK;
 
+	case APPLY_GET_ATTRIBUTE:
+		if (q_state.l_node[0] != 0) {
+			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
 
-		p_channels->destroy_transaction(p_txn);
+			if (ret != SERVICE_NO_ERROR)
+				return MHD_HTTP_NOT_FOUND;
 
-		return MHD_HTTP_OK;
-	}
+			size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+			response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 
-	if (q_state.apply == APPLY_JAZZ_INFO) {
-#ifdef DEBUG
-		std::string st("DEBUG");
-#else
-		std::string st("RELEASE");
-#endif
-		char answer[1024];
+			p_channels->destroy_transaction(p_txn);
 
-		struct utsname unn;
-		uname(&unn);
+			return MHD_HTTP_OK;
+		}
+		p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
-		int my_idx	 = p_channels->jazz_node_my_index;
-		int my_port	 = p_channels->jazz_node_port[my_idx];
-		int nn_nodes = p_channels->jazz_node_name.size();
+		if (p_container == nullptr)
+			return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-		std::string my_name = p_channels->jazz_node_name[my_idx];
-		std::string my_ip	= p_channels->jazz_node_ip[my_idx];
+		strcpy(loc.base,   q_state.base);
+		strcpy(loc.entity, q_state.entity);
+		strcpy(loc.key,	   q_state.key);
 
-		sprintf(answer, "Jazz\n\n version : %s\n build   : %s\n artifact: %s\n jazznode: %s (%s:%d) (%d of %d)\n "
-				"sysname : %s\n hostname: %s\n kernel\x20 : %s\n sysvers : %s\n machine : %s",
-				JAZZ_VERSION, st.c_str(), LINUX_PLATFORM, my_name.c_str(), my_ip.c_str(), my_port, my_idx, nn_nodes,
-				unn.sysname, unn.nodename, unn.release, unn.version, unn.machine);
+		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
+			return MHD_HTTP_NOT_FOUND;
 
-		response = MHD_create_response_from_buffer(strlen(answer), answer, MHD_RESPMEM_MUST_COPY);
+		p_att = p_txn->p_block->get_attribute(q_state.r_value.attribute);
+
+		if (p_att == nullptr) {
+			p_container->destroy_transaction(p_txn);
+
+			return MHD_HTTP_NOT_FOUND;
+		}
+		response = MHD_create_response_from_buffer(strlen(p_att), p_att, MHD_RESPMEM_MUST_COPY);
 
 		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
+		p_container->destroy_transaction(p_txn);
+
 		return MHD_HTTP_OK;
-	}
 
-	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+	case APPLY_SET_ATTRIBUTE:
+		if (q_state.l_node[0] != 0)
+			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
+		else {
+			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
-	if (p_container == nullptr)
-		return MHD_HTTP_SERVICE_UNAVAILABLE;
+			if (p_container == nullptr)
+				return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-	Locator loc;
+			strcpy(loc.base,   q_state.base);
+			strcpy(loc.entity, q_state.entity);
+			strcpy(loc.key,	   q_state.key);
 
-	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+			if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+				return MHD_HTTP_NOT_FOUND;
 
-	pTransaction p_txn, p_base;
+			AttributeMap atts;
+			p_aux->p_block->get_attributes(&atts);
 
-	switch (q_state.apply) {	// This does all cases that return immediately (creating a response only on success).
-	case APPLY_SET_ATTRIBUTE: {
-		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
+			atts[q_state.r_value.attribute] = q_state.url;
 
-		AttributeMap atts;
-		p_base->p_block->get_attributes(&atts);
+			if (new_block(p_txn, p_aux->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
+				p_container->destroy_transaction(p_aux);
 
-		atts[q_state.r_value.attribute] = q_state.url;
+				return MHD_HTTP_BAD_REQUEST;
+			}
+			p_container->destroy_transaction(p_aux);
 
-		if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
-			p_container->destroy_transaction(p_base);
+			ret = p_container->put(loc, p_txn->p_block);
 
-			return MHD_HTTP_BAD_REQUEST;
-		}
-		p_container->destroy_transaction(p_base);
-
-		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
 			destroy_transaction(p_txn);
-
-			return MHD_HTTP_NOT_ACCEPTABLE;
 		}
-		destroy_transaction(p_txn);
-
-		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
-
-		return MHD_HTTP_OK; }
-
-	case APPLY_ASSIGN_NOTHING:
-		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
+		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
+	case APPLY_JAZZ_INFO:
 
 		return MHD_HTTP_OK;
 
