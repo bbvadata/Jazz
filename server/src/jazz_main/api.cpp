@@ -1406,33 +1406,33 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		return MHD_HTTP_OK;
 
 	case APPLY_JAZZ_INFO:
+#ifdef DEBUG
+		std::string st("DEBUG");
+#else
+		std::string st("RELEASE");
+#endif
+		struct utsname unn;
+		uname(&unn);
+
+		int my_idx	 = p_channels->jazz_node_my_index;
+		int my_port	 = p_channels->jazz_node_port[my_idx];
+		int nn_nodes = p_channels->jazz_node_name.size();
+
+		std::string my_name = p_channels->jazz_node_name[my_idx];
+		std::string my_ip	= p_channels->jazz_node_ip[my_idx];
+
+		sprintf(buffer_1k, "Jazz\n\n version : %s\n build   : %s\n artifact: %s\n jazznode: %s (%s:%d) (%d of %d)\n "
+				"sysname : %s\n hostname: %s\n kernel\x20 : %s\n sysvers : %s\n machine : %s",
+				JAZZ_VERSION, st.c_str(), LINUX_PLATFORM, my_name.c_str(), my_ip.c_str(), my_port, my_idx, nn_nodes,
+				unn.sysname, unn.nodename, unn.release, unn.version, unn.machine);
+
+		response = MHD_create_response_from_buffer(strlen(buffer_1k), buffer_1k, MHD_RESPMEM_MUST_COPY);
+
+		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
 		return MHD_HTTP_OK;
-
-	case APPLY_ASSIGN_CONST:
-		if (!block_from_const(p_txn, q_state.url))
-			return MHD_HTTP_BAD_REQUEST;
-
-		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
-			destroy_transaction(p_txn);
-
-			return MHD_HTTP_NOT_ACCEPTABLE;
-		}
-		destroy_transaction(p_txn);
-
-		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
-
-		return MHD_HTTP_OK;
-
-	case APPLY_NEW_ENTITY:
-		if (q_state.url[0] == 0) {
-			if (p_container->new_entity(loc) != SERVICE_NO_ERROR)
-				return MHD_HTTP_BAD_REQUEST;
-		} else {
-			if (p_container->new_entity((pChar) q_state.url) != SERVICE_NO_ERROR)
-				return MHD_HTTP_BAD_REQUEST;
-		}
-		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+	}
+	return MHD_HTTP_BAD_REQUEST;
 
 		return MHD_HTTP_OK;
 
