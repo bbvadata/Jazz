@@ -411,7 +411,7 @@ continue_in_put_ok:
 
 	if (*upload_data_size) {
 		*upload_data_size = 0;
-		*con_cls		  = &state_upload_in_progress;
+		*con_cls		  = q_state.rr_value.p_extra;
 
 		return MHD_YES;
 	}
