@@ -198,10 +198,17 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 			return MHD_NO;
 		}
+		q_state.rr_value.p_extra = (pExtraLocator) *con_cls;
 
-		if (API.http_put((pChar) upload_data, *upload_data_size, q_state, true) == MHD_HTTP_OK)
+		int sequence = (*upload_data_size == 0) ? SEQUENCE_FINAL_CALL : SEQUENCE_INCREMENT_CALL;
+
+		switch (API.http_put((pChar) upload_data, *upload_data_size, q_state, sequence)) {
+		case MHD_HTTP_CREATED:
+			goto create_response_answer_put_ok;
+
+		case MHD_HTTP_OK:
 			goto continue_in_put_ok;
-
+		}
 		goto continue_in_put_notacceptable;
 	}
 
