@@ -867,6 +867,10 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_NAME);
 
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky.raw=//base/ent/key:item", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
 		REQUIRE(TT_API.parse(hqs, (pChar) "//bbb/ent/ky=///qq//base/ent/key:item", HTTP_GET));
 
 		REQUIRE(hqs.l_node[0] == 0);
@@ -951,6 +955,10 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_URL);
 
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky.raw=///mmm//file&/tmp/new_folder;", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
 		REQUIRE(TT_API.parse(hqs, (pChar) "///mmm//bbb/ent/ky=///nn//file&/tmp/new_folder;", HTTP_GET));
 
 		REQUIRE(strcmp(hqs.l_node, "mmm") == 0);
@@ -1022,6 +1030,10 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_FUNCTION);
 
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky.text=///nn2//base/ent/ky(//bb/ea/kk)", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
 		REQUIRE(TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=//base/ent/ky(//bb/ea/kk)", HTTP_GET));
 
 		REQUIRE(strcmp(hqs.l_node, "nn") == 0);
@@ -1089,6 +1101,10 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_FUNCT_CONST);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "//bbb/ent/ky.text=///nn//bash/exec/(&ls -la)", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
 
 		REQUIRE(TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky=///nn2//bash/exec/(&ls -la)", HTTP_GET));
 
@@ -1219,6 +1235,10 @@ SCENARIO("Testing api.parse") {
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_FILTER);
+
+		REQUIRE(!TT_API.parse(hqs, (pChar) "///nn//bbb/ent/ky.raw=//base/ent/key[//bb/ea/kk]", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_FAILED);
 
 		REQUIRE(!TT_API.parse(hqs, (pChar) "//qqq/ent/ky=//base/ent/kyy[//bbb/eee/kkk]", HTTP_PUT));
 
