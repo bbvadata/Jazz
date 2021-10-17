@@ -1004,7 +1004,7 @@ APPLY_NOTHING: With or without node, mandatory base, entity and key.
 APPLY_RAW & APPLY_TEXT: With or without node, mandatory base, entity and key.
 APPLY_URL: With or without node and just a base.
 
-In all cases, calls with a node (it can only be l_node) contain in the url, exactly they way it has to be forwarded.
+In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
 
 Call logic:
 -----------
@@ -1169,6 +1169,16 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 	This function is **only** called after a successfull parse() of an HTTP_DELETE query. It is not private because it is called for the
 callback, but it is not intended for any other context.
+
+Internals
+---------
+
+It supports any successful HTTP_PUT syntax, that is:
+
+APPLY_NOTHING: With or without node, mandatory base and entity, with of without a key.
+APPLY_URL: With or without node and just a base.
+
+In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
 
 */
 MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
