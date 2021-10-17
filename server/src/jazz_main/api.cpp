@@ -1019,25 +1019,25 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-	Locator loc;
+	pTransaction p_txn = (pTransaction) q_state.rr_value.p_extra;
 
-	memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+	switch (sequence) {
+	case SEQUENCE_FIRST_CALL: {
+		if (size == 0)
+			return MHD_HTTP_OK;
 
-	if (q_state.l_node[0] != 0) {
-		pTransaction p_full;
+		int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 
-		if (continue_upload) {
-			pTransaction p_prev;
+		dim[0] = size;
 
-			if (p_channels->forward_get(p_prev, q_state.l_node, q_state.url) != MHD_HTTP_OK)
-				return MHD_HTTP_BAD_GATEWAY;
+		if (new_block(p_txn, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
+			return MHD_HTTP_INSUFFICIENT_STORAGE;
 
-			if (p_prev->p_block->cell_type != CELL_TYPE_BYTE || p_prev->p_block->rank != 1) {
-				p_channels->destroy_transaction(p_prev);
+		memcpy(&p_txn->p_block->tensor.cell_byte[0], p_upload, size);
 
-				return MHD_HTTP_BAD_GATEWAY;
-			}
+		q_state.rr_value.p_extra = (pExtraLocator) p_txn; }
 
+		return MHD_HTTP_OK;
 			int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 			int prev_size = p_prev->p_block->size;
 
