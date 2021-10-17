@@ -198,6 +198,27 @@ class Api : public Container {
 								 pChar			p_const,
 								 bool			make_tuple = false);
 
+		inline StatusCode get_left_local(pTransaction &p_txn, HttpQueryState &q_state) {
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		inline StatusCode get_right_remote(pTransaction &p_txn, HttpQueryState &q_state) {
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		inline StatusCode get_right_local(pTransaction &p_txn, HttpQueryState &q_state) {
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		inline StatusCode put_left_local(HttpQueryState &q_state, pBlock p_block) {
+
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+
 		pChannels	p_channels;
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
