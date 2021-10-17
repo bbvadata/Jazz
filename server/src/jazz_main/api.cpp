@@ -209,14 +209,14 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	if (*con_cls == &state[STATE_NOT_ACCEPTABLE]) {
 		if (*upload_data_size == 0)
-			goto create_response_answer_PUT_NOTACCEPTABLE;
+			goto create_response_answer_put_notacceptable;
 
 		return MHD_YES;
 	}
 
 	if (*con_cls == &state[STATE_BAD_REQUEST]) {
 		if (*upload_data_size == 0)
-			goto create_response_answer_PUT_BADREQUEST;
+			goto create_response_answer_put_badrequest;
 
 		return MHD_YES;
 	}
@@ -328,7 +328,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 			else				   goto create_response_answer_put_ok;
 		} else {
 			if (*upload_data_size) goto continue_in_put_notacceptable;
-			else				   goto create_response_answer_PUT_NOTACCEPTABLE;
+			else				   goto create_response_answer_put_notacceptable;
 		}
 	}
 
@@ -358,7 +358,7 @@ create_response_answer_put_ok:
 
 	return ret;
 
-create_response_answer_PUT_NOTACCEPTABLE:
+create_response_answer_put_notacceptable:
 
 	response = MHD_create_response_from_buffer(1, response_put_fail, MHD_RESPMEM_PERSISTENT);
 
@@ -368,7 +368,7 @@ create_response_answer_PUT_NOTACCEPTABLE:
 
 	return ret;
 
-create_response_answer_PUT_BADREQUEST:
+create_response_answer_put_badrequest:
 
 	response = MHD_create_response_from_buffer(1, response_put_fail, MHD_RESPMEM_PERSISTENT);
 
