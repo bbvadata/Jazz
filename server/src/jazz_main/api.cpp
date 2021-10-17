@@ -1186,24 +1186,36 @@ MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-	if (q_state.l_node[0] != 0)
-		return p_channels->forward_del(q_state.l_node, q_state.url);
+	if (q_state.l_node[0] != 0) {
+		if (p_channels->forward_del(q_state.l_node, q_state.url) == SERVICE_NO_ERROR)
+			return MHD_HTTP_OK;
+
+		return MHD_HTTP_NOT_FOUND;
+	}
 
 	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
 	if (p_container == nullptr)
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-	if (q_state.url[0] == 0) {
+	switch (q_state.apply) {
+	case APPLY_NOTHING: {
 		Locator loc;
 
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+		strcpy(loc.base,   q_state.base);
+		strcpy(loc.entity, q_state.entity);
+		strcpy(loc.key,	   q_state.key);
 
 		if (p_container->remove(loc) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK;
-	} else {
+			return MHD_HTTP_OK; }
+
+		return MHD_HTTP_NOT_FOUND;
+
+	case APPLY_URL:
 		if (p_container->remove((pChar) q_state.url) == SERVICE_NO_ERROR)
 			return MHD_HTTP_OK;
+
+		return MHD_HTTP_NOT_FOUND;
 	}
 
 	return MHD_HTTP_NOT_FOUND;
