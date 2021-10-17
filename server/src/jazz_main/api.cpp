@@ -728,7 +728,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 				return true;
 
 			case '.':
-				if (method != HTTP_GET)
+				if (method != HTTP_GET && method != HTTP_PUT)
 					return false;
 
 				if (strcmp("raw", p_url) == 0) {
@@ -743,6 +743,9 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 
 					return true;
 				}
+				if (method != HTTP_GET)
+					return false;
+
 				if (strcmp("new", p_url) == 0) {
 					q_state.state = PSTATE_COMPLETE_OK;
 					q_state.apply = APPLY_NEW_ENTITY;
