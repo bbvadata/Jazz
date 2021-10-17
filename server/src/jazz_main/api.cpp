@@ -192,7 +192,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	struct MHD_Response *response = nullptr;
 
-	if ((uintptr_t) *con_cls < (uintptr_t) &state || (uintptr_t) *con_cls < (uintptr_t) &state[2]) {
+	if ((uintptr_t) *con_cls < (uintptr_t) &state || (uintptr_t) *con_cls > (uintptr_t) &state[2]) {
 		if (http_method != HTTP_PUT || !API.parse(q_state, (pChar) url, HTTP_PUT)) {
 			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
 
