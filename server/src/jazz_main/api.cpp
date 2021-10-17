@@ -1076,61 +1076,88 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
-	if (p_container == nullptr)
+	if (p_container == nullptr) {
+		destroy_transaction(p_txn);
+
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-	pTransaction p_full;
-
-	if (continue_upload) {
-		pTransaction p_prev;
-
-		if (p_container->get(p_prev, loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_GATEWAY;
-
-		if (p_prev->p_block->cell_type != CELL_TYPE_BYTE || p_prev->p_block->rank != 1) {
-			p_container->destroy_transaction(p_prev);
-
-			return MHD_HTTP_BAD_GATEWAY;
-		}
-
-		int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
-		int prev_size = p_prev->p_block->size;
-
-		dim[0] = prev_size + size;
-
-		if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
-			p_container->destroy_transaction(p_prev);
-
-			return MHD_HTTP_INSUFFICIENT_STORAGE;
-		}
-		memcpy(&p_full->p_block->tensor.cell_byte[0], &p_prev->p_block->tensor.cell_byte[0], prev_size);
-		memcpy(&p_full->p_block->tensor.cell_byte[prev_size], p_upload, size);
-
-		p_container->destroy_transaction(p_prev);
-	} else {
-		int dim[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
-
-		dim[0] = size;
-
-		if (new_block(p_full, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
-			return MHD_HTTP_INSUFFICIENT_STORAGE;
-
-		memcpy(&p_full->p_block->tensor.cell_byte[0], p_upload, size);
 	}
 
-	int ret = MHD_HTTP_NOT_ACCEPTABLE;
+	Locator loc;
 
-	if (q_state.url[0] == 0) {
-		if (p_container->put(loc, p_full->p_block) == SERVICE_NO_ERROR)
-			ret = MHD_HTTP_CREATED;
-	} else {
-		if (p_container->put((pChar) q_state.url, p_full->p_block) == SERVICE_NO_ERROR)
-			ret = MHD_HTTP_CREATED;
+	switch (q_state.apply) {
+	case APPLY_NOTHING: {
+		strcpy(loc.base,   q_state.base);
+		strcpy(loc.entity, q_state.entity);
+		strcpy(loc.key,	   q_state.key);
+
+		int ret = p_container->put(loc, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		if (ret == SERVICE_NO_ERROR)
+			return MHD_HTTP_CREATED; }
+
+		return MHD_HTTP_BAD_GATEWAY;
+
+	case APPLY_RAW: {
+		pTransaction p_aux;
+
+		int ret = new_block(p_aux, p_txn->p_block, CELL_TYPE_UNDEFINED);
+
+		destroy_transaction(p_txn);
+
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		strcpy(loc.base,   q_state.base);
+		strcpy(loc.entity, q_state.entity);
+		strcpy(loc.key,	   q_state.key);
+
+		ret = p_container->put(loc, p_aux->p_block);
+
+		destroy_transaction(p_aux);
+
+		if (ret == SERVICE_NO_ERROR)
+			return MHD_HTTP_CREATED; }
+
+		return MHD_HTTP_BAD_GATEWAY;
+
+	case APPLY_TEXT: {
+		pTransaction p_aux;
+
+		int ret = new_block(p_aux, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
+
+		strcpy(loc.base,   q_state.base);
+		strcpy(loc.entity, q_state.entity);
+		strcpy(loc.key,	   q_state.key);
+
+		ret = p_container->put(loc, p_aux->p_block);
+
+		destroy_transaction(p_aux);
+
+		if (ret == SERVICE_NO_ERROR)
+			return MHD_HTTP_CREATED; }
+
+		return MHD_HTTP_BAD_GATEWAY;
+
+	case APPLY_URL: {
+		int ret = p_container->put(q_state.url, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		if (ret == SERVICE_NO_ERROR)
+			return MHD_HTTP_CREATED; }
+
+		return MHD_HTTP_BAD_GATEWAY;
 	}
+	destroy_transaction(p_txn);
 
-	destroy_transaction(p_full);
-
-	return ret;
+	return MHD_HTTP_BAD_GATEWAY;
 }
 
 
