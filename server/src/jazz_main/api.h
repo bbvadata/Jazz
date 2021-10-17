@@ -87,6 +87,10 @@ using namespace jazz_agency;
 #define RET_MV_CONST_NOTHING				 0	///< return value for move_const() normal moving.
 #define RET_MV_CONST_NEW_ENTITY				 1	///< return value for move_const() there is a ";.new" ending, otherwise parses ok.
 
+// Values of http_put(sequence)
+#define	SEQUENCE_FIRST_CALL					 0	///< First call, no pTransaction was yet assigned (data must be stored)
+#define	SEQUENCE_INCREMENT_CALL				 1	///< Any number of these calls (including none) allocate bigger and keep storing
+#define	SEQUENCE_FINAL_CALL					 2	///< Last call, no more data this time, do the magic and return a status code
 
 /** \brief A buffer to keep the state while parsing/executing a query
 */
@@ -169,7 +173,7 @@ class Api : public Container {
 		MHD_StatusCode http_put		   (pChar			p_upload,
 										size_t			size,
 										HttpQueryState &q_state,
-										bool			continue_upload);
+										int				sequence);
 		MHD_StatusCode http_delete	   (HttpQueryState &q_state);
 		MHD_StatusCode http_get		   (pMHD_Response  &response,
 										HttpQueryState &q_state);
