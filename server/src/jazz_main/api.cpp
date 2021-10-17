@@ -669,7 +669,12 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 			return true;
 
 		case PSTATE_ENT_SWITCH:
-			q_state.state  = PSTATE_COMPLETE_OK;
+			if (cursor == 0 && method != HTTP_DELETE) {
+				q_state.state = PSTATE_FAILED;
+
+				return false;
+			}
+			q_state.state = PSTATE_COMPLETE_OK;
 			if (recurse)
 				q_state.r_value.key[0] = 0;
 			else
