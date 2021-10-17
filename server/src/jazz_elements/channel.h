@@ -86,7 +86,7 @@ namespace jazz_elements
 #define APPLY_ASSIGN_TEXT				17		///< {///node}//base/entity/key=//r_base/r_entity/r_key.text
 #define APPLY_ASSIGN_CONST				18		///< //base/entity/key=& any_url_encoded_const ; (Assign const to block.)
 #define APPLY_NEW_ENTITY				19		///< {///node}//base/entity.new (Create a new entity)
-#define APPLY_GET_ATTRIBUTE				10		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
+#define APPLY_GET_ATTRIBUTE				20		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
 #define APPLY_SET_ATTRIBUTE				21		///< //base/entity/key.attribute(123)=& url_encoded ; (set attribute 123 with HTTP_GET)
 #define APPLY_JAZZ_INFO					22		///< /// Show the server info.
 
