@@ -313,7 +313,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.http_put((pChar) upload_data, *upload_data_size, q_state, false);
+		status = API.http_put((pChar) upload_data, *upload_data_size, q_state, SEQUENCE_FIRST_CALL);
 
 		break;
 
@@ -330,9 +330,9 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	// Step 6 : The core finished, just distribute the answer as appropriate.
 
 	if (http_method == HTTP_PUT) {
-		if (status == MHD_HTTP_CREATED) {
+		if (status == MHD_HTTP_OK) {
 			if (*upload_data_size) goto continue_in_put_ok;
-			else				   goto create_response_answer_put_ok;
+			else 				   goto create_response_answer_put_ok;
 		} else {
 			if (*upload_data_size) goto continue_in_put_notacceptable;
 			else				   goto create_response_answer_put_notacceptable;
