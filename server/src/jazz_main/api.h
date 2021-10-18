@@ -79,6 +79,7 @@ using namespace jazz_elements;
 using namespace jazz_bebop;
 using namespace jazz_agency;
 
+#define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert HttpQueryState -> Locator
 
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
 #define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
@@ -109,6 +110,7 @@ struct HttpQueryState {
 	Locator r_value, rr_value;					///< Parsed //r_base/r_entity/r_key, //r_base/r_entity/r_key(//rr_base/rr_entity/rr_key)
 };
 
+extern TenBitPtrLUT base_server;
 
 typedef struct MHD_Response *pMHD_Response;
 typedef struct MHD_Connection *pMHD_Connection;
@@ -198,62 +200,161 @@ class Api : public Container {
 								 pChar			p_const,
 								 bool			make_tuple = false);
 
+
+		/** This is an internal part of http_get() made independent to keep the function less crowded.
+
+		Context: This is called when q_state.apply is APPLY_NOTHING ... APPLY_TEXT and there is no forwarding.
+		It returns the final block as it will be returned to the user with a new_block() interface.
+		*/
 		inline StatusCode get_left_local(pTransaction &p_txn, HttpQueryState &q_state) {
 
-// 	switch (q_state.apply) {	// This does all cases that return immediately (creating a response only on success).
-// 	case APPLY_SET_ATTRIBUTE: {
-// ...
-// 	case APPLY_ASSIGN_NOTHING:
-// 		if (p_container->copy(loc, q_state.r_value) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_BAD_REQUEST;
+			Locator		 loc;
+			pTransaction p_aux;
+			pContainer	 p_container, p_aux_cont;
+			Name		 ent;
 
-// 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
-// 		return MHD_HTTP_OK;
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
 
-// 	case APPLY_ASSIGN_CONST:
-// 		if (!block_from_const(p_txn, q_state.url))
-// 			return MHD_HTTP_BAD_REQUEST;
+			switch (q_state.apply) {
+			case APPLY_NOTHING:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				return p_container->get(p_txn, loc);
 
-// 		if (p_container->put(loc, p_txn->p_block) != SERVICE_NO_ERROR) {
-// 			destroy_transaction(p_txn);
+			case APPLY_NAME:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				return p_container->get(p_txn, loc, q_state.name);
 
-// 			return MHD_HTTP_NOT_ACCEPTABLE;
-// 		}
-// 		destroy_transaction(p_txn);
+			case APPLY_URL:
+				return p_container->get(p_txn, (pChar) q_state.url);
 
-// 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+			case APPLY_FUNCTION:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.r_value.base)];
 
-// 		return MHD_HTTP_OK;
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
 
-// 	case APPLY_NEW_ENTITY:
-// ...
-// 	case APPLY_GET_ATTRIBUTE:
-// ...
-// 	}
+				if (p_aux_cont->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-// 	switch (q_state.apply) {	// This does all cases that leave a block in p_txn to make a response and destroy_transaction (or fail).
-// 	case APPLY_NAME:
-// 		if (p_container->get(p_txn, loc, q_state.name) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (q_state.key[0] == 0) {
+					if (p_container->modify(loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
 
-// 		break;
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
 
-// 	case APPLY_URL:
-// 		if (p_container->get(p_txn, q_state.url) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
 
-// 		break;
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				p_aux_cont->destroy_transaction(p_aux);
 
-// 	case APPLY_FUNCTION: {
-// 		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
+				return SERVICE_NO_ERROR;
 
-// 		bool mod = (q_state.key[0] == 0);
+			case APPLY_FUNCT_CONST:
+				if (!block_from_const(p_aux, q_state.url, q_state.key[0] == 0))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-// 		if (mod) {
-// 			if (p_container->modify(loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-// 				p_container->destroy_transaction(p_base);
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (q_state.key[0] == 0) {
+					if (p_container->modify(loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_FILTER:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.r_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_txn, loc, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_aux_cont->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_aux_cont->destroy_transaction(p_txn);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_FILT_CONST:
+				if (!block_from_const(p_aux, q_state.url))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_txn, loc, p_aux->p_block) != SERVICE_NO_ERROR) {
+					destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_RAW:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_TEXT:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+			}
+			return SERVICE_ERROR_MISC_SERVER;
+		}
+
 
 // 				return MHD_HTTP_BAD_REQUEST;
 // 			}
