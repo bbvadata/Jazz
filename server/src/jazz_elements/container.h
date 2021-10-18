@@ -82,8 +82,6 @@ namespace jazz_elements
 #define FILL_NEW_WITH_ZERO				  1		///< Initialize with binary zero.
 #define FILL_NEW_WITH_NA				  2		///< Initialize with the appropriate NA for the cell_type.
 #define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
-#define FILL_BOOLEAN_FILTER				  4		///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
-#define FILL_INTEGER_FILTER				  5		///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
 
 #define BUILD_TUPLE						  1		///< Build a Tuple out of data items or fail.
 #define BUILD_KIND						  2		///< Build a Kind out of metadata items or fail.
@@ -291,7 +289,6 @@ class Container : public Service {
 								int					cell_type,
 								int				   *dim,
 								int					fill_tensor		= FILL_NEW_DONT_FILL,
-								bool			   *p_bool_filter	= nullptr,
 								int					stringbuff_size	= 0,
 								const char		   *p_text			= nullptr,
 								char				eol				= '\n',
