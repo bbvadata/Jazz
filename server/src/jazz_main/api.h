@@ -401,114 +401,154 @@ class Api : public Container {
 			return p_channels->forward_get(p_txn, q_state.r_node, buffer_2k);
 		}
 
-// 		break;
+		/** This is an internal part of http_get() made independent to keep the function less crowded.
 
-// 	case APPLY_FUNCT_CONST: {
-// 		bool mod = (q_state.key[0] == 0);
-
-// 		if (!block_from_const(p_base, q_state.url, mod))
-// 			return MHD_HTTP_BAD_REQUEST;
-
-// 		if (mod) {
-// 			if (p_container->modify(loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-// 				p_container->destroy_transaction(p_base);
-
-// 				return MHD_HTTP_BAD_REQUEST;
-// 			}
-// 			Name ent = {"result"};
-// 			if (p_container->new_block(p_txn, (pTuple) p_base->p_block, ent) != SERVICE_NO_ERROR) {
-// 				p_container->destroy_transaction(p_base);
-
-// 				return MHD_HTTP_BAD_REQUEST;
-// 			}
-// 		} else {
-// 			if (p_container->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-// 				p_container->destroy_transaction(p_base);
-
-// 				return MHD_HTTP_BAD_REQUEST;
-// 			}
-// 		}
-// 		p_container->destroy_transaction(p_base); }
-
-// 		break;
-
-// 	case APPLY_FILTER:
-// 		if (p_container->get(p_base, q_state.r_value) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
-
-// 		if (p_container->get(p_txn, loc, p_base->p_block) != SERVICE_NO_ERROR) {
-// 			p_container->destroy_transaction(p_base);
-
-// 			return MHD_HTTP_BAD_REQUEST;
-// 		}
-// 		p_container->destroy_transaction(p_base);
-
-// 		break;
-
-// 	case APPLY_FILT_CONST:
-// 		if (!block_from_const(p_base, q_state.url))
-// 			return MHD_HTTP_BAD_REQUEST;
-
-// 		if (p_container->get(p_txn, loc, p_base->p_block) != SERVICE_NO_ERROR) {
-// 			p_container->destroy_transaction(p_base);
-
-// 			return MHD_HTTP_BAD_REQUEST;
-// 		}
-// 		p_container->destroy_transaction(p_base);
-
-// 		break;
-
-// 	case APPLY_RAW:
-// 		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
-
-// 		if (new_block(p_txn, p_base->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
-// 			p_container->destroy_transaction(p_base);
-
-// 			return MHD_HTTP_BAD_REQUEST;
-// 		}
-// 		p_container->destroy_transaction(p_base);
-// 		p_container = this;
-
-// 		break;
-
-// 	case APPLY_TEXT:
-// 		if (p_container->get(p_base, loc) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
-
-// 		if (new_block(p_txn, p_base->p_block) != SERVICE_NO_ERROR) {
-// 			p_container->destroy_transaction(p_base);
-
-// 			return MHD_HTTP_BAD_REQUEST;
-// 		}
-// 		p_container->destroy_transaction(p_base);
-// 		p_container = this;
-
-// 		break;
-
-// 	default:
-// 		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
-// 			return MHD_HTTP_NOT_FOUND;
-// 	}
-
-// 	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
-// 	response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
-
-// 	p_container->destroy_transaction(p_txn);
-
-// 	return MHD_HTTP_OK;
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
-		inline StatusCode get_right_remote(pTransaction &p_txn, HttpQueryState &q_state) {
-
-			return SERVICE_NOT_IMPLEMENTED;
-		}
-
+		Context: This in any possible assignment in which the right part is NOT remote call. Functionally, it is similar to
+		get_left_local(), but since it is the right of an assignment, arguments are stored at a different place and also, apply
+		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instaed of APPLY_NOTHING..APPLY_TEXT.
+		It returns the final block as it will be returned to the user with a new_block() interface.
+		*/
 		inline StatusCode get_right_local(pTransaction &p_txn, HttpQueryState &q_state) {
 
-			return SERVICE_NOT_IMPLEMENTED;
+			pTransaction p_aux;
+			pContainer	 p_container, p_aux_cont;
+			Name		 ent;
+
+			if (q_state.apply == APPLY_ASSIGN_CONST)
+				return block_from_const(p_txn, q_state.url) ? SERVICE_NO_ERROR : SERVICE_ERROR_WRONG_ARGUMENTS;
+
+			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.r_value.base)];
+
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
+
+			switch (q_state.apply) {
+			case APPLY_ASSIGN_NOTHING:
+				return p_container->get(p_txn, q_state.r_value);
+
+			case APPLY_ASSIGN_NAME:
+				return p_container->get(p_txn, q_state.r_value, q_state.name);
+
+			case APPLY_ASSIGN_URL:
+				return p_container->get(p_txn, (pChar) q_state.url);
+
+			case APPLY_ASSIGN_FUNCTION:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.rr_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.rr_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (q_state.r_value.key[0] == 0) {
+					if (p_container->modify(q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				p_aux_cont->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_FUNCT_CONST:
+				if (!block_from_const(p_aux, q_state.url, q_state.r_value.key[0] == 0))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				if (q_state.r_value.key[0] == 0) {
+					if (p_container->modify(q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_FILTER:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.rr_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.rr_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (p_container->get(p_txn, q_state.r_value, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_aux_cont->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_aux_cont->destroy_transaction(p_txn);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_FILT_CONST:
+				if (!block_from_const(p_aux, q_state.url))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				if (p_container->get(p_txn, q_state.r_value, p_aux->p_block) != SERVICE_NO_ERROR) {
+					destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_RAW:
+				if (p_container->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_TEXT:
+				if (p_container->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+			}
+			return SERVICE_ERROR_MISC_SERVER;
 		}
 
 		inline StatusCode put_left_local(HttpQueryState &q_state, pBlock p_block) {
