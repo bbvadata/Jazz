@@ -351,38 +351,38 @@ class Block: public StaticBlockHeader {
 
 	// Methods for filtering (selecting).
 
-		/** Check (fast) the validity of a filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
-
-			This checks the values in the header, but not the validity of the data in .tensor[]
-
-			\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
-		*/
-		inline int filter_type() {
-			if (rank != 1 || range.filter.one != 1 || num_attributes != 1 || has_NA)
-				return FILTER_TYPE_NOTAFILTER;
-
-			if (cell_type == CELL_TYPE_INTEGER)
-				return FILTER_TYPE_INTEGER;
-
-			if (cell_type == CELL_TYPE_BYTE_BOOLEAN)
-				return FILTER_TYPE_BOOLEAN;
-
-			return FILTER_TYPE_NOTAFILTER;
-		}
-
-		int filter_audit();
+		bool is_a_filter();
 
 		/** Check (fast) if a filter is valid and can be applied to filter inside a specific Block
 
-			This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
+			This is verifies sizes and types, asssuming the values are integer and have no NAs.
 
 			\return true if it is a valid filter of that type.
 		*/
 		inline bool can_filter(pBlock p_block) {
-			if (p_block->rank < 1 || p_block->range.dim[0] <= 0 || size != p_block->size/p_block->range.dim[0])
+			int rows = p_block->range.dim[0];
+
+			if (p_block->rank < 1 || rows <= 0 || rank != 1)
 				return false;
 
-			return filter_type() != FILTER_TYPE_NOTAFILTER;
+			rows = p_block->size/rows;
+
+			switch (cell_type) {
+			case CELL_TYPE_BYTE_BOOLEAN:
+				if (size != rows)
+					return false;
+				break;
+
+			case CELL_TYPE_INTEGER:
+				if (size > rows || tensor.cell_int[0] < 0 || tensor.cell_int[size - 1] >= rows)
+					return false;
+				break;
+
+			default:
+				return false;
+			}
+
+			return true;
 		}
 
 		/** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor
