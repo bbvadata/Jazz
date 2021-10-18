@@ -328,7 +328,7 @@ SCENARIO("Testing file end-to-end") {
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
 		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
-		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(CHN.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
@@ -363,9 +363,10 @@ SCENARIO("Testing file end-to-end") {
 			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
 
+		dim[0] = 2;
 		dim[1] = 0;
 		REQUIRE(CHN.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		p_tx_fil->p_block->range.filter.length = 2;
+		dim[0] = 20;
 		p_tx_fil->p_block->tensor.cell_int[0]  = 0;
 		p_tx_fil->p_block->tensor.cell_int[1]  = 2;
 
@@ -829,12 +830,12 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
-		REQUIRE(   CHN.new_block(p_tx_pi1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "tcp://localhost:5555")
+		REQUIRE(   CHN.new_block(p_tx_pi1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "tcp://localhost:5555")
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_tx_pi1->p_block->size == 1);
 
-		REQUIRE(   CHN.new_block(p_tx_pi2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "tcp://localhost:5566")
+		REQUIRE(   CHN.new_block(p_tx_pi2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "tcp://localhost:5566")
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_tx_pi2->p_block->size == 1);
@@ -1065,7 +1066,7 @@ SCENARIO("Testing http end-to-end") {
 	GIVEN("We have some blocks and indices") {
 		pTransaction p_tx_idx, p_tx_ixx, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
 
-		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 

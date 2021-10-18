@@ -731,8 +731,8 @@ SCENARIO("Strong End-to-end index tests") {
 
 		REQUIRE(VOL.new_block(p_tx_pop3, txt3) == SERVICE_NO_ERROR);
 		REQUIRE(VOL.new_block(p_tx_pop9, txt9) == SERVICE_NO_ERROR);
-		REQUIRE(VOL.new_block(p_tx_str1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Just one string") == 0);
-		REQUIRE(VOL.new_block(p_tx_str2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(VOL.new_block(p_tx_str1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Just one string") == 0);
+		REQUIRE(VOL.new_block(p_tx_str2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(VOL.new_block(p_tx_chr,  CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 
 		WHEN("We test new_entity()/remove() of entities") {
@@ -1113,7 +1113,7 @@ SCENARIO("Strong End-to-end deque tests") {
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
 		REQUIRE(VOL.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
-		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(VOL.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
@@ -1148,9 +1148,10 @@ SCENARIO("Strong End-to-end deque tests") {
 			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
 
+		dim[0] = 2;
 		dim[1] = 0;
 		REQUIRE(VOL.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		p_tx_fil->p_block->range.filter.length = 2;
+		dim[0] = 20;
 		p_tx_fil->p_block->tensor.cell_int[0] = 0;
 		p_tx_fil->p_block->tensor.cell_int[1] = 2;
 
@@ -1706,7 +1707,7 @@ SCENARIO("Strong End-to-end queue tests") {
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
 		REQUIRE(VOL.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
-		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(VOL.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
@@ -1741,9 +1742,10 @@ SCENARIO("Strong End-to-end queue tests") {
 			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
 
+		dim[0] = 2;
 		dim[1] = 0;
 		REQUIRE(VOL.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		p_tx_fil->p_block->range.filter.length = 2;
+		dim[0] = 20;
 		p_tx_fil->p_block->tensor.cell_int[0] = 0;
 		p_tx_fil->p_block->tensor.cell_int[1] = 2;
 
@@ -2290,7 +2292,7 @@ SCENARIO("Strong End-to-end tree tests") {
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
 		REQUIRE(VOL.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
-		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(VOL.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
@@ -2325,9 +2327,10 @@ SCENARIO("Strong End-to-end tree tests") {
 			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
 
+		dim[0] = 2;
 		dim[1] = 0;
 		REQUIRE(VOL.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		p_tx_fil->p_block->range.filter.length = 2;
+		dim[0] = 20;
 		p_tx_fil->p_block->tensor.cell_int[0] = 0;
 		p_tx_fil->p_block->tensor.cell_int[1] = 2;
 
