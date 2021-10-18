@@ -526,13 +526,9 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
 							If dim == nullptr and p_text != nullptr, dim will be set to the number of lines (see eol) in p_text when
 							cell_type == CELL_TYPE_STRING.
-	\param fill_tensor		How to fill the tensor. When creating anything that is not a filter, p_bool_filter is ignored and the options
-							are: FILL_NEW_DONT_FILL (don't do anything with the tensor), FILL_NEW_WITH_ZERO (fill with binary zero
-							no matter what the cell_type is), FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
-							When creating a filter, p_bool_filter must be a vector of length == size and the filter will be created as
-							boolean (when fill_tensor == CELL_TYPE_BOOLEAN) or integer (when fill_tensor == CELL_TYPE_INTEGER)
-	\param p_bool_filter	The vector of boolean (each true value means the corresponding row is selected) used when fill_tensor ==
-							CELL_TYPE_BOOLEAN and fill_tensor == CELL_TYPE_INTEGER
+	\param fill_tensor		How to fill the tensor. The options are: FILL_NEW_DONT_FILL (don't do anything with the tensor),
+							FILL_NEW_WITH_ZERO (fill with binary zero no matter what the cell_type is), FILL_NEW_WITH_NA fill with the
+							appropriate NA for the cell_type).
 	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
 							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
 							only allocate the space and do nothing with it. The caller should assign strings with Block.set_string().
@@ -1003,9 +999,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	\param p_from		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
 						dimension of the tensor). This can be either a tensor or a Tuple. In the case of a Tuple, all the tensors must
 						have the same first dimension.
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
@@ -1765,9 +1759,7 @@ StatusCode Container::get(pTransaction &p_txn, pChar p_what) {
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container.
 	\param p_what		Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 

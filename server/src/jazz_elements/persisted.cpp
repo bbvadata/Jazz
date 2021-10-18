@@ -267,9 +267,7 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container.
 	\param what			Some Locator to the block. E.g. //lmdb/entity/key
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
