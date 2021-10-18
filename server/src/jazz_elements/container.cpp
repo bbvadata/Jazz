@@ -555,7 +555,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								int			  cell_type,
 								int			 *dim,
 								int			  fill_tensor,
-								bool		 *p_bool_filter,
 								int			  stringbuff_size,
 								const char	 *p_text,
 								char		  eol,
@@ -777,38 +776,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, JAZZ_FILL_NEW_WITH_NA is undefined for the type
 			}
 			break;
-
-		case FILL_BOOLEAN_FILTER:
-			p_txn->p_block->has_NA = false;
-			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
-				destroy_transaction(p_txn);
-
-				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
-			}
-			memcpy(&p_txn->p_block->tensor, p_bool_filter, p_txn->p_block->size);
-			break;
-
-		case FILL_INTEGER_FILTER: {
-			p_txn->p_block->has_NA = false;
-			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_INTEGER) {
-				destroy_transaction(p_txn);
-
-				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
-			}
-			int j = 0;
-			for (int i = 0; i < p_txn->p_block->size; i++) {
-				if (p_bool_filter[i]) {
-					p_txn->p_block->tensor.cell_int[j] = i;
-					j++;
-				}
-			}
-			p_txn->p_block->range.filter.length = j;
-
-#ifdef DEBUG												// Initialize the RAM on top of the filter for Valgrind.
-			for (int i = p_txn->p_block->range.filter.length; i < p_txn->p_block->size; i++)
-				p_txn->p_block->tensor.cell_int[i] = 0;
-#endif
-			break; }
 
 		default:
 			destroy_transaction(p_txn);
@@ -1041,7 +1008,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				if (p_row_filter->tensor.cell_bool[i])
 					selected_rows++;
 		} else {
-			selected_rows = p_row_filter->range.filter.length;
+			selected_rows = p_row_filter->size;
 		}
 		if (p_from->size) {
 			bytes_per_row		= old_tensor_size/tensor_rows;
@@ -1119,7 +1086,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				p_src = p_src + bytes_per_row;
 			}
 		} else {
-			for (int i = 0; i < p_row_filter->range.filter.length; i++) {
+			for (int i = 0; i < p_row_filter->size; i++) {
 				memcpy(p_dest, p_src + p_row_filter->tensor.cell_int[i]*bytes_per_row, bytes_per_row);
 				p_dest = p_dest + bytes_per_row;
 			}
@@ -1453,7 +1420,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
 	}
 
-	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', att);
+	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, 0, nullptr, '\n', att);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -1569,7 +1536,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	dim[5] = 0;
 #endif
 
-	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, 0, att);
+	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, 0, nullptr, 0, att);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -1697,10 +1664,10 @@ StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
 
 	int ret;
 
-	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, nullptr, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
+	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
 		return ret;
 
-	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, nullptr, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
+	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
 		destroy_transaction(p_key);
 
 		return ret;
@@ -3251,7 +3218,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 				ret = PARSE_ERROR_TEXT_FILLING;
 
 			else {
-				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt, '\n', att);
+				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, bf_size, p_txt, '\n', att);
 
 				if (ret == SERVICE_NO_ERROR) {
 					for (int i = 0; i < num_cells; i++) {
