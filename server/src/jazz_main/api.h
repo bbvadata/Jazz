@@ -355,23 +355,51 @@ class Api : public Container {
 			return SERVICE_ERROR_MISC_SERVER;
 		}
 
+		/** This is an internal part of http_get() made independent to keep the function less crowded.
 
-// 				return MHD_HTTP_BAD_REQUEST;
-// 			}
-// 			Name ent = {"result"};
-// 			if (p_container->new_block(p_txn, (pTuple) p_base->p_block, ent) != SERVICE_NO_ERROR) {
-// 				p_container->destroy_transaction(p_base);
+		Context: This in any possible assignment in which the right part is a remote call. Since q_state.url does not have
+				 a valid url, itt is necessary to reconstruct it. We do have the constants if any.
+		It returns the final block as it will be returned to the user with a new_block() interface.
+		*/
+		inline StatusCode get_right_remote(pTransaction &p_txn, HttpQueryState &q_state) {
 
-// 				return MHD_HTTP_BAD_REQUEST;
-// 			}
-// 		} else {
-// 			if (p_container->exec(p_txn, loc, (pTuple) p_base->p_block) != SERVICE_NO_ERROR) {
-// 				p_container->destroy_transaction(p_base);
+			char buffer_2k[2048];
 
-// 				return MHD_HTTP_BAD_REQUEST;
-// 			}
-// 		}
-// 		p_container->destroy_transaction(p_base); }
+			switch (q_state.apply) {
+			case APPLY_ASSIGN_NOTHING:
+				sprintf(buffer_2k, "//%s/%s/%s", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key);
+				break;
+			case APPLY_ASSIGN_NAME:
+				sprintf(buffer_2k, "//%s/%s/%s:%s", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key, q_state.name);
+				break;
+			case APPLY_ASSIGN_URL:
+				sprintf(buffer_2k, "//%s&%s;", q_state.r_value.base, q_state.url);
+				break;
+			case APPLY_ASSIGN_FUNCTION:
+				sprintf(buffer_2k, "//%s/%s/%s(//%s/%s/%s)", q_state.r_value.base,  q_state.r_value.entity,  q_state.r_value.key,
+															 q_state.rr_value.base, q_state.rr_value.entity, q_state.rr_value.key);
+				break;
+			case APPLY_ASSIGN_FUNCT_CONST:
+				sprintf(buffer_2k, "//%s/%s/%s(&%s)", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key, q_state.url);
+				break;
+			case APPLY_ASSIGN_FILTER:
+				sprintf(buffer_2k, "//%s/%s/%s[//%s/%s/%s]", q_state.r_value.base,  q_state.r_value.entity,  q_state.r_value.key,
+															 q_state.rr_value.base, q_state.rr_value.entity, q_state.rr_value.key);
+				break;
+			case APPLY_ASSIGN_FILT_CONST:
+				sprintf(buffer_2k, "//%s/%s/%s[&%s]", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key, q_state.url);
+				break;
+			case APPLY_ASSIGN_RAW:
+				sprintf(buffer_2k, "//%s/%s/%s.raw", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key);
+				break;
+			case APPLY_ASSIGN_TEXT:
+				sprintf(buffer_2k, "//%s/%s/%s.text", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key);
+				break;
+			default:
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+			}
+			return p_channels->forward_get(p_txn, q_state.r_node, buffer_2k);
+		}
 
 // 		break;
 
