@@ -1084,9 +1084,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 	switch (q_state.apply) {
 	case APPLY_NOTHING: {
-		strcpy(loc.base,   q_state.base);
-		strcpy(loc.entity, q_state.entity);
-		strcpy(loc.key,	   q_state.key);
+		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 		int ret = p_container->put(loc, p_txn->p_block);
 
@@ -1107,9 +1105,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		strcpy(loc.base,   q_state.base);
-		strcpy(loc.entity, q_state.entity);
-		strcpy(loc.key,	   q_state.key);
+		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 		ret = p_container->put(loc, p_aux->p_block);
 
@@ -1130,9 +1126,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		strcpy(loc.base,   q_state.base);
-		strcpy(loc.entity, q_state.entity);
-		strcpy(loc.key,	   q_state.key);
+		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 		ret = p_container->put(loc, p_aux->p_block);
 
@@ -1200,9 +1194,7 @@ MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
 	case APPLY_NOTHING: {
 		Locator loc;
 
-		strcpy(loc.base,   q_state.base);
-		strcpy(loc.entity, q_state.entity);
-		strcpy(loc.key,	   q_state.key);
+		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 		if (p_container->remove(loc) == SERVICE_NO_ERROR)
 			return MHD_HTTP_OK; }
@@ -1308,9 +1300,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 				return MHD_HTTP_SERVICE_UNAVAILABLE;
 
 			if (q_state.url[0] == 0) {
-				strcpy(loc.base,   q_state.base);
-				strcpy(loc.entity, q_state.entity);
-				loc.key[0] = 0;
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 				ret = p_container->new_entity(loc);
 			} else
@@ -1342,9 +1332,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (p_container == nullptr)
 			return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-		strcpy(loc.base,   q_state.base);
-		strcpy(loc.entity, q_state.entity);
-		strcpy(loc.key,	   q_state.key);
+		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
@@ -1373,9 +1361,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			if (p_container == nullptr)
 				return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-			strcpy(loc.base,   q_state.base);
-			strcpy(loc.entity, q_state.entity);
-			strcpy(loc.key,	   q_state.key);
+			memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
 
 			if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
 				return MHD_HTTP_NOT_FOUND;
