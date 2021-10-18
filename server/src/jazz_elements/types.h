@@ -121,14 +121,6 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define SINGLE_NA_UINT32		F_NA_uint32	///< An unsigned int32 version to .cell_uint[] ==
 #define DOUBLE_NA_UINT64		R_NA_uint64	///< An unsigned int64 version to .cell_ulongint[] ==
 
-/// Possible return values of Block.filter_type() and Block.filter_audit()
-
-#define FILTER_TYPE_
-
-#define FILTER_TYPE_NOTAFILTER	0			///< This Block cannot be used as a filter. A try to use it in new_jazz_block() will fail.
-#define FILTER_TYPE_BOOLEAN		1			///< This Block is a vector of CELL_TYPE_BYTE_BOOLEAN for each row.
-#define FILTER_TYPE_INTEGER		2			///< This Block is a vector of CELL_TYPE_INTEGER containing the selected rows.
-
 /// Possible return values of Kind.kind_audit() and Tuple.tuple_audit()
 
 #define MIXED_TYPE_
@@ -172,24 +164,12 @@ typedef char Name[NAME_SIZE];
 typedef char *pChar;
 
 
-/** \brief Another way to describe a TensorDim to make filtering syntactically nicer.
-
-	Names for elements in a TensorDim to make filter operation more elegant. A filter is a record that always has rank 1 and a size,
-	but has an extra parameter, its length.
-*/
-struct FilterSize {
-	int one;		///< This is dim[0]. Since the filter is a block (of rank 1). This is always == 1 (see Block.get_offset()).
-	int length;		///< Since dim[1] is not used (as rank is 1), it is a good place to store the length of the block this can filter.
-};
-
-
 /** \brief The dimension of a tensor.
 
 	The structure is declared as a union to make filter operation more elegant.
 */
-union TensorDim {
-	int		   dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2 Gb
-	FilterSize filter;					///< When object is a filter the second element is named filter.length rather than dim[1]
+struct TensorDim {
+	int dim[MAX_TENSOR_RANK];	///< Dimensions for the Tensor. The product of all * (cell_type & 0xff) < 2 Gb
 };
 
 
