@@ -551,11 +551,24 @@ class Api : public Container {
 			return SERVICE_ERROR_MISC_SERVER;
 		}
 
+		/** This is an internal part of http_get() made independent to keep the function less crowded.
+
+		Context: This in any possible assignment in which we could successfully solve the right part and have a valid p_block.
+		We have to do a put call and return whatever status code happened.
+		*/
 		inline StatusCode put_left_local(HttpQueryState &q_state, pBlock p_block) {
 
-			return SERVICE_NOT_IMPLEMENTED;
-		}
+			pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
+
+			Locator where;
+
+			memcpy(&where, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+
+			return p_container->put(where, p_block);
+		}
 
 		pChannels	p_channels;
 		pVolatile	p_volatile;
