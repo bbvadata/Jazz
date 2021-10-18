@@ -92,11 +92,9 @@ The structure of a filter is strictly:
 
 Details:
 
-1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
-2. A FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN specifying which rows are selected (cell == true).
-3. A FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .range.filter.length.
-As expected, .range.filter.length == 0 means nothing is selected, .range.filter.length == .size means everything is selected regardless
-of .tensor[]
+1. A filter is a block of rank == 1 and type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER.
+2. A vector of CELL_TYPE_BYTE_BOOLEAN specifies which rows are selected (cell == true) and must have the size == number of rows.
+3. A vector of ordered CELL_TYPE_INTEGER in 0..(number of rows - 1) can be used to filter a tensor.
 */
 class Block: public StaticBlockHeader {
 
