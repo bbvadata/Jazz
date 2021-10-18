@@ -298,7 +298,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 	}
 
 	if (p_str != nullptr)
-		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0);
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0);
 
 	return new_block(p_txn, index_ent[pop_ent]->p_hea->index);
 }
@@ -896,7 +896,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 	}
 
 	if (p_str != nullptr) {
-		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
+		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
 			return ret;
 
 		ret = put(where, p_txn->p_block, WRITE_TENSOR_DATA);

@@ -392,7 +392,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 		if (it == pipes.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, it->second.endpoint);
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, it->second.endpoint);
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
