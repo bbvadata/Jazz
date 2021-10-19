@@ -2484,7 +2484,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->total_bytes == 208);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		for (int j = 0; j < 120; j++)
-			REQUIRE(p_filter_kpr->p_block->tensor.cell_byte[j] == filter_v_n[j]);
+			p_filter_kpr->p_block->tensor.cell_byte[j] = filter_v_n[j];
 
 		check_and_finish(p_filter_kpr->p_block);
 
@@ -2511,7 +2511,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->num_attributes == 1);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		for (int j = 0; j < 17; j++)
-			REQUIRE(p_filter_kpr->p_block->tensor.cell_int[j] == 7*j + 2);
+			p_filter_kpr->p_block->tensor.cell_int[j] = 7*j + 2;
 
 		check_and_finish(p_filter_kpr->p_block);
 
@@ -2540,7 +2540,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_filter_kpr->p_block != nullptr);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
-		REQUIRE(p_filter_kpr->p_block->is_a_filter());
+		REQUIRE(!p_filter_kpr->p_block->is_a_filter());
 		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
 		CNT.destroy_transaction(p_filter_kpr);
@@ -2559,14 +2559,14 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->num_attributes == 1);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		for (int j = 0; j < 17; j++)
-			REQUIRE(p_filter_kpr->p_block->tensor.cell_int[j] == j);
+			p_filter_kpr->p_block->tensor.cell_int[j] = 9999*j;
 
 		check_and_finish(p_filter_kpr->p_block);
 
 		REQUIRE(p_filter_kpr->p_block != nullptr);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		REQUIRE(p_filter_kpr->p_block->is_a_filter());
-		REQUIRE(p_filter_kpr->p_block->can_filter(p_txn->p_block));
+		REQUIRE(!p_filter_kpr->p_block->can_filter(p_txn->p_block));
 
 		CNT.destroy_transaction(p_filter_kpr);
 		REQUIRE(p_filter_kpr == nullptr);
@@ -3302,12 +3302,6 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, p_bf_r6->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 			REQUIRE(pcp == nullptr);
 
-			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_db_r1->p_block, p_if_r6->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
 			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, p_bf_r1->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 			REQUIRE(pcp == nullptr);
 
@@ -3315,9 +3309,6 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(pcp == nullptr);
 
 			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, p_if_r1->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
-			REQUIRE(pcp == nullptr);
-
-			REQUIRE(CNT.new_block(pcp, p_by_r3->p_block, p_if_r6->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 			REQUIRE(pcp == nullptr);
 
 			REQUIRE(CNT.new_block(pcp, p_st_r6->p_block, p_bf_r1->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -3773,17 +3764,17 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			pTransaction p_pa_db_r1, p_pa_db_r3, p_pa_db_r6, p_pa_st_r1, p_pa_st_r3, p_pa_st_r6, p_pa_by_r1, p_pa_by_r3, p_pa_by_r6,
 						 p_pb_db_r1, p_pb_db_r3, p_pb_db_r6, p_pb_st_r1, p_pb_st_r3, p_pb_st_r6, p_pb_by_r1, p_pb_by_r3, p_pb_by_r6;
 
-			// Select all elements with binary, correct, and integer fitting dimension properly
+			// Select all elements
 			for (int i = 0; i < p_if_r1->p_block->size; i++) {
 				p_if_r1->p_block->tensor.cell_int[i]  = i;
 				p_bf_r1->p_block->tensor.cell_bool[i] = true;
 			}
 			for (int i = 0; i < p_if_r3->p_block->size; i++) {
-				p_if_r3->p_block->tensor.cell_int[i]  = 0;
+				p_if_r3->p_block->tensor.cell_int[i]  = i;
 				p_bf_r3->p_block->tensor.cell_bool[i] = true;
 			}
 			for (int i = 0; i < p_if_r6->p_block->size; i++) {
-				p_if_r6->p_block->tensor.cell_int[i]  = -i;
+				p_if_r6->p_block->tensor.cell_int[i]  = i;
 				p_bf_r6->p_block->tensor.cell_bool[i] = true;
 			}
 			REQUIRE(CNT.new_block(p_pa_db_r1, p_db_r1->p_block, p_if_r1->p_block) == SERVICE_NO_ERROR);
@@ -3794,6 +3785,36 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(p_pa_db_r1->p_block->hash64 == 0);
 
 			REQUIRE(p_pa_db_r1->p_block->size == 107);
+
+			int o_size = p_if_r3->p_block->size;
+
+			p_if_r3->p_block->tensor.cell_int[0] = -1;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[0]  = 0;
+			p_if_r3->p_block->tensor.cell_int[16] = 9999;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[16] = 16;
+			p_if_r3->p_block->tensor.cell_int[4] = 5;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[4] = 3;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[4] = 4;
+
+			p_if_r3->p_block->size = 5;
+
+			p_if_r3->p_block->tensor.cell_int[0] = -1;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[0]  = 0;
+			p_if_r3->p_block->tensor.cell_int[4] = 9999;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[4] = 4;
+			p_if_r3->p_block->tensor.cell_int[2] = 3;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[2] = 1;
+			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_ERROR_NEW_BLOCK_ARGS);
+			p_if_r3->p_block->tensor.cell_int[2] = 2;
+
+			p_if_r3->p_block->size = o_size;
 
 			REQUIRE(CNT.new_block(p_pa_db_r3, p_db_r3->p_block, p_if_r3->p_block) == SERVICE_NO_ERROR);
 
@@ -3841,16 +3862,19 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(p_pa_st_r6->p_block->size == 840);
 
 			// Select no elements with binary and integer
-			for (int i = 0; i < p_if_r1->p_block->size; i++) {
+			for (int i = 0; i < p_bf_r1->p_block->size; i++) {
 				p_bf_r1->p_block->tensor.cell_bool[i] = false;
 			}
-			for (int i = 0; i < p_if_r3->p_block->size; i++) {
+			for (int i = 0; i < p_bf_r3->p_block->size; i++) {
 				p_bf_r3->p_block->tensor.cell_bool[i] = false;
 			}
-			for (int i = 0; i < p_if_r6->p_block->size; i++) {
+			for (int i = 0; i < p_bf_r6->p_block->size; i++) {
 				p_bf_r6->p_block->tensor.cell_bool[i] = false;
 			}
+			o_size = p_if_r1->p_block->size;
+			p_if_r1->p_block->size = 0;
 			REQUIRE(CNT.new_block(p_pa_by_r1, p_by_r1->p_block, p_if_r1->p_block) == SERVICE_NO_ERROR);
+			p_if_r1->p_block->size = o_size;
 
 			REQUIRE(p_pa_by_r1 != nullptr);
 			REQUIRE(p_pa_by_r1->p_block != nullptr);
@@ -3860,7 +3884,10 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(p_pa_by_r1->p_block->size == 0);
 			REQUIRE(p_pa_by_r1->p_block->rank == 1);
 
+			o_size = p_if_r3->p_block->size;
+			p_if_r3->p_block->size = 0;
 			REQUIRE(CNT.new_block(p_pa_by_r3, p_by_r3->p_block, p_if_r3->p_block, &new_str) == SERVICE_NO_ERROR);
+			p_if_r3->p_block->size = o_size;
 
 			REQUIRE(p_pa_by_r3 != nullptr);
 			REQUIRE(p_pa_by_r3->p_block != nullptr);
@@ -3870,7 +3897,10 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(p_pa_by_r3->p_block->size == 0);
 			REQUIRE(p_pa_by_r3->p_block->rank == 3);
 
+			o_size = p_if_r6->p_block->size;
+			p_if_r6->p_block->size = 0;
 			REQUIRE(CNT.new_block(p_pa_by_r6, p_by_r6->p_block, p_if_r6->p_block) == SERVICE_NO_ERROR);
+			p_if_r6->p_block->size = o_size;
 
 			REQUIRE(p_pa_by_r6 != nullptr);
 			REQUIRE(p_pa_by_r6->p_block != nullptr);
@@ -3923,14 +3953,17 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				p_if_r6->p_block->tensor.cell_int[i]  = 1;
 				p_bf_r6->p_block->tensor.cell_bool[i] = i == 0;
 			}
+			o_size = p_if_r1->p_block->size;
+			p_if_r1->p_block->size = 15;
 			REQUIRE(CNT.new_block(p_pb_st_r1, p_st_r1->p_block, p_if_r1->p_block, &no_str) == SERVICE_NO_ERROR);
+			p_if_r1->p_block->size = o_size;
 
 			REQUIRE(p_pb_st_r1 != nullptr);
 			REQUIRE(p_pb_st_r1->p_block != nullptr);
 			REQUIRE(p_pb_st_r1->status  == BLOCK_STATUS_READY);
 			REQUIRE(p_pb_st_r1->p_block->hash64 == 0);
 
-			REQUIRE(p_pb_st_r1->p_block->size == 17);
+			REQUIRE(p_pb_st_r1->p_block->size == 15);
 
 			REQUIRE(CNT.new_block(p_pb_st_r3, p_st_r3->p_block, p_if_r3->p_block) == SERVICE_NO_ERROR);
 
@@ -3939,9 +3972,13 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 			REQUIRE(p_pb_st_r3->status  == BLOCK_STATUS_READY);
 			REQUIRE(p_pb_st_r3->p_block->hash64 == 0);
 
-			REQUIRE(p_pb_st_r3->p_block->size == 189);
+			REQUIRE(p_pb_st_r3->p_block->size == 459);
 
+			REQUIRE(CNT.new_block(p_pb_st_r6, p_st_r6->p_block, p_if_r6->p_block) != SERVICE_NO_ERROR);
+			o_size = p_if_r6->p_block->size;
+			p_if_r6->p_block->size = 1;
 			REQUIRE(CNT.new_block(p_pb_st_r6, p_st_r6->p_block, p_if_r6->p_block) == SERVICE_NO_ERROR);
+			p_if_r6->p_block->size = o_size;
 
 			REQUIRE(p_pb_st_r6 != nullptr);
 			REQUIRE(p_pb_st_r6->p_block != nullptr);
@@ -4229,6 +4266,8 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 								p_st_r1->p_block->tensor.cell_int[p_st_r1->p_block->get_offset((int *) &index_o)]);
 
 						i_i++;
+						if (i_i == 15)
+							break;
 					}
 				}
 
