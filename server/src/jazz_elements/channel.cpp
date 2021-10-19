@@ -972,11 +972,8 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 	pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
 	int size = p_txn->p_block->size;
 
-	if (p_blk->total_bytes != size || !p_blk->check_hash()) {
-		destroy_transaction(p_txn);
-
-		return SERVICE_ERROR_CORRUPTED;
-	}
+	if (p_blk->total_bytes != size || !p_blk->check_hash())
+		return SERVICE_NO_ERROR;
 
 	pBlock p_new = block_malloc(size);
 	if (p_new == nullptr) {
