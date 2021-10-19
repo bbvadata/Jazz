@@ -1382,6 +1382,12 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			ret = p_container->put(loc, p_txn->p_block);
 
 			destroy_transaction(p_txn);
+
+			if (   ret == SERVICE_NO_ERROR
+				&& q_state.r_value.attribute == BLOCK_ATTRIB_URL
+				&& strcmp(loc.base, "lmdb") == 0
+				&& strcmp(loc.entity, "www") == 0)
+					www[q_state.url] = loc.key;
 		}
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
