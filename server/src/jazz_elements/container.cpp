@@ -990,13 +990,12 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	int tensor_diff		= 0,
 		old_tensor_size = p_from->size*(p_from->cell_type & 0xff),
+		tensor_rows,
 		bytes_per_row,
 		selected_rows;
 
 	if (p_row_filter != nullptr) {
-		int	tensor_rows = p_from->size/p_from->range.dim[0];
-
-		if (!p_row_filter->can_filter(p_from)){
+		if (!p_row_filter->can_filter(p_from)) {
 			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
@@ -1011,6 +1010,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			selected_rows = p_row_filter->size;
 		}
 		if (p_from->size) {
+			tensor_rows = p_from->size/p_from->range.dim[0];
+
 			bytes_per_row		= old_tensor_size/tensor_rows;
 			int new_tensor_size = selected_rows*bytes_per_row;
 
@@ -1018,6 +1019,12 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			new_tensor_size = (uintptr_t) p_from->align64bit(new_tensor_size);
 
 			tensor_diff = new_tensor_size - old_tensor_size;
+
+			if (tensor_diff == 0 && !p_row_filter->is_a_filter()) {		// For consitency, check indices
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NEW_BLOCK_ARGS;
+			}
 		}
 	}
 
@@ -1086,9 +1093,17 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				p_src = p_src + bytes_per_row;
 			}
 		} else {
+			int j2 = -1;
 			for (int i = 0; i < p_row_filter->size; i++) {
-				memcpy(p_dest, p_src + p_row_filter->tensor.cell_int[i]*bytes_per_row, bytes_per_row);
+				int j = p_row_filter->tensor.cell_int[i];
+				if (j <= j2 || j >= tensor_rows) {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_NEW_BLOCK_ARGS;
+				}
+				memcpy(p_dest, p_src + j*bytes_per_row, bytes_per_row);
 				p_dest = p_dest + bytes_per_row;
+				j2 = j;
 			}
 		}
 	} else {
