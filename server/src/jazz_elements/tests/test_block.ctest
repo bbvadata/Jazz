@@ -1038,7 +1038,7 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
-		REQUIRE( pjf->p_string_buffer()->buffer_size == 12);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 16);
 
 		for (int i = 0; i < 4; i++)
 			pjf->tensor.cell_int[i] = 2*i;
@@ -1057,11 +1057,26 @@ SCENARIO("Testing Filters") {
 		REQUIRE(pjf->is_a_filter());
 		REQUIRE(pjf->can_filter(pjb));
 
-		pjf->tensor.cell_int[1] = 6;
-
+		pjf->cell_type = CELL_TYPE_SINGLE;
 		REQUIRE(!pjf->is_a_filter());
+		REQUIRE(!pjf->can_filter(pjb));
 
-		pjf->tensor.cell_int[4] = 7;
+		pjf->cell_type = CELL_TYPE_INTEGER;
+		REQUIRE(pjf->is_a_filter());
+		REQUIRE(pjf->can_filter(pjb));
+
+		pjf->rank = 2;
+		pjf->range.dim[1] = 1;
+		REQUIRE(!pjf->is_a_filter());
+		REQUIRE(!pjf->can_filter(pjb));
+
+		pjf->rank = 1;
+		pjf->range.dim[1] = 0;
+		REQUIRE(pjf->is_a_filter());
+		REQUIRE(pjf->can_filter(pjb));
+
+		pjf->tensor.cell_int[1] = 6;
+		REQUIRE(!pjf->is_a_filter());
 	}
 }
 
