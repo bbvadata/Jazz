@@ -1292,7 +1292,8 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 	case APPLY_NEW_ENTITY:
 		if (q_state.l_node[0] != 0) {
 			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-			p_channels->destroy_transaction(p_txn); }
+			if (ret == SERVICE_NO_ERROR)
+				p_channels->destroy_transaction(p_txn); }
 		else {
 			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
