@@ -369,20 +369,12 @@ class Block: public StaticBlockHeader {
 
 			switch (cell_type) {
 			case CELL_TYPE_BYTE_BOOLEAN:
-				if (size != rows)
-					return false;
-				break;
+				return size == rows;
 
 			case CELL_TYPE_INTEGER:
-				if (size > rows || tensor.cell_int[0] < 0 || tensor.cell_int[size - 1] >= rows)
-					return false;
-				break;
-
-			default:
-				return false;
+				return size <= rows && (size == 0 || (tensor.cell_int[0] >= 0 && tensor.cell_int[size - 1] < rows));
 			}
-
-			return true;
+			return false;
 		}
 
 		/** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor

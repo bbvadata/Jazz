@@ -188,30 +188,31 @@ Checking (is_a_filter() && can_filter()) will check it twice and assure that it 
 	\return true if the block can be used as a filter.
 */
 bool Block::is_a_filter() {
-	switch (cell_type) {
+	int lo;
 
-	case CELL_TYPE_INTEGER: {
+	switch (cell_type) {
+	case CELL_TYPE_INTEGER:
 		if (rank != 1)
 			return false;
 
-		int lo = -1;
+		lo = -1;
 
 		for (int i = 0; i < size; i++) {
 			if (tensor.cell_int[i] <= lo)
 				return false;
 			lo = tensor.cell_int[i];
 		}
-		return true; }
+		return true;
 
-	case CELL_TYPE_BYTE_BOOLEAN: {
+	case CELL_TYPE_BYTE_BOOLEAN:
 		for (int i = 0; i < size; i++) {
 			if ((tensor.cell_byte[i] & 0xfe) != 0)
 				return false;
 		}
-		return true; }
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 } // namespace jazz_elements
