@@ -355,7 +355,7 @@ class Block: public StaticBlockHeader {
 
 		/** Check (fast) if a filter is valid and can be applied to filter inside a specific Block
 
-			This is verifies sizes and types, asssuming the values are integer and have no NAs.
+			This is verifies sizes and types, asssuming there are no NAs and integer values are sorted.
 
 			\return true if it is a valid filter of that type.
 		*/
