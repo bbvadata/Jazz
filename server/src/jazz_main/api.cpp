@@ -1264,7 +1264,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		return MHD_HTTP_OK;
 
-	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_CONST:
+	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_TEXT:
 		if (q_state.r_node[0] != 0)
 			ret = get_right_remote(p_txn, q_state);
 		else
@@ -1284,6 +1284,26 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_GATEWAY;
+
+		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
+
+		return MHD_HTTP_OK;
+
+	case APPLY_ASSIGN_CONST:
+		if (q_state.l_node[0] != 0) {
+			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
+
+			if (ret != SERVICE_NO_ERROR)
+				return MHD_HTTP_NOT_FOUND;
+		} else {
+			ret = get_right_local(p_txn, q_state);
+
+			if (ret != SERVICE_NO_ERROR)
+				return MHD_HTTP_NOT_FOUND;
+
+			ret = put_left_local(q_state, p_txn->p_block);
+		}
+		destroy_transaction(p_txn);
 
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
