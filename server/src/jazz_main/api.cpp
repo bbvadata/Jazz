@@ -1294,16 +1294,19 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
 
 			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_NOT_FOUND;
+				return MHD_HTTP_BAD_REQUEST;
 		} else {
 			ret = get_right_local(p_txn, q_state);
 
 			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_NOT_FOUND;
+				return MHD_HTTP_BAD_REQUEST;
 
 			ret = put_left_local(q_state, p_txn->p_block);
 		}
 		destroy_transaction(p_txn);
+
+		if (ret != SERVICE_NO_ERROR)
+			return MHD_HTTP_BAD_REQUEST;
 
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
 
