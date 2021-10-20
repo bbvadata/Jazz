@@ -799,6 +799,8 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 				if (recurse || (method != HTTP_GET))
 					return false;
 
+				q_state.url[0] = 0;
+
 				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
 					q_state.apply = APPLY_ASSIGN_CONST;
 					q_state.state = PSTATE_COMPLETE_OK;
