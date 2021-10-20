@@ -1515,7 +1515,7 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(strcmp(hqs.entity, "entity2") == 0);
 		REQUIRE(strcmp(hqs.key,	   "key4") == 0);
 
-		REQUIRE(strcmp(hqs.url, "[[2,4], [5,6]]") == 0);
+		REQUIRE(strcmp(hqs.url, "//base_s3/entity2/key4=&[[2,4], [5,6]];") == 0);
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_CONST);
@@ -1545,7 +1545,7 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(strcmp(hqs.entity, "ent") == 0);
 		REQUIRE(strcmp(hqs.key,	   "kky") == 0);
 
-		REQUIRE(strcmp(hqs.url, "[[5, 7], [3,1]]") == 0);
+		REQUIRE(strcmp(hqs.url, "//base/ent/kky=&[[5, 7], [3,1]];") == 0);
 
 		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
 		REQUIRE(hqs.apply == APPLY_ASSIGN_CONST);
