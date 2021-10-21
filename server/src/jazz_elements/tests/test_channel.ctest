@@ -92,6 +92,196 @@ SCENARIO("Basics tests") {
 }
 
 
+SCENARIO("Testing compose_url()") {
+
+	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(CHN.max_transactions > 0);
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.warn_alloc_bytes > 0);
+	REQUIRE(CHN.fail_alloc_bytes > 0);
+	REQUIRE(CHN.alloc_warning_issued == false);
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN.p_free	 == CHN.p_buffer);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next == &pStoredTransaction(CHN.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next->p_next == &pStoredTransaction(CHN.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 2].p_next
+			== &pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1].p_next == nullptr);
+	REQUIRE(CHN._lock_ == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context	!= nullptr);
+
+	GIVEN("We have configured running Channels object.") {
+		CHN.jazz_node_name[1] = "One";
+		CHN.jazz_node_ip  [1] = "192.168.0.1";
+		CHN.jazz_node_port[1] = 8001;
+
+		CHN.jazz_node_name[2] = "Two";
+		CHN.jazz_node_ip  [2] = "192.168.0.2";
+		CHN.jazz_node_port[2] = 8002;
+
+		CHN.jazz_node_name[3] = "Three";
+		CHN.jazz_node_ip  [3] = "192.168.0.3";
+		CHN.jazz_node_port[3] = 8003;
+
+		char buff1[4096], buff2[4096], buff3[4096];
+
+		WHEN("We try some buffer limit calls") {
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 0));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 1));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 10));
+
+			//123456789012345678901234
+			//http://192.168.0.1:8001/
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 24));
+			REQUIRE( CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 25));
+
+			//123456789012345678901234567890123456
+			//http://192.168.0.2:8002/h234/6789.ht
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "Two", (pChar) "/h234/6789.ht", 36));
+			REQUIRE( CHN.compose_url(buff2, (pChar) "Two", (pChar) "/h234/6789.ht", 37));
+
+			//http://192.168.0.3:8003/h234/6789.ht%20
+			//123456789012345678901234567890123456789
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 37));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 38));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 39));
+			REQUIRE( CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 40));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002/h234/6789.ht") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003/h234/6789.ht%20") == 0);
+			}
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 25));
+			REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/") == 0);
+			REQUIRE(buff1[24] == 0);
+			buff1[25] = 'w';
+			buff1[26] = '?';
+			buff1[27] = '^';
+			REQUIRE(CHN.compose_url(buff1, (pChar) "Two", (pChar) "/", 25));
+			REQUIRE(strcmp(buff1, "http://192.168.0.2:8002/") == 0);
+			REQUIRE(buff1[24] == 0);
+			REQUIRE(buff1[25] == 'w');
+			REQUIRE(buff1[26] == '?');
+			REQUIRE(buff1[27] == '^');
+
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 32));
+			REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/") == 0);
+			REQUIRE(buff1[24] == 0);
+			buff1[25] = 'r';
+			buff1[26] = 's';
+			buff1[27] = 't';
+			REQUIRE(CHN.compose_url(buff1, (pChar) "Two", (pChar) "/", 32));
+			REQUIRE(strcmp(buff1, "http://192.168.0.2:8002/") == 0);
+			REQUIRE(buff1[24] == 0);
+			REQUIRE(buff1[25] == 'r');
+			REQUIRE(buff1[26] == 's');
+			REQUIRE(buff1[27] == 't');
+		}
+
+		WHEN("We try identification calls") {
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "one", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "ONE", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "q@x", (pChar) "/index.html", 1024));
+			REQUIRE( CHN.compose_url(buff1, (pChar) "One", (pChar) "/index.html", 1024));
+
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "two", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "TWO", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "t22", (pChar) "/index.html", 1024));
+			REQUIRE( CHN.compose_url(buff2, (pChar) "Two", (pChar) "/index.html", 1024));
+
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "three", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "THREE", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "q@x2z", (pChar) "/index.html", 1024));
+			REQUIRE( CHN.compose_url(buff3, (pChar) "Three", (pChar) "/index.html", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/index.html") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002/index.html") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003/index.html") == 0);
+			}
+		}
+
+		WHEN("We try char encoding calls") {
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One",
+					(pChar) "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~!#$&'()*+,/:;=?@[]", 1024));
+
+			REQUIRE(CHN.compose_url(buff2, (pChar) "Two", (pChar) "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f", 1024));
+			REQUIRE(CHN.compose_url(buff3, (pChar) "Three", (pChar) "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1,
+					"http://192.168.0.1:8001ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~!#$&'()*+,/:;=?@[]") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002%01%02%03%04%05%06%07%08%09%0A%0B%0C%0D%0E%0F") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F") == 0);
+			}
+
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) " !\"#$%&'()*+,-./0123456789:;<=>?", 1024));
+			REQUIRE(CHN.compose_url(buff2, (pChar) "Two", (pChar) "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_", 1024));
+			REQUIRE(CHN.compose_url(buff3, (pChar) "Three", (pChar)"'abcdefghijklmnopqrstuvwxyz{|}~\x7f", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001%20!\"#$%25&'()*+,-./0123456789:;%3C=%3E?") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002@ABCDEFGHIJKLMNOPQRSTUVWXYZ[%5C]%5E_") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003'abcdefghijklmnopqrstuvwxyz%7B%7C%7D~%7F") == 0);
+			}
+
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) "\x81\xa2\xe3\x94\xf5\xe6\x97\xb8\xc9\xda\x8b\x9c\xed\x9e\x8f", 1024));
+			REQUIRE(CHN.compose_url(buff2, (pChar) "Two", (pChar) "\x81\x92\xa3\xb4\xc5\xd6\xe7\xf8\x89\x9a\xab\xbc\xcd\xde\xef", 1024));
+			REQUIRE(CHN.compose_url(buff3, (pChar) "Three", (pChar) "\x91\xa2\xb3\xc4\xd5\xe6\xf7\x88\x99\xaa\xbb\xcc\xdd\xee\xff", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001%81%A2%E3%94%F5%E6%97%B8%C9%DA%8B%9C%ED%9E%8F") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002%81%92%A3%B4%C5%D6%E7%F8%89%9A%AB%BC%CD%DE%EF") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003%91%A2%B3%C4%D5%E6%F7%88%99%AA%BB%CC%DD%EE%FF") == 0);
+			}
+		}
+	}
+
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context != nullptr);
+
+	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CHN.alloc_bytes == 0);
+	REQUIRE(CHN.p_buffer == nullptr);
+	REQUIRE(CHN.p_free	 == nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.curl_ok == 0);
+	REQUIRE(CHN.zmq_ok	== 0);
+
+	REQUIRE(CHN.zmq_context == nullptr);
+}
+
+
 SCENARIO("Testing bash end-to-end") {
 
 	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
