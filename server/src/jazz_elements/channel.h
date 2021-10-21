@@ -577,6 +577,7 @@ class Channels : public Container {
 #ifndef CATCH_TEST
 	private:
 #endif
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 		inline bool compose_url(pChar p_dest, pChar p_node, pChar p_url, int buff_size) {
 			int nix;
@@ -590,9 +591,47 @@ class Channels : public Container {
 					break;
 				}
 			}
-			int ret = snprintf(p_dest, buff_size, "http://%s:%i%s", jazz_node_ip[nix].c_str(), jazz_node_port[nix], p_url);
+			int ret = snprintf(p_dest, buff_size, "http://%s:%i", jazz_node_ip[nix].c_str(), jazz_node_port[nix]);
 
-			return ret > 0 && ret < buff_size;
+			if (ret < 0 || ret >= buff_size)
+				return false;
+
+			p_dest	  += ret;
+			buff_size -= ret;
+
+			while (buff_size > 0) {
+				u_int8_t cursor = *(p_url++);
+				switch (cursor) {
+				case 0:
+					*p_dest = 0;
+					return true;
+				case '!' ... '$':
+				case '&' ... '/':
+				case '0' ... '9':
+				case ':':
+				case ';':
+				case '=':
+				case '?':
+				case '@':
+				case 'A' ... 'Z':
+				case '[':
+				case ']':
+				case '_':
+				case 'a' ... 'z':
+				case '~':
+					*(p_dest++) = cursor;
+					buff_size--;
+					break;
+				default:
+					if (buff_size < 4)
+						return false;
+					*(p_dest++) = '%';
+					*(p_dest++) = HEX[cursor >> 4];
+					*(p_dest++) = HEX[cursor & 0x0f];
+					buff_size -= 3;
+				}
+			}
+			return false;
 		}
 
 		int can_curl = false, curl_ok = false;
