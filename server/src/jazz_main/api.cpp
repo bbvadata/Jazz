@@ -246,7 +246,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	switch (http_method) {
 	case HTTP_NOTUSED:
-		return API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
+		goto create_response_answer_put_badrequest;
 
 	case HTTP_OPTIONS: {	// Shield variable "allow" initialization to support the goto logic.
 
