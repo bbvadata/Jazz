@@ -421,7 +421,8 @@ class Block: public StaticBlockHeader {
 		}
 
 		inline bool check_hash() {
-			return hash64 == MurmurHash64A(&tensor, total_bytes - sizeof(BlockHeader));
+			int siz = total_bytes - sizeof(BlockHeader);
+			return siz > 0 && hash64 == MurmurHash64A(&tensor, siz);
 		}
 };
 
