@@ -1065,7 +1065,8 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		return MHD_HTTP_INSUFFICIENT_STORAGE;
 
 	if (q_state.l_node[0] != 0) {
-		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block);
+		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block,
+										  q_state.apply == APPLY_RAW ? WRITE_TENSOR_DATA : WRITE_EVERYTHING);
 
 		destroy_transaction(p_txn);
 

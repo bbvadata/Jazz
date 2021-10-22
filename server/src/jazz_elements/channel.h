@@ -264,7 +264,8 @@ class Channels : public Container {
 									  pChar				 p_url);
 		MHD_StatusCode forward_put	 (Name				 node,
 									  pChar				 p_url,
-									  pBlock			 p_block);
+									  pBlock			 p_block,
+									  int				 mode = WRITE_EVERYTHING);
 		MHD_StatusCode forward_del	 (Name				 node,
 									  pChar				 p_url);
 

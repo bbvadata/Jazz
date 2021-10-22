@@ -998,10 +998,11 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 	\param node		The name of the endpoint node. It must be found in the cluster config.
 	\param p_url	The unparsed url (server excluded) the remote Jazz server can serve.
 	\param p_block	A block to be put (owned by the caller).
+	\param mode		WRITE_TENSOR_DATA, WRITE_C_STR or WRITE_EVERYTHING (see curl_put).
 
 	\return			MHD_HTTP_CREATED on success, or some valid http status error code.
 */
-MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
+MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block, int mode) {
 
 	char buffer[1024];
 
@@ -1014,7 +1015,7 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 	if (p_block->hash64 == 0)
 		p_block->close_block();
 
-	return curl_put(buffer, p_block, WRITE_EVERYTHING);
+	return curl_put(buffer, p_block, mode);
 }
 
 
