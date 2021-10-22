@@ -1249,7 +1249,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 	pTransaction p_txn, p_aux;
 	pContainer	 p_container;
 	int			 ret, size;
-	pChar		 p_att;
+	pChar		 p_str;
 
 	switch (q_state.apply) {
 	case APPLY_NOTHING ... APPLY_TEXT:
@@ -1261,9 +1261,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
-		size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
-		response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
-
+		if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
+			p_str = p_txn->p_block->get_string(0);
+			response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
+		} else
+			response = MHD_create_response_from_buffer(p_txn->p_block->total_bytes, p_txn->p_block, MHD_RESPMEM_MUST_COPY);
 		p_txn->p_owner->destroy_transaction(p_txn);
 
 		return MHD_HTTP_OK;
@@ -1365,14 +1367,14 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
-		p_att = p_txn->p_block->get_attribute(q_state.r_value.attribute);
+		p_str = p_txn->p_block->get_attribute(q_state.r_value.attribute);
 
-		if (p_att == nullptr) {
+		if (p_str == nullptr) {
 			p_container->destroy_transaction(p_txn);
 
 			return MHD_HTTP_NOT_FOUND;
 		}
-		response = MHD_create_response_from_buffer(strlen(p_att), p_att, MHD_RESPMEM_MUST_COPY);
+		response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
 
 		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
