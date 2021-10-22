@@ -1061,6 +1061,9 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 		return MHD_HTTP_OK;
 	}
 
+	if (unwrap_received(p_txn) != SERVICE_NO_ERROR)
+		return MHD_HTTP_INSUFFICIENT_STORAGE;
+
 	if (q_state.l_node[0] != 0) {
 		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block);
 

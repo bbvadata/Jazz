@@ -375,14 +375,7 @@ class Channels : public Container {
 			if (buff.size() > MAX_BLOCK_SIZE)
 				return SERVICE_ERROR_BLOCK_TOO_BIG;
 
-			int size				 = (int) buff.size();
-			int dim[MAX_TENSOR_RANK] = {size, 0};
-			int ret					 = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
-
-			if (ret == SERVICE_NO_ERROR)
-				memcpy(&p_txn->p_block->tensor.cell_byte[0], buff.data(), size);
-
-			return ret;
+			return unwrap_received(p_txn, (pBlock) buff.data(), buff.size());
 		}
 
 
