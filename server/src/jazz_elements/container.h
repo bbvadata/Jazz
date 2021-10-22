@@ -446,6 +446,52 @@ class Container : public Service {
 
 			return SERVICE_NO_ERROR;
 		}
+
+		/** Convert a received "block" (just an array of data received) which is just a pointer and a size to its final form.
+
+			\param p_txn		 A transaction to store the result created in case SERVICE_NO_ERROR is returned.
+			\param p_maybe_block A pointer to the data received
+			\param rec_size		 The size of the data received.
+			\return		  		 SERVICE_NO_ERROR except if alloc is necessary and fails, then SERVICE_ERROR_NO_MEM.
+
+		Logic:	If the content is a valid (== hash64-checked) block -> Create a new transaction containing a copy of that block.
+				else, if the content is a string (its length == the length of the block) -> New transaction with a CELL_TYPE_STRING.
+					  else, -> New transaction with a CELL_TYPE_BYTE.
+		*/
+		inline StatusCode unwrap_received(pTransaction &p_txn, pBlock p_maybe_block, int rec_size) {
+
+			if (p_maybe_block->total_bytes == rec_size && p_maybe_block->check_hash()) {
+				int ret = new_transaction(p_txn);
+
+				if (ret != SERVICE_NO_ERROR)
+					return ret;
+
+				pBlock p_new = block_malloc(rec_size);
+				if (p_new == nullptr) {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_NO_MEM;
+				}
+				memcpy(p_new, p_maybe_block, rec_size);
+
+				p_txn->p_block = p_new;
+				p_txn->status  = BLOCK_STATUS_READY;
+
+				return SERVICE_NO_ERROR;
+			}
+			if (strnlen((pChar) p_maybe_block, rec_size) != rec_size) {
+				int dim[MAX_TENSOR_RANK] = {rec_size, 0};
+				int ret					 = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
+
+				if (ret == SERVICE_NO_ERROR)
+					memcpy(&p_txn->p_block->tensor.cell_byte[0], p_maybe_block, rec_size);
+
+				return ret;
+			}
+
+			return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, rec_size, (pChar) p_maybe_block, 0);
+		}
+
 		// Support for container names in the API .base_names()
 
 		void base_names(BaseNames &base_names);
