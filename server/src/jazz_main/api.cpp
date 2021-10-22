@@ -1870,10 +1870,15 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 	pTransaction p_text, p_tensor, p_result;
 
-	if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
-		return false;
+	if (make_tuple) {
+		if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
+			return false;
 
-	memcpy(&p_text->p_block->tensor, p_const, size);
+		memcpy(&p_text->p_block->tensor, p_const, size);
+	} else {
+		if (new_block(p_text, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, size, (pChar) p_const, 0) != SERVICE_ERROR_NO_MEM)
+			return false;
+	}
 
 	if (new_block(p_tensor, p_text->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR)
 		destroy_transaction(p_text);
