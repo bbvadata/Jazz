@@ -1191,7 +1191,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
-/** Create a new Block (5): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
+/** Create a new Block (5): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1 or a
+							Tensor of CELL_TYPE_STRING of size == 1
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
@@ -1214,11 +1215,36 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								pKind		  p_as_kind,
 								AttributeMap *att) {
 
+	pChar p_source;
+	int	  source_l;
+	switch (p_from_text->cell_type) {
+	case CELL_TYPE_BYTE:
+		if (p_from_text->rank != 1)
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+
+		p_source = (pChar) &p_from_text->tensor.cell_byte[0];
+		source_l = p_from_text->size;
+
+		break;
+
+	case CELL_TYPE_STRING:
+		if (p_from_text->size != 1)
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+
+		p_source = p_from_text->get_string(0);
+		source_l = strlen(p_source);
+
+		break;
+
+	default:
+		return SERVICE_ERROR_NEW_BLOCK_ARGS;
+	}
+
 	ItemHeader item_hea[MAX_ITEMS_IN_KIND];
 	Name item_name[MAX_ITEMS_IN_KIND];
-	int num_bytes = p_from_text->size;
+	int num_bytes = source_l;
 	int num_items;
-	pChar p_in = (pChar) &p_from_text->tensor.cell_byte[0];
+	pChar p_in = p_source;
 
 	p_txn = nullptr;
 
@@ -1333,8 +1359,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 
-	num_bytes = p_from_text->size;
-	p_in	  = (pChar) &p_from_text->tensor.cell_byte[0];
+	num_bytes = source_l;
+	p_in	  = p_source;
 
 	skip_space(p_in, num_bytes);
 
