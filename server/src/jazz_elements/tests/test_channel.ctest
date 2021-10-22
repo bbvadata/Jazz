@@ -1313,7 +1313,6 @@ SCENARIO("Testing http end-to-end") {
 		REQUIRE(CHN.new_block(p_tx_buf, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 
 		pTransaction p_txn;
-		pChar p_ret;
 
 		char url[256], url2[256];
 
@@ -1328,9 +1327,9 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Spain");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Madrid\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Madrid\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Berlin");
@@ -1339,9 +1338,9 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Berlin\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Berlin\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
@@ -1349,9 +1348,9 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/madAGASCAR");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Antananarivo\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Antananarivo\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Rome");
@@ -1361,9 +1360,9 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Rome\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Rome\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
@@ -1392,10 +1391,8 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/binblk");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			pBlock p_bl = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(p_txn->p_block->size == p_bl->total_bytes);
-			REQUIRE(p_bl->check_hash());
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->check_hash());
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.put(url, p_tx_str->p_block) == SERVICE_NO_ERROR);
@@ -1418,9 +1415,9 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			strcpy(url, "//http/cap/Malaysia");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Kuala Lumpur\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Kuala Lumpur\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Tallinn");
@@ -1430,9 +1427,9 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/capitals/ESTONIA");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Tallinn\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Tallinn\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
@@ -1453,9 +1450,9 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/cap/France");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Paris\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Paris\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy(url, "//http/cap/Japan");
@@ -1489,9 +1486,9 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/capital/Malaysia") == SERVICE_NO_ERROR);
 
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Kuala Lumpur\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Kuala Lumpur\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.forward_put((pChar) "jzz_pybaby", (pChar) "/test/str.blk", p_tx_tim->p_block) == SERVICE_NO_ERROR);
@@ -1504,9 +1501,9 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Montevideo\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Montevideo\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.forward_del((pChar) "jzz_pybaby", (pChar) "/test/capital/Uruguay") == SERVICE_NO_ERROR);
@@ -1583,9 +1580,9 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"London\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"London\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.get(p_txn, url2) == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -1593,15 +1590,14 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.copy(url2, url) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"London\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"London\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.get(p_txn, url2) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strncmp(p_ret, "\"\\\"London\\", 10) == 0);		// Note:  put will get mode == WRITE_TENSOR_DATA & python is a mess.
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy(url,  "//http/cap/Holland");
