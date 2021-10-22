@@ -964,32 +964,7 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
-	int ret = curl_get(p_txn, buffer);
-
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
-
-	pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
-	int size = p_txn->p_block->size;
-
-	if (p_blk->total_bytes != size || !p_blk->check_hash())
-		return SERVICE_NO_ERROR;
-
-	pBlock p_new = block_malloc(size);
-	if (p_new == nullptr) {
-		destroy_transaction(p_txn);
-
-		return SERVICE_ERROR_NO_MEM;
-	}
-
-	memcpy(p_new, p_blk, size);
-
-	alloc_bytes -= p_txn->p_block->total_bytes;
-	free(p_txn->p_block);
-
-	p_txn->p_block = p_new;
-
-	return SERVICE_NO_ERROR;
+	return curl_get(p_txn, buffer);
 }
 
 
