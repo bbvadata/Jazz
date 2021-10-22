@@ -400,6 +400,52 @@ class Container : public Service {
 		virtual StatusCode copy		   (Locator			   &where,
 										Locator			   &what);
 
+		/** Convert a received "block" (just an array of data received) which is in an array of byte to its final form.
+
+			\param p_txn  An already allocated transaction with the data in an array of rank 1 of CELL_TYPE_BYTE
+			\return		  SERVICE_NO_ERROR except if alloc is necessary and fails, then SERVICE_ERROR_NO_MEM and destroys the p_txn.
+
+		Logic:	If the content is a valid (== hash64-checked) block -> The block is replaced by the block inside
+				else, if the content is a string (its length == the length of the block) -> The block is replaced by a CELL_TYPE_STRING
+					  else, -> it is left as it is.
+		*/
+		inline StatusCode unwrap_received(pTransaction &p_txn) {
+
+			pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
+			int	   size  = p_txn->p_block->size;
+
+			if (p_blk->total_bytes == size && p_blk->check_hash()) {
+				pBlock p_new = block_malloc(size);
+				if (p_new == nullptr) {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_NO_MEM;
+				}
+				memcpy(p_new, p_blk, size);
+
+				alloc_bytes -= p_txn->p_block->total_bytes;
+				free(p_txn->p_block);
+
+				p_txn->p_block = p_new;
+
+				return SERVICE_NO_ERROR;
+			}
+			if (strnlen((pChar) p_blk, size) != size)
+				return SERVICE_NO_ERROR;
+
+			pTransaction p_aux;
+
+			if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, size, (pChar) p_blk, 0) != SERVICE_ERROR_NO_MEM) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NO_MEM;
+			}
+			std::swap(p_txn->p_block, p_aux->p_block);
+
+			destroy_transaction(p_aux);
+
+			return SERVICE_NO_ERROR;
+		}
 		// Support for container names in the API .base_names()
 
 		void base_names(BaseNames &base_names);
