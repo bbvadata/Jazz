@@ -259,17 +259,21 @@ class Block: public StaticBlockHeader {
 
 		/** Set all attributes of a Block, only when creating it, using a map.
 
-			\param all_att A map containing all the attributes for the block.
+			\param all_att A map containing all the attributes for the block. A call with nullptr is required for initialization.
 
 			NOTE: This function is public because it has to be called by jazz_alloc.h methods. set_attributes() can
 			only be called once, so it will do nothing if called after a Block is built. Blocks are near-immutable
 			objects, if you need to change a Block's attributes create a new object using jazz_alloc.h methods.
 		*/
 		inline void set_attributes(AttributeMap *all_att) {
-			if (num_attributes) return;
+			if (num_attributes)
+				return;
+
+			init_string_buffer();
+			if (all_att == nullptr)
+				return;
 
 			num_attributes = all_att->size();
-			init_string_buffer();
 
 			int i = 0;
 			int *ptk = p_attribute_keys();
