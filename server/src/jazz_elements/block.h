@@ -388,7 +388,7 @@ class Block: public StaticBlockHeader {
 			\param set_hash		Compute MurmurHash64A and set attribute **hash64** accordinly.
 			\param set_time		Set attribute **created** as the current time.
 		*/
-		inline void close_block(int set_has_NA = SET_HAS_NA_AUTO,
+		inline void close_block(int set_has_NA = SET_HAS_NA_FALSE,
 								bool set_hash = true,
 								bool set_time = true) {
 			switch (set_has_NA) {
