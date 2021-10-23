@@ -135,18 +135,21 @@ class Kind : public Block {
 
 			\param num_items The number of items the Kind will have. This call must be followed by one add_item() for each of them.
 			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
-			\param attr		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
+			\param att		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
 
 			\return			 False on error (insufficient alloc size for a very conservative minimum).
 		*/
-		inline bool new_kind(int			num_items,
-							 int			num_bytes,
-			   				 AttributeMap  &attr) {
+		inline bool new_kind(int		   num_items,
+							 int		   num_bytes,
+			   				 AttributeMap *att = nullptr) {
 
 			if (num_items < 1 || num_items >= MAX_ITEMS_IN_KIND)
 				return false;
 
-			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*2;
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + 2*num_items;
+
+			if (att != nullptr)
+				rq_sz += 2*att->size();
 
 			if (num_bytes < rq_sz)
 				return false;
@@ -159,7 +162,7 @@ class Kind : public Block {
 			size		 = num_items;
 			total_bytes	 = num_bytes;
 
-			set_attributes(&attr);
+			set_attributes(att);
 
 			return true;
 		}
@@ -170,7 +173,7 @@ class Kind : public Block {
 			\param p_name	 The name of the item.
 			\param p_dim	 The shape of the item. Rank will be set automatically on the first zero.
 			\param cell_type The cell type of the item.
-			\param dims		 Names for the dimensions. See below.
+			\param p_dims	 Names for the dimensions. See below.
 
 			\return			 False on error (insufficient alloc space, wrong shape, wrong dimension names).
 
@@ -182,11 +185,11 @@ class Kind : public Block {
 		if an image has shape [-1, -2, 3] and dims[-1] == "width" and dims[-2] == "height", The kind will store these variable dimensions
 		together with their names.
 		*/
-		inline bool add_item(int			idx,
-			   				 char const    *p_name,
-							 int		   *p_dim,
-							 int			cell_type,
-							 AttributeMap  &dims) {
+		inline bool add_item(int		   idx,
+			   				 char const   *p_name,
+							 int		  *p_dim,
+							 int		   cell_type,
+							 AttributeMap *p_dims) {
 
 			if (idx < 0 | idx >= size)
 				return false;
@@ -207,10 +210,14 @@ class Kind : public Block {
 						return false;
 
 				} else if (j < 0) {
-					if (dims.find(j) == dims.end())
+					if (p_dims == nullptr)
 						return false;
 
-					k = get_string_offset(psb, dims[j]);
+					AttributeMap::iterator it = p_dims->find(j);
+					if (it == p_dims->end())
+						return false;
+
+					k = get_string_offset(psb, it->second);
 
 					if (k <= STRING_EMPTY)
 						return false;

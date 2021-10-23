@@ -890,41 +890,19 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	}
 
 	if (p_block == nullptr) {
-		if (att	== nullptr) {
-			AttributeMap void_att = {};
-			if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, void_att)) {
-				destroy_transaction(p_txn);
-
-				return SERVICE_ERROR_BAD_NEW_KIND;
-			}
-		} else if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
+		if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att)) {
 			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_BAD_NEW_KIND;
 		}
 
-		if (dims == nullptr) {
-			AttributeMap void_dim = {};
+		for (int i = 0; i < num_items; i++) {
+			pChar p_name = (pChar) &p_names[i];
 
-			for (int i = 0; i < num_items; i++) {
-				pChar p_name = (pChar) &p_names[i];
+			if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, dims)) {
+				destroy_transaction(p_txn);
 
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, void_dim)) {
-					destroy_transaction(p_txn);
-
-					return SERVICE_ERROR_BAD_KIND_ADD;
-				}
-			}
-
-		} else {
-			for (int i = 0; i < num_items; i++) {
-				pChar p_name = (pChar) &p_names[i];
-
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *dims)) {
-					destroy_transaction(p_txn);
-
-					return SERVICE_ERROR_BAD_KIND_ADD;
-				}
+				return SERVICE_ERROR_BAD_KIND_ADD;
 			}
 		}
 		p_txn->p_block->hash64 = 0;
