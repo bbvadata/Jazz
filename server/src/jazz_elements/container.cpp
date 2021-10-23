@@ -626,10 +626,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	if (att != nullptr && att->size() == 0)
 		att = nullptr;
 
-	if (att	== nullptr) {
-		hea.total_bytes += 2*sizeof(int);
-		hea.num_attributes++;
-	} else {
+	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = it->second == nullptr ? 0 : strlen(it->second);
 
@@ -654,23 +651,15 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	memcpy(p_txn->p_block, &hea, sizeof(BlockHeader));
 
 	p_txn->p_block->num_attributes = 0;
-
-	if (att	== nullptr) {
-		AttributeMap void_att;
-		void_att [BLOCK_ATTRIB_EMPTY] = nullptr;
-		p_txn->p_block->set_attributes(&void_att);
-	} else {
-		p_txn->p_block->set_attributes(att);
-	}
+	p_txn->p_block->set_attributes(att);
 
 #ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
 	{
 		char *pt1 = (char *) &p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size,
 			 *pt2 = (char *) p_txn->p_block->align64bit((uintptr_t) pt1);
 
-		while (pt1 < pt2) {
+		while (pt1 < pt2)
 			*(pt1++) = 0;
-		}
 	}
 #endif
 
@@ -849,10 +838,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	if (att != nullptr && att->size() == 0)
 		att = nullptr;
 
-	if (att	== nullptr) {
-		hea.total_bytes += 2*sizeof(int);
-		hea.num_attributes++;
-	} else {
+	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = it->second == nullptr ? 0 : strlen(it->second);
 
