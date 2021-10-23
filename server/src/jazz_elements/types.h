@@ -133,7 +133,6 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 
 #define BLOCK_ATTRIB_
 
-#define BLOCK_ATTRIB_EMPTY		0			///< The block has no attributes
 #define BLOCK_ATTRIB_BLOCKTYPE	1			///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
 #define BLOCK_ATTRIB_SOURCE		2			///< The location of the source set by Channels, also Source of a Kind in Persisted
 #define BLOCK_ATTRIB_DEST		3			///< The location of the destination. Less frequent, but may help Channels for a PUT.
