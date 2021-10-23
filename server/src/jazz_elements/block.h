@@ -269,11 +269,12 @@ class Block: public StaticBlockHeader {
 			if (num_attributes)
 				return;
 
-			init_string_buffer();
-			if (all_att == nullptr)
+			if (all_att == nullptr) {
+				init_string_buffer();
 				return;
-
+			}
 			num_attributes = all_att->size();
+			init_string_buffer();
 
 			int i = 0;
 			int *ptk = p_attribute_keys();
