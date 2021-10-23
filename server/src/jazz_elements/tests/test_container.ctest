@@ -122,8 +122,7 @@ static void *safe_writer(void *null) {
 	return (void *) 0;
 }
 
-void check_and_finish(pBlock p_block, int set_has_NA = SET_HAS_NA_AUTO, bool set_hash = true, bool set_time = true)
-{
+void check_and_finish(pBlock p_block, int set_has_NA = SET_HAS_NA_AUTO, bool set_hash = true, bool set_time = true) {
 	pStringBuffer psb = p_block->p_string_buffer();
 
 	REQUIRE(p_block->total_bytes == sizeof(BlockHeader) +
