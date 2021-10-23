@@ -373,10 +373,13 @@ class Channels : public Container {
 			default:
 				return SERVICE_ERROR_IO_ERROR;
 			}
-			if (buff.size() > MAX_BLOCK_SIZE)
+			size_t buf_size = buff.size();
+			if (buf_size > MAX_BLOCK_SIZE)
 				return SERVICE_ERROR_BLOCK_TOO_BIG;
 
-			return unwrap_received(p_txn, (pBlock) buff.data(), buff.size());
+			buff.push_back(0);
+
+			return unwrap_received(p_txn, (pBlock) buff.data(), buf_size);
 		}
 
 
