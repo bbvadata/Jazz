@@ -195,22 +195,22 @@ SCENARIO("Testing tuple") {
 
 	// Build the kinds
 
-	AttributeMap attr_kind = {}, empty_map = {};
+	AttributeMap attr_kind = {};
 
 	attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
 	attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
 
-	REQUIRE(p_kind1->new_kind(1, 4096, attr_kind));
-	REQUIRE(p_kind1->add_item(0, "buffer", image_fixed.dim, CELL_TYPE_BYTE, empty_map));
+	REQUIRE(p_kind1->new_kind(1, 4096, &attr_kind));
+	REQUIRE(p_kind1->add_item(0, "buffer", image_fixed.dim, CELL_TYPE_BYTE, nullptr));
 
-	REQUIRE(p_kind2->new_kind(2, 4096, attr_kind));
-	REQUIRE(p_kind2->add_item(0, "buffer", image_var.dim, CELL_TYPE_BYTE,	dims));
-	REQUIRE(p_kind2->add_item(1, "title",  title.dim,	  CELL_TYPE_STRING, dims));
+	REQUIRE(p_kind2->new_kind(2, 4096, &attr_kind));
+	REQUIRE(p_kind2->add_item(0, "buffer", image_var.dim, CELL_TYPE_BYTE,	&dims));
+	REQUIRE(p_kind2->add_item(1, "title",  title.dim,	  CELL_TYPE_STRING, &dims));
 
-	REQUIRE(p_kind3->new_kind(3, 4096, attr_kind));
-	REQUIRE(p_kind3->add_item(0, "buffer", video_var.dim, CELL_TYPE_BYTE,	 dims));
-	REQUIRE(p_kind3->add_item(1, "audio",  audio_var.dim, CELL_TYPE_INTEGER, dims));
-	REQUIRE(p_kind3->add_item(2, "title",  title.dim,	  CELL_TYPE_STRING,  dims));
+	REQUIRE(p_kind3->new_kind(3, 4096, &attr_kind));
+	REQUIRE(p_kind3->add_item(0, "buffer", video_var.dim, CELL_TYPE_BYTE,	 &dims));
+	REQUIRE(p_kind3->add_item(1, "audio",  audio_var.dim, CELL_TYPE_INTEGER, &dims));
+	REQUIRE(p_kind3->add_item(2, "title",  title.dim,	  CELL_TYPE_STRING,  &dims));
 
 	// Check the kinds
 
@@ -303,7 +303,7 @@ SCENARIO("Testing tuple") {
 	// p_bl5->set_dimensions(title.dim);
 
 	blocks[0] = p_bl1;
-	REQUIRE(p_tup1->new_tuple(1, blocks, tup_fix, 65536, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup1->new_tuple(1, blocks, tup_fix, 65536, &attr_tuple) == SERVICE_NO_ERROR);
 
 	REQUIRE(!strcmp(p_tup1->item_name(0), "buffer"));
 	REQUIRE(p_tup1->item_name( 1) == nullptr);
@@ -317,7 +317,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup1->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[0] = p_bl2;
-	REQUIRE(p_tup2->new_tuple(1, blocks, tup_fix, 65536, empty_map) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup2->new_tuple(1, blocks, tup_fix, 65536, nullptr) == SERVICE_NO_ERROR);
 
 	REQUIRE(!strcmp(p_tup2->item_name(0), "buffer"));
 	REQUIRE(p_tup2->item_name( 1) == nullptr);
@@ -331,7 +331,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup2->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[1] = p_bl5;
-	REQUIRE(p_tup3->new_tuple(2, blocks, tup_pic, 65536, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup3->new_tuple(2, blocks, tup_pic, 65536, &attr_tuple) == SERVICE_NO_ERROR);
 
 	REQUIRE(!strcmp(p_tup3->item_name(0), "buffer"));
 	REQUIRE(!strcmp(p_tup3->item_name(1), "title"));
@@ -347,7 +347,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup3->audit() == MIXED_TYPE_TUPLE);
 
 	blocks[2] = p_bl5;
-	REQUIRE(p_tup4->new_tuple(3, blocks, tup_pcc, 65536, empty_map) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup4->new_tuple(3, blocks, tup_pcc, 65536, nullptr) == SERVICE_NO_ERROR);
 
 	REQUIRE(!strcmp(p_tup4->item_name(0), "buffer"));
 	REQUIRE(!strcmp(p_tup4->item_name(1), "title"));
@@ -367,7 +367,7 @@ SCENARIO("Testing tuple") {
 	blocks[0] = p_bl3;
 	blocks[1] = p_bl4;
 	blocks[2] = p_bl5;
-	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, &attr_tuple) == SERVICE_NO_ERROR);
 
 	REQUIRE(!strcmp(p_tup5->item_name(0), "buffer"));
 	REQUIRE(!strcmp(p_tup5->item_name(1), "audio"));
@@ -388,7 +388,7 @@ SCENARIO("Testing tuple") {
 	blocks[1] = p_bl3;
 	blocks[2] = p_bl4;
 	blocks[3] = p_bl5;
-	REQUIRE(p_tup6->new_tuple(4, blocks, tup_oth, 65536, empty_map) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup6->new_tuple(4, blocks, tup_oth, 65536, nullptr) == SERVICE_NO_ERROR);
 
 	REQUIRE(!strcmp(p_tup6->item_name(0), "pic"));
 	REQUIRE(!strcmp(p_tup6->item_name(1), "buffer"));
@@ -556,34 +556,34 @@ SCENARIO("Testing tuple") {
 	blocks[0] = p_bl1;
 	blocks[1] = nullptr;
 
-	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8, attr_tuple) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, attr_tuple) == SERVICE_ERROR_WRONG_ARGUMENTS);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, &attr_tuple) == SERVICE_ERROR_WRONG_ARGUMENTS);
 
 	blocks[1] = p_bl2;
 
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_oth_bad, 8192, attr_tuple) == SERVICE_ERROR_WRONG_NAME);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_oth_bad, 8192, &attr_tuple) == SERVICE_ERROR_WRONG_NAME);
 
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 32768, &attr_tuple) == SERVICE_NO_ERROR);
 
 	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = "short";
 
 	// below rq_sz == 188
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 160, attr_tuple) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 160, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
 	// above rq_sz == 188 enough for metadata, but not for the first block
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 200, attr_tuple) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 200, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
 	// above rq_sz == 188 enough for metadata + 1 block, but not for the second block
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, attr_tuple) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
 	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = "long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long/long";
 
 	// above rq_sz == 188 enough for metadata, but not for the first block
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 200, attr_tuple) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 200, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
 	// above rq_sz == 188 enough for metadata, but not for the first block
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_fx_long, 240, attr_tuple) == SERVICE_ERROR_NO_MEM);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_fx_long, 240, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
 	REQUIRE(!p_tup1->is_a(p_kind2));
 	REQUIRE(!p_tup1->is_a(p_kind3));
@@ -591,21 +591,21 @@ SCENARIO("Testing tuple") {
 	blocks[0] = p_bl2;
 	blocks[1] = p_bl5;
 
-	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 32768, &attr_tuple) == SERVICE_NO_ERROR);
 	REQUIRE(p_tup5->is_a(p_kind2));
 
-	REQUIRE( p_tup5->new_tuple(2, blocks, tup_fx_long, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE( p_tup5->new_tuple(2, blocks, tup_fx_long, 32768, &attr_tuple) == SERVICE_NO_ERROR);
 	REQUIRE(!p_tup5->is_a(p_kind2));
 
 	blocks[1] = p_bl3;
 
-	REQUIRE( p_tup5->new_tuple(2, blocks, tup_pic, 32768, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE( p_tup5->new_tuple(2, blocks, tup_pic, 32768, &attr_tuple) == SERVICE_NO_ERROR);
 	REQUIRE(!p_tup5->is_a(p_kind2));
 
 	blocks[0] = p_bl3;
 	blocks[1] = p_bl4;
 	blocks[2] = p_bl5;
-	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, &attr_tuple) == SERVICE_NO_ERROR);
 
 	REQUIRE(p_tup5->is_a(p_kind3));
 
@@ -625,7 +625,7 @@ SCENARIO("Testing tuple") {
 	blocks[0] = p_bl3;
 	blocks[1] = p_bl4;
 	blocks[2] = p_bl5;
-	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, attr_tuple) == SERVICE_NO_ERROR);
+	REQUIRE(p_tup5->new_tuple(3, blocks, tup_vid, 65536, &attr_tuple) == SERVICE_NO_ERROR);
 
 	REQUIRE(!p_tup5->is_a(p_kind3));
 

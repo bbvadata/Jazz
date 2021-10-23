@@ -1426,14 +1426,17 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			memcpy(&hea[i].range, &item_hea[i].dim, sizeof(TensorDim));
 		}
 
-		AttributeMap dims = {};
+		if (idx_dims.size() != 0) {
+			AttributeMap dims = {};
 
-		MapSI::iterator it;
+			MapSI::iterator it;
 
-		for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
-			dims[it->second] = it->first.c_str();
+			for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
+				dims[it->second] = it->first.c_str();
 
-		return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
+			return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
+		} else
+			return new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
@@ -2265,7 +2268,7 @@ StatusCode Container::destroy_container() {
 	\param p_in			The input char stream cursor.
 	\param num_bytes	The number of bytes with data above *p_in
 	\param item_hea		The structure that receives the resulting cell_type, rank and shape.
-	\param dims			An optional AttributeMap to retrieve the dimension names.
+	\param dims			A MapSI to retrieve the dimension names.
 
 	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
 */
