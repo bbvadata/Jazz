@@ -911,20 +911,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		return SERVICE_NO_ERROR;
 	}
 
-	if (att	== nullptr) {
-		AttributeMap void_att = {};
-		ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, void_att);
-
-		if (ret == SERVICE_NO_ERROR) {
-			p_txn->p_block->hash64 = 0;
-			p_txn->status = BLOCK_STATUS_READY;
-		} else
-			destroy_transaction(p_txn);
-
-		return ret;
-	}
-
-	ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att);
+	ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, att);
 
 	if (ret == SERVICE_NO_ERROR) {
 		p_txn->p_block->hash64 = 0;
