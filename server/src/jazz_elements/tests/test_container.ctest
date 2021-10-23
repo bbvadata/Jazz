@@ -726,7 +726,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 200);
+		REQUIRE(p_txn->p_block->total_bytes == 192);
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[0] == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[104] == 0);
@@ -737,7 +737,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 200 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 192 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -768,7 +768,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 200);
+		REQUIRE(p_txn->p_block->total_bytes == 192);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[0]   == BYTE_BOOLEAN_NA);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[104] == BYTE_BOOLEAN_NA);
@@ -779,7 +779,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 200 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 192 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -813,7 +813,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 			REQUIRE(p_txn->p_block->size == 105);
 			REQUIRE(p_txn->p_block->num_attributes == 0);
-			REQUIRE(p_txn->p_block->total_bytes == 512);
+			REQUIRE(p_txn->p_block->total_bytes == 504);
 			REQUIRE(p_txn->p_block->has_NA == true);
 			REQUIRE(p_txn->p_block->tensor.cell_int[0]	== INTEGER_NA);
 			REQUIRE(p_txn->p_block->tensor.cell_int[104] == INTEGER_NA);
@@ -824,7 +824,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 			REQUIRE(p_txn->p_block->has_NA == true);
 			REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 512 - sizeof(StaticBlockHeader)));
+			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 504 - sizeof(StaticBlockHeader)));
 
 			REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -856,7 +856,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 512);
+		REQUIRE(p_txn->p_block->total_bytes == 504);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_int[0]	== BOOLEAN_NA);
 		REQUIRE(p_txn->p_block->tensor.cell_int[104] == BOOLEAN_NA);
@@ -867,7 +867,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 512 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 504 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -898,7 +898,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 512);
+		REQUIRE(p_txn->p_block->total_bytes == 504);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == reinterpret_cast<u_int*>(&SINGLE_NA)[0]);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[104] == reinterpret_cast<u_int*>(&SINGLE_NA)[0]);
@@ -909,7 +909,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 512 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 504 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -940,7 +940,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 512);
+		REQUIRE(p_txn->p_block->total_bytes == 504);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == STRING_NA);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[104] == STRING_NA);
@@ -951,7 +951,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 512 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 504 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -982,7 +982,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 928);
+		REQUIRE(p_txn->p_block->total_bytes == 920);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	== LONG_INTEGER_NA);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[104] == LONG_INTEGER_NA);
@@ -993,7 +993,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 928 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 920 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1024,7 +1024,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 928);
+		REQUIRE(p_txn->p_block->total_bytes == 920);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	== TIME_POINT_NA);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[104] == TIME_POINT_NA);
@@ -1035,7 +1035,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 928 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 920 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1066,7 +1066,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 105);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 928);
+		REQUIRE(p_txn->p_block->total_bytes == 920);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_ulongint[0]   == reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0]);
 		REQUIRE(p_txn->p_block->tensor.cell_ulongint[104] == reinterpret_cast<uint64_t*>(&DOUBLE_NA)[0]);
@@ -1077,7 +1077,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 928 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 920 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1108,7 +1108,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 424);
+		REQUIRE(p_txn->p_block->total_bytes == 416);
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[0]   == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[335] == 0);
@@ -1119,7 +1119,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 424 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 416 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1150,7 +1150,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 424);
+		REQUIRE(p_txn->p_block->total_bytes == 416);
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[0]   == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_byte[335] == 0);
@@ -1161,7 +1161,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 424 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 416 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1194,8 +1194,8 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 			REQUIRE(dim_read.dim[5] == 2);
 
 			REQUIRE(p_txn->p_block->size == 336);
-			REQUIRE(p_txn->p_block->num_attributes == 1);
-			REQUIRE(p_txn->p_block->total_bytes == 1432);
+			REQUIRE(p_txn->p_block->num_attributes == 0);
+			REQUIRE(p_txn->p_block->total_bytes == 1424);
 			REQUIRE(p_txn->p_block->has_NA == false);
 			REQUIRE(p_txn->p_block->tensor.cell_int[0]	  == 0);
 			REQUIRE(p_txn->p_block->tensor.cell_int[335] == 0);
@@ -1206,7 +1206,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 			REQUIRE(p_txn->p_block->has_NA == true);
 			REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1432 - sizeof(StaticBlockHeader)));
+			REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1424 - sizeof(StaticBlockHeader)));
 
 			REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1238,9 +1238,9 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 1432);
+		REQUIRE(p_txn->p_block->total_bytes == 1424);
 		REQUIRE(p_txn->p_block->has_NA == false);
-		REQUIRE(p_txn->p_block->tensor.cell_int[0]	  == 0);
+		REQUIRE(p_txn->p_block->tensor.cell_int[0]	 == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_int[335] == 0);
 
 		check_and_finish(p_txn->p_block, SET_HAS_NA_TRUE);
@@ -1249,7 +1249,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1432 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1424 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1280,7 +1280,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 1432);
+		REQUIRE(p_txn->p_block->total_bytes == 1424);
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[335] == 0);
@@ -1291,7 +1291,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1432 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1424 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1322,7 +1322,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 1432);
+		REQUIRE(p_txn->p_block->total_bytes == 1424);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[0]   == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_uint[335] == 0);
@@ -1333,7 +1333,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1432 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 1424 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1364,7 +1364,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 2776);
+		REQUIRE(p_txn->p_block->total_bytes == 2768);
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	 == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[335] == 0);
@@ -1375,7 +1375,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 2776 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 2768 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1406,7 +1406,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 2776);
+		REQUIRE(p_txn->p_block->total_bytes == 2768);
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[0]	 == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_longint[335] == 0);
@@ -1417,7 +1417,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 2776 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 2768 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1448,7 +1448,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->size == 336);
 		REQUIRE(p_txn->p_block->num_attributes == 0);
-		REQUIRE(p_txn->p_block->total_bytes == 2776);
+		REQUIRE(p_txn->p_block->total_bytes == 2768);
 		REQUIRE(p_txn->p_block->has_NA == false);
 		REQUIRE(p_txn->p_block->tensor.cell_ulongint[0]   == 0);
 		REQUIRE(p_txn->p_block->tensor.cell_ulongint[335] == 0);
@@ -1459,7 +1459,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 
 		REQUIRE(p_txn->p_block->has_NA == true);
 		REQUIRE(elapsed_mu_sec(p_txn->p_block->created) < 3e6);
-		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 2776 - sizeof(StaticBlockHeader)));
+		REQUIRE(p_txn->p_block->hash64 == MurmurHash64A(&p_txn->p_block->tensor, 2768 - sizeof(StaticBlockHeader)));
 
 		REQUIRE(p_txn->p_block->get_attribute(976555311) == nullptr);
 
@@ -1499,7 +1499,8 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->total_bytes == 230);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
-		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_byte[j] = j;
+		for (int j = 0; j < 97; j++)
+			p_txn->p_block->tensor.cell_byte[j] = j;
 
 		check_and_finish(p_txn->p_block);
 
@@ -1548,7 +1549,9 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->num_attributes == 3);
 		REQUIRE(p_txn->p_block->total_bytes == 230);
 		REQUIRE(p_txn->p_block->has_NA == true);
-		for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_byte[j] = j;
+
+		for (int j = 0; j < 97; j++)
+			p_txn->p_block->tensor.cell_byte[j] = j;
 
 		check_and_finish(p_txn->p_block);
 
@@ -1599,7 +1602,9 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 			REQUIRE(p_txn->p_block->num_attributes == 3);
 			REQUIRE(p_txn->p_block->total_bytes == 518);
 			REQUIRE(p_txn->p_block->has_NA == true);
-			for (int j = 0; j < 97; j++) p_txn->p_block->tensor.cell_int[j] = j;
+
+			for (int j = 0; j < 97; j++)
+				p_txn->p_block->tensor.cell_int[j] = j;
 
 			check_and_finish(p_txn->p_block);
 
@@ -1750,6 +1755,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->num_attributes == 3);
 		REQUIRE(p_txn->p_block->total_bytes == 774);
 		REQUIRE(p_txn->p_block->has_NA == true);
+
 		for (int j = 0; j < 97; j++) {
 			switch (j % 3) {
 			case 1:
@@ -1970,7 +1976,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 1);
-		REQUIRE(p_txn->p_block->total_bytes == 97);
+		REQUIRE(p_txn->p_block->total_bytes == 89);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2000,7 +2006,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 1);
-		REQUIRE(p_txn->p_block->total_bytes == 97);
+		REQUIRE(p_txn->p_block->total_bytes == 89);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2030,7 +2036,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 3);
-		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 16 + 3);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2064,7 +2070,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 2);
-		REQUIRE(p_txn->p_block->total_bytes == 104);
+		REQUIRE(p_txn->p_block->total_bytes == 96);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2096,7 +2102,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 2);
-		REQUIRE(p_txn->p_block->total_bytes == 104);
+		REQUIRE(p_txn->p_block->total_bytes == 96);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2128,7 +2134,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 3);
-		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 8 + 16 + 6 + 3);
+		REQUIRE(p_txn->p_block->total_bytes == 64 + 16 + 16 + 6 + 3);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2162,7 +2168,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 2);
-		REQUIRE(p_txn->p_block->total_bytes == 123);
+		REQUIRE(p_txn->p_block->total_bytes == 115);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2194,7 +2200,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 5);
-		REQUIRE(p_txn->p_block->total_bytes == 148);
+		REQUIRE(p_txn->p_block->total_bytes == 140);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2257,7 +2263,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 2);
 
 		REQUIRE(p_txn->p_block->size == 12);
-		REQUIRE(p_txn->p_block->total_bytes == 222);
+		REQUIRE(p_txn->p_block->total_bytes == 214);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2297,7 +2303,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 3);
 
 		REQUIRE(p_txn->p_block->size == 12);
-		REQUIRE(p_txn->p_block->total_bytes == 222);
+		REQUIRE(p_txn->p_block->total_bytes == 214);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2337,7 +2343,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 12);
-		REQUIRE(p_txn->p_block->total_bytes == 222);
+		REQUIRE(p_txn->p_block->total_bytes == 214);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2377,7 +2383,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_txn->p_block->rank == 1);
 
 		REQUIRE(p_txn->p_block->size == 9);
-		REQUIRE(p_txn->p_block->total_bytes == 146);
+		REQUIRE(p_txn->p_block->total_bytes == 138);
 		REQUIRE(p_txn->p_block->has_NA == false);
 
 		check_and_finish(p_txn->p_block);
@@ -2443,9 +2449,10 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_BYTE_BOOLEAN);
 		REQUIRE(p_filter_kpr->p_block->rank == 1);
 		REQUIRE(p_filter_kpr->p_block->size == 120);
-		REQUIRE(p_filter_kpr->p_block->num_attributes == 1);
-		REQUIRE(p_filter_kpr->p_block->total_bytes == 208);
+		REQUIRE(p_filter_kpr->p_block->num_attributes == 0);
+		REQUIRE(p_filter_kpr->p_block->total_bytes == 200);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
+
 		for (int j = 0; j < 120; j++)
 			p_filter_kpr->p_block->tensor.cell_byte[j] = filter_v_n[j];
 
@@ -2471,8 +2478,9 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_filter_kpr->p_block->rank == 1);
 		REQUIRE(p_filter_kpr->p_block->size == 17);
-		REQUIRE(p_filter_kpr->p_block->num_attributes == 1);
+		REQUIRE(p_filter_kpr->p_block->num_attributes == 0);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
+
 		for (int j = 0; j < 17; j++)
 			p_filter_kpr->p_block->tensor.cell_int[j] = 7*j + 2;
 
@@ -2496,7 +2504,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_filter_kpr->p_block->rank == 1);
 		REQUIRE(p_filter_kpr->p_block->size == 17);
-		REQUIRE(p_filter_kpr->p_block->num_attributes == 1);
+		REQUIRE(p_filter_kpr->p_block->num_attributes == 0);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 
 		check_and_finish(p_filter_kpr->p_block);
@@ -2519,7 +2527,7 @@ SCENARIO("Testing new_block() (1) Create a Tensor from raw data specifying every
 		REQUIRE(p_filter_kpr->p_block->cell_type == CELL_TYPE_INTEGER);
 		REQUIRE(p_filter_kpr->p_block->rank == 1);
 		REQUIRE(p_filter_kpr->p_block->size == 17);
-		REQUIRE(p_filter_kpr->p_block->num_attributes == 1);
+		REQUIRE(p_filter_kpr->p_block->num_attributes == 0);
 		REQUIRE(p_filter_kpr->p_block->has_NA == false);
 		for (int j = 0; j < 17; j++)
 			p_filter_kpr->p_block->tensor.cell_int[j] = 9999*j;
@@ -3629,7 +3637,7 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				REQUIRE(!strcmp(pcp_db_r1->p_block->get_attribute(321), "NULL"));
 
 				// Not a string, from nullptr to new_str:
-				REQUIRE(pcp_by_r1->p_block->total_bytes					   == p_by_r1->p_block->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_by_r1->p_block->total_bytes					   == p_by_r1->p_block->total_bytes + 8*6 + 97);
 				REQUIRE(pcp_by_r1->p_block->p_string_buffer()->buffer_size == pcp_db_r1->p_block->p_string_buffer()->buffer_size);
 				REQUIRE(pcp_by_r1->p_block->p_string_buffer()->last_idx	   == pcp_db_r1->p_block->p_string_buffer()->last_idx);
 
@@ -3640,7 +3648,7 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 				REQUIRE(pcp_st_r1->p_block->p_string_buffer()->buffer_size == p_st_r1->p_block->p_string_buffer()->buffer_size + 97);
 
 				// String, from nullptr to new_str:
-				REQUIRE(pcp_st_r3->p_block->total_bytes					   == p_st_r3->p_block->total_bytes + 8*5 + 97);
+				REQUIRE(pcp_st_r3->p_block->total_bytes					   == p_st_r3->p_block->total_bytes + 8*6 + 97);
 				REQUIRE(pcp_st_r3->p_block->p_string_buffer()->buffer_size == p_st_r3->p_block->p_string_buffer()->buffer_size + 97);
 
 				REQUIRE(!strcmp(pcp_st_r3->p_block->get_attribute(921), "is heard nomore ..."));
@@ -4165,7 +4173,7 @@ SCENARIO("Testing new_block() (3) Create a Tensor by selecting rows (filtering) 
 						- (uintptr_t) p_pb_st_r6->p_block->align64bit(4*(p_st_r6->p_block->size))
 						+ (uintptr_t) p_pb_st_r6->p_block->align64bit(4*(p_pb_st_r6->p_block->size)));
 				REQUIRE(p_pb_by_r1->p_block->total_bytes ==
-						p_by_r1->p_block->total_bytes + p_pb_by_r1->p_block->p_string_buffer()->buffer_size - 4 + 2*(6 -1)*sizeof(int)
+						p_by_r1->p_block->total_bytes + p_pb_by_r1->p_block->p_string_buffer()->buffer_size - 4 + 2*6*sizeof(int)
 						- (uintptr_t) p_pb_by_r1->p_block->align64bit(p_by_r1->p_block->size)
 						+ (uintptr_t) p_pb_by_r1->p_block->align64bit(p_pb_by_r1->p_block->size));
 				REQUIRE(p_pb_by_r3->p_block->total_bytes ==
