@@ -3259,7 +3259,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 				ret = PARSE_ERROR_TEXT_FILLING;
 
 			else {
-				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, bf_size, p_txt, '\n', att);
+				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, 0, p_txt, '\n', att);
 
 				if (ret == SERVICE_NO_ERROR) {
 					for (int i = 0; i < num_cells; i++) {

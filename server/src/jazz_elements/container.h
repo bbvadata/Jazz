@@ -435,7 +435,9 @@ class Container : public Service {
 
 			pTransaction p_aux;
 
-			if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, size, (pChar) p_blk, 0) != SERVICE_ERROR_NO_MEM) {
+			reinterpret_cast <pChar>(p_blk)[size] = 0;
+
+			if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_blk, 0) != SERVICE_NO_ERROR) {
 				destroy_transaction(p_txn);
 
 				return SERVICE_ERROR_NO_MEM;
@@ -489,7 +491,7 @@ class Container : public Service {
 				return ret;
 			}
 
-			return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, rec_size, (pChar) p_maybe_block, 0);
+			return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_maybe_block, 0);
 		}
 
 		// Support for container names in the API .base_names()

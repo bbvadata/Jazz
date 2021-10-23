@@ -1878,7 +1878,7 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 		memcpy(&p_text->p_block->tensor, p_const, size);
 	} else {
-		if (new_block(p_text, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, size, (pChar) p_const, 0) != SERVICE_ERROR_NO_MEM)
+		if (new_block(p_text, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_const, 0) != SERVICE_ERROR_NO_MEM)
 			return false;
 	}
 
