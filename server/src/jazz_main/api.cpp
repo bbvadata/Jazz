@@ -921,9 +921,16 @@ MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it
 	if (p_persisted->get(p_txn, loc) != SERVICE_NO_ERROR)
 		return MHD_HTTP_BAD_GATEWAY;
 
-	int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+	if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1) {
+		pChar p_str = p_txn->p_block->get_string(0);
+		int size = strlen(p_str);
 
-	response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+		response = MHD_create_response_from_buffer(size, p_str, MHD_RESPMEM_MUST_COPY);
+	} else {
+		int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+
+		response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+	}
 
 	pChar p_att;
 	if ((p_att = p_txn->p_block->get_attribute(BLOCK_ATTRIB_MIMETYPE)) != nullptr)
