@@ -1266,8 +1266,12 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		} else {
 			if (q_state.apply == APPLY_TEXT)
 				response = MHD_create_response_from_buffer(p_txn->p_block->size - 1, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
-			else
+			else {
+				if (p_txn->p_block->hash64 == 0)
+					p_txn->p_block->close_block();
+
 				response = MHD_create_response_from_buffer(p_txn->p_block->total_bytes, p_txn->p_block, MHD_RESPMEM_MUST_COPY);
+			}
 		}
 		p_txn->p_owner->destroy_transaction(p_txn);
 
