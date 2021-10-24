@@ -184,6 +184,52 @@ void check_text_block(pBlock p_block) {
 	REQUIRE(n_hi == 0);
 }
 
+void check_string_block(pBlock p_block) {
+
+	REQUIRE(p_block->cell_type	  == CELL_TYPE_STRING);
+	REQUIRE(p_block->size		  == 1);
+	REQUIRE(p_block->rank		  == 1);
+	REQUIRE(p_block->range.dim[0] == 1);
+
+	pChar p_string = p_block->get_string(0);
+
+	REQUIRE(p_string != nullptr);
+
+	int	str_len  = strlen(p_string);
+
+	REQUIRE(str_len > 2);
+
+	REQUIRE(p_string[str_len] == 0);
+
+	switch (p_string[0]) {
+	case '(':
+		REQUIRE(p_string[str_len - 1] == ')');
+		break;
+
+	case '[':
+		REQUIRE(p_string[str_len - 1] == ']');
+		break;
+
+	case '{':
+		REQUIRE(p_string[str_len - 1] == '}');
+		break;
+
+	default:
+		REQUIRE(strcmp("HALT:", "Wrong initial char.") == 0);
+	}
+
+	int n_lo = 0, n_hi = 0;
+	for (int i = 0; i < str_len; i++) {
+		if (p_string[i] < 32)
+			n_lo++;
+
+		if (p_string[i] > 126)
+			n_hi++;
+	}
+	REQUIRE(n_lo == 0);
+	REQUIRE(n_hi == 0);
+}
+
 // Tests
 // -----
 
