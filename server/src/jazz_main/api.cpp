@@ -1123,7 +1123,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 	case APPLY_TEXT: {
 		pTransaction p_aux;
 
-		int ret = new_block(p_aux, p_txn->p_block);
+		int ret = new_block(p_aux, p_txn->p_block, nullptr, true);
 
 		destroy_transaction(p_txn);
 
