@@ -539,7 +539,7 @@ class Api : public Container {
 				if (p_container->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
 					return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
-				if (new_block(p_txn, p_aux->p_block) != SERVICE_NO_ERROR) {
+				if (new_block(p_txn, p_aux->p_block, (pChar) nullptr, true) != SERVICE_NO_ERROR) {
 					p_container->destroy_transaction(p_aux);
 
 					return SERVICE_ERROR_IO_ERROR;
