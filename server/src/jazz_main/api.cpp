@@ -1364,9 +1364,13 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 			if (ret != SERVICE_NO_ERROR)
 				return MHD_HTTP_NOT_FOUND;
 
-			size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
-			response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
-
+			if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
+				p_str	 = p_txn->p_block->get_string(0);
+				response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
+			} else {
+				size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+				response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
+			}
 			p_channels->destroy_transaction(p_txn);
 
 			return MHD_HTTP_OK;
