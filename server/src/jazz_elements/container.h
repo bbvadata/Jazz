@@ -326,6 +326,7 @@ class Container : public Service {
 		StatusCode new_block   (pTransaction	   &p_txn,
 								pBlock				p_from_raw,
 								pChar				p_fmt			= nullptr,
+								bool				ret_as_string	= false,
 								AttributeMap	   *att				= nullptr);
 
 		// 7. new_block(): Create an empty Index block.
