@@ -5021,7 +5021,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			att[BLOCK_ATTRIB_LANGUAGE] = "bop";
 
 			pTransaction s_byt, s_bbo, s_int, s_fac, s_gra, s_boo, s_sin, s_st1, s_st2, s_lin, s_tim, s_dou, s_ki1, s_ki2, s_tp1, s_tp2;
-			pTransaction z_tp1, z_tp2;
+			pTransaction z_tp1, z_tp2, t_tp1, t_tp2;
 
 			REQUIRE(CNT.new_block(s_byt, p_byt->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(s_byt->p_block != nullptr);
@@ -5078,7 +5078,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(s_tim->status  == BLOCK_STATUS_READY);
 			REQUIRE(s_tim->p_block->hash64 == 0);
 
-			REQUIRE(CNT.new_block(s_dou, p_dou->p_block, (pChar) nullptr, &att) == SERVICE_NO_ERROR);
+			REQUIRE(CNT.new_block(s_dou, p_dou->p_block, (pChar) nullptr, false, &att) == SERVICE_NO_ERROR);
 			REQUIRE(s_dou->p_block != nullptr);
 			REQUIRE(s_dou->status  == BLOCK_STATUS_READY);
 			REQUIRE(s_dou->p_block->hash64 == 0);
@@ -5118,6 +5118,16 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(z_tp2->status  == BLOCK_STATUS_READY);
 			REQUIRE(z_tp2->p_block->hash64 == 0);
 			REQUIRE(z_tp2->p_block->cell_type == CELL_TYPE_STRING);
+
+			REQUIRE(CNT.new_block(t_tp1, p_tp1->p_block, nullptr, true) == SERVICE_NO_ERROR);
+			REQUIRE(t_tp1->p_block != nullptr);
+			REQUIRE(t_tp1->status  == BLOCK_STATUS_READY);
+			REQUIRE(t_tp1->p_block->hash64 == 0);
+
+			REQUIRE(CNT.new_block(t_tp2, p_tp2->p_block, nullptr, true) == SERVICE_NO_ERROR);
+			REQUIRE(t_tp2->p_block != nullptr);
+			REQUIRE(t_tp2->status  == BLOCK_STATUS_READY);
+			REQUIRE(t_tp2->p_block->hash64 == 0);
 
 			pTransaction f_byt, f_int, f_sin, f_lin, f_tim, f_dou, f_ki1, f_tp1;
 
@@ -5184,6 +5194,11 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			check_text_block(s_ki2->p_block);
 			check_text_block(s_tp1->p_block);
 			check_text_block(s_tp2->p_block);
+
+			check_string_block(z_tp1->p_block);
+			check_string_block(z_tp2->p_block);
+			check_string_block(t_tp1->p_block);
+			check_string_block(t_tp2->p_block);
 
 			check_text_block(f_byt->p_block);
 			check_text_block(f_int->p_block);
@@ -5289,9 +5304,20 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_tp2->p_block->hash64 == 0);
 
+				REQUIRE(reinterpret_cast<pTuple>(x_tp2->p_block)->audit() == MIXED_TYPE_TUPLE);
+
 				CNT.destroy_transaction(x_tp2);
 
 				REQUIRE(CNT.new_block(x_tp2, z_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(x_tp2->p_block != nullptr);
+				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
+				REQUIRE(x_tp2->p_block->hash64 == 0);
+
+				REQUIRE(reinterpret_cast<pTuple>(x_tp2->p_block)->audit() == MIXED_TYPE_TUPLE);
+
+				CNT.destroy_transaction(x_tp2);
+
+				REQUIRE(CNT.new_block(x_tp2, t_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp2->p_block != nullptr);
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_tp2->p_block->hash64 == 0);
@@ -5416,6 +5442,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(a_tp1->status  == BLOCK_STATUS_READY);
 				REQUIRE(a_tp1->p_block->hash64 == 0);
 
+				REQUIRE(reinterpret_cast<pTuple>(a_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
+
 				CNT.destroy_transaction(a_tp1);
 
 				REQUIRE(CNT.new_block(a_tp1, p_byt->p_block, CELL_TYPE_UNDEFINED) == SERVICE_ERROR_NEW_BLOCK_ARGS);
@@ -5423,6 +5451,15 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(CNT.new_block(a_tp1, p_dou->p_block, CELL_TYPE_UNDEFINED) == SERVICE_ERROR_NEW_BLOCK_ARGS);
 
 				REQUIRE(CNT.new_block(a_tp1, z_tp1->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_tp1->p_block != nullptr);
+				REQUIRE(a_tp1->status  == BLOCK_STATUS_READY);
+				REQUIRE(a_tp1->p_block->hash64 == 0);
+
+				REQUIRE(reinterpret_cast<pTuple>(a_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
+
+				CNT.destroy_transaction(a_tp1);
+
+				REQUIRE(CNT.new_block(a_tp1, t_tp1->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
 				REQUIRE(a_tp1->p_block != nullptr);
 				REQUIRE(a_tp1->status  == BLOCK_STATUS_READY);
 				REQUIRE(a_tp1->p_block->hash64 == 0);
@@ -5523,6 +5560,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			CNT.destroy_transaction(s_ki2);
 			CNT.destroy_transaction(s_tp1);
 			CNT.destroy_transaction(s_tp2);
+			CNT.destroy_transaction(t_tp1);
+			CNT.destroy_transaction(t_tp2);
 			CNT.destroy_transaction(z_tp1);
 			CNT.destroy_transaction(z_tp2);
 		}
