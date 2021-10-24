@@ -1871,12 +1871,15 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 	p_txn = nullptr;
 
-	int size = strlen(p_const);
-	int dim[MAX_TENSOR_RANK] = {size, 0, 0, 0, 0, 0};
-
 	pTransaction p_text, p_tensor, p_result;
 
+	int dim[MAX_TENSOR_RANK];
+
 	if (make_tuple) {
+		int size = strlen(p_const);
+		dim[0] = size;
+		dim[1] = 0;
+
 		if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
 			return false;
 
@@ -1898,6 +1901,7 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 	}
 
 	dim[0] = RESULT_BUFFER_SIZE;
+	dim[1] = 0;
 	if (new_block(p_result, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_WITH_ZERO) !=  SERVICE_NO_ERROR) {
 		destroy_transaction(p_tensor);
 
