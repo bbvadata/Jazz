@@ -660,6 +660,16 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		while (pt1 < pt2)
 			*(pt1++) = 0;
+
+		if (cell_type == CELL_TYPE_STRING && fill_tensor == FILL_NEW_DONT_FILL) {
+			pStringBuffer psb = p_txn->p_block->p_string_buffer();
+
+			pt1 = &psb->buffer[psb->last_idx];
+			pt2 = (char *) ((uintptr_t) p_txn->p_block + p_txn->p_block->total_bytes);
+
+			while (pt1 < pt2)
+				*(pt1++) = 0;
+		}
 	}
 #endif
 
@@ -874,6 +884,10 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 		return SERVICE_ERROR_NO_MEM;
 	}
+
+#ifdef DEBUG		// Initialize everything for Valgrind.
+	memset(p_txn->p_block, 0, hea.total_bytes);
+#endif
 
 	if (p_block == nullptr) {
 		if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att)) {
