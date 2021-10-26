@@ -249,7 +249,7 @@ class Channels : public Container {
 									  pChar				 p_what);
 		virtual StatusCode put		 (pChar				 p_where,
 									  pBlock			 p_block,
-									  int				 mode = WRITE_EVERYTHING);
+									  int				 mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode new_entity(pChar				 p_where);
 		virtual StatusCode remove	 (pChar				 p_where);
 		virtual StatusCode copy		 (pChar				 p_where,
@@ -265,7 +265,7 @@ class Channels : public Container {
 		MHD_StatusCode forward_put	 (Name				 node,
 									  pChar				 p_url,
 									  pBlock			 p_block,
-									  int				 mode = WRITE_EVERYTHING);
+									  int				 mode = WRITE_AS_BASE_DEFAULT);
 		MHD_StatusCode forward_del	 (Name				 node,
 									  pChar				 p_url);
 
