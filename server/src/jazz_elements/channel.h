@@ -393,7 +393,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_put(void *url, pBlock p_blk, int mode = WRITE_TENSOR_DATA, Index *p_idx = nullptr) {
+		inline StatusCode curl_put(void *url, pBlock p_blk, int mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
@@ -403,22 +403,26 @@ class Channels : public Container {
 
 			PutBuffer put_buff;
 
-			switch (mode & (WRITE_TENSOR_DATA | WRITE_C_STR | WRITE_EVERYTHING)) {
-			case WRITE_TENSOR_DATA:
+			if ((mode & WRITE_AS_ANY_WRITE) == 0)
+				mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
+
+			if ((mode & WRITE_AS_STRING) && (	(p_blk->cell_type == CELL_TYPE_STRING && p_blk->size == 1)
+											 || (p_blk->cell_type == CELL_TYPE_BYTE	  && p_blk->rank == 1))) {
+				if (p_blk->cell_type == CELL_TYPE_STRING) {
+					put_buff.p_base  = (uint8_t *) p_blk->get_string(0);
+					put_buff.to_send = strlen((const char *) put_buff.p_base);
+				} else {
+					put_buff.p_base  = &p_blk->tensor.cell_byte[0];
+					put_buff.to_send = strnlen((const char *) put_buff.p_base, p_blk->size);
+				}
+			} else if ((mode & WRITE_AS_CONTENT) && ((p_blk->cell_type & 0xf0) == 0)) {
 				put_buff.to_send = p_blk->size*(p_blk->cell_type & 0xff);
 				put_buff.p_base  = &p_blk->tensor.cell_byte[0];
-				break;
-
-			case WRITE_C_STR: {
-				int size = p_blk->size*(p_blk->cell_type & 0xff);
-				put_buff.p_base   = &p_blk->tensor.cell_byte[0];
-				put_buff.to_send  = strnlen((const char *) put_buff.p_base, size); }
-				break;
-
-			default:
+			} else if (mode & WRITE_AS_FULL_BLOCK) {
 				put_buff.to_send = p_blk->total_bytes;
 				put_buff.p_base  = (uint8_t *) p_blk;
-			}
+			} else
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 			curl_easy_setopt(curl, CURLOPT_URL, url);
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
