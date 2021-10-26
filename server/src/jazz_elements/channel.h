@@ -192,8 +192,9 @@ used for pushing AI creations to github or kill the server with //bash/exec(& ja
 This read/writes/deletes to the filesystem. Since the API does not use locators, there is no hardcoded name restriction. Via the http
 server, just use the URL (&...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/&whatever%20you%20want;").
 Note that "//file/" is a mandatory prefix, therefore "//file/aa" is "aa" and //file//aa" is "/aa".
-get() gets files as arrays of byte and folders as an Index (the keys are file names and the values either "file" or "folder"). put() writes
-either Jazz blocks with all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor (if mode == WRITE_TENSOR_DATA).
+get() gets files as arrays of byte and folders as an Index serialized as a Tuple (the keys are file names and the values either "file" or
+"folder"). put() writes either Jazz blocks with all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor
+(if mode == WRITE_TENSOR_DATA).
 WRITE_ONLY_IF_EXISTS and WRITE_ONLY_IF_NOT_EXISTS work as expected. remove() deletes whatever matches the path either a file or a folder
 (with anything inside it).
 new_entity() creates a new folder.
@@ -211,14 +212,15 @@ and return the result just as if is was a local call. At the class level, this i
 You can also send simple GET, PUT and DELETE http calls to random urls by either using the get(), put() and remove() or using the Jazz http
 server API GET "//http&https://google.com;"
 
-The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Index to: //http/connection/a_name
-the index requires the mandatory key URL and the optional keys: CURLOPT_USERNAME, CURLOPT_USERPWD, CURLOPT_COOKIEFILE and CURLOPT_COOKIEJAR
-(see https://curl.se/libcurl/c/CURLOPT_USERNAME.html and https://everything.curl.dev/libcurl-http/cookies) Once the connection exists, you
+The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Tuple to: //http/connection/a_name
+The tuple has two items named "key" and "value" that are vectors of string of the same size (like the ones returned by new_block(8)).
+The key must have a the mandatory "URL" and optionally: "CURLOPT_USERNAME", "CURLOPT_USERPWD", "CURLOPT_COOKIEFILE" and "CURLOPT_COOKIEJAR".
+See https://curl.se/libcurl/c/CURLOPT_USERNAME.html and https://everything.curl.dev/libcurl-http/cookies. Once the connection exists, you
 can get(), put() and remove() to just its name (without the word connection). I.e, get(txn, "//http/a_name") or
 get(txn, "//http/a_name/args") will send the http GET to connection[URL] + "args". Same for put() and remove().
 
- If you remove("//http/connection/a_name"), you destroy the connection. get("//http/connection/a_name") returns an Index with all the
-connection parameters.
+If you remove("//http/connection/a_name"), you destroy the connection. get("//http/connection/a_name") returns an Index serialized as a
+Tuple with all the connection parameters.
 
 "http" operation must be enabled via configuration by setting ENABLE_HTTP_CLIENT to something non-zero.
 */
