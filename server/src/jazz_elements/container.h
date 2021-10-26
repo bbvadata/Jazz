@@ -467,7 +467,7 @@ class Container : public Service {
 		*/
 		inline StatusCode unwrap_received(pTransaction &p_txn, pBlock p_maybe_block, int rec_size) {
 
-			if (p_maybe_block->total_bytes == rec_size && p_maybe_block->check_hash()) {
+			if (rec_size > sizeof(BlockHeader) && p_maybe_block->total_bytes == rec_size && p_maybe_block->check_hash()) {
 				int ret = new_transaction(p_txn);
 
 				if (ret != SERVICE_NO_ERROR)
