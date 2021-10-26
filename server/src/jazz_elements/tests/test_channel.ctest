@@ -626,48 +626,50 @@ SCENARIO("Testing file end-to-end") {
 		WHEN("We test put()/get()/remove() of keys") {
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 
-			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop_t", p_tx_pop->p_block, WRITE_TENSOR_DATA)
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop_t", p_tx_pop->p_block, WRITE_AS_CONTENT)
 					== SERVICE_ERROR_WRITE_FORBIDDEN);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str_t", p_tx_str->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr_t", p_tx_chr->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea_t", p_tx_rea->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str_t", p_tx_str->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr_t", p_tx_chr->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea_t", p_tx_rea->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
 
 			CHN.file_lev = 1;
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.file_lev = 2;
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.file_lev = 3;
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//files//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//files//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_WRONG_BASE);
 
 			p_tx_pop->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_str->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_chr->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr", p_tx_chr->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr", p_tx_chr->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_int->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_rea->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_tim->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim", p_tx_tim->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim", p_tx_tim->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_fil->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_AS_FULL_BLOCK | WRITE_ONLY_IF_NOT_EXISTS)
+					== SERVICE_NO_ERROR);
 
-			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS)
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_AS_CONTENT | WRITE_ONLY_IF_NOT_EXISTS)
 					== SERVICE_ERROR_WRITE_FORBIDDEN);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_NO_ERROR);
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_AS_FULL_BLOCK | WRITE_ONLY_IF_EXISTS)
+					== SERVICE_NO_ERROR);
 
-			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea2", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS)
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea2", p_tx_rea->p_block, WRITE_AS_CONTENT | WRITE_ONLY_IF_EXISTS)
 					== SERVICE_ERROR_WRITE_FORBIDDEN);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop_t") == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -767,8 +769,8 @@ SCENARIO("Testing file end-to-end") {
 
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
 			CHN.destroy_transaction(p_txn);
@@ -799,10 +801,10 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/ggg") == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop",   p_tx_pop->p_block, WRITE_EVERYTHING)  == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str",   p_tx_str->p_block, WRITE_EVERYTHING)  == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop",   p_tx_pop->p_block, WRITE_AS_FULL_BLOCK)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str",   p_tx_str->p_block, WRITE_AS_FULL_BLOCK)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
@@ -1335,7 +1337,7 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Berlin");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1356,7 +1358,7 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Rome");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Italy");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
@@ -1423,7 +1425,7 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Tallinn");
 
 			strcpy(url, "//http/cap/Estonia");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			strcpy(url, "//http/capitals/ESTONIA");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
@@ -1498,7 +1500,7 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Montevideo");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Uruguay");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1577,7 +1579,7 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "London");
 
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
