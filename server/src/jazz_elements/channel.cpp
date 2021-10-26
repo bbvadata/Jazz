@@ -489,18 +489,23 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		void *p_buff;
 		int size;
 
-		if ((mode & WRITE_TENSOR_DATA) != 0) {
-			int cell_size = p_block->cell_type & 0xff;
-
-			if (cell_size < 1 || cell_size > 8)
-				return SERVICE_ERROR_WRITE_FORBIDDEN;
-
-			p_buff = &p_block->tensor;
-			size   = p_block->size*cell_size;
-		} else {
-			p_buff = p_block;
+		if ((mode & WRITE_AS_STRING) && (	(p_block->cell_type == CELL_TYPE_STRING && p_block->size == 1)
+										 || (p_block->cell_type == CELL_TYPE_BYTE	&& p_block->rank == 1))) {
+			if (p_block->cell_type == CELL_TYPE_STRING) {
+				p_buff = p_block->get_string(0);
+				size   = strlen((const char *) p_buff);
+			} else {
+				p_buff = &p_block->tensor.cell_byte[0];
+				size   = strnlen((const char *) p_buff, p_block->size);
+			}
+		} else if ((mode & WRITE_AS_CONTENT) && ((p_block->cell_type & 0xf0) == 0)) {
+			size   = p_block->size*(p_block->cell_type & 0xff);
+			p_buff = &p_block->tensor.cell_byte[0];
+		} else if (mode & WRITE_AS_FULL_BLOCK) {
 			size   = p_block->total_bytes;
-		}
+			p_buff = (uint8_t *) p_block;
+		} else
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		FILE *fp;
 		fp = fopen(p_where, "wb");
