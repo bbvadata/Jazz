@@ -544,10 +544,26 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 			if (it != connect.end())
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-			if (p_block->cell_type != CELL_TYPE_INDEX || pBlockHeader(p_block)->index.find("URL") == pBlockHeader(p_block)->index.end())
+			int n_rows;
+			pTuple p_tup;
+			pBlock p_key, p_val;
+
+			if (	p_block->cell_type != CELL_TYPE_TUPLE_ITEM || p_block->size != 2
+				|| (p_tup = (pTuple) p_block)->index((pChar) "key") != 0 || p_tup->index((pChar) "value") != 1
+				|| (p_key = p_tup->get_block(0))->cell_type != CELL_TYPE_STRING || p_key->rank != 1
+				|| (p_val = p_tup->get_block(1))->cell_type != CELL_TYPE_STRING || p_val->rank != 1
+				|| (n_rows = p_key->size) != p_val->size)
 				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-			Index idx(pBlockHeader(p_block)->index);
+			Index idx = {};
+
+			for (int i = 0; i < n_rows; i++) {
+				idx[p_key->get_string(i)] = p_val->get_string(i);
+			}
+
+			if (idx.find("URL") == idx.end())
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+
 			connect[p_where] = idx;
 
 			return SERVICE_NO_ERROR;
