@@ -432,10 +432,12 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	pMDB_txn lm_tx;
 
-	if (mode != WRITE_EVERYTHING) {
-		if (mode & WRITE_TENSOR_DATA)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+	mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
 
+	if ((mode & WRITE_AS_FULL_BLOCK) == 0)
+		return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+	if (mode & WRITE_ANY_RESTRICTION) {
 		pBlock p_blx = lock_pointer_to_block(where, lm_tx);
 
 		bool already_exists = p_blx != nullptr;

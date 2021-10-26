@@ -473,6 +473,9 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (file_lev < 2)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
+		if ((mode & WRITE_AS_ANY_WRITE) == 0)
+			mode = WRITE_AS_CONTENT;
+
 		p_where += 4;
 		if (*p_where++ != '/')
 			return SERVICE_ERROR_WRONG_BASE;
@@ -480,7 +483,7 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (((mode & (WRITE_ONLY_IF_EXISTS | WRITE_ONLY_IF_NOT_EXISTS)) != 0) || (file_lev == 2)) {
 		    struct stat p_stat;
 			bool exists = stat(p_where, &p_stat) == 0;
-			if ((exists && (mode == WRITE_ONLY_IF_NOT_EXISTS)) || (!exists && (mode == WRITE_ONLY_IF_EXISTS)))
+			if ((exists && (mode & WRITE_ONLY_IF_NOT_EXISTS)) || (!exists && (mode & WRITE_ONLY_IF_EXISTS)))
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 			if (exists && (file_lev == 2))
 				return SERVICE_ERROR_BASE_FORBIDDEN;
@@ -523,6 +526,9 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 	case BASE_HTTP_10BIT: {
 		if (!curl_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
+
+		if ((mode & WRITE_AS_ANY_WRITE) == 0)
+			mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
 
 		p_where += 4;
 		if (*p_where++ != '/')
@@ -570,6 +576,9 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
+
+		if ((mode & WRITE_AS_ANY_WRITE) == 0)
+			mode = WRITE_AS_FULL_BLOCK;
 
 		p_where += 4;
 		if (*p_where++ != '/')
@@ -779,11 +788,13 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 
 	switch (TenBitsAtAddress(p_what + 2)) {
 	case BASE_FILE_10BIT:
+		mode = WRITE_AS_CONTENT;
+		break;
 	case BASE_HTTP_10BIT:
-		mode = WRITE_TENSOR_DATA;
+		mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
 		break;
 	default:
-		mode = WRITE_EVERYTHING;
+		mode = WRITE_AS_FULL_BLOCK;
 	}
 
 	ret = put(p_where, p_txn->p_block, mode);

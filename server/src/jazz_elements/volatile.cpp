@@ -528,7 +528,8 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 	switch (base = TenBitsAtAddress(where.base)) {
 	case BASE_DEQUE_10BIT:
-		if (mode & WRITE_TENSOR_DATA)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = deque_ent.find(ek.ent_hash);
@@ -539,7 +540,8 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 		break;
 
 	case BASE_INDEX_10BIT:
-		if ((mode & WRITE_TENSOR_DATA) == 0)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_STRING : mode;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_STRING)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = index_ent.find(ek.ent_hash);
@@ -550,13 +552,15 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 		break;
 
 	case BASE_QUEUE_10BIT:
-		if (mode & WRITE_TENSOR_DATA)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		break;
 
 	case BASE_TREE_10BIT:
-		if (mode & WRITE_TENSOR_DATA)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
+		if (mode != WRITE_AS_FULL_BLOCK)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = tree_ent.find(ek.ent_hash);
@@ -899,7 +903,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
 			return ret;
 
-		ret = put(where, p_txn->p_block, WRITE_TENSOR_DATA);
+		ret = put(where, p_txn->p_block);
 
 		destroy_transaction(p_txn);
 
