@@ -1256,7 +1256,7 @@ SCENARIO("Testing http end-to-end") {
 	REQUIRE(CHN.zmq_context	!= nullptr);
 
 	GIVEN("We have some blocks and indices") {
-		pTransaction p_tx_idx, p_tx_ixx, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
+		pTransaction p_tx_ix1, p_tx_ix2, p_tx_tp1, p_tx_tp2, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
 
 		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 
@@ -1298,17 +1298,51 @@ SCENARIO("Testing http end-to-end") {
 
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
-		REQUIRE(CHN.new_block(p_tx_idx, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(CHN.new_block(p_tx_ix1, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 
-		p_tx_idx->p_hea->index["URL"] = "http://127.0.0.1:5000/test/capital/";
+		p_tx_ix1->p_hea->index["URL"] = "http://127.0.0.1:5000/test/capital/";
 
-		REQUIRE(CHN.new_block(p_tx_ixx, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(CHN.new_block(p_tx_tp1, p_tx_ix1->p_hea->index) == SERVICE_NO_ERROR);
 
-		p_tx_ixx->p_hea->index["URL"] = "http://127.0.0.1:5000/test/str.blk";
-		p_tx_ixx->p_hea->index["CURLOPT_USERNAME"]   = "whoami";
-		p_tx_ixx->p_hea->index["CURLOPT_USERPWD"]    = "XXX";
-		p_tx_ixx->p_hea->index["CURLOPT_COOKIEFILE"] = "./cookiefile";
-		p_tx_ixx->p_hea->index["CURLOPT_COOKIEJAR"]  = "./cookiejar";
+		REQUIRE(p_tx_tp1 != nullptr);
+
+		int n_rows;
+		pTuple p_tup;
+		pBlock p_key, p_val, p_blk = p_tx_tp1->p_block;
+
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->size == 2);
+		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+		REQUIRE(p_tup->index((pChar) "value") == 1);
+		REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_key->rank == 1);
+		REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_val->rank == 1);
+		REQUIRE((n_rows = p_key->size) == p_val->size);
+
+		REQUIRE(CHN.new_block(p_tx_ix2, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+
+		p_tx_ix2->p_hea->index["URL"] = "http://127.0.0.1:5000/test/str.blk";
+		p_tx_ix2->p_hea->index["CURLOPT_USERNAME"]   = "whoami";
+		p_tx_ix2->p_hea->index["CURLOPT_USERPWD"]    = "XXX";
+		p_tx_ix2->p_hea->index["CURLOPT_COOKIEFILE"] = "./cookiefile";
+		p_tx_ix2->p_hea->index["CURLOPT_COOKIEJAR"]  = "./cookiejar";
+
+		REQUIRE(CHN.new_block(p_tx_tp2, p_tx_ix2->p_hea->index) == SERVICE_NO_ERROR);
+
+		REQUIRE(p_tx_tp2 != nullptr);
+
+		p_blk = p_tx_tp1->p_block;
+
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->size == 2);
+		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+		REQUIRE(p_tup->index((pChar) "value") == 1);
+		REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_key->rank == 1);
+		REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_val->rank == 1);
+		REQUIRE((n_rows = p_key->size) == p_val->size);
 
 		dim[0] = 256;
 		dim[1] = 0;
@@ -1375,19 +1409,19 @@ SCENARIO("Testing http end-to-end") {
 		WHEN("We test put()/get()/remove() on a connection") {
 			REQUIRE(CHN.connect.size() == 0);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_idx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_tp1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 1);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_idx->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
-			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_idx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_tp1->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_tp1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 2);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_ixx->p_block) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_ixx->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_tp2->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_tp2->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
 			REQUIRE(CHN.put((pChar) "//http/connection/quick", p_tx_rea->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
-			REQUIRE(CHN.put((pChar) "//https/connection/binblk", p_tx_ixx->p_block) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.put((pChar) "//https/connection/binblk", p_tx_tp2->p_block) == SERVICE_ERROR_WRONG_BASE);
 
 			REQUIRE(CHN.connect.size() == 3);
 
@@ -1568,7 +1602,7 @@ SCENARIO("Testing http end-to-end") {
 		WHEN("We test copy") {
 			REQUIRE(CHN.connect.size() == 0);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_idx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_tp1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 1);
 
@@ -1617,11 +1651,13 @@ SCENARIO("Testing http end-to-end") {
 		WHEN("We test modify") {
 			Locator fun = {"http", "anything", "", 0};
 
-			REQUIRE(CHN.modify(fun, (pTuple) p_tx_idx->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_ix1->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
 		}
-		CHN.destroy_transaction(p_tx_idx);
-		CHN.destroy_transaction(p_tx_ixx);
+		CHN.destroy_transaction(p_tx_ix1);
+		CHN.destroy_transaction(p_tx_ix2);
+		CHN.destroy_transaction(p_tx_tp1);
+		CHN.destroy_transaction(p_tx_tp2);
 		CHN.destroy_transaction(p_tx_str);
 		CHN.destroy_transaction(p_tx_rea);
 		CHN.destroy_transaction(p_tx_tim);
