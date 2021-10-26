@@ -98,17 +98,21 @@ namespace jazz_elements
 #define LOCK_WEIGHT_OF_WRITE			46341
 
 // State based parser types:
-#define EIGHT_BIT_LONG					256		///< Length of a NextStateLUT.
-#define MAX_TRANSITION_REGEX_LEN		 32		///< Length of regex for state transitions. Used only in constants for LUT construction.
-#define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
+#define EIGHT_BIT_LONG					 256	///< Length of a NextStateLUT.
+#define MAX_TRANSITION_REGEX_LEN		  32	///< Length of regex for state transitions. Used only in constants for LUT construction.
+#define PSTATE_INVALID_CHAR				 255	///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
-// Writing modes for put()
-#define WRITE_EVERYTHING				  0		///< The default mode with none of the other flags.
-#define WRITE_ONLY_IF_EXISTS			  1		///< A .put() call can override, but cannot create a new block.
-#define WRITE_ONLY_IF_NOT_EXISTS		  2		///< A .put() call cannot override, it can only create new blocks.
-#define WRITE_TENSOR_DATA				  4		///< Fails if not a Tensor, writes the raw data without metadata. For e.g., writing files.
-#define WRITE_C_STR						  8		///< Fails if not a Tensor of byte, writes until the first zero.
+// Writing modes for put(1): What to do is block exists:
+#define WRITE_ONLY_IF_EXISTS			0x01	///< A .put() call can override, but cannot create a new block.
+#define WRITE_ONLY_IF_NOT_EXISTS		0x02	///< A .put() call cannot override, it can only create new blocks.
+#define WRITE_ANY_RESTRICTION			0x03	///< WRITE_ONLY_IF_EXISTS | WRITE_ONLY_IF_NOT_EXISTS
 
+// Writing modes for put(2): What to write
+#define WRITE_AS_BASE_DEFAULT			0x00	///< The base decides: file WRITE_AS_CONTENT, http WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, ..
+#define WRITE_AS_STRING					0x04	///< Highest priority, string if CELL_TYPE_STRING or a C string inside CELL_TYPE_BYTE.
+#define WRITE_AS_CONTENT				0x08	///< Next priority, only for tensors of any type, just write the binary data.
+#define WRITE_AS_FULL_BLOCK				0x10	///< Lowest priority, write full block, can always be done.
+#define WRITE_AS_ANY_WRITE				0x1C	///< if mode & this is zero, use base default
 
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
@@ -361,7 +365,7 @@ class Container : public Service {
 										pChar				p_what);
 		virtual StatusCode put		   (pChar				p_where,
 										pBlock				p_block,
-										int					mode = WRITE_EVERYTHING);
+										int					mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode new_entity  (pChar				p_where);
 		virtual StatusCode remove	   (pChar				p_where);
 		virtual StatusCode copy		   (pChar				p_where,
@@ -395,7 +399,7 @@ class Container : public Service {
 										Locator			   &what);
 		virtual StatusCode put		   (Locator			   &where,
 										pBlock				p_block,
-										int					mode = WRITE_EVERYTHING);
+										int					mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode new_entity  (Locator			   &where);
 		virtual StatusCode remove	   (Locator			   &where);
 		virtual StatusCode copy		   (Locator			   &where,
