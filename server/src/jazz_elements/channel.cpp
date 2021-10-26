@@ -343,14 +343,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			if (it == connect.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			int ret = new_block(p_txn, CELL_TYPE_INDEX);
-			if (ret != SERVICE_NO_ERROR)
-				return ret;
-
-			for (Index::iterator itx = it->second.begin(); itx != it->second.end(); ++itx)
-				p_txn->p_hea->index[itx->first] = itx->second;
-
-			return SERVICE_NO_ERROR;
+			return new_block(p_txn, it->second);
 		}
 		pChar pt = strchr(p_what, '/');
 		if (pt == nullptr)
