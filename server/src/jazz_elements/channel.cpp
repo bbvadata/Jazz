@@ -272,9 +272,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		if (S_ISDIR(p_stat.st_mode)) {
-			ret = new_block(p_txn, CELL_TYPE_INDEX);
-			if (ret != SERVICE_NO_ERROR)
-				return ret;
+			Index idx = {};
 
 			DIR *dir;
 			if ((dir = opendir(p_what)) == nullptr)
@@ -286,16 +284,16 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 														// readdir() (3) is thread safe.
 				switch (ent->d_type) {
 				case DT_REG:
-					p_txn->p_hea->index[ent->d_name] = "file";
+					idx[ent->d_name] = "file";
 					break;
 				case DT_DIR:
 					if (ent->d_name[0] != '.')
-						p_txn->p_hea->index[ent->d_name] = "folder";
+						idx[ent->d_name] = "folder";
 				}
 			}
 	  		closedir(dir);
 
-			return SERVICE_NO_ERROR;
+			return new_block(p_txn, idx);
 		}
 
 		if (S_ISREG(p_stat.st_mode)) {
