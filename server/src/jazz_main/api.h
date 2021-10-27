@@ -306,7 +306,7 @@ class Api : public Container {
 
 					return SERVICE_ERROR_IO_ERROR;
 				}
-				p_aux_cont->destroy_transaction(p_txn);
+				p_aux_cont->destroy_transaction(p_aux);
 
 				return SERVICE_NO_ERROR;
 
@@ -505,7 +505,7 @@ class Api : public Container {
 
 					return SERVICE_ERROR_IO_ERROR;
 				}
-				p_aux_cont->destroy_transaction(p_txn);
+				p_aux_cont->destroy_transaction(p_aux);
 
 				return SERVICE_NO_ERROR;
 
