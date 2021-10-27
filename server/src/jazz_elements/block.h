@@ -296,6 +296,8 @@ class Block: public StaticBlockHeader {
 			those in the Block by using a normal 'map[key] = value' instruction.
 		*/
 		inline void get_attributes(AttributeMap *all_att) {
+			if (!num_attributes)
+				return;
 			int *ptk = p_attribute_keys();
 			pStringBuffer psb = p_string_buffer();
 			for (int i = 0; i < num_attributes; i++)

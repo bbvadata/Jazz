@@ -329,11 +329,14 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter
 		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
-	AttributeMap att = {};
+	if (p_int_txn->p_block->num_attributes) {
+		AttributeMap att = {};
 
-	p_int_txn->p_block->get_attributes(&att);
+		p_int_txn->p_block->get_attributes(&att);
 
-	ret = new_block(p_txn, p_int_txn->p_block, p_row_filter, &att);
+		ret = new_block(p_txn, p_int_txn->p_block, p_row_filter, &att);
+	} else
+		ret = new_block(p_txn, p_int_txn->p_block, p_row_filter);
 
 	if (pop_ent != 0)
 		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
@@ -367,11 +370,15 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pChar name) {
 		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
-	AttributeMap att = {};
+	if (p_int_txn->p_block->num_attributes) {
+		AttributeMap att = {};
 
-	p_int_txn->p_block->get_attributes(&att);
+		p_int_txn->p_block->get_attributes(&att);
 
-	ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name, &att);
+		ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name, &att);
+	} else
+		ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name);
+
 
 	if (pop_ent != 0)
 		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
