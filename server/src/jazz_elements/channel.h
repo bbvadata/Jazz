@@ -420,7 +420,7 @@ class Channels : public Container {
 			} else if ((mode & WRITE_AS_CONTENT) && ((p_blk->cell_type & 0xf0) == 0)) {
 				put_buff.to_send = p_blk->size*(p_blk->cell_type & 0xff);
 				put_buff.p_base  = &p_blk->tensor.cell_byte[0];
-			} else if (mode & WRITE_AS_FULL_BLOCK) {
+			} else if ((mode & WRITE_AS_FULL_BLOCK) && (p_blk->cell_type != CELL_TYPE_INDEX)) {
 				put_buff.to_send = p_blk->total_bytes;
 				put_buff.p_base  = (uint8_t *) p_blk;
 			} else

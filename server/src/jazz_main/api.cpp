@@ -1267,6 +1267,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_NOT_FOUND;
 
+		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
+			p_txn->p_owner->destroy_transaction(p_txn);
+
+			return MHD_HTTP_BAD_REQUEST;
+		}
 		if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
 			p_str = p_txn->p_block->get_string(0);
 			response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
