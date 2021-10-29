@@ -1,19 +1,42 @@
 FROM ubuntu
 
-MAINTAINER kaalam.ai
+LABEL author=kaalam.ai
 
-WORKDIR /home/jadmin
+WORKDIR /home/jazz
 
-RUN apt-get update && apt-get install -y libmicrohttpd-dev
+COPY zeromq-4.3.4.tar.gz /home/jazz
 
-RUN ln -s /usr/lib/x86_64-linux-gnu/libmicrohttpd.so.10 /usr/lib/x86_64-linux-gnu/libmicrohttpd.so.12
+RUN tar -xvf zeromq-4.3.4.tar.gz
+RUN apt-get update --fix-missing
+RUN apt-get install -y libmicrohttpd-dev
+RUN apt-get install -y libcurl4-gnutls-dev
 
-RUN mkdir /home/jadmin/mdb
+ENV DEBIAN_FRONTEND=noninteractive
 
-ADD ./start.sh /home/jadmin
-ADD ./jazz /home/jadmin
-ADD ./jazz_config.ini /home/jadmin/config/jazz_config.ini
+RUN apt-get install -y g++
+RUN apt-get install -y make
+RUN apt-get install -y xutils-dev
+RUN apt-get install -y libtool
+RUN apt-get install -y automake
+RUN apt-get install -y pkg-config
 
-EXPOSE 8888
+WORKDIR /home/jazz/zeromq-4.3.4
 
-CMD ["/home/jadmin/start.sh"]
+RUN ./autogen.sh
+RUN ./configure
+RUN make
+RUN make install
+RUN ln -s /usr/local/lib/libzmq.so.5 /usr/lib/x86_64-linux-gnu/
+
+WORKDIR /home/jazz
+
+RUN mkdir /home/jazz/mdb
+
+ADD ./start.sh /home/jazz
+ADD ./jazz /home/jazz
+ADD ./jazz_config.ini /home/jazz/config/jazz_config.ini
+ADD ./www /home/jazz/config/www/
+
+EXPOSE 8899
+
+CMD ["/home/jazz/start.sh"]
