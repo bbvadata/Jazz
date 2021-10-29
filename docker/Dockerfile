@@ -30,7 +30,7 @@ RUN ln -s /usr/local/lib/libzmq.so.5 /usr/lib/x86_64-linux-gnu/
 
 WORKDIR /home/jazz
 
-RUN mkdir /home/jazz/mdb
+RUN mkdir /home/jazz/jazz_dbg_mdb
 
 ADD ./start.sh /home/jazz
 ADD ./jazz /home/jazz
