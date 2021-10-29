@@ -121,9 +121,14 @@ StatusCode Channels::start() {
 
 		return EXIT_FAILURE;
 	}
+	search_my_node_index = my_name == "";	// Note that /// starts a remark resulting in the value being empty.
+	if (search_my_node_index)
+		my_name = "localhost";
 
 	jazz_node_cluster_size =  0;
 	jazz_node_my_index	   = -1;
+	int min_port = 999999;
+	int max_port = 0;
 
 	std::string s;
 	char key[40];
@@ -158,6 +163,8 @@ StatusCode Channels::start() {
 
 			return EXIT_FAILURE;
 		}
+		min_port = std::min(port, min_port);
+		max_port = std::max(port, max_port);
 
 		jazz_node_port[i] = port;
 
@@ -166,6 +173,12 @@ StatusCode Channels::start() {
 
 	if (jazz_node_my_index < 0) {
 		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME in JAZZ_NODE_NAME_*");
+
+		return EXIT_FAILURE;
+	}
+
+	if (search_my_node_index && min_port != max_port) {
+		log(LOG_ERROR, "Channels::start() failed. Automatic JAZZ_NODE_MY_NAME detection requires all ports being identical.");
 
 		return EXIT_FAILURE;
 	}

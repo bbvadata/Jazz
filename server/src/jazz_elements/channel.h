@@ -281,8 +281,9 @@ class Channels : public Container {
 		MapIS jazz_node_ip   = {};
 		MapII jazz_node_port = {};
 
-		int jazz_node_my_index	   = -1;
-		int jazz_node_cluster_size =  0;
+		bool search_my_node_index	= false;
+		int  jazz_node_my_index		= -1;
+		int  jazz_node_cluster_size =  0;
 
 		std::string filesystem_root = {};
 
