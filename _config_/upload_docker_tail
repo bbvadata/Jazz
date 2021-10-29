@@ -1,5 +1,15 @@
-# docker run -p8888:8888 -ti kaalam/jazz_neat:0.2.0.99 /bin/bash
-# docker run -p8888:8888 kaalam/jazz_neat:0.2.0.99
-
 rm jazz
 rm jazz_config.ini
+rm -rf www
+
+
+# How to run this
+# ---------------
+
+# docker run -p8899:8899 kaalam/jazz_neat:0.5.2
+
+# Other options:
+
+# Run locally built image [DEBUG]:		docker run -p8899:8899 -ti jazz_ref_stable:latest /bin/bash
+# Run locally built image [Release]:	docker run -p8899:8899 jazz_ref_stable:latest
+# Run Docker Hub image [DEBUG]:			docker run -p8899:8899 -ti kaalam/jazz_neat:0.5.2 /bin/bash
