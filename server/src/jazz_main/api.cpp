@@ -1449,6 +1449,11 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		return MHD_HTTP_OK;
 
 	case APPLY_JAZZ_INFO:
+		if (p_channels->search_my_node_index) {
+			p_channels->search_my_node_index = false;
+			if (!find_myself())
+				p_channels->search_my_node_index = true;
+		}
 #ifdef DEBUG
 		std::string st("DEBUG");
 #else
@@ -1459,7 +1464,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 		int my_idx	 = p_channels->jazz_node_my_index;
 		int my_port	 = p_channels->jazz_node_port[my_idx];
-		int nn_nodes = p_channels->jazz_node_name.size();
+		int nn_nodes = p_channels->jazz_node_cluster_size;
 
 		std::string my_name = p_channels->jazz_node_name[my_idx];
 		std::string my_ip	= p_channels->jazz_node_ip[my_idx];
@@ -1944,6 +1949,58 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 	return ret == SERVICE_NO_ERROR;
 }
+
+
+/** Changes the current name until.
+*/
+bool Api::find_myself() {
+
+	TimePoint tp = {};
+	int64_t t0 = elapsed_mu_sec(tp);
+
+	char name[32];
+
+	sprintf(name, "n%lx", t0 & 0xffffFFFF);
+
+	int old_idx = p_channels->jazz_node_my_index;
+
+	p_channels->jazz_node_my_index = p_channels->jazz_node_cluster_size + 1;
+
+	p_channels->jazz_node_name[p_channels->jazz_node_my_index] = std::string(name);
+	p_channels->jazz_node_ip  [p_channels->jazz_node_my_index] = std::string("");
+	p_channels->jazz_node_port[p_channels->jazz_node_my_index] = 0;
+
+	pTransaction p_txn;
+	Name node;
+
+	for (int i = 1; i < p_channels->jazz_node_my_index; i++) {
+		strcpy(node, p_channels->jazz_node_name[i].c_str());
+
+		if (p_channels->forward_get(p_txn, node, (pChar) "///") == SERVICE_NO_ERROR) {
+			if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1) {
+				if (strstr(p_txn->p_block->get_string(0), name) != nullptr) {
+					p_channels->jazz_node_name.erase(p_channels->jazz_node_my_index);
+					p_channels->jazz_node_port.erase(p_channels->jazz_node_my_index);
+					p_channels->jazz_node_ip.erase(p_channels->jazz_node_my_index);
+
+					p_channels->jazz_node_my_index = i;
+
+					return true;
+				}
+			}
+			p_channels->destroy_transaction(p_txn);
+		}
+	}
+
+	p_channels->jazz_node_name.erase(p_channels->jazz_node_my_index);
+	p_channels->jazz_node_port.erase(p_channels->jazz_node_my_index);
+	p_channels->jazz_node_ip.erase(p_channels->jazz_node_my_index);
+
+	p_channels->jazz_node_my_index = old_idx;
+
+	return false;
+}
+
 
 #ifdef CATCH_TEST
 
