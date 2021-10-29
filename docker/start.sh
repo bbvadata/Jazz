@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/jadmin || return 1
+cd /home/jazz || return 1
 
 ./jazz start
 
