@@ -438,13 +438,12 @@ bool ConfigFile::get_key(const char *key, double &value) {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, std::string &value) {
-	std::string keys(key);
+	std::map<std::string, std::string>::iterator it = config.find(key);
 
-	std::string s = config[keys];
+	if (it == config.end())
+		return false;
 
-	if (!s.length()) return false;
-
-	value = s;
+	value = it->second;
 
 	return true;
 }
