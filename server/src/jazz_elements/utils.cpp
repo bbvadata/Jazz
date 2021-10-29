@@ -382,15 +382,18 @@ int ConfigFile::num_keys() {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, int &value) {
-	std::string keys(key);
+	std::map<std::string, std::string>::iterator it = config.find(key);
+
+	if (it == config.end())
+		return false;
 
 	try	{
-		std::string val = config[keys];
 		std::string::size_type extra;
 
-		int i = stoi(val, &extra);
+		int i = stoi(it->second, &extra);
 
-		if (extra != val.length()) return false;
+		if (extra != it->second.length())
+			return false;
 
 		value = i;
 
@@ -410,15 +413,18 @@ bool ConfigFile::get_key(const char *key, int &value) {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, double &value) {
-	std::string keys(key);
+	std::map<std::string, std::string>::iterator it = config.find(key);
+
+	if (it == config.end())
+		return false;
 
 	try {
-		std::string val = config[keys];
 		std::string::size_type extra;
 
-		double d = stod(val, &extra);
+		double d = stod(it->second, &extra);
 
-		if (extra != val.length()) return false;
+		if (extra != it->second.length())
+			return false;
 
 		value = d;
 
