@@ -139,9 +139,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 
 	char *pt;
 
-	if (psb->stop_check_4_match) {
-		pt = &psb->buffer[psb->last_idx];
-	} else {
+	if (!psb->stop_check_4_match) {
 		pt = &psb->buffer[2];
 
 		int t = 0;
@@ -159,6 +157,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 		}
 		if (t >= MAX_CHECKS_4_MATCH) psb->stop_check_4_match = true;
 	}
+	pt = &psb->buffer[psb->last_idx];
 
 	if (psb->buffer_size >= (uintptr_t) pt - (uintptr_t) &psb->buffer[0] + len + 2) {
 		uintptr_t idx = pt - &psb->buffer[0];
