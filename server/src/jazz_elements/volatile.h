@@ -273,7 +273,7 @@ class Volatile : public Container {
 									  Locator			&what);
 		virtual StatusCode put		 (Locator			&where,
 									  pBlock			 p_block,
-									  int				 mode = WRITE_EVERYTHING);
+									  int				 mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode new_entity(Locator			&where);
 		virtual StatusCode remove	 (Locator			&where);
 		virtual StatusCode copy		 (Locator			&where,
@@ -350,7 +350,7 @@ class Volatile : public Container {
 			EntKeyVolXctMap::iterator it_item = queue_key.find(ek);
 
 			if (it_item != queue_key.end()) {
-				if (mode == WRITE_ONLY_IF_NOT_EXISTS)
+				if (mode & WRITE_ONLY_IF_NOT_EXISTS)
 					return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 				pVolatileTransaction p_item = it_item->second;
@@ -382,7 +382,7 @@ class Volatile : public Container {
 
 				return SERVICE_NO_ERROR;
 			}
-			if (mode == WRITE_ONLY_IF_EXISTS)
+			if (mode & WRITE_ONLY_IF_EXISTS)
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 			if (it_queue->second.queue_use == it_queue->second.queue_size) {

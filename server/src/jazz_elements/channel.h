@@ -62,25 +62,33 @@ namespace jazz_elements
 #define BASE_0_MQ_10BIT				0x1b0		//< First 10 bits of base "0-mq"
 
 
-#define MAX_FILE_OR_URL_SIZE		1824		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
+#define MAX_FILE_OR_URL_SIZE		1712		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
 
 /// HttpQueryState apply values (on state == PSTATE_COMPLETE_OK)
 
 #define APPLY_NOTHING					 0		///< Just an l_value with {///node}//base/entity or {///node}//base/entity/key
-#define APPLY_NAME						 1		///< //base/entity/key:name (Select an item form a Tuple by name)
-#define APPLY_URL						 2		///< //base# any_url_encoded_url ; (A call to http or file)
+#define APPLY_NAME						 1		///< {///node}////base/entity/key:name (Select an item form a Tuple by name)
+#define APPLY_URL						 2		///< {///node}////base& any_url_encoded_url ; (A call to http or file)
 #define APPLY_FUNCTION					 3		///< {///node}//base/entity/key(//r_base/r_entity/r_key) (A function call on a block.)
-#define APPLY_FUNCT_CONST				 4		///< //base/entity/key(# any_url_encoded_const ;) (A function call on a const.)
+#define APPLY_FUNCT_CONST				 4		///< {///node}////base/entity/key(& any_url_encoded_const) (A function call on a const.)
 #define APPLY_FILTER					 5		///< {///node}//base/entity/key[//r_base/r_entity/r_key] (A filter on a block.)
-#define APPLY_FILT_CONST				 6		///< //base/entity/key[# any_url_encoded_const ;] (A filter on a const.)
+#define APPLY_FILT_CONST				 6		///< {///node}//base/entity/key[& any_url_encoded_const] (A filter on a const.)
 #define APPLY_RAW						 7		///< {///node}//base/entity/key.raw (Serialize text to raw.)
 #define APPLY_TEXT						 8		///< {///node}//base/entity/key.text (Serialize raw to text.)
-#define APPLY_ASSIGN					 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
-#define APPLY_ASSIGN_CONST				10		///< //base/entity/key=# any_url_encoded_const ; (Assign const to block.)
-#define APPLY_JAZZ_INFO					11		///< /// Show the server info.
-#define APPLY_NEW_ENTITY				12		///< {///node}//base/entity.new (Create a new entity)
-#define APPLY_GET_ATTRIBUTE				13		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
-#define APPLY_SET_ATTRIBUTE				14		///< //base/entity/key.attribute(123)=# url_encoded ; (set attribute 123 with HTTP_GET)
+#define APPLY_ASSIGN_NOTHING			 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
+#define APPLY_ASSIGN_NAME				10		///< {///node}//base/entity/key=//r_base/r_entity/r_key:name (Tuple item -> block)
+#define APPLY_ASSIGN_URL				11		///< {///node}//base/entity/key=//r_base/r_entity/r_key:name (Tuple item -> block)
+#define APPLY_ASSIGN_FUNCTION			12		///< {///node}//base/entity/key=//r_base/r_entity/r_key(//t_base/t_entity/t_key)
+#define APPLY_ASSIGN_FUNCT_CONST		13		///< {///node}//base/entity/key=//r_base/r_entity/r_key(& any_url_encoded_const)
+#define APPLY_ASSIGN_FILTER				14		///< {///node}//base/entity/key=//r_base/r_entity/r_key[//t_base/t_entity/t_key]
+#define APPLY_ASSIGN_FILT_CONST			15		///< {///node}//base/entity/key=//r_base/r_entity/r_key[& any_url_encoded_const]
+#define APPLY_ASSIGN_RAW				16		///< {///node}//base/entity/key=//r_base/r_entity/r_key.raw
+#define APPLY_ASSIGN_TEXT				17		///< {///node}//base/entity/key=//r_base/r_entity/r_key.text
+#define APPLY_ASSIGN_CONST				18		///< {///node}//base/entity/key=& any_url_encoded_const ; (Assign const to block.)
+#define APPLY_NEW_ENTITY				19		///< {///node}//base/entity.new (Create a new entity)
+#define APPLY_GET_ATTRIBUTE				20		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
+#define APPLY_SET_ATTRIBUTE				21		///< {///node}////base/entity/key.attribute(46)=& url_encoded ; (set attrib. with HTTP_GET)
+#define APPLY_JAZZ_INFO					22		///< /// Show the server info.
 
 
 /// A map for defining http config names
@@ -156,9 +164,11 @@ as input and returning a buffer of char as output. In your translate call you mu
 and "result". The translate() call will send the raw tensor of the item "input" to the server and write whatever the server answers into
 the tensor named "result", just overriding the tensor without any dimension change.
 This operation expects the tensor to be binary (i.e., no variable length strings) and their shapes and types known by both parts.
-In terms of the Jazz server API, this is a function call: either GET "//0-mq/pipeline/speech2text(//lmdb/stuff/my_tensor)" or
-GET "//0-mq/pipeline/speech2text(#[1,2,3];)" the argument can be anything in Persisted, Volatile, even a file or an //http get or
-a (%-encoded) constant as in the second example.
+
+In terms of the Jazz server API, this is a function call: either GET "//0-mq/speech2text/(//lmdb/stuff/my_tensor)" or
+GET "//0-mq/speech2text/(&[1,2,3];)" the argument can be anything in Persisted, Volatile, even a file or an //http get or a (%-encoded)
+constant as in the second example.
+
 When using translate() as the method of Channel, you should omit the "pipeline" part, just translate(p_tuple, "//0-mq/speech2text");
 
 Besides this, get("//0-mq/pipeline/speech2text") will return just a block with "tcp://localhost:5555" and
@@ -169,21 +179,22 @@ remove("//0-mq/pipeline/speech2text") will destroy the pipeline. Any other call 
 "bash" Reference
 ----------------
 
-This is also a translate() call, the difference is you don't create the pipline, it always exists and is called "//bash/exec". The Tuple
+This is also a translate() call, the difference is you don't create the pipeline, it always exists and is called "//bash/exec". The Tuple
 is an array of byte, both ways "input" and "result". If the size of the "result" buffer is too small for the answer it will be filled up to
 the available size and something will be lost. The answer includes whatever a popen("bash script.sh") writes to stdout / stderr (where
 script.sh is the content of the "input" tensor).
 "bash" operation must be enabled via configuration by setting ENABLE_BASH_EXEC to something non-zero. There is no security check: it can be
-used for pushing AI creations to github or kill the server with //bash/exec(# jazz%20stop ;)
+used for pushing AI creations to github or kill the server with //bash/exec(& jazz%20stop ;)
 
 "file" Reference
 ----------------
 
 This read/writes/deletes to the filesystem. Since the API does not use locators, there is no hardcoded name restriction. Via the http
-server, just use the URL (#...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/#whatever%20you%20want;").
+server, just use the URL (&...;). Remember to %-encode whatever http expects to be encoded. E.g., get("//file/&whatever%20you%20want;").
 Note that "//file/" is a mandatory prefix, therefore "//file/aa" is "aa" and //file//aa" is "/aa".
-get() gets files as arrays of byte and folders as an Index (the keys are file names and the values either "file" or "folder"). put() writes
-either Jazz blocks with all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor (if mode == WRITE_TENSOR_DATA).
+get() gets files as arrays of byte and folders as an Index serialized as a Tuple (the keys are file names and the values either "file" or
+"folder"). put() writes either Jazz blocks with all the metadata (if mode == WRITE_EVERYTHING) of just the content of the tensor
+(if mode == WRITE_TENSOR_DATA).
 WRITE_ONLY_IF_EXISTS and WRITE_ONLY_IF_NOT_EXISTS work as expected. remove() deletes whatever matches the path either a file or a folder
 (with anything inside it).
 new_entity() creates a new folder.
@@ -199,16 +210,17 @@ calls that are intended for other nodes in a Jazz cluster. This is done at the t
 get("///node_x//lmdb/things/this") will forward the call to the node_x (if anything is well configured see JAZZ_NODE_NAME_.., etc.)
 and return the result just as if is was a local call. At the class level, this is done by forward_get(), forward_put() and forward_del().
 You can also send simple GET, PUT and DELETE http calls to random urls by either using the get(), put() and remove() or using the Jazz http
-server API GET "//http#https://google.com;"
+server API GET "//http&https://google.com;"
 
-The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Index to: //http/connection/a_name
-the index requires the mandatory key URL and the optional keys: CURLOPT_USERNAME, CURLOPT_USERPWD, CURLOPT_COOKIEFILE and CURLOPT_COOKIEJAR
-(see https://curl.se/libcurl/c/CURLOPT_USERNAME.html and https://everything.curl.dev/libcurl-http/cookies) Once the connection exists, you
+The most advanced way to do it is creating a connection (similar to a "0-mq" pipeline) by put()-ing an Tuple to: //http/connection/a_name
+The tuple has two items named "key" and "value" that are vectors of string of the same size (like the ones returned by new_block(8)).
+The key must have a the mandatory "URL" and optionally: "CURLOPT_USERNAME", "CURLOPT_USERPWD", "CURLOPT_COOKIEFILE" and "CURLOPT_COOKIEJAR".
+See https://curl.se/libcurl/c/CURLOPT_USERNAME.html and https://everything.curl.dev/libcurl-http/cookies. Once the connection exists, you
 can get(), put() and remove() to just its name (without the word connection). I.e, get(txn, "//http/a_name") or
 get(txn, "//http/a_name/args") will send the http GET to connection[URL] + "args". Same for put() and remove().
 
- If you remove("//http/connection/a_name"), you destroy the connection. get("//http/connection/a_name") returns an Index with all the
-connection parameters.
+If you remove("//http/connection/a_name"), you destroy the connection. get("//http/connection/a_name") returns an Index serialized as a
+Tuple with all the connection parameters.
 
 "http" operation must be enabled via configuration by setting ENABLE_HTTP_CLIENT to something non-zero.
 */
@@ -223,37 +235,41 @@ class Channels : public Container {
 		StatusCode	   start	   ();
 		StatusCode	   shut_down   ();
 
-		StatusCode	   get		  (pTransaction		 &p_txn,
-								   pChar			  p_what);
-		StatusCode	   get		  (pTransaction		 &p_txn,
-								   pChar			  p_what,
-								   pBlock			  p_row_filter);
-		StatusCode	   get		  (pTransaction		 &p_txn,
-								   pChar			  p_what,
-								   pChar			  name);
-		StatusCode	   locate	  (Locator			 &location,
-								   pChar			  p_what);
-		StatusCode	   header	  (StaticBlockHeader &hea,
-								   pChar			  p_what);
-		StatusCode	   header	  (pTransaction		 &p_txn,
-								   pChar			  p_what);
-		StatusCode	   put		  (pChar			  p_where,
-								   pBlock			  p_block,
-								   int				  mode = WRITE_EVERYTHING);
-		StatusCode	   new_entity (pChar			  p_where);
-		StatusCode	   remove	  (pChar			  p_where);
-		StatusCode	   copy		  (pChar			  p_where,
-								   pChar			  p_what);
-		StatusCode	   translate  (pTuple			  p_tuple,
-								   pChar			  p_pipe);
-		MHD_StatusCode forward_get(pTransaction		 &p_txn,
-								   Name				  node,
-								   pChar			  p_url);
-		MHD_StatusCode forward_put(Name				  node,
-								   pChar			  p_url,
-								   pBlock			  p_block);
-		MHD_StatusCode forward_del(Name				  node,
-								   pChar			  p_url);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  pChar				 p_what);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  pChar				 p_what,
+									  pBlock			 p_row_filter);
+		virtual StatusCode get		 (pTransaction		&p_txn,
+									  pChar				 p_what,
+									  pChar				 name);
+		virtual StatusCode locate	 (Locator			&location,
+									  pChar				 p_what);
+		virtual StatusCode header	 (StaticBlockHeader &hea,
+									  pChar				 p_what);
+		virtual StatusCode header	 (pTransaction		&p_txn,
+									  pChar				 p_what);
+		virtual StatusCode put		 (pChar				 p_where,
+									  pBlock			 p_block,
+									  int				 mode = WRITE_AS_BASE_DEFAULT);
+		virtual StatusCode new_entity(pChar				 p_where);
+		virtual StatusCode remove	 (pChar				 p_where);
+		virtual StatusCode copy		 (pChar				 p_where,
+									  pChar				 p_what);
+
+		// The function call interface: exec()/modify().
+		virtual StatusCode modify    (Locator			&function,
+									  pTuple			 p_args);
+
+		MHD_StatusCode forward_get	 (pTransaction		&p_txn,
+									  Name				 node,
+									  pChar				 p_url);
+		MHD_StatusCode forward_put	 (Name				 node,
+									  pChar				 p_url,
+									  pBlock			 p_block,
+									  int				 mode = WRITE_AS_BASE_DEFAULT);
+		MHD_StatusCode forward_del	 (Name				 node,
+									  pChar				 p_url);
 
 		// Support for container names in the API .base_names()
 
@@ -265,8 +281,9 @@ class Channels : public Container {
 		MapIS jazz_node_ip   = {};
 		MapII jazz_node_port = {};
 
-		int jazz_node_my_index	   = -1;
-		int jazz_node_cluster_size =  0;
+		bool search_my_node_index	= false;
+		int  jazz_node_my_index		= -1;
+		int  jazz_node_cluster_size =  0;
 
 		std::string filesystem_root = {};
 
@@ -359,17 +376,13 @@ class Channels : public Container {
 			default:
 				return SERVICE_ERROR_IO_ERROR;
 			}
-			if (buff.size() > MAX_BLOCK_SIZE)
+			size_t buf_size = buff.size();
+			if (buf_size > MAX_BLOCK_SIZE)
 				return SERVICE_ERROR_BLOCK_TOO_BIG;
 
-			int size				 = (int) buff.size();
-			int dim[MAX_TENSOR_RANK] = {size, 0};
-			int ret					 = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
+			buff.push_back(0);
 
-			if (ret == SERVICE_NO_ERROR)
-				memcpy(&p_txn->p_block->tensor.cell_byte[0], buff.data(), size);
-
-			return ret;
+			return unwrap_received(p_txn, (pBlock) buff.data(), buf_size);
 		}
 
 
@@ -383,7 +396,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_put(void *url, pBlock p_blk, int mode = WRITE_TENSOR_DATA, Index *p_idx = nullptr) {
+		inline StatusCode curl_put(void *url, pBlock p_blk, int mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
@@ -393,22 +406,26 @@ class Channels : public Container {
 
 			PutBuffer put_buff;
 
-			switch (mode & (WRITE_TENSOR_DATA | WRITE_C_STR | WRITE_EVERYTHING)) {
-			case WRITE_TENSOR_DATA:
+			if ((mode & WRITE_AS_ANY_WRITE) == 0)
+				mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
+
+			if ((mode & WRITE_AS_STRING) && (	(p_blk->cell_type == CELL_TYPE_STRING && p_blk->size == 1)
+											 || (p_blk->cell_type == CELL_TYPE_BYTE	  && p_blk->rank == 1))) {
+				if (p_blk->cell_type == CELL_TYPE_STRING) {
+					put_buff.p_base  = (uint8_t *) p_blk->get_string(0);
+					put_buff.to_send = strlen((const char *) put_buff.p_base);
+				} else {
+					put_buff.p_base  = &p_blk->tensor.cell_byte[0];
+					put_buff.to_send = strnlen((const char *) put_buff.p_base, p_blk->size);
+				}
+			} else if ((mode & WRITE_AS_CONTENT) && ((p_blk->cell_type & 0xf0) == 0)) {
 				put_buff.to_send = p_blk->size*(p_blk->cell_type & 0xff);
 				put_buff.p_base  = &p_blk->tensor.cell_byte[0];
-				break;
-
-			case WRITE_C_STR: {
-				int size = p_blk->size*(p_blk->cell_type & 0xff);
-				put_buff.p_base   = &p_blk->tensor.cell_byte[0];
-				put_buff.to_send  = strnlen((const char *) put_buff.p_base, size); }
-				break;
-
-			default:
+			} else if ((mode & WRITE_AS_FULL_BLOCK) && (p_blk->cell_type != CELL_TYPE_INDEX)) {
 				put_buff.to_send = p_blk->total_bytes;
 				put_buff.p_base  = (uint8_t *) p_blk;
-			}
+			} else
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 			curl_easy_setopt(curl, CURLOPT_URL, url);
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
@@ -564,6 +581,7 @@ class Channels : public Container {
 #ifndef CATCH_TEST
 	private:
 #endif
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
 		inline bool compose_url(pChar p_dest, pChar p_node, pChar p_url, int buff_size) {
 			int nix;
@@ -577,9 +595,47 @@ class Channels : public Container {
 					break;
 				}
 			}
-			int ret = snprintf(p_dest, buff_size, "http://%s:%i%s", jazz_node_ip[nix].c_str(), jazz_node_port[nix], p_url);
+			int ret = snprintf(p_dest, buff_size, "http://%s:%i", jazz_node_ip[nix].c_str(), jazz_node_port[nix]);
 
-			return ret > 0 && ret < buff_size;
+			if (ret < 0 || ret >= buff_size)
+				return false;
+
+			p_dest	  += ret;
+			buff_size -= ret;
+
+			while (buff_size > 0) {
+				u_int8_t cursor = *(p_url++);
+				switch (cursor) {
+				case 0:
+					*p_dest = 0;
+					return true;
+				case '!' ... '$':
+				case '&' ... '/':
+				case '0' ... '9':
+				case ':':
+				case ';':
+				case '=':
+				case '?':
+				case '@':
+				case 'A' ... 'Z':
+				case '[':
+				case ']':
+				case '_':
+				case 'a' ... 'z':
+				case '~':
+					*(p_dest++) = cursor;
+					buff_size--;
+					break;
+				default:
+					if (buff_size < 4)
+						return false;
+					*(p_dest++) = '%';
+					*(p_dest++) = HEX[cursor >> 4];
+					*(p_dest++) = HEX[cursor & 0x0f];
+					buff_size -= 3;
+				}
+			}
+			return false;
 		}
 
 		int can_curl = false, curl_ok = false;

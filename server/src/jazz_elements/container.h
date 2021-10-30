@@ -82,8 +82,6 @@ namespace jazz_elements
 #define FILL_NEW_WITH_ZERO				  1		///< Initialize with binary zero.
 #define FILL_NEW_WITH_NA				  2		///< Initialize with the appropriate NA for the cell_type.
 #define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
-#define FILL_BOOLEAN_FILTER				  4		///< Create a boolean (CELL_TYPE_BYTE_BOOLEAN) filter with the values in p_bool_filter.
-#define FILL_INTEGER_FILTER				  5		///< Create an integer (CELL_TYPE_INTEGER) filter with the values in p_bool_filter.
 
 #define BUILD_TUPLE						  1		///< Build a Tuple out of data items or fail.
 #define BUILD_KIND						  2		///< Build a Kind out of metadata items or fail.
@@ -100,17 +98,21 @@ namespace jazz_elements
 #define LOCK_WEIGHT_OF_WRITE			46341
 
 // State based parser types:
-#define EIGHT_BIT_LONG					256		///< Length of a NextStateLUT.
-#define MAX_TRANSITION_REGEX_LEN		 32		///< Length of regex for state transitions. Used only in constants for LUT construction.
-#define PSTATE_INVALID_CHAR				255		///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
+#define EIGHT_BIT_LONG					 256	///< Length of a NextStateLUT.
+#define MAX_TRANSITION_REGEX_LEN		  32	///< Length of regex for state transitions. Used only in constants for LUT construction.
+#define PSTATE_INVALID_CHAR				 255	///< Parser state: The MOST GENERIC parsing error: char goes to invalid state.
 
-// Writing modes for put()
-#define WRITE_EVERYTHING				  0		///< The default mode with none of the other flags.
-#define WRITE_ONLY_IF_EXISTS			  1		///< A .put() call can override, but cannot create a new block.
-#define WRITE_ONLY_IF_NOT_EXISTS		  2		///< A .put() call cannot override, it can only create new blocks.
-#define WRITE_TENSOR_DATA				  4		///< Fails if not a Tensor, writes the raw data without metadata. For e.g., writing files.
-#define WRITE_C_STR						  8		///< Fails if not a Tensor of byte, writes until the first zero.
+// Writing modes for put(1): What to do is block exists:
+#define WRITE_ONLY_IF_EXISTS			0x01	///< A .put() call can override, but cannot create a new block.
+#define WRITE_ONLY_IF_NOT_EXISTS		0x02	///< A .put() call cannot override, it can only create new blocks.
+#define WRITE_ANY_RESTRICTION			0x03	///< WRITE_ONLY_IF_EXISTS | WRITE_ONLY_IF_NOT_EXISTS
 
+// Writing modes for put(2): What to write
+#define WRITE_AS_BASE_DEFAULT			0x00	///< The base decides: file WRITE_AS_CONTENT, http WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, ..
+#define WRITE_AS_STRING					0x04	///< Highest priority, string if CELL_TYPE_STRING or a C string inside CELL_TYPE_BYTE.
+#define WRITE_AS_CONTENT				0x08	///< Next priority, only for tensors of any type, just write the binary data.
+#define WRITE_AS_FULL_BLOCK				0x10	///< Lowest priority, write full block, can always be done.
+#define WRITE_AS_ANY_WRITE				0x1C	///< if mode & this is zero, use base default
 
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
@@ -208,7 +210,8 @@ Container provides a neat API for all descendants, including:
 
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - Allocation: .new_block(), .destroy_transaction()
-- Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
+- Crud: .get(), .locate(), .header(), .new_entity(), .put(), .remove(), .copy()
+- Code execution: .exec() and .modify()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
 
@@ -249,7 +252,7 @@ Serialization (to and from text) is done at the Api level, running code in jazz_
 new_block()
 -----------
 
-**NOTE** that new_block() has 7 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
+**NOTE** that new_block() has 8 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
 sharing a pointer to an existing one). Therefore, the container allocates and owns it an requires a destroy_transaction() call when no
 longer needed. The forms cover all the supported ways to do basic operations like filtering and serializing.
 
@@ -260,6 +263,7 @@ longer needed. The forms cover all the supported ways to do basic operations lik
    -# new_block(): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
    -# new_block(): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
    -# new_block(): Create an empty Index block. It is dynamically allocated, an std:map, and is destroy_transaction()-ed like the others.
+   -# new_block(): Create a Tuple of (key:STRING[length],value:STRING[length]) with the content of an Index.
 
 */
 class Container : public Service {
@@ -289,7 +293,6 @@ class Container : public Service {
 								int					cell_type,
 								int				   *dim,
 								int					fill_tensor		= FILL_NEW_DONT_FILL,
-								bool			   *p_bool_filter	= nullptr,
 								int					stringbuff_size	= 0,
 								const char		   *p_text			= nullptr,
 								char				eol				= '\n',
@@ -327,6 +330,7 @@ class Container : public Service {
 		StatusCode new_block   (pTransaction	   &p_txn,
 								pBlock				p_from_raw,
 								pChar				p_fmt			= nullptr,
+								bool				ret_as_string	= false,
 								AttributeMap	   *att				= nullptr);
 
 		// 7. new_block(): Create an empty Index block.
@@ -345,29 +349,34 @@ class Container : public Service {
 		// Crud: .get(), .header(), .put(), .new_entity(), .remove(), .copy()
 
 		// The "easy" interface: Uses strings instead of locators. Is translated to the native interface by an as_locator() call.
-		StatusCode get		   (pTransaction		&p_txn,
-								pChar				 p_what);
-		StatusCode get		   (pTransaction		&p_txn,
-								pChar				 p_what,
-								pBlock				 p_row_filter);
-		StatusCode get		   (pTransaction		&p_txn,
-								pChar				 p_what,
-								pChar				 name);
-		StatusCode locate	   (Locator				&location,
-								pChar				 p_what);
-		StatusCode header	   (StaticBlockHeader	&hea,
-								pChar				 p_what);
-		StatusCode header	   (pTransaction		&p_txn,
-								pChar				 p_what);
-		StatusCode put		   (pChar				 p_where,
-								pBlock				 p_block,
-								int					 mode = WRITE_EVERYTHING);
-		StatusCode new_entity  (pChar				 p_where);
-		StatusCode remove	   (pChar				 p_where);
-		StatusCode copy		   (pChar				 p_where,
-								pChar				 p_what);
-		StatusCode translate   (pTuple				 p_tuple,
-								pChar				 p_pipe);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what,
+										pBlock				p_row_filter);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what,
+										pChar				name);
+		virtual StatusCode locate	   (Locator			   &location,
+										pChar				p_what);
+		virtual StatusCode header	   (StaticBlockHeader  &hea,
+										pChar				p_what);
+		virtual StatusCode header	   (pTransaction	   &p_txn,
+										pChar				p_what);
+		virtual StatusCode put		   (pChar				p_where,
+										pBlock				p_block,
+										int					mode = WRITE_AS_BASE_DEFAULT);
+		virtual StatusCode new_entity  (pChar				p_where);
+		virtual StatusCode remove	   (pChar				p_where);
+		virtual StatusCode copy		   (pChar				p_where,
+										pChar				p_what);
+
+		// The function call interface: exec()/modify().
+		virtual StatusCode exec		   (pTransaction	   &p_txn,
+										Locator			   &function,
+										pTuple				p_args);
+		virtual StatusCode modify	   (Locator			   &function,
+										pTuple				p_args);
 
 		// The parser: This simple regex-based parser only needs override for Channels.
 		virtual StatusCode as_locator  (Locator			   &result,
@@ -390,11 +399,105 @@ class Container : public Service {
 										Locator			   &what);
 		virtual StatusCode put		   (Locator			   &where,
 										pBlock				p_block,
-										int					mode = WRITE_EVERYTHING);
+										int					mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode new_entity  (Locator			   &where);
 		virtual StatusCode remove	   (Locator			   &where);
 		virtual StatusCode copy		   (Locator			   &where,
 										Locator			   &what);
+
+		/** Convert a received "block" (just an array of data received) which is in an array of byte to its final form.
+
+			\param p_txn  An already allocated transaction with the data in an array of rank 1 of CELL_TYPE_BYTE
+			\return		  SERVICE_NO_ERROR except if alloc is necessary and fails, then SERVICE_ERROR_NO_MEM and destroys the p_txn.
+
+		Logic:	If the content is a valid (== hash64-checked) block -> The block is replaced by the block inside
+				else, if the content is a string (its length == the length of the block) -> The block is replaced by a CELL_TYPE_STRING
+					  else, -> it is left as it is.
+		*/
+		inline StatusCode unwrap_received(pTransaction &p_txn) {
+
+			pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
+			int	   size  = p_txn->p_block->size;
+
+			if (p_blk->total_bytes == size && p_blk->check_hash()) {
+				pBlock p_new = block_malloc(size);
+				if (p_new == nullptr) {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_NO_MEM;
+				}
+				memcpy(p_new, p_blk, size);
+
+				alloc_bytes -= p_txn->p_block->total_bytes;
+				free(p_txn->p_block);
+
+				p_txn->p_block = p_new;
+
+				return SERVICE_NO_ERROR;
+			}
+			if (strnlen((pChar) p_blk, size) != size)
+				return SERVICE_NO_ERROR;
+
+			pTransaction p_aux;
+
+			reinterpret_cast <pChar>(p_blk)[size] = 0;
+
+			if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_blk, 0) != SERVICE_NO_ERROR) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NO_MEM;
+			}
+			std::swap(p_txn->p_block, p_aux->p_block);
+
+			destroy_transaction(p_aux);
+
+			return SERVICE_NO_ERROR;
+		}
+
+		/** Convert a received "block" (just an array of data received) which is just a pointer and a size to its final form.
+
+			\param p_txn		 A transaction to store the result created in case SERVICE_NO_ERROR is returned.
+			\param p_maybe_block A pointer to the data received
+			\param rec_size		 The size of the data received.
+			\return		  		 SERVICE_NO_ERROR except if alloc is necessary and fails, then SERVICE_ERROR_NO_MEM.
+
+		Logic:	If the content is a valid (== hash64-checked) block -> Create a new transaction containing a copy of that block.
+				else, if the content is a string (its length == the length of the block) -> New transaction with a CELL_TYPE_STRING.
+					  else, -> New transaction with a CELL_TYPE_BYTE.
+		*/
+		inline StatusCode unwrap_received(pTransaction &p_txn, pBlock p_maybe_block, int rec_size) {
+
+			if (rec_size > sizeof(BlockHeader) && p_maybe_block->total_bytes == rec_size && p_maybe_block->check_hash()) {
+				int ret = new_transaction(p_txn);
+
+				if (ret != SERVICE_NO_ERROR)
+					return ret;
+
+				pBlock p_new = block_malloc(rec_size);
+				if (p_new == nullptr) {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_NO_MEM;
+				}
+				memcpy(p_new, p_maybe_block, rec_size);
+
+				p_txn->p_block = p_new;
+				p_txn->status  = BLOCK_STATUS_READY;
+
+				return SERVICE_NO_ERROR;
+			}
+			if (strnlen((pChar) p_maybe_block, rec_size) != rec_size) {
+				int dim[MAX_TENSOR_RANK] = {rec_size, 0};
+				int ret					 = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
+
+				if (ret == SERVICE_NO_ERROR)
+					memcpy(&p_txn->p_block->tensor.cell_byte[0], p_maybe_block, rec_size);
+
+				return ret;
+			}
+
+			return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_maybe_block, 0);
+		}
 
 		// Support for container names in the API .base_names()
 

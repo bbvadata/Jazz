@@ -104,8 +104,6 @@ SCENARIO("Testing Block Sizes, NAs and indexing logic") {
 				REQUIRE(sizeof(jb.created) == 8);
 				REQUIRE(sizeof(jb.hash64)  == 8);
 				REQUIRE((uintptr_t) &jb == (uintptr_t) &jb.cell_type);	// Assumed by init_string_buffer()
-				REQUIRE((uintptr_t) &jb.range.filter.one == (uintptr_t) &jb.range.dim[0]);
-				REQUIRE((uintptr_t) &jb.range.filter.length == (uintptr_t) &jb.range.dim[1]);
 			}
 		}
 	}
@@ -982,7 +980,7 @@ SCENARIO("Testing Filters") {
 		pjf->has_NA	= false;
 
 		REQUIRE(pjf->rank == 1);
-		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->range.dim[0] == 1);
 		REQUIRE(pjf->num_attributes == 1);
 		REQUIRE(!pjf->has_NA);
 		REQUIRE(pjf->cell_type == CELL_TYPE_BYTE_BOOLEAN);
@@ -991,26 +989,26 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(size == pjf->size);
 
-		REQUIRE(pjf->filter_type()	 == FILTER_TYPE_BOOLEAN);
-		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->cell_type == CELL_TYPE_BYTE_BOOLEAN);
+		REQUIRE(pjf->is_a_filter());
 		REQUIRE(pjf->can_filter(pjb));
 
 		u_char *pt = reinterpret_cast<u_char *>(&pjf->tensor);
 		pt[17] = 17;
 
-		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->is_a_filter());
 
 		pt[16] = 16;
 
-		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_NOTAFILTER);
+		REQUIRE(!pjf->is_a_filter());
 
 		pt[16] = 1;
 
-		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_BOOLEAN);
+		REQUIRE(pjf->is_a_filter());
 
 		pt[0] = 2;
 
-		REQUIRE(pjf->filter_audit()	 == FILTER_TYPE_NOTAFILTER);
+		REQUIRE(!pjf->is_a_filter());
 	}
 
 	GIVEN("A valid integer filter pjf for pjb") {
@@ -1020,16 +1018,16 @@ SCENARIO("Testing Filters") {
 
 		pjb->set_dimensions(dimblk);
 
-		int6 d2 = {17};
+		int6 d2 = {4};
 
 		pjf->cell_type = CELL_TYPE_INTEGER;
 
 		pjf->set_dimensions(d2);
-		REQUIRE(pjf->rank ==  1);
-		REQUIRE(pjf->size == 17);
+		REQUIRE(pjf->rank == 1);
+		REQUIRE(pjf->size == 4);
 
 		pjf->num_attributes = 0;
-		pjf->total_bytes = 64 + 17*4 + 12 + 24;
+		pjf->total_bytes = 64 + 4*4 + 12 + 24;
 
 		AttributeMap att;
 		att[666] = nullptr;
@@ -1040,89 +1038,45 @@ SCENARIO("Testing Filters") {
 
 		REQUIRE(!pjf->p_string_buffer()->stop_check_4_match);
 		REQUIRE(!pjf->p_string_buffer()->alloc_failed);
-		REQUIRE( pjf->p_string_buffer()->buffer_size == 12);
+		REQUIRE( pjf->p_string_buffer()->buffer_size == 16);
 
 		for (int i = 0; i < 4; i++)
 			pjf->tensor.cell_int[i] = 2*i;
 
-		pjf->range.filter.length = 4;
-
 		pjf->has_NA	= false;
 
 		REQUIRE(pjf->rank == 1);
-		REQUIRE(pjf->range.filter.one == 1);
+		REQUIRE(pjf->range.dim[0] == 1);
 		REQUIRE(pjf->num_attributes == 1);
 		REQUIRE(!pjf->has_NA);
 		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
 
-		int size = pjb->size/pjb->range.dim[0];
+		REQUIRE(pjf->size == 4);
 
-		REQUIRE(size == pjf->size);
-
-		REQUIRE(pjf->filter_type()	== FILTER_TYPE_INTEGER);
-		REQUIRE(pjf->filter_audit()	== FILTER_TYPE_INTEGER);
+		REQUIRE(pjf->cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(pjf->is_a_filter());
 		REQUIRE(pjf->can_filter(pjb));
 
-		pjf->range.filter.length = -1;
+		pjf->cell_type = CELL_TYPE_SINGLE;
+		REQUIRE(!pjf->is_a_filter());
+		REQUIRE(!pjf->can_filter(pjb));
 
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+		pjf->cell_type = CELL_TYPE_INTEGER;
+		REQUIRE(pjf->is_a_filter());
+		REQUIRE(pjf->can_filter(pjb));
 
-		pjf->range.filter.length = 18;
+		pjf->rank = 2;
+		pjf->range.dim[1] = 1;
+		REQUIRE(!pjf->is_a_filter());
+		REQUIRE(!pjf->can_filter(pjb));
 
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+		pjf->rank = 1;
+		pjf->range.dim[1] = 0;
+		REQUIRE(pjf->is_a_filter());
+		REQUIRE(pjf->can_filter(pjb));
 
-		pjf->range.filter.length = 0;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->range.filter.length = 17;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->range.filter.length = 5;
-		pjf->tensor.cell_int[4]	 = 6;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
-
-		pjf->tensor.cell_int[4] = 7;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->tensor.cell_int[4] = 17;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
-
-		pjf->range.filter.length = 0;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->range.filter.length = 17;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->range.filter.length = 5;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
-
-		pjf->range.filter.length = 1;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->tensor.cell_int[0] = -1;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
-
-		pjf->tensor.cell_int[0] = 0;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->tensor.cell_int[0] = 16;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_INTEGER);
-
-		pjf->tensor.cell_int[0] = 17;
-
-		REQUIRE(pjf->filter_audit() == FILTER_TYPE_NOTAFILTER);
+		pjf->tensor.cell_int[1] = 6;
+		REQUIRE(!pjf->is_a_filter());
 	}
 }
 

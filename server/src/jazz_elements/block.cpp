@@ -139,9 +139,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 
 	char *pt;
 
-	if (psb->stop_check_4_match) {
-		pt = &psb->buffer[psb->last_idx];
-	} else {
+	if (!psb->stop_check_4_match) {
 		pt = &psb->buffer[2];
 
 		int t = 0;
@@ -159,6 +157,7 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 		}
 		if (t >= MAX_CHECKS_4_MATCH) psb->stop_check_4_match = true;
 	}
+	pt = &psb->buffer[psb->last_idx];
 
 	if (psb->buffer_size >= (uintptr_t) pt - (uintptr_t) &psb->buffer[0] + len + 2) {
 		uintptr_t idx = pt - &psb->buffer[0];
@@ -181,40 +180,38 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 }
 
 
-/** Check (in depth) the validity of a filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
+/** Check (in depth) the validity of a filter, essentially that a filter of integer is sorted or boolean has no NA. When using a filter,
+can_filter() does not check that. It fails when filtering a block which checks the order anyway. This avoids checking the same thing twice.
+Checking (is_a_filter() && can_filter()) will check it twice and assure that it will not fail when selecting.
 
-	This checks both the values in the header and the validity of the data in .tensor[]
-
-	\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
+	\return true if the block can be used as a filter.
 */
-int Block::filter_audit() {
-	switch (filter_type()) {
+bool Block::is_a_filter() {
+	int lo;
 
-	case FILTER_TYPE_INTEGER: {
-		if (range.filter.length == 0 || range.filter.length == size)
-			return FILTER_TYPE_INTEGER;
+	switch (cell_type) {
+	case CELL_TYPE_INTEGER:
+		if (rank != 1)
+			return false;
 
-		if (range.filter.length < 0 || range.filter.length > size)
-			return FILTER_TYPE_NOTAFILTER;
+		lo = -1;
 
-		int lo = -1;
-
-		for (int i = 0; i < range.filter.length; i++) {
-			if (tensor.cell_int[i] <= lo || tensor.cell_int[i] >= size)
-				return FILTER_TYPE_NOTAFILTER;
+		for (int i = 0; i < size; i++) {
+			if (tensor.cell_int[i] <= lo)
+				return false;
 			lo = tensor.cell_int[i];
 		}
-		return FILTER_TYPE_INTEGER; }
+		return true;
 
-	case FILTER_TYPE_BOOLEAN: {
+	case CELL_TYPE_BYTE_BOOLEAN:
 		for (int i = 0; i < size; i++) {
 			if ((tensor.cell_byte[i] & 0xfe) != 0)
-				return FILTER_TYPE_NOTAFILTER;
+				return false;
 		}
-		return FILTER_TYPE_BOOLEAN; }
+		return true;
 	}
 
-	return FILTER_TYPE_NOTAFILTER;
+	return false;
 }
 
 } // namespace jazz_elements

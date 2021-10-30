@@ -267,9 +267,7 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container.
 	\param what			Some Locator to the block. E.g. //lmdb/entity/key
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -434,10 +432,12 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	pMDB_txn lm_tx;
 
-	if (mode != WRITE_EVERYTHING) {
-		if (mode & WRITE_TENSOR_DATA)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+	mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
 
+	if ((mode & WRITE_AS_FULL_BLOCK) == 0)
+		return SERVICE_ERROR_WRITE_FORBIDDEN;
+
+	if (mode & WRITE_ANY_RESTRICTION) {
 		pBlock p_blx = lock_pointer_to_block(where, lm_tx);
 
 		bool already_exists = p_blx != nullptr;
@@ -568,7 +568,8 @@ StatusCode Persisted::remove(Locator &where) {
 	l_key.mv_data = (void *) &where.key;
 
 	if (int lmdb_err = mdb_del(lm_tx, hh, &l_key, NULL)) {
-		log_lmdb_err(LOG_MISS, lmdb_err, "mdb_del() failed in Persisted::remove().");
+		if (lmdb_err != MDB_NOTFOUND)
+			log_lmdb_err(LOG_MISS, lmdb_err, "mdb_del() failed in Persisted::remove().");
 
 		mdb_txn_abort(lm_tx);
 
@@ -688,7 +689,8 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 	l_key.mv_data = (void *) &what.key;
 
 	if (int lmdb_err = mdb_get(lm_tx, hh, &l_key, &l_data)) {
-		log_lmdb_err(LOG_MISS, lmdb_err, "mdb_get() failed in Persisted::lock_pointer_to_block() with a code other than MDB_NOTFOUND.");
+		if (lmdb_err != MDB_NOTFOUND)
+			log_lmdb_err(LOG_MISS, lmdb_err, "mdb_get() failed in Persisted::lock_pointer_to_block() with a code other than MDB_NOTFOUND.");
 
 		goto release_txn_and_fail;
 	}

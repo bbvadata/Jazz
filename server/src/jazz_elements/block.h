@@ -92,11 +92,9 @@ The structure of a filter is strictly:
 
 Details:
 
-1. A filter has a length (.size) and can only filter in blocks where the number of rows (the first dimension) equals that length.
-2. A FILTER_TYPE_BOOLEAN is a vector of CELL_TYPE_BYTE_BOOLEAN specifying which rows are selected (cell == true).
-3. A FILTER_TYPE_INTEGER is a vector of ordered CELL_TYPE_INTEGER in 0..(size-1) whose length is stored in .range.filter.length.
-As expected, .range.filter.length == 0 means nothing is selected, .range.filter.length == .size means everything is selected regardless
-of .tensor[]
+1. A filter is a block of rank == 1 and type CELL_TYPE_BYTE_BOOLEAN or CELL_TYPE_INTEGER.
+2. A vector of CELL_TYPE_BYTE_BOOLEAN specifies which rows are selected (cell == true) and must have the size == number of rows.
+3. A vector of ordered CELL_TYPE_INTEGER in 0..(number of rows - 1) can be used to filter a tensor.
 */
 class Block: public StaticBlockHeader {
 
@@ -261,15 +259,20 @@ class Block: public StaticBlockHeader {
 
 		/** Set all attributes of a Block, only when creating it, using a map.
 
-			\param all_att A map containing all the attributes for the block.
+			\param all_att A map containing all the attributes for the block. A call with nullptr is required for initialization.
 
 			NOTE: This function is public because it has to be called by jazz_alloc.h methods. set_attributes() can
 			only be called once, so it will do nothing if called after a Block is built. Blocks are near-immutable
 			objects, if you need to change a Block's attributes create a new object using jazz_alloc.h methods.
 		*/
 		inline void set_attributes(AttributeMap *all_att) {
-			if (num_attributes) return;
+			if (num_attributes)
+				return;
 
+			if (all_att == nullptr) {
+				init_string_buffer();
+				return;
+			}
 			num_attributes = all_att->size();
 			init_string_buffer();
 
@@ -293,6 +296,8 @@ class Block: public StaticBlockHeader {
 			those in the Block by using a normal 'map[key] = value' instruction.
 		*/
 		inline void get_attributes(AttributeMap *all_att) {
+			if (!num_attributes)
+				return;
 			int *ptk = p_attribute_keys();
 			pStringBuffer psb = p_string_buffer();
 			for (int i = 0; i < num_attributes; i++)
@@ -353,38 +358,30 @@ class Block: public StaticBlockHeader {
 
 	// Methods for filtering (selecting).
 
-		/** Check (fast) the validity of a filter and return its type or FILTER_TYPE_NOTAFILTER if invalid
-
-			This checks the values in the header, but not the validity of the data in .tensor[]
-
-			\return FILTER_TYPE_BOOLEAN or FILTER_TYPE_INTEGER if it is a valid filter of that type, FILTER_TYPE_NOTAFILTER if not.
-		*/
-		inline int filter_type() {
-			if (rank != 1 || range.filter.one != 1 || num_attributes != 1 || has_NA)
-				return FILTER_TYPE_NOTAFILTER;
-
-			if (cell_type == CELL_TYPE_INTEGER)
-				return FILTER_TYPE_INTEGER;
-
-			if (cell_type == CELL_TYPE_BYTE_BOOLEAN)
-				return FILTER_TYPE_BOOLEAN;
-
-			return FILTER_TYPE_NOTAFILTER;
-		}
-
-		int filter_audit();
+		bool is_a_filter();
 
 		/** Check (fast) if a filter is valid and can be applied to filter inside a specific Block
 
-			This is verifies (size == number of rows) and calls filter_type() to check its requirements too.
+			This is verifies sizes and types, asssuming there are no NAs and integer values are sorted.
 
 			\return true if it is a valid filter of that type.
 		*/
 		inline bool can_filter(pBlock p_block) {
-			if (p_block->rank < 1 || p_block->range.dim[0] <= 0 || size != p_block->size/p_block->range.dim[0])
+			int rows = p_block->range.dim[0];
+
+			if (p_block->rank < 1 || rows <= 0 || rank != 1)
 				return false;
 
-			return filter_type() != FILTER_TYPE_NOTAFILTER;
+			rows = p_block->size/rows;
+
+			switch (cell_type) {
+			case CELL_TYPE_BYTE_BOOLEAN:
+				return size == rows;
+
+			case CELL_TYPE_INTEGER:
+				return size <= rows && (size == 0 || (tensor.cell_int[0] >= 0 && tensor.cell_int[size - 1] < rows));
+			}
+			return false;
 		}
 
 		/** Set has_NA, the creation time and the hash64 of a JazzBlock based on the content of the tensor
@@ -394,7 +391,7 @@ class Block: public StaticBlockHeader {
 			\param set_hash		Compute MurmurHash64A and set attribute **hash64** accordinly.
 			\param set_time		Set attribute **created** as the current time.
 		*/
-		inline void close_block(int set_has_NA = SET_HAS_NA_AUTO,
+		inline void close_block(int set_has_NA = SET_HAS_NA_FALSE,
 								bool set_hash = true,
 								bool set_time = true) {
 			switch (set_has_NA) {
@@ -431,7 +428,8 @@ class Block: public StaticBlockHeader {
 		}
 
 		inline bool check_hash() {
-			return hash64 == MurmurHash64A(&tensor, total_bytes - sizeof(BlockHeader));
+			int siz = total_bytes - sizeof(BlockHeader);
+			return siz > 0 && hash64 == MurmurHash64A(&tensor, siz);
 		}
 };
 

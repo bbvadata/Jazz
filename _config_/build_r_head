@@ -1,6 +1,0 @@
-#!/bin/bash
-
-rm -rf rjazz.Rcheck
-
-R CMD REMOVE rjazz
-R CMD build rjazz

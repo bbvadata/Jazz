@@ -25,7 +25,7 @@ make clean
 cd "$docker_pwd" || return 1
 
 cp ../server/config/jazz_config.ini .
+cp -r ../server/config/www www
 
 docker build -t jazz_ref_stable .
-
 docker login

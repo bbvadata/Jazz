@@ -52,6 +52,15 @@ clean  :
 	@rm -f src/lmdb/*.a src/lmdb/*.o src/lmdb/*.lo src/lmdb/*.so
 	@find src/lmdb/ -executable -type f | xargs rm -f
 
+.PHONY     : clean-data
+clean-data :
+	@echo "Cleaning up log, cookies, reports, lmdb data ..."
+	@rm -f jazz_dbg.log
+	@rm -f cookiejar
+	@rm -rf static_analysis_reports/
+	@rm -rf dynamic_analysis_reports/
+	@rm -rf jazz_dbg_mdb/
+
 .PHONY : info
 info   :
 	@echo "Current Jazz version   : $(VERSION)"

@@ -56,7 +56,7 @@ namespace jazz_elements
 
 /** \brief Tuple: A Jazz Block with multiple Tensors.
 
-Can be simplified as "An instance of a **Kind**" allthough that is not exactly what it is. It is an array of Tensors and it can match
+Can be simplified as "An instance of a **Kind**" although that is not exactly what it is. It is an array of Tensors and it can match
 one or more Kinds if its .is_a(<kind>) method returns true.
 
 Physically, like a Kind, it is a single block with some differences:
@@ -103,7 +103,7 @@ class Tuple : public Block {
 			\param blocks	 An array of pointers to the blocks to be included in the Tuple.
 			\param p_names   An array of Name by which the items will go.
 			\param num_bytes The size in bytes allocated. Should be enough for all names, data, ItemHeaders and attributes.
-			\param attr		 The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
+			\param att		 The attributes for the Tuple. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
 
 			\return			 0, SERVICE_ERROR_NO_MEM, SERVICE_ERROR_WRONG_TYPE, SERVICE_ERROR_WRONG_NAME, SERVICE_ERROR_WRONG_ARGUMENTS
 		*/
@@ -111,12 +111,15 @@ class Tuple : public Block {
 									pBlock		  blocks[],
 									Name		  p_names[],
 									int			  num_bytes,
-									AttributeMap &attr) {
+									AttributeMap *att = nullptr) {
 
 			if (num_items < 1 || num_items >= MAX_ITEMS_IN_KIND)
 				return false;
 
-			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + (num_items + attr.size())*2;
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + 2*num_items;
+
+			if (att != nullptr)
+				rq_sz += 2*att->size();
 
 			if (num_bytes < rq_sz)
 				return SERVICE_ERROR_NO_MEM;
@@ -129,7 +132,7 @@ class Tuple : public Block {
 			size		 = num_items;
 			total_bytes	 = num_bytes;
 
-			set_attributes(&attr);
+			set_attributes(att);
 
 			pStringBuffer psb = p_string_buffer();
 

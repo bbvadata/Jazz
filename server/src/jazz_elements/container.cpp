@@ -526,13 +526,9 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 							of dim = {r, s, t} the resulting block is {0, s, t} with size == 0 and rank == 3.
 							If dim == nullptr and p_text != nullptr, dim will be set to the number of lines (see eol) in p_text when
 							cell_type == CELL_TYPE_STRING.
-	\param fill_tensor		How to fill the tensor. When creating anything that is not a filter, p_bool_filter is ignored and the options
-							are: FILL_NEW_DONT_FILL (don't do anything with the tensor), FILL_NEW_WITH_ZERO (fill with binary zero
-							no matter what the cell_type is), FILL_NEW_WITH_NA fill with the appropriate NA for the cell_type)
-							When creating a filter, p_bool_filter must be a vector of length == size and the filter will be created as
-							boolean (when fill_tensor == CELL_TYPE_BOOLEAN) or integer (when fill_tensor == CELL_TYPE_INTEGER)
-	\param p_bool_filter	The vector of boolean (each true value means the corresponding row is selected) used when fill_tensor ==
-							CELL_TYPE_BOOLEAN and fill_tensor == CELL_TYPE_INTEGER
+	\param fill_tensor		How to fill the tensor. The options are: FILL_NEW_DONT_FILL (don't do anything with the tensor),
+							FILL_NEW_WITH_ZERO (fill with binary zero no matter what the cell_type is), FILL_NEW_WITH_NA fill with the
+							appropriate NA for the cell_type).
 	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
 							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
 							only allocate the space and do nothing with it. The caller should assign strings with Block.set_string().
@@ -559,7 +555,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								int			  cell_type,
 								int			 *dim,
 								int			  fill_tensor,
-								bool		 *p_bool_filter,
 								int			  stringbuff_size,
 								const char	 *p_text,
 								char		  eol,
@@ -631,10 +626,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	if (att != nullptr && att->size() == 0)
 		att = nullptr;
 
-	if (att	== nullptr) {
-		hea.total_bytes += 2*sizeof(int);
-		hea.num_attributes++;
-	} else {
+	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = it->second == nullptr ? 0 : strlen(it->second);
 
@@ -656,25 +648,31 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_NO_MEM;
 	}
 
+#ifdef DEBUG		// Initialize everything for Valgrind.
+	memset(p_txn->p_block, 0, hea.total_bytes);
+#endif
+
 	memcpy(p_txn->p_block, &hea, sizeof(BlockHeader));
 
 	p_txn->p_block->num_attributes = 0;
-
-	if (att	== nullptr) {
-		AttributeMap void_att;
-		void_att [BLOCK_ATTRIB_EMPTY] = nullptr;
-		p_txn->p_block->set_attributes(&void_att);
-	} else {
-		p_txn->p_block->set_attributes(att);
-	}
+	p_txn->p_block->set_attributes(att);
 
 #ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
 	{
 		char *pt1 = (char *) &p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size,
 			 *pt2 = (char *) p_txn->p_block->align64bit((uintptr_t) pt1);
 
-		while (pt1 < pt2) {
+		while (pt1 < pt2)
 			*(pt1++) = 0;
+
+		if (cell_type == CELL_TYPE_STRING && fill_tensor == FILL_NEW_DONT_FILL) {
+			pStringBuffer psb = p_txn->p_block->p_string_buffer();
+
+			pt1 = &psb->buffer[psb->last_idx];
+			pt2 = (char *) ((uintptr_t) p_txn->p_block + p_txn->p_block->total_bytes);
+
+			while (pt1 < pt2)
+				*(pt1++) = 0;
 		}
 	}
 #endif
@@ -782,38 +780,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			}
 			break;
 
-		case FILL_BOOLEAN_FILTER:
-			p_txn->p_block->has_NA = false;
-			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_BOOLEAN) {
-				destroy_transaction(p_txn);
-
-				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
-			}
-			memcpy(&p_txn->p_block->tensor, p_bool_filter, p_txn->p_block->size);
-			break;
-
-		case FILL_INTEGER_FILTER: {
-			p_txn->p_block->has_NA = false;
-			if (p_bool_filter == nullptr || p_txn->p_block->filter_type() != FILTER_TYPE_INTEGER) {
-				destroy_transaction(p_txn);
-
-				return SERVICE_ERROR_NEW_BLOCK_ARGS;		// No silent fail, cell_type and rank must match
-			}
-			int j = 0;
-			for (int i = 0; i < p_txn->p_block->size; i++) {
-				if (p_bool_filter[i]) {
-					p_txn->p_block->tensor.cell_int[j] = i;
-					j++;
-				}
-			}
-			p_txn->p_block->range.filter.length = j;
-
-#ifdef DEBUG												// Initialize the RAM on top of the filter for Valgrind.
-			for (int i = p_txn->p_block->range.filter.length; i < p_txn->p_block->size; i++)
-				p_txn->p_block->tensor.cell_int[i] = 0;
-#endif
-			break; }
-
 		default:
 			destroy_transaction(p_txn);
 
@@ -886,10 +852,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	if (att != nullptr && att->size() == 0)
 		att = nullptr;
 
-	if (att	== nullptr) {
-		hea.total_bytes += 2*sizeof(int);
-		hea.num_attributes++;
-	} else {
+	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
 			int len = it->second == nullptr ? 0 : strlen(it->second);
 
@@ -926,42 +889,24 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		return SERVICE_ERROR_NO_MEM;
 	}
 
-	if (p_block == nullptr) {
-		if (att	== nullptr) {
-			AttributeMap void_att = {};
-			if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, void_att)) {
-				destroy_transaction(p_txn);
+#ifdef DEBUG		// Initialize everything for Valgrind.
+	memset(p_txn->p_block, 0, hea.total_bytes);
+#endif
 
-				return SERVICE_ERROR_BAD_NEW_KIND;
-			}
-		} else if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, *att)) {
+	if (p_block == nullptr) {
+		if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att)) {
 			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_BAD_NEW_KIND;
 		}
 
-		if (dims == nullptr) {
-			AttributeMap void_dim = {};
+		for (int i = 0; i < num_items; i++) {
+			pChar p_name = (pChar) &p_names[i];
 
-			for (int i = 0; i < num_items; i++) {
-				pChar p_name = (pChar) &p_names[i];
+			if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, dims)) {
+				destroy_transaction(p_txn);
 
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, void_dim)) {
-					destroy_transaction(p_txn);
-
-					return SERVICE_ERROR_BAD_KIND_ADD;
-				}
-			}
-
-		} else {
-			for (int i = 0; i < num_items; i++) {
-				pChar p_name = (pChar) &p_names[i];
-
-				if (!reinterpret_cast<pKind>(p_txn->p_block)->add_item(i, p_name, p_hea[i].range.dim, p_hea[i].cell_type, *dims)) {
-					destroy_transaction(p_txn);
-
-					return SERVICE_ERROR_BAD_KIND_ADD;
-				}
+				return SERVICE_ERROR_BAD_KIND_ADD;
 			}
 		}
 		p_txn->p_block->hash64 = 0;
@@ -970,20 +915,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		return SERVICE_NO_ERROR;
 	}
 
-	if (att	== nullptr) {
-		AttributeMap void_att = {};
-		ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, void_att);
-
-		if (ret == SERVICE_NO_ERROR) {
-			p_txn->p_block->hash64 = 0;
-			p_txn->status = BLOCK_STATUS_READY;
-		} else
-			destroy_transaction(p_txn);
-
-		return ret;
-	}
-
-	ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, *att);
+	ret = reinterpret_cast<pTuple>(p_txn->p_block)->new_tuple(num_items, p_block, p_names, hea.total_bytes, att);
 
 	if (ret == SERVICE_NO_ERROR) {
 		p_txn->p_block->hash64 = 0;
@@ -1003,9 +935,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	\param p_from		The block we want to filter from. The resulting block will be a subset of the rows (selection on the first
 						dimension of the tensor). This can be either a tensor or a Tuple. In the case of a Tuple, all the tensors must
 						have the same first dimension.
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
 						use the version of new_jazz_block() with parameter p_from.
 
@@ -1029,27 +959,27 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	int tensor_diff		= 0,
 		old_tensor_size = p_from->size*(p_from->cell_type & 0xff),
+		tensor_rows,
 		bytes_per_row,
 		selected_rows;
 
 	if (p_row_filter != nullptr) {
-		int	tensor_rows = p_from->size/p_from->range.dim[0];
-
-		if (!p_row_filter->can_filter(p_from)){
+		if (!p_row_filter->can_filter(p_from)) {
 			destroy_transaction(p_txn);
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
-
 		if (p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
 			selected_rows = 0;
 			for (int i = 0; i < p_row_filter->size; i++)
 				if (p_row_filter->tensor.cell_bool[i])
 					selected_rows++;
 		} else {
-			selected_rows = p_row_filter->range.filter.length;
+			selected_rows = p_row_filter->size;
 		}
 		if (p_from->size) {
+			tensor_rows = p_from->size/p_from->range.dim[0];
+
 			bytes_per_row		= old_tensor_size/tensor_rows;
 			int new_tensor_size = selected_rows*bytes_per_row;
 
@@ -1057,6 +987,12 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			new_tensor_size = (uintptr_t) p_from->align64bit(new_tensor_size);
 
 			tensor_diff = new_tensor_size - old_tensor_size;
+
+			if (tensor_diff == 0 && !p_row_filter->is_a_filter()) {		// For consitency, check indices
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_NEW_BLOCK_ARGS;
+			}
 		}
 	}
 
@@ -1106,6 +1042,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_NO_MEM;
 	}
 
+#ifdef DEBUG		// Initialize everything for Valgrind.
+	memset(p_txn->p_block, 0, total_bytes);
+#endif
+
 	memcpy(p_txn->p_block, p_from, sizeof(BlockHeader));
 
 	p_txn->p_block->total_bytes = total_bytes;
@@ -1125,9 +1065,17 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				p_src = p_src + bytes_per_row;
 			}
 		} else {
-			for (int i = 0; i < p_row_filter->range.filter.length; i++) {
-				memcpy(p_dest, p_src + p_row_filter->tensor.cell_int[i]*bytes_per_row, bytes_per_row);
+			int j2 = -1;
+			for (int i = 0; i < p_row_filter->size; i++) {
+				int j = p_row_filter->tensor.cell_int[i];
+				if (j <= j2 || j >= tensor_rows) {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_NEW_BLOCK_ARGS;
+				}
+				memcpy(p_dest, p_src + j*bytes_per_row, bytes_per_row);
 				p_dest = p_dest + bytes_per_row;
+				j2 = j;
 			}
 		}
 	} else {
@@ -1148,6 +1096,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			memcpy(&p_nsb->buffer, &p_osb->buffer, p_osb->buffer_size);
 
 			p_nsb->last_idx = p_osb->last_idx;
+			p_nsb->stop_check_4_match = p_osb->stop_check_4_match;
 
 			int i = 0;
 			int *ptk = p_txn->p_block->p_attribute_keys();
@@ -1215,7 +1164,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 }
 
 
-/** Create a new Block (5): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1.
+/** Create a new Block (5): Create a Tensor, Kind or Tuple from a Text block kept as a Tensor of CELL_TYPE_BYTE of rank == 1 or a
+							Tensor of CELL_TYPE_STRING of size == 1
 
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
@@ -1238,11 +1188,36 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								pKind		  p_as_kind,
 								AttributeMap *att) {
 
+	pChar p_source;
+	int	  source_l;
+	switch (p_from_text->cell_type) {
+	case CELL_TYPE_BYTE:
+		if (p_from_text->rank != 1)
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+
+		p_source = (pChar) &p_from_text->tensor.cell_byte[0];
+		source_l = p_from_text->size;
+
+		break;
+
+	case CELL_TYPE_STRING:
+		if (p_from_text->size != 1)
+			return SERVICE_ERROR_NEW_BLOCK_ARGS;
+
+		p_source = p_from_text->get_string(0);
+		source_l = strlen(p_source);
+
+		break;
+
+	default:
+		return SERVICE_ERROR_NEW_BLOCK_ARGS;
+	}
+
 	ItemHeader item_hea[MAX_ITEMS_IN_KIND];
 	Name item_name[MAX_ITEMS_IN_KIND];
-	int num_bytes = p_from_text->size;
+	int num_bytes = source_l;
 	int num_items;
-	pChar p_in = (pChar) &p_from_text->tensor.cell_byte[0];
+	pChar p_in = p_source;
 
 	p_txn = nullptr;
 
@@ -1357,8 +1332,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 
-	num_bytes = p_from_text->size;
-	p_in	  = (pChar) &p_from_text->tensor.cell_byte[0];
+	num_bytes = source_l;
+	p_in	  = p_source;
 
 	skip_space(p_in, num_bytes);
 
@@ -1446,20 +1421,23 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			memcpy(&hea[i].range, &item_hea[i].dim, sizeof(TensorDim));
 		}
 
-		AttributeMap dims = {};
+		if (idx_dims.size() != 0) {
+			AttributeMap dims = {};
 
-		MapSI::iterator it;
+			MapSI::iterator it;
 
-		for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
-			dims[it->second] = it->first.c_str();
+			for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
+				dims[it->second] = it->first.c_str();
 
-		return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
+			return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
+		} else
+			return new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
 	}
 
-	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, '\n', att);
+	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, 0, nullptr, '\n', att);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -1476,20 +1454,22 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 /** Create a new Block (6): Create a Tensor of CELL_TYPE_BYTE of rank == 1 with a text serialization of a Tensor, Kind or Tuple.
 
-	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
-						it when done.
-	\param p_from_raw	The block to be serialized
-	\param p_fmt		An optional numerical precision format specifier. In the case of Tuples, if this is used all items with numerical
-						tensors will use it. (This may imply converting integer to double depending on the specifier.)
-	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+	\param p_txn		 A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						 Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
+						 it when done.
+	\param p_from_raw	 The block to be serialized
+	\param p_fmt		 An optional numerical precision format specifier. In the case of Tuples, if this is used all items with numerical
+						 tensors will use it. (This may imply converting integer to double depending on the specifier.)
+	\param ret_as_string Return the serialization as a tensor of just one string rather than a vector of byte.
+	\param att			 The attributes to set when creating the block. They are immutable. To change the attributes of a Block
+						 use the version of new_jazz_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
 StatusCode Container::new_block(pTransaction &p_txn,
 								pBlock		  p_from_raw,
 						   		pChar		  p_fmt,
+								bool		  ret_as_string,
 								AttributeMap *att) {
 
 	int item_len[MAX_ITEMS_IN_KIND];
@@ -1575,7 +1555,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	dim[5] = 0;
 #endif
 
-	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, nullptr, 0, nullptr, 0, att);
+	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, 0, nullptr, 0, att);
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -1620,6 +1600,19 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	default:
 		tensor_kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
 
+	}
+
+	if (ret_as_string) {
+		pTransaction p_aux;
+
+		if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) &p_txn->p_block->tensor, 0) != SERVICE_NO_ERROR) {
+			destroy_transaction(p_txn);
+
+			return SERVICE_ERROR_NO_MEM;
+		}
+		std::swap(p_txn->p_block, p_aux->p_block);
+
+		destroy_transaction(p_aux);
 	}
 
 	return SERVICE_NO_ERROR;
@@ -1703,10 +1696,10 @@ StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
 
 	int ret;
 
-	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, nullptr, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
+	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
 		return ret;
 
-	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, nullptr, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
+	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
 		destroy_transaction(p_key);
 
 		return ret;
@@ -1765,9 +1758,7 @@ StatusCode Container::get(pTransaction &p_txn, pChar p_what) {
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container.
 	\param p_what		Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -1966,19 +1957,38 @@ StatusCode Container::copy(pChar p_where, pChar p_what) {
 }
 
 
-/** "Easy" interface for **Tuple translate**: In jazz_elements, this is only implemented in Channels.
+/** The function call interface for **exec**: Execute an opcode in a formal field.
 
-	\param p_tuple	A Tuple with two items, "input" with the data passed to the service and "result" with the data returned. the
-					result will be overridden in-place without any allocation.
-	\param p_pipe	Some **service** does some computation on "input" and returns "result".
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	A Tuple passed as argument to the call that is not modified. This may be a pure function in Bebop or have context
+					in Agency.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
+be destroy_transaction()-ed when the caller is done.
+*/
+StatusCode Container::exec(pTransaction &p_txn, Locator &function, pTuple p_args) {
+
+	return SERVICE_ERROR_NOT_APPLICABLE;
+}
+
+
+/** The function call interface for **modify**: In jazz_elements, this is only implemented in Channels.
+
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
+					The result will be overridden in-place without any allocation.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
-This is what most frameworks would call predict(), something that takes any tensor as an input and returns another tensor. In channels,
-it just gives support to some other service doing that connected via zeroMQ or bash. Outside jazz_elements, the services use this
-to run their own models.
+modify() is similar to exec(), but, rather than creating a new block with the result, it modifies the Tuple p_args.
 */
-StatusCode Container::translate(pTuple p_tuple, pChar p_pipe) {
+StatusCode Container::modify(Locator &function, pTuple p_args) {
 
 	return SERVICE_ERROR_NOT_APPLICABLE;
 }
@@ -2268,7 +2278,7 @@ StatusCode Container::destroy_container() {
 	\param p_in			The input char stream cursor.
 	\param num_bytes	The number of bytes with data above *p_in
 	\param item_hea		The structure that receives the resulting cell_type, rank and shape.
-	\param dims			An optional AttributeMap to retrieve the dimension names.
+	\param dims			A MapSI to retrieve the dimension names.
 
 	\return	True on success will return a valid item_hea (otherwise ite_hea is undefined).
 */
@@ -3240,7 +3250,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 				ret = PARSE_ERROR_TEXT_FILLING;
 
 			else {
-				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, nullptr, bf_size, p_txt, '\n', att);
+				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, 0, p_txt, '\n', att);
 
 				if (ret == SERVICE_NO_ERROR) {
 					for (int i = 0; i < num_cells; i++) {

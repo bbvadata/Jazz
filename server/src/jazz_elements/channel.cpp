@@ -121,9 +121,14 @@ StatusCode Channels::start() {
 
 		return EXIT_FAILURE;
 	}
+	search_my_node_index = my_name == "";	// Note that /// starts a remark resulting in the value being empty.
+	if (search_my_node_index)
+		my_name = "localhost";
 
 	jazz_node_cluster_size =  0;
 	jazz_node_my_index	   = -1;
+	int min_port = 999999;
+	int max_port = 0;
 
 	std::string s;
 	char key[40];
@@ -158,6 +163,8 @@ StatusCode Channels::start() {
 
 			return EXIT_FAILURE;
 		}
+		min_port = std::min(port, min_port);
+		max_port = std::max(port, max_port);
 
 		jazz_node_port[i] = port;
 
@@ -166,6 +173,12 @@ StatusCode Channels::start() {
 
 	if (jazz_node_my_index < 0) {
 		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME in JAZZ_NODE_NAME_*");
+
+		return EXIT_FAILURE;
+	}
+
+	if (search_my_node_index && min_port != max_port) {
+		log(LOG_ERROR, "Channels::start() failed. Automatic JAZZ_NODE_MY_NAME detection requires all ports being identical.");
 
 		return EXIT_FAILURE;
 	}
@@ -272,9 +285,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		if (S_ISDIR(p_stat.st_mode)) {
-			ret = new_block(p_txn, CELL_TYPE_INDEX);
-			if (ret != SERVICE_NO_ERROR)
-				return ret;
+			Index idx = {};
 
 			DIR *dir;
 			if ((dir = opendir(p_what)) == nullptr)
@@ -286,16 +297,16 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 														// readdir() (3) is thread safe.
 				switch (ent->d_type) {
 				case DT_REG:
-					p_txn->p_hea->index[ent->d_name] = "file";
+					idx[ent->d_name] = "file";
 					break;
 				case DT_DIR:
 					if (ent->d_name[0] != '.')
-						p_txn->p_hea->index[ent->d_name] = "folder";
+						idx[ent->d_name] = "folder";
 				}
 			}
 	  		closedir(dir);
 
-			return SERVICE_NO_ERROR;
+			return new_block(p_txn, idx);
 		}
 
 		if (S_ISREG(p_stat.st_mode)) {
@@ -345,14 +356,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			if (it == connect.end())
 				return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-			int ret = new_block(p_txn, CELL_TYPE_INDEX);
-			if (ret != SERVICE_NO_ERROR)
-				return ret;
-
-			for (Index::iterator itx = it->second.begin(); itx != it->second.end(); ++itx)
-				p_txn->p_hea->index[itx->first] = itx->second;
-
-			return SERVICE_NO_ERROR;
+			return new_block(p_txn, it->second);
 		}
 		pChar pt = strchr(p_what, '/');
 		if (pt == nullptr)
@@ -392,7 +396,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 		if (it == pipes.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, it->second.endpoint);
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, it->second.endpoint);
 	}
 
 	return SERVICE_ERROR_WRONG_BASE;
@@ -473,6 +477,9 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (file_lev < 2)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
+		if ((mode & WRITE_AS_ANY_WRITE) == 0)
+			mode = WRITE_AS_CONTENT;
+
 		p_where += 4;
 		if (*p_where++ != '/')
 			return SERVICE_ERROR_WRONG_BASE;
@@ -480,7 +487,7 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (((mode & (WRITE_ONLY_IF_EXISTS | WRITE_ONLY_IF_NOT_EXISTS)) != 0) || (file_lev == 2)) {
 		    struct stat p_stat;
 			bool exists = stat(p_where, &p_stat) == 0;
-			if ((exists && (mode == WRITE_ONLY_IF_NOT_EXISTS)) || (!exists && (mode == WRITE_ONLY_IF_EXISTS)))
+			if ((exists && (mode & WRITE_ONLY_IF_NOT_EXISTS)) || (!exists && (mode & WRITE_ONLY_IF_EXISTS)))
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 			if (exists && (file_lev == 2))
 				return SERVICE_ERROR_BASE_FORBIDDEN;
@@ -489,18 +496,23 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		void *p_buff;
 		int size;
 
-		if ((mode & WRITE_TENSOR_DATA) != 0) {
-			int cell_size = p_block->cell_type & 0xff;
-
-			if (cell_size < 1 || cell_size > 8)
-				return SERVICE_ERROR_WRITE_FORBIDDEN;
-
-			p_buff = &p_block->tensor;
-			size   = p_block->size*cell_size;
-		} else {
-			p_buff = p_block;
+		if ((mode & WRITE_AS_STRING) && (	(p_block->cell_type == CELL_TYPE_STRING && p_block->size == 1)
+										 || (p_block->cell_type == CELL_TYPE_BYTE	&& p_block->rank == 1))) {
+			if (p_block->cell_type == CELL_TYPE_STRING) {
+				p_buff = p_block->get_string(0);
+				size   = strlen((const char *) p_buff);
+			} else {
+				p_buff = &p_block->tensor.cell_byte[0];
+				size   = strnlen((const char *) p_buff, p_block->size);
+			}
+		} else if ((mode & WRITE_AS_CONTENT) && ((p_block->cell_type & 0xf0) == 0)) {
+			size   = p_block->size*(p_block->cell_type & 0xff);
+			p_buff = &p_block->tensor.cell_byte[0];
+		} else if ((mode & WRITE_AS_FULL_BLOCK) && (p_block->cell_type != CELL_TYPE_INDEX)) {
 			size   = p_block->total_bytes;
-		}
+			p_buff = (uint8_t *) p_block;
+		} else
+			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		FILE *fp;
 		fp = fopen(p_where, "wb");
@@ -519,6 +531,9 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (!curl_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
+		if ((mode & WRITE_AS_ANY_WRITE) == 0)
+			mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
+
 		p_where += 4;
 		if (*p_where++ != '/')
 			return SERVICE_ERROR_WRONG_BASE;
@@ -533,10 +548,26 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 			if (it != connect.end())
 				return SERVICE_ERROR_WRITE_FORBIDDEN;
 
-			if (p_block->cell_type != CELL_TYPE_INDEX || pBlockHeader(p_block)->index.find("URL") == pBlockHeader(p_block)->index.end())
+			int n_rows;
+			pTuple p_tup;
+			pBlock p_key, p_val;
+
+			if (	p_block->cell_type != CELL_TYPE_TUPLE_ITEM || p_block->size != 2
+				|| (p_tup = (pTuple) p_block)->index((pChar) "key") != 0 || p_tup->index((pChar) "value") != 1
+				|| (p_key = p_tup->get_block(0))->cell_type != CELL_TYPE_STRING || p_key->rank != 1
+				|| (p_val = p_tup->get_block(1))->cell_type != CELL_TYPE_STRING || p_val->rank != 1
+				|| (n_rows = p_key->size) != p_val->size)
 				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-			Index idx(pBlockHeader(p_block)->index);
+			Index idx = {};
+
+			for (int i = 0; i < n_rows; i++) {
+				idx[p_key->get_string(i)] = p_val->get_string(i);
+			}
+
+			if (idx.find("URL") == idx.end())
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+
 			connect[p_where] = idx;
 
 			return SERVICE_NO_ERROR;
@@ -565,6 +596,9 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
+
+		if ((mode & WRITE_AS_ANY_WRITE) == 0)
+			mode = WRITE_AS_FULL_BLOCK;
 
 		p_where += 4;
 		if (*p_where++ != '/')
@@ -774,11 +808,13 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 
 	switch (TenBitsAtAddress(p_what + 2)) {
 	case BASE_FILE_10BIT:
+		mode = WRITE_AS_CONTENT;
+		break;
 	case BASE_HTTP_10BIT:
-		mode = WRITE_TENSOR_DATA;
+		mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
 		break;
 	default:
-		mode = WRITE_EVERYTHING;
+		mode = WRITE_AS_FULL_BLOCK;
 	}
 
 	ret = put(p_where, p_txn->p_block, mode);
@@ -789,11 +825,12 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 }
 
 
-/** "Easy" interface for **Tuple translate**
+/** The function call interface for **modify**: In jazz_elements, this is only implemented in Channels.
 
-	\param p_tuple	A Tuple with two items, "input" with the data passed to the service and "result" with the data returned. the
-					result will be overridden in-place without any allocation.
-	\param p_pipe	Some **service** does some computation on "input" and returns "result".
+	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
+					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
+					The result will be overridden in-place without any allocation.
 
 	\return	SERVICE_NO_ERROR on success or some negative value (error).
 
@@ -801,29 +838,28 @@ This is what most frameworks would call predict(), something that takes any tens
 it just gives support to some other service doing that connected via zeroMQ or bash. Outside jazz_elements, the services use this
 to run their own models.
 */
-StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
+StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
-	if (   p_tuple->cell_type != CELL_TYPE_TUPLE_ITEM || p_tuple->size != 2
-		|| p_tuple->index((pChar) "input") != 0 || p_tuple->index((pChar) "result") != 1
-		|| (*p_pipe++ != '/') || (*p_pipe++ != '/') || (*p_pipe == 0))
+	if (   p_args->cell_type != CELL_TYPE_TUPLE_ITEM || p_args->size != 2
+		|| p_args->index((pChar) "input") != 0 || p_args->index((pChar) "result") != 1)
 		return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-	int base = TenBitsAtAddress(p_pipe);
+	int base = TenBitsAtAddress(function.base);
 
 	switch (base) {
 	case BASE_BASH_10BIT: {
 		if (!can_bash)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-		if (   p_tuple->get_block(0)->cell_type != CELL_TYPE_BYTE || p_tuple->get_block(0)->rank != 1
-			|| p_tuple->get_block(1)->cell_type != CELL_TYPE_BYTE || p_tuple->get_block(1)->rank != 1)
+		if (   p_args->get_block(0)->cell_type != CELL_TYPE_BYTE || p_args->get_block(0)->rank != 1
+			|| p_args->get_block(1)->cell_type != CELL_TYPE_BYTE || p_args->get_block(1)->rank != 1)
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-		int size_input  = p_tuple->get_block(0)->size;
-		int size_result = p_tuple->get_block(1)->size;
+		int size_input  = p_args->get_block(0)->size;
+		int size_result = p_args->get_block(1)->size;
 
-		pChar p_input  = (pChar) &p_tuple->get_block(0)->tensor.cell_byte[0];
-		pChar p_result = (pChar) &p_tuple->get_block(1)->tensor.cell_byte[0];
+		pChar p_input  = (pChar) &p_args->get_block(0)->tensor.cell_byte[0];
+		pChar p_result = (pChar) &p_args->get_block(1)->tensor.cell_byte[0];
 
 		char script[] = "/tmp/jzz-srcXXXXXX";
 		int fd = mkstemp(script);
@@ -876,11 +912,7 @@ StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-		p_pipe += 4;
-		if (*p_pipe++ != '/')
-			return SERVICE_ERROR_WRONG_BASE;
-
-		switch (p_tuple->get_block(0)->cell_type) {
+		switch (p_args->get_block(0)->cell_type) {
 		case CELL_TYPE_BYTE:
 		case CELL_TYPE_BYTE_BOOLEAN:
 		case CELL_TYPE_INTEGER:
@@ -895,7 +927,7 @@ StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 		}
-		switch (p_tuple->get_block(1)->cell_type) {
+		switch (p_args->get_block(1)->cell_type) {
 		case CELL_TYPE_BYTE:
 		case CELL_TYPE_BYTE_BOOLEAN:
 		case CELL_TYPE_INTEGER:
@@ -910,16 +942,16 @@ StatusCode Channels::translate(pTuple p_tuple, pChar p_pipe) {
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 		}
-		PipeMap::iterator it = pipes.find(p_pipe);
+		PipeMap::iterator it = pipes.find(function.entity);
 
 		if (it == pipes.end())
 			return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
-		int size_input  = p_tuple->get_block(0)->size;
-		int size_result = p_tuple->get_block(1)->size;
+		int size_input  = p_args->get_block(0)->size;
+		int size_result = p_args->get_block(1)->size;
 
-		pChar p_input  = (pChar) &p_tuple->get_block(0)->tensor.cell_byte[0];
-		pChar p_result = (pChar) &p_tuple->get_block(1)->tensor.cell_byte[0];
+		pChar p_input  = (pChar) &p_args->get_block(0)->tensor.cell_byte[0];
+		pChar p_result = (pChar) &p_args->get_block(1)->tensor.cell_byte[0];
 
 		memset(p_result, 0, size_result);
 
@@ -968,35 +1000,7 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
 		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
-	int ret = curl_get(p_txn, buffer);
-
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
-
-	pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
-	int size = p_txn->p_block->size;
-
-	if (p_blk->total_bytes != size || !p_blk->check_hash()) {
-		destroy_transaction(p_txn);
-
-		return SERVICE_ERROR_CORRUPTED;
-	}
-
-	pBlock p_new = block_malloc(size);
-	if (p_new == nullptr) {
-		destroy_transaction(p_txn);
-
-		return SERVICE_ERROR_NO_MEM;
-	}
-
-	memcpy(p_new, p_blk, size);
-
-	alloc_bytes -= p_txn->p_block->total_bytes;
-	free(p_txn->p_block);
-
-	p_txn->p_block = p_new;
-
-	return SERVICE_NO_ERROR;
+	return curl_get(p_txn, buffer);
 }
 
 
@@ -1005,10 +1009,11 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 	\param node		The name of the endpoint node. It must be found in the cluster config.
 	\param p_url	The unparsed url (server excluded) the remote Jazz server can serve.
 	\param p_block	A block to be put (owned by the caller).
+	\param mode		WRITE_TENSOR_DATA, WRITE_C_STR or WRITE_EVERYTHING (see curl_put).
 
 	\return			MHD_HTTP_CREATED on success, or some valid http status error code.
 */
-MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
+MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block, int mode) {
 
 	char buffer[1024];
 
@@ -1021,7 +1026,7 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block) {
 	if (p_block->hash64 == 0)
 		p_block->close_block();
 
-	return curl_put(buffer, p_block, WRITE_EVERYTHING);
+	return curl_put(buffer, p_block, mode);
 }
 
 

@@ -128,7 +128,7 @@ class Persisted : public Container {
 									  Locator			&what);
 		virtual StatusCode put		 (Locator			&where,
 									  pBlock			 p_block,
-									  int				 mode = WRITE_EVERYTHING);
+									  int				 mode = WRITE_AS_FULL_BLOCK);
 		virtual StatusCode new_entity(Locator			&where);
 		virtual StatusCode remove	 (Locator			&where);
 		virtual StatusCode copy		 (Locator			&where,

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-cd /home/jadmin || return 1
+cd /home/jazz || return 1
 
 ./jazz start
 
-tail -f /tmp/jazz.log
+tail -f ./jazz_dbg.log

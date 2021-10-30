@@ -1,3 +1,0 @@
-import(stats)
-import(RCurl)
-exportPattern("^[a-z]+")

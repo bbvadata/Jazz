@@ -298,7 +298,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 	}
 
 	if (p_str != nullptr)
-		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0);
+		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0);
 
 	return new_block(p_txn, index_ent[pop_ent]->p_hea->index);
 }
@@ -309,9 +309,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container.
 	\param what			Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
-	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean of the same length as the tensor in
-						p_from (or all of them if it is a Tuple) (p_row_filter->filter_type() == FILTER_TYPE_BOOLEAN) or a vector of
-						integers (p_row_filter->filter_type() == FILTER_TYPE_INTEGER) in that range.
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -331,11 +329,14 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter
 		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
-	AttributeMap att = {};
+	if (p_int_txn->p_block->num_attributes) {
+		AttributeMap att = {};
 
-	p_int_txn->p_block->get_attributes(&att);
+		p_int_txn->p_block->get_attributes(&att);
 
-	ret = new_block(p_txn, p_int_txn->p_block, p_row_filter, &att);
+		ret = new_block(p_txn, p_int_txn->p_block, p_row_filter, &att);
+	} else
+		ret = new_block(p_txn, p_int_txn->p_block, p_row_filter);
 
 	if (pop_ent != 0)
 		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
@@ -369,11 +370,15 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what, pChar name) {
 		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
-	AttributeMap att = {};
+	if (p_int_txn->p_block->num_attributes) {
+		AttributeMap att = {};
 
-	p_int_txn->p_block->get_attributes(&att);
+		p_int_txn->p_block->get_attributes(&att);
 
-	ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name, &att);
+		ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name, &att);
+	} else
+		ret = new_block(p_txn, (pTuple) p_int_txn->p_block, name);
+
 
 	if (pop_ent != 0)
 		destroy_item(TenBitsAtAddress(what.base), pop_ent, (pVolatileTransaction) p_int_txn);
@@ -530,7 +535,8 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 
 	switch (base = TenBitsAtAddress(where.base)) {
 	case BASE_DEQUE_10BIT:
-		if (mode & WRITE_TENSOR_DATA)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = deque_ent.find(ek.ent_hash);
@@ -541,7 +547,8 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 		break;
 
 	case BASE_INDEX_10BIT:
-		if ((mode & WRITE_TENSOR_DATA) == 0)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_STRING : mode;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_STRING)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = index_ent.find(ek.ent_hash);
@@ -552,13 +559,15 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 		break;
 
 	case BASE_QUEUE_10BIT:
-		if (mode & WRITE_TENSOR_DATA)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		break;
 
 	case BASE_TREE_10BIT:
-		if (mode & WRITE_TENSOR_DATA)
+		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
+		if (mode != WRITE_AS_FULL_BLOCK)
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = tree_ent.find(ek.ent_hash);
@@ -898,10 +907,10 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 	}
 
 	if (p_str != nullptr) {
-		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
+		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
 			return ret;
 
-		ret = put(where, p_txn->p_block, WRITE_TENSOR_DATA);
+		ret = put(where, p_txn->p_block);
 
 		destroy_transaction(p_txn);
 

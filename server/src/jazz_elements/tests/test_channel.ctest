@@ -92,6 +92,196 @@ SCENARIO("Basics tests") {
 }
 
 
+SCENARIO("Testing compose_url()") {
+
+	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(CHN.max_transactions > 0);
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.warn_alloc_bytes > 0);
+	REQUIRE(CHN.fail_alloc_bytes > 0);
+	REQUIRE(CHN.alloc_warning_issued == false);
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN.p_free	 == CHN.p_buffer);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next == &pStoredTransaction(CHN.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(CHN.p_free)->p_next->p_next == &pStoredTransaction(CHN.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 2].p_next
+			== &pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(CHN.p_buffer)[CHN.max_transactions - 1].p_next == nullptr);
+	REQUIRE(CHN._lock_ == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context	!= nullptr);
+
+	GIVEN("We have configured running Channels object.") {
+		CHN.jazz_node_name[1] = "One";
+		CHN.jazz_node_ip  [1] = "192.168.0.1";
+		CHN.jazz_node_port[1] = 8001;
+
+		CHN.jazz_node_name[2] = "Two";
+		CHN.jazz_node_ip  [2] = "192.168.0.2";
+		CHN.jazz_node_port[2] = 8002;
+
+		CHN.jazz_node_name[3] = "Three";
+		CHN.jazz_node_ip  [3] = "192.168.0.3";
+		CHN.jazz_node_port[3] = 8003;
+
+		char buff1[4096], buff2[4096], buff3[4096];
+
+		WHEN("We try some buffer limit calls") {
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 0));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 1));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 10));
+
+			//123456789012345678901234
+			//http://192.168.0.1:8001/
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 24));
+			REQUIRE( CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 25));
+
+			//123456789012345678901234567890123456
+			//http://192.168.0.2:8002/h234/6789.ht
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "Two", (pChar) "/h234/6789.ht", 36));
+			REQUIRE( CHN.compose_url(buff2, (pChar) "Two", (pChar) "/h234/6789.ht", 37));
+
+			//http://192.168.0.3:8003/h234/6789.ht%20
+			//123456789012345678901234567890123456789
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 37));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 38));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 39));
+			REQUIRE( CHN.compose_url(buff3, (pChar) "Three", (pChar) "/h234/6789.ht ", 40));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002/h234/6789.ht") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003/h234/6789.ht%20") == 0);
+			}
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 25));
+			REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/") == 0);
+			REQUIRE(buff1[24] == 0);
+			buff1[25] = 'w';
+			buff1[26] = '?';
+			buff1[27] = '^';
+			REQUIRE(CHN.compose_url(buff1, (pChar) "Two", (pChar) "/", 25));
+			REQUIRE(strcmp(buff1, "http://192.168.0.2:8002/") == 0);
+			REQUIRE(buff1[24] == 0);
+			REQUIRE(buff1[25] == 'w');
+			REQUIRE(buff1[26] == '?');
+			REQUIRE(buff1[27] == '^');
+
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) "/", 32));
+			REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/") == 0);
+			REQUIRE(buff1[24] == 0);
+			buff1[25] = 'r';
+			buff1[26] = 's';
+			buff1[27] = 't';
+			REQUIRE(CHN.compose_url(buff1, (pChar) "Two", (pChar) "/", 32));
+			REQUIRE(strcmp(buff1, "http://192.168.0.2:8002/") == 0);
+			REQUIRE(buff1[24] == 0);
+			REQUIRE(buff1[25] == 'r');
+			REQUIRE(buff1[26] == 's');
+			REQUIRE(buff1[27] == 't');
+		}
+
+		WHEN("We try identification calls") {
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "one", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "ONE", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff1, (pChar) "q@x", (pChar) "/index.html", 1024));
+			REQUIRE( CHN.compose_url(buff1, (pChar) "One", (pChar) "/index.html", 1024));
+
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "two", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "TWO", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff2, (pChar) "t22", (pChar) "/index.html", 1024));
+			REQUIRE( CHN.compose_url(buff2, (pChar) "Two", (pChar) "/index.html", 1024));
+
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "three", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "THREE", (pChar) "/index.html", 1024));
+			REQUIRE(!CHN.compose_url(buff3, (pChar) "q@x2z", (pChar) "/index.html", 1024));
+			REQUIRE( CHN.compose_url(buff3, (pChar) "Three", (pChar) "/index.html", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001/index.html") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002/index.html") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003/index.html") == 0);
+			}
+		}
+
+		WHEN("We try char encoding calls") {
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One",
+					(pChar) "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~!#$&'()*+,/:;=?@[]", 1024));
+
+			REQUIRE(CHN.compose_url(buff2, (pChar) "Two", (pChar) "\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f", 1024));
+			REQUIRE(CHN.compose_url(buff3, (pChar) "Three", (pChar) "\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1,
+					"http://192.168.0.1:8001ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~!#$&'()*+,/:;=?@[]") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002%01%02%03%04%05%06%07%08%09%0A%0B%0C%0D%0E%0F") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003%11%12%13%14%15%16%17%18%19%1A%1B%1C%1D%1E%1F") == 0);
+			}
+
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) " !\"#$%&'()*+,-./0123456789:;<=>?", 1024));
+			REQUIRE(CHN.compose_url(buff2, (pChar) "Two", (pChar) "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_", 1024));
+			REQUIRE(CHN.compose_url(buff3, (pChar) "Three", (pChar)"'abcdefghijklmnopqrstuvwxyz{|}~\x7f", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001%20!\"#$%25&'()*+,-./0123456789:;%3C=%3E?") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002@ABCDEFGHIJKLMNOPQRSTUVWXYZ[%5C]%5E_") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003'abcdefghijklmnopqrstuvwxyz%7B%7C%7D~%7F") == 0);
+			}
+
+			REQUIRE(CHN.compose_url(buff1, (pChar) "One", (pChar) "\x81\xa2\xe3\x94\xf5\xe6\x97\xb8\xc9\xda\x8b\x9c\xed\x9e\x8f", 1024));
+			REQUIRE(CHN.compose_url(buff2, (pChar) "Two", (pChar) "\x81\x92\xa3\xb4\xc5\xd6\xe7\xf8\x89\x9a\xab\xbc\xcd\xde\xef", 1024));
+			REQUIRE(CHN.compose_url(buff3, (pChar) "Three", (pChar) "\x91\xa2\xb3\xc4\xd5\xe6\xf7\x88\x99\xaa\xbb\xcc\xdd\xee\xff", 1024));
+
+			THEN("The results are as expected") {
+				REQUIRE(strcmp(buff1, "http://192.168.0.1:8001%81%A2%E3%94%F5%E6%97%B8%C9%DA%8B%9C%ED%9E%8F") == 0);
+				REQUIRE(strcmp(buff2, "http://192.168.0.2:8002%81%92%A3%B4%C5%D6%E7%F8%89%9A%AB%BC%CD%DE%EF") == 0);
+				REQUIRE(strcmp(buff3, "http://192.168.0.3:8003%91%A2%B3%C4%D5%E6%F7%88%99%AA%BB%CC%DD%EE%FF") == 0);
+			}
+		}
+	}
+
+	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(CHN.p_buffer != nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.can_curl == 1);
+	REQUIRE(CHN.can_zmq  == 1);
+	REQUIRE(CHN.can_bash == 1);
+	REQUIRE(CHN.file_lev == 3);
+
+	REQUIRE(CHN.curl_ok == 1);
+	REQUIRE(CHN.zmq_ok	== 1);
+
+	REQUIRE(CHN.pipes.size()   == 0);
+	REQUIRE(CHN.connect.size() == 0);
+
+	REQUIRE(CHN.zmq_context != nullptr);
+
+	REQUIRE(CHN.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(CHN.alloc_bytes == 0);
+	REQUIRE(CHN.p_buffer == nullptr);
+	REQUIRE(CHN.p_free	 == nullptr);
+	REQUIRE(CHN._lock_	 == 0);
+
+	REQUIRE(CHN.curl_ok == 0);
+	REQUIRE(CHN.zmq_ok	== 0);
+
+	REQUIRE(CHN.zmq_context == nullptr);
+}
+
+
 SCENARIO("Testing bash end-to-end") {
 
 	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
@@ -224,13 +414,15 @@ SCENARIO("Testing bash end-to-end") {
 			REQUIRE(CHN.copy((pChar) "//bash/where", (pChar) "/bash/what") == SERVICE_ERROR_WRONG_ARGUMENTS);
 		}
 
-		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
+		WHEN("We test modify") {
+			Locator fun = {"bash", "exec", "", 0};
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_int->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
 
 			CHN.can_bash = 0;
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.can_bash = 1;
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//bash/exec") == SERVICE_NO_ERROR);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -326,7 +518,7 @@ SCENARIO("Testing file end-to-end") {
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
 		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
-		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(CHN.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
@@ -361,9 +553,10 @@ SCENARIO("Testing file end-to-end") {
 			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
 		}
 
+		dim[0] = 2;
 		dim[1] = 0;
 		REQUIRE(CHN.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
-		p_tx_fil->p_block->range.filter.length = 2;
+		dim[0] = 20;
 		p_tx_fil->p_block->tensor.cell_int[0]  = 0;
 		p_tx_fil->p_block->tensor.cell_int[1]  = 2;
 
@@ -385,10 +578,13 @@ SCENARIO("Testing file end-to-end") {
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
 		pTransaction p_txn;
-		pBlock p_blk;
 
 		CHN.remove((pChar) "//file//tmp/jzz_ftest");
 		CHN.new_entity((pChar) "//file//tmp/jzz_ftest");
+
+		int n_rows;
+		pTuple p_tup;
+		pBlock p_key, p_val, p_blk;
 
 		WHEN("We test new_entity()/remove()") {
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
@@ -414,10 +610,32 @@ SCENARIO("Testing file end-to-end") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder/blk4") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
-				REQUIRE(p_txn->p_hea->index["blk"] == "file");
-				REQUIRE(p_txn->p_hea->index["ff"] == "folder");
-				REQUIRE(p_txn->p_hea->index.size() == 2);
+				REQUIRE(p_txn != nullptr);
+
+				p_blk = p_txn->p_block;
+
+				REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_blk->size == 2);
+				REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+				REQUIRE(p_tup->index((pChar) "value") == 1);
+				REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_key->rank == 1);
+				REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_val->rank == 1);
+				REQUIRE((n_rows = p_key->size) == p_val->size);
+
+				REQUIRE(n_rows == 2);
+
+				if (strcmp(p_key->get_string(0), "blk") == 0) {
+					REQUIRE(strcmp(p_val->get_string(0), "file") == 0);
+					REQUIRE(strcmp(p_key->get_string(1), "ff") == 0);
+					REQUIRE(strcmp(p_val->get_string(1), "folder") == 0);
+				} else {
+					REQUIRE(strcmp(p_key->get_string(0), "ff") == 0);
+					REQUIRE(strcmp(p_val->get_string(0), "folder") == 0);
+					REQUIRE(strcmp(p_key->get_string(1), "blk") == 0);
+					REQUIRE(strcmp(p_val->get_string(1), "file") == 0);
+				}
 				CHN.destroy_transaction(p_txn);
 			}
 
@@ -427,54 +645,69 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/folder") == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest") == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
+			REQUIRE(p_txn != nullptr);
+
+			p_blk = p_txn->p_block;
+
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->size == 2);
+			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+			REQUIRE(p_tup->index((pChar) "value") == 1);
+			REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_key->rank == 1);
+			REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_val->rank == 1);
+			REQUIRE((n_rows = p_key->size) == p_val->size);
+
 			CHN.destroy_transaction(p_txn);
 		}
 		WHEN("We test put()/get()/remove() of keys") {
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 
-			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop_t", p_tx_pop->p_block, WRITE_TENSOR_DATA)
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop_t", p_tx_pop->p_block, WRITE_AS_CONTENT)
 					== SERVICE_ERROR_WRITE_FORBIDDEN);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str_t", p_tx_str->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr_t", p_tx_chr->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea_t", p_tx_rea->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str_t", p_tx_str->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr_t", p_tx_chr->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea_t", p_tx_rea->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
 
 			CHN.file_lev = 1;
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.file_lev = 2;
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.file_lev = 3;
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//files//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//files//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_WRONG_BASE);
 
 			p_tx_pop->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_str->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str", p_tx_str->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_chr->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr", p_tx_chr->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/chr", p_tx_chr->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_int->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_rea->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_tim->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim", p_tx_tim->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim", p_tx_tim->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 			p_tx_fil->p_block->close_block();
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS) == SERVICE_NO_ERROR);
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_AS_FULL_BLOCK | WRITE_ONLY_IF_NOT_EXISTS)
+					== SERVICE_NO_ERROR);
 
-			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_ONLY_IF_NOT_EXISTS)
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil", p_tx_fil->p_block, WRITE_AS_CONTENT | WRITE_ONLY_IF_NOT_EXISTS)
 					== SERVICE_ERROR_WRITE_FORBIDDEN);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS) == SERVICE_NO_ERROR);
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea", p_tx_rea->p_block, WRITE_AS_FULL_BLOCK | WRITE_ONLY_IF_EXISTS)
+					== SERVICE_NO_ERROR);
 
-			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea2", p_tx_rea->p_block, WRITE_ONLY_IF_EXISTS)
+			REQUIRE(   CHN.put((pChar) "//file//tmp/jzz_ftest/fff/rea2", p_tx_rea->p_block, WRITE_AS_CONTENT | WRITE_ONLY_IF_EXISTS)
 					== SERVICE_ERROR_WRITE_FORBIDDEN);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/fil_t", p_tx_fil->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop_t") == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -574,8 +807,8 @@ SCENARIO("Testing file end-to-end") {
 
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_EVERYTHING) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop", p_tx_pop->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int", p_tx_int->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
 			CHN.destroy_transaction(p_txn);
@@ -606,10 +839,10 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 			REQUIRE(CHN.new_entity((pChar) "//file//tmp/jzz_ftest/ggg") == SERVICE_NO_ERROR);
 
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop",   p_tx_pop->p_block, WRITE_EVERYTHING)  == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str",   p_tx_str->p_block, WRITE_EVERYTHING)  == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_TENSOR_DATA) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/pop",   p_tx_pop->p_block, WRITE_AS_FULL_BLOCK)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/str",   p_tx_str->p_block, WRITE_AS_FULL_BLOCK)  == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/int_t", p_tx_int->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//file//tmp/jzz_ftest/fff/tim_t", p_tx_tim->p_block, WRITE_AS_CONTENT) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
 				REQUIRE(CHN.get(p_txn, (pChar) "//file//tmp/jzz_ftest/fff/pop") == SERVICE_NO_ERROR);
@@ -672,9 +905,11 @@ SCENARIO("Testing file end-to-end") {
 			REQUIRE(CHN.remove((pChar) "//file//tmp/jzz_ftest/fff") == SERVICE_NO_ERROR);
 		}
 
-		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_pop->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//file/anything") == SERVICE_ERROR_WRONG_BASE);
+		WHEN("We test modify") {
+			Locator fun = {"file", "anything", "", 0};
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_pop->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
 		}
 
 		CHN.destroy_transaction(p_tx_pop);
@@ -825,12 +1060,12 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
-		REQUIRE(   CHN.new_block(p_tx_pi1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "tcp://localhost:5555")
+		REQUIRE(   CHN.new_block(p_tx_pi1, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "tcp://localhost:5555")
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_tx_pi1->p_block->size == 1);
 
-		REQUIRE(   CHN.new_block(p_tx_pi2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "tcp://localhost:5566")
+		REQUIRE(   CHN.new_block(p_tx_pi2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "tcp://localhost:5566")
 				== SERVICE_NO_ERROR);
 
 		REQUIRE(p_tx_pi2->p_block->size == 1);
@@ -927,13 +1162,15 @@ SCENARIO("Testing 0-mq end-to-end") {
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/aaa") == SERVICE_ERROR_ENTITY_NOT_FOUND);
 		}
 
-		WHEN("We test translate") {
+		WHEN("We test modify") {
+			Locator fun = {"0-mq", "exec", "", 0};
+
 			REQUIRE(CHN.pipes.size() == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_int->p_block, (pChar) "//0-mq/exec") == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_int->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
 
 			CHN.zmq_ok = 0;
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/exec") == SERVICE_ERROR_BASE_FORBIDDEN);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_BASE_FORBIDDEN);
 			CHN.zmq_ok = 1;
 
 			REQUIRE(CHN.put((pChar) "//0-mq/pipeline/alpha", p_tx_pi1->p_block) == SERVICE_NO_ERROR);
@@ -941,7 +1178,9 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.pipes.size() == 2);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/alpha") == SERVICE_NO_ERROR);
+			strcpy(fun.entity, "alpha");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -954,7 +1193,9 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(strcmp(p_res, res_alpha) == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/a2m") == SERVICE_NO_ERROR);
+			strcpy(fun.entity, "a2m");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
@@ -967,8 +1208,14 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(strcmp(p_res, res_a2m) == 0);
 
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mqq/exec") == SERVICE_ERROR_WRONG_BASE);
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//0-mq/what") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+			strcpy(fun.base, "yy");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
+
+			strcpy(fun.base, "0-mq");
+			strcpy(fun.entity, "what");
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_ENTITY_NOT_FOUND);
 
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/alpha") == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove((pChar) "//0-mq/pipeline/a2m") == SERVICE_NO_ERROR);
@@ -1047,9 +1294,9 @@ SCENARIO("Testing http end-to-end") {
 	REQUIRE(CHN.zmq_context	!= nullptr);
 
 	GIVEN("We have some blocks and indices") {
-		pTransaction p_tx_idx, p_tx_ixx, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
+		pTransaction p_tx_ix1, p_tx_ix2, p_tx_tp1, p_tx_tp2, p_tx_str, p_tx_rea, p_tx_tim, p_tx_xlt, p_tx_buf;
 
-		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, nullptr, 0, (pChar) "Line\ntwo\nthree") == 0);
+		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
@@ -1089,24 +1336,57 @@ SCENARIO("Testing http end-to-end") {
 
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
-		REQUIRE(CHN.new_block(p_tx_idx, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(CHN.new_block(p_tx_ix1, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 
-		p_tx_idx->p_hea->index["URL"] = "http://127.0.0.1:5000/test/capital/";
+		p_tx_ix1->p_hea->index["URL"] = "http://127.0.0.1:5000/test/capital/";
 
-		REQUIRE(CHN.new_block(p_tx_ixx, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+		REQUIRE(CHN.new_block(p_tx_tp1, p_tx_ix1->p_hea->index) == SERVICE_NO_ERROR);
 
-		p_tx_ixx->p_hea->index["URL"] = "http://127.0.0.1:5000/test/str.blk";
-		p_tx_ixx->p_hea->index["CURLOPT_USERNAME"]   = "whoami";
-		p_tx_ixx->p_hea->index["CURLOPT_USERPWD"]    = "XXX";
-		p_tx_ixx->p_hea->index["CURLOPT_COOKIEFILE"] = "./cookiefile";
-		p_tx_ixx->p_hea->index["CURLOPT_COOKIEJAR"]  = "./cookiejar";
+		REQUIRE(p_tx_tp1 != nullptr);
+
+		int n_rows;
+		pTuple p_tup;
+		pBlock p_key, p_val, p_blk = p_tx_tp1->p_block;
+
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->size == 2);
+		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+		REQUIRE(p_tup->index((pChar) "value") == 1);
+		REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_key->rank == 1);
+		REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_val->rank == 1);
+		REQUIRE((n_rows = p_key->size) == p_val->size);
+
+		REQUIRE(CHN.new_block(p_tx_ix2, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
+
+		p_tx_ix2->p_hea->index["URL"] = "http://127.0.0.1:5000/test/str.blk";
+		p_tx_ix2->p_hea->index["CURLOPT_USERNAME"]   = "whoami";
+		p_tx_ix2->p_hea->index["CURLOPT_USERPWD"]    = "XXX";
+		p_tx_ix2->p_hea->index["CURLOPT_COOKIEFILE"] = "./cookiefile";
+		p_tx_ix2->p_hea->index["CURLOPT_COOKIEJAR"]  = "./cookiejar";
+
+		REQUIRE(CHN.new_block(p_tx_tp2, p_tx_ix2->p_hea->index) == SERVICE_NO_ERROR);
+
+		REQUIRE(p_tx_tp2 != nullptr);
+
+		p_blk = p_tx_tp1->p_block;
+
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->size == 2);
+		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+		REQUIRE(p_tup->index((pChar) "value") == 1);
+		REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_key->rank == 1);
+		REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_val->rank == 1);
+		REQUIRE((n_rows = p_key->size) == p_val->size);
 
 		dim[0] = 256;
 		dim[1] = 0;
 		REQUIRE(CHN.new_block(p_tx_buf, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
 
 		pTransaction p_txn;
-		pChar p_ret;
 
 		char url[256], url2[256];
 
@@ -1121,20 +1401,20 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Spain");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Madrid\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Madrid\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Berlin");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Berlin\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Berlin\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
@@ -1142,21 +1422,21 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/madAGASCAR");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Antananarivo\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Antananarivo\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Rome");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Italy");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Rome\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Rome\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/italy");
@@ -1167,37 +1447,48 @@ SCENARIO("Testing http end-to-end") {
 		WHEN("We test put()/get()/remove() on a connection") {
 			REQUIRE(CHN.connect.size() == 0);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_idx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_tp1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 1);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_idx->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
-			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_idx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/capitals", p_tx_tp1->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_tp1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 2);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_ixx->p_block) == SERVICE_NO_ERROR);
-			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_ixx->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
+			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_tp2->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/binblk", p_tx_tp2->p_block) == SERVICE_ERROR_WRITE_FORBIDDEN);
 			REQUIRE(CHN.put((pChar) "//http/connection/quick", p_tx_rea->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
-			REQUIRE(CHN.put((pChar) "//https/connection/binblk", p_tx_ixx->p_block) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(CHN.put((pChar) "//https/connection/binblk", p_tx_tp2->p_block) == SERVICE_ERROR_WRONG_BASE);
 
 			REQUIRE(CHN.connect.size() == 3);
 
 			strcpy(url, "//http/binblk");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			pBlock p_bl = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(p_txn->p_block->size == p_bl->total_bytes);
-			REQUIRE(p_bl->check_hash());
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->check_hash());
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.put(url, p_tx_str->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove(url) == SERVICE_ERROR_WRITE_FORBIDDEN);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/binblk") == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
-			REQUIRE(p_txn->p_hea->index.size() == 5);
-			REQUIRE(p_txn->p_hea->index["CURLOPT_USERNAME"] == "whoami");
+			REQUIRE(p_txn != nullptr);
+
+			p_blk = p_txn->p_block;
+
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->size == 2);
+			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+			REQUIRE(p_tup->index((pChar) "value") == 1);
+			REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_key->rank == 1);
+			REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_val->rank == 1);
+			REQUIRE((n_rows = p_key->size) == p_val->size);
+
+			REQUIRE(n_rows == 5);
+
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//https/connection/binblk") == SERVICE_ERROR_WRONG_BASE);
@@ -1211,21 +1502,21 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 			strcpy(url, "//http/cap/Malaysia");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Kuala Lumpur\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Kuala Lumpur\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Tallinn");
 
 			strcpy(url, "//http/cap/Estonia");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			strcpy(url, "//http/capitals/ESTONIA");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Tallinn\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Tallinn\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
@@ -1233,9 +1524,25 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/capitals") == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
-			REQUIRE(p_txn->p_hea->index.size() == 1);
-			REQUIRE(p_txn->p_hea->index["URL"] == "http://127.0.0.1:5000/test/capital/");
+			REQUIRE(p_txn != nullptr);
+
+			p_blk = p_txn->p_block;
+
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->size == 2);
+			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+			REQUIRE(p_tup->index((pChar) "value") == 1);
+			REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_key->rank == 1);
+			REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_val->rank == 1);
+			REQUIRE((n_rows = p_key->size) == p_val->size);
+
+			REQUIRE(n_rows == 1);
+
+			REQUIRE(strcmp(p_key->get_string(0), "URL") == 0);
+			REQUIRE(strcmp(p_val->get_string(0), "http://127.0.0.1:5000/test/capital/") == 0);
+
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove((pChar) "//http/connection/capitals") == SERVICE_NO_ERROR);
@@ -1246,18 +1553,34 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy(url, "//http/cap/France");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Paris\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Paris\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy(url, "//http/cap/Japan");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
 
 			REQUIRE(CHN.get(p_txn, (pChar) "//http/connection/cap") == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INDEX);
-			REQUIRE(p_txn->p_hea->index.size() == 1);
-			REQUIRE(p_txn->p_hea->index["URL"] == "http://127.0.0.1:5000/test/capital/");
+			REQUIRE(p_txn != nullptr);
+
+			p_blk = p_txn->p_block;
+
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->size == 2);
+			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
+			REQUIRE(p_tup->index((pChar) "value") == 1);
+			REQUIRE((p_key = p_tup->get_block(0))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_key->rank == 1);
+			REQUIRE((p_val = p_tup->get_block(1))->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_val->rank == 1);
+			REQUIRE((n_rows = p_key->size) == p_val->size);
+
+			REQUIRE(n_rows == 1);
+
+			REQUIRE(strcmp(p_key->get_string(0), "URL") == 0);
+			REQUIRE(strcmp(p_val->get_string(0), "http://127.0.0.1:5000/test/capital/") == 0);
+
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.remove((pChar) "//http/connection/cap") == SERVICE_NO_ERROR);
@@ -1279,7 +1602,13 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.forward_get(p_txn, (pChar) "jazz_pybaby", (pChar) "/test/str.blk") == SERVICE_ERROR_UNKNOWN_JAZZNODE);
 			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/str.blah") == SERVICE_ERROR_BLOCK_NOT_FOUND);
-			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/capital/Malaysia") == SERVICE_ERROR_CORRUPTED);
+
+			REQUIRE(CHN.forward_get(p_txn, (pChar) "jzz_pybaby", (pChar) "/test/capital/Malaysia") == SERVICE_NO_ERROR);
+
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Kuala Lumpur\"\n") == 0);
+			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.forward_put((pChar) "jzz_pybaby", (pChar) "/test/str.blk", p_tx_tim->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.forward_put((pChar) "jzz_pybaby", (pChar) "/test/str.blah", p_tx_tim->p_block) == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -1288,12 +1617,12 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Montevideo");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Uruguay");
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"Montevideo\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Montevideo\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.forward_del((pChar) "jzz_pybaby", (pChar) "/test/capital/Uruguay") == SERVICE_NO_ERROR);
@@ -1356,7 +1685,7 @@ SCENARIO("Testing http end-to-end") {
 		WHEN("We test copy") {
 			REQUIRE(CHN.connect.size() == 0);
 
-			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_idx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put((pChar) "//http/connection/cap", p_tx_tp1->p_block) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.connect.size() == 1);
 
@@ -1367,12 +1696,12 @@ SCENARIO("Testing http end-to-end") {
 
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "London");
 
-			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_C_STR) == SERVICE_NO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"London\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"London\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.get(p_txn, url2) == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -1380,15 +1709,14 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(CHN.copy(url2, url) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strcmp(p_ret, "\"London\"\n") == 0);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
+			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"London\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
 
 			REQUIRE(CHN.get(p_txn, url2) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
-			p_ret = (pChar) &p_txn->p_block->tensor.cell_byte[0];
-			REQUIRE(strncmp(p_ret, "\"\\\"London\\", 10) == 0);		// Note:  put will get mode == WRITE_TENSOR_DATA & python is a mess.
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_txn->p_block->size == 1);
 			CHN.destroy_transaction(p_txn);
 
 			strcpy(url,  "//http/cap/Holland");
@@ -1403,12 +1731,16 @@ SCENARIO("Testing http end-to-end") {
 
 			REQUIRE(CHN.connect.size() == 0);
 		}
-		WHEN("We test translate") {
-			REQUIRE(CHN.translate((pTuple) p_tx_idx->p_block, (pChar) "//http/anything") == SERVICE_ERROR_WRONG_ARGUMENTS);
-			REQUIRE(CHN.translate((pTuple) p_tx_xlt->p_block, (pChar) "//http/anything") == SERVICE_ERROR_WRONG_BASE);
+		WHEN("We test modify") {
+			Locator fun = {"http", "anything", "", 0};
+
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_ix1->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_ERROR_WRONG_BASE);
 		}
-		CHN.destroy_transaction(p_tx_idx);
-		CHN.destroy_transaction(p_tx_ixx);
+		CHN.destroy_transaction(p_tx_ix1);
+		CHN.destroy_transaction(p_tx_ix2);
+		CHN.destroy_transaction(p_tx_tp1);
+		CHN.destroy_transaction(p_tx_tp2);
 		CHN.destroy_transaction(p_tx_str);
 		CHN.destroy_transaction(p_tx_rea);
 		CHN.destroy_transaction(p_tx_tim);

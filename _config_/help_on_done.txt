@@ -1,17 +1,8 @@
 
   Congratulations, you have successfully configured your project. Now,
-you should be able to:
-
-  1. Build the server
+you should be able to build and install the server.
 
   - cd server
   - make           // Shows help when invoked without arguments
   - make jazz      // Compiles the server in RELEASE mode
   - make install   // Requires sudo and installs as a Linux service
-
-  2. Build the R package
-
-  - cd r_package
-  - ./build.sh
-  - ./build_doc.sh
-
