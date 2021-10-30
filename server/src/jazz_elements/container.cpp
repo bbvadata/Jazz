@@ -648,6 +648,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_NO_MEM;
 	}
 
+#ifdef DEBUG		// Initialize everything for Valgrind.
+	memset(p_txn->p_block, 0, hea.total_bytes);
+#endif
+
 	memcpy(p_txn->p_block, &hea, sizeof(BlockHeader));
 
 	p_txn->p_block->num_attributes = 0;
@@ -1037,6 +1041,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		return SERVICE_ERROR_NO_MEM;
 	}
+
+#ifdef DEBUG		// Initialize everything for Valgrind.
+	memset(p_txn->p_block, 0, total_bytes);
+#endif
 
 	memcpy(p_txn->p_block, p_from, sizeof(BlockHeader));
 
