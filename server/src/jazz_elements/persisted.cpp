@@ -568,7 +568,8 @@ StatusCode Persisted::remove(Locator &where) {
 	l_key.mv_data = (void *) &where.key;
 
 	if (int lmdb_err = mdb_del(lm_tx, hh, &l_key, NULL)) {
-		log_lmdb_err(LOG_MISS, lmdb_err, "mdb_del() failed in Persisted::remove().");
+		if (lmdb_err != MDB_NOTFOUND)
+			log_lmdb_err(LOG_MISS, lmdb_err, "mdb_del() failed in Persisted::remove().");
 
 		mdb_txn_abort(lm_tx);
 
@@ -688,7 +689,8 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 	l_key.mv_data = (void *) &what.key;
 
 	if (int lmdb_err = mdb_get(lm_tx, hh, &l_key, &l_data)) {
-		log_lmdb_err(LOG_MISS, lmdb_err, "mdb_get() failed in Persisted::lock_pointer_to_block() with a code other than MDB_NOTFOUND.");
+		if (lmdb_err != MDB_NOTFOUND)
+			log_lmdb_err(LOG_MISS, lmdb_err, "mdb_get() failed in Persisted::lock_pointer_to_block() with a code other than MDB_NOTFOUND.");
 
 		goto release_txn_and_fail;
 	}
