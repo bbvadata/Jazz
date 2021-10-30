@@ -965,7 +965,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
-
 		if (p_row_filter->cell_type == CELL_TYPE_BYTE_BOOLEAN) {
 			selected_rows = 0;
 			for (int i = 0; i < p_row_filter->size; i++)
@@ -1089,6 +1088,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			memcpy(&p_nsb->buffer, &p_osb->buffer, p_osb->buffer_size);
 
 			p_nsb->last_idx = p_osb->last_idx;
+			p_nsb->stop_check_4_match = p_osb->stop_check_4_match;
 
 			int i = 0;
 			int *ptk = p_txn->p_block->p_attribute_keys();
