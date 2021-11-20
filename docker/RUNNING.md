@@ -2,7 +2,7 @@
 
 ## Running a server
 
-Use the proper version or `:latest` searching at https://hub.docker.com/repository/docker/kaalam/jazz_base an replace the version below
+Use the proper version or `:latest` searching at https://hub.docker.com/repository/docker/kaalam/jazz_base and replace the version below
 as necessary.
 
 ```
