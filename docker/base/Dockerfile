@@ -38,5 +38,3 @@ ADD ./jazz_config.ini /home/jazz/config/jazz_config.ini
 ADD ./www /home/jazz/config/www/
 
 EXPOSE 8899
-
-CMD ["/home/jazz/start.sh"]
