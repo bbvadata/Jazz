@@ -1,4 +1,4 @@
-FROM kaalam/jazz_base
+FROM jazz_base_stable
 
 LABEL author=kaalam.ai
 
