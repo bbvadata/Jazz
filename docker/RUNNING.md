@@ -6,13 +6,13 @@ Use the proper version or `:latest` searching at https://hub.docker.com/reposito
 as necessary.
 
 ```
-docker run -p8899:8899 kaalam/jazz_lss:0.5.2
+docker run -p8899:8899 kaalam/jazz_lss:0.5.3
 
 # Other options:
 
 # Run locally built image [DEBUG]:		docker run -p8899:8899 -ti jazz_lss_stable:latest /bin/bash
 # Run locally built image [Release]:	docker run -p8899:8899 jazz_lss_stable:latest
-# Run Docker Hub image [DEBUG]:			docker run -p8899:8899 -ti kaalam/jazz_lss:0.5.2 /bin/bash
+# Run Docker Hub image [DEBUG]:			docker run -p8899:8899 -ti kaalam/jazz_lss:0.5.3 /bin/bash
 ```
 
 See more at: https://kaalam.github.io/jazz_reference/reference_docker_how_to_build.html
