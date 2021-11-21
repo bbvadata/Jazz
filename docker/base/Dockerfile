@@ -32,6 +32,7 @@ WORKDIR /home/jazz
 
 RUN mkdir /home/jazz/jazz_dbg_mdb
 
+ADD ./start.sh /home/jazz
 ADD ./jazz /home/jazz
 ADD ./jazz_config.ini /home/jazz/config/jazz_config.ini
 ADD ./www /home/jazz/config/www/
