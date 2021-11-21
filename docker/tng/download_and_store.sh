@@ -6,11 +6,11 @@ mkdir -p github_repos
 
 cd github_repos || return 1
 
-git clone git@github.com:kaalam/tng-data-facts.git
-git clone git@github.com:kaalam/tng-data-grammar.git
-git clone git@github.com:kaalam/tng-data-qa.git
-git clone git@github.com:kaalam/tng-data-readings.git
-git clone git@github.com:kaalam/tng-data-wikipedia.git
+git clone https://github.com/kaalam/tng-data-facts.git
+git clone https://github.com/kaalam/tng-data-grammar.git
+git clone https://github.com/kaalam/tng-data-qa.git
+git clone https://github.com/kaalam/tng-data-readings.git
+git clone https://github.com/kaalam/tng-data-wikipedia.git
 
 cd tng-data-facts || return 1
 
