@@ -35,5 +35,3 @@ RUN mkdir /home/jazz/jazz_dbg_mdb
 ADD ./jazz /home/jazz
 ADD ./jazz_config.ini /home/jazz/config/jazz_config.ini
 ADD ./www /home/jazz/config/www/
-
-EXPOSE 8899
