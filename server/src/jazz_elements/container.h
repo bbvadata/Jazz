@@ -603,7 +603,7 @@ class Container : public Service {
 				if (*p_in == 0)
 					return 0;
 
-				if (*p_in == ' ' || *p_in == '\t') {
+				if (*p_in == ' ' || *p_in == '\t' || *p_in == '\n') {
 					p_in++;
 					num_bytes--;
 				} else
