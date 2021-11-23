@@ -1329,8 +1329,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		if (cell_type == CELL_TYPE_UNDEFINED)
 			cell_type = item_hea[0].cell_type;
-
-		break;
 	}
 
 	num_bytes = source_l;
