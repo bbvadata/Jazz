@@ -5253,7 +5253,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			THEN("we parse everything and compare") {
 				pTransaction x_byt, x_bbo, x_int, x_fac, x_gra, x_boo, x_sin, x_st1, x_st2, x_lin, x_tim, x_dou;
 				pTransaction x_ki1, x_ki2, x_tp1, x_tp2, y_byt, y_int, y_sin, y_lin, y_tim, y_dou, y_ki1, y_tp1;
-				pTransaction a_int, a_dou, a_st1, a_st2, a_ki1, a_ki2, a_tp1, a_tp2, x_err;
+				pTransaction a_int, a_dou, a_st1, a_st2, a_ki1, a_ki2, a_tp1, a_tp2, x_err, x_stx, x_sty;
 
 				REQUIRE(CNT.new_block(x_byt, s_byt->p_block, CELL_TYPE_BYTE) == SERVICE_NO_ERROR);
 				REQUIRE(x_byt->p_block != nullptr);
@@ -5409,6 +5409,23 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				REQUIRE(reinterpret_cast<pTuple>(y_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
 
+				REQUIRE(CNT.new_block(x_stx, s_stx->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
+				REQUIRE(x_stx->p_block != nullptr);
+				REQUIRE(x_stx->status  == BLOCK_STATUS_READY);
+				REQUIRE(x_stx->p_block->hash64 == 0);
+
+				REQUIRE(CNT.new_block(x_sty, p_sty->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
+				REQUIRE(x_sty->p_block != nullptr);
+				REQUIRE(x_sty->status  == BLOCK_STATUS_READY);
+				REQUIRE(x_sty->p_block->hash64 == 0);
+
+				REQUIRE(x_sty->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(x_sty->p_block->size == 4);
+				REQUIRE(strcmp(x_sty->p_block->get_string(0), (pChar) "abc") == 0);
+				REQUIRE(strlen(x_sty->p_block->get_string(1)) == 0);
+				REQUIRE(strlen(x_sty->p_block->get_string(2)) == 0);
+				REQUIRE(strcmp(x_sty->p_block->get_string(3), (pChar) "xyz") == 0);
+
 				compare_full_blocks(x_byt->p_block, p_byt->p_block);
 				compare_full_blocks(x_bbo->p_block, p_bbo->p_block);
 				compare_full_blocks(x_int->p_block, p_int->p_block);
@@ -5435,6 +5452,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				compare_full_blocks(x_ki1->p_block, p_ki1->p_block);
 				compare_full_blocks(x_ki2->p_block, p_ki2->p_block);
 				compare_full_blocks(y_ki1->p_block, p_ki1->p_block);
+
+				compare_full_blocks(x_stx->p_block, p_stx->p_block);
 
 				REQUIRE(CNT.new_block(a_int, s_int->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
 				REQUIRE(a_int->p_block != nullptr);
@@ -5574,6 +5593,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				CNT.destroy_transaction(x_ki2);
 				CNT.destroy_transaction(x_tp1);
 				CNT.destroy_transaction(x_tp2);
+				CNT.destroy_transaction(x_stx);
+				CNT.destroy_transaction(x_sty);
 			}
 
 			CNT.destroy_transaction(f_byt);
