@@ -5047,7 +5047,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			att[BLOCK_ATTRIB_LANGUAGE] = "bop";
 
 			pTransaction s_byt, s_bbo, s_int, s_fac, s_gra, s_boo, s_sin, s_st1, s_st2, s_lin, s_tim, s_dou, s_ki1, s_ki2, s_tp1, s_tp2;
-			pTransaction z_tp1, z_tp2, t_tp1, t_tp2;
+			pTransaction z_tp1, z_tp2, t_tp1, t_tp2, s_stx;
 
 			REQUIRE(CNT.new_block(s_byt, p_byt->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(s_byt->p_block != nullptr);
@@ -5132,6 +5132,19 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(s_tp2->p_block != nullptr);
 			REQUIRE(s_tp2->status  == BLOCK_STATUS_READY);
 			REQUIRE(s_tp2->p_block->hash64 == 0);
+
+			REQUIRE(CNT.new_block(s_stx, p_stx->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(s_stx->p_block != nullptr);
+			REQUIRE(s_stx->status  == BLOCK_STATUS_READY);
+			REQUIRE(s_stx->p_block->hash64 == 0);
+
+			char const *sl = "[\"January\", \"\", \"March\", \"April\", \"\", \"\", \"July\", \"\", \"\", \"October\", \"\", \"December\"]";
+
+			REQUIRE(s_stx->p_block->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(s_stx->p_block->size == 85);
+			REQUIRE(s_stx->p_block->tensor.cell_byte[0] == '[');
+			REQUIRE(s_stx->p_block->tensor.cell_byte[84] == 0);
+			REQUIRE(strcmp((pChar) &s_stx->p_block->tensor, sl) == 0);
 
 			REQUIRE(CNT.unwrap_received(z_tp1, (pBlock) &s_tp1->p_block->tensor, s_tp1->p_block->size - 1) == SERVICE_NO_ERROR);
 			REQUIRE(z_tp1->p_block != nullptr);
@@ -5220,11 +5233,13 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			check_text_block(s_ki2->p_block);
 			check_text_block(s_tp1->p_block);
 			check_text_block(s_tp2->p_block);
+			check_text_block(s_stx->p_block);
 
 			check_string_block(z_tp1->p_block);
 			check_string_block(z_tp2->p_block);
 			check_string_block(t_tp1->p_block);
 			check_string_block(t_tp2->p_block);
+			check_string_block(p_sty->p_block);
 
 			check_text_block(f_byt->p_block);
 			check_text_block(f_int->p_block);
@@ -5586,6 +5601,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			CNT.destroy_transaction(s_ki2);
 			CNT.destroy_transaction(s_tp1);
 			CNT.destroy_transaction(s_tp2);
+			CNT.destroy_transaction(s_stx);
 			CNT.destroy_transaction(t_tp1);
 			CNT.destroy_transaction(t_tp2);
 			CNT.destroy_transaction(z_tp1);
