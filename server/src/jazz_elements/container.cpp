@@ -2527,10 +2527,12 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 			break;
 
+		case PSTATE_CONST_STRING0:
+			// if (*p_in == '"')
+			// 	this_is_an_empty_string();
 		case PSTATE_CONST_AUTO:
 		case PSTATE_CONST_INT:
 		case PSTATE_CONST_REAL:
-		case PSTATE_CONST_STRING0:
 		case PSTATE_CONST_STRING_E1:
 		case PSTATE_CONST_STRING_E2:
 		case PSTATE_CONST_TIME:
