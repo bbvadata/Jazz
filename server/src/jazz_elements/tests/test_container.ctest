@@ -4787,8 +4787,9 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 	REQUIRE(pStoredTransaction(CNT.p_buffer)[CNT.max_transactions - 1].p_next == nullptr);
 	REQUIRE(CNT._lock_ == 0);
 
-	GIVEN("We have 16 multiple purpose blocks, kinds and tuples") {
+	GIVEN("We have multiple purpose blocks, kinds and tuples") {
 		pTransaction p_byt, p_bbo, p_int, p_fac, p_gra, p_boo, p_sin, p_st1, p_st2, p_lin, p_tim, p_dou, p_ki1, p_ki2, p_tp1, p_tp2;
+		pTransaction p_stx, p_sty;
 		TensorDim dim_r1 {25}, dim_r2 {17, 5}, dim_r3 {10, 3, 2}, dim_r4 {6, 5, 3, 3}, dim_r5 {4, 3, 2, 7, 2}, dim_r6 {2, 1, 3, 2, 1, 2};
 
 		REQUIRE(CNT.new_block(p_byt, CELL_TYPE_BYTE, dim_r3.dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
@@ -5015,6 +5016,31 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 		REQUIRE(reinterpret_cast<pTuple>(p_tp1->p_block)->is_a((pKind) p_ki1->p_block));
 		REQUIRE(reinterpret_cast<pTuple>(p_tp2->p_block)->is_a((pKind) p_ki2->p_block));
+
+		char const *text_3 = "January\n\nMarch\nApril\n\n\nJuly\n\n\nOctober\n\nDecember";
+
+		REQUIRE(CNT.new_block(p_stx, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, text_3) == SERVICE_NO_ERROR);
+		REQUIRE(p_stx != nullptr);
+		REQUIRE(p_stx->p_block != nullptr);
+		REQUIRE(p_stx->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_stx->p_block->hash64 == 0);
+		REQUIRE(p_stx->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_stx->p_block->size == 12);
+		REQUIRE(strcmp(p_stx->p_block->get_string(0), (pChar) "January") == 0);
+		REQUIRE(strlen(p_stx->p_block->get_string(1)) == 0);
+		REQUIRE(strcmp(p_stx->p_block->get_string(2), (pChar) "March") == 0);
+		REQUIRE(strlen(p_stx->p_block->get_string(10)) == 0);
+		REQUIRE(strcmp(p_stx->p_block->get_string(11), (pChar) "December") == 0);
+
+		char const *text_4 = "[\"abc\",\"\",\"\",\"xyz\"]";
+
+		REQUIRE(CNT.new_block(p_sty, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, text_4) == SERVICE_NO_ERROR);
+		REQUIRE(p_sty != nullptr);
+		REQUIRE(p_sty->p_block != nullptr);
+		REQUIRE(p_sty->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_sty->p_block->hash64 == 0);
+		REQUIRE(p_sty->p_block->size == 1);
+		REQUIRE(strcmp(p_sty->p_block->get_string(0), text_4) == 0);
 
 		WHEN("we serialize everything") {
 			AttributeMap att = {};
@@ -5592,6 +5618,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		CNT.destroy_transaction(p_ki2);
 		CNT.destroy_transaction(p_tp1);
 		CNT.destroy_transaction(p_tp2);
+		CNT.destroy_transaction(p_stx);
+		CNT.destroy_transaction(p_sty);
 	}
 
 	REQUIRE(CNT.alloc_bytes == CNT.max_transactions*sizeof(StoredTransaction));
