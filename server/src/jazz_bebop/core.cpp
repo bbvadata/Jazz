@@ -35,6 +35,8 @@
 #include "src/jazz_bebop/core.h"
 
 
+//TODO: Implement cores
+
 namespace jazz_bebop
 {
 

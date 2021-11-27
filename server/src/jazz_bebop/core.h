@@ -50,6 +50,8 @@
 #define INCLUDED_JAZZ_BEBOP_CORE
 
 
+//TODO: Create cores interface
+
 /*! \brief Bebop, cores, kernel and extending the language.
 
 	This namespace includes anything related with running and implementing Bebop code.

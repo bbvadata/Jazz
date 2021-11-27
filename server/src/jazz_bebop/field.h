@@ -49,6 +49,7 @@
 #ifndef INCLUDED_JAZZ_BEBOP_FIELD
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
+//TODO: Create field interface
 
 namespace jazz_bebop
 {
