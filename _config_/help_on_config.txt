@@ -3,7 +3,9 @@ This script creates:
   - server/src/include/jazz_platform.h (Version and platform const)
   - server/Makefile (for C++)
   - server/src/main.dox (main page for Doxygen)
-  - docker/upload_docker.sh (build & upload reference Docker image)
+  - docker/base/build_upload.sh (build & upload base Docker image)
+  - docker/lss/build_upload.sh (build & upload LSS (Latest Stable Server) Docker image)
+  - docker/tng/build_upload.sh (build & upload TNG (The Tangle) Docker image)
 
 config.sh usage:
 

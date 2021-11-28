@@ -111,7 +111,7 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 #define REX_TIME				"[0-9a-zA-Z :\\-]"					// Enforces DEF_FLOAT_TIME = "%Y-%m-%d %H:%M:%S"
 
 #define MAX_NUM_PSTATES			27		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	74		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define NUM_STATE_TRANSITIONS	75		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 #define PSTATE_IN_AUTO			 0		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_UNDEFINED
 #define PSTATE_IN_INT			 1		///< Parser state: Reached "[" (shape in), cell type is any integer
@@ -189,6 +189,7 @@ ParseStateTransitions state_tr = {
 
 	{PSTATE_CONST_STRING0,		PSTATE_CONST_STRING_E0,	REX_BACKSLASH},
 	{PSTATE_CONST_STRING0,		PSTATE_CONST_STRING_N,	REX_STRING_NOT_ESC},
+	{PSTATE_CONST_STRING0,		PSTATE_END_STRING,		REX_DOUBLEQUOTE},
 
 	{PSTATE_CONST_STRING_E0,	PSTATE_CONST_STRING_E2,	REX_X},
 	{PSTATE_CONST_STRING_E0,	PSTATE_CONST_STRING_N,	REX_STRING_FIRST_ESC},
@@ -1328,8 +1329,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		if (cell_type == CELL_TYPE_UNDEFINED)
 			cell_type = item_hea[0].cell_type;
-
-		break;
 	}
 
 	num_bytes = source_l;
@@ -2526,10 +2525,12 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 
 			break;
 
+		case PSTATE_CONST_STRING0:
+			// if (*p_in == '"')
+			// 	this_is_an_empty_string();
 		case PSTATE_CONST_AUTO:
 		case PSTATE_CONST_INT:
 		case PSTATE_CONST_REAL:
-		case PSTATE_CONST_STRING0:
 		case PSTATE_CONST_STRING_E1:
 		case PSTATE_CONST_STRING_E2:
 		case PSTATE_CONST_TIME:

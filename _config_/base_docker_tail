@@ -1,0 +1,3 @@
+rm jazz
+rm jazz_config.ini
+rm -rf www

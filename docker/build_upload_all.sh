@@ -14,18 +14,24 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
+set -e
+
 docker_pwd=$(pwd)
 
-cd ../server || return 1
+cd base || return 1
 
-make jazz
-cp jazz ../docker
-make clean
+./build_upload.sh
 
 cd "$docker_pwd" || return 1
 
-cp ../server/config/jazz_config.ini .
-cp -r ../server/config/www www
+cd lss || return 1
 
-docker build -t jazz_ref_stable .
-docker login
+./build_upload.sh
+
+cd "$docker_pwd" || return 1
+
+cd tng || return 1
+
+./build_upload.sh
+
+cd "$docker_pwd" || return 1

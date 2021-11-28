@@ -245,16 +245,44 @@ $(cat _config_/main_dox_tail)" > server/src/main.dox
 printf "Ok.\n"
 
 
-printf "Writing: docker/upload_docker.sh ... "
+printf "Writing: docker/base/build_upload.sh ... "
 
-echo "$(cat _config_/upload_docker_head)
+echo "$(cat _config_/base_docker_head)
 
-docker tag jazz_ref_stable kaalam/jazz_neat:$jazz_version
-docker push kaalam/jazz_neat:$jazz_version
+docker tag jazz_base_stable kaalam/jazz_base:$jazz_version
+docker push kaalam/jazz_base:$jazz_version
 
-$(cat _config_/upload_docker_tail)" > docker/upload_docker.sh
+$(cat _config_/base_docker_tail)" > docker/base/build_upload.sh
 
-chmod 777 docker/upload_docker.sh
+chmod 777 docker/base/build_upload.sh
+
+printf "Ok.\n"
+
+
+printf "Writing: docker/lss/build_upload.sh ... "
+
+echo "$(cat _config_/lss_docker_head)
+
+docker tag jazz_lss_stable kaalam/jazz_lss:$jazz_version
+docker push kaalam/jazz_lss:$jazz_version
+
+$(cat _config_/lss_docker_tail)" > docker/lss/build_upload.sh
+
+chmod 777 docker/lss/build_upload.sh
+
+printf "Ok.\n"
+
+
+printf "Writing: docker/tng/build_upload.sh ... "
+
+echo "$(cat _config_/tng_docker_head)
+
+docker tag jazz_tng_stable kaalam/jazz_tng:$jazz_version
+docker push kaalam/jazz_tng:$jazz_version
+
+$(cat _config_/tng_docker_tail)" > docker/tng/build_upload.sh
+
+chmod 777 docker/tng/build_upload.sh
 
 printf "Ok.\n"
 
