@@ -1571,28 +1571,34 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				char mime_type[40] = {"application/octet-stream"};
 
 				if (p_ext != nullptr) {
-					if (strcmp(p_ext, ".htm") == 0 || strcmp(p_ext, ".html") == 0)
-						strcpy(mime_type, "text/html");
-					else if (strcmp(p_ext, ".css") == 0)
+					if (strcmp(p_ext, ".css") == 0)
 						strcpy(mime_type, "text/css");
-					else if (strcmp(p_ext, ".png") == 0)
-						strcpy(mime_type, "image/png");
-					else if (strcmp(p_ext, ".js") == 0)
-						strcpy(mime_type, "application/javascript");
-					else if (strcmp(p_ext, ".jpg") == 0 || strcmp(p_ext, ".jpeg") == 0)
-						strcpy(mime_type, "image/jpeg");
 					else if (strcmp(p_ext, ".gif") == 0)
 						strcpy(mime_type, "image/gif");
+					else if (strcmp(p_ext, ".htm") == 0 || strcmp(p_ext, ".html") == 0)
+						strcpy(mime_type, "text/html");
 					else if (strcmp(p_ext, ".ico") == 0)
 						strcpy(mime_type, "image/x-icon");
-					else if (strcmp(p_ext, ".md") == 0 || strcmp(p_ext, ".txt") == 0)
-						strcpy(mime_type, "text/plain; charset=utf-8");
+					else if (strcmp(p_ext, ".jpg") == 0 || strcmp(p_ext, ".jpeg") == 0)
+						strcpy(mime_type, "image/jpeg");
+					else if (strcmp(p_ext, ".js") == 0)
+						strcpy(mime_type, "application/javascript");
 					else if (strcmp(p_ext, ".json") == 0)
 						strcpy(mime_type, "application/json");
+					else if (strcmp(p_ext, ".md") == 0 || strcmp(p_ext, ".txt") == 0)
+						strcpy(mime_type, "text/plain; charset=utf-8");
 					else if (strcmp(p_ext, ".mp4") == 0)
 						strcpy(mime_type, "video/mp4");
+					else if (strcmp(p_ext, ".otf") == 0)
+						strcpy(mime_type, "font/otf");
 					else if (strcmp(p_ext, ".pdf") == 0)
 						strcpy(mime_type, "application/pdf");
+					else if (strcmp(p_ext, ".png") == 0)
+						strcpy(mime_type, "image/png");
+					else if (strcmp(p_ext, ".ttf") == 0)
+						strcpy(mime_type, "font/ttf");
+					else if (strcmp(p_ext, ".wav") == 0)
+						strcpy(mime_type, "audio/wav");
 					else if (strcmp(p_ext, ".xml") == 0)
 						strcpy(mime_type, "application/xml");
 				}
