@@ -1566,12 +1566,6 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				atts[BLOCK_ATTRIB_URL]		= fn;
 				atts[BLOCK_ATTRIB_LANGUAGE] = "en-us";
 
-				for (int i = 0; i < 1024; i++) {
-					if (fn[i] == 0)
-						break;
-
-					fn[i] = tolower(fn[i]);
-				}
 				pChar p_ext = strrchr(fn, '.');
 
 				char mime_type[40] = {"application/octet-stream"};
