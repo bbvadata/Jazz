@@ -10,7 +10,7 @@ git clone https://github.com/kaalam/tng-data-facts.git
 git clone https://github.com/kaalam/tng-data-grammar.git
 git clone https://github.com/kaalam/tng-data-qa.git
 git clone https://github.com/kaalam/tng-data-readings.git
-git clone ssh://192.168.1.141/var/gitroot/tng-data-raiders.git
+git clone ssh://jadmin@192.168.1.141/var/gitroot/tng-data-raiders.git
 git clone https://github.com/kaalam/tng-data-wikipedia.git
 
 cd tng-data-facts || return 1
