@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2022 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
