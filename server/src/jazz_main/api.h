@@ -34,7 +34,7 @@
 
 #include <map>
 
-#include "src/include/jazz_agency.h"
+#include "src/include/jazz_models.h"
 
 #ifdef CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -69,7 +69,7 @@ typedef int MHD_Result;
 
 /*! \brief The http API, instancing and building the server.
 
-	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_agency
+	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_models
 	it is not intended to build other applications than the server.
 */
 namespace jazz_main
@@ -77,7 +77,7 @@ namespace jazz_main
 
 using namespace jazz_elements;
 using namespace jazz_bebop;
-using namespace jazz_agency;
+using namespace jazz_models;
 
 #define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert HttpQueryState -> Locator
 
@@ -145,9 +145,7 @@ class Api : public Container {
 			pConfigFile	a_config,
 			pChannels	a_channels,
 			pVolatile	a_volatile,
-			pPersisted	a_persisted,
-			pBebop		a_bebop,
-			pAgency		a_agency);
+			pPersisted	a_persisted);
 	   ~Api();
 
 		StatusCode start	();
@@ -574,8 +572,6 @@ class Api : public Container {
 		pChannels	p_channels;
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
-		pBebop		p_bebop;
-		pAgency		p_agency;
 		Index		www;
 		int			remove_statics;
 };
@@ -585,8 +581,6 @@ class Api : public Container {
 // Instancing Bebop, Agency and Api
 // --------------------------------
 
-extern Bebop  BOP;
-extern Agency EPI;
 extern Api	  TT_API;
 
 #else

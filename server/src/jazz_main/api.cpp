@@ -427,9 +427,7 @@ Api::Api(pLogger	 a_logger,
 		 pConfigFile a_config,
 		 pChannels	 a_channels,
 		 pVolatile	 a_volatile,
-		 pPersisted	 a_persisted,
-		 pBebop		 a_bebop,
-		 pAgency	 a_agency) : Container(a_logger, a_config) {
+		 pPersisted	 a_persisted) : Container(a_logger, a_config) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 
@@ -445,8 +443,6 @@ Api::Api(pLogger	 a_logger,
 	p_channels	= a_channels;
 	p_volatile	= a_volatile;
 	p_persisted	= a_persisted;
-	p_bebop		= a_bebop;
-	p_agency	= a_agency;
 
 	www	 = {};
 }
@@ -476,8 +472,6 @@ StatusCode Api::start() {
 	p_channels->base_names(base);
 	p_volatile->base_names(base);
 	p_persisted->base_names(base);
-	p_bebop->base_names(base);
-	p_agency->base_names(base);
 
 	for (int i = 0; i < 1024; i++)
 		base_server[i] = nullptr;
@@ -2004,9 +1998,7 @@ bool Api::find_myself() {
 
 #ifdef CATCH_TEST
 
-Bebop  BOP	 (&jazz_elements::LOGGER, &jazz_elements::CONFIG);
-Agency EPI	 (&jazz_elements::LOGGER, &jazz_elements::CONFIG);
-Api	   TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &BOP, &EPI);
+Api	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER);
 
 #endif
 

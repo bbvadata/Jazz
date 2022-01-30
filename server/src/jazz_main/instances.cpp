@@ -53,10 +53,8 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 Channels	CHANNELS (&LOGGER, &CONFIG);
 Volatile	VOLATILE (&LOGGER, &CONFIG);
 Persisted	PERSISTED(&LOGGER, &CONFIG);
-Bebop		BOP		 (&LOGGER, &CONFIG);
-Agency		EPI		 (&LOGGER, &CONFIG);
 
-Api			API	(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &BOP, &EPI);
+Api			API	(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);
 HttpServer	HTTP(&LOGGER, &CONFIG);
 
 #endif
@@ -121,8 +119,6 @@ void signalHandler_SIGTERM(int signum) {
 
 	if (!stop_service(&HTTP,	  "HttpServer")) stop_ok = false;
 	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
-	if (!stop_service(&EPI,		  "Agency"))	 stop_ok = false;
-	if (!stop_service(&BOP,		  "Bebop"))		 stop_ok = false;
 	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
 	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
 	if (!stop_service(&CHANNELS,  "Channels"))	 stop_ok = false;

@@ -53,18 +53,13 @@ namespace jazz_main
 
 using namespace jazz_elements;
 using namespace jazz_bebop;
-using namespace jazz_agency;
+using namespace jazz_models;
 
 /*	-----------------------------
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
 #ifndef CATCH_TEST
-
-// Higher level Services:
-
-extern Agency EPI;				// (As in epistrophy.) The service managing agents.
-extern Bebop  BOP;				// (as in Bebop.) The service managing cores and fields.
 
 // Block containers:
 

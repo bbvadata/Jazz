@@ -190,26 +190,7 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&BOP, "Bebop")) {
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
-
-			exit(EXIT_FAILURE);
-		}
-
-		if (!start_service(&EPI, "Agency")) {
-			stop_service(&BOP,		 "Bebop");
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
-
-			exit(EXIT_FAILURE);
-		}
-
 		if (!start_service(&API, "Api")) {
-			stop_service(&EPI,		 "Agency");
-			stop_service(&BOP,		 "Bebop");
 			stop_service(&PERSISTED, "Persisted");
 			stop_service(&VOLATILE,  "Volatile");
 			stop_service(&CHANNELS,  "Channels");
@@ -222,8 +203,6 @@ int main(int argc, char* argv[]) {
 		if (ret_code != EXIT_SUCCESS) {
 			stop_service(&HTTP,		 "HttpServer");
 			stop_service(&API,		 "Api");
-			stop_service(&EPI,		 "Agency");
-			stop_service(&BOP,		 "Bebop");
 			stop_service(&PERSISTED, "Persisted");
 			stop_service(&VOLATILE,  "Volatile");
 			stop_service(&CHANNELS,  "Channels");
