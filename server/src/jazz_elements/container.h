@@ -247,7 +247,6 @@ Scope of jazz_elements
 
 Everything works at binary level, operations on blocks at this level are very simple, just copying, deleting, filtering a Tensor by
 (int or bool) indices, filtering a Tuple by item name and support every medium in the more conceivably efficient way.
-Serialization (to and from text) is done at the Api level, running code in jazz_bebop and agency (yomi) at jazz_agency.
 
 new_block()
 -----------
