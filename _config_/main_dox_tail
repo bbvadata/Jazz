@@ -20,9 +20,9 @@ nothing  | Code is complete and tested.
 There are three C++ namespaces, intended for general c++ Jazz programming, possibly using external Jazz servers, but not necessarily as
 implemented as an http server:
 
-1. jazz_elements (all the pieces: blocks, tuples, storage, fluxes, communication, services, ...)\n
-2. jazz_bebop (everything to create bebop code, run it and expand Formal Fields)\n
-3. jazz_agency (agency as graphs of fields)\n
+1. jazz_elements (All the pieces: Blocks, Kinds, Tuples, storage, communication, services, etc.)\n
+2. jazz_bebop (Everything to run bebop code: Cores, Fields, Primitives, Snippets, Kernels, etc.)\n
+3. jazz_models (From objects to concepts, from code execution to code creation)\n
 \n
 
 Additionally, there is a namespace for the server:
