@@ -252,6 +252,7 @@ class Api : public Container {
 						return SERVICE_ERROR_IO_ERROR;
 					}
 				} else {
+//TODO: Review if Container.exec() should be removed (4)
 					if (p_container->exec(p_txn, loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
 						p_aux_cont->destroy_transaction(p_aux);
 
@@ -280,6 +281,7 @@ class Api : public Container {
 						return SERVICE_ERROR_IO_ERROR;
 					}
 				} else {
+//TODO: Review if Container.exec() should be removed (5)
 					if (p_container->exec(p_txn, loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
 						destroy_transaction(p_aux);
 
@@ -453,6 +455,7 @@ class Api : public Container {
 						return SERVICE_ERROR_IO_ERROR;
 					}
 				} else {
+//TODO: Review if Container.exec() should be removed (6)
 					if (p_container->exec(p_txn, q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
 						p_aux_cont->destroy_transaction(p_aux);
 
@@ -480,6 +483,7 @@ class Api : public Container {
 						return SERVICE_ERROR_IO_ERROR;
 					}
 				} else {
+//TODO: Review if Container.exec() should be removed (7)
 					if (p_container->exec(p_txn, q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
 						destroy_transaction(p_aux);
 

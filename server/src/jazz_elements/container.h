@@ -211,6 +211,7 @@ Container provides a neat API for all descendants, including:
 - Transparent thread safety .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 - Allocation: .new_block(), .destroy_transaction()
 - Crud: .get(), .locate(), .header(), .new_entity(), .put(), .remove(), .copy()
+//TODO: Review if Container.exec() should be removed (1)
 - Code execution: .exec() and .modify()
 - Support for container names in the API .base_names()
 - A configuration style for all descendants
@@ -369,7 +370,7 @@ class Container : public Service {
 		virtual StatusCode remove	   (pChar				p_where);
 		virtual StatusCode copy		   (pChar				p_where,
 										pChar				p_what);
-
+//TODO: Review if Container.exec() should be removed (2)
 		// The function call interface: exec()/modify().
 		virtual StatusCode exec		   (pTransaction	   &p_txn,
 										Locator			   &function,
