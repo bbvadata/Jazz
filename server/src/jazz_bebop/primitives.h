@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_bebop/xxx.h"
+#include "src/include/jazz_elements.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_BEBOP_PRIMITIVES
 
 
-/** \brief One liner.
+/** \brief Primitives: stateless function, stateful function, mutable function, side-effect function.
 
-//TODO: Write this!
+These functions are known as primitives (or op-codes) because they are implemented in C++ inside a Kernel.
 */
 
 namespace jazz_bebop
@@ -62,4 +62,3 @@ namespace jazz_bebop
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_PRIMITIVES
-
