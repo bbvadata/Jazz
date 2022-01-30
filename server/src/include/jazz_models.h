@@ -39,9 +39,9 @@
 #define INCLUDED_JAZZ_MODELS
 
 
-/** \brief One liner.
+/** \brief Includes everything in namespace jazz_models.
 
-//TODO: Write this!
+This is everything from objects to concepts, from code execution to code creation.
 */
 
 #include "src/jazz_models/sem_space.h"
