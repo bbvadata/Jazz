@@ -32,15 +32,25 @@
 */
 
 
+// #include <stl_whatever>
+
+
 using namespace jazz_bebop;
 
 
 // Tests
 // -----
 
-//TODO: Test field implementation
-
 SCENARIO("Testing field") {
 
+//TODO: Write tests for this!
+
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
 }
 

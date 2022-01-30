@@ -34,9 +34,9 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_bebop/core.h"
+// #include "src/jazz_bebop/xxx.h"
 
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -49,7 +49,11 @@
 #ifndef INCLUDED_JAZZ_BEBOP_FIELD
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
-//TODO: Create field interface
+
+/** \brief One liner.
+
+//TODO: Write this!
+*/
 
 namespace jazz_bebop
 {
@@ -58,3 +62,4 @@ namespace jazz_bebop
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_FIELD
+

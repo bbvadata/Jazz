@@ -39,13 +39,18 @@
 #define INCLUDED_JAZZ_BEBOP
 
 
-/** \brief Includes everything in namespace jazz_bebop without using it by default.
+/** \brief Includes everything in namespace jazz_bebop.
 
-The namespace jazz_bebop contains everything to make Bebop code compile, link and run. Also, core system libraries.
+This is everything to run bebop code: Cores, Fields, Primitives, Snippets, Kernels, etc.
 */
 
-#include "src/jazz_bebop/core.h"
+#include "src/jazz_bebop/primitives.h"
 #include "src/jazz_bebop/field.h"
+#include "src/jazz_bebop/snippet.h"
+#include "src/jazz_bebop/core.h"
+#include "src/jazz_bebop/kernel.h"
+#include "src/jazz_bebop/bop.h"
+#include "src/jazz_bebop/kernels.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP

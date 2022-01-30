@@ -32,10 +32,11 @@
 */
 
 
+// #include <stl_whatever>
+
+
 #include "src/jazz_bebop/field.h"
 
-
-//TODO: Implement fields
 
 namespace jazz_bebop
 {
@@ -43,6 +44,7 @@ namespace jazz_bebop
 
 } // namespace jazz_bebop
 
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #include "src/jazz_bebop/tests/test_field.ctest"
 #endif
+

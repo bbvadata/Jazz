@@ -35,22 +35,16 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_bebop;
+#include "src/jazz_bebop/kernel.h"
 
 
-// Tests
-// -----
+namespace jazz_bebop
+{
 
-SCENARIO("Testing core") {
 
-//TODO: Write tests for this!
+} // namespace jazz_bebop
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
-}
+#if defined CATCH_TEST
+#include "src/jazz_bebop/tests/test_kernel.ctest"
+#endif
 

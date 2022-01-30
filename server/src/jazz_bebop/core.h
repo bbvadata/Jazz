@@ -34,9 +34,9 @@
 
 // #include <stl_whatever>
 
-#include "src/include/jazz_elements.h"
+// #include "src/jazz_bebop/xxx.h"
 
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -50,47 +50,16 @@
 #define INCLUDED_JAZZ_BEBOP_CORE
 
 
-//TODO: Create cores interface
+/** \brief One liner.
 
-/*! \brief Bebop, cores, kernel and extending the language.
-
-	This namespace includes anything related with running and implementing Bebop code.
-
-	All together is instanced in the server as the BOP (of Jazz).
+//TODO: Write this!
 */
+
 namespace jazz_bebop
 {
 
-using namespace jazz_elements;
-
-
-// Forward pointer types:
-
-typedef class  Bebop	*pBebop;
-
-
-/** \brief Bebop: A Service to manage running cores and code bases.
-
-*/
-class Bebop : public Container {
-
-	public:
-
-		Bebop(pLogger	  a_logger,
-			  pConfigFile a_config);
-	   ~Bebop();
-
-		StatusCode start();
-		StatusCode shut_down();
-
-		// The function call interface: exec()/modify().
-		virtual StatusCode exec	 (pTransaction &p_txn,
-								  Locator	   &function,
-								  pTuple		p_args);
-		virtual StatusCode modify(Locator	   &function,
-								  pTuple		p_args);
-};
 
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_CORE
+

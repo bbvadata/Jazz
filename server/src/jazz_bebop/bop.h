@@ -34,23 +34,32 @@
 
 // #include <stl_whatever>
 
+// #include "src/jazz_bebop/xxx.h"
 
-using namespace jazz_bebop;
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
 
 
-// Tests
-// -----
+#ifndef INCLUDED_JAZZ_BEBOP_BOP
+#define INCLUDED_JAZZ_BEBOP_BOP
 
-SCENARIO("Testing core") {
 
-//TODO: Write tests for this!
+/** \brief One liner.
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
-}
+//TODO: Write this!
+*/
+
+namespace jazz_bebop
+{
+
+
+} // namespace jazz_bebop
+
+#endif // ifndef INCLUDED_JAZZ_BEBOP_BOP
 
