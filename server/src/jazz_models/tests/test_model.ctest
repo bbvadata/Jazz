@@ -32,22 +32,25 @@
 */
 
 
-#include "src/include/jazz_bebop.h"
+// #include <stl_whatever>
 
 
-#ifndef INCLUDED_JAZZ_MODELS
-#define INCLUDED_JAZZ_MODELS
+using namespace jazz_models;
 
 
-/** \brief One liner.
+// Tests
+// -----
 
-//TODO: Write this!
-*/
+SCENARIO("Testing model") {
 
-#include "src/jazz_models/sem_space.h"
-#include "src/jazz_models/concept.h"
-#include "src/jazz_models/model.h"
-#include "src/jazz_models/models.h"
+//TODO: Write tests for this!
 
+	GIVEN("Something") {
+		WHEN("someone looks at it") {
+			THEN("it breaks") {
+				REQUIRE(2 > 1);
+			}
+		}
+	}
+}
 
-#endif // ifndef INCLUDED_JAZZ_MODELS

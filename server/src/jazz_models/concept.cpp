@@ -32,22 +32,19 @@
 */
 
 
-#include "src/include/jazz_bebop.h"
+// #include <stl_whatever>
 
 
-#ifndef INCLUDED_JAZZ_MODELS
-#define INCLUDED_JAZZ_MODELS
-
-
-/** \brief One liner.
-
-//TODO: Write this!
-*/
-
-#include "src/jazz_models/sem_space.h"
 #include "src/jazz_models/concept.h"
-#include "src/jazz_models/model.h"
-#include "src/jazz_models/models.h"
 
 
-#endif // ifndef INCLUDED_JAZZ_MODELS
+namespace jazz_models
+{
+
+
+} // namespace jazz_models
+
+#if defined CATCH_TEST
+#include "src/jazz_models/tests/test_concept.ctest"
+#endif
+

@@ -32,11 +32,22 @@
 */
 
 
-#include "src/include/jazz_bebop.h"
+// #include <stl_whatever>
+
+// #include "src/jazz_models/xxx.h"
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
 
 
-#ifndef INCLUDED_JAZZ_MODELS
-#define INCLUDED_JAZZ_MODELS
+#ifndef INCLUDED_JAZZ_MODELS_SEM_SPACE
+#define INCLUDED_JAZZ_MODELS_SEM_SPACE
 
 
 /** \brief One liner.
@@ -44,10 +55,11 @@
 //TODO: Write this!
 */
 
-#include "src/jazz_models/sem_space.h"
-#include "src/jazz_models/concept.h"
-#include "src/jazz_models/model.h"
-#include "src/jazz_models/models.h"
+namespace jazz_models
+{
 
 
-#endif // ifndef INCLUDED_JAZZ_MODELS
+} // namespace jazz_models
+
+#endif // ifndef INCLUDED_JAZZ_MODELS_SEM_SPACE
+
