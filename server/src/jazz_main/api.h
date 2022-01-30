@@ -578,8 +578,8 @@ class Api : public Container {
 
 #ifdef CATCH_TEST
 
-// Instancing Bebop, Agency and Api
-// --------------------------------
+// Instancing Api
+// --------------
 
 extern Api	  TT_API;
 

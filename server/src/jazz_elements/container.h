@@ -201,7 +201,7 @@ typedef std::map<std::string, int>	MapSI;
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
-Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, Bebop, Agency, and the Api.
+Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, E.g., the Api.
 
 There is no class Channel (in singular), copy() is a method that copies blocks across Containers (or different media in Channels).
 Channels does all the block transactions across media (files, folders, shell, urls, zeroMQ pipes, Index types, ...).
