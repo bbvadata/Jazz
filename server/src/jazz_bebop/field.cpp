@@ -47,4 +47,3 @@ namespace jazz_bebop
 #if defined CATCH_TEST
 #include "src/jazz_bebop/tests/test_field.ctest"
 #endif
-
