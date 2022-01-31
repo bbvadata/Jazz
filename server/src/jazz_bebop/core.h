@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_bebop/xxx.h"
+#include "src/jazz_bebop/field.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_BEBOP_CORE
 
 
-/** \brief One liner.
+/** \brief Core: The execution unit running Snippet
 
-//TODO: Write this!
+A core is not a service, it allocates its state in the Volatile container.
 */
 
 namespace jazz_bebop
@@ -62,4 +62,3 @@ namespace jazz_bebop
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_CORE
-

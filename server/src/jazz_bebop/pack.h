@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_bebop/xxx.h"
+#include "src/jazz_bebop/primitives.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -46,13 +46,13 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_BEBOP_KERNEL
-#define INCLUDED_JAZZ_BEBOP_KERNEL
+#ifndef INCLUDED_JAZZ_BEBOP_PACK
+#define INCLUDED_JAZZ_BEBOP_PACK
 
 
-/** \brief One liner.
+/** \brief Pack: A collection of primitives.
 
-//TODO: Write this!
+Packs are collections of primitives, either the Basic Opcode Pack (BOP), or a linked dynamic library referred to as an uplifted pack.
 */
 
 namespace jazz_bebop
@@ -61,5 +61,4 @@ namespace jazz_bebop
 
 } // namespace jazz_bebop
 
-#endif // ifndef INCLUDED_JAZZ_BEBOP_KERNEL
-
+#endif // ifndef INCLUDED_JAZZ_BEBOP_PACK

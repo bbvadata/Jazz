@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_bebop/xxx.h"
+#include "src/jazz_bebop/snippet.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
 
-/** \brief One liner.
+/** \brief Formal Fields: Organizing primitives and snippets by Kind
 
-//TODO: Write this!
+Fields are morphisms defined as primitives and snippets in a unique way for each pair of Kinds.
 */
 
 namespace jazz_bebop
@@ -62,4 +62,3 @@ namespace jazz_bebop
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_FIELD
-

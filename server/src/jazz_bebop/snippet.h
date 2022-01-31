@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-// #include "src/jazz_bebop/xxx.h"
+#include "src/jazz_bebop/bop.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_BEBOP_SNIPPET
 
 
-/** \brief One liner.
+/** \brief Snippets: Snippets and code items. (A code item is a minimal snippet.)
 
-//TODO: Write this!
+Functionally, snippets can do the same as primitives, but they are written in Bebop rather than C++.
 */
 
 namespace jazz_bebop
@@ -62,4 +62,3 @@ namespace jazz_bebop
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_SNIPPET
-
