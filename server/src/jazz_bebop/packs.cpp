@@ -35,7 +35,7 @@
 // #include <stl_whatever>
 
 
-#include "src/jazz_bebop/kernels.h"
+#include "src/jazz_bebop/packs.h"
 
 
 namespace jazz_bebop
@@ -45,5 +45,5 @@ namespace jazz_bebop
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
-#include "src/jazz_bebop/tests/test_kernels.ctest"
+#include "src/jazz_bebop/tests/test_packs.ctest"
 #endif

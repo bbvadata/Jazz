@@ -41,7 +41,7 @@ using namespace jazz_bebop;
 // Tests
 // -----
 
-SCENARIO("Testing kernel") {
+SCENARIO("Testing pack") {
 
 //TODO: Write tests for this!
 
