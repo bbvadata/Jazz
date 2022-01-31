@@ -48,6 +48,11 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 
 	REQUIRE(CHN.start()  == 0);
 	REQUIRE(VOL.start()  == 0);
+// ./src/jazz_main/tests/test_api.ctest:51: FAILED:
+//   REQUIRE( PER.start() == 0 )
+// with expansion:
+//   -3 == 0
+//TODO: Fix this while dynamically checking with Valgrind
 	REQUIRE(PER.start() == 0);
 
 	REQUIRE(TT_API.start() == 0);
@@ -72,7 +77,10 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 	REQUIRE(PER.shut_down() == 0);
 }
 
-
+// ./src/jazz_main/tests/test_api.ctest:76: FAILED:
+// due to a fatal error condition:
+//   SIGSEGV - Segmentation violation signal
+//TODO: Fix this while dynamically checking with Valgrind
 SCENARIO("Testing api.parse") {
 	REQUIRE(TT_API.start() == 0);
 
