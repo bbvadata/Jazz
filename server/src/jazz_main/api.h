@@ -138,6 +138,7 @@ the http callback http_request_callback().
 
 */
 class Api : public Container {
+//TODO: Implement API uplifts as replacement via inheritance for this class with a private base.
 
 	public:
 
