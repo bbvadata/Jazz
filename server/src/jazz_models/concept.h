@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_models/sem_space.h"
+#include "src/include/jazz_bebop.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_MODELS_CONCEPT
 
 
-/** \brief One liner.
+/** \brief Concepts: A concepts is: anchored running data == anchored running code
 
-//TODO: Write this!
+From objects to concepts means from static Tuples to code representations of data.
 */
 
 namespace jazz_models

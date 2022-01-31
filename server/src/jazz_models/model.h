@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_models/concept.h"
+#include "src/jazz_models/sem_space.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_MODELS_MODEL
 
 
-/** \brief One liner.
+/** \brief Models: Creating new snippets
 
-//TODO: Write this!
+Concepts evolve by searching new code representations. Models search new code across fields.
 */
 
 namespace jazz_models

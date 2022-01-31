@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_MODELS_MODELS
 
 
-/** \brief One liner.
+/** \brief Models: A service to dynamically link Model descendants.
 
-//TODO: Write this!
+This Service manages uplifted Models.
 */
 
 namespace jazz_models

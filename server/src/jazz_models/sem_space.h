@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-#include "src/include/jazz_bebop.h"
+#include "src/jazz_models/concept.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_MODELS_SEM_SPACE
 
 
-/** \brief One liner.
+/** \brief SemSpace: Semantic spaces
 
-//TODO: Write this!
+Semantic spaces are to Concepts what Kinds are to Tuples.
 */
 
 namespace jazz_models
