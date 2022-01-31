@@ -62,4 +62,3 @@ namespace jazz_models
 } // namespace jazz_models
 
 #endif // ifndef INCLUDED_JAZZ_MODELS_MODELS
-
