@@ -41,6 +41,7 @@
 namespace jazz_bebop
 {
 
+//TODO: Implement primitives
 
 } // namespace jazz_bebop
 

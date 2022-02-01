@@ -41,6 +41,9 @@
 namespace jazz_bebop
 {
 
+//TODO: Implement field prerequisite (kind representations)
+//TODO: Implement field as a map
+//TODO: Implement field as a evaluation function
 
 } // namespace jazz_bebop
 

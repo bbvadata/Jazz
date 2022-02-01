@@ -41,6 +41,7 @@
 namespace jazz_bebop
 {
 
+//TODO: Implement core
 
 } // namespace jazz_bebop
 

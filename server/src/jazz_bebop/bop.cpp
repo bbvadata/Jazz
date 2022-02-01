@@ -41,6 +41,7 @@
 namespace jazz_bebop
 {
 
+//TODO: Implement first bop
 
 } // namespace jazz_bebop
 

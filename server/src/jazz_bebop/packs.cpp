@@ -41,6 +41,8 @@
 namespace jazz_bebop
 {
 
+//TODO: Implement packs
+//TODO: Implement first uplifted pack
 
 } // namespace jazz_bebop
 

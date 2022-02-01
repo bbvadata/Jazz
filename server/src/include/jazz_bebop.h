@@ -38,6 +38,7 @@
 #ifndef INCLUDED_JAZZ_BEBOP
 #define INCLUDED_JAZZ_BEBOP
 
+//TODO: Close Jazz 0.6.x after all TODOs in jazz_bebop are done
 
 /** \brief Includes everything in namespace jazz_bebop.
 
