@@ -43,7 +43,7 @@ using namespace jazz_bebop;
 
 SCENARIO("Testing bop") {
 
-//TODO: Write tests for this!
+//TODO: Write tests for bop.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {

@@ -43,7 +43,7 @@ using namespace jazz_models;
 
 SCENARIO("Testing models") {
 
-//TODO: Write tests for this!
+//TODO: Write tests for models.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {

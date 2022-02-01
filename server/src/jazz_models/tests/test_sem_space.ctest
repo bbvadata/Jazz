@@ -43,7 +43,7 @@ using namespace jazz_models;
 
 SCENARIO("Testing sem_space") {
 
-//TODO: Write tests for this!
+//TODO: Write tests for SemSpace.
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
