@@ -180,7 +180,7 @@ class Kind : public Block {
 		How dimensions are defined.
 		---------------------------
 
-		Dimensions are placehoders in the tensor shapes that contain an integer variable such as "width" instade of a constant. They are
+		Dimensions are placeholders in the tensor shapes that contain an integer variable such as "width" instead of a constant. They are
 		defined by placing a unique negative number for each dimension in the tensor and giving it a name inside the dims map. E.g.,
 		if an image has shape [-1, -2, 3] and dims[-1] == "width" and dims[-2] == "height", The kind will store these variable dimensions
 		together with their names.

@@ -84,7 +84,7 @@ namespace jazz_main
 #define PSTATE_FAILED			98		///< Set by the parser on any error (possibly in the r_value too)
 #define PSTATE_COMPLETE_OK		99		///< Set by the parser on complete success
 
-/** A vector of StateTransition. This only runs once, when contruction the API object, initializes the LUTs from a sequence of
+/** A vector of StateTransition. This only runs once, on construction of the API object, initializes the LUTs from a sequence of
 StateTransition constants in the source of api.cpp.
 */
 typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
@@ -143,7 +143,7 @@ MHD_Result print_out_key(void *cls, enum MHD_ValueKind kind, const char *key, co
 
 /// Indices inside state (anything else is a pTransaction of a PUT call).
 #define	STATE_NEW_CALL			0		///< Default state: connection open for any call
-#define	STATE_NOT_ACCEPTABLE	1		///< Data upload failed, query execution failed locating tagets. Returns MHD_HTTP_NOT_ACCEPTABLE
+#define	STATE_NOT_ACCEPTABLE	1		///< Data upload failed, query execution failed locating targets. Returns MHD_HTTP_NOT_ACCEPTABLE
 #define	STATE_BAD_REQUEST		2		///< PUT query is call malformed. Returns MHD_HTTP_BAD_REQUEST.
 
 int callback_state [3];
@@ -991,7 +991,7 @@ MHD_Result Api::return_error_message(pMHD_Connection connection, pChar p_url, in
 	\return			MHD_HTTP_CREATED if SEQUENCE_FINAL_CALL is successful, MHD_HTTP_OK if any othe call is successful, or any HTTP error
 					status code.
 
-	This function is **only** called after a successfull parse() of an HTTP_PUT query. It is not private because it is called for the
+	This function is **only** called after a successful parse() of an HTTP_PUT query. It is not private because it is called for the
 callback, but it is not intended for any other context.
 
 Internals
@@ -1163,7 +1163,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 	\return			  true if successful, log(LOG_MISS, "further details") for errors.
 
-	This function is **only** called after a successfull parse() of an HTTP_DELETE query. It is not private because it is called for the
+	This function is **only** called after a successful parse() of an HTTP_DELETE query. It is not private because it is called for the
 callback, but it is not intended for any other context.
 
 Internals
@@ -1223,7 +1223,7 @@ MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
 
 	\return			MHD_HTTP_OK if successful, or a valid http status error.
 
-	This function is **only** called after a successfull parse() of HTTP_GET and HTTP_HEAD queries. It is not private because it is called
+	This function is **only** called after a successful parse() of HTTP_GET and HTTP_HEAD queries. It is not private because it is called
 for the callback, but it is not intended for any other context.
 
 Internals

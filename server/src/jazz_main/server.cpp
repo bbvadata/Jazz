@@ -53,7 +53,7 @@ HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logge
 
 	\param p_sig_handler	A function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
 	\param p_daemon			Returns by reference the pointer that will be used to control the MHD_Daemon.
-	\param dh				The addres of the MHD_AccessHandlerCallback (server callback).
+	\param dh				The address of the MHD_AccessHandlerCallback (server callback).
 	\param channels			The instance of Channel to find out the configuration port.
 
 	\return		On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does

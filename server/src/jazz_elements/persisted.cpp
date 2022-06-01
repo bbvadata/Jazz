@@ -791,7 +791,7 @@ release_lock_and_fail:
 
 /** Close all named databases on LMDB leaving them ready for a subsequent opening.
 
-	This makes numsources == 0 by closing used LMDB handles via mdb_dbi_close().
+	This closes used LMDB handles one by one via mdb_dbi_close().
 */
 void Persisted::close_all_databases() {
 
@@ -903,8 +903,7 @@ release_lock_and_fail:
 
 	\return	SERVICE_NO_ERROR on success or some negative value and log(LOG_MISS, "further details") on failure.
 
-	NOTE: kill_source() is EXTREMELY not thread safe! Indices to ALL sources may change. Unsafe use of: numsources, source_nam, source_open,
-source_dbi.
+	NOTE: kill_source() is EXTREMELY not thread safe! Indices to ALL sources may change.
 */
 StatusCode Persisted::remove_database(pChar name) {
 

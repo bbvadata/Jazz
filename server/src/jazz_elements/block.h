@@ -362,7 +362,7 @@ class Block: public StaticBlockHeader {
 
 		/** Check (fast) if a filter is valid and can be applied to filter inside a specific Block
 
-			This is verifies sizes and types, asssuming there are no NAs and integer values are sorted.
+			This is verifies sizes and types, assuming there are no NAs and integer values are sorted.
 
 			\return true if it is a valid filter of that type.
 		*/
@@ -388,7 +388,7 @@ class Block: public StaticBlockHeader {
 
 			\param set_has_NA	SET_HAS_NA_FALSE (set the attribute as no NA without checking), SET_HAS_NA_TRUE (set it
 								as true which is always safe) or SET_HAS_NA_AUTO (search the whole tensor for NA and set accordingly).
-			\param set_hash		Compute MurmurHash64A and set attribute **hash64** accordinly.
+			\param set_hash		Compute MurmurHash64A and set attribute **hash64** accordingly.
 			\param set_time		Set attribute **created** as the current time.
 		*/
 		inline void close_block(int set_has_NA = SET_HAS_NA_FALSE,

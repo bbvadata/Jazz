@@ -644,7 +644,7 @@ void Logger::log_printf(int loglevel, const char *fmt, va_list args) {
 	\param a_config Possibly a configuration file as a ConfigFile object. NULL is okay if the object does not expect any configuration.
 
 	Rather than using the private p_log and p_conf pointers, it is recommended to use the inline methods log() and log_printf() for
-	logging and get_conf_key() for acessing the configuration.
+	logging and get_conf_key() for accessing the configuration.
 */
 Service::Service(pLogger a_logger, pConfigFile a_config) {
 	p_log  = a_logger;

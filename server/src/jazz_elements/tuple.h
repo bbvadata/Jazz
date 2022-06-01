@@ -82,7 +82,7 @@ functionality to build Tuples: new_tuple() to do the basic building. It does not
 Using Tuples
 ------------
 
-Like any Block, it is a moveble structure that can be edited by this class. Channel-wise, Volatile, Persistenc or via the http API, it is
+Like any Block, it is a moveable structure that can be edited by this class. Channel-wise, Volatile, Persistence or via the http API, it is
 just a Block. Note:
 
 - It has a new method, .block(item), that returns the address of an item.

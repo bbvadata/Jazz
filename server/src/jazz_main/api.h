@@ -408,7 +408,7 @@ class Api : public Container {
 
 		Context: This in any possible assignment in which the right part is NOT remote call. Functionally, it is similar to
 		get_left_local(), but since it is the right of an assignment, arguments are stored at a different place and also, apply
-		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instaed of APPLY_NOTHING..APPLY_TEXT.
+		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instead of APPLY_NOTHING..APPLY_TEXT.
 		It returns the final block as it will be returned to the user with a new_block() interface.
 		*/
 		inline StatusCode get_right_local(pTransaction &p_txn, HttpQueryState &q_state) {
