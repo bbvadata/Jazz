@@ -1025,7 +1025,7 @@ void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 		strcpy(errmsg, "LMDB MDB_INCOMPATIBLE: Operation and DB incompatible, or DB type changed (see doc).");
 		break;
 	case MDB_BAD_RSLOT:
-		strcpy(errmsg, "LMDB MDB_BAD_RSLOT: Invalid reuse of reader locktable slot.");
+		strcpy(errmsg, "LMDB MDB_BAD_RSLOT: Invalid reuse of reader lock table slot.");
 		break;
 	case MDB_BAD_TXN:
 		strcpy(errmsg, "LMDB MDB_BAD_TXN: Transaction must abort, has a child, or is invalid.");
