@@ -207,21 +207,21 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 		case MHD_HTTP_OK:
 			goto continue_in_put_ok;
 		}
-		goto continue_in_put_notacceptable;
+		goto continue_in_put_not_acceptable;
 	}
 
 	// Step 3 : Get rid of failed uploads without doing anything.
 
 	if (*con_cls == &callback_state[STATE_NOT_ACCEPTABLE]) {
 		if (*upload_data_size == 0)
-			goto create_response_answer_put_notacceptable;
+			goto create_response_answer_put_not_acceptable;
 
 		return MHD_YES;
 	}
 
 	if (*con_cls == &callback_state[STATE_BAD_REQUEST]) {
 		if (*upload_data_size == 0)
-			goto create_response_answer_put_badrequest;
+			goto create_response_answer_put_bad_request;
 
 		return MHD_YES;
 	}
@@ -246,7 +246,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	switch (http_method) {
 	case HTTP_NOTUSED:
-		goto create_response_answer_put_badrequest;
+		goto create_response_answer_put_bad_request;
 
 	case HTTP_OPTIONS: {	// Shield variable "allow" initialization to support the goto logic.
 
@@ -301,7 +301,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 		else if (!API.parse(q_state, (pChar) url, http_method)) {
 
 			if (http_method == HTTP_PUT)
-				goto continue_in_put_badrequest;
+				goto continue_in_put_bad_request;
 
 			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 		}
@@ -332,8 +332,8 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 			if (*upload_data_size) goto continue_in_put_ok;
 			else 				   goto create_response_answer_put_ok;
 		} else {
-			if (*upload_data_size) goto continue_in_put_notacceptable;
-			else				   goto create_response_answer_put_notacceptable;
+			if (*upload_data_size) goto continue_in_put_not_acceptable;
+			else				   goto create_response_answer_put_not_acceptable;
 		}
 	}
 
@@ -363,7 +363,7 @@ create_response_answer_put_ok:
 
 	return ret;
 
-create_response_answer_put_notacceptable:
+create_response_answer_put_not_acceptable:
 
 	response = MHD_create_response_from_buffer(1, response_put_fail, MHD_RESPMEM_PERSISTENT);
 
@@ -373,7 +373,7 @@ create_response_answer_put_notacceptable:
 
 	return ret;
 
-create_response_answer_put_badrequest:
+create_response_answer_put_bad_request:
 
 	response = MHD_create_response_from_buffer(1, response_put_fail, MHD_RESPMEM_PERSISTENT);
 
@@ -383,7 +383,7 @@ create_response_answer_put_badrequest:
 
 	return ret;
 
-continue_in_put_notacceptable:
+continue_in_put_not_acceptable:
 
 	if (*upload_data_size) {
 		*upload_data_size = 0;
@@ -394,7 +394,7 @@ continue_in_put_notacceptable:
 
 	return MHD_NO;
 
-continue_in_put_badrequest:
+continue_in_put_bad_request:
 
 	if (*upload_data_size) {
 		*upload_data_size = 0;
