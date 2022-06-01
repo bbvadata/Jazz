@@ -97,6 +97,7 @@ StatusCode Persisted::start() {
 		 && get_conf_key("MDB_NOMEMINIT",		   nomeminit);
 
 #ifdef CATCH_TEST
+	lmdb_opt.env_set_mapsize = std::min(lmdb_opt.env_set_mapsize, 1024);	// Avoids Valgrind crashing on big allocation (DO NOT REMOVE!)
 	nomeminit = 0;	// Minimize Valgrind noise
 #endif
 
