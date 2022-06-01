@@ -75,6 +75,8 @@ typedef int MHD_Result;
 namespace jazz_main
 {
 
+//TODO: Create interface for ACTOR model (as described in develop/rfc2/jazz_actor_model.html)
+
 using namespace jazz_elements;
 using namespace jazz_bebop;
 using namespace jazz_models;
