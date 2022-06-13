@@ -52,7 +52,7 @@
 
 /** \brief The Basic Opcode Pack (BOP)
 
-The fundamental collection of primitives provided in Jazz (any other pack is an uplifted pack).
+The fundamental collection of op-codes provided in Jazz (any other pack is an uplifted pack).
 */
 
 namespace jazz_bebop

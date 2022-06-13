@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_BEBOP_PACK
 
 
-/** \brief Pack: A collection of primitives.
+/** \brief Pack: A collection of op-codes.
 
-Packs are collections of primitives, either the Basic Opcode Pack (BOP), or a linked dynamic library referred to as an uplifted pack.
+Packs are collections of op-codes, either the Basic Opcode Pack (BOP), or a linked dynamic library referred to as an uplifted pack.
 */
 
 namespace jazz_bebop

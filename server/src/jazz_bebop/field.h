@@ -50,9 +50,9 @@
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
 
-/** \brief Formal Fields: Organizing primitives and snippets by Kind
+/** \brief Formal Fields: Organizing op-codes and snippets by Kind
 
-Fields are morphisms defined as primitives and snippets in a unique way for each pair of Kinds.
+Fields are morphisms defined as op-codes and snippets in a unique way for each pair of Kinds.
 */
 
 namespace jazz_bebop

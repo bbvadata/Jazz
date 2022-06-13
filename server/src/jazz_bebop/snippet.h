@@ -52,7 +52,7 @@
 
 /** \brief Snippets: Snippets and code items. (A code item is a minimal snippet.)
 
-Functionally, snippets can do the same as primitives, but they are written in Bebop rather than C++.
+Functionally, snippets can do the same as op-codes, but they are written in Bebop rather than C++.
 */
 
 namespace jazz_bebop
