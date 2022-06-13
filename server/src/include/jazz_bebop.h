@@ -45,7 +45,7 @@
 This is everything to run bebop code: Cores, Fields, Primitives, Snippets, Kernels, etc.
 */
 
-#include "src/jazz_bebop/primitives.h"
+#include "src/jazz_bebop/opcode.h"
 #include "src/jazz_bebop/pack.h"
 #include "src/jazz_bebop/packs.h"
 #include "src/jazz_bebop/bop.h"
