@@ -34,7 +34,7 @@
 
 // #include <stl_whatever>
 
-#include "src/jazz_bebop/primitives.h"
+#include "src/jazz_bebop/opcode.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
