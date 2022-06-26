@@ -123,7 +123,15 @@ void signalHandler_SIGTERM(int signum) {
 #ifndef CATCH_TEST
 
 	if (!stop_service(&HTTP,	  "HttpServer")) stop_ok = false;
+
 	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
+
+	if (!stop_service(&MODEL,	  "Model"))		 stop_ok = false;
+	if (!stop_service(&SEMSPACES, "SemSpaces"))	 stop_ok = false;
+
+	if (!stop_service(&FIELDS,	  "Fields"))	 stop_ok = false;
+	if (!stop_service(&PACK,	  "Pack"))		 stop_ok = false;
+
 	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
 	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
 	if (!stop_service(&CHANNELS,  "Channels"))	 stop_ok = false;
