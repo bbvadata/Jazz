@@ -38,7 +38,40 @@
 namespace jazz_bebop
 {
 
-//TODO: Implement pack declaration
+using namespace jazz_elements;
+
+/*	-----------------------------------------------
+	 Pack : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Pack::Pack(pLogger	   a_logger,
+		   pConfigFile a_config) : Container(a_logger, a_config) {}
+
+
+Pack::~Pack() { destroy_container(); }
+
+
+/** Starts the Pack service
+*/
+StatusCode Pack::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Pack::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+Pack PAK(&LOGGER, &CONFIG);
+
+#endif
 
 } // namespace jazz_bebop
 

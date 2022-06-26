@@ -56,6 +56,28 @@ A Pack is a collections of op-codes either the Basic Opcode Pack (BOP) or an upl
 namespace jazz_bebop
 {
 
+class Pack : public jazz_elements::Container {
+
+	public:
+
+		Pack(jazz_elements::pLogger		a_logger,
+			 jazz_elements::pConfigFile	a_config);
+	   ~Pack();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef Pack *pPack;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Pack
+// ---------------
+
+extern Pack PAK;
+
+#endif
 
 } // namespace jazz_bebop
 
