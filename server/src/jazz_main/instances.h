@@ -66,7 +66,10 @@ using namespace jazz_model;
 extern Channels	 CHANNELS;		// The container channeling blocks.
 extern Volatile	 VOLATILE;		// The container allocating volatile blocks.
 extern Persisted PERSISTED;		// The container allocating persisted blocks.
-extern Api		 API;			// The API interface is also a one-shot container.
+
+// Uplifted containers:
+
+#include "src/uplifted/uplifted_instances.cpp"
 
 // Http server:
 

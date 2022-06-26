@@ -54,7 +54,12 @@ Channels	CHANNELS (&LOGGER, &CONFIG);
 Volatile	VOLATILE (&LOGGER, &CONFIG);
 Persisted	PERSISTED(&LOGGER, &CONFIG);
 
-Api			API	(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);
+// Uplifted containers:
+
+#include "src/uplifted/uplifted_instances.cpp"
+
+// Http server:
+
 HttpServer	HTTP(&LOGGER, &CONFIG);
 
 #endif
