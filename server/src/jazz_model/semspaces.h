@@ -50,12 +50,34 @@
 
 /** \brief SemSpaces: A container of Semantic spaces
 
-Semantic spaces and Fields are globally stored in a container.
+Semantic spaces and SemSpaces are globally stored in a container.
 */
 
 namespace jazz_model
 {
 
+class SemSpaces : public jazz_elements::Container {
+
+	public:
+
+		SemSpaces(jazz_elements::pLogger	 a_logger,
+				  jazz_elements::pConfigFile a_config);
+	   ~SemSpaces();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef SemSpaces *pSemSpaces;
+
+
+#ifdef CATCH_TEST
+
+// Instancing SemSpaces
+// --------------------
+
+extern SemSpaces SMS;
+
+#endif
 
 } // namespace jazz_model
 
