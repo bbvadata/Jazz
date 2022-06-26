@@ -41,9 +41,7 @@ using namespace jazz_bebop;
 // Tests
 // -----
 
-SCENARIO("Testing packs") {
-
-//TODO: Write tests for packs.
+SCENARIO("Testing fields") {
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
