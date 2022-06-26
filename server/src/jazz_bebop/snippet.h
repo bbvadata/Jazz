@@ -32,8 +32,6 @@
 */
 
 
-// #include <stl_whatever>
-
 #include "src/jazz_bebop/bop.h"
 
 #if defined CATCH_TEST
