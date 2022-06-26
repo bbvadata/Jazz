@@ -140,7 +140,6 @@ the http callback http_request_callback().
 
 */
 class Api : public Container {
-//TODO: Implement API uplifts as replacement via inheritance for this class with a private base.
 //TODO: Make an API uplift connecting to outside play
 
 	public:
@@ -149,7 +148,10 @@ class Api : public Container {
 			pConfigFile	a_config,
 			pChannels	a_channels,
 			pVolatile	a_volatile,
-			pPersisted	a_persisted);
+			pPersisted	a_persisted,
+			pFields		a_fields,
+			pSemSpaces	a_semspaces,
+			pModel		a_model);
 	   ~Api();
 
 		StatusCode start	();
@@ -576,6 +578,10 @@ class Api : public Container {
 		pChannels	p_channels;
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
+		pFields		p_fields;
+		pSemSpaces	p_semspaces;
+		pModel		p_model;
+
 		Index		www;
 		int			remove_statics;
 };
