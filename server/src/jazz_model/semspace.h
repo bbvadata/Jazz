@@ -32,9 +32,7 @@
 */
 
 
-// #include <stl_whatever>
-
-#include "src/jazz_models/concept.h"
+#include "src/jazz_model/concept.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -46,13 +44,13 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_MODELS_SEM_SPACE
-#define INCLUDED_JAZZ_MODELS_SEM_SPACE
+#ifndef INCLUDED_JAZZ_MODELS_SEMSPACE
+#define INCLUDED_JAZZ_MODELS_SEMSPACE
 
 
 /** \brief SemSpace: Semantic spaces
 
-Semantic spaces are to Concepts what Kinds are to Tuples.
+Semantic spaces are containers of Concepts.
 */
 
 namespace jazz_model
@@ -61,4 +59,4 @@ namespace jazz_model
 
 } // namespace jazz_model
 
-#endif // ifndef INCLUDED_JAZZ_MODELS_SEM_SPACE
+#endif // ifndef INCLUDED_JAZZ_MODELS_SEMSPACE

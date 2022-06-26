@@ -32,9 +32,7 @@
 */
 
 
-// #include <stl_whatever>
-
-#include "src/jazz_models/sem_space.h"
+#include "src/jazz_model/semspaces.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
