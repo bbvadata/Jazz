@@ -249,6 +249,16 @@ Scope of jazz_elements
 Everything works at binary level, operations on blocks at this level are very simple, just copying, deleting, filtering a Tensor by
 (int or bool) indices, filtering a Tuple by item name and support every medium in the more conceivably efficient way.
 
+Code execution
+--------------
+
+Code execution covers the methods exec (both for functions and mutators) and modify (a special logic used in channel). Code execution
+both runs at "lower level" (opcodes and snippets) or at higher level (concept, semspace, model). Everything goes through exec() both
+functions and mutators. See the doc in the namespace jazz_bebop for details.
+
+Calling OpCodes and sippets from a container always wraps around the arguments. This means, even is the opcode is a mutator it does not
+modify the original tensor but does a copy-on-write, modifies the copy and returns the copy.
+
 new_block()
 -----------
 
