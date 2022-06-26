@@ -40,6 +40,8 @@ using namespace jazz_bebop;
 
 SCENARIO("Testing cores") {
 
+//TODO: Write tests for cores.
+
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
 			THEN("it breaks") {
