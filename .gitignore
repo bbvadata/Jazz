@@ -2,6 +2,7 @@
 server/Makefile
 server/src/include/jazz_platform.h
 server/src/jazz_main/uplifted_instances.h
+server/src/jazz_main/uplifted_instances.cpp
 server/src/main.dox
 docker/base/build_upload.sh
 docker/lss/build_upload.sh

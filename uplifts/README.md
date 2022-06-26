@@ -23,5 +23,5 @@ are modified.
     ├── pack/       // <name>.h, <name>.cpp with a class inherited from Pack      (in jazz_bebop/pack.h)      or no `pack` folder.
     └── semspaces/  // <name>.h, <name>.cpp with a class inherited from SemSpaces (in jazz_model/semspaces.h) or no `semspaces` folder.
 
-The "magic" works because `./config.sh` will include the compilation paths and create a `jazz_main/uplifted_instances.h` file with the
-names of the uplifted classes that will replace their parent classes in the server.
+The "magic" works because `./config.sh` will include the compilation paths and create two `jazz_main/uplifted_instances.h`,
+`jazz_main/uplifted_instances.cpp` files with the names of the uplifted classes that will replace their parent classes in the server.
