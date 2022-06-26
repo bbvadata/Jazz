@@ -32,9 +32,6 @@
 */
 
 
-// #include <stl_whatever>
-
-
 #include "src/jazz_elements/volatile.h"
 
 #ifdef CATCH_TEST

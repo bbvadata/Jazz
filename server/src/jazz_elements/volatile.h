@@ -32,9 +32,6 @@
 */
 
 
-// #include <stl_whatever>
-
-
 #include "src/jazz_elements/channel.h"
 
 #ifdef CATCH_TEST
