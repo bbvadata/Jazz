@@ -35,15 +35,13 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_models;
+using namespace jazz_model;
 
 
 // Tests
 // -----
 
-SCENARIO("Testing models") {
-
-//TODO: Write tests for models.
+SCENARIO("Testing concept") {
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {

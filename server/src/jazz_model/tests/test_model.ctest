@@ -35,15 +35,13 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_models;
+using namespace jazz_model;
 
 
 // Tests
 // -----
 
-SCENARIO("Testing sem_space") {
-
-//TODO: Write tests for SemSpace.
+SCENARIO("Testing model") {
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {

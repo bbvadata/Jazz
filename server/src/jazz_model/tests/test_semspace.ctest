@@ -35,15 +35,13 @@
 // #include <stl_whatever>
 
 
-using namespace jazz_models;
+using namespace jazz_model;
 
 
 // Tests
 // -----
 
-SCENARIO("Testing concept") {
-
-//TODO: Write tests for concept.
+SCENARIO("Testing semspace") {
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {
