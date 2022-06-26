@@ -47,11 +47,12 @@ This is everything to run bebop code: Cores, Fields, Primitives, Snippets, Kerne
 
 #include "src/jazz_bebop/opcode.h"
 #include "src/jazz_bebop/pack.h"
-#include "src/jazz_bebop/packs.h"
 #include "src/jazz_bebop/bop.h"
 #include "src/jazz_bebop/snippet.h"
 #include "src/jazz_bebop/field.h"
+#include "src/jazz_bebop/fields.h"
 #include "src/jazz_bebop/core.h"
+#include "src/jazz_bebop/cores.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP

@@ -45,10 +45,10 @@
 This is everything from objects to concepts, from code execution to code creation.
 */
 
-#include "src/jazz_models/sem_space.h"
-#include "src/jazz_models/concept.h"
-#include "src/jazz_models/model.h"
-#include "src/jazz_models/models.h"
+#include "src/jazz_model/concept.h"
+#include "src/jazz_model/semspace.h"
+#include "src/jazz_model/semspaces.h"
+#include "src/jazz_model/model.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_MODELS
