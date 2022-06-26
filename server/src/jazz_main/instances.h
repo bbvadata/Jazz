@@ -69,7 +69,7 @@ extern Persisted PERSISTED;		// The container allocating persisted blocks.
 
 // Uplifted containers:
 
-#include "src/uplifted/uplifted_instances.cpp"
+#include "src/uplifted/uplifted_instances.h"
 
 // Http server:
 
