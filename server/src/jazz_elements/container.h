@@ -379,6 +379,7 @@ class Container : public Service {
 		virtual StatusCode remove	   (pChar				p_where);
 		virtual StatusCode copy		   (pChar				p_where,
 										pChar				p_what);
+
 		// The function call interface: exec()/modify().
 		virtual StatusCode exec		   (pTransaction	   &p_txn,
 										Locator			   &function,
