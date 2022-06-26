@@ -48,7 +48,7 @@
 #define INCLUDED_JAZZ_BEBOP_CORE
 
 
-/** \brief Core: The execution unit running Snippet
+/** \brief Core: The execution unit running Snippet objects.
 
 A core is not a service, it allocates its state in the Volatile container.
 */

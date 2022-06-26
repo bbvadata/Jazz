@@ -48,7 +48,7 @@
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
 
-/** \brief Formal Fields: Organizing op-codes and snippets by Kind
+/** \brief Formal Fields: Organizing op-codes and snippets by Kind.
 
 Fields are morphisms defined as op-codes and snippets in a unique way for each pair of Kinds.
 */

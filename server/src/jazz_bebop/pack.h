@@ -50,7 +50,7 @@
 
 /** \brief Pack: A collection of op-codes.
 
-Packs are collections of op-codes, either the Basic Opcode Pack (BOP), or a linked dynamic library referred to as an uplifted pack.
+A Pack is a collections of op-codes either the Basic Opcode Pack (BOP) or an uplifted pack.
 */
 
 namespace jazz_bebop
