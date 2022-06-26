@@ -55,10 +55,10 @@
 Semantic spaces are to Concepts what Kinds are to Tuples.
 */
 
-namespace jazz_models
+namespace jazz_model
 {
 
 
-} // namespace jazz_models
+} // namespace jazz_model
 
 #endif // ifndef INCLUDED_JAZZ_MODELS_SEM_SPACE

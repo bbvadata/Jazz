@@ -55,10 +55,10 @@
 Concepts evolve by searching new code representations. Models search new code across fields.
 */
 
-namespace jazz_models
+namespace jazz_model
 {
 
 
-} // namespace jazz_models
+} // namespace jazz_model
 
 #endif // ifndef INCLUDED_JAZZ_MODELS_MODEL

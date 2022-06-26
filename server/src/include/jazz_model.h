@@ -40,7 +40,7 @@
 
 //TODO: Make a shortcut model connecting to outside play
 
-/** \brief Includes everything in namespace jazz_models.
+/** \brief Includes everything in namespace jazz_model.
 
 This is everything from objects to concepts, from code execution to code creation.
 */

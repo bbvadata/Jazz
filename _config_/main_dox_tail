@@ -22,7 +22,7 @@ implemented as an http server:
 
 1. jazz_elements (All the pieces: Blocks, Kinds, Tuples, storage, communication, services, etc.)\n
 2. jazz_bebop (Everything to run bebop code: Cores, Fields, Primitives, Snippets, Kernels, etc.)\n
-3. jazz_models (From objects to concepts, from code execution to code creation)\n
+3. jazz_model (From objects to concepts, from code execution to code creation)\n
 \n
 
 Additionally, there is a namespace for the server:

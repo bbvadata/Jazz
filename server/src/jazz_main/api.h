@@ -34,7 +34,7 @@
 
 #include <map>
 
-#include "src/include/jazz_models.h"
+#include "src/include/jazz_model.h"
 
 #ifdef CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -69,7 +69,7 @@ typedef int MHD_Result;
 
 /*! \brief The http API, instancing and building the server.
 
-	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_models
+	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_model
 	it is not intended to build other applications than the server.
 */
 namespace jazz_main
@@ -79,7 +79,7 @@ namespace jazz_main
 
 using namespace jazz_elements;
 using namespace jazz_bebop;
-using namespace jazz_models;
+using namespace jazz_model;
 
 #define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert HttpQueryState -> Locator
 
