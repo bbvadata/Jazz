@@ -1956,7 +1956,6 @@ StatusCode Container::copy(pChar p_where, pChar p_what) {
 }
 
 
-//TODO: Review if Container.exec() should be removed (3)
 /** The function call interface for **exec**: Execute an opcode in a formal field.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a

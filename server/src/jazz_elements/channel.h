@@ -256,11 +256,8 @@ class Channels : public Container {
 		virtual StatusCode remove	 (pChar				 p_where);
 		virtual StatusCode copy		 (pChar				 p_where,
 									  pChar				 p_what);
-
-		// The function call interface: exec()/modify().
 		virtual StatusCode modify    (Locator			&function,
 									  pTuple			 p_args);
-
 		MHD_StatusCode forward_get	 (pTransaction		&p_txn,
 									  Name				 node,
 									  pChar				 p_url);
