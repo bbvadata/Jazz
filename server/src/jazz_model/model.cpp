@@ -38,6 +38,40 @@
 namespace jazz_model
 {
 
+using namespace jazz_elements;
+
+/*	-----------------------------------------------
+	 Model : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Model::Model(pLogger	 a_logger,
+			 pConfigFile a_config) : Container(a_logger, a_config) {}
+
+
+Model::~Model() { destroy_container(); }
+
+
+/** Starts the Model service
+*/
+StatusCode Model::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Model::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+Model MDL(&LOGGER, &CONFIG);
+
+#endif
 
 } // namespace jazz_model
 

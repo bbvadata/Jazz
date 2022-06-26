@@ -56,6 +56,28 @@ Concepts evolve by searching new code representations. Models search new code ac
 namespace jazz_model
 {
 
+class Model : public jazz_elements::Container {
+
+	public:
+
+		Model(jazz_elements::pLogger	 a_logger,
+			  jazz_elements::pConfigFile a_config);
+	   ~Model();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef Model *pModel;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Model
+// ----------------
+
+extern Model MDL;
+
+#endif
 
 } // namespace jazz_model
 
