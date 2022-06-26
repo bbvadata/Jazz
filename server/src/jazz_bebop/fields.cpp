@@ -38,6 +38,41 @@
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
+/*	-----------------------------------------------
+	 Fields : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Fields::Fields(pLogger	   a_logger,
+			   pConfigFile a_config,
+			   pPack	   a_pack) : Container(a_logger, a_config) {}
+
+
+Fields::~Fields() { destroy_container(); }
+
+
+/** Starts the Fields service
+*/
+StatusCode Fields::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Fields::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+Fields FLS(&LOGGER, &CONFIG, &PAK);
+
+#endif
 
 } // namespace jazz_bebop
 

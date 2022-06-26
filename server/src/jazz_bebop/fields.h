@@ -56,6 +56,29 @@ All fields in a system are managed by this container and searchable by Kind.
 namespace jazz_bebop
 {
 
+class Fields : public jazz_elements::Container {
+
+	public:
+
+		Fields(jazz_elements::pLogger	  a_logger,
+			   jazz_elements::pConfigFile a_config,
+			   pPack					  a_pack);
+	   ~Fields();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef Fields *pFields;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Fields
+// -----------------
+
+extern Fields FLS;
+
+#endif
 
 } // namespace jazz_bebop
 
