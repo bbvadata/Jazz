@@ -32,7 +32,7 @@
 */
 
 
-// #include <stl_whatever>
+#include "src/jazz_model/semspace.h"
 
 
 namespace jazz_model
@@ -42,5 +42,5 @@ namespace jazz_model
 } // namespace jazz_model
 
 #if defined CATCH_TEST
-#include "src/jazz_model/tests/test_sem_space.ctest"
+#include "src/jazz_model/tests/test_semspace.ctest"
 #endif
