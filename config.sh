@@ -153,25 +153,38 @@ jazz_depends=$(depends)
 
 cd "$jazz_pwd" || return 1
 
+#TODO: Implement the search for this!!
+uplifted_pack='Pack'
+uplifted_fields='Fields'
+uplifted_spaces='SemSpaces'
+uplifted_model='Model'
+uplifted_api='Api'
+
+
 # End of section 1: Dump all variables if debugging
 if [[ $mode =~ 'DEBUG' ]]; then
-  echo "jazz_pwd      = $jazz_pwd"
-  echo "jazz_version  = $jazz_version"
-  echo "jz_processor  = $jz_processor"
-  echo "jazz_distro1  = $jazz_distro1"
-  echo "jazz_distro2  = $jazz_distro2"
-  echo "jazz_years    = $jazz_years"
-  echo "mhd_inclpath  = $mhd_inclpath"
-  echo "mhd_libpath   = $mhd_libpath"
-  echo "curl_inclpath = $curl_inclpath"
-  echo "curl_libpath  = $curl_libpath"
-  echo "zmq_inclpath  = $zmq_inclpath"
-  echo "zmq_libpath   = $zmq_libpath"
-  echo "vpath         = $vpath"
-  echo "jzpat         = $jzpat"
-  echo "cpps          = $cpps"
-  echo "objs          = $objs"
-  echo "jazz_depends  = $jazz_depends"
+  echo "jazz_pwd        = $jazz_pwd"
+  echo "jazz_version    = $jazz_version"
+  echo "jz_processor    = $jz_processor"
+  echo "jazz_distro1    = $jazz_distro1"
+  echo "jazz_distro2    = $jazz_distro2"
+  echo "jazz_years      = $jazz_years"
+  echo "mhd_inclpath    = $mhd_inclpath"
+  echo "mhd_libpath     = $mhd_libpath"
+  echo "curl_inclpath   = $curl_inclpath"
+  echo "curl_libpath    = $curl_libpath"
+  echo "zmq_inclpath    = $zmq_inclpath"
+  echo "zmq_libpath     = $zmq_libpath"
+  echo "vpath           = $vpath"
+  echo "jzpat           = $jzpat"
+  echo "cpps            = $cpps"
+  echo "objs            = $objs"
+  echo "jazz_depends    = $jazz_depends"
+  echo "uplifted_pack   = $uplifted_pack"
+  echo "uplifted_fields = $uplifted_fields"
+  echo "uplifted_spaces = $uplifted_spaces"
+  echo "uplifted_model  = $uplifted_model"
+  echo "uplifted_api    = $uplifted_api"
 
   printf "\n"
 fi
