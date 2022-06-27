@@ -300,4 +300,37 @@ chmod 777 docker/tng/build_upload.sh
 printf "Ok.\n"
 
 
+printf "Creating folder: server/src/uplifted ... "
+
+mkdir -p server/src/uplifted
+
+printf "Ok.\n"
+
+
+printf "Writing: server/src/uplifted/uplifted_instances.h ... "
+
+echo "// This file is auto generated, do NOT edit, run ./config.sh instead
+
+extern $uplifted_pack PACK;
+extern $uplifted_fields FIELDS;
+extern $uplifted_spaces SEMSPACES;
+extern $uplifted_model MODEL;
+extern $uplifted_api API;" > server/src/uplifted/uplifted_instances.h
+
+printf "Ok.\n"
+
+
+printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
+
+echo "// This file is auto generated, do NOT edit, run ./config.sh instead
+
+$uplifted_pack PACK(&LOGGER, &CONFIG);
+$uplifted_fields FIELDS(&LOGGER, &CONFIG, &PACK);
+$uplifted_spaces SEMSPACES(&LOGGER, &CONFIG);
+$uplifted_model MODEL(&LOGGER, &CONFIG);
+$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELDS, &SEMSPACES, &MODEL);" > server/src/uplifted/uplifted_instances.cpp
+
+printf "Ok.\n"
+
+
 cat _config_/help_on_done.txt
