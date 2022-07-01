@@ -95,6 +95,40 @@ if [ ! -e "$zmq_libpath/libzmq.so" ]; then
   exit 1
 fi
 
+get_descendant_name ( )
+{
+  parent_class=$1
+  module_path=$2
+
+  if [[ ! -d $module_path ]]
+  then
+    echo $parent_class
+    return 0
+  fi
+
+  dep=$(ls $module_path/*.h)
+  rex="^class *([[:alpha:]_]+).*public.*$parent_class.*$"
+
+  for dp in $dep; do
+    if [ -f "$dp" ]; then
+      while read ln; do
+        if [[ $ln =~ $rex ]]
+        then
+          echo ${BASH_REMATCH[1]}
+          return 0
+        fi
+      done < $dp
+    fi
+  done
+}
+
+uplifted_pack=$(get_descendant_name 'Pack' 'uplifts/pack')
+uplifted_fields=$(get_descendant_name 'Fields' 'uplifts/fields')
+uplifted_spaces=$(get_descendant_name 'SemSpaces' 'uplifts/semspaces')
+uplifted_model=$(get_descendant_name 'Model' 'uplifts/model')
+uplifted_api=$(get_descendant_name 'Api' 'uplifts/api')
+
+
 cd server || return 1
 
 testp=$(echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' ')
@@ -104,6 +138,7 @@ jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
 objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
+#TODO: If uplifted_* are not the default values, add the corresponding path to vpath and jzpath and the cpp to cpps and objs
 
 recursive_parse_header ( )
 {
@@ -152,13 +187,6 @@ depends ( )
 jazz_depends=$(depends)
 
 cd "$jazz_pwd" || return 1
-
-#TODO: Implement the search for this!!
-uplifted_pack='Pack'
-uplifted_fields='Fields'
-uplifted_spaces='SemSpaces'
-uplifted_model='Model'
-uplifted_api='Api'
 
 
 # End of section 1: Dump all variables if debugging
