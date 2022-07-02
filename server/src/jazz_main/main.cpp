@@ -242,6 +242,7 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
+		init_http_callback();
 		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon, &http_request_callback, CHANNELS);
 
 		if (ret_code != EXIT_SUCCESS) {

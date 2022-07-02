@@ -82,6 +82,11 @@ void signalHandler_SIGTERM(int signum);
 
 #endif
 
+
+/** \brief The initialization of the global variables for http_request_callback().
+*/
+void init_http_callback();
+
 // Utils for starting and stopping Services:
 
 /** \brief A little utility to start services writing output to the console.
