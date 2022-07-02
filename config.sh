@@ -378,28 +378,58 @@ mkdir -p server/src/uplifted
 printf "Ok.\n"
 
 
+cd server || return 1
+
+uplifted_incl=""
+
+if [ "$uplifted_pak" != "$uplifted_pak_parent" ]; then
+  uplifted_incl+="#include \"$(ls $uplifted_pak_source*.h)\"\n"
+fi
+
+if [ "$uplifted_fie" != "$uplifted_fie_parent" ]; then
+  uplifted_incl+="#include \"$(ls $uplifted_fie_source*.h)\"\n"
+fi
+
+if [ "$uplifted_spa" != "$uplifted_spa_parent" ]; then
+  uplifted_incl+="#include \"$(ls $uplifted_spa_source*.h)\"\n"
+fi
+
+if [ "$uplifted_mod" != "$uplifted_mod_parent" ]; then
+  uplifted_incl+="#include \"$(ls $uplifted_mod_source*.h)\"\n"
+fi
+
+if [ "$uplifted_api" != "$uplifted_api_parent" ]; then
+  uplifted_incl+="#include \"$(ls $uplifted_api_source*.h)\"\n"
+fi
+
+
+cd "$jazz_pwd" || return 1
+
+
 printf "Writing: server/src/uplifted/uplifted_instances.h ... "
 
-echo "// This file is auto generated, do NOT edit, run ./config.sh instead
+printf "// This file is auto generated, do NOT edit, run ./config.sh instead
+
+$uplifted_incl
 
 extern $uplifted_pak PACK;
 extern $uplifted_fie FIELDS;
 extern $uplifted_spa SEMSPACES;
 extern $uplifted_mod MODEL;
-extern $uplifted_api API;" > server/src/uplifted/uplifted_instances.h
+extern $uplifted_api API;\n" > server/src/uplifted/uplifted_instances.h
 
 printf "Ok.\n"
 
 
 printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
 
-echo "// This file is auto generated, do NOT edit, run ./config.sh instead
+printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
 $uplifted_pak PACK(&LOGGER, &CONFIG);
 $uplifted_fie FIELDS(&LOGGER, &CONFIG, &PACK);
 $uplifted_spa SEMSPACES(&LOGGER, &CONFIG);
 $uplifted_mod MODEL(&LOGGER, &CONFIG);
-$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELDS, &SEMSPACES, &MODEL);" > server/src/uplifted/uplifted_instances.cpp
+$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELDS, &SEMSPACES, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"
 
