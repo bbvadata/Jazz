@@ -95,6 +95,34 @@ using namespace jazz_model;
 #define	SEQUENCE_INCREMENT_CALL				 1	///< Any number of these calls (including none) allocate bigger and keep storing
 #define	SEQUENCE_FINAL_CALL					 2	///< Last call, no more data this time, do the magic and return a status code
 
+/// Http methods
+
+#define HTTP_NOTUSED						 0	///< Rogue value to fill the LUTs
+#define HTTP_OPTIONS						 1	///< http predicate OPTIONS
+#define HTTP_HEAD							 2	///< http predicate HEAD
+#define HTTP_GET							 3	///< http predicate GET
+#define HTTP_PUT							 4	///< http predicate PUT
+#define HTTP_DELETE							 5	///< http predicate DELETE
+
+/// Parser state values
+
+#define PSTATE_INITIAL						 0	///< Begin parsing, assumes already seen / to avoid unnecessary initial counting
+#define PSTATE_DONE_NODE					 1	///< Equivalent to PSTATE_INITIAL, except node was done and it cannot happen again
+#define PSTATE_NODE0						 2	///< Already seen ///
+#define PSTATE_IN_NODE						 3	///< Name starts after /// + letter, stays with valid char
+#define PSTATE_BASE0						 4	///< Already seen //
+#define PSTATE_IN_BASE						 5	///< Name starts after // + letter, stays with valid char
+#define PSTATE_ENTITY0						 6	///< Already seen / after reading a base
+#define PSTATE_IN_ENTITY					 7	///< Name starts after / + letter, stays with valid char
+#define PSTATE_KEY0							 8	///< Already seen / after reading an entity
+#define PSTATE_IN_KEY						 9	///< Name starts after / + letter, stays with valid char
+#define PSTATE_INFO_SWITCH					10	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
+#define PSTATE_BASE_SWITCH					11	///< Found # while reading a base
+#define PSTATE_ENT_SWITCH					12	///< Found # while reading a base
+#define PSTATE_KEY_SWITCH					13	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
+#define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
+#define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
+
 /** \brief A buffer to keep the state while parsing/executing a query
 */
 struct HttpQueryState {
@@ -592,10 +620,6 @@ class Api : public Container {
 // --------------
 
 extern Api	  TT_API;
-
-#else
-
-extern Api	API;			// The API interface
 
 #endif
 
