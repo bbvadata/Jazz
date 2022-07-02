@@ -95,6 +95,10 @@ if [ ! -e "$zmq_libpath/libzmq.so" ]; then
   exit 1
 fi
 
+
+cd server || return 1
+
+
 get_descendant_name ( )
 {
   parent_class=$1
@@ -106,7 +110,7 @@ get_descendant_name ( )
     return 0
   fi
 
-  dep=$(ls $module_path/*.h)
+  dep=$(ls $module_path*.h)
   rex="^class *([[:alpha:]_]+).*public.*$parent_class.*$"
 
   for dp in $dep; do
@@ -122,23 +126,62 @@ get_descendant_name ( )
   done
 }
 
-uplifted_pack=$(get_descendant_name 'Pack' 'uplifts/pack')
-uplifted_fields=$(get_descendant_name 'Fields' 'uplifts/fields')
-uplifted_spaces=$(get_descendant_name 'SemSpaces' 'uplifts/semspaces')
-uplifted_model=$(get_descendant_name 'Model' 'uplifts/model')
-uplifted_api=$(get_descendant_name 'Api' 'uplifts/api')
+uplifted_pak_parent='Pack'
+uplifted_fie_parent='Fields'
+uplifted_spa_parent='SemSpaces'
+uplifted_mod_parent='Model'
+uplifted_api_parent='Api'
 
+uplifted_pak_source='../uplifts/pack/'
+uplifted_fie_source='../uplifts/fields/'
+uplifted_spa_source='../uplifts/semspaces/'
+uplifted_mod_source='../uplifts/model/'
+uplifted_api_source='../uplifts/api/'
 
-cd server || return 1
+uplifted_pak=$(get_descendant_name $uplifted_pak_parent $uplifted_pak_source)
+uplifted_fie=$(get_descendant_name $uplifted_fie_parent $uplifted_fie_source)
+uplifted_spa=$(get_descendant_name $uplifted_spa_parent $uplifted_spa_source)
+uplifted_mod=$(get_descendant_name $uplifted_mod_parent $uplifted_mod_source)
+uplifted_api=$(get_descendant_name $uplifted_api_parent $uplifted_api_source)
 
 testp=$(echo src/*/*/ | sed 's/\ /\n/g' | grep "jazz_.*/tests/$" | tr '\n' ' ')
 vpath=$(echo src/*/ "$testp")
 jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
+
+if [ "$uplifted_pak" != "$uplifted_pak_parent" ]; then
+	vpath+="$uplifted_pak_source "
+	jzpat+="$uplifted_pak_source "
+	cpps+="$(ls $uplifted_pak_source*.cpp) "
+fi
+
+if [ "$uplifted_fie" != "$uplifted_fie_parent" ]; then
+	vpath+="$uplifted_fie_source "
+	jzpat+="$uplifted_fie_source "
+	cpps+="$(ls $uplifted_fie_source*.cpp) "
+fi
+
+if [ "$uplifted_spa" != "$uplifted_spa_parent" ]; then
+	vpath+="$uplifted_spa_source "
+	jzpat+="$uplifted_spa_source "
+	cpps+="$(ls $uplifted_spa_source*.cpp) "
+fi
+
+if [ "$uplifted_mod" != "$uplifted_mod_parent" ]; then
+	vpath+="$uplifted_mod_source "
+	jzpat+="$uplifted_mod_source "
+	cpps+="$(ls $uplifted_mod_source*.cpp) "
+fi
+
+if [ "$uplifted_api" != "$uplifted_api_parent" ]; then
+	vpath+="$uplifted_api_source "
+	jzpat+="$uplifted_api_source "
+	cpps+="$(ls $uplifted_api_source*.cpp) "
+fi
+
 objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
-#TODO: If uplifted_* are not the default values, add the corresponding path to vpath and jzpath and the cpp to cpps and objs
 
 recursive_parse_header ( )
 {
@@ -191,28 +234,28 @@ cd "$jazz_pwd" || return 1
 
 # End of section 1: Dump all variables if debugging
 if [[ $mode =~ 'DEBUG' ]]; then
-  echo "jazz_pwd        = $jazz_pwd"
-  echo "jazz_version    = $jazz_version"
-  echo "jz_processor    = $jz_processor"
-  echo "jazz_distro1    = $jazz_distro1"
-  echo "jazz_distro2    = $jazz_distro2"
-  echo "jazz_years      = $jazz_years"
-  echo "mhd_inclpath    = $mhd_inclpath"
-  echo "mhd_libpath     = $mhd_libpath"
-  echo "curl_inclpath   = $curl_inclpath"
-  echo "curl_libpath    = $curl_libpath"
-  echo "zmq_inclpath    = $zmq_inclpath"
-  echo "zmq_libpath     = $zmq_libpath"
-  echo "vpath           = $vpath"
-  echo "jzpat           = $jzpat"
-  echo "cpps            = $cpps"
-  echo "objs            = $objs"
-  echo "jazz_depends    = $jazz_depends"
-  echo "uplifted_pack   = $uplifted_pack"
-  echo "uplifted_fields = $uplifted_fields"
-  echo "uplifted_spaces = $uplifted_spaces"
-  echo "uplifted_model  = $uplifted_model"
-  echo "uplifted_api    = $uplifted_api"
+  echo "jazz_pwd      = $jazz_pwd"
+  echo "jazz_version  = $jazz_version"
+  echo "jz_processor  = $jz_processor"
+  echo "jazz_distro1  = $jazz_distro1"
+  echo "jazz_distro2  = $jazz_distro2"
+  echo "jazz_years    = $jazz_years"
+  echo "mhd_inclpath  = $mhd_inclpath"
+  echo "mhd_libpath   = $mhd_libpath"
+  echo "curl_inclpath = $curl_inclpath"
+  echo "curl_libpath  = $curl_libpath"
+  echo "zmq_inclpath  = $zmq_inclpath"
+  echo "zmq_libpath   = $zmq_libpath"
+  echo "vpath         = $vpath"
+  echo "jzpat         = $jzpat"
+  echo "cpps          = $cpps"
+  echo "objs          = $objs"
+  echo "jazz_depends  = $jazz_depends"
+  echo "uplifted_pak  = $uplifted_pak"
+  echo "uplifted_fie  = $uplifted_fie"
+  echo "uplifted_spa  = $uplifted_spa"
+  echo "uplifted_mod  = $uplifted_mod"
+  echo "uplifted_api  = $uplifted_api"
 
   printf "\n"
 fi
@@ -339,10 +382,10 @@ printf "Writing: server/src/uplifted/uplifted_instances.h ... "
 
 echo "// This file is auto generated, do NOT edit, run ./config.sh instead
 
-extern $uplifted_pack PACK;
-extern $uplifted_fields FIELDS;
-extern $uplifted_spaces SEMSPACES;
-extern $uplifted_model MODEL;
+extern $uplifted_pak PACK;
+extern $uplifted_fie FIELDS;
+extern $uplifted_spa SEMSPACES;
+extern $uplifted_mod MODEL;
 extern $uplifted_api API;" > server/src/uplifted/uplifted_instances.h
 
 printf "Ok.\n"
@@ -352,10 +395,10 @@ printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
 
 echo "// This file is auto generated, do NOT edit, run ./config.sh instead
 
-$uplifted_pack PACK(&LOGGER, &CONFIG);
-$uplifted_fields FIELDS(&LOGGER, &CONFIG, &PACK);
-$uplifted_spaces SEMSPACES(&LOGGER, &CONFIG);
-$uplifted_model MODEL(&LOGGER, &CONFIG);
+$uplifted_pak PACK(&LOGGER, &CONFIG);
+$uplifted_fie FIELDS(&LOGGER, &CONFIG, &PACK);
+$uplifted_spa SEMSPACES(&LOGGER, &CONFIG);
+$uplifted_mod MODEL(&LOGGER, &CONFIG);
 $uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELDS, &SEMSPACES, &MODEL);" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"
