@@ -48,10 +48,14 @@
 #define INCLUDED_JAZZ_MAIN_INSTANCES
 
 
+#ifndef CATCH_TEST
+
 // Uplifted containers: The declarations cannot go inside the namespace jazz_main.
 // -------------------
 
 #include "src/uplifted/uplifted_instances.h"
+
+#endif
 
 
 namespace jazz_main

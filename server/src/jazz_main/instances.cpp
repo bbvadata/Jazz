@@ -35,12 +35,16 @@
 #include "src/jazz_main/instances.h"
 
 
+#ifndef CATCH_TEST
+
 // Uplifted containers: The implementation must go outside the namespace jazz_main, but uses instances from jazz_main
 // -------------------
 
 using namespace jazz_main;
 
 #include "src/uplifted/uplifted_instances.cpp"
+
+#endif
 
 
 namespace jazz_main
