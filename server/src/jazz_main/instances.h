@@ -48,6 +48,12 @@
 #define INCLUDED_JAZZ_MAIN_INSTANCES
 
 
+// Uplifted containers: The declarations cannot go inside the namespace jazz_main.
+// -------------------
+
+#include "src/uplifted/uplifted_instances.h"
+
+
 namespace jazz_main
 {
 
@@ -66,10 +72,6 @@ using namespace jazz_model;
 extern Channels	 CHANNELS;		// The container channeling blocks.
 extern Volatile	 VOLATILE;		// The container allocating volatile blocks.
 extern Persisted PERSISTED;		// The container allocating persisted blocks.
-
-// Uplifted containers:
-
-#include "src/uplifted/uplifted_instances.h"
 
 // Http server:
 

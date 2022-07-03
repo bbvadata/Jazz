@@ -35,6 +35,14 @@
 #include "src/jazz_main/instances.h"
 
 
+// Uplifted containers: The implementation must go outside the namespace jazz_main, but uses instances from jazz_main
+// -------------------
+
+using namespace jazz_main;
+
+#include "src/uplifted/uplifted_instances.cpp"
+
+
 namespace jazz_main
 {
 	using namespace std;
@@ -53,10 +61,6 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 Channels	CHANNELS (&LOGGER, &CONFIG);
 Volatile	VOLATILE (&LOGGER, &CONFIG);
 Persisted	PERSISTED(&LOGGER, &CONFIG);
-
-// Uplifted containers:
-
-#include "src/uplifted/uplifted_instances.cpp"
 
 // Http server:
 
