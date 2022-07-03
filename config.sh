@@ -381,25 +381,43 @@ printf "Ok.\n"
 cd server || return 1
 
 uplifted_incl=""
+using_namespace_bop="0"
+using_namespace_mod="0"
 
 if [ "$uplifted_pak" != "$uplifted_pak_parent" ]; then
   uplifted_incl+="#include \"$(ls $uplifted_pak_source*.h)\"\n"
+else
+  uplifted_incl+="using namespace jazz_bebop;\n"
+  using_namespace_bop="1"
 fi
 
 if [ "$uplifted_fie" != "$uplifted_fie_parent" ]; then
   uplifted_incl+="#include \"$(ls $uplifted_fie_source*.h)\"\n"
+else
+  if [ "$using_namespace_bop" != "1" ]; then
+    uplifted_incl+="using namespace jazz_bebop;\n"
+  fi
 fi
 
 if [ "$uplifted_spa" != "$uplifted_spa_parent" ]; then
   uplifted_incl+="#include \"$(ls $uplifted_spa_source*.h)\"\n"
+else
+  uplifted_incl+="using namespace jazz_model;\n"
+  using_namespace_mod="1"
 fi
 
 if [ "$uplifted_mod" != "$uplifted_mod_parent" ]; then
   uplifted_incl+="#include \"$(ls $uplifted_mod_source*.h)\"\n"
+else
+  if [ "$using_namespace_mod" != "1" ]; then
+    uplifted_incl+="using namespace jazz_model;\n"
+  fi
 fi
 
 if [ "$uplifted_api" != "$uplifted_api_parent" ]; then
   uplifted_incl+="#include \"$(ls $uplifted_api_source*.h)\"\n"
+else
+  uplifted_incl+="using namespace jazz_main;\n"
 fi
 
 
@@ -411,7 +429,6 @@ printf "Writing: server/src/uplifted/uplifted_instances.h ... "
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
 $uplifted_incl
-
 extern $uplifted_pak PACK;
 extern $uplifted_fie FIELDS;
 extern $uplifted_spa SEMSPACES;
