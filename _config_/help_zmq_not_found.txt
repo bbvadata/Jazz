@@ -7,7 +7,7 @@ The Jazz server requires libzmq (development version)!
 
   This has some prerequisites that can be installed (on Debian-like systems) with:
 
-    sudo apt install pkg-config m4 libtool automake autoconf
+    sudo apt install pkg-config m4 libtool build-essential automake autoconf
 
   First download it (you can search for the latest version, 4.3.4 is okay):
 
