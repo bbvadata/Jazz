@@ -7,3 +7,5 @@ docker/base/build_upload.sh
 docker/lss/build_upload.sh
 docker/tng/build_upload.sh
 uplifts/
+_config_/*_include_path
+_config_/*_library_path
