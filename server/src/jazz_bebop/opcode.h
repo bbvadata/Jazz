@@ -49,7 +49,7 @@
 
 
 /** \brief OpCode: stateless functions and mutators. Category theory provides the necessary composition to manage state without
-introducing sateless and stateful as separate categories. Only mutators (which introduce addresses) are a separate category.
+introducing stateless and stateful as separate categories. Only mutators (which introduce addresses) are a separate category.
 
 These functions are known as op-codes and inherit OpCode. They are implemented in C++ in a pack.
 */
