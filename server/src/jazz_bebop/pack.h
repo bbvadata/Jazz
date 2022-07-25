@@ -56,6 +56,7 @@ A Pack is a collections of op-codes either the Basic Opcode Pack (BOP) or an upl
 namespace jazz_bebop
 {
 
+//TODO: A Pack is a Service, but not a container.
 class Pack : public jazz_elements::Container {
 
 	public:
