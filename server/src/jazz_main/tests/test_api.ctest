@@ -46,8 +46,8 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 		REQUIRE(TT_API.p_persisted	== &PER);
 	}
 
-	REQUIRE(CHN.start()  == 0);
-	REQUIRE(VOL.start()  == 0);
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
 	REQUIRE(PER.start() == 0);
 
 	REQUIRE(TT_API.start() == 0);
