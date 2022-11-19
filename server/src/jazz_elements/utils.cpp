@@ -318,7 +318,7 @@ std::string CleanConfigArgument(std::string s) {
 
 	\param input_file_name The input file name containing a configuration
 
-	\return Nothing. Check num_keys() for errors.
+	It returns nothing. Check num_keys() for errors.
 */
 ConfigFile::ConfigFile(const char *input_file_name) {
 	load_config(input_file_name);
