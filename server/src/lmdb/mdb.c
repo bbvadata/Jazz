@@ -9025,11 +9025,11 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 				return rc;
 		}
 		if (IS_BRANCH(cdst->mc_pg[cdst->mc_top])) {
-			MDB_val	 nullkey;
+			MDB_val	nullkey = {0, 0};								// FIX Dec 28 2022 (mdb_update_key() call expects initialized )
 			indx_t	ix = cdst->mc_ki[cdst->mc_top];
 			nullkey.mv_size = 0;
 			cdst->mc_ki[cdst->mc_top] = 0;
-			rc = mdb_update_key(cdst, &nullkey);						// cppcheck-suppress unreadVariable
+			rc = mdb_update_key(cdst, &nullkey);
 			cdst->mc_ki[cdst->mc_top] = ix;
 			mdb_cassert(cdst, rc == MDB_SUCCESS);
 		}
