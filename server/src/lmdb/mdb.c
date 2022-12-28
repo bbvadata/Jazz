@@ -8760,7 +8760,7 @@ mdb_update_key(MDB_cursor *mc, MDB_val *key)
 #endif
 
 	/* Sizes must be 2-byte aligned. */
-	ksize = EVEN(key->mv_size);
+	ksize = EVEN(key->mv_size);						// This requires initialized key
 	oksize = EVEN(node->mn_ksize);
 	delta = ksize - oksize;
 
@@ -8994,11 +8994,11 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 				return rc;
 		}
 		if (IS_BRANCH(csrc->mc_pg[csrc->mc_top])) {
-			MDB_val	 nullkey;
+			MDB_val	nullkey = {0, 0};								// FIX Dec 28 2022 (mdb_update_key() call expects initialized )
 			indx_t	ix = csrc->mc_ki[csrc->mc_top];
 			nullkey.mv_size = 0;
 			csrc->mc_ki[csrc->mc_top] = 0;
-			rc = mdb_update_key(csrc, &nullkey);
+			rc = mdb_update_key(csrc, &nullkey);					// Calling function mdb_update_key, 2nd argument is uninitialized
 			csrc->mc_ki[csrc->mc_top] = ix;
 			mdb_cassert(csrc, rc == MDB_SUCCESS);
 		}
