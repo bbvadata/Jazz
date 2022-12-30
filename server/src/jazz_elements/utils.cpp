@@ -250,7 +250,7 @@ uint64_t MurmurHash64A(const void *key, int len) {
 
 	uint64_t h = MURMUR_SEED ^ (len*m);
 
-	const uint64_t *data = (const uint64_t *) key;
+	const uint64_t *data = reinterpret_cast<const uint64_t *>(key);
 	const uint64_t *end	 = data + (len/8);
 
 	while(data != end) {
@@ -264,7 +264,7 @@ uint64_t MurmurHash64A(const void *key, int len) {
 		h *= m;
 	}
 
-	const unsigned char *data2 = (const unsigned char*) data;
+	const unsigned char *data2 = reinterpret_cast<const unsigned char*>(data);
 
 	switch(len & 7)	{
 	case 7: h ^= uint64_t(data2[6]) << 48;

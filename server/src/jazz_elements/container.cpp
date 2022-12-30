@@ -660,8 +660,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 #ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
 	{
-		char *pt1 = (char *) &p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size,
-			 *pt2 = (char *) p_txn->p_block->align64bit((uintptr_t) pt1);
+		char *pt1 = reinterpret_cast<char *>(&p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size),
+			 *pt2 = reinterpret_cast<char *>(p_txn->p_block->align64bit((uintptr_t) pt1));
 
 		while (pt1 < pt2)
 			*(pt1++) = 0;
@@ -2731,7 +2731,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if ((void *) p_st != &cell) {
+					if (p_st != ((pChar) &cell)) {		// Ugly parenthesis required by cppcheck
 						*p_st = 0;
 						p_st  = (pChar) &cell;
 
@@ -3233,7 +3233,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 	if (p_txt == nullptr)
 		return SERVICE_ERROR_NO_MEM;
 
-	int *p_is_NA = (int *) malloc(ix_size);
+	int *p_is_NA = reinterpret_cast<int *>(malloc(ix_size));
 
 	StatusCode ret;
 
@@ -3241,7 +3241,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 		ret = SERVICE_ERROR_NO_MEM;
 
 	else {
-		int *p_hasLN = (int *) malloc(ix_size);
+		int *p_hasLN = reinterpret_cast<int *>(malloc(ix_size));
 
 		if (p_hasLN == nullptr)
 			ret = SERVICE_ERROR_NO_MEM;
