@@ -411,8 +411,8 @@ static int
 mdb_sem_wait(mdb_mutexref_t sem)
 {
 	int rc, *locked = sem->locked;
-	struct sembuf sb = { 0, -1, SEM_UNDO };
-	sb.sem_num = sem->semnum;
+	struct sembuf sb = { sem->semnum, -1, SEM_UNDO };
+
 	do {
 		if (!semop(sem->semid, &sb, 1)) {
 			rc = *locked ? MDB_OWNERDEAD : MDB_SUCCESS;
