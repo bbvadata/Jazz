@@ -978,7 +978,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_GATEWAY;
 
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
 
 		return MHD_HTTP_OK;
 
@@ -1001,7 +1001,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
 
 		return MHD_HTTP_OK;
 
@@ -1026,7 +1026,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
 
 		return MHD_HTTP_OK;
 
@@ -1112,7 +1112,7 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		if (ret != SERVICE_NO_ERROR)
 			return MHD_HTTP_BAD_REQUEST;
 
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);
+		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
 
 		return MHD_HTTP_OK;
 
