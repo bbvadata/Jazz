@@ -299,7 +299,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_get(pTransaction &p_txn, void *url, Index *p_idx = nullptr) {
+		inline StatusCode curl_get(pTransaction &p_txn, const char *url, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
@@ -393,7 +393,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_put(void *url, pBlock p_blk, int mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, Index *p_idx = nullptr) {
+		inline StatusCode curl_put(const char *url, pBlock p_blk, int mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
@@ -501,7 +501,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_remove(void *url, Index *p_idx = nullptr) {
+		inline StatusCode curl_remove(const char *url, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
