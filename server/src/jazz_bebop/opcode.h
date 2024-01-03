@@ -47,6 +47,38 @@
 #ifndef INCLUDED_JAZZ_BEBOP_OPCODE
 #define INCLUDED_JAZZ_BEBOP_OPCODE
 
+// TODO: From ROADMAP
+
+
+// Complete anything under jazz_bebop.h which is:
+
+//   * definitions of classes
+//   * designing execution mechanism that supports macros (snippets) and objects
+//   * collections (field) just one thing, no packs
+//   * mechanism to define object (as something that provides an interface to a container)
+//   * testing a basic MVP
+//   * approving a PR and moving the version towards 0.7.1
+
+// Reaching "wide picture" requirements:
+
+//   1. Build an end-to-end with tests that contains: opcode, field, core. MVP without snippets or mutators.
+//   2. Build an end-to-end with tests that adds a mutator.
+//   3. Build an end-to-end with tests that adds a snippet.
+//   4. Build an end-to-end with tests that adds an uplifted field.
+//   5. Remove packs, fields (plural only), cores (plural only).
+//   6. Update config (to no packs)
+//   7. Update diagrams
+//   8. Create a minimal bop with simplest map/reduced arithmetic
+//   9. Close PR and push version
+
+// Next step in "big picture": rename jazz_model to jazz_brane and build the bricks for:
+
+//   * concepts
+//   * grammar
+//   * context
+//   * HITS
+
+
 
 /** \brief OpCode: stateless functions and mutators. Category theory provides the necessary composition to manage state without
 introducing stateless and stateful as separate categories. Only mutators (which introduce addresses) are a separate category.
