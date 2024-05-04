@@ -105,8 +105,8 @@ Api::Api(pLogger	 a_logger,
 		 pChannels	 a_channels,
 		 pVolatile	 a_volatile,
 		 pPersisted	 a_persisted,
-		 pFields	 a_fields,
-		 pSemSpaces	 a_semspaces,
+		 pField		 a_field,
+		 pSemSpace	 a_semspace,
 		 pModel		 a_model) : Container(a_logger, a_config) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
@@ -114,8 +114,8 @@ Api::Api(pLogger	 a_logger,
 	p_channels	= a_channels;
 	p_volatile	= a_volatile;
 	p_persisted	= a_persisted;
-	p_fields	= a_fields;
-	p_semspaces = a_semspaces;
+	p_field		= a_field;
+	p_semspace	= a_semspace;
 	p_model		= a_model;
 
 	www	 = {};

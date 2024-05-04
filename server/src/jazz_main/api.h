@@ -177,8 +177,8 @@ class Api : public Container {
 			pChannels	a_channels,
 			pVolatile	a_volatile,
 			pPersisted	a_persisted,
-			pFields		a_fields,
-			pSemSpaces	a_semspaces,
+			pField		a_field,
+			pSemSpace	a_semspace,
 			pModel		a_model);
 	   ~Api();
 
@@ -606,8 +606,8 @@ class Api : public Container {
 		pChannels	p_channels;
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
-		pFields		p_fields;
-		pSemSpaces	p_semspaces;
+		pField		p_field;
+		pSemSpace	p_semspace;
 		pModel		p_model;
 
 		Index		www;
