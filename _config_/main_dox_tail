@@ -21,7 +21,7 @@ There are three C++ namespaces, intended for general c++ Jazz programming, possi
 implemented as an http server:
 
 1. jazz_elements (All the pieces: Blocks, Kinds, Tuples, storage, communication, services, etc.)\n
-2. jazz_bebop (Everything to run bebop code: Cores, Fields, Primitives, Snippets, Kernels, etc.)\n
+2. jazz_bebop (Everything to run bebop code: Bop (utils), OpCode, Pack, Snippet, Field, Core)\n
 3. jazz_model (From objects to concepts, from code execution to code creation)\n
 \n
 
