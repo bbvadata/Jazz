@@ -31,7 +31,6 @@
 	limitations under the License.
 */
 
-
 #include "src/jazz_bebop/snippet.h"
 
 #if defined CATCH_TEST
@@ -56,6 +55,29 @@ Fields are morphisms defined as op-codes and snippets in a unique way for each p
 namespace jazz_bebop
 {
 
+class Field : public jazz_elements::Container {
+
+	public:
+
+		Field(jazz_elements::pLogger	 a_logger,
+			  jazz_elements::pConfigFile a_config,
+			  pPack						 a_pack);
+	   ~Field();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef Field *pField;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Field
+// -----------------
+
+extern Field FLS;
+
+#endif
 
 } // namespace jazz_bebop
 

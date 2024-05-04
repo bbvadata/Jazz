@@ -38,9 +38,39 @@
 namespace jazz_bebop
 {
 
-//TODO: Implement field prerequisite (kind representations)
-//TODO: Implement field as a map
-//TODO: Implement field as a evaluation function
+/*	-----------------------------------------------
+	 Field : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Field::Field(pLogger	 a_logger,
+			 pConfigFile a_config,
+			 pPack		 a_pack) : Container(a_logger, a_config) {}
+
+
+Field::~Field() { destroy_container(); }
+
+
+/** Starts the Field service
+*/
+StatusCode Field::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Field::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+Field FLS(&LOGGER, &CONFIG, &PAK);
+
+#endif
 
 } // namespace jazz_bebop
 
