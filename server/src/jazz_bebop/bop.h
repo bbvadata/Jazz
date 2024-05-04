@@ -31,8 +31,7 @@
 	limitations under the License.
 */
 
-
-#include "src/jazz_bebop/pack.h"
+#include "src/include/jazz_elements.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -48,9 +47,10 @@
 #define INCLUDED_JAZZ_BEBOP_BOP
 
 
-/** \brief The Basic Opcode Pack (BOP)
+/** \brief Bop functionality required to implement the classes.
 
-The fundamental collection of op-codes provided in Jazz (any other pack is an uplifted pack).
+This is mainly functionality shared with the API to access resources in other containers in order to get data for the computations.
+
 */
 
 namespace jazz_bebop

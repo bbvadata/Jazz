@@ -31,8 +31,7 @@
 	limitations under the License.
 */
 
-
-#include "src/jazz_bebop/bop.h"
+#include "src/jazz_bebop/pack.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2

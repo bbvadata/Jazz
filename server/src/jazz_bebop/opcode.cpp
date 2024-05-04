@@ -38,8 +38,6 @@
 namespace jazz_bebop
 {
 
-//TODO: Implement OpCode
-
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST

@@ -38,7 +38,6 @@
 namespace jazz_bebop
 {
 
-//TODO: Implement snippet
 
 } // namespace jazz_bebop
 
