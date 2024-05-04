@@ -47,6 +47,8 @@
 #ifndef INCLUDED_JAZZ_MAIN_INSTANCES
 #define INCLUDED_JAZZ_MAIN_INSTANCES
 
+//TODO: Add CORE instantiation!
+
 
 #ifndef CATCH_TEST
 

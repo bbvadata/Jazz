@@ -51,6 +51,8 @@
 #ifndef INCLUDED_JAZZ_MAIN_MAIN
 #define INCLUDED_JAZZ_MAIN_MAIN
 
+//TODO: Add CORE instantiation!
+
 
 // F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_main
 // =======================================   -----------------------------
