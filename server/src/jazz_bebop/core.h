@@ -31,8 +31,7 @@
 	limitations under the License.
 */
 
-
-#include "src/jazz_bebop/fields.h"
+#include "src/jazz_bebop/field.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -56,6 +55,27 @@ A core is not a service, it allocates its state in the Volatile container.
 namespace jazz_bebop
 {
 
+class Core : public jazz_elements::Container {
+
+	public:
+
+		Core(jazz_elements::pLogger	 a_logger,
+			  jazz_elements::pConfigFile a_config,
+			  pPack						 a_pack);
+	   ~Core();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef Core *pCore;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Core
+// -----------------
+
+extern Core CORE;
 
 } // namespace jazz_bebop
 

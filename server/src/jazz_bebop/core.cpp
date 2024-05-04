@@ -32,13 +32,48 @@
 */
 
 
+// #include <stl_whatever>
+
+
 #include "src/jazz_bebop/core.h"
 
 
 namespace jazz_bebop
 {
 
-//TODO: Implement core
+/*	-----------------------------------------------
+	 Core : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Core::Core(pLogger	   a_logger,
+		   pConfigFile a_config,
+		   pPack	   a_pack) : Container(a_logger, a_config) {}
+
+
+Core::~Core() { destroy_container(); }
+
+
+/** Starts the Core service
+*/
+StatusCode Core::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Core::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+Core CORE(&LOGGER, &CONFIG, &PAK);
+
+#endif
 
 } // namespace jazz_bebop
 
