@@ -44,8 +44,8 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_MODELS_SEMSPACE
-#define INCLUDED_JAZZ_MODELS_SEMSPACE
+#ifndef INCLUDED_JAZZ_MODEL_SEMSPACE
+#define INCLUDED_JAZZ_MODEL_SEMSPACE
 
 
 /** \brief SemSpace: Semantic spaces
@@ -56,7 +56,29 @@ Semantic spaces are containers of Concepts.
 namespace jazz_model
 {
 
+class SemSpace : public jazz_elements::Container {
+
+	public:
+
+		SemSpace(jazz_elements::pLogger	 a_logger,
+				  jazz_elements::pConfigFile a_config);
+	   ~SemSpace();
+
+		jazz_elements::StatusCode start	();
+		jazz_elements::StatusCode shut_down();
+};
+typedef SemSpace *pSemSpace;
+
+
+#ifdef CATCH_TEST
+
+// Instancing SemSpace
+// -------------------
+
+extern SemSpace SMS;
+
+#endif
 
 } // namespace jazz_model
 
-#endif // ifndef INCLUDED_JAZZ_MODELS_SEMSPACE
+#endif // ifndef INCLUDED_JAZZ_MODEL_SEMSPACE

@@ -38,6 +38,40 @@
 namespace jazz_model
 {
 
+using namespace jazz_elements;
+
+/*	-----------------------------------------------
+	 SemSpace : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+SemSpace::SemSpace(pLogger	 a_logger,
+				   pConfigFile a_config) : Container(a_logger, a_config) {}
+
+
+SemSpace::~SemSpace() { destroy_container(); }
+
+
+/** Starts the SemSpace service
+*/
+StatusCode SemSpace::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode SemSpace::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+SemSpace SMS(&LOGGER, &CONFIG);
+
+#endif
 
 } // namespace jazz_model
 
