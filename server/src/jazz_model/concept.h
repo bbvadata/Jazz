@@ -44,8 +44,8 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_MODELS_CONCEPT
-#define INCLUDED_JAZZ_MODELS_CONCEPT
+#ifndef INCLUDED_JAZZ_MODEL_CONCEPT
+#define INCLUDED_JAZZ_MODEL_CONCEPT
 
 
 /** \brief Concepts: A concepts is: anchored running data == anchored running code
@@ -59,4 +59,4 @@ namespace jazz_model
 
 } // namespace jazz_model
 
-#endif // ifndef INCLUDED_JAZZ_MODELS_CONCEPT
+#endif // ifndef INCLUDED_JAZZ_MODEL_CONCEPT
