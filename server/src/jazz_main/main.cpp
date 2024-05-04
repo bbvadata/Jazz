@@ -194,50 +194,50 @@ int main(int argc, char* argv[]) {
 
 		if (!start_service(&PACK, "Pack")) {
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&VOLATILE, "Volatile");
+			stop_service(&CHANNELS, "Channels");
 
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&FIELDS, "Fields")) {
-			stop_service(&PACK,		 "Pack");
+		if (!start_service(&FIELD, "Field")) {
+			stop_service(&PACK, "Pack");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&VOLATILE, "Volatile");
+			stop_service(&CHANNELS, "Channels");
 
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&SEMSPACES, "SemSpaces")) {
-			stop_service(&FIELDS,	 "Fields");
-			stop_service(&PACK,		 "Pack");
+		if (!start_service(&SEMSPACE, "SemSpace")) {
+			stop_service(&FIELD, "Field");
+			stop_service(&PACK, "Pack");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&VOLATILE, "Volatile");
+			stop_service(&CHANNELS, "Channels");
 
 			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&MODEL, "Model")) {
-			stop_service(&SEMSPACES, "SemSpaces");
-			stop_service(&FIELDS,	 "Fields");
-			stop_service(&PACK,		 "Pack");
+			stop_service(&SEMSPACE, "SemSpace");
+			stop_service(&FIELD, "Field");
+			stop_service(&PACK, "Pack");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&VOLATILE, "Volatile");
+			stop_service(&CHANNELS, "Channels");
 
 			exit(EXIT_FAILURE);
 		}
 
 		if (!start_service(&API, "Api")) {
-			stop_service(&MODEL,	 "Model");
-			stop_service(&SEMSPACES, "SemSpaces");
-			stop_service(&FIELDS,	 "Fields");
-			stop_service(&PACK,		 "Pack");
+			stop_service(&MODEL, "Model");
+			stop_service(&SEMSPACE, "SemSpace");
+			stop_service(&FIELD, "Field");
+			stop_service(&PACK, "Pack");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&VOLATILE, "Volatile");
+			stop_service(&CHANNELS, "Channels");
 
 			exit(EXIT_FAILURE);
 		}
@@ -246,15 +246,15 @@ int main(int argc, char* argv[]) {
 		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon, &http_request_callback, CHANNELS);
 
 		if (ret_code != EXIT_SUCCESS) {
-			stop_service(&HTTP,		 "HttpServer");
-			stop_service(&API,		 "Api");
-			stop_service(&MODEL,	 "Model");
-			stop_service(&SEMSPACES, "SemSpaces");
-			stop_service(&FIELDS,	 "Fields");
-			stop_service(&PACK,		 "Pack");
+			stop_service(&HTTP, "HttpServer");
+			stop_service(&API, "Api");
+			stop_service(&MODEL, "Model");
+			stop_service(&SEMSPACE, "SemSpace");
+			stop_service(&FIELD, "Field");
+			stop_service(&PACK, "Pack");
 			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&VOLATILE, "Volatile");
+			stop_service(&CHANNELS, "Channels");
 		}
 
 		exit(ret_code);

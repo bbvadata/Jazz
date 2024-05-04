@@ -439,9 +439,9 @@ void signalHandler_SIGTERM(int signum) {
 	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
 
 	if (!stop_service(&MODEL,	  "Model"))		 stop_ok = false;
-	if (!stop_service(&SEMSPACES, "SemSpaces"))	 stop_ok = false;
+	if (!stop_service(&SEMSPACE,  "SemSpace"))	 stop_ok = false;
 
-	if (!stop_service(&FIELDS,	  "Fields"))	 stop_ok = false;
+	if (!stop_service(&FIELD,	  "Field"))		 stop_ok = false;
 	if (!stop_service(&PACK,	  "Pack"))		 stop_ok = false;
 
 	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
