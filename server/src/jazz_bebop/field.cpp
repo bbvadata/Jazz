@@ -38,6 +38,8 @@
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
 /*	-----------------------------------------------
 	 Field : I m p l e m e n t a t i o n
 --------------------------------------------------- */
