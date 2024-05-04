@@ -127,14 +127,14 @@ get_descendant_name ( )
 }
 
 uplifted_pak_parent='Pack'
-uplifted_fie_parent='Fields'
-uplifted_spa_parent='SemSpaces'
+uplifted_fie_parent='Field'
+uplifted_spa_parent='SemSpace'
 uplifted_mod_parent='Model'
 uplifted_api_parent='Api'
 
 uplifted_pak_source='../uplifts/pack/'
-uplifted_fie_source='../uplifts/fields/'
-uplifted_spa_source='../uplifts/semspaces/'
+uplifted_fie_source='../uplifts/field/'
+uplifted_spa_source='../uplifts/semspace/'
 uplifted_mod_source='../uplifts/model/'
 uplifted_api_source='../uplifts/api/'
 
@@ -430,8 +430,8 @@ printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
 $uplifted_incl
 extern $uplifted_pak PACK;
-extern $uplifted_fie FIELDS;
-extern $uplifted_spa SEMSPACES;
+extern $uplifted_fie FIELD;
+extern $uplifted_spa SEMSPACE;
 extern $uplifted_mod MODEL;
 extern $uplifted_api API;\n" > server/src/uplifted/uplifted_instances.h
 
@@ -443,10 +443,10 @@ printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
 $uplifted_pak PACK(&LOGGER, &CONFIG);
-$uplifted_fie FIELDS(&LOGGER, &CONFIG, &PACK);
-$uplifted_spa SEMSPACES(&LOGGER, &CONFIG);
+$uplifted_fie FIELD(&LOGGER, &CONFIG, &PACK);
+$uplifted_spa SEMSPACE(&LOGGER, &CONFIG);
 $uplifted_mod MODEL(&LOGGER, &CONFIG);
-$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELDS, &SEMSPACES, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
+$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELD, &SEMSPACE, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"
 
