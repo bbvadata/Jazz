@@ -77,6 +77,8 @@ typedef Core *pCore;
 
 extern Core CORE;
 
+#endif
+
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_CORE
