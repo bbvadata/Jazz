@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_model/semspaces.h"
+#include "src/jazz_model/semspace.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -44,8 +44,8 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_MODELS_MODEL
-#define INCLUDED_JAZZ_MODELS_MODEL
+#ifndef INCLUDED_JAZZ_MODEL_MODEL
+#define INCLUDED_JAZZ_MODEL_MODEL
 
 
 /** \brief Models: Creating new snippets
@@ -81,4 +81,4 @@ extern Model MDL;
 
 } // namespace jazz_model
 
-#endif // ifndef INCLUDED_JAZZ_MODELS_MODEL
+#endif // ifndef INCLUDED_JAZZ_MODEL_MODEL
