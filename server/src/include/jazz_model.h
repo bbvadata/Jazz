@@ -35,8 +35,8 @@
 #include "src/include/jazz_bebop.h"
 
 
-#ifndef INCLUDED_JAZZ_MODELS
-#define INCLUDED_JAZZ_MODELS
+#ifndef INCLUDED_JAZZ_MODEL
+#define INCLUDED_JAZZ_MODEL
 
 //TODO: Make a shortcut model connecting to outside play
 
@@ -47,8 +47,7 @@ This is everything from objects to concepts, from code execution to code creatio
 
 #include "src/jazz_model/concept.h"
 #include "src/jazz_model/semspace.h"
-#include "src/jazz_model/semspaces.h"
 #include "src/jazz_model/model.h"
 
 
-#endif // ifndef INCLUDED_JAZZ_MODELS
+#endif // ifndef INCLUDED_JAZZ_MODEL
