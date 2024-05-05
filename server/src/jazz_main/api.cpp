@@ -105,8 +105,7 @@ Api::Api(pLogger	 a_logger,
 		 pChannels	 a_channels,
 		 pVolatile	 a_volatile,
 		 pPersisted	 a_persisted,
-		 pField		 a_field,
-		 pSemSpace	 a_semspace,
+		 pCore		 a_core,
 		 pModel		 a_model) : Container(a_logger, a_config) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
@@ -114,8 +113,7 @@ Api::Api(pLogger	 a_logger,
 	p_channels	= a_channels;
 	p_volatile	= a_volatile;
 	p_persisted	= a_persisted;
-	p_field		= a_field;
-	p_semspace	= a_semspace;
+	p_core		= a_core;
 	p_model		= a_model;
 
 	www	 = {};
@@ -1682,7 +1680,7 @@ bool Api::find_myself() {
 
 #ifdef CATCH_TEST
 
-Api	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &FLS, &SMS, &MDL);
+Api	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
 
 #endif
 

@@ -446,7 +446,7 @@ $uplifted_pak PACK(&LOGGER, &CONFIG);
 $uplifted_fie FIELD(&LOGGER, &CONFIG, &PACK);
 $uplifted_spa SEMSPACE(&LOGGER, &CONFIG);
 $uplifted_mod MODEL(&LOGGER, &CONFIG);
-$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &FIELD, &SEMSPACE, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
+$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"
 
