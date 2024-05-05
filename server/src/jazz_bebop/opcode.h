@@ -46,8 +46,7 @@
 #ifndef INCLUDED_JAZZ_BEBOP_OPCODE
 #define INCLUDED_JAZZ_BEBOP_OPCODE
 
-// TODO: From ROADMAP
-
+//TODO: From ROADMAP
 
 // Complete anything under jazz_bebop.h which is:
 

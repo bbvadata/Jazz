@@ -56,6 +56,10 @@ This is mainly functionality shared with the API to access resources in other co
 namespace jazz_bebop
 {
 
+//TODO: Refactor syntax parsing elements from Api that get blocks into a function here available for Core.
+//TODO: That function must implement the Actor critic model.
+//TODO: Provide mechanisms to apply to multi-block.
+
 
 } // namespace jazz_bebop
 
