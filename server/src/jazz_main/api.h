@@ -182,6 +182,8 @@ class Api : public Container {
 			pModel		a_model);
 	   ~Api();
 
+		virtual pChar const id();
+
 		StatusCode start	();
 		StatusCode shut_down();
 

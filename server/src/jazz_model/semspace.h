@@ -56,16 +56,21 @@ Semantic spaces are containers of Concepts.
 namespace jazz_model
 {
 
-class SemSpace : public jazz_elements::Container {
+using namespace jazz_elements;
+
+
+class SemSpace : public Container {
 
 	public:
 
-		SemSpace(jazz_elements::pLogger	 a_logger,
-				  jazz_elements::pConfigFile a_config);
-	   ~SemSpace();
+		 SemSpace(pLogger	  a_logger,
+				  pConfigFile a_config);
+		~SemSpace();
 
-		jazz_elements::StatusCode start	();
-		jazz_elements::StatusCode shut_down();
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
 };
 typedef SemSpace *pSemSpace;
 

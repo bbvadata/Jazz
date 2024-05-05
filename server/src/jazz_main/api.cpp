@@ -125,6 +125,16 @@ Api::Api(pLogger	 a_logger,
 Api::~Api() { destroy_container(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Api::id() {
+    static char arr[] = "Api from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** Starts the API service
 
 Configuration-wise the API has just two keys:

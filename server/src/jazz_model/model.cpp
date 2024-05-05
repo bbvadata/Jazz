@@ -51,6 +51,16 @@ Model::Model(pLogger	 a_logger,
 Model::~Model() { destroy_container(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Model::id() {
+    static char arr[] = "Model from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** Starts the Model service
 */
 StatusCode Model::start() {

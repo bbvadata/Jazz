@@ -51,6 +51,16 @@ SemSpace::SemSpace(pLogger	 a_logger,
 SemSpace::~SemSpace() { destroy_container(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const SemSpace::id() {
+    static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** Starts the SemSpace service
 */
 StatusCode SemSpace::start() {

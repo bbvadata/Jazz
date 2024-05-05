@@ -56,16 +56,21 @@ Concepts evolve by searching new code representations. Models search new code ac
 namespace jazz_model
 {
 
-class Model : public jazz_elements::Container {
+using namespace jazz_elements;
+
+
+class Model : public Container {
 
 	public:
 
-		Model(jazz_elements::pLogger	 a_logger,
-			  jazz_elements::pConfigFile a_config);
+		Model(pLogger	 a_logger,
+			  pConfigFile a_config);
 	   ~Model();
 
-		jazz_elements::StatusCode start	();
-		jazz_elements::StatusCode shut_down();
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
 };
 typedef Model *pModel;
 
