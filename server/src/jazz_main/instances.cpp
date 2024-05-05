@@ -66,6 +66,10 @@ Channels	CHANNELS (&LOGGER, &CONFIG);
 Volatile	VOLATILE (&LOGGER, &CONFIG);
 Persisted	PERSISTED(&LOGGER, &CONFIG);
 
+// Code execution:
+
+Core		CORE(&LOGGER, &CONFIG, &PACK, &FIELD);
+
 // Http server:
 
 HttpServer	HTTP(&LOGGER, &CONFIG);
@@ -441,6 +445,7 @@ void signalHandler_SIGTERM(int signum) {
 	if (!stop_service(&MODEL))	   stop_ok = false;
 	if (!stop_service(&SEMSPACE))  stop_ok = false;
 
+	if (!stop_service(&CORE))	   stop_ok = false;
 	if (!stop_service(&FIELD))	   stop_ok = false;
 	if (!stop_service(&PACK))	   stop_ok = false;
 
