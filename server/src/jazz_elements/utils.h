@@ -283,12 +283,14 @@ class Service {
 
 	public:
 
-		 Service(pLogger	 a_logger,
-			     pConfigFile a_config);
+		Service(pLogger	 a_logger,
+			    pConfigFile a_config);
 
 		/// A simple start()/shut_down() interface (Restart is: shut_down(TRUE):start())
 		virtual StatusCode start	();
 		virtual StatusCode shut_down();
+
+		virtual pChar const id();
 
 		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
 

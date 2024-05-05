@@ -651,6 +651,17 @@ Service::Service(pLogger a_logger, pConfigFile a_config) {
 	p_conf = a_config;
 }
 
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Service::id() {
+    static char arr[] = "!ABSTRACT CLASS!";
+    return arr;
+}
+
+
 /** Start (or restart) the Service
 
 	\return SERVICE_NO_ERROR if successful, some error if not.
