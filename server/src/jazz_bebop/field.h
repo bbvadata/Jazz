@@ -55,17 +55,22 @@ Fields are morphisms defined as op-codes and snippets in a unique way for each p
 namespace jazz_bebop
 {
 
-class Field : public jazz_elements::Container {
+using namespace jazz_elements;
+
+
+class Field : public Service {
 
 	public:
 
-		Field(jazz_elements::pLogger	 a_logger,
-			  jazz_elements::pConfigFile a_config,
-			  pPack						 a_pack);
+		Field(pLogger	  a_logger,
+			  pConfigFile a_config,
+			  pPack		  a_pack);
 	   ~Field();
 
-		jazz_elements::StatusCode start	();
-		jazz_elements::StatusCode shut_down();
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
 };
 typedef Field *pField;
 

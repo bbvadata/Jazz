@@ -46,10 +46,20 @@ using namespace jazz_elements;
 
 Field::Field(pLogger	 a_logger,
 			 pConfigFile a_config,
-			 pPack		 a_pack) : Container(a_logger, a_config) {}
+			 pPack		 a_pack) : Service(a_logger, a_config) {}
 
 
-Field::~Field() { destroy_container(); }
+Field::~Field() {}
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Field::id() {
+    static char arr[] = "Field from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 
 /** Starts the Field service
