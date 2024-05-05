@@ -49,10 +49,21 @@ using namespace jazz_elements;
 
 Core::Core(pLogger	   a_logger,
 		   pConfigFile a_config,
-		   pPack	   a_pack) : Container(a_logger, a_config) {}
+		   pPack	   a_pack,
+		   pField	   a_field) : Container(a_logger, a_config) {}
 
 
 Core::~Core() { destroy_container(); }
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Core::id() {
+    static char arr[] = "Core from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 
 /** Starts the Core service

@@ -55,17 +55,23 @@ A core is not a service, it allocates its state in the Volatile container.
 namespace jazz_bebop
 {
 
-class Core : public jazz_elements::Container {
+using namespace jazz_elements;
+
+
+class Core : public Container {
 
 	public:
 
-		Core(jazz_elements::pLogger	 a_logger,
-			  jazz_elements::pConfigFile a_config,
-			  pPack						 a_pack);
+		Core(pLogger	 a_logger,
+			 pConfigFile a_config,
+			 pPack		 a_pack,
+			 pField		 a_field);
 	   ~Core();
 
-		jazz_elements::StatusCode start	();
-		jazz_elements::StatusCode shut_down();
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
 };
 typedef Core *pCore;
 
