@@ -107,7 +107,7 @@ void init_http_callback();
 	\return	True if the service started ok.
 
 */
-bool start_service(pService service, char const *service_name);
+bool start_service(pService service);
 
 
 /** \brief A little utility to stop services writing output to the console.
@@ -120,7 +120,7 @@ bool start_service(pService service, char const *service_name);
 	\return	True if the service stopped ok.
 
 */
-bool stop_service(pService service, char const *service_name);
+bool stop_service(pService service);
 
 } // namespace jazz_main
 

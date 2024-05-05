@@ -383,34 +383,34 @@ void init_http_callback() {
 }
 
 
-bool start_service(pService service, char const *service_name) {
-	cout << "Starting " << service_name << " ... ";
+bool start_service(pService service) {
+	cout << "Starting " << service->id() << " ... ";
 
 	if (service->start() != SERVICE_NO_ERROR) {
 		cout << "FAILED!" << endl;
-		LOGGER.log_printf(LOG_ERROR, "Errors occurred starting %s.", service_name);
+		LOGGER.log_printf(LOG_ERROR, "Errors occurred starting %s.", service->id());
 
 		return false;
 	} else {
 		cout << "ok" << endl;
-		LOGGER.log_printf(LOG_INFO, "Service %s started Ok.", service_name);
+		LOGGER.log_printf(LOG_INFO, "Service %s started Ok.", service->id());
 
 		return true;
 	}
 }
 
 
-bool stop_service(pService service, char const *service_name) {
-	cout << "Stopping " << service_name << " ... ";
+bool stop_service(pService service) {
+	cout << "Stopping " << service->id() << " ... ";
 
 	if (service->shut_down() != SERVICE_NO_ERROR) {
 		cout << "FAILED!" << endl;
-		LOGGER.log_printf(LOG_ERROR, "Errors occurred stopping %s.", service_name);
+		LOGGER.log_printf(LOG_ERROR, "Errors occurred stopping %s.", service->id());
 
 		return false;
 	} else {
 		cout << "ok" << endl;
-		LOGGER.log_printf(LOG_INFO, "Service %s stopped Ok.", service_name);
+		LOGGER.log_printf(LOG_INFO, "Service %s stopped Ok.", service->id());
 
 		return true;
 	}
@@ -434,19 +434,19 @@ void signalHandler_SIGTERM(int signum) {
 
 #ifndef CATCH_TEST
 
-	if (!stop_service(&HTTP,	  "HttpServer")) stop_ok = false;
+	if (!stop_service(&HTTP))	   stop_ok = false;
 
-	if (!stop_service(&API,		  "Api"))		 stop_ok = false;
+	if (!stop_service(&API))	   stop_ok = false;
 
-	if (!stop_service(&MODEL,	  "Model"))		 stop_ok = false;
-	if (!stop_service(&SEMSPACE,  "SemSpace"))	 stop_ok = false;
+	if (!stop_service(&MODEL))	   stop_ok = false;
+	if (!stop_service(&SEMSPACE))  stop_ok = false;
 
-	if (!stop_service(&FIELD,	  "Field"))		 stop_ok = false;
-	if (!stop_service(&PACK,	  "Pack"))		 stop_ok = false;
+	if (!stop_service(&FIELD))	   stop_ok = false;
+	if (!stop_service(&PACK))	   stop_ok = false;
 
-	if (!stop_service(&PERSISTED, "Persisted"))	 stop_ok = false;
-	if (!stop_service(&VOLATILE,  "Volatile"))	 stop_ok = false;
-	if (!stop_service(&CHANNELS,  "Channels"))	 stop_ok = false;
+	if (!stop_service(&PERSISTED)) stop_ok = false;
+	if (!stop_service(&VOLATILE))  stop_ok = false;
+	if (!stop_service(&CHANNELS))  stop_ok = false;
 
 #endif
 
