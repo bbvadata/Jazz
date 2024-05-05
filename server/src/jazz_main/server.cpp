@@ -80,7 +80,7 @@ Starting logic:
 StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon, MHD_AccessHandlerCallback dh, Channels &channels) {
 // 1. Get all the MHD server config settings via get_conf_key()
 
-	int http_port = channels.jazz_node_port[channels.jazz_node_my_index];
+	http_port = channels.jazz_node_port[channels.jazz_node_my_index];
 
 	int ok, debug, ssl, ipv6, pedantic, supp_date, tcp_fastopen;
 
@@ -160,7 +160,7 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 
 // 4. Calls MHD_start_daemon()
 
-	cout << "Starting server on port : " << http_port << endl;
+	cout << "Starting HttpServer on port : " << http_port << endl;
 
 	p_daemon = MHD_start_daemon(server_flags, http_port, NULL, NULL, dh, NULL, MHD_OPTION_ARRAY, &server_options, MHD_OPTION_END);
 
@@ -185,6 +185,17 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 #endif
 
 	while(true) sleep(60);
+}
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const HttpServer::id() {
+    static char arr[64];
+	sprintf(arr, "HttpServer on port : %d", http_port);
+    return arr;
 }
 
 
