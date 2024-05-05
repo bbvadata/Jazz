@@ -55,17 +55,22 @@ A Pack is a collections of op-codes either the Basic Opcode Pack (BOP) or an upl
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
+
 //TODO: A Pack is a Service, but not a container.
-class Pack : public jazz_elements::Container {
+class Pack : public jazz_elements::Service {
 
 	public:
 
-		Pack(jazz_elements::pLogger		a_logger,
-			 jazz_elements::pConfigFile	a_config);
-	   ~Pack();
+		Pack(pLogger		a_logger,
+			 pConfigFile	a_config);
+		~Pack();
 
-		jazz_elements::StatusCode start	();
-		jazz_elements::StatusCode shut_down();
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
 };
 typedef Pack *pPack;
 

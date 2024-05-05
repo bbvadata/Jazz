@@ -44,11 +44,18 @@ using namespace jazz_elements;
 	 Pack : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Pack::Pack(pLogger	   a_logger,
-		   pConfigFile a_config) : Container(a_logger, a_config) {}
+Pack::Pack(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Pack::~Pack() {}
 
 
-Pack::~Pack() { destroy_container(); }
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Pack::id() {
+    static char arr[] = "Pack from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 
 /** Starts the Pack service
