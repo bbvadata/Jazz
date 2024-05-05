@@ -53,6 +53,16 @@ Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logge
 Persisted::~Persisted() { destroy_container(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Persisted::id() {
+    static char arr[] = "Persisted from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** \brief Starts the service, checking the environment and building the databases.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.

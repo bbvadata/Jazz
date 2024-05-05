@@ -236,6 +236,8 @@ class Volatile : public Container {
 				 pConfigFile a_config);
 	   ~Volatile();
 
+		virtual pChar const id();
+
 		StatusCode start	();
 		StatusCode shut_down();
 

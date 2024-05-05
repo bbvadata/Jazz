@@ -232,6 +232,8 @@ class Channels : public Container {
 				 pConfigFile a_config);
 	   ~Channels();
 
+		virtual pChar const id();
+
 		StatusCode	   start	   ();
 		StatusCode	   shut_down   ();
 

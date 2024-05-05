@@ -48,6 +48,16 @@ Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 Volatile::~Volatile() { destroy_volatile(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Volatile::id() {
+    static char arr[] = "Volatile from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** \brief Starts the service, checking the configuration and starting the Service.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.

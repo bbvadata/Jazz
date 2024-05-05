@@ -105,6 +105,16 @@ Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 Channels::~Channels() { destroy_container(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Channels::id() {
+    static char arr[] = "Channels from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** Reads config variables and sets jazz_node_* public variables.
 */
 StatusCode Channels::start() {
