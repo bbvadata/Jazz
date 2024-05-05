@@ -38,7 +38,6 @@
 #ifndef INCLUDED_JAZZ_MODEL
 #define INCLUDED_JAZZ_MODEL
 
-//TODO: Make a shortcut model connecting to outside play
 
 /** \brief Includes everything in namespace jazz_model.
 

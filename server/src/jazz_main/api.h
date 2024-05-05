@@ -168,7 +168,6 @@ the http callback http_request_callback().
 
 */
 class Api : public Container {
-//TODO: Make an API uplift connecting to outside play
 
 	public:
 

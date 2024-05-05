@@ -51,49 +51,12 @@
 #ifndef INCLUDED_JAZZ_MAIN_MAIN
 #define INCLUDED_JAZZ_MAIN_MAIN
 
-//TODO: Add CORE instantiation!
-
-
-// F U N C T I O N A L   T O D O   L I S T : For anything in src/jazz_main
-// =======================================   -----------------------------
-
-//FUTURE: Implement http API access control.
-	// This can be done combining two ways:
-	//   1. By defining MHD_AcceptPolicyCallback and pass it to MHD_start_daemon() in HttpServer::start(), includes:
-	//		  * Caller IP
-	//   2. Inside http_request_callback() using "connection" which is a key:value including things like:
-	//		  * Session management and cookies (See "On cookies" below)
-	//		  * User-Agent:
-	//		  * Accept-Language:
-
-// On cookies:
-// -----------
-
-// 1. The idea is explained in https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
-
-// 	The server, has to check if the request comes with a cookie, if not, it has to send:
-
-// 	Set-Cookie: jazz_user=a3fWa; Expires=Thu, 31 Oct 2021 07:28:00 GMT;
-
-// 	After that, all requests will come with:
-
-// 	GET /sample_page.html HTTP/2.0
-// 	Host: www.example.org
-// 	Cookie: jazz_user=a3fWa;
-
-// 	The server uses the cookie to keep the conversation context persisted.
-
-// 2. The use via MHD is explained in https://www.gnu.org/software/libmicrohttpd/tutorial.html#Session-management
-
-// 3. The disclaimer has been added to config/static/cookies.htm
-
 
 /** \brief	 The application entry point.
 
 	Most high level server logic: see the description of main()
 	The entry point is replaced by the catch2 entry point for unit testing.
 */
-
 
 // Command line arguments for the Jazz server
 

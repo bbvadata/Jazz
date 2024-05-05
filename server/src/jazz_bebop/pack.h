@@ -58,7 +58,6 @@ namespace jazz_bebop
 using namespace jazz_elements;
 
 
-//TODO: A Pack is a Service, but not a container.
 class Pack : public jazz_elements::Service {
 
 	public:
