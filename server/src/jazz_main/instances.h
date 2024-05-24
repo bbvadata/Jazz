@@ -104,7 +104,6 @@ void init_http_callback();
 	It also logs errors directly to the LOGGER instance.
 
 	\param service		The address of the Service being started.
-	\param service_name The string with the name of the service to show in the messages and possible log errors.
 
 	\return	True if the service started ok.
 
@@ -117,7 +116,6 @@ bool start_service(pService service);
 	It also logs errors directly to the LOGGER instance.
 
 	\param service		The address of the Service being stopped.
-	\param service_name The string with the name of the service to show in the messages and possible log errors.
 
 	\return	True if the service stopped ok.
 
