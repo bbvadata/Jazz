@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -30,9 +30,6 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-
-
-// #include <stl_whatever>
 
 
 #include "src/jazz_elements/volatile.h"
@@ -87,7 +84,7 @@ For reference:
 
 1. See Container and each of the crud methods in this class.
 2. Each entity (whose name is parsed by Container.as_locator()) is a named LMDB (dbi) database.
-3. Oustide Jazz, the database files can be managed (even while running) with LMDB utils: mdb_copy, mdb_drop, mdb_dump, mdb_load & mdb_stat
+3. Outside Jazz, the database files can be managed (even while running) with LMDB utils: mdb_copy, mdb_drop, mdb_dump, mdb_load & mdb_stat
 4. For how LMDB is used, see http://www.lmdb.tech/doc/ for coding reference.
 5. For specific details, that may be experimented with, see the config file: server/config/jazz_config.ini
 
@@ -99,6 +96,8 @@ class Persisted : public Container {
 		Persisted(pLogger	  a_logger,
 				  pConfigFile a_config);
 	   ~Persisted();
+
+		virtual pChar const id();
 
 		StatusCode start	();
 		StatusCode shut_down();

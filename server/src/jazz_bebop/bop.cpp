@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,20 +32,15 @@
 */
 
 
-#include "src/include/jazz_bebop.h"
+#include "src/jazz_bebop/bop.h"
 
 
-#ifndef INCLUDED_JAZZ_AGENCY
-#define INCLUDED_JAZZ_AGENCY
+namespace jazz_bebop
+{
 
 
-/** \brief Includes everything in namespace jazz_agency without using it by default.
+} // namespace jazz_bebop
 
-The namespace jazz_agency contains: The abstract class from which all flʌkpilers descend, the mechanism to extend and manage a
-collection of flʌkpilers. The implementation of an agent, which is a graph of flʌkpilers.
-*/
-
-#include "src/jazz_agency/agency.h"
-
-
-#endif // ifndef INCLUDED_JAZZ_AGENCY
+#if defined CATCH_TEST
+#include "src/jazz_bebop/tests/test_bop.ctest"
+#endif

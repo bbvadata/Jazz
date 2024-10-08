@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -48,12 +48,22 @@
 #define INCLUDED_JAZZ_MAIN_INSTANCES
 
 
+#ifndef CATCH_TEST
+
+// Uplifted containers: The declarations cannot go inside the namespace jazz_main.
+// -------------------
+
+#include "src/uplifted/uplifted_instances.h"
+
+#endif
+
+
 namespace jazz_main
 {
 
 using namespace jazz_elements;
 using namespace jazz_bebop;
-using namespace jazz_agency;
+using namespace jazz_model;
 
 /*	-----------------------------
 	  I n s t a n t i a t i n g
@@ -61,17 +71,15 @@ using namespace jazz_agency;
 
 #ifndef CATCH_TEST
 
-// Higher level Services:
-
-extern Agency EPI;				// (As in epistrophy.) The service managing agents.
-extern Bebop  BOP;				// (as in Bebop.) The service managing cores and fields.
-
 // Block containers:
 
 extern Channels	 CHANNELS;		// The container channeling blocks.
 extern Volatile	 VOLATILE;		// The container allocating volatile blocks.
 extern Persisted PERSISTED;		// The container allocating persisted blocks.
-extern Api		 API;			// The API interface is also a one-shot container.
+
+// Code execution:
+
+extern Core CORE;				// The container running Bop code.
 
 // Http server:
 
@@ -84,6 +92,11 @@ void signalHandler_SIGTERM(int signum);
 
 #endif
 
+
+/** \brief The initialization of the global variables for http_request_callback().
+*/
+void init_http_callback();
+
 // Utils for starting and stopping Services:
 
 /** \brief A little utility to start services writing output to the console.
@@ -91,12 +104,11 @@ void signalHandler_SIGTERM(int signum);
 	It also logs errors directly to the LOGGER instance.
 
 	\param service		The address of the Service being started.
-	\param service_name The string with the name of the service to show in the messages and possible log errors.
 
 	\return	True if the service started ok.
 
 */
-bool start_service(pService service, char const *service_name);
+bool start_service(pService service);
 
 
 /** \brief A little utility to stop services writing output to the console.
@@ -104,12 +116,11 @@ bool start_service(pService service, char const *service_name);
 	It also logs errors directly to the LOGGER instance.
 
 	\param service		The address of the Service being stopped.
-	\param service_name The string with the name of the service to show in the messages and possible log errors.
 
 	\return	True if the service stopped ok.
 
 */
-bool stop_service(pService service, char const *service_name);
+bool stop_service(pService service);
 
 } // namespace jazz_main
 

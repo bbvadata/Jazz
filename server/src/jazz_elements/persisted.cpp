@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -53,6 +53,16 @@ Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logge
 Persisted::~Persisted() { destroy_container(); }
 
 
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Persisted::id() {
+    static char arr[] = "Persisted from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
 /** \brief Starts the service, checking the environment and building the databases.
 
 	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
@@ -97,6 +107,7 @@ StatusCode Persisted::start() {
 		 && get_conf_key("MDB_NOMEMINIT",		   nomeminit);
 
 #ifdef CATCH_TEST
+	lmdb_opt.env_set_mapsize = std::min(lmdb_opt.env_set_mapsize, 1024);	// Avoids Valgrind crashing on big allocation (DO NOT REMOVE!)
 	nomeminit = 0;	// Minimize Valgrind noise
 #endif
 
@@ -790,7 +801,7 @@ release_lock_and_fail:
 
 /** Close all named databases on LMDB leaving them ready for a subsequent opening.
 
-	This makes numsources == 0 by closing used LMDB handles via mdb_dbi_close().
+	This closes used LMDB handles one by one via mdb_dbi_close().
 */
 void Persisted::close_all_databases() {
 
@@ -902,8 +913,7 @@ release_lock_and_fail:
 
 	\return	SERVICE_NO_ERROR on success or some negative value and log(LOG_MISS, "further details") on failure.
 
-	NOTE: kill_source() is EXTREMELY not thread safe! Indices to ALL sources may change. Unsafe use of: numsources, source_nam, source_open,
-source_dbi.
+	NOTE: kill_source() is EXTREMELY not thread safe! Indices to ALL sources may change.
 */
 StatusCode Persisted::remove_database(pChar name) {
 
@@ -1025,7 +1035,7 @@ void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 		strcpy(errmsg, "LMDB MDB_INCOMPATIBLE: Operation and DB incompatible, or DB type changed (see doc).");
 		break;
 	case MDB_BAD_RSLOT:
-		strcpy(errmsg, "LMDB MDB_BAD_RSLOT: Invalid reuse of reader locktable slot.");
+		strcpy(errmsg, "LMDB MDB_BAD_RSLOT: Invalid reuse of reader lock table slot.");
 		break;
 	case MDB_BAD_TXN:
 		strcpy(errmsg, "LMDB MDB_BAD_TXN: Transaction must abort, has a child, or is invalid.");

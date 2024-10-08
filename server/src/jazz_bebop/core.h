@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -31,12 +31,9 @@
 	limitations under the License.
 */
 
+#include "src/jazz_bebop/field.h"
 
-// #include <stl_whatever>
-
-#include "src/include/jazz_elements.h"
-
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -50,44 +47,43 @@
 #define INCLUDED_JAZZ_BEBOP_CORE
 
 
-/*! \brief Bebop, cores, kernel and extending the language.
+/** \brief Core: The execution unit running Snippet objects.
 
-	This namespace includes anything related with running and implementing Bebop code.
-
-	All together is instanced in the server as the BOP (of Jazz).
+A core is not a service, it allocates its state in the Volatile container.
 */
+
 namespace jazz_bebop
 {
 
 using namespace jazz_elements;
 
 
-// Forward pointer types:
-
-typedef class  Bebop	*pBebop;
-
-
-/** \brief Bebop: A Service to manage running cores and code bases.
-
-*/
-class Bebop : public Container {
+class Core : public Container {
 
 	public:
 
-		Bebop(pLogger	  a_logger,
-			  pConfigFile a_config);
-	   ~Bebop();
+		Core(pLogger	 a_logger,
+			 pConfigFile a_config,
+			 pPack		 a_pack,
+			 pField		 a_field);
+	   ~Core();
 
-		StatusCode start();
+		virtual pChar const id();
+
+		StatusCode start	();
 		StatusCode shut_down();
-
-		// The function call interface: exec()/modify().
-		virtual StatusCode exec	 (pTransaction &p_txn,
-								  Locator	   &function,
-								  pTuple		p_args);
-		virtual StatusCode modify(Locator	   &function,
-								  pTuple		p_args);
 };
+typedef Core *pCore;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Core
+// -----------------
+
+extern Core CORE;
+
+#endif
 
 } // namespace jazz_bebop
 

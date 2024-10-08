@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -103,6 +103,16 @@ Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 
 
 Channels::~Channels() { destroy_container(); }
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Channels::id() {
+    static char arr[] = "Channels from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 
 /** Reads config variables and sets jazz_node_* public variables.
@@ -373,11 +383,11 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 				url += ++pt;
 
 			if (it->second.size() > 1)
-				return curl_get(p_txn, (void *) url.c_str(), &it->second);
+				return curl_get(p_txn, url.c_str(), &it->second);
 			else
-				return curl_get(p_txn, (void *) url.c_str());
+				return curl_get(p_txn, url.c_str());
 		}
-		return curl_get(p_txn, (void *) p_what); }
+		return curl_get(p_txn, p_what); }
 
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
@@ -493,24 +503,24 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 				return SERVICE_ERROR_BASE_FORBIDDEN;
 		}
 
-		void *p_buff;
-		int size;
+		pChar p_buff;
+		int	  size;
 
 		if ((mode & WRITE_AS_STRING) && (	(p_block->cell_type == CELL_TYPE_STRING && p_block->size == 1)
 										 || (p_block->cell_type == CELL_TYPE_BYTE	&& p_block->rank == 1))) {
 			if (p_block->cell_type == CELL_TYPE_STRING) {
 				p_buff = p_block->get_string(0);
-				size   = strlen((const char *) p_buff);
+				size   = strlen(p_buff);
 			} else {
-				p_buff = &p_block->tensor.cell_byte[0];
-				size   = strnlen((const char *) p_buff, p_block->size);
+				p_buff = reinterpret_cast<pChar>(&p_block->tensor.cell_byte[0]);
+				size   = strnlen(p_buff, p_block->size);
 			}
 		} else if ((mode & WRITE_AS_CONTENT) && ((p_block->cell_type & 0xf0) == 0)) {
 			size   = p_block->size*(p_block->cell_type & 0xff);
-			p_buff = &p_block->tensor.cell_byte[0];
+			p_buff = reinterpret_cast<pChar>(&p_block->tensor.cell_byte[0]);
 		} else if ((mode & WRITE_AS_FULL_BLOCK) && (p_block->cell_type != CELL_TYPE_INDEX)) {
 			size   = p_block->total_bytes;
-			p_buff = (uint8_t *) p_block;
+			p_buff = reinterpret_cast<pChar>(p_block);
 		} else
 			return SERVICE_ERROR_WRITE_FORBIDDEN;
 
@@ -587,11 +597,11 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 				url += ++pt;
 
 			if (it->second.size() > 1)
-				return curl_put((void *) url.c_str(), p_block, mode, &it->second);
+				return curl_put(url.c_str(), p_block, mode, &it->second);
 			else
-				return curl_put((void *) url.c_str(), p_block, mode);
+				return curl_put(url.c_str(), p_block, mode);
 		}
-		return curl_put((void *) p_where, p_block, mode); }
+		return curl_put(p_where, p_block, mode); }
 
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)
@@ -752,11 +762,11 @@ StatusCode Channels::remove(pChar p_where) {
 				url += ++pt;
 
 			if (it->second.size() > 1)
-				return curl_remove((void *) url.c_str(), &it->second);
+				return curl_remove(url.c_str(), &it->second);
 			else
-				return curl_remove((void *) url.c_str());
+				return curl_remove(url.c_str());
 		}
-		return curl_remove((void *) p_where); }
+		return curl_remove(p_where); }
 
 	case BASE_0_MQ_10BIT:
 		if (!zmq_ok)

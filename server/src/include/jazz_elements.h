@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -41,7 +41,7 @@
 
 /* Includes everything in namespace jazz_elements without using it by default.
 
-The namespace jazz_elements contains everything to build Jazz except the http server, the agency parts and the details of the Bebop
+The namespace jazz_elements contains everything to build Jazz except the http server, the models parts and the details of the Bebop
 language implementation. This is: utilities, implementations of all the data (block, tuple, kind) and code (field) types and the most
 fundamental services: volatile (which allocates blocks in RAM) and persisted (which persists block in lmdb).
 */

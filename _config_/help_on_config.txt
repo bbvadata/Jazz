@@ -1,6 +1,8 @@
 This script creates:
 
   - server/src/include/jazz_platform.h (Version and platform const)
+  - server/src/uplifted/uplifted_instances.h (Class types of uplifted classes)
+  - server/src/uplifted/uplifted_instances.cpp (Class types of uplifted classes)
   - server/Makefile (for C++)
   - server/src/main.dox (main page for Doxygen)
   - docker/base/build_upload.sh (build & upload base Docker image)

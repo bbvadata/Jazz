@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -30,9 +30,6 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-
-
-// #include <stl_whatever>
 
 
 #include "src/jazz_elements/channel.h"
@@ -183,13 +180,13 @@ typedef std::string* pString;
 Node Method Reference
 ---------------------
 
-Some bases in Volatile, like **deque** which is just a key/value store where each entity is a new keyspace. Keys are keys and values
+Some bases in Volatile, like **deque** which is just a key/value store where each entity is a new key space. Keys are keys and values
 are blocks of any kind. Other bases have a syntax that allows operating with entities or nodes, like pop()-ing the highest priority
 node in a **queue**, accessing to nodes in a tree using the tree pointers or keys to node ids, etc.
 
 The reference for this is this docstring. All entities and keys can be removed with remove(), each time keys are returned, they are
 inside a block of just one string, see the methods of each base for more. Methods have commands that follow a ~ char and are only two
-letters long, allthough they can be written in full to improve readability. E.g. ~fi is the same as ~first and, we write it ~fi{rst}
+letters long, although they can be written in full to improve readability. E.g. ~fi is the same as ~first and, we write it ~fi{rst}
 below, but, of course, it cannot be written with the brackets.
 
 Methods in deque
@@ -238,6 +235,8 @@ class Volatile : public Container {
 		Volatile(pLogger	 a_logger,
 				 pConfigFile a_config);
 	   ~Volatile();
+
+		virtual pChar const id();
 
 		StatusCode start	();
 		StatusCode shut_down();
@@ -667,7 +666,7 @@ class Volatile : public Container {
 
 		/** Define a new name and push it into the HashNameUseMap.
 
-			\param hash	hash(key) (It will almost always be already computed in advance, just use of or comoute it. It's inline.)
+			\param hash	hash(key) (It will almost always be already computed in advance, just use of or compute it. It's inline.)
 			\param key	The name to be added, zero-padded by hash().
 
 			\return	The same hash to ease writing "p_txn->key_hash = add_name(key_hash, key)" when creating something new.
@@ -690,7 +689,7 @@ class Volatile : public Container {
 		}
 
 
-		/** Remove a from the HashNameUseMap by decrasing its use count and destroying it if not used anymore.
+		/** Remove a from the HashNameUseMap by decreasing its use count and destroying it if not used anymore.
 
 			\param hash	hash(key)
 

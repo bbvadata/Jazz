@@ -7283,7 +7283,11 @@ namespace Catch {
     bool FatalConditionHandler::isSet = false;
     struct sigaction FatalConditionHandler::oldSigActions[sizeof(signalDefs)/sizeof(SignalDefs)] = {};
     stack_t FatalConditionHandler::oldSigStack = {};
-    char FatalConditionHandler::altStackMem[SIGSTKSZ] = {};
+
+//	char FatalConditionHandler::altStackMem[SIGSTKSZ] = {};	// The old code replaced was this!
+	char FatalConditionHandler::altStackMem[8192] = {};		// It expected sigstack.h having something like: `#define SIGSTKSZ	8192`
+															// In Ubuntu 22.04, the macro is not a constant and generates:
+															// "error: size of array ‘altStackMem’ is not an integral constant-expression"
 
 } // namespace Catch
 

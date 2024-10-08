@@ -34,7 +34,7 @@ Special thanks to Roberto Maestre and Israel Herraiz who have been discussing th
 ## Current development
 
   - Jazz version 0.5.1 is first complete release of the new architecture.
-  - Jazz version 0.5.2 is the version released with The Tangle.
+  - Jazz version 0.5.3 is the version released with The Tangle.
   - Jazz version 0.6.1 is Bebop development.
 
   - The development repositories:

@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -41,6 +41,8 @@
 
 using namespace std;
 using namespace jazz_main;
+using namespace jazz_bebop;
+using namespace jazz_model;
 
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
@@ -173,60 +175,100 @@ int main(int argc, char* argv[]) {
 
 		show_credits();
 
-		if (!start_service(&CHANNELS, "Channels")) {
+		if (!start_service(&CHANNELS)) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&VOLATILE, "Volatile")) {
-			stop_service(&CHANNELS,  "Channels");
-
-			exit(EXIT_FAILURE);
-		}
-
-		if (!start_service(&PERSISTED, "Persisted")) {
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+		if (!start_service(&VOLATILE)) {
+			stop_service(&CHANNELS);
 
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&BOP, "Bebop")) {
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+		if (!start_service(&PERSISTED)) {
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
 
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&EPI, "Agency")) {
-			stop_service(&BOP,		 "Bebop");
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+		if (!start_service(&PACK)) {
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
 
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&API, "Api")) {
-			stop_service(&EPI,		 "Agency");
-			stop_service(&BOP,		 "Bebop");
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+		if (!start_service(&FIELD)) {
+			stop_service(&PACK);
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
 
 			exit(EXIT_FAILURE);
 		}
 
+		if (!start_service(&CORE)) {
+			stop_service(&FIELD);
+			stop_service(&PACK);
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
+
+			exit(EXIT_FAILURE);
+		}
+
+		if (!start_service(&SEMSPACE)) {
+			stop_service(&CORE);
+			stop_service(&FIELD);
+			stop_service(&PACK);
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
+
+			exit(EXIT_FAILURE);
+		}
+
+		if (!start_service(&MODEL)) {
+			stop_service(&SEMSPACE);
+			stop_service(&CORE);
+			stop_service(&FIELD);
+			stop_service(&PACK);
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
+
+			exit(EXIT_FAILURE);
+		}
+
+		if (!start_service(&API)) {
+			stop_service(&MODEL);
+			stop_service(&SEMSPACE);
+			stop_service(&CORE);
+			stop_service(&FIELD);
+			stop_service(&PACK);
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
+
+			exit(EXIT_FAILURE);
+		}
+
+		init_http_callback();
 		int ret_code = HTTP.start(&signalHandler_SIGTERM, Jazz_MHD_Daemon, &http_request_callback, CHANNELS);
 
 		if (ret_code != EXIT_SUCCESS) {
-			stop_service(&HTTP,		 "HttpServer");
-			stop_service(&API,		 "Api");
-			stop_service(&EPI,		 "Agency");
-			stop_service(&BOP,		 "Bebop");
-			stop_service(&PERSISTED, "Persisted");
-			stop_service(&VOLATILE,  "Volatile");
-			stop_service(&CHANNELS,  "Channels");
+			stop_service(&HTTP);
+			stop_service(&API);
+			stop_service(&MODEL);
+			stop_service(&SEMSPACE);
+			stop_service(&CORE);
+			stop_service(&FIELD);
+			stop_service(&PACK);
+			stop_service(&PERSISTED);
+			stop_service(&VOLATILE);
+			stop_service(&CHANNELS);
 		}
 
 		exit(ret_code);

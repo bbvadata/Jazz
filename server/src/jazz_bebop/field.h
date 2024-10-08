@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -31,12 +31,9 @@
 	limitations under the License.
 */
 
+#include "src/jazz_bebop/snippet.h"
 
-// #include <stl_whatever>
-
-#include "src/jazz_bebop/core.h"
-
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -50,9 +47,42 @@
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
 
+/** \brief Formal Fields: Organizing op-codes and snippets by Kind.
+
+Fields are morphisms defined as op-codes and snippets in a unique way for each pair of Kinds.
+*/
+
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
+
+class Field : public Service {
+
+	public:
+
+		Field(pLogger	  a_logger,
+			  pConfigFile a_config,
+			  pPack		  a_pack);
+	   ~Field();
+
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
+};
+typedef Field *pField;
+
+
+#ifdef CATCH_TEST
+
+// Instancing Field
+// -----------------
+
+extern Field FLS;
+
+#endif
 
 } // namespace jazz_bebop
 

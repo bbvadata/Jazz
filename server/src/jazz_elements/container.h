@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -94,7 +94,7 @@ namespace jazz_elements
 /// Thread safety
 #define LOCK_NUM_RETRIES_BEFORE_YIELD	100		///< Number of retries when lock fails before calling this_thread::yield()
 
-/// sqrt(2^31) == # simultaneous readers to outweight a writer == # simultaneous writers to force an overflow
+/// sqrt(2^31) == # simultaneous readers to outweigh a writer == # simultaneous writers to force an overflow
 #define LOCK_WEIGHT_OF_WRITE			46341
 
 // State based parser types:
@@ -121,7 +121,7 @@ struct ParseNextStateLUT {
 };
 
 
-/** \brief A way to build constants defining the transtition from one state to the next via a regex.
+/** \brief A way to build constants defining the transition from one state to the next via a regex.
 */
 struct ParseStateTransition {
 	int  from;
@@ -201,7 +201,7 @@ typedef std::map<std::string, int>	MapSI;
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
-Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, Bebop, Agency, and the Api.
+Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, E.g., the Api.
 
 There is no class Channel (in singular), copy() is a method that copies blocks across Containers (or different media in Channels).
 Channels does all the block transactions across media (files, folders, shell, urls, zeroMQ pipes, Index types, ...).
@@ -239,7 +239,7 @@ some small amount used by libraries, etc. that is not dependant on data size).
 Container descendants
 ---------------------
 
-Note that Continers own their Transactions and may allocate p_route blocks including all kinds of things like session cookies or
+Note that Containers own their Transactions and may allocate p_route blocks including all kinds of things like session cookies or
 credentials for libcurl calls. Any container will reroute a destroy_transaction() call to its owner.
 
 Scope of jazz_elements
@@ -247,12 +247,21 @@ Scope of jazz_elements
 
 Everything works at binary level, operations on blocks at this level are very simple, just copying, deleting, filtering a Tensor by
 (int or bool) indices, filtering a Tuple by item name and support every medium in the more conceivably efficient way.
-Serialization (to and from text) is done at the Api level, running code in jazz_bebop and agency (yomi) at jazz_agency.
+
+Code execution
+--------------
+
+Code execution covers the methods exec (both for functions and mutators) and modify (a special logic used in channel). Code execution
+both runs at "lower level" (opcodes and snippets) or at higher level (concept, semspace, model). Everything goes through exec() both
+functions and mutators. See the doc in the namespace jazz_bebop for details.
+
+Calling OpCodes and sippets from a container always wraps around the arguments. This means, even is the opcode is a mutator it does not
+modify the original tensor but does a copy-on-write, modifies the copy and returns the copy.
 
 new_block()
 -----------
 
-**NOTE** that new_block() has 8 forms. It is always called new_block() to emphasize that what the funcion does is create a new block (vs.
+**NOTE** that new_block() has 8 forms. It is always called new_block() to emphasize that what the function does is create a new block (vs.
 sharing a pointer to an existing one). Therefore, the container allocates and owns it an requires a destroy_transaction() call when no
 longer needed. The forms cover all the supported ways to do basic operations like filtering and serializing.
 
@@ -507,7 +516,7 @@ class Container : public Service {
 	protected:
 #endif
 
-		/** An std::malloc() that increases .alloc_bytes on each call and fails on overcommit.
+		/** An std::malloc() that increases .alloc_bytes on each call and fails on over-allocation.
 		*/
 		inline void* malloc(size_t size) {
 			if (alloc_bytes + size >= fail_alloc_bytes)
@@ -541,7 +550,7 @@ class Container : public Service {
 
 		/** A private hard lock for Container-critical operations. E.g., Adding a new block to the deque.
 
-			Needeless to say: Use only for a few clockcycles over the critical part and always unlock_container() no matter what.
+			Needless to say: Use only for a few clock-cycles over the critical part and always unlock_container() no matter what.
 		*/
 		inline void lock_container() {
 			int		retry = 0;

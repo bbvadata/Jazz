@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -72,6 +72,8 @@ class HttpServer : public Service {
 		HttpServer(pLogger	   a_logger,
 				   pConfigFile a_config);
 
+		virtual pChar const id();
+
 		StatusCode start(pSignalHandler				p_sig_handler,
 						 pMHD_Daemon			   &p_daemon,
 						 MHD_AccessHandlerCallback	dh,
@@ -81,6 +83,7 @@ class HttpServer : public Service {
 
 	private:
 
+		int http_port = 0;
 		MHD_OptionItem server_options[9];	// Variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
 };
 

@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -250,7 +250,7 @@ uint64_t MurmurHash64A(const void *key, int len) {
 
 	uint64_t h = MURMUR_SEED ^ (len*m);
 
-	const uint64_t *data = (const uint64_t *) key;
+	const uint64_t *data = reinterpret_cast<const uint64_t *>(key);
 	const uint64_t *end	 = data + (len/8);
 
 	while(data != end) {
@@ -264,7 +264,7 @@ uint64_t MurmurHash64A(const void *key, int len) {
 		h *= m;
 	}
 
-	const unsigned char *data2 = (const unsigned char*) data;
+	const unsigned char *data2 = reinterpret_cast<const unsigned char*>(data);
 
 	switch(len & 7)	{
 	case 7: h ^= uint64_t(data2[6]) << 48;
@@ -318,7 +318,7 @@ std::string CleanConfigArgument(std::string s) {
 
 	\param input_file_name The input file name containing a configuration
 
-	\return Nothing. Check num_keys() for errors.
+	It returns nothing. Check num_keys() for errors.
 */
 ConfigFile::ConfigFile(const char *input_file_name) {
 	load_config(input_file_name);
@@ -644,12 +644,23 @@ void Logger::log_printf(int loglevel, const char *fmt, va_list args) {
 	\param a_config Possibly a configuration file as a ConfigFile object. NULL is okay if the object does not expect any configuration.
 
 	Rather than using the private p_log and p_conf pointers, it is recommended to use the inline methods log() and log_printf() for
-	logging and get_conf_key() for acessing the configuration.
+	logging and get_conf_key() for accessing the configuration.
 */
 Service::Service(pLogger a_logger, pConfigFile a_config) {
 	p_log  = a_logger;
 	p_conf = a_config;
 }
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Service::id() {
+    static char arr[] = "!ABSTRACT CLASS!";
+    return arr;
+}
+
 
 /** Start (or restart) the Service
 

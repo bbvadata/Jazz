@@ -7,13 +7,13 @@ Use the proper version or `:latest` searching at https://hub.docker.com/reposito
 as necessary.
 
 ```
-docker run -p8899:8899 kaalam/jazz_lss:0.5.3
+docker run -p8899:8899 kaalam/jazz_lss:0.6.1
 
 # Other options:
 
 # Run locally built image [DEBUG]:		docker run -p8899:8899 -ti jazz_lss_stable:latest /bin/bash
 # Run locally built image [Release]:	docker run -p8899:8899 jazz_lss_stable:latest
-# Run Docker Hub image [DEBUG]:			docker run -p8899:8899 -ti kaalam/jazz_lss:0.5.3 /bin/bash
+# Run Docker Hub image [DEBUG]:			docker run -p8899:8899 -ti kaalam/jazz_lss:0.6.1 /bin/bash
 ```
 
 See more at: https://kaalam.github.io/jazz_reference/reference_docker_how_to_build.html
@@ -30,7 +30,7 @@ store all the datasets.
 ### To download and store the data for the first time
 
 ```
-docker run -ti -v /path/local/lmdb:/home/jazz/jazz_dbg_mdb kaalam/jazz_tng:0.5.3 /bin/bash
+docker run -ti -v /path/local/lmdb:/home/jazz/jazz_dbg_mdb kaalam/jazz_tng:0.6.1 /bin/bash
 ```
 
 Where `/path/local/lmdb` is whatever path on your machine you choose to store the downloaded datasets.
@@ -50,7 +50,7 @@ saved the LMDB files and exit by executing `exit`.
 ### To run the image containing the data you already downloaded
 
 ```
-docker run -p8899:8899 -v /path/local/lmdb:/home/jazz/jazz_dbg_mdb kaalam/jazz_tng:0.5.3
+docker run -p8899:8899 -v /path/local/lmdb:/home/jazz/jazz_dbg_mdb kaalam/jazz_tng:0.6.1
 ```
 
 Where `/path/local/lmdb` is the path you already used in a successful `download_and_store` call.

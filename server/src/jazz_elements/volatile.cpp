@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -46,6 +46,16 @@ Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger,
 
 
 Volatile::~Volatile() { destroy_volatile(); }
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Volatile::id() {
+    static char arr[] = "Volatile from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 
 /** \brief Starts the service, checking the configuration and starting the Service.

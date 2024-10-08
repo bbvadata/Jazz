@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -34,7 +34,7 @@
 
 #include <map>
 
-#include "src/include/jazz_agency.h"
+#include "src/include/jazz_model.h"
 
 #ifdef CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -69,15 +69,17 @@ typedef int MHD_Result;
 
 /*! \brief The http API, instancing and building the server.
 
-	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_agency
+	This small namespace is about the server running and putting everything together. Unlike jazz_elements, jazz_bebop and jazz_model
 	it is not intended to build other applications than the server.
 */
 namespace jazz_main
 {
 
+//TODO: Create interface for ACTOR model (as described in develop/rfc2/jazz_actor_model.html)
+
 using namespace jazz_elements;
 using namespace jazz_bebop;
-using namespace jazz_agency;
+using namespace jazz_model;
 
 #define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert HttpQueryState -> Locator
 
@@ -92,6 +94,34 @@ using namespace jazz_agency;
 #define	SEQUENCE_FIRST_CALL					 0	///< First call, no pTransaction was yet assigned (data must be stored)
 #define	SEQUENCE_INCREMENT_CALL				 1	///< Any number of these calls (including none) allocate bigger and keep storing
 #define	SEQUENCE_FINAL_CALL					 2	///< Last call, no more data this time, do the magic and return a status code
+
+/// Http methods
+
+#define HTTP_NOTUSED						 0	///< Rogue value to fill the LUTs
+#define HTTP_OPTIONS						 1	///< http predicate OPTIONS
+#define HTTP_HEAD							 2	///< http predicate HEAD
+#define HTTP_GET							 3	///< http predicate GET
+#define HTTP_PUT							 4	///< http predicate PUT
+#define HTTP_DELETE							 5	///< http predicate DELETE
+
+/// Parser state values
+
+#define PSTATE_INITIAL						 0	///< Begin parsing, assumes already seen / to avoid unnecessary initial counting
+#define PSTATE_DONE_NODE					 1	///< Equivalent to PSTATE_INITIAL, except node was done and it cannot happen again
+#define PSTATE_NODE0						 2	///< Already seen ///
+#define PSTATE_IN_NODE						 3	///< Name starts after /// + letter, stays with valid char
+#define PSTATE_BASE0						 4	///< Already seen //
+#define PSTATE_IN_BASE						 5	///< Name starts after // + letter, stays with valid char
+#define PSTATE_ENTITY0						 6	///< Already seen / after reading a base
+#define PSTATE_IN_ENTITY					 7	///< Name starts after / + letter, stays with valid char
+#define PSTATE_KEY0							 8	///< Already seen / after reading an entity
+#define PSTATE_IN_KEY						 9	///< Name starts after / + letter, stays with valid char
+#define PSTATE_INFO_SWITCH					10	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
+#define PSTATE_BASE_SWITCH					11	///< Found # while reading a base
+#define PSTATE_ENT_SWITCH					12	///< Found # while reading a base
+#define PSTATE_KEY_SWITCH					13	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
+#define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
+#define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
 
 /** \brief A buffer to keep the state while parsing/executing a query
 */
@@ -146,9 +176,11 @@ class Api : public Container {
 			pChannels	a_channels,
 			pVolatile	a_volatile,
 			pPersisted	a_persisted,
-			pBebop		a_bebop,
-			pAgency		a_agency);
+			pCore		a_core,
+			pModel		a_model);
 	   ~Api();
+
+		virtual pChar const id();
 
 		StatusCode start	();
 		StatusCode shut_down();
@@ -406,7 +438,7 @@ class Api : public Container {
 
 		Context: This in any possible assignment in which the right part is NOT remote call. Functionally, it is similar to
 		get_left_local(), but since it is the right of an assignment, arguments are stored at a different place and also, apply
-		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instaed of APPLY_NOTHING..APPLY_TEXT.
+		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instead of APPLY_NOTHING..APPLY_TEXT.
 		It returns the final block as it will be returned to the user with a new_block() interface.
 		*/
 		inline StatusCode get_right_local(pTransaction &p_txn, HttpQueryState &q_state) {
@@ -574,24 +606,19 @@ class Api : public Container {
 		pChannels	p_channels;
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
-		pBebop		p_bebop;
-		pAgency		p_agency;
+		pCore		p_core;
+		pModel		p_model;
+
 		Index		www;
 		int			remove_statics;
 };
 
 #ifdef CATCH_TEST
 
-// Instancing Bebop, Agency and Api
-// --------------------------------
+// Instancing Api
+// --------------
 
-extern Bebop  BOP;
-extern Agency EPI;
 extern Api	  TT_API;
-
-#else
-
-extern Api	API;			// The API interface
 
 #endif
 

@@ -411,8 +411,8 @@ static int
 mdb_sem_wait(mdb_mutexref_t sem)
 {
 	int rc, *locked = sem->locked;
-	struct sembuf sb = { 0, -1, SEM_UNDO };
-	sb.sem_num = sem->semnum;
+	struct sembuf sb = { sem->semnum, -1, SEM_UNDO };
+
 	do {
 		if (!semop(sem->semid, &sb, 1)) {
 			rc = *locked ? MDB_OWNERDEAD : MDB_SUCCESS;
@@ -1231,7 +1231,7 @@ typedef union MDB_metabuf {
 	MDB_page	mb_page;
 	struct {
 		char		mm_pad[PAGEHDRSZ];			// cppcheck-suppress unusedStructMember
-		MDB_meta	mm_meta;
+		MDB_meta	mm_meta;					// cppcheck-suppress unusedStructMember
 	} mb_metabuf;
 } MDB_metabuf;
 
@@ -3005,7 +3005,7 @@ mdb_txn_renew0(MDB_txn *txn)
 					if (ti->mti_readers[i].mr_pid == 0)
 						break;
 				if (i == env->me_maxreaders) {
-					UNLOCK_MUTEX(rmutex);
+					UNLOCK_MUTEX(rmutex);				// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 					return MDB_READERS_FULL;
 				}
 				r = &ti->mti_readers[i];
@@ -3022,7 +3022,7 @@ mdb_txn_renew0(MDB_txn *txn)
 					ti->mti_numreaders = ++nr;
 				env->me_close_readers = nr;
 				r->mr_pid = pid;
-				UNLOCK_MUTEX(rmutex);
+				UNLOCK_MUTEX(rmutex);						// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 
 				new_notls = (env->me_flags & MDB_NOTLS);
 				if (!new_notls && (rc=pthread_setspecific(env->me_txkey, r))) {
@@ -3333,7 +3333,7 @@ mdb_txn_end(MDB_txn *txn, unsigned mode)
 
 			/* The writer mutex was locked in mdb_txn_begin. */
 			if (env->me_txns)
-				UNLOCK_MUTEX(env->me_wmutex);
+				UNLOCK_MUTEX(env->me_wmutex);						// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 		} else {
 			txn->mt_parent->mt_child = NULL;
 			txn->mt_parent->mt_flags &= ~MDB_TXN_HAS_CHILD;
@@ -4081,7 +4081,7 @@ mdb_txn_commit(MDB_txn *txn)
 		goto fail;
 	if ((rc = mdb_env_write_meta(txn)))
 		goto fail;
-	end_mode = MDB_END_COMMITTED|MDB_END_UPDATE;
+	end_mode = MDB_END_COMMITTED | MDB_END_UPDATE;			// cppcheck-suppress badBitmaskCheck
 	if (env->me_flags & MDB_PREVSNAPSHOT) {
 		if (!(env->me_flags & MDB_NOLOCK)) {
 			int excl;
@@ -4187,7 +4187,7 @@ mdb_env_init_meta0(MDB_env *env, MDB_meta *meta)
  * @return 0 on success, non-zero on failure.
  */
 static int ESECT
-mdb_env_init_meta(MDB_env *env, MDB_meta *meta)
+mdb_env_init_meta(MDB_env *env, MDB_meta *meta)			// cppcheck-suppress constParameter
 {
 	MDB_page *p, *q;
 	int rc = 0;
@@ -7541,8 +7541,8 @@ int mdb_cursor_put(MDB_cursor *mc, MDB_val *key, MDB_val *data, unsigned int fla
 	 * early failures.
 	 */
 	if (flags & MDB_MULTIPLE) {
-		dcount = data[1].mv_size;							// cppcheck-suppress objectIndex ; No problem, in the recursive call flags
-		data[1].mv_size = 0;								// cppcheck-suppress objectIndex ; does not contain MDB_MULTIPLE
+		dcount = data[1].mv_size;
+		data[1].mv_size = 0;
 		if (!F_ISSET(mc->mc_db->md_flags, MDB_DUPFIXED))
 			return MDB_INCOMPATIBLE;
 	}
@@ -8760,7 +8760,7 @@ mdb_update_key(MDB_cursor *mc, MDB_val *key)
 #endif
 
 	/* Sizes must be 2-byte aligned. */
-	ksize = EVEN(key->mv_size);
+	ksize = EVEN(key->mv_size);						// This requires initialized key
 	oksize = EVEN(node->mn_ksize);
 	delta = ksize - oksize;
 
@@ -8994,11 +8994,11 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 				return rc;
 		}
 		if (IS_BRANCH(csrc->mc_pg[csrc->mc_top])) {
-			MDB_val	 nullkey;
+			MDB_val	nullkey = {0, 0};								// FIX Dec 28 2022 (mdb_update_key() call expects initialized )
 			indx_t	ix = csrc->mc_ki[csrc->mc_top];
 			nullkey.mv_size = 0;
 			csrc->mc_ki[csrc->mc_top] = 0;
-			rc = mdb_update_key(csrc, &nullkey);
+			rc = mdb_update_key(csrc, &nullkey);					// Calling function mdb_update_key, 2nd argument is uninitialized
 			csrc->mc_ki[csrc->mc_top] = ix;
 			mdb_cassert(csrc, rc == MDB_SUCCESS);
 		}
@@ -9025,11 +9025,11 @@ mdb_node_move(MDB_cursor *csrc, MDB_cursor *cdst, int fromleft)
 				return rc;
 		}
 		if (IS_BRANCH(cdst->mc_pg[cdst->mc_top])) {
-			MDB_val	 nullkey;
+			MDB_val	nullkey = {0, 0};								// FIX Dec 28 2022 (mdb_update_key() call expects initialized )
 			indx_t	ix = cdst->mc_ki[cdst->mc_top];
 			nullkey.mv_size = 0;
 			cdst->mc_ki[cdst->mc_top] = 0;
-			rc = mdb_update_key(cdst, &nullkey);						// cppcheck-suppress unreadVariable
+			rc = mdb_update_key(cdst, &nullkey);					// cppcheck-suppress unreadVariable
 			cdst->mc_ki[cdst->mc_top] = ix;
 			mdb_cassert(cdst, rc == MDB_SUCCESS);
 		}
@@ -9396,8 +9396,7 @@ mdb_rebalance(MDB_cursor *mc)
 }
 
 /** Complete a delete operation started by #mdb_cursor_del(). */
-static int
-mdb_cursor_del0(MDB_cursor *mc)
+static int mdb_cursor_del0(MDB_cursor *mc)
 {
 	int rc;
 	MDB_page *mp;
@@ -9503,9 +9502,7 @@ fail:
 	return rc;
 }
 
-int
-mdb_del(MDB_txn *txn, MDB_dbi dbi,
-    MDB_val *key, MDB_val *data)
+int mdb_del(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data)
 {
 	if (!key || !TXN_DBI_EXIST(txn, dbi, DB_USRVALID))
 		return EINVAL;
@@ -9521,9 +9518,7 @@ mdb_del(MDB_txn *txn, MDB_dbi dbi,
 	return mdb_del0(txn, dbi, key, data, 0);
 }
 
-static int
-mdb_del0(MDB_txn *txn, MDB_dbi dbi,
-	MDB_val *key, MDB_val *data, unsigned flags)
+static int mdb_del0(MDB_txn *txn, MDB_dbi dbi,	MDB_val *key, MDB_val *data, unsigned flags)		// cppcheck-suppress constParameter
 {
 	MDB_cursor mc;
 	MDB_xcursor mx;
@@ -9574,9 +9569,7 @@ mdb_del0(MDB_txn *txn, MDB_dbi dbi,
  * @param[in] nflags The #NODE_ADD_FLAGS for the new node.
  * @return 0 on success, non-zero on failure.
  */
-static int
-mdb_page_split(MDB_cursor *mc, MDB_val *newkey, MDB_val *newdata, pgno_t newpgno,
-	unsigned int nflags)
+static int mdb_page_split(MDB_cursor *mc, MDB_val *newkey, MDB_val *newdata, pgno_t newpgno, unsigned int nflags)
 {
 	unsigned int flags;
 	int		 rc = MDB_SUCCESS, new_root = 0, did_split = 0;
@@ -10465,7 +10458,7 @@ mdb_env_copyfd0(MDB_env *env, HANDLE fd)
 
 		rc = mdb_txn_renew0(txn);
 		if (rc) {
-			UNLOCK_MUTEX(wmutex);
+			UNLOCK_MUTEX(wmutex);						// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 			goto leave;
 		}
 	}
@@ -10490,7 +10483,7 @@ mdb_env_copyfd0(MDB_env *env, HANDLE fd)
 		}
 	}
 	if (wmutex)
-		UNLOCK_MUTEX(wmutex);
+		UNLOCK_MUTEX(wmutex);						// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 
 	if (rc)
 		goto leave;
@@ -10601,7 +10594,7 @@ void *ESECT mdb_env_get_userctx(MDB_env *env)								// cppcheck-suppress unused
 	return env ? env->me_userctx : NULL;
 }
 
-int ESECT mdb_env_set_assert(MDB_env *env, MDB_assert_func *func)			// cppcheck-suppress unusedFunction
+int ESECT mdb_env_set_assert(MDB_env *env, MDB_assert_func *func)			// cppcheck-suppress [unusedFunction, constParameter]
 {
 	if (!env)
 		return EINVAL;
@@ -11190,7 +11183,7 @@ mdb_reader_check0(MDB_env *env, int rlocked, int *dead)
 								count++;
 							}
 					if (rmutex)
-						UNLOCK_MUTEX(rmutex);
+						UNLOCK_MUTEX(rmutex);						// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 				}
 			}
 		}
@@ -11239,7 +11232,7 @@ mdb_mutex_failed(MDB_env *env, mdb_mutexref_t mutex, int rc)
 			rc2 = mdb_mutex_consistent(mutex);
 		if (rc || (rc = rc2)) {
 			DPRINTF(("LOCK_MUTEX recovery failed, %s", mdb_strerror(rc)));
-			UNLOCK_MUTEX(mutex);
+			UNLOCK_MUTEX(mutex);											// cppcheck-suppress [ignoredReturnValue, unreadVariable]
 		}
 	} else {
 #ifdef _WIN32

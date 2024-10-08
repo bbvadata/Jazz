@@ -33,4 +33,3 @@ cd ../tng-data-wikipedia || return 1
 ./expand.sh
 
 cd /home/jazz || return 1
-

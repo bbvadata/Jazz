@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#    (c) 2018-2021 kaalam.ai (The Authors of Jazz)
+#    (c) 2018-2024 kaalam.ai (The Authors of Jazz)
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -14,16 +14,28 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-grep -rnw server/src -e "^//TODO:\(.*\)$" > neat_todos.txt
-grep -rnw server/src -e "TODO:" > sloppy_todos.txt
+grep -rnw server/src/ -e "^//TODO:\(.*\)$" > neat_todos.txt
+grep -rnw server/src/ -e "TODO:" > sloppy_todos.txt
 
-echo "List of sloppy todos:"
+printf "List of sloppy TODOs (in server/src/):\n"
+diff neat_todos.txt sloppy_todos.txt
+
+grep -rnw uplifts/ -e "^//TODO:\(.*\)$" > neat_todos.txt
+grep -rnw uplifts/ -e "TODO:" > sloppy_todos.txt
+
+printf "List of sloppy TODOs (in uplifts/):\n"
 diff neat_todos.txt sloppy_todos.txt
 
 rm neat_todos.txt sloppy_todos.txt
 
-echo "List of neat todos:"
-grep -rnw server/src -e "^//TODO:\(.*\)$"
+printf "\nList of neat TODOs (in server/src/):\n\n"
+grep -rnw server/src/ -e "^//TODO:\(.*\)$"
 
-echo "Number of neat todos:"
-grep -rnw server/src -e "^//TODO:\(.*\)$" | wc -l
+printf "\nNumber of neat TODOs (in server/src/):\n\n"
+grep -rnw server/src/ -e "^//TODO:\(.*\)$" | wc -l
+
+printf "\nList of neat TODOs (in uplifts/):\n\n"
+grep -rnw uplifts/ -e "^//TODO:\(.*\)$"
+
+printf "\nNumber of neat TODOs (in uplifts/):\n\n"
+grep -rnw uplifts/ -e "^//TODO:\(.*\)$" | wc -l

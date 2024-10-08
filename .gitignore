@@ -1,7 +1,11 @@
 .vscode
 server/Makefile
 server/src/include/jazz_platform.h
+server/src/uplifted/
 server/src/main.dox
 docker/base/build_upload.sh
 docker/lss/build_upload.sh
 docker/tng/build_upload.sh
+uplifts/
+_config_/*_include_path
+_config_/*_library_path

@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -133,7 +133,7 @@ Before libmicrohttpd (somewhere between > 0.9.66-1 and <= 0.9.72-2) changed MHD_
 to define HTTP responses. That ended-up badly on newer versions, since it was passed to a MHD_queue_response() and stopped working
 as it became an enum.
 
-This triggeresd the need, for clarity reasons only, to introduce a new type, MHD_StatusCode to refer to **HTTP responses**.
+This triggered the need, for clarity reasons only, to introduce a new type, MHD_StatusCode to refer to **HTTP responses**.
 
 See: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 
@@ -232,6 +232,8 @@ class Channels : public Container {
 				 pConfigFile a_config);
 	   ~Channels();
 
+		virtual pChar const id();
+
 		StatusCode	   start	   ();
 		StatusCode	   shut_down   ();
 
@@ -256,11 +258,8 @@ class Channels : public Container {
 		virtual StatusCode remove	 (pChar				 p_where);
 		virtual StatusCode copy		 (pChar				 p_where,
 									  pChar				 p_what);
-
-		// The function call interface: exec()/modify().
 		virtual StatusCode modify    (Locator			&function,
 									  pTuple			 p_args);
-
 		MHD_StatusCode forward_get	 (pTransaction		&p_txn,
 									  Name				 node,
 									  pChar				 p_url);
@@ -302,7 +301,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_get(pTransaction &p_txn, void *url, Index *p_idx = nullptr) {
+		inline StatusCode curl_get(pTransaction &p_txn, const char *url, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
@@ -396,7 +395,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_put(void *url, pBlock p_blk, int mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, Index *p_idx = nullptr) {
+		inline StatusCode curl_put(const char *url, pBlock p_blk, int mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 
@@ -504,7 +503,7 @@ class Channels : public Container {
 			\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
 		*/
-		inline StatusCode curl_remove(void *url, Index *p_idx = nullptr) {
+		inline StatusCode curl_remove(const char *url, Index *p_idx = nullptr) {
 			CURL *curl;
 			CURLcode c_ret;
 

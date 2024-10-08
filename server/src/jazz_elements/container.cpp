@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -146,7 +146,7 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 #define PSTATE_OUT_STRING		25		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_STRING
 #define PSTATE_OUT_TIME			26		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_TIME
 
-/** A vector of StateTransition.l This only runs once, when contruction the API object, initializes the LUTs from a sequence of
+/** A vector of StateTransition.l This only runs once, when construction the API object, initializes the LUTs from a sequence of
 StateTransition constants in the source of api.cpp.
 */
 typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
@@ -660,8 +660,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 #ifdef DEBUG	// Initialize the RAM between the end of the tensor and the base of the attribute key vector for Valgrind.
 	{
-		char *pt1 = (char *) &p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size,
-			 *pt2 = (char *) p_txn->p_block->align64bit((uintptr_t) pt1);
+		char *pt1 = reinterpret_cast<char *>(&p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size),
+			 *pt2 = reinterpret_cast<char *>(p_txn->p_block->align64bit((uintptr_t) pt1));
 
 		while (pt1 < pt2)
 			*(pt1++) = 0;
@@ -802,7 +802,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						it when done.
 	\param num_items	The number of items the Kind or Tuple will have.
 	\param p_hea		A vector of num_items pointers to StaticBlockHeaders defining the Kind or Tuple. The shape must be defined in
-						"human-readble" format, i.e., what a pBlock->get_dimensions() returns (not the internal way a block stores it).
+						"human-readable" format, i.e., what a pBlock->get_dimensions() returns (not the internal way a block stores it).
 						When creating a Kind, negative constants must be defined in dims-> and will be used to create dimensions.
 	\param p_names		An array of num_items Name structures by which the items will go.
 	\param p_block		The data, only for tuples. It must have the same shape as p_hea but that will not be checked. Unlike p_hea
@@ -989,7 +989,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 			tensor_diff = new_tensor_size - old_tensor_size;
 
-			if (tensor_diff == 0 && !p_row_filter->is_a_filter()) {		// For consitency, check indices
+			if (tensor_diff == 0 && !p_row_filter->is_a_filter()) {		// For consistency, check indices
 				destroy_transaction(p_txn);
 
 				return SERVICE_ERROR_NEW_BLOCK_ARGS;
@@ -1627,7 +1627,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
-Unlike all the other blocks, Tensor, Kind and Tuple, this returns a header with an std::map. Thefore, it is dynamically allocated,
+Unlike all the other blocks, Tensor, Kind and Tuple, this returns a header with an std::map. Therefore, it is dynamically allocated,
 by just using it. As such, it is not movable and cannot be used in any transactions other that Channels serializing it as a
 Tuple(key, value). When no longer needed, it has to be destroy_transaction()-ed just like the other Blocks created with new_block() and
 the Container will take care of freeing the std::map before destroying the transaction.
@@ -2087,7 +2087,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2097,7 +2097,7 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2107,7 +2107,7 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pBlock p_row_filte
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2135,7 +2135,7 @@ StatusCode Container::locate(Locator &location, Locator &what) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2145,7 +2145,7 @@ StatusCode Container::header(StaticBlockHeader &hea, Locator &what) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2155,7 +2155,7 @@ StatusCode Container::header(pTransaction &p_txn, Locator &what) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2165,7 +2165,7 @@ StatusCode Container::put(Locator &where, pBlock p_block, int mode) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2175,7 +2175,7 @@ StatusCode Container::new_entity(Locator &where) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2185,7 +2185,7 @@ StatusCode Container::remove(Locator &where) {
 }
 
 
-/** The "native" interface: This is what really does the job and **must be implemented in the Container descendats**.
+/** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
 **NOTE**: The root Container class does not implement this.
 */
@@ -2731,7 +2731,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if ((void *) p_st != &cell) {
+					if (p_st != ((pChar) &cell)) {		// Ugly parenthesis required by cppcheck
 						*p_st = 0;
 						p_st  = (pChar) &cell;
 
@@ -3233,7 +3233,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 	if (p_txt == nullptr)
 		return SERVICE_ERROR_NO_MEM;
 
-	int *p_is_NA = (int *) malloc(ix_size);
+	int *p_is_NA = reinterpret_cast<int *>(malloc(ix_size));
 
 	StatusCode ret;
 
@@ -3241,7 +3241,7 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 		ret = SERVICE_ERROR_NO_MEM;
 
 	else {
-		int *p_hasLN = (int *) malloc(ix_size);
+		int *p_hasLN = reinterpret_cast<int *>(malloc(ix_size));
 
 		if (p_hasLN == nullptr)
 			ret = SERVICE_ERROR_NO_MEM;

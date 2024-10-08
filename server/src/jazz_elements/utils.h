@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -283,12 +283,14 @@ class Service {
 
 	public:
 
-		 Service(pLogger	 a_logger,
-			     pConfigFile a_config);
+		Service(pLogger	 a_logger,
+			    pConfigFile a_config);
 
 		/// A simple start()/shut_down() interface (Restart is: shut_down(TRUE):start())
 		virtual StatusCode start	();
 		virtual StatusCode shut_down();
+
+		virtual pChar const id();
 
 		/** Wrapper method logging events through a Logger when the logger was passed to the constructor of this class.
 

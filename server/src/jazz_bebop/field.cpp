@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -38,9 +38,54 @@
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
+/*	-----------------------------------------------
+	 Field : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+Field::Field(pLogger	 a_logger,
+			 pConfigFile a_config,
+			 pPack		 a_pack) : Service(a_logger, a_config) {}
+
+
+Field::~Field() {}
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const Field::id() {
+    static char arr[] = "Field from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
+/** Starts the Field service
+*/
+StatusCode Field::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode Field::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+Field FLS(&LOGGER, &CONFIG, &PAK);
+
+#endif
 
 } // namespace jazz_bebop
 
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #include "src/jazz_bebop/tests/test_field.ctest"
 #endif

@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -53,7 +53,7 @@ HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logge
 
 	\param p_sig_handler	A function (of type pSignalHandler) that will be called when the process receives a SIGTERM signal.
 	\param p_daemon			Returns by reference the pointer that will be used to control the MHD_Daemon.
-	\param dh				The addres of the MHD_AccessHandlerCallback (server callback).
+	\param dh				The address of the MHD_AccessHandlerCallback (server callback).
 	\param channels			The instance of Channel to find out the configuration port.
 
 	\return		On failure, EXIT_FAILURE. On success, the thread forks and only the parent process returns EXIT_SUCCESS, the child does
@@ -80,7 +80,7 @@ Starting logic:
 StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon, MHD_AccessHandlerCallback dh, Channels &channels) {
 // 1. Get all the MHD server config settings via get_conf_key()
 
-	int http_port = channels.jazz_node_port[channels.jazz_node_my_index];
+	http_port = channels.jazz_node_port[channels.jazz_node_my_index];
 
 	int ok, debug, ssl, ipv6, pedantic, supp_date, tcp_fastopen;
 
@@ -160,7 +160,7 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 
 // 4. Calls MHD_start_daemon()
 
-	cout << "Starting server on port : " << http_port << endl;
+	cout << "Starting HttpServer on port : " << http_port << endl;
 
 	p_daemon = MHD_start_daemon(server_flags, http_port, NULL, NULL, dh, NULL, MHD_OPTION_ARRAY, &server_options, MHD_OPTION_END);
 
@@ -185,6 +185,17 @@ StatusCode HttpServer::start(pSignalHandler p_sig_handler, pMHD_Daemon &p_daemon
 #endif
 
 	while(true) sleep(60);
+}
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const HttpServer::id() {
+    static char arr[64];
+	sprintf(arr, "HttpServer on port : %d", http_port);
+    return arr;
 }
 
 

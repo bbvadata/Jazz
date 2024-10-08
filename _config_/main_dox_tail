@@ -20,9 +20,9 @@ nothing  | Code is complete and tested.
 There are three C++ namespaces, intended for general c++ Jazz programming, possibly using external Jazz servers, but not necessarily as
 implemented as an http server:
 
-1. jazz_elements (all the pieces: blocks, tuples, storage, fluxes, communication, services, ...)\n
-2. jazz_bebop (everything to create bebop code, run it and expand Formal Fields)\n
-3. jazz_agency (agency as graphs of fields)\n
+1. jazz_elements (All the pieces: Blocks, Kinds, Tuples, storage, communication, services, etc.)\n
+2. jazz_bebop (Everything to run bebop code: Bop (utils), OpCode, Pack, Snippet, Field, Core)\n
+3. jazz_model (From objects to concepts, from code execution to code creation)\n
 \n
 
 Additionally, there is a namespace for the server:
@@ -42,7 +42,7 @@ Everything is in the [Jazz repository](https://github.com/kaalam/Jazz).\n
 \n
 \section license_sec LICENSE
 
- Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+ Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
    1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
       exclusively for the use in the Jazz server software.

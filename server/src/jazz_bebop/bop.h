@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -31,12 +31,9 @@
 	limitations under the License.
 */
 
+#include "src/include/jazz_elements.h"
 
-// #include <stl_whatever>
-
-#include "src/include/jazz_bebop.h"
-
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
 #define INCLUDED_JAZZ_CATCH2
 
@@ -46,49 +43,24 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_AGENCY_AGENCY
-#define INCLUDED_JAZZ_AGENCY_AGENCY
+#ifndef INCLUDED_JAZZ_BEBOP_BOP
+#define INCLUDED_JAZZ_BEBOP_BOP
 
 
-/*! \brief Agency: learning, building flʌkpilers and graphs of flʌkpilers (== Agents).
+/** \brief Bop functionality required to implement the classes.
 
-	This namespace includes the top-level elements in the Jazz ecosystem automating the magic.
+This is mainly functionality shared with the API to access resources in other containers in order to get data for the computations.
 
-	All together is instanced in the server as the EPI (from Epistrophy).
 */
-namespace jazz_agency
+
+namespace jazz_bebop
 {
 
-using namespace jazz_elements;
+//TODO: Refactor syntax parsing elements from Api that get blocks into a function here available for Core.
+//TODO: That function must implement the Actor critic model.
+//TODO: Provide mechanisms to apply to multi-block.
 
 
-// Forward pointer types:
+} // namespace jazz_bebop
 
-typedef class  Agency	*pAgency;
-
-
-/** \brief Agency: A Service to manage flʌkpilers and agents.
-
-*/
-class Agency : public Container {
-
-	public:
-
-		Agency(pLogger	   a_logger,
-			   pConfigFile a_config);
-	   ~Agency();
-
-		StatusCode start();
-		StatusCode shut_down();
-
-		// The function call interface: exec()/modify().
-		virtual StatusCode exec	 (pTransaction &p_txn,
-								  Locator	   &function,
-								  pTuple		p_args);
-		virtual StatusCode modify(Locator	   &function,
-								  pTuple		p_args);
-};
-
-} // namespace jazz_agency
-
-#endif // ifndef INCLUDED_JAZZ_AGENCY_AGENCY
+#endif // ifndef INCLUDED_JAZZ_BEBOP_BOP

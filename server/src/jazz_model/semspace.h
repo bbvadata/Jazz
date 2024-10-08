@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,20 +32,58 @@
 */
 
 
-using namespace jazz_agency;
+#include "src/jazz_model/concept.h"
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
 
 
-// Tests
-// -----
+#ifndef INCLUDED_JAZZ_MODEL_SEMSPACE
+#define INCLUDED_JAZZ_MODEL_SEMSPACE
 
-SCENARIO("Testing agency") {
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
-}
+/** \brief SemSpace: Semantic spaces
 
+Semantic spaces are containers of Concepts.
+*/
+
+namespace jazz_model
+{
+
+using namespace jazz_elements;
+
+
+class SemSpace : public Container {
+
+	public:
+
+		 SemSpace(pLogger	  a_logger,
+				  pConfigFile a_config);
+		~SemSpace();
+
+		virtual pChar const id();
+
+		StatusCode start	();
+		StatusCode shut_down();
+};
+typedef SemSpace *pSemSpace;
+
+
+#ifdef CATCH_TEST
+
+// Instancing SemSpace
+// -------------------
+
+extern SemSpace SMS;
+
+#endif
+
+} // namespace jazz_model
+
+#endif // ifndef INCLUDED_JAZZ_MODEL_SEMSPACE

@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,86 +32,64 @@
 */
 
 
+// #include <stl_whatever>
+
+
 #include "src/jazz_bebop/core.h"
 
 
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
 /*	-----------------------------------------------
-	 Bebop : I m p l e m e n t a t i o n
+	 Core : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Bebop::Bebop(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+Core::Core(pLogger	   a_logger,
+		   pConfigFile a_config,
+		   pPack	   a_pack,
+		   pField	   a_field) : Container(a_logger, a_config) {}
 
 
-Bebop::~Bebop() { destroy_container(); }
+Core::~Core() { destroy_container(); }
 
 
-/** \brief Starts the service, checking the configuration and starting the Service.
+/** Return object ID.
 
-	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
-
+	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-StatusCode Bebop::start() {
+pChar const Core::id() {
+    static char arr[] = "Core from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
-	int ret = Container::start();	// This initializes the one-shot functionality.
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+/** Starts the Core service
+*/
+StatusCode Core::start() {
 
 	return SERVICE_NO_ERROR;
 }
 
 
-/** Shuts down the Bebop Service
+/** Shuts down the Persisted Service
 */
-StatusCode Bebop::shut_down() {
+StatusCode Core::shut_down() {
 
-	return Container::shut_down();	// Closes the one-shot functionality.
+	return SERVICE_NO_ERROR;
 }
 
 
-/** The function call interface for **exec**: Execute an opcode in a formal field.
+#ifdef CATCH_TEST
 
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container.
-	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
-					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
-	\param p_args	A Tuple passed as argument to the call that is not modified. This may be a pure function in Bebop or have context
-					in Agency.
+Core CORE(&LOGGER, &CONFIG, &PAK, &FLS);
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
-
-Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
-be destroy_transaction()-ed when the caller is done.
-*/
-StatusCode Bebop::exec(pTransaction &p_txn, Locator &function, pTuple p_args) {
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-/** The function call interface for **modify**: Execute and modify the argument Tuple by reference.
-
-	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
-					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
-	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
-					The result will be overridden in-place without any allocation.
-
-	\return	SERVICE_NO_ERROR on success or some negative value (error).
-
-modify() is similar to exec(), but, rather than creating a new block with the result, it modifies the Tuple p_args.
-
-NOTE: The http API will only call this on empty keys, but inside the algorithms, this can be supported to run anything.
-*/
-StatusCode Bebop::modify(Locator &function, pTuple p_args) {
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
+#endif
 
 } // namespace jazz_bebop
 
-#ifdef CATCH_TEST
+#if defined CATCH_TEST
 #include "src/jazz_bebop/tests/test_core.ctest"
 #endif

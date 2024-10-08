@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2021 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -44,16 +44,11 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 		REQUIRE(TT_API.p_channels	== &CHN);
 		REQUIRE(TT_API.p_volatile	== &VOL);
 		REQUIRE(TT_API.p_persisted	== &PER);
-		REQUIRE(TT_API.p_bebop		== &BOP);
-		REQUIRE(TT_API.p_agency		== &EPI);
 	}
 
-	REQUIRE(CHN.start()  == 0);
-	REQUIRE(VOL.start()  == 0);
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
 	REQUIRE(PER.start() == 0);
-
-	REQUIRE(BOP.start() == 0);
-	REQUIRE(EPI.start() == 0);
 
 	REQUIRE(TT_API.start() == 0);
 
@@ -72,14 +67,10 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 
 	REQUIRE(TT_API.shut_down() == 0);
 
-	REQUIRE(BOP.shut_down() == 0);
-	REQUIRE(EPI.shut_down() == 0);
-
 	REQUIRE(CHN.shut_down() == 0);
 	REQUIRE(VOL.shut_down() == 0);
 	REQUIRE(PER.shut_down() == 0);
 }
-
 
 SCENARIO("Testing api.parse") {
 	REQUIRE(TT_API.start() == 0);
