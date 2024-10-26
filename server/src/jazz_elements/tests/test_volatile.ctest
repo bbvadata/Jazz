@@ -3048,7 +3048,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 	memset(&buff, 0, sizeof(buff));
 
-	WHEN("I do simple zero init walkthough, it works") {
+	WHEN("I do simple zero init walkthrough, it works") {
 		p_item = &buff[alloc_items++];
 
 		p_item->key_hash = 1;
@@ -3144,7 +3144,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 	memset(&buff, 0x5a5a5a5a, sizeof(buff));
 
-	WHEN("I do simple junk init walkthough, it works") {
+	WHEN("I do simple junk init walkthrough, it works") {
 		p_item = &buff[alloc_items++];
 
 		p_item->key_hash = 1;
