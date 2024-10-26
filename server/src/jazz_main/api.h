@@ -161,24 +161,24 @@ extern MHD_Result http_request_callback(void *cls,
 										void **con_cls);
 
 
-/** \brief Api: A Service to manage the REST API.
+/** \brief API: A Service to manage the REST API.
 
 This service parses and executes http queries. It is aware and redistributes to all the appropriate services. It is called directly by
 the http callback http_request_callback().
 
 */
-class Api : public Container {
+class API : public Container {
 
 	public:
 
-		Api(pLogger		a_logger,
+		API(pLogger		a_logger,
 			pConfigFile	a_config,
 			pChannels	a_channels,
 			pVolatile	a_volatile,
 			pPersisted	a_persisted,
 			pCore		a_core,
 			pModel		a_model);
-	   ~Api();
+	   ~API();
 
 		virtual pChar const id();
 
@@ -615,10 +615,10 @@ class Api : public Container {
 
 #ifdef CATCH_TEST
 
-// Instancing Api
+// Instancing API
 // --------------
 
-extern Api	  TT_API;
+extern API	  TT_API;
 
 #endif
 

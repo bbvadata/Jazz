@@ -97,10 +97,10 @@ ParseStateTransitions state_tr = {
 ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
 /*	-----------------------------------------------
-	 Api : I m p l e m e n t a t i o n
+	 API : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Api::Api(pLogger	 a_logger,
+API::API(pLogger	 a_logger,
 		 pConfigFile a_config,
 		 pChannels	 a_channels,
 		 pVolatile	 a_volatile,
@@ -120,15 +120,15 @@ Api::Api(pLogger	 a_logger,
 }
 
 
-Api::~Api() { destroy_container(); }
+API::~API() { destroy_container(); }
 
 
 /** Return object ID.
 
 	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-pChar const Api::id() {
-    static char arr[] = "Api from Jazz-" JAZZ_VERSION;
+pChar const API::id() {
+    static char arr[] = "API from Jazz-" JAZZ_VERSION;
     return arr;
 }
 
@@ -142,7 +142,7 @@ Configuration-wise the API has just two keys:
 
 Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
-StatusCode Api::start() {
+StatusCode API::start() {
 
 	int ret = Container::start();	// This initializes the one-shot functionality.
 
@@ -162,7 +162,7 @@ StatusCode Api::start() {
 		int tt = TenBitsAtAddress(it->first.c_str());
 
 		if (base_server[tt] != nullptr) {
-			log_printf(LOG_ERROR, "Api::start(): Base name conflict with \"%s\"", it->first.c_str());
+			log_printf(LOG_ERROR, "API::start(): Base name conflict with \"%s\"", it->first.c_str());
 
 			return SERVICE_ERROR_STARTING;
 		}
@@ -175,7 +175,7 @@ StatusCode Api::start() {
 		ret = load_statics((pChar) statics_path.c_str(), (pChar) "/", 0);
 
 		if (ret != SERVICE_NO_ERROR) {
-			log_printf(LOG_ERROR, "Api::start(): load_statics() failed loading \"%s\"", statics_path.c_str());
+			log_printf(LOG_ERROR, "API::start(): load_statics() failed loading \"%s\"", statics_path.c_str());
 
 			return ret;
 		}
@@ -190,7 +190,7 @@ StatusCode Api::start() {
 
 /** Shuts down the Persisted Service
 */
-StatusCode Api::shut_down() {
+StatusCode API::shut_down() {
 
 	StatusCode err;
 
@@ -199,7 +199,7 @@ StatusCode Api::shut_down() {
 		for (Index::iterator it = www.begin(); it != www.end(); ++it) {
 			strcpy(loc.key, it->second.c_str());
 			if ((err = p_persisted->remove(loc)) != SERVICE_NO_ERROR)
-				log_printf(LOG_MISS, "Api::shut_down(): Persisted.remove(//lmdb/www/%s) returned %d", it->second.c_str(), err);
+				log_printf(LOG_MISS, "API::shut_down(): Persisted.remove(//lmdb/www/%s) returned %d", it->second.c_str(), err);
 		}
 	}
 
@@ -223,13 +223,13 @@ unlock() all the intermediate blocks.
 
 method | call executed by
 -------|-----------------
-HTTP_GET, HTTP_HEAD | Api.http_get()
-HTTP_PUT | Api.http_put()
-HTTP_DELETE | Api.http_delete()
+HTTP_GET, HTTP_HEAD | API.http_get()
+HTTP_PUT | API.http_put()
+HTTP_DELETE | API.http_delete()
 HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
 
 */
-bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) {
+bool API::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) {
 
 	int buf_size;
 	pChar p_out;
@@ -582,7 +582,7 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 	\return			Some error code or SERVICE_NO_ERROR if successful.
 
 */
-MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
+MHD_StatusCode API::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
 
 	Index::iterator it = www.find(std::string(p_url));
 
@@ -631,7 +631,7 @@ MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it
 
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
-MHD_Result Api::return_error_message(pMHD_Connection connection, pChar p_url, int http_status) {
+MHD_Result API::return_error_message(pMHD_Connection connection, pChar p_url, int http_status) {
 
 	char answer[2048];
 
@@ -695,7 +695,7 @@ q_state.rr_value.p_extra (that pointer will be returned in successive call of th
 SEQUENCE_INCREMENT_CALL may or may not come, if it does, it must allocate bigger blocks and store more data in the same pTransaction.
 SEQUENCE_FINAL_CALL is called just once, it must destroy the pTransaction when done
 */
-MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, int sequence) {
+MHD_StatusCode API::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, int sequence) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -859,7 +859,7 @@ APPLY_URL: With or without node and just a base.
 In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
 
 */
-MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
+MHD_StatusCode API::http_delete(HttpQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -921,7 +921,7 @@ APPLY_SET_ATTRIBUTE and APPLY_JAZZ_INFO
 To simplify, this top level function decomposes the logic into smaller parts.
 
 */
-MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
+MHD_StatusCode API::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -1174,10 +1174,10 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_level) {
+StatusCode API::load_statics(pChar p_base_path, pChar p_relative_path, int rec_level) {
 
 	if (!p_persisted->is_running()) {
-		log(LOG_MISS, "Api::load_statics(): Skipped because Persistence is not running.");
+		log(LOG_MISS, "API::load_statics(): Skipped because Persistence is not running.");
 
 		return SERVICE_NO_ERROR;
 	}
@@ -1195,7 +1195,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 			Locator loc = {"lmdb", "www", ""};
 			int ret;
 			if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
-				log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
+				log(LOG_ERROR, "API::load_statics(): Failed to create www database.");
 
 		  		closedir(dir);
 
@@ -1215,7 +1215,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
-					log(LOG_ERROR, "Api::load_statics(): File path/name too long.");
+					log(LOG_ERROR, "API::load_statics(): File path/name too long.");
 
 			  		closedir(dir);
 
@@ -1227,7 +1227,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				ret = p_channels->get(p_base, (pChar) &fn);
 
 				if (ret != SERVICE_NO_ERROR) {
-					log(LOG_ERROR, "Api::load_statics(): p_channels->get() failed.");
+					log(LOG_ERROR, "API::load_statics(): p_channels->get() failed.");
 
 			  		closedir(dir);
 
@@ -1281,7 +1281,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				atts[BLOCK_ATTRIB_MIMETYPE] = mime_type;
 
 				if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
-					log(LOG_ERROR, "Api::load_statics(): new_block() with attributes failed.");
+					log(LOG_ERROR, "API::load_statics(): new_block() with attributes failed.");
 
 					p_channels->destroy_transaction(p_base);
 
@@ -1303,7 +1303,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				destroy_transaction(p_txn);
 
 				if (ret != SERVICE_NO_ERROR) {
-					log(LOG_ERROR, "Api::load_statics(): p_persisted->put() failed.");
+					log(LOG_ERROR, "API::load_statics(): p_persisted->put() failed.");
 
 			  		closedir(dir);
 
@@ -1315,7 +1315,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				int ret = snprintf(next_relative_path, 1024, "%s%s/", p_relative_path, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
-					log(LOG_ERROR, "Api::load_statics(): nested path too long.");
+					log(LOG_ERROR, "API::load_statics(): nested path too long.");
 
 			  		closedir(dir);
 
@@ -1348,7 +1348,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 
 See https://en.wikipedia.org/wiki/Percent-encoding This is utf-8 compatible, utf-8 chars are just percent encoded one byte at a time.
 */
-bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
+bool API::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 
 	if (*(p_url++) != '&')
 		return false;
@@ -1423,7 +1423,7 @@ bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 
 Note: This replaces expand_url_encoded() since the string passed to pares is already %-decoded by libmicrohttpd.
 */
-int Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
+int API::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 
 	if (*(p_url++) != '&')
 		return RET_MV_CONST_FAILED;
@@ -1483,14 +1483,14 @@ int Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
 }
 
 
-/** Parse a simple //base/entity/key string (Used inside the main Api.parse()).
+/** Parse a simple //base/entity/key string (Used inside the main API.parse()).
 
 	\param loc	 A Locator to store the result (that will be left in undetermined on error).
 	\param p_url The input string.
 
 	\return		 `true` if successful.
 */
-bool Api::parse_locator(Locator &loc, pChar p_url) {
+bool API::parse_locator(Locator &loc, pChar p_url) {
 
 	int buf_size, state = PSTATE_INITIAL;
 	pChar p_out;
@@ -1567,7 +1567,7 @@ bool Api::parse_locator(Locator &loc, pChar p_url) {
 
 	\return			'true' if successful.
 */
-bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) {
+bool API::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) {
 
 	p_txn = nullptr;
 
@@ -1629,7 +1629,7 @@ bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 /** Changes the current name until.
 */
-bool Api::find_myself() {
+bool API::find_myself() {
 
 	TimePoint tp = {};
 	int64_t t0 = elapsed_mu_sec(tp);
@@ -1680,7 +1680,7 @@ bool Api::find_myself() {
 
 #ifdef CATCH_TEST
 
-Api	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
+API	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
 
 #endif
 

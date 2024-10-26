@@ -148,8 +148,8 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	struct MHD_Response *response = nullptr;
 
 	if ((uintptr_t) *con_cls < (uintptr_t) &callback_state || (uintptr_t) *con_cls > (uintptr_t) &callback_state[2]) {
-		if (http_method != HTTP_PUT || !API.parse(q_state, (pChar) url, HTTP_PUT)) {
-			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
+		if (http_method != HTTP_PUT || !HTTP_API.parse(q_state, (pChar) url, HTTP_PUT)) {
+			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but HTTP_API.parse() failed.");
 
 			return MHD_NO;
 		}
@@ -157,7 +157,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 		int sequence = (*upload_data_size == 0) ? SEQUENCE_FINAL_CALL : SEQUENCE_INCREMENT_CALL;
 
-		switch (API.http_put((pChar) upload_data, *upload_data_size, q_state, sequence)) {
+		switch (HTTP_API.http_put((pChar) upload_data, *upload_data_size, q_state, sequence)) {
 		case MHD_HTTP_CREATED:
 			goto create_response_answer_put_ok;
 
@@ -183,7 +183,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 		return MHD_YES;
 	}
 
-	// Step 4 : This point is reached just once per http petition. Parse the query, returns errors and web pages, continue to API.
+	// Step 4 : This point is reached just once per http petition. Parse the query, returns errors and web pages, continue to HTTP_API.
 
 #ifdef DEBUG
 	LOGGER.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
@@ -210,18 +210,18 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 			std::string allow;
 
 			if (url[0] != '/' || url[1] != '/') {
-				if (API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)
+				if (HTTP_API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)
 					allow = "HEAD,GET,";
 
 				allow = allow + "OPTIONS";
 			} else {
-				if (API.parse(q_state, (pChar) url, HTTP_GET))
+				if (HTTP_API.parse(q_state, (pChar) url, HTTP_GET))
 					allow = "HEAD,GET,";
 
-				if (API.parse(q_state, (pChar) url, HTTP_PUT))
+				if (HTTP_API.parse(q_state, (pChar) url, HTTP_PUT))
 					allow = allow + "PUT,";
 
-				if (API.parse(q_state, (pChar) url, HTTP_DELETE))
+				if (HTTP_API.parse(q_state, (pChar) url, HTTP_DELETE))
 					allow = allow + "DELETE,";
 
 				allow = allow + "OPTIONS";
@@ -241,45 +241,45 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	case HTTP_GET:
 		if (url[0] != '/' || url[1] != '/') {
 
-			if ((status = API.get_static(response, (pChar) url)) != MHD_HTTP_OK)
-				return API.return_error_message(connection, (pChar) url, status);
+			if ((status = HTTP_API.get_static(response, (pChar) url)) != MHD_HTTP_OK)
+				return HTTP_API.return_error_message(connection, (pChar) url, status);
 
 			goto answer_status;
 
-		} else if (!API.parse(q_state, (pChar) url, HTTP_GET))
-			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
+		} else if (!HTTP_API.parse(q_state, (pChar) url, HTTP_GET))
+			return HTTP_API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 
 		break;
 
 	default:
 		if (url[0] != '/' || url[1] != '/')
-			return API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
+			return HTTP_API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
 
-		else if (!API.parse(q_state, (pChar) url, http_method)) {
+		else if (!HTTP_API.parse(q_state, (pChar) url, http_method)) {
 
 			if (http_method == HTTP_PUT)
 				goto continue_in_put_bad_request;
 
-			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
+			return HTTP_API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 		}
 	}
 
-	// Step 5 : This is the core. This point is only reached by correct API queries for the first (or only) time.
+	// Step 5 : This is the core. This point is only reached by correct HTTP_API queries for the first (or only) time.
 
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.http_put((pChar) upload_data, *upload_data_size, q_state, SEQUENCE_FIRST_CALL);
+		status = HTTP_API.http_put((pChar) upload_data, *upload_data_size, q_state, SEQUENCE_FIRST_CALL);
 
 		break;
 
 	case HTTP_DELETE:
-		status = API.http_delete(q_state);
+		status = HTTP_API.http_delete(q_state);
 
 		break;
 
 	default:
 
-		status = API.http_get(response, q_state);
+		status = HTTP_API.http_get(response, q_state);
 	}
 
 	// Step 6 : The core finished, just distribute the answer as appropriate.
@@ -295,7 +295,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	}
 
 	if (status != MHD_HTTP_OK)
-		return API.return_error_message(connection, (pChar) url, status);
+		return HTTP_API.return_error_message(connection, (pChar) url, status);
 
 	if (http_method == HTTP_DELETE)
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
@@ -438,17 +438,17 @@ void signalHandler_SIGTERM(int signum) {
 
 #ifndef CATCH_TEST
 
-	if (!stop_service(&HTTP))	   stop_ok = false;
+	if (!stop_service(&HTTP))	    stop_ok = false;
 
-	if (!stop_service(&API))	   stop_ok = false;
+	if (!stop_service(&HTTP_API))   stop_ok = false;
 
-	if (!stop_service(&MODEL))	   stop_ok = false;
+	if (!stop_service(&MODELS_API)) stop_ok = false;
 
-	if (!stop_service(&CORE))	   stop_ok = false;
+	if (!stop_service(&CORE))	    stop_ok = false;
 
-	if (!stop_service(&PERSISTED)) stop_ok = false;
-	if (!stop_service(&VOLATILE))  stop_ok = false;
-	if (!stop_service(&CHANNELS))  stop_ok = false;
+	if (!stop_service(&PERSISTED))  stop_ok = false;
+	if (!stop_service(&VOLATILE))   stop_ok = false;
+	if (!stop_service(&CHANNELS))   stop_ok = false;
 
 #endif
 

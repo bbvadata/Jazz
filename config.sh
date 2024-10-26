@@ -159,9 +159,9 @@ get_descendant_name ( )
 }
 
 uplifted_mod_parent='ModelsAPI'
-uplifted_api_parent='Api'
+uplifted_api_parent='API'
 
-uplifted_mod_source='../uplifts/model/'
+uplifted_mod_source='../uplifts/models_api/'
 uplifted_api_source='../uplifts/api/'
 
 uplifted_mod=$(get_descendant_name $uplifted_mod_parent $uplifted_mod_source)
@@ -415,8 +415,8 @@ printf "Writing: server/src/uplifted/uplifted_instances.h ... "
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
 $uplifted_incl
-extern $uplifted_mod MODEL;
-extern $uplifted_api API;\n" > server/src/uplifted/uplifted_instances.h
+extern $uplifted_mod MODELS_API;
+extern $uplifted_api HTTP_API;\n" > server/src/uplifted/uplifted_instances.h
 
 printf "Ok.\n"
 
@@ -425,8 +425,8 @@ printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
 
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
-$uplifted_mod MODEL(&LOGGER, &CONFIG);
-$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
+$uplifted_mod MODELS_API(&LOGGER, &CONFIG);
+$uplifted_api HTTP_API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE, &MODELS_API);\n" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"
 

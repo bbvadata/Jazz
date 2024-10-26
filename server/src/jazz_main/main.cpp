@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&MODEL)) {
+		if (!start_service(&MODELS_API)) {
 			stop_service(&CORE);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);
@@ -209,8 +209,8 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&API)) {
-			stop_service(&MODEL);
+		if (!start_service(&HTTP_API)) {
+			stop_service(&MODELS_API);
 			stop_service(&CORE);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);
@@ -224,8 +224,8 @@ int main(int argc, char* argv[]) {
 
 		if (ret_code != EXIT_SUCCESS) {
 			stop_service(&HTTP);
-			stop_service(&API);
-			stop_service(&MODEL);
+			stop_service(&HTTP_API);
+			stop_service(&MODELS_API);
 			stop_service(&CORE);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);

@@ -629,7 +629,7 @@ StatusCode Persisted::copy(Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 	The Persisted object has used-defined databases containing anything, these databases can have any names as long as they do not
-interfere with existing base names. The Api object will forward names that do not match any base names to Persisted in case they
+interfere with existing base names. The API object will forward names that do not match any base names to Persisted in case they
 are the name of a database (and will fail otherwise).
 
 	Besides these user-defined names, there is a number of reserved databases that keep track of objects. "sys" keeps cluster-level
