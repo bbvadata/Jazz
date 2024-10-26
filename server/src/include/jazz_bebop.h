@@ -41,7 +41,7 @@
 
 /** \brief Includes everything in namespace jazz_bebop.
 
-This is everything to run bebop code: Spaces, DataSpaces, SemSpaces, Concepts, Opcodes, Core, Bop and the Bop API.
+This is everything to run bebop code.
 */
 
 #include "src/jazz_bebop/base_api.h"
