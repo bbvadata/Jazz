@@ -16,9 +16,9 @@ are modified.
 `./config.sh` expects the following folder structure (without more subfolders, one class per category).
 
     uplifts/
-    ├── README.md  // This file
-    ├── api/       // <name>.h, <name>.cpp with a class inherited from Api      (in jazz_main/api.h)       or no `api` folder.
-    └── model/     // <name>.h, <name>.cpp with a class inherited from ModelAPI (in jazz_model/model.h)    or no `model` folder.
+    ├── README.md    // This file
+    ├── api/         // <name>.h, <name>.cpp with a class inherited from API       (in jazz_main/api.h)         or no `api` folder.
+    └── models_api/  // <name>.h, <name>.cpp with a class inherited from ModelsAPI (in jazz_model/models_api.h) or no `models_api` folder.
 
 1. The "magic" works because `./config.sh` will include the compilation paths and create two `src/uplifted/uplifted_instances.h`,
 `src/uplifted/uplifted_instances.cpp` files with the names of the uplifted classes that will replace their parent classes in the server.
