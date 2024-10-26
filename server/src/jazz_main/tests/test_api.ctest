@@ -78,7 +78,7 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 	REQUIRE(PER.shut_down() == 0);
 }
 
-SCENARIO("Testing api.parse") {
+SCENARIO("Testing API.parse") {
 	REQUIRE(TT_API.start() == 0);
 
 	GIVEN("We want to test parse_locator()") {
