@@ -40,9 +40,6 @@
 
 namespace jazz_elements
 {
-
-#define INVALID_MDB_DBI			0xefefEFEF		// A constant to flag invalid MDB_dbi handle values.
-
 /*	-----------------------------------------------
 	 Persisted : I m p l e m e n t a t i o n
 --------------------------------------------------- */

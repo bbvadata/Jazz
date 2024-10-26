@@ -53,9 +53,11 @@
 namespace jazz_elements
 {
 
-#define MAX_POSSIBLE_SOURCES		 32		///< The number of databases is configurable via MDB_ENV_SET_MAXDBS, but cannot exceed this.
-#define MAX_LMDB_HOME_LEN			128		///< The number of char for the LMDB home path
-#define LMDB_UNIX_FILE_PERMISSIONS 0664		///< The file permissions (as in chmod) for the database files
+#define MAX_POSSIBLE_SOURCES				32		///< Number of databases: configurable via MDB_ENV_SET_MAXDBS, but cannot exceed this.
+#define MAX_LMDB_HOME_LEN				   128		///< Number of chars for the LMDB home path
+#define LMDB_UNIX_FILE_PERMISSIONS	      0664		///< The file permissions (as in chmod) for the database files
+#define INVALID_MDB_DBI				0xefefEFEF		///< A constant to flag invalid MDB_dbi handle values
+
 
 
 /** \brief All the necessary LMDB options (a binary representation of the values in the config file)
