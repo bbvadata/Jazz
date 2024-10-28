@@ -73,7 +73,7 @@ namespace jazz_elements
 MHD_THREAD_POOL_SIZE and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
 
 There is a specific document on threads called "On the Jazz Actor model (multithreading reference)" in the documentation
-at <host>/develop/rfc2/jazz_actor_model.html
+at [host]/develop/rfc2/jazz_actor_model.html
 */
 #define JAZZ_MAX_NUM_THREADS	64
 
