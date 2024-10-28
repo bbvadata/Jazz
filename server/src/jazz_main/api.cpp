@@ -61,6 +61,8 @@ StateTransition constants in the source of api.cpp.
 */
 typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
 
+/** The parser logic defined in terms of transitions between states.
+*/
 ParseStateTransitions state_tr = {
 	{PSTATE_INITIAL,	PSTATE_BASE0,		REX_SLASH},
 
@@ -94,12 +96,24 @@ ParseStateTransitions state_tr = {
 	{MAX_NUM_PSTATES}
 };
 
+/** The parser logic defined as a LUT (initialized by compile_next_state_LUT()).
+*/
 ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
 /*	-----------------------------------------------
 	 API : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Constructor for the API service.
+
+	\param a_logger		A pointer to the Logger object.
+	\param a_config		A pointer to the ConfigFile object.
+	\param a_channels	A pointer to the Channels object.
+	\param a_volatile	A pointer to the Volatile object.
+	\param a_persisted	A pointer to the Persisted object.
+	\param a_core		A pointer to the Core object.
+	\param a_model		A pointer to the ModelsAPI object.
+*/
 API::API(pLogger	 a_logger,
 		 pConfigFile a_config,
 		 pChannels	 a_channels,
@@ -135,12 +149,14 @@ pChar const API::id() {
 
 /** Starts the API service
 
-Configuration-wise the API has just two keys:
+	\return		SERVICE_NO_ERROR if successful, an error code otherwise.
 
-- STATIC_HTML_AT_START: which defines a path to a tree of static objects that should be uploaded on start.
-- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
+	Configuration-wise the API has just two keys:
 
-Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
+	- STATIC_HTML_AT_START: which defines a path to a tree of static objects that should be uploaded on start.
+	- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
+
+	Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
 StatusCode API::start() {
 
@@ -189,6 +205,12 @@ StatusCode API::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return		SERVICE_NO_ERROR if successful, an error code otherwise.
+
+	Configuration-wise the API has just one key:
+
+	- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
 */
 StatusCode API::shut_down() {
 
@@ -1628,6 +1650,11 @@ bool API::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) 
 
 
 /** Changes the current name until.
+
+	Try to find what is the IP, port of the current node in case no match by name with the configuration was found.
+
+	\return	true if successful.
+
 */
 bool API::find_myself() {
 
@@ -1680,7 +1707,7 @@ bool API::find_myself() {
 
 #ifdef CATCH_TEST
 
-API	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
+API	TT_API(&LOGGER, &CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
 
 #endif
 

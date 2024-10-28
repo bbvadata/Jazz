@@ -125,14 +125,8 @@ using namespace jazz_models;
 
 extern TenBitPtrLUT base_server;
 
-typedef struct MHD_Response *pMHD_Response;
-typedef struct MHD_Connection *pMHD_Connection;
-
-// ConfigFile and Logger shared by all services
-
-extern ConfigFile  CONFIG;
-extern Logger	   LOGGER;
-
+typedef struct MHD_Response *pMHD_Response;		///< Pointer to a MHD_Response
+typedef struct MHD_Connection *pMHD_Connection;	///< Pointer to a MHD_Connection
 
 extern MHD_Result http_request_callback(void *cls,
 										struct MHD_Connection *connection,
@@ -218,6 +212,11 @@ class API : public BaseAPI {
 
 
 		/** This is an internal part of http_get() made independent to keep the function less crowded.
+
+			\param p_txn		A pointer to the transaction that will be used to store the result.
+			\param q_state		The structure containing the parts of the url successfully parsed.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
 
 		Context: This is called when q_state.apply is APPLY_NOTHING ... APPLY_TEXT and there is no forwarding.
 		It returns the final block as it will be returned to the user with a new_block() interface.
@@ -373,6 +372,11 @@ class API : public BaseAPI {
 
 		/** This is an internal part of http_get() made independent to keep the function less crowded.
 
+			\param p_txn		A pointer to the transaction that will be used to store the result.
+			\param q_state		The structure containing the parts of the url successfully parsed.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
+
 		Context: This in any possible assignment in which the right part is a remote call. Since q_state.url does not have
 				 a valid url, itt is necessary to reconstruct it. We do have the constants if any.
 		It returns the final block as it will be returned to the user with a new_block() interface.
@@ -418,6 +422,11 @@ class API : public BaseAPI {
 		}
 
 		/** This is an internal part of http_get() made independent to keep the function less crowded.
+
+			\param p_txn		A pointer to the transaction that will be used to store the result.
+			\param q_state		The structure containing the parts of the url successfully parsed.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
 
 		Context: This in any possible assignment in which the right part is NOT remote call. Functionally, it is similar to
 		get_left_local(), but since it is the right of an assignment, arguments are stored at a different place and also, apply
@@ -569,6 +578,11 @@ class API : public BaseAPI {
 
 		/** This is an internal part of http_get() made independent to keep the function less crowded.
 
+			\param q_state		The structure containing the parts of the url successfully parsed.
+			\param p_block		The block to be stored.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
+
 		Context: This in any possible assignment in which we could successfully solve the right part and have a valid p_block.
 		We have to do a put call and return whatever status code happened.
 		*/
@@ -586,14 +600,14 @@ class API : public BaseAPI {
 			return p_container->put(where, p_block);
 		}
 
-		pChannels	p_channels;
-		pVolatile	p_volatile;
-		pPersisted	p_persisted;
-		pCore		p_core;
-		pModelsAPI	p_model;
+		pChannels	p_channels;		///< The Channels container
+		pVolatile	p_volatile;		///< The Volatile container
+		pPersisted	p_persisted;	///< The Persisted container
+		pCore		p_core;			///< The Core
+		pModelsAPI	p_model;		///< The ModelsAPI
 
-		Index		www;
-		int			remove_statics;
+		Index		www;			///< A map from url to locators to serve static files
+		int			remove_statics;	///< A flag to remove the statics from persistence on shutdown configured by REMOVE_STATICS_ON_CLOSE
 };
 
 #ifdef CATCH_TEST

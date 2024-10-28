@@ -73,17 +73,17 @@ using namespace jazz_models;
 
 // Block containers:
 
-extern Channels	 CHANNELS;		// The container channeling blocks.
-extern Volatile	 VOLATILE;		// The container allocating volatile blocks.
-extern Persisted PERSISTED;		// The container allocating persisted blocks.
+extern Channels	 CHANNELS;		///< The container channeling blocks.
+extern Volatile	 VOLATILE;		///< The container allocating volatile blocks.
+extern Persisted PERSISTED;		///< The container allocating persisted blocks.
 
 // Code execution:
 
-extern Core CORE;				// The container running Bop code.
+extern Core CORE;				///< The container running Bop code.
 
 // Http server:
 
-extern HttpServer HTTP;			// The server
+extern HttpServer HTTP;			///< The server
 
 // SIGTERM Callback and http server daemon:
 

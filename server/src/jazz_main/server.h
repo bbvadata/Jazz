@@ -83,8 +83,8 @@ class HttpServer : public Service {
 
 	private:
 
-		int http_port = 0;
-		MHD_OptionItem server_options[9];	// Variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
+		int http_port = 0;					///< The port the server is listening to.
+		MHD_OptionItem server_options[9];	///< Variadic parameter MHD_OPTION_ARRAY, server_options, MHD_OPTION_END in MHD_start_daemon()
 };
 
 } // namespace jazz_main

@@ -46,6 +46,11 @@ using namespace std;
 	 HttpServer : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Constructor for the HttpServer service.
+
+	\param a_logger		A pointer to the Logger object.
+	\param a_config		A pointer to the ConfigFile object.
+*/
 HttpServer::HttpServer(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
 
 
@@ -200,6 +205,8 @@ pChar const HttpServer::id() {
 
 
 /** Server closing method.
+
+	\return		SERVICE_NO_ERROR if successful, an error code otherwise.
 
 This overrides the Service shut_down() just to set the return to SERVICE_NO_ERROR.
 

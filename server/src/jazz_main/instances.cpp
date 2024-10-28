@@ -62,24 +62,23 @@ Logger		LOGGER(CONFIG, "LOGGER_PATH");
 
 // Services
 
-Channels	CHANNELS (&LOGGER, &CONFIG);
-Volatile	VOLATILE (&LOGGER, &CONFIG);
-Persisted	PERSISTED(&LOGGER, &CONFIG);
+Channels	CHANNELS (&LOGGER, &CONFIG);								///< The container channeling blocks
+Volatile	VOLATILE (&LOGGER, &CONFIG);								///< The container allocating volatile blocks
+Persisted	PERSISTED(&LOGGER, &CONFIG);								///< The container allocating persisted blocks
 
 // Code execution:
 
-Core		CORE(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);
+Core		CORE(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);	///< The core execution engine
 
 // Http server:
 
-HttpServer	HTTP(&LOGGER, &CONFIG);
+HttpServer	HTTP(&LOGGER, &CONFIG);										///< The http server
 
 #endif
 
 // Callbacks
 
-pMHD_Daemon	Jazz_MHD_Daemon;
-
+pMHD_Daemon	Jazz_MHD_Daemon;											///< The MHD_Daemon created by MHD_start_daemon()
 
 /*	---------------------------------------------
 	 M A I N   H T T P	 E N T R Y	 P O I N T S
@@ -103,10 +102,10 @@ MHD_Result print_out_key(void *cls, enum MHD_ValueKind kind, const char *key, co
 #define	STATE_NOT_ACCEPTABLE	1		///< Data upload failed, query execution failed locating targets. Returns MHD_HTTP_NOT_ACCEPTABLE
 #define	STATE_BAD_REQUEST		2		///< PUT query is call malformed. Returns MHD_HTTP_BAD_REQUEST.
 
-int callback_state [3];
+int callback_state [3];					///< The state of the callback function for each of STATE_NEW_CALL .. STATE_BAD_REQUEST.
 
-char response_put_ok[]			= "0";
-char response_put_fail[]		= "1";
+char response_put_ok[]			= "0";	///< The response for a successful PUT call.
+char response_put_fail[]		= "1";	///< The response for a failed PUT call.
 
 TenBitIntLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
 TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method int an integer code.
@@ -114,6 +113,17 @@ TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method i
 #ifndef CATCH_TEST
 
 /** Callback function for MHD. See: https://www.gnu.org/software/libmicrohttpd/tutorial.html
+
+	\param cls				A pointer to a state variable.
+	\param connection		A pointer to a MHD_Connection.
+	\param url				The url requested.
+	\param method			The http method requested.
+	\param version			The http version requested.
+	\param upload_data		The data uploaded.
+	\param upload_data_size	The size of the data uploaded.
+	\param con_cls			The state of the connection.
+
+	\return					MHD_YES if the connection is still open, MHD_NO if the connection is closed.
 
 	Jazz does not use post processor callbacks linked with MHD_create_post_processor().
 	Jazz does not use request completed callbacks linked with MHD_start_daemon().
@@ -424,6 +434,8 @@ bool stop_service(pService service) {
 
 
 /** Capture SIGTERM. This callback procedure stops a running server.
+
+	\param signum	The signal number. (SIGTERM = 15)
 
 	See main_server_start() for details on the server's start/stop.
 */
