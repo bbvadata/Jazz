@@ -44,6 +44,14 @@ using namespace jazz_elements;
 	 ModelsAPI : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Create the ModelsAPI without starting it.
+
+	\param a_logger	A pointer to the logger.
+	\param a_config	A pointer to the configuration.
+	\param a_channels A pointer to the ChannelsAPI.
+	\param a_volatile A pointer to the VolatileAPI.
+	\param a_persisted A pointer to the PersistedAPI.
+*/
 ModelsAPI::ModelsAPI(pLogger	 a_logger,
 					 pConfigFile a_config,
 					 pChannels	 a_channels,
@@ -65,6 +73,8 @@ pChar const ModelsAPI::id() {
 
 
 /** Starts the ModelsAPI service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode ModelsAPI::start() {
 
@@ -73,6 +83,8 @@ StatusCode ModelsAPI::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode ModelsAPI::shut_down() {
 
