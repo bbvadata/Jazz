@@ -232,6 +232,8 @@ class Tuple : public Block {
 
 		/** Verifies if a Tuple is of a Kind.
 
+			\param kind The possibly matching Kind.
+
 			\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
 		*/
 		inline bool is_a(pKind kind) {
@@ -271,7 +273,7 @@ class Tuple : public Block {
 
 		int audit();
 };
-typedef Tuple *pTuple;
+typedef Tuple *pTuple;		///< A pointer to a Tuple object
 
 } // namespace jazz_elements
 

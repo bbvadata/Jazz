@@ -114,6 +114,9 @@ class Kind : public Block {
 		}
 
 		/** Pushes the Kind's dimension names into an std::set.
+
+			\param dims The set where the dimension names will be stored.
+
 		*/
 		inline void dimensions(Dimensions &dims) {
 			for (int i = 0; i < size; i++) {
@@ -239,7 +242,7 @@ class Kind : public Block {
 
 		int audit();
 };
-typedef Kind *pKind;
+typedef Kind *pKind;		///< A pointer to a Kind object
 
 } // namespace jazz_elements
 

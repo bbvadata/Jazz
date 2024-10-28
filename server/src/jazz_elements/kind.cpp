@@ -38,8 +38,9 @@
 namespace jazz_elements
 {
 
-/** Check the internal validity of a Kind (item structure, dimensions, etc.)
-not repeated of invalid item names.
+/** \brief Audit a Kind.
+
+	Check the internal validity of a Kind (item structure, dimensions, etc.) not repeated of invalid item names.
 
 	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */

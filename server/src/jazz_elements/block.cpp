@@ -180,9 +180,11 @@ int Block::get_string_offset(pStringBuffer psb, const char *p_str) {
 }
 
 
-/** Check (in depth) the validity of a filter, essentially that a filter of integer is sorted or boolean has no NA. When using a filter,
-can_filter() does not check that. It fails when filtering a block which checks the order anyway. This avoids checking the same thing twice.
-Checking (is_a_filter() && can_filter()) will check it twice and assure that it will not fail when selecting.
+/** \brief Check (in depth) the validity of a filter
+
+	Essentially. check that a filter of integer is sorted or boolean has no NA. When using a filter, can_filter() does not check
+	that. It fails when filtering a block which checks the order anyway. This avoids checking the same thing twice.
+	Checking (is_a_filter() && can_filter()) will check it twice and assure that it will not fail when selecting.
 
 	\return true if the block can be used as a filter.
 */
