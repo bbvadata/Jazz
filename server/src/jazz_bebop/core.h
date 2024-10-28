@@ -59,6 +59,8 @@ namespace jazz_bebop
 using namespace jazz_elements;
 
 
+/** \brief Core: The execution unit is now a wrapper around onnx-runtime.
+*/
 class Core : public BaseAPI {
 
 	public:
@@ -71,7 +73,7 @@ class Core : public BaseAPI {
 		StatusCode start	();
 		StatusCode shut_down();
 };
-typedef Core *pCore;
+typedef Core *pCore;		///< A pointer to a Core
 
 
 #ifdef CATCH_TEST

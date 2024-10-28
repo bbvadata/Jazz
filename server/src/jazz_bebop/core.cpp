@@ -73,6 +73,8 @@ pChar const Core::id() {
 
 
 /** Starts the Core service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode Core::start() {
 
@@ -81,6 +83,8 @@ StatusCode Core::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode Core::shut_down() {
 

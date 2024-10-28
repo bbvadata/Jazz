@@ -71,6 +71,8 @@ pChar const BaseAPI::id() {
 
 
 /** Starts the BaseAPI service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode BaseAPI::start() {
 
@@ -79,6 +81,8 @@ StatusCode BaseAPI::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode BaseAPI::shut_down() {
 
