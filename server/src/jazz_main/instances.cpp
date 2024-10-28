@@ -49,16 +49,13 @@ using namespace jazz_main;
 
 namespace jazz_main
 {
-	using namespace std;
+using namespace std;
 
 /*	-----------------------------
 	  I n s t a n t i a t i n g
 --------------------------------- */
 
 #ifndef CATCH_TEST
-
-ConfigFile	CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
-Logger		LOGGER(CONFIG, "LOGGER_PATH");
 
 // Services
 
