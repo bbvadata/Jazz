@@ -297,7 +297,7 @@ SCENARIO("Testing API.parse") {
 	}
 
 	GIVEN("We want to test parse()") {
-		HttpQueryState hqs;
+		ApiQueryState hqs;
 
 		hqs.l_node[0] = 'a';
 		hqs.r_node[0] = 'b';
@@ -1952,7 +1952,7 @@ SCENARIO("Testing API.parse") {
 	}
 
 	GIVEN("We test parse() for PUT and DELETE") {
-		HttpQueryState hqs;
+		ApiQueryState hqs;
 
 		hqs.l_node[0] = 'a';
 		hqs.r_node[0] = 'b';
@@ -2505,9 +2505,9 @@ SCENARIO("Testing API.parse") {
 
 SCENARIO("Testing API struct sizes and positions") {
 
-	REQUIRE(sizeof(HttpQueryState) == 2048);
+	REQUIRE(sizeof(ApiQueryState) == 2048);
 
-	HttpQueryState q_state;
+	ApiQueryState q_state;
 	Locator loc;
 
 	strcpy(q_state.base,   "base");

@@ -38,6 +38,59 @@
 namespace jazz_bebop
 {
 
+/*	-----------------------------------------------
+	 BaseAPI : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Creates a BaseAPI service without starting it.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+	\param a_channels	A pointer to an initialized Channels Container.
+	\param a_volatile	A pointer to an initialized Volatile Container.
+	\param a_persisted	A pointer to an initialized Persisted Container.
+
+*/
+BaseAPI::BaseAPI(pLogger a_logger,
+				 pConfigFile a_config,
+				 pChannels a_channels,
+				 pVolatile a_volatile,
+				 pPersisted a_persisted) : Container(a_logger, a_config) {}
+
+BaseAPI::~BaseAPI() { destroy_container(); }
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const BaseAPI::id() {
+    static char arr[] = "BaseAPI from Jazz-" JAZZ_VERSION;
+    return arr;
+}
+
+
+/** Starts the BaseAPI service
+*/
+StatusCode BaseAPI::start() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Shuts down the Persisted Service
+*/
+StatusCode BaseAPI::shut_down() {
+
+	return SERVICE_NO_ERROR;
+}
+
+
+#ifdef CATCH_TEST
+
+BaseAPI BAPI(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
+
+#endif
 
 } // namespace jazz_bebop
 

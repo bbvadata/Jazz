@@ -81,7 +81,7 @@ using namespace jazz_elements;
 using namespace jazz_bebop;
 using namespace jazz_models;
 
-#define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert HttpQueryState -> Locator
+#define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert ApiQueryState -> Locator
 
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
 #define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
@@ -123,23 +123,6 @@ using namespace jazz_models;
 #define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
 #define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
 
-/** \brief A buffer to keep the state while parsing/executing a query
-*/
-struct HttpQueryState {
-	int	state;									///< The parser state from PSTATE_INITIAL to PSTATE_COMPLETE_OK
-	int apply;									///< APPLY_NOTHING, APPLY_NAME, APPLY_URL, APPLY_FUNCTION, .. APPLY_ASSIGN_CONST
-
-	char l_node	[NAME_SIZE];					///< An optional name of a Jazz node that is either the only one or the left of assignment.
-	char r_node	[NAME_SIZE];					///< An additional optional name of a Jazz node for the right part in an assignment.
-	char base	[SHORT_NAME_SIZE];				///< A Locator compatible base for the l_value.
-	char entity	[NAME_SIZE];					///< A Locator compatible entity for the l_value.
-	char key	[NAME_SIZE];					///< A Locator compatible key for the l_value.
-	char name	[NAME_SIZE];					///< A possible item name
-	char url	[MAX_FILE_OR_URL_SIZE];			///< The endpoint (an URL, file name, folder name, bash script)
-
-	Locator r_value, rr_value;					///< Parsed //r_base/r_entity/r_key, //r_base/r_entity/r_key(//rr_base/rr_entity/rr_key)
-};
-
 extern TenBitPtrLUT base_server;
 
 typedef struct MHD_Response *pMHD_Response;
@@ -167,7 +150,7 @@ This service parses and executes http queries. It is aware and redistributes to 
 the http callback http_request_callback().
 
 */
-class API : public Container {
+class API : public BaseAPI {
 
 	public:
 
@@ -187,7 +170,7 @@ class API : public Container {
 
 		// parsing methods
 
-		bool parse					   (HttpQueryState &q_state,
+		bool parse					   (ApiQueryState &q_state,
 										pChar			p_url,
 										int				method,
 										bool			recurse = false);
@@ -206,11 +189,11 @@ class API : public Container {
 
 		MHD_StatusCode http_put		   (pChar			p_upload,
 										size_t			size,
-										HttpQueryState &q_state,
+										ApiQueryState &q_state,
 										int				sequence);
-		MHD_StatusCode http_delete	   (HttpQueryState &q_state);
+		MHD_StatusCode http_delete	   (ApiQueryState &q_state);
 		MHD_StatusCode http_get		   (pMHD_Response  &response,
-										HttpQueryState &q_state);
+										ApiQueryState &q_state);
 
 #ifndef CATCH_TEST
 	private:
@@ -239,7 +222,7 @@ class API : public Container {
 		Context: This is called when q_state.apply is APPLY_NOTHING ... APPLY_TEXT and there is no forwarding.
 		It returns the final block as it will be returned to the user with a new_block() interface.
 		*/
-		inline StatusCode get_left_local(pTransaction &p_txn, HttpQueryState &q_state) {
+		inline StatusCode get_left_local(pTransaction &p_txn, ApiQueryState &q_state) {
 
 			Locator		 loc;
 			pTransaction p_aux;
@@ -394,7 +377,7 @@ class API : public Container {
 				 a valid url, itt is necessary to reconstruct it. We do have the constants if any.
 		It returns the final block as it will be returned to the user with a new_block() interface.
 		*/
-		inline StatusCode get_right_remote(pTransaction &p_txn, HttpQueryState &q_state) {
+		inline StatusCode get_right_remote(pTransaction &p_txn, ApiQueryState &q_state) {
 
 			char buffer_2k[2048];
 
@@ -441,7 +424,7 @@ class API : public Container {
 		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instead of APPLY_NOTHING..APPLY_TEXT.
 		It returns the final block as it will be returned to the user with a new_block() interface.
 		*/
-		inline StatusCode get_right_local(pTransaction &p_txn, HttpQueryState &q_state) {
+		inline StatusCode get_right_local(pTransaction &p_txn, ApiQueryState &q_state) {
 
 			pTransaction p_aux;
 			pContainer	 p_container, p_aux_cont;
@@ -589,7 +572,7 @@ class API : public Container {
 		Context: This in any possible assignment in which we could successfully solve the right part and have a valid p_block.
 		We have to do a put call and return whatever status code happened.
 		*/
-		inline StatusCode put_left_local(HttpQueryState &q_state, pBlock p_block) {
+		inline StatusCode put_left_local(ApiQueryState &q_state, pBlock p_block) {
 
 			pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 

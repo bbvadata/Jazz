@@ -68,7 +68,7 @@ Persisted	PERSISTED(&LOGGER, &CONFIG);
 
 // Code execution:
 
-Core		CORE(&LOGGER, &CONFIG);
+Core		CORE(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);
 
 // Http server:
 
@@ -142,7 +142,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	int http_method = http_methods[TenBitsAtAddress(method)];
 
-	HttpQueryState q_state;
+	ApiQueryState q_state;
 	q_state.state = PSTATE_INITIAL;
 
 	struct MHD_Response *response = nullptr;

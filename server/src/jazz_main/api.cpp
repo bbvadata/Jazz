@@ -106,7 +106,7 @@ API::API(pLogger	 a_logger,
 		 pVolatile	 a_volatile,
 		 pPersisted	 a_persisted,
 		 pCore		 a_core,
-		 pModel		 a_model) : Container(a_logger, a_config) {
+		 pModel		 a_model) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 
@@ -229,7 +229,7 @@ HTTP_DELETE | API.http_delete()
 HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
 
 */
-bool API::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) {
+bool API::parse(ApiQueryState &q_state, pChar p_url, int method, bool recurse) {
 
 	int buf_size;
 	pChar p_out;
@@ -695,7 +695,7 @@ q_state.rr_value.p_extra (that pointer will be returned in successive call of th
 SEQUENCE_INCREMENT_CALL may or may not come, if it does, it must allocate bigger blocks and store more data in the same pTransaction.
 SEQUENCE_FINAL_CALL is called just once, it must destroy the pTransaction when done
 */
-MHD_StatusCode API::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, int sequence) {
+MHD_StatusCode API::http_put(pChar p_upload, size_t size, ApiQueryState &q_state, int sequence) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -859,7 +859,7 @@ APPLY_URL: With or without node and just a base.
 In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
 
 */
-MHD_StatusCode API::http_delete(HttpQueryState &q_state) {
+MHD_StatusCode API::http_delete(ApiQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -921,7 +921,7 @@ APPLY_SET_ATTRIBUTE and APPLY_JAZZ_INFO
 To simplify, this top level function decomposes the logic into smaller parts.
 
 */
-MHD_StatusCode API::http_get(pMHD_Response &response, HttpQueryState &q_state) {
+MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;

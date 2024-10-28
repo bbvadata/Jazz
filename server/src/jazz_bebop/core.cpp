@@ -44,7 +44,21 @@ using namespace jazz_elements;
 	 Core : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-Core::Core(pLogger	   a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+/** \brief Creates a Core service without starting it.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+	\param a_channels	A pointer to an initialized Channels Container.
+	\param a_volatile	A pointer to an initialized Volatile Container.
+	\param a_persisted	A pointer to an initialized Persisted Container.
+*/
+Core::Core(pLogger a_logger,
+		   pConfigFile a_config,
+		   pChannels a_channels,
+		   pVolatile a_volatile,
+		   pPersisted a_persisted) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {}
+
+
 Core::~Core() { destroy_container(); }
 
 
@@ -76,7 +90,7 @@ StatusCode Core::shut_down() {
 
 #ifdef CATCH_TEST
 
-Core CORE(&LOGGER, &CONFIG);
+Core CORE(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
 
 #endif
 

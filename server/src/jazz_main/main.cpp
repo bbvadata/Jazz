@@ -46,7 +46,7 @@ using namespace jazz_models;
 
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
- */
+*/
 void show_credits() {
 	cout << "\x20 888888" << endl
 		 << "\x20 \x20 `88b" << endl
@@ -73,7 +73,7 @@ void show_credits() {
 
 
 /** Explain usage of the command line interface to stdout.
- */
+*/
 void show_usage() {
 	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
 
@@ -124,7 +124,7 @@ When the command is "status":
 When the command is anything else, too many or too few:
 	show help + EXIT_FAILURE
 
- */
+*/
 int main(int argc, char* argv[]) {
 	int cmd = (argc < 2 || argc > 3) ? CMD_HELP : parse_command(argv[argc - 1]);
 

@@ -59,11 +59,11 @@ namespace jazz_bebop
 using namespace jazz_elements;
 
 
-class Core : public Container {
+class Core : public BaseAPI {
 
 	public:
 
-		Core(pLogger	 a_logger, pConfigFile a_config);
+		Core(pLogger a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted);
 	   ~Core();
 
 		virtual pChar const id();
