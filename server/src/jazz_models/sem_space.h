@@ -55,6 +55,16 @@
 namespace jazz_models
 {
 
+/** \brief SemSpace: A Space of Concepts.
+*/
+class SemSpace : public Space {
+
+	public:
+
+		SemSpace(pLogger a_logger, pConfigFile a_config);
+	   ~SemSpace();
+};
+typedef SemSpace *pSemSpace;		///< A pointer to a SemSpace
 
 } // namespace jazz_models
 

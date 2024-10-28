@@ -38,6 +38,18 @@
 namespace jazz_models
 {
 
+/*	-----------------------------------------------
+	 SemSpace : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the SemSpace.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+SemSpace::SemSpace(pLogger a_logger, pConfigFile a_config) : Space(a_logger, a_config) {}
+
+SemSpace::~SemSpace() { destroy_container(); }
 
 } // namespace jazz_models
 

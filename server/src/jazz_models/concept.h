@@ -56,6 +56,18 @@ Concepts are the higher level equivalent of a Snippet with all the support fos t
 namespace jazz_models
 {
 
+using namespace jazz_bebop;
+
+/** \brief Concept: Generalizes Snippet for informal code.
+*/
+class Concept : public Snippet {
+
+	public:
+
+		Concept(pLogger a_logger, pConfigFile a_config);
+	   ~Concept();
+};
+typedef Concept *pConcept;		///< A pointer to a Concept
 
 } // namespace jazz_models
 

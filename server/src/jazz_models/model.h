@@ -55,6 +55,16 @@
 namespace jazz_models
 {
 
+/** \brief Model: A Space of Concepts.
+*/
+class Model : public Container {
+
+	public:
+
+		Model(pLogger a_logger, pConfigFile a_config);
+	   ~Model();
+};
+typedef Model *pModel;		///< A pointer to a Model
 
 } // namespace jazz_models
 

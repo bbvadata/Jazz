@@ -38,6 +38,18 @@
 namespace jazz_models
 {
 
+/*	-----------------------------------------------
+	 Concept : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the Concept.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+Concept::Concept(pLogger a_logger, pConfigFile a_config) : Snippet(a_logger, a_config) {}
+
+Concept::~Concept() {}
 
 } // namespace jazz_models
 

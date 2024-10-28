@@ -38,6 +38,18 @@
 namespace jazz_models
 {
 
+/*	-----------------------------------------------
+	 Model : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the Model.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+Model::Model(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+
+Model::~Model() { destroy_container(); }
 
 } // namespace jazz_models
 

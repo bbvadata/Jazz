@@ -44,7 +44,11 @@ using namespace jazz_elements;
 	 ModelsAPI : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-ModelsAPI::ModelsAPI(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+ModelsAPI::ModelsAPI(pLogger	 a_logger,
+					 pConfigFile a_config,
+					 pChannels	 a_channels,
+					 pVolatile	 a_volatile,
+					 pPersisted	 a_persisted) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {}
 
 
 ModelsAPI::~ModelsAPI() { destroy_container(); }
@@ -78,7 +82,7 @@ StatusCode ModelsAPI::shut_down() {
 
 #ifdef CATCH_TEST
 
-ModelsAPI MDL(&LOGGER, &CONFIG);
+ModelsAPI MDL(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
 
 #endif
 

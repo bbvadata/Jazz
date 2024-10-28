@@ -53,14 +53,16 @@
 
 namespace jazz_models
 {
-using namespace jazz_elements;
 
+/** \brief ModelsAPI: The model API.
 
-class ModelsAPI : public Container {
+	This class holds an object that can execute via an .exec() method in a similar way as a Core, but using a model as a resolver.
+*/
+class ModelsAPI : public BaseAPI {
 
 	public:
 
-		ModelsAPI(pLogger a_logger, pConfigFile a_config);
+		ModelsAPI(pLogger a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted);
 	   ~ModelsAPI();
 
 		virtual pChar const id();
@@ -68,7 +70,7 @@ class ModelsAPI : public Container {
 		StatusCode start	();
 		StatusCode shut_down();
 };
-typedef ModelsAPI *pModel;
+typedef ModelsAPI *pModelsAPI;	///< A pointer to a ModelsAPI
 
 
 #ifdef CATCH_TEST
