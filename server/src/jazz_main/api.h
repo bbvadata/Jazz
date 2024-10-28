@@ -160,7 +160,7 @@ class API : public BaseAPI {
 			pVolatile	a_volatile,
 			pPersisted	a_persisted,
 			pCore		a_core,
-			pModel		a_model);
+			pModelsAPI	a_model);
 	   ~API();
 
 		virtual pChar const id();
@@ -590,7 +590,7 @@ class API : public BaseAPI {
 		pVolatile	p_volatile;
 		pPersisted	p_persisted;
 		pCore		p_core;
-		pModel		p_model;
+		pModelsAPI	p_model;
 
 		Index		www;
 		int			remove_statics;

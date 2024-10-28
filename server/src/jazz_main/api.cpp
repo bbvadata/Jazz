@@ -106,7 +106,7 @@ API::API(pLogger	 a_logger,
 		 pVolatile	 a_volatile,
 		 pPersisted	 a_persisted,
 		 pCore		 a_core,
-		 pModel		 a_model) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {
+		 pModelsAPI	 a_model) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 

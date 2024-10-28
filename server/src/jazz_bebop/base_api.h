@@ -87,7 +87,7 @@ class BaseAPI : public Container {
 
 	public:
 
-		BaseAPI(pLogger	a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted);
+		BaseAPI(pLogger a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted);
 	   ~BaseAPI();
 
 		virtual pChar const id();
