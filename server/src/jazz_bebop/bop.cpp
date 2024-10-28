@@ -38,6 +38,18 @@
 namespace jazz_bebop
 {
 
+/*	-----------------------------------------------
+	 Bop : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the compiler.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+Bop::Bop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+Bop::~Bop() {}
 
 } // namespace jazz_bebop
 

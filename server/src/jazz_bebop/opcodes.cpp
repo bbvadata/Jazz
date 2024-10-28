@@ -38,6 +38,18 @@
 namespace jazz_bebop
 {
 
+/*	-----------------------------------------------
+	 OpCodes : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the OpCodes.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+OpCodes::OpCodes(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+
+OpCodes::~OpCodes() {}
 
 } // namespace jazz_bebop
 

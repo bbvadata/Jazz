@@ -55,6 +55,16 @@
 namespace jazz_bebop
 {
 
+/** \brief OpCodes: The opcodes.
+*/
+class OpCodes : public Service {
+
+	public:
+
+		OpCodes(pLogger a_logger, pConfigFile a_config);
+	   ~OpCodes();
+};
+typedef OpCodes *pOpCodes;		///< A pointer to a OpCodes
 
 } // namespace jazz_bebop
 

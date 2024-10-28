@@ -57,6 +57,17 @@ and lazy-loaded. It also provides indexing which can select rows, keys of find n
 namespace jazz_bebop
 {
 
+/** \brief DataSpace: The data space.
+
+*/
+class DataSpace : public Space {
+
+	public:
+
+		DataSpace(pLogger a_logger, pConfigFile a_config);
+	   ~DataSpace();
+};
+typedef DataSpace *pDataSpace;		///< A pointer to a DataSpace
 
 } // namespace jazz_bebop
 

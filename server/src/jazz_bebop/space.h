@@ -58,6 +58,21 @@
 namespace jazz_bebop
 {
 
+/** \brief Space: The abstract space.
+
+	This is the abstract parent of DataSpace and SemSpace.
+
+	\see DataSpace, SemSpace
+
+*/
+class Space : public Container {
+
+	public:
+
+		Space(pLogger a_logger, pConfigFile a_config);
+	   ~Space();
+};
+typedef Space *pSpace;		///< A pointer to a Space
 
 } // namespace jazz_bebop
 

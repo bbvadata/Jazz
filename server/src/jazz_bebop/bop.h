@@ -54,6 +54,16 @@
 namespace jazz_bebop
 {
 
+/** \brief Bop: The Bebop compiler and decompiler.
+*/
+class Bop : public Service {
+
+	public:
+
+		Bop(pLogger a_logger, pConfigFile a_config);
+	   ~Bop();
+};
+typedef Bop *pBop;		///< A pointer to a Bop
 
 } // namespace jazz_bebop
 

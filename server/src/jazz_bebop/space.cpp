@@ -38,6 +38,20 @@
 namespace jazz_bebop
 {
 
+using namespace jazz_elements;
+
+/*	-----------------------------------------------
+	 Space : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the Space.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+Space::Space(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+
+Space::~Space() { destroy_container(); }
 
 } // namespace jazz_bebop
 

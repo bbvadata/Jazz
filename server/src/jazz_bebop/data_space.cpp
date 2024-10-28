@@ -38,6 +38,18 @@
 namespace jazz_bebop
 {
 
+/*	-----------------------------------------------
+	 DataSpace : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the DataSpace.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+DataSpace::DataSpace(pLogger a_logger, pConfigFile a_config) : Space(a_logger, a_config) {}
+
+DataSpace::~DataSpace() { destroy_container(); }
 
 } // namespace jazz_bebop
 

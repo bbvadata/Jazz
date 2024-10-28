@@ -58,6 +58,16 @@ It supports a number of serializations to and from Jazz Blocks. It forms the min
 namespace jazz_bebop
 {
 
+/** \brief Snippet: A code snippet and the ancestor of Concept.
+*/
+class Snippet : public Service {
+
+	public:
+
+		Snippet(pLogger a_logger, pConfigFile a_config);
+	   ~Snippet();
+};
+typedef Snippet *pSnippet;		///< A pointer to a Snippet
 
 } // namespace jazz_bebop
 

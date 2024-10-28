@@ -97,7 +97,6 @@ class BaseAPI : public Container {
 };
 typedef BaseAPI *pBaseAPI;		///< A pointer to a BaseAPI
 
-
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_BASE_API
