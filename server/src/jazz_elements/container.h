@@ -117,20 +117,26 @@ namespace jazz_elements
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
 struct ParseNextStateLUT {
-	unsigned char next[EIGHT_BIT_LONG];
+	unsigned char next[EIGHT_BIT_LONG];			///< The next state for each possible char.
 };
 
 
 /** \brief A way to build constants defining the transition from one state to the next via a regex.
 */
 struct ParseStateTransition {
-	int  from;
-	int	 to;
-	char rex[MAX_TRANSITION_REGEX_LEN];
+	int  from;									///< The state to transition from.
+	int	 to;									///< The state to transition to.
+	char rex[MAX_TRANSITION_REGEX_LEN];			///< The regex that, when matched, the transition applies.
 };
 
 
-/// The ParseNextStateLUT compiler: (This is only used to create constants used by parsers.)
+/** The ParseNextStateLUT compiler
+	\param lut			The array to fill with the LUT.
+	\param num_states	The number of states in the LUT.
+	\param trans		The array of transitions to use to fill the LUT.
+
+	(This is only used to create constants used by parsers.)
+*/
 void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateTransition trans[]);
 
 
@@ -155,17 +161,17 @@ Transaction allocation is only handled by the owner, a Container or descendant.
 */
 struct Transaction {
 	union {
-		pBlock			p_block;	///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Tensor, Kind and Tuple
-		pBlockHeader	p_hea;		///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Index
+		pBlock			p_block;			///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Tensor, Kind and Tuple
+		pBlockHeader	p_hea;				///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Index
 	};
-	Lock32				_lock_;		///< An atomically updated int to lock the Transaction to support modifying the Block
-	int					status;		///< The status of the block transaction
-	pContainer			p_owner;	///< A pointer to the Container instance serving API calls related to this block
+	Lock32				_lock_;				///< An atomically updated int to lock the Transaction to support modifying the Block
+	int					status;				///< The status of the block transaction
+	pContainer			p_owner;			///< A pointer to the Container instance serving API calls related to this block
 };
-typedef Transaction *pTransaction;
+typedef Transaction *pTransaction;			///< A pointer to a Transaction
 
 
-typedef struct ExtraLocator	*pExtraLocator;
+typedef struct ExtraLocator	*pExtraLocator;	///< A pointer to an ExtraLocator
 
 /** \brief Locator: A minimal structure to define the location of resources inside a Container.
 
@@ -189,9 +195,9 @@ struct Locator {
 
 /// An internal (for Container) Transaction with pointers for a deque
 struct StoredTransaction: Transaction {
-	StoredTransaction *p_next;
+	StoredTransaction *p_next;						///< A pointer to the next StoredTransaction
 };
-typedef StoredTransaction *pStoredTransaction;
+typedef StoredTransaction *pStoredTransaction;		///< A pointer to a StoredTransaction
 
 
 /// An internal map for managing dimension parsing
@@ -276,8 +282,7 @@ class Container : public Service {
 
 	public:
 
-		Container(pLogger	   a_logger,
-				   pConfigFile a_config);
+		Container(pLogger a_logger, pConfigFile a_config);
 	   ~Container();
 
 	   // Service API
@@ -514,6 +519,9 @@ class Container : public Service {
 #endif
 
 		/** An std::malloc() that increases .alloc_bytes on each call and fails on over-allocation.
+
+			\param size	The size in bytes to allocate.
+			\return		A pointer to the allocated memory or nullptr if the allocation would exceed .fail_alloc_bytes.
 		*/
 		inline void* malloc(size_t size) {
 			if (alloc_bytes + size >= fail_alloc_bytes)
@@ -533,6 +541,9 @@ class Container : public Service {
 		}
 
 		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed valid by destroy_transaction().
+
+			\param size	The size in bytes to allocate.
+			\return		A pointer to the allocated new Block.
 		*/
 		inline pBlock block_malloc(size_t size) {
 			pBlock p_blk = (pBlock) malloc(size);
@@ -582,18 +593,20 @@ class Container : public Service {
 			return (c < 65) ? c - 48 : (c > 96) ? c - 87 : c - 55;
 		}
 
-		int max_transactions;
-		uint64_t warn_alloc_bytes, fail_alloc_bytes, alloc_bytes;
-		pTransaction p_buffer, p_free;
-		bool alloc_warning_issued;
-
-		Lock32 _lock_;
+		int max_transactions;				///< The configured ONE_SHOT_MAX_TRANSACTIONS
+		uint64_t warn_alloc_bytes;			///< Taken from ONE_SHOT_WARN_BLOCK_KBYTES
+		uint64_t fail_alloc_bytes;			///< Taken from ONE_SHOT_ERROR_BLOCK_KBYTES
+		uint64_t alloc_bytes;				///< The current allocation in bytes
+		pTransaction p_buffer;				///< The buffer for the transactions
+		pTransaction p_free;				///< The free list of transactions
+		bool alloc_warning_issued;			///< True if a warning was issued for over-allocation
+		Lock32 _lock_;						///< A lock for the deque of transactions
 
 #ifndef CATCH_TEST
 	private:
 #endif
 
-		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};	///< Hex chars
 
 		StatusCode new_container();
 
@@ -926,6 +939,8 @@ class Container : public Service {
 			\param p_ret	The cursor to the output buffer
 			\param dim		The shape
 			\param p_kind	The kind from which dimension names should be read
+
+			\return	The cursor to the output buffer updated by the text written
 		*/
 		inline pChar as_shape(int rank, int dim[], pChar p_ret, pKind p_kind) {
 			*(p_ret++) = '[';

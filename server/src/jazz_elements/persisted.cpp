@@ -44,6 +44,11 @@ namespace jazz_elements
 	 Persisted : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Persisted Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 

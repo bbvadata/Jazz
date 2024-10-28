@@ -59,16 +59,15 @@ namespace jazz_elements
 #define INVALID_MDB_DBI				0xefefEFEF		///< A constant to flag invalid MDB_dbi handle values
 
 
-
 /** \brief All the necessary LMDB options (a binary representation of the values in the config file)
 */
 struct JazzLmdbOptions {
-	char path[MAX_LMDB_HOME_LEN];
+	char path[MAX_LMDB_HOME_LEN];			///< The path to the LMDB home directory
 
-	int env_set_mapsize,
-		env_set_maxreaders,
-		env_set_maxdbs,
-		flags;
+	int env_set_mapsize;					///< The size of the memory map as defined in configuration key MDB_ENV_SET_MAPSIZE
+	int	env_set_maxreaders;					///< The maximum number of reader slots as defined in configuration key MDB_ENV_SET_MAXREADERS
+	int	env_set_maxdbs;						///< The maximum number of databases as defined in configuration key MDB_ENV_SET_MAXDBS
+	int	flags;								///< The flags as defined in many configuration keys MDB_FIXEDMAP, .. MDB_NOMEMINIT
 };
 
 
@@ -95,8 +94,7 @@ class Persisted : public Container {
 
 	public:
 
-		Persisted(pLogger	  a_logger,
-				  pConfigFile a_config);
+		Persisted(pLogger a_logger, pConfigFile a_config);
 	   ~Persisted();
 
 		virtual pChar const id();
@@ -140,6 +138,10 @@ class Persisted : public Container {
 		void base_names(BaseNames &base_names);
 		bool dbi_exists(Name	   dbi_name);
 
+		/**	\brief Check if the service is running.
+
+			\return True if the service is running.
+		*/
 		inline bool is_running() {
 			return lmdb_env != nullptr;
 		}
@@ -164,11 +166,11 @@ class Persisted : public Container {
 
 		void log_lmdb_err(int loglevel, int lmdb_err, const char *msg);
 
-		DBImap source_dbi = {};
-		JazzLmdbOptions lmdb_opt;
-		MDB_env *lmdb_env = nullptr;
+		DBImap			 source_dbi = {};		///< The lmdb MDB_dbi handles for each source.
+		JazzLmdbOptions  lmdb_opt;				///< The LMDB options
+		MDB_env		    *lmdb_env = nullptr;	///< The LMDB environment
 };
-typedef Persisted *pPersisted;
+typedef Persisted *pPersisted;					///< A pointer to a Persisted object
 
 #ifdef CATCH_TEST
 

@@ -110,12 +110,25 @@ struct VolatileTransaction: Transaction {
 
 */
 struct EntityKeyHash {
-	uint64_t ent_hash, key_hash;
+	uint64_t ent_hash;						///< The hash of the entity name.
+	uint64_t key_hash;						///< The hash of the key name.
 
+	/** \brief Constructor for EntityKeyHash.
+		\param o The other EntityKeyHash to compare with.
+		\return True if the two hashes are equal.
+
+		This is a requirement to sort EntityKeyHash objects.
+	*/
 	bool operator==(const EntityKeyHash &o) const {
 		return ent_hash == o.ent_hash && key_hash == o.key_hash;
 	}
 
+	/** \brief Constructor for EntityKeyHash.
+		\param o The other EntityKeyHash to compare with.
+		\return True if is object is less than the other.
+
+		This is a requirement to sort EntityKeyHash objects.
+	*/
 	bool operator<(const EntityKeyHash &o) const {
 		return ent_hash < o.ent_hash || (ent_hash == o.ent_hash && key_hash < o.key_hash);
 	}
@@ -147,7 +160,7 @@ This map allows locating entity root VolatileTransactions for creating and destr
 typedef std::map<uint64_t, QueueEnt> HashQueueEntMap;
 
 
-/** \brief EntKeyVolXctMap: A map from (entity,key) hashes to pointers to VolatileTransaction.
+/** \brief EntKeyVolXctMap: A map from (entity, key) hashes to pointers to VolatileTransaction.
 
 This map allows locating any nodes.
 */
@@ -232,8 +245,7 @@ class Volatile : public Container {
 
 	public:
 
-		Volatile(pLogger	 a_logger,
-				 pConfigFile a_config);
+		Volatile(pLogger a_logger, pConfigFile a_config);
 	   ~Volatile();
 
 		virtual pChar const id();
@@ -338,6 +350,8 @@ class Volatile : public Container {
 			\param p_block	The block to be put (a copy of it).
 			\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA
 							is the only supported option.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 		*/
 		inline StatusCode put_queue_insert(uint64_t ent_hash, Name &key, double priority, pBlock p_block, int mode) {
 			HashQueueEntMap::iterator it_queue = queue_ent.find(ent_hash);
@@ -432,6 +446,8 @@ class Volatile : public Container {
 			\param key		The key
 			\param p_block	The block to be put (a copy of it).
 			\param first	An optional parameter to allow inserting from the bottom of the queue, rather than the end.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 		*/
 		inline StatusCode put_in_deque(HashVolXctMap::iterator it_ent, EntityKeyHash &ek, Name &key, pBlock p_block, bool first = false) {
 
@@ -494,6 +510,8 @@ class Volatile : public Container {
 			\param key		The key
 			\param parent	The parent key the must exist unless the tree entity is empty, in which case it should be ~void
 			\param p_block	The block to be put (a copy of it).
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 		*/
 		inline StatusCode put_in_tree(HashVolXctMap::iterator it_ent, EntityKeyHash &ek, Name &key, Name &parent, pBlock p_block) {
 
@@ -553,6 +571,8 @@ class Volatile : public Container {
 
 			\param p_replace The VolatileTransaction whose block will be replaced
 			\param p_block	 The new block.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 
 			This does not support Index, it is assumed that the pVolatileTransaction was located by key and the key does not change
 			and therefore, ther is no need to do name[] mingling or destroy_transaction()
@@ -1133,6 +1153,8 @@ class Volatile : public Container {
 			\param p_item The item that will be inserted or deleted.
 			\param p_tree The AA subtree compared with the item,.
 
+			\return		  True if the item is to the left of the tree.
+
 			Note: This should be the only way to break ties when p_item->priority == p_tree->priority.
 		*/
 		inline bool aat_to_left(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
@@ -1461,13 +1483,17 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 			return p_tree;
 		};
 
-		uint64_t		key_seed;
-		HashNameUseMap	name {};
-		HashQueueEntMap queue_ent {};
-		HashVolXctMap	deque_ent {}, tree_ent {}, index_ent {};
-		EntKeyVolXctMap deque_key {}, queue_key {}, tree_key {};
+		uint64_t		key_seed;			///< Seed to create unique key ids
+		HashNameUseMap	name {};			///< Map of names and to do reverse conversion to a hash() (including count of uses)
+		HashQueueEntMap queue_ent {};		///< Map of queues
+		HashVolXctMap	deque_ent {};		///< Map of deques
+		HashVolXctMap	tree_ent {};		///< Map of trees
+		HashVolXctMap	index_ent {};		///< Map of indices
+		EntKeyVolXctMap deque_key {};		///< Map of deque (entity, key) hashes to pointers to VolatileTransaction.
+		EntKeyVolXctMap queue_key {};		///< Map of queue (entity, key) hashes to pointers to VolatileTransaction.
+		EntKeyVolXctMap tree_key {};		///< Map of tree (entity, key) hashes to pointers to VolatileTransaction.
 };
-typedef Volatile *pVolatile;
+typedef Volatile *pVolatile;				///< Pointer to Volatile
 
 #ifdef CATCH_TEST
 

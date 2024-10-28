@@ -47,6 +47,13 @@ namespace jazz_elements
 
 /** \brief A callback for libCURL GET.
 
+	\param ptr			The incoming data chunk.
+	\param size			Size in whatever_units.
+	\param nmemb		whatever_unit size in bytes.
+	\param container	A pointer owned by the caller. (A GetBuffer in this case.)
+
+	\return				The number of bytes processed.
+
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
 size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {	// cppcheck-suppress unusedFunction
@@ -68,6 +75,13 @@ size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {	// 
 
 /** \brief A callback for libCURL GET to ignore all the blocks sent by the server in PUT and DELETE calls.
 
+	\param _ignore		The incoming data chunk.
+	\param size			Size in whatever_units.
+	\param nmemb		whatever_unit size in bytes.
+	\param _ignore_2	A pointer owned by the caller. (A GetBuffer in this case.)
+
+	\return				The number of bytes processed.
+
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
 size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {	// cppcheck-suppress unusedFunction
@@ -78,6 +92,13 @@ size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {	// 
 
 
 /** \brief A callback for libCURL PUT.
+
+	\param ptr			The incoming data chunk.
+	\param size			Size in whatever_units.
+	\param nmemb		whatever_unit size in bytes.
+	\param container	A pointer owned by the caller. (A GetBuffer in this case.)
+
+	\return				The number of bytes processed.
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_READFUNCTION.html)
 */
@@ -99,6 +120,11 @@ size_t put_callback(char *ptr, size_t size, size_t nmemb, void *container) {	// 
 	 Channels : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Channels Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Channels::Channels(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
@@ -116,6 +142,8 @@ pChar const Channels::id() {
 
 
 /** Reads config variables and sets jazz_node_* public variables.
+
+	\return	SERVICE_NO_ERROR on success, or some negative value (error).
 */
 StatusCode Channels::start() {
 
@@ -228,6 +256,8 @@ StatusCode Channels::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return	SERVICE_NO_ERROR on success, or some negative value (error).
 */
 StatusCode Channels::shut_down() {
 
@@ -415,7 +445,14 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 
 /** Easy Channels interface **get(2)** is not applicable.
 
-**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get(1) instead.
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container.
+	\param p_what		Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
+
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
+
+	**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get(1) instead.
 */
 StatusCode Channels::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
 
@@ -425,7 +462,14 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter)
 
 /** Easy Channels interface **get(3)** is not applicable.
 
-**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get(1) instead.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param name		The name of the item to be selected.
+
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
+
+	**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get(1) instead.
 */
 StatusCode Channels::get(pTransaction &p_txn, pChar p_what, pChar name) {
 
@@ -435,7 +479,12 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what, pChar name) {
 
 /** Easy Channels interface **locate** is not applicable.
 
-**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
+	\param location	The solved location of the block.
+	\param p_what	A valid reference to a block. E.g. //deque/ent/~first, //tree/ent/key~parent, //queue/ent/~highest
+
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
+
+	**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
 */
 StatusCode Channels::locate(Locator &location, pChar p_what) {
 
@@ -445,7 +494,12 @@ StatusCode Channels::locate(Locator &location, pChar p_what) {
 
 /** Easy Channels interface **header** is not applicable.
 
-**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
+	\param hea		A StaticBlockHeader structure that will receive the metadata.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
+
+	**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
 */
 StatusCode Channels::header(StaticBlockHeader &hea, pChar p_what) {
 
@@ -456,7 +510,13 @@ StatusCode Channels::header(StaticBlockHeader &hea, pChar p_what) {
 
 /** Easy Channels interface **header** is not applicable.
 
-**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param p_what	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
+
+	**NOTE**: This always returns SERVICE_ERROR_NOT_APPLICABLE. Channels do not contain anything, just use get() instead.
 */
 StatusCode Channels::header(pTransaction &p_txn, pChar p_what) {
 

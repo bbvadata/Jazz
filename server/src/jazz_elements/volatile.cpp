@@ -42,6 +42,11 @@ namespace jazz_elements
 	 Volatile : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Volatile Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
@@ -96,6 +101,8 @@ StatusCode Volatile::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
 */
 StatusCode Volatile::shut_down() {
 

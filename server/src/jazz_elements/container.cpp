@@ -42,19 +42,19 @@ namespace jazz_elements
 	 Global const (to avoid local initialization at each call)
 ---------------------------------------------------------------- */
 
-char NA [8]				 = NA_AS_TEXT;
-char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};
-char DEF_INT8_FMT [8]	 = {"%hhu\0"};
-char DEF_INT32_FMT [8]	 = {"%i\0"};
-char DEF_INT64_FMT [8]	 = {"%lli\0"};
-char DEF_FLOAT32_FMT [8] = {"%.9e\0"};
-char DEF_FLOAT64_FMT [8] = {"%.18e\0"};
-char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
+char NA [8]				 = NA_AS_TEXT;					///< The text "NA" as a char array
+char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};					///< The letters that can be escaped
+char DEF_INT8_FMT [8]	 = {"%hhu\0"};					///< The default format for int8_t
+char DEF_INT32_FMT [8]	 = {"%i\0"};					///< The default format for int32_t
+char DEF_INT64_FMT [8]	 = {"%lli\0"};					///< The default format for int64_t
+char DEF_FLOAT32_FMT [8] = {"%.9e\0"};					///< The default format for float
+char DEF_FLOAT64_FMT [8] = {"%.18e\0"};					///< The default format for double
+char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};		///< The default format for time_t
 
 uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
 uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
-int LOCATOR_SIZE[3] = {SHORT_NAME_SIZE - 1, NAME_SIZE - 1, NAME_SIZE - 1};
+int LOCATOR_SIZE[3] = {SHORT_NAME_SIZE - 1, NAME_SIZE - 1, NAME_SIZE - 1};	///< The size for each section
 
 /*	--------------------------------------------------------
 	 Global compile_next_state_LUT() (also used in API)
@@ -151,6 +151,8 @@ StateTransition constants in the source of api.cpp.
 */
 typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
 
+/** The parser logic defined in terms of transitions between states.
+*/
 ParseStateTransitions state_tr = {
 
 	{PSTATE_IN_AUTO,			PSTATE_IN_AUTO,			REX_ALL_SPACES_LEFT_BR},
@@ -257,12 +259,19 @@ ParseStateTransitions state_tr = {
 	{MAX_NUM_PSTATES}
 };
 
+/** The parser logic defined as a LUT (initialized by compile_next_state_LUT()).
+*/
 ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
 /*	--------------------------------------------------
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
@@ -281,6 +290,9 @@ Container::~Container() { destroy_container(); }
 
 
 /** Reads variables from config and sets private variables accordingly.
+
+	\return SERVICE_NO_ERROR on success, or some error.
+
 */
 StatusCode Container::start() {
 
@@ -311,6 +323,9 @@ StatusCode Container::start() {
 
 
 /** Destroys everything and zeroes allocation.
+
+	\return SERVICE_NO_ERROR on success, or some error.
+
 */
 StatusCode Container::shut_down() {
 
@@ -1964,7 +1979,7 @@ StatusCode Container::copy(pChar p_where, pChar p_what) {
 					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
 	\param p_args	A Tuple passed as argument to the call that is not modified.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy_transaction()-ed when the caller is done.
@@ -1982,7 +1997,7 @@ StatusCode Container::exec(pTransaction &p_txn, Locator &function, pTuple p_args
 	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
 					The result will be overridden in-place without any allocation.
 
-	\return	SERVICE_NO_ERROR on success or some negative value (error).
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
 
 modify() is similar to exec(), but, rather than creating a new block with the result, it modifies the Tuple p_args.
 */
@@ -2088,7 +2103,13 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		A valid reference to a block as a locator. E.g. //base/entity/key
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get(pTransaction &p_txn, Locator &what) {
 
@@ -2098,7 +2119,14 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container.
+	\param what			A valid reference to a block as a locator. E.g. //base/entity/key
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
@@ -2108,7 +2136,14 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pBlock p_row_filte
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		A valid reference to a block as a locator. E.g. //base/entity/key
+	\param name		The name of the item to be selected.
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 
@@ -2121,7 +2156,7 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 	\param location	The solved location of the block.
 	\param what		A valid reference to a block. E.g. //deque/ent/~first, //tree/ent/key~parent, //queue/ent/~highest
 
-	\return	SERVICE_NO_ERROR on success (and a valid location), or some negative value (error).
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
 
 NOTE: This just copies what into location. It will not verify the existence of the block. The function of locate() is to
 evaluate commands in Containers supporting them (E.g, Volatile). Otherwise, it is a trivial conversion from the easy into the native API.
@@ -2136,7 +2171,12 @@ StatusCode Container::locate(Locator &location, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param hea		A StaticBlockHeader structure that will receive the metadata.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::header(StaticBlockHeader &hea, Locator &what) {
 
@@ -2146,7 +2186,13 @@ StatusCode Container::header(StaticBlockHeader &hea, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::header(pTransaction &p_txn, Locator &what) {
 
@@ -2156,7 +2202,14 @@ StatusCode Container::header(pTransaction &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	Some **destination** Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+	\param p_block	The Block to be stored in Volatile. The Block hash and dated will be updated by this call!!
+	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA returns
+					the error SERVICE_ERROR_WRONG_ARGUMENTS
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::put(Locator &where, pBlock p_block, int mode) {
 
@@ -2166,7 +2219,11 @@ StatusCode Container::put(Locator &where, pBlock p_block, int mode) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	Some **destination** Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::new_entity(Locator &where) {
 
@@ -2176,7 +2233,11 @@ StatusCode Container::new_entity(Locator &where) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	The block or entity to be removed. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::remove(Locator &where) {
 
@@ -2186,7 +2247,12 @@ StatusCode Container::remove(Locator &where) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	The block or entity to be written. (See Node Method Reference in the documentation of the class Volatile.)
+	\param what		The block or entity to be read. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::copy(Locator &where, Locator &what) {
 

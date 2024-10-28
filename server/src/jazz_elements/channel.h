@@ -64,7 +64,7 @@ namespace jazz_elements
 
 #define MAX_FILE_OR_URL_SIZE		1712		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
 
-/// HttpQueryState apply values (on state == PSTATE_COMPLETE_OK)
+/// ApiQueryState apply values (on state == PSTATE_COMPLETE_OK)
 
 #define APPLY_NOTHING					 0		///< Just an l_value with {///node}//base/entity or {///node}//base/entity/key
 #define APPLY_NAME						 1		///< {///node}////base/entity/key:name (Select an item form a Tuple by name)
@@ -108,15 +108,15 @@ struct Socket {
 
 /// A structure to share with the libcurl get callback.
 typedef std::vector<uint8_t> GetBuffer;
-typedef GetBuffer *pGetBuffer;
+typedef GetBuffer *pGetBuffer;				///< A pointer to a GetBuffer
 
 
 /// A structure keep state inside a put callback.
 struct PutBuffer {
-	uint64_t to_send;		///< Number of bytes to be sent.
-	uint8_t *p_base;		///< The pointer (updated after each call) to the data.
+	uint64_t to_send;						///< Number of bytes to be sent.
+	uint8_t *p_base;						///< The pointer (updated after each call) to the data.
 };
-typedef PutBuffer *pPutBuffer;
+typedef PutBuffer *pPutBuffer;				///< A pointer to a PutBuffer
 
 
 /// A structure holding pipeline.
@@ -276,15 +276,15 @@ class Channels : public Container {
 
 		// Public config variables
 
-		MapIS jazz_node_name = {};
-		MapIS jazz_node_ip   = {};
-		MapII jazz_node_port = {};
+		MapIS jazz_node_name = {};				///< The names of the nodes (other Jazz servers) in the cluster.
+		MapIS jazz_node_ip   = {};				///< The ip addresses of the nodes in the cluster.
+		MapII jazz_node_port = {};				///< The ports of the nodes in the cluster.
 
-		bool search_my_node_index	= false;
-		int  jazz_node_my_index		= -1;
-		int  jazz_node_cluster_size =  0;
+		bool search_my_node_index	= false;	///< If true, the node index is searched in the cluster.
+		int  jazz_node_my_index		= -1;		///< The index of the node in the cluster.
+		int  jazz_node_cluster_size =  0;		///< The number of nodes in the cluster.
 
-		std::string filesystem_root = {};
+		std::string filesystem_root = {};		///< The root of the filesystem.
 
 #ifndef CATCH_TEST
 	protected:
@@ -580,8 +580,18 @@ class Channels : public Container {
 #ifndef CATCH_TEST
 	private:
 #endif
-		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};	///< Hexadecimal digits
 
+		/** \brief Compose a url from a node, a base and an entity.
+
+			\param p_dest		The destination buffer.
+			\param p_node		The node name that has to be resolved to its ip and port.
+			\param p_url		The rul that has to be urlencoded.
+			\param buff_size	The size of the destination buffer.
+
+			\return	true on success, false on error.
+
+		*/
 		inline bool compose_url(pChar p_dest, pChar p_node, pChar p_url, int buff_size) {
 			int nix;
 
@@ -637,17 +647,19 @@ class Channels : public Container {
 			return false;
 		}
 
-		int can_curl = false, curl_ok = false;
-		int can_zmq  = false, zmq_ok  = false;
-		int can_bash = false;
-		int file_lev = 0;
+		int can_curl = false;			///< If true, the server can use libcurl based on configuration key ENABLE_HTTP_CLIENT
+		int curl_ok	 = false;			///< If true, libcurl is ready to be used based on config + libcurl initialization
+		int can_zmq  = false;			///< If true, the server can use zeroMQ based on configuration key ENABLE_ZEROMQ_CLIENT
+		int zmq_ok	 = false;			///< If true, zeroMQ is ready to be used based on config + zeroMQ initialization
+		int can_bash = false;			///< If true, the server can use bash based on configuration key ENABLE_BASH_EXEC
+		int file_lev = 0;				///< The level of file operations allowed based on configuration key ENABLE_FILE_LEVEL
 
-		PipeMap	pipes	= {};
-		ConnMap connect = {};
+		PipeMap	pipes	= {};			///< A map of pipelines (zeroMQ connections)
+		ConnMap connect = {};			///< A map of http connections
 
-		void *zmq_context = nullptr;
+		void *zmq_context = nullptr;	///< The zeroMQ context
 };
-typedef Channels *pChannels;
+typedef Channels *pChannels;			///< A pointer to a Channels
 
 
 #ifdef CATCH_TEST
