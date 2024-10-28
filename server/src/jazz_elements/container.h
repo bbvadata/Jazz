@@ -1039,17 +1039,17 @@ class Container : public Service {
 		}
 };
 
+// Instancing container, logger and config
+// ---------------------------------------
+
+extern ConfigFile CONFIG;	///< The configuration file
+extern Logger	  LOGGER;	///< The logger
 
 #ifdef CATCH_TEST
 
 void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check = false);
 
-// Instancing container, logger and config
-// ---------------------------------------
-
-extern ConfigFile CONFIG;
-extern Logger	  LOGGER;
-extern Container  CNT;
+extern Container  CNT;		///< A container for the tests
 
 #endif
 
