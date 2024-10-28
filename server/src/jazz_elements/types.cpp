@@ -41,7 +41,9 @@
 namespace jazz_elements
 {
 
-/// Returns an R-compatible numeric NA.
+/** Constants for the types of cells in a Tensor
+	\return An R-compatible numeric NA.
+*/
 inline double R_ValueOfNA() {
 	union {double d; int i[2];} na;
 

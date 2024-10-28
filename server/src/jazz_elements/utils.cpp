@@ -42,7 +42,7 @@ namespace jazz_elements
 
 	\param file_name The file name.
 	\return True if the file exists
- */
+*/
 bool FileExists(const char* file_name) {
 	std::ifstream ff(file_name);
 
@@ -52,12 +52,12 @@ bool FileExists(const char* file_name) {
 
 /** \brief Expand escaped strings at run-time.
 
-Public Domain by Jerry Coffin.
+	Public Domain by Jerry Coffin.
 
-Interprets a string in a manner similar to that the compiler does string literals in a program.	 All escape sequences are
-longer than their translated equivalent, so the string is translated in place and either remains the same length or becomes shorter.
+	Interprets a string in a manner similar to that the compiler does string literals in a program.	 All escape sequences are
+	longer than their translated equivalent, so the string is translated in place and either remains the same length or becomes shorter.
 
-April 17 tests built and compliant with:
+	April 17 tests built and compliant with:
 
     \\a	  07  Alert (Beep, Bell) (added in C89)[1]
     \\b	  08  Backspace
@@ -73,7 +73,10 @@ April 17 tests built and compliant with:
     \\nnn     The byte whose numerical value is given by nnn interpreted as an octal number
     \\xhh     The byte whose numerical value is given by hh… interpreted as a hexadecimal number
 
-https://en.wikipedia.org/wiki/Escape_sequences_in_C
+	https://en.wikipedia.org/wiki/Escape_sequences_in_C
+
+	\param buff The string to be expanded.
+	\return		The expanded string.
 */
 char *ExpandEscapeSequences(char *buff) {
 	char		*pt	 = buff;
@@ -174,7 +177,7 @@ char *ExpandEscapeSequences(char *buff) {
 	it is just the left part before the first space.
 
 	\return The pid of the process if found, 0 if not.
- */
+*/
 pid_t FindProcessIdByName(const char *name) {
 	DIR			  *dir;
 	struct dirent *ent;
@@ -467,6 +470,8 @@ void ConfigFile::debug_put(const std::string key, const std::string val) {
 
 /** Initialize the Logger (Method 1: by directly giving it the output_file_name).
 
+	\param output_file_name	The name of the file to log to.
+
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
@@ -478,6 +483,9 @@ Logger::Logger(const char *output_file_name) {
 
 
 /** Initialize the Logger (Method 2: with a configuration file and a configuration key).
+
+	\param config		The configuration file.
+	\param config_key	The configuration key to be searched.
 
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.

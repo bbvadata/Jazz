@@ -158,6 +158,9 @@ typedef void* TenBitPtrLUT[TENBITS_LUT_SIZE];
 
 /** \brief Get ten bits taking the least significant 5 of the first two characters of a string.
 
+	\param str A string with at least two characters.
+	\return	   The ten bits as an integer.
+
 	Warning: No pointer validation or length check. Never use on nullptr or "".
 */
 inline int TenBitsAtAddress(const char* str) {
@@ -229,9 +232,9 @@ class ConfigFile {
 
 	private:
 
-		std::map<std::string, std::string> config;
+		std::map<std::string, std::string> config;	///< The configuration key/value store
 };
-typedef ConfigFile *pConfigFile;
+typedef ConfigFile *pConfigFile;					///< A pointer to a ConfigFile object
 
 
 /** \brief A simple logger.
@@ -262,12 +265,12 @@ class Logger {
 
 		void InitLogger();
 
-		char file_name [MAX_FILENAME_LENGTH];
-		std::ofstream f_stream;
-		std::filebuf *f_buff;
-		TimePoint big_bang;
+		char file_name [MAX_FILENAME_LENGTH];	///< The name of the log file
+		std::ofstream f_stream;					///< The stream to the log file
+		std::filebuf *f_buff;					///< The buffer for the stream
+		TimePoint big_bang;						///< The time when the logger was created
 };
-typedef Logger *pLogger;
+typedef Logger *pLogger;						///< A pointer to a Logger object
 
 
 /** \brief A Jazz Service is a globally instanced configurable object that may allocate RAM.
@@ -329,18 +332,34 @@ class Service {
 		bool get_conf_key(const char *key, int &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
+		/** Wrapper method to get configuration values when the ConfigFile was passed to the constructor of this class.
+
+			\param key	 The configuration key to be searched.
+			\param value Value to be returned only when the function returns true.
+			\return		 True when the key exists and can be returned with the specific (overloaded) type.
+
+			See ConfigFile for details.
+		*/
 		bool get_conf_key(const char *key, double &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
+		/** Wrapper method to get configuration values when the ConfigFile was passed to the constructor of this class.
+
+			\param key	 The configuration key to be searched.
+			\param value Value to be returned only when the function returns true.
+			\return		 True when the key exists and can be returned with the specific (overloaded) type.
+
+			See ConfigFile for details.
+		*/
 		bool get_conf_key(const char *key, std::string &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
 	private:
 
-		pLogger		p_log;
-		pConfigFile	p_conf;
+		pLogger		p_log;		///< The logger
+		pConfigFile	p_conf;		///< The configuration file
 };
-typedef Service *pService;
+typedef Service *pService;		///< A pointer to a Service object
 
 } // namespace jazz_elements
 

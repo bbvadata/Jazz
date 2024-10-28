@@ -163,7 +163,7 @@ Names are vanilla ASCII NAME_LENGTH long string starting with a letter and conta
 They can be validated using the function valid_name() or the regex REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
-typedef char *pChar;
+typedef char *pChar;						///< A pointer to a char buffer
 
 
 /** \brief The dimension of a tensor.
@@ -229,35 +229,35 @@ struct BlockHeader {
 		Index index;					///< Any kind of Index
 	};
 };
-typedef BlockHeader	*pBlockHeader;
+typedef BlockHeader	*pBlockHeader;		///< A pointer to a BlockHeader
 
 
 /// A Binary Compatible BlockHeader without Index (and therefore constructors/destructors)
 struct StaticBlockHeader {
-	int	cell_type;						///< The type for the cells in the tensor. See CELL_TYPE_*
-	int size;							///< The total number of cells in the tensor
-	TimePoint created;					///< Timestamp when the block was created
-			int	rank;					///< The number of dimensions
-			TensorDim range;			///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
-			int num_attributes;			///< Number of elements in the JazzAttributesMap
-			int total_bytes;			///< Total size of the block everything included
-			bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
-			uint64_t hash64;			///< Hash of everything but the header
+	int	cell_type;								///< The type for the cells in the tensor. See CELL_TYPE_*
+	int size;									///< The total number of cells in the tensor
+	TimePoint created;							///< Timestamp when the block was created
+			int	rank;							///< The number of dimensions
+			TensorDim range;					///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+			int num_attributes;					///< Number of elements in the JazzAttributesMap
+			int total_bytes;					///< Total size of the block everything included
+			bool has_NA;						///< If true, at least one value is a NA and block requires NA-aware arithmetic
+			uint64_t hash64;					///< Hash of everything but the header
 
-			Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
+			Tensor tensor;						///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
 };
-typedef StaticBlockHeader *pStaticBlockHeader;
+typedef StaticBlockHeader *pStaticBlockHeader;	///< A pointer to a StaticBlockHeader
 
 
 /// Structure at the end of a Block, initially created with init_string_buffer()
 struct StringBuffer {
-	bool stop_check_4_match;	///< When the StringBuffer is small, try to match existing indices of the same string to save RAM
-	bool alloc_failed;			///< A previous call to get_string_offset() failed to alloc space for a string
-	int	 last_idx;				///< The index to the first free space after the last stored string
-	int	 buffer_size;			///< The size in bytes of buffer[]
-	char buffer[];				///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
+	bool stop_check_4_match;			///< When the StringBuffer is small, try to match existing indices of the same string to save RAM
+	bool alloc_failed;					///< A previous call to get_string_offset() failed to alloc space for a string
+	int	 last_idx;						///< The index to the first free space after the last stored string
+	int	 buffer_size;					///< The size in bytes of buffer[]
+	char buffer[];						///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
 };
-typedef StringBuffer *pStringBuffer;
+typedef StringBuffer *pStringBuffer;	///< A pointer to a StringBuffer
 
 
 extern float  F_NA;		///< NaN in single
