@@ -124,11 +124,8 @@ API::API(pLogger	 a_logger,
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 
-	p_channels	= a_channels;
-	p_volatile	= a_volatile;
-	p_persisted	= a_persisted;
-	p_core		= a_core;
-	p_model		= a_model;
+	p_core	= a_core;
+	p_model	= a_model;
 
 	www	 = {};
 }
@@ -160,19 +157,15 @@ pChar const API::id() {
 */
 StatusCode API::start() {
 
-	int ret = Container::start();	// This initializes the one-shot functionality.
+	int ret = BaseAPI::start();	// This initializes the one-shot functionality.
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
 	BaseNames base = {};
 
-	p_channels->base_names(base);
-	p_volatile->base_names(base);
-	p_persisted->base_names(base);
-
-	for (int i = 0; i < 1024; i++)
-		base_server[i] = nullptr;
+	p_core->base_names(base);
+	p_model->base_names(base);
 
 	for (BaseNames::iterator it = base.begin(); it != base.end(); ++it) {
 		int tt = TenBitsAtAddress(it->first.c_str());
@@ -1707,7 +1700,7 @@ bool API::find_myself() {
 
 #ifdef CATCH_TEST
 
-API	TT_API(&LOGGER, &CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
+API	TT_API(&LOGGER, &CONFIG, &CHN, &VOL, &PER, &COR, &MDL);
 
 #endif
 

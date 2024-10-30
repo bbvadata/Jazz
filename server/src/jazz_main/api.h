@@ -123,8 +123,6 @@ using namespace jazz_models;
 #define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
 #define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
 
-extern TenBitPtrLUT base_server;
-
 typedef struct MHD_Response *pMHD_Response;		///< Pointer to a MHD_Response
 typedef struct MHD_Connection *pMHD_Connection;	///< Pointer to a MHD_Connection
 
@@ -600,9 +598,6 @@ class API : public BaseAPI {
 			return p_container->put(where, p_block);
 		}
 
-		pChannels	p_channels;		///< The Channels container
-		pVolatile	p_volatile;		///< The Volatile container
-		pPersisted	p_persisted;	///< The Persisted container
 		pCore		p_core;			///< The Core
 		pModelsAPI	p_model;		///< The ModelsAPI
 
