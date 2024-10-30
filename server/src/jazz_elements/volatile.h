@@ -290,7 +290,7 @@ class Volatile : public Container {
 		virtual StatusCode copy		 (Locator			&where,
 									  Locator			&what);
 
-		// Support for container names in the API .base_names()
+		// Support for container names in the BaseAPI .base_names()
 
 		void base_names(BaseNames &base_names);
 

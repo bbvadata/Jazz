@@ -270,7 +270,7 @@ class Channels : public Container {
 		MHD_StatusCode forward_del	 (Name				 node,
 									  pChar				 p_url);
 
-		// Support for container names in the API .base_names()
+		// Support for container names in the BaseAPI .base_names()
 
 		void base_names(BaseNames &base_names);
 
