@@ -94,8 +94,19 @@ class BaseAPI : public Container {
 
 		StatusCode start	();
 		StatusCode shut_down();
+
+#ifndef CATCH_TEST
+	protected:
+#endif
+
+		pChannels	p_channels;		///< The Channels container
+		pVolatile	p_volatile;		///< The Volatile container
+		pPersisted	p_persisted;	///< The Persisted container
+
+		TenBitPtrLUT base_server;	///< A LUT to convert TenBitsAtAddress(base) into a pContainer.
+
 };
-typedef BaseAPI *pBaseAPI;		///< A pointer to a BaseAPI
+typedef BaseAPI *pBaseAPI;			///< A pointer to a BaseAPI
 
 } // namespace jazz_bebop
 

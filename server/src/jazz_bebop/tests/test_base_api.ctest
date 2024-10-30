@@ -44,18 +44,41 @@
 using namespace jazz_bebop;
 
 
-// Tests
-// -----
+SCENARIO("Testing all Containers start()/shut_down()aat BaseAPI level") {
 
-SCENARIO("Testing base_api") {
-
-//TODO: Write tests for BaseAPI!
-
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(BAPI.p_channels	 == &CHN);
+		REQUIRE(BAPI.p_volatile	 == &VOL);
+		REQUIRE(BAPI.p_persisted == &PER);
 	}
+
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
+	REQUIRE(PER.start() == 0);
+
+	REQUIRE(BAPI.start() == 0);
+
+	GIVEN("The instances are started") {
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("bash")]	  == &CHN);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("file")]	  == &CHN);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("http")]	  == &CHN);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("0-mq")]	  == &CHN);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("deque")]	  == &VOL);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("index")]	  == &VOL);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("queue")]	  == &VOL);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("tree")]	  == &VOL);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("lmdb")]	  == &PER);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("compile")] == nullptr);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("resolve")] == nullptr);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("bop")]	  == nullptr);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("brane")]	  == nullptr);
+		REQUIRE(BAPI.base_server[TenBitsAtAddress("zqt")]	  == nullptr);
+	}
+
+	REQUIRE(BAPI.shut_down() == 0);
+
+	REQUIRE(CHN.shut_down() == 0);
+	REQUIRE(VOL.shut_down() == 0);
+	REQUIRE(PER.shut_down() == 0);
 }
+

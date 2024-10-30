@@ -72,6 +72,8 @@ class Core : public BaseAPI {
 
 		StatusCode start	();
 		StatusCode shut_down();
+
+		void base_names(BaseNames &base_names);
 };
 typedef Core *pCore;		///< A pointer to a Core
 
@@ -81,7 +83,7 @@ typedef Core *pCore;		///< A pointer to a Core
 // Instancing Core
 // -----------------
 
-extern Core CORE;
+extern Core COR;
 
 #endif
 

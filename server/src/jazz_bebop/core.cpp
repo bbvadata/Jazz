@@ -92,9 +92,22 @@ StatusCode Core::shut_down() {
 }
 
 
+/** Add the base names for this ModelsAPI.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+*/
+void Core::base_names(BaseNames &base_names) {
+
+	base_names["bop"]	  = this;	// The bop-25 compiler
+	base_names["bebop"]	  = this;	// The bop-25 compiler
+	base_names["compile"] = this;	// The default compiler (in case there are more than one languages)
+	base_names["onnx"]	  = this;	// Run from object
+}
+
 #ifdef CATCH_TEST
 
-Core CORE(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
+Core COR(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
 
 #endif
 

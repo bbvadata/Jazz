@@ -55,7 +55,13 @@ BaseAPI::BaseAPI(pLogger a_logger,
 				 pConfigFile a_config,
 				 pChannels a_channels,
 				 pVolatile a_volatile,
-				 pPersisted a_persisted) : Container(a_logger, a_config) {}
+				 pPersisted a_persisted) : Container(a_logger, a_config) {
+
+	p_channels	= a_channels;
+	p_volatile	= a_volatile;
+	p_persisted	= a_persisted;
+
+}
 
 BaseAPI::~BaseAPI() { destroy_container(); }
 
@@ -76,6 +82,30 @@ pChar const BaseAPI::id() {
 */
 StatusCode BaseAPI::start() {
 
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+	memset(base_server, 0, sizeof(base_server));
+
+	BaseNames base = {};
+
+	p_channels->base_names(base);
+	p_volatile->base_names(base);
+	p_persisted->base_names(base);
+
+	for (BaseNames::iterator it = base.begin(); it != base.end(); ++it) {
+		int tt = TenBitsAtAddress(it->first.c_str());
+
+		if (base_server[tt] != nullptr) {
+			log_printf(LOG_ERROR, "BaseAPI::start(): Base name conflict with \"%s\"", it->first.c_str());
+
+			return SERVICE_ERROR_STARTING;
+		}
+		base_server[tt] = it->second;
+	}
+
 	return SERVICE_NO_ERROR;
 }
 
@@ -88,7 +118,6 @@ StatusCode BaseAPI::shut_down() {
 
 	return SERVICE_NO_ERROR;
 }
-
 
 #ifdef CATCH_TEST
 
