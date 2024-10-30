@@ -69,6 +69,8 @@ class ModelsAPI : public BaseAPI {
 
 		StatusCode start	();
 		StatusCode shut_down();
+
+		void base_names(BaseNames &base_names);
 };
 typedef ModelsAPI *pModelsAPI;	///< A pointer to a ModelsAPI
 

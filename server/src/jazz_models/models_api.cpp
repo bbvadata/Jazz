@@ -92,6 +92,17 @@ StatusCode ModelsAPI::shut_down() {
 }
 
 
+/** Add the base names for this ModelsAPI.
+
+	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
+
+*/
+void ModelsAPI::base_names(BaseNames &base_names) {
+
+	base_names["brane"]	  = this;	// The Brane model
+	base_names["resolve"] = this;	// The default resolver (in case there are more than one models)
+}
+
 #ifdef CATCH_TEST
 
 ModelsAPI MDL(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
