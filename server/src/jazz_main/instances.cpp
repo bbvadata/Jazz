@@ -105,7 +105,6 @@ char response_put_ok[]			= "0";	///< The response for a successful PUT call.
 char response_put_fail[]		= "1";	///< The response for a failed PUT call.
 
 TenBitIntLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
-TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method int an integer code.
 
 #ifndef CATCH_TEST
 
