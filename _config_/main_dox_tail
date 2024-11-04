@@ -11,7 +11,7 @@ The maturity level of the different modules is:\n
 Maturity | Description
 -------- | -----------
 nothing  | Code is complete, tested and already was in previous versions.
-[v.m.r]   | Code under active development and will be released when the version v.m.r is complete.
+[v.m.r]  | Code under active development and will be released when the version `v.m.r` is complete.
 \n
 
 There are three C++ namespaces, intended for general c++ Jazz programming, possibly using external Jazz servers, but not necessarily as
