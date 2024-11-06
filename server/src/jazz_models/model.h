@@ -63,6 +63,9 @@ class Model : public Container {
 
 		Model(pLogger a_logger, pConfigFile a_config);
 	   ~Model();
+
+		StatusCode start	();
+		StatusCode shut_down();
 };
 typedef Model *pModel;		///< A pointer to a Model
 

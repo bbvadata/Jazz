@@ -53,6 +53,37 @@ Space::Space(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_con
 
 Space::~Space() { destroy_container(); }
 
+
+/** Starts the Space service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode Space::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement Space::start()
+
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Shuts down the Space Service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode Space::shut_down() {
+
+//TODO: Implement Space::shut_down()
+
+	return destroy_container();
+}
+
+
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST

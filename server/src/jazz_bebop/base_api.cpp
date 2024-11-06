@@ -170,6 +170,18 @@ StatusCode BaseAPI::start() {
 }
 
 
+/** Shuts down the BaseAPI Service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode BaseAPI::shut_down() {
+
+//TODO: Implement BaseAPI::shut_down()
+
+	return destroy_container();
+}
+
+
 /** Parse an API url into an APIParseBuffer for later execution.
 
 	\param q_state	A structure with the parts the url successfully parsed ready to be executed.
@@ -607,15 +619,6 @@ bool BaseAPI::parse_locator(Locator &loc, pChar p_url) {
 	}
 }
 
-
-/** Shuts down the Persisted Service
-
-	\return SERVICE_NO_ERROR if successful, an error code otherwise.
-*/
-StatusCode BaseAPI::shut_down() {
-
-	return SERVICE_NO_ERROR;
-}
 
 #ifdef CATCH_TEST
 

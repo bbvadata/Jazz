@@ -49,7 +49,38 @@ namespace jazz_models
 */
 Model::Model(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
+
 Model::~Model() { destroy_container(); }
+
+
+/** Starts the Model service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode Model::start() {
+
+	int ret = Container::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement Model::start()
+
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Shuts down the Model Service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode Model::shut_down() {
+
+//TODO: Implement Model::shut_down()
+
+	return destroy_container();
+}
 
 } // namespace jazz_models
 

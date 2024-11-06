@@ -71,6 +71,10 @@ class Space : public Container {
 
 		Space(pLogger a_logger, pConfigFile a_config);
 	   ~Space();
+
+		StatusCode start	();
+		StatusCode shut_down();
+
 };
 typedef Space *pSpace;		///< A pointer to a Space
 
