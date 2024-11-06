@@ -127,21 +127,35 @@ class BaseAPI : public Container {
 		StatusCode start	();
 		StatusCode shut_down();
 
-		// parsing methods
+		// Parsing method
 
-		bool parse		   (ApiQueryState &q_state,
-							pChar			p_url,
-							int				method,
-							bool			recurse = false);
+		bool parse (ApiQueryState  &q_state,
+					pChar			p_url,
+					int				method,
+					bool			recurse = false);
 
+//TODO: Move block_from_const() from API + test
+
+		// Linking method
+
+//TODO: Clarify this does NOT implement a Container interface. The process is parse()/link()/call() and it requires block_from_const to
+//		work with every possible expression.
+
+//TODO: Define link() interface. It keeps a pointer to the container, locators as required, and a definition of what interface method
+//		must be called.
+
+		// Calling method
+
+//TODO: Define call() interface. It uses a structure filled by a successful link() call. It returns a "pTransaction	   &p_txn" it must
+//		be understood how to destroy it with awareness of who owns the memory.
 
 
 #ifndef CATCH_TEST
 	protected:
 #endif
 
-		bool parse_locator	(Locator	   &loc,
-							 pChar			p_url);
+		bool parse_locator (Locator &loc,
+							pChar	 p_url);
 
 		/** Copy the string "as-is" (without percent-decoding) a string into a buffer.
 
