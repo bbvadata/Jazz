@@ -59,6 +59,36 @@ namespace jazz_bebop
 
 using namespace jazz_elements;
 
+#define BASE_API_GET						 3	///< This is numerically equivalent to HTTP_GET in api.h http predicate GET
+#define BASE_API_PUT						 4	///< This is numerically equivalent to HTTP_PUT in api.h http predicate PUT
+#define BASE_API_DELETE						 5	///< This is numerically equivalent to HTTP_DELETE in api.h http predicate DELETE
+
+/// Parser state values
+
+#define PSTATE_INITIAL						 0	///< Begin parsing, assumes already seen / to avoid unnecessary initial counting
+#define PSTATE_DONE_NODE					 1	///< Equivalent to PSTATE_INITIAL, except node was done and it cannot happen again
+#define PSTATE_NODE0						 2	///< Already seen ///
+#define PSTATE_IN_NODE						 3	///< Name starts after /// + letter, stays with valid char
+#define PSTATE_BASE0						 4	///< Already seen //
+#define PSTATE_IN_BASE						 5	///< Name starts after // + letter, stays with valid char
+#define PSTATE_ENTITY0						 6	///< Already seen / after reading a base
+#define PSTATE_IN_ENTITY					 7	///< Name starts after / + letter, stays with valid char
+#define PSTATE_KEY0							 8	///< Already seen / after reading an entity
+#define PSTATE_IN_KEY						 9	///< Name starts after / + letter, stays with valid char
+#define PSTATE_INFO_SWITCH					10	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
+#define PSTATE_BASE_SWITCH					11	///< Found # while reading a base
+#define PSTATE_ENT_SWITCH					12	///< Found # while reading a base
+#define PSTATE_KEY_SWITCH					13	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
+#define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
+#define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
+
+// BaseAPI.move_const() return values
+
+#define RET_MV_CONST_FAILED					-1	///< return value for move_const() failed.
+#define RET_MV_CONST_NOTHING				 0	///< return value for move_const() normal moving.
+#define RET_MV_CONST_NEW_ENTITY				 1	///< return value for move_const() there is a ";.new" ending, otherwise parses ok.
+
+
 /** \brief A buffer to keep the state while parsing/executing a query
 */
 struct ApiQueryState {
@@ -95,9 +125,97 @@ class BaseAPI : public Container {
 		StatusCode start	();
 		StatusCode shut_down();
 
+		// parsing methods
+
+		bool parse		   (ApiQueryState &q_state,
+							pChar			p_url,
+							int				method,
+							bool			recurse = false);
+
+
+
 #ifndef CATCH_TEST
 	protected:
 #endif
+
+		bool parse_locator	(Locator	   &loc,
+							 pChar			p_url);
+
+		/** Copy the string "as-is" (without percent-decoding) a string into a buffer.
+
+			\param p_buff	 A buffer to store the result. This first char must be a zero on call or it will not write anything, just check for
+							 the return code and return. (This is a trick to avoid overriding the buffer in forward call. This function is an
+							 internal part of parse().)
+			\param buff_size The size of the output buffer (ending zero included).
+			\param p_url	 The input string.
+			\param p_base	 (optional) Prefix with a base to be prefixed
+
+			\return			 RET_MV_CONST_FAILED on error (buffer sizes or start and final characters), RET_MV_CONST_NOTHING normal moving or
+							 RET_MV_CONST_NEW_ENTITY there is a ";.new" ending and no errors.
+
+		Note: This replaces expand_url_encoded() since the string passed to parse() is already %-decoded by libmicrohttpd.
+		*/
+		inline int move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base = nullptr) {
+
+			if (*(p_url++) != '&')
+				return RET_MV_CONST_FAILED;
+
+			int url_len = strlen(p_url) - 1;
+
+			pChar p_end = p_url + url_len;
+
+			int ret = RET_MV_CONST_NOTHING;
+
+			if (*p_end == 'w') {
+				if ((*(--p_end) != 'e') || (*(--p_end) != 'n') || (*(--p_end) != '.') || (*(--p_end) != ';'))
+					return RET_MV_CONST_FAILED;
+
+				ret		 = RET_MV_CONST_NEW_ENTITY;
+				url_len -= 4;
+			}
+
+			if (*p_end != ';' && *p_end != ']' && *p_end != ')')
+				return RET_MV_CONST_FAILED;
+
+			if (*p_buff != 0)
+				return ret;
+
+			if (p_base != nullptr) {
+				if (buff_size < 4 + SHORT_NAME_SIZE)
+					return RET_MV_CONST_FAILED;
+
+				*(p_buff++) = '/';
+				*(p_buff++) = '/';
+
+				buff_size -= 2;
+
+				for (int i = 0; i < SHORT_NAME_SIZE; i++) {
+					char c = *(p_base++);
+
+					buff_size--;
+
+					if (c == 0) {
+						*(p_buff++) = '/';
+						break;
+					}
+					*(p_buff++) = c;
+				}
+			}
+
+			if (url_len >= buff_size)
+				return RET_MV_CONST_FAILED;
+
+			memcpy(p_buff, p_url, url_len);
+
+			p_buff += url_len;
+
+			*(p_buff) = 0;
+
+			return ret;
+		}
+
+
+
 
 		pChannels	p_channels;		///< The Channels container
 		pVolatile	p_volatile;		///< The Volatile container
@@ -107,6 +225,15 @@ class BaseAPI : public Container {
 
 };
 typedef BaseAPI *pBaseAPI;			///< A pointer to a BaseAPI
+
+#ifdef CATCH_TEST
+
+// Instancing BaseAPI
+// ------------------
+
+extern BaseAPI	BAPI;
+
+#endif
 
 } // namespace jazz_bebop
 

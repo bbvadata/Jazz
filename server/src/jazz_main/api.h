@@ -86,10 +86,6 @@ using namespace jazz_models;
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
 #define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
 
-#define RET_MV_CONST_FAILED					-1	///< return value for move_const() failed.
-#define RET_MV_CONST_NOTHING				 0	///< return value for move_const() normal moving.
-#define RET_MV_CONST_NEW_ENTITY				 1	///< return value for move_const() there is a ";.new" ending, otherwise parses ok.
-
 // Values of http_put(sequence)
 #define	SEQUENCE_FIRST_CALL					 0	///< First call, no pTransaction was yet assigned (data must be stored)
 #define	SEQUENCE_INCREMENT_CALL				 1	///< Any number of these calls (including none) allocate bigger and keep storing
@@ -103,25 +99,6 @@ using namespace jazz_models;
 #define HTTP_GET							 3	///< http predicate GET
 #define HTTP_PUT							 4	///< http predicate PUT
 #define HTTP_DELETE							 5	///< http predicate DELETE
-
-/// Parser state values
-
-#define PSTATE_INITIAL						 0	///< Begin parsing, assumes already seen / to avoid unnecessary initial counting
-#define PSTATE_DONE_NODE					 1	///< Equivalent to PSTATE_INITIAL, except node was done and it cannot happen again
-#define PSTATE_NODE0						 2	///< Already seen ///
-#define PSTATE_IN_NODE						 3	///< Name starts after /// + letter, stays with valid char
-#define PSTATE_BASE0						 4	///< Already seen //
-#define PSTATE_IN_BASE						 5	///< Name starts after // + letter, stays with valid char
-#define PSTATE_ENTITY0						 6	///< Already seen / after reading a base
-#define PSTATE_IN_ENTITY					 7	///< Name starts after / + letter, stays with valid char
-#define PSTATE_KEY0							 8	///< Already seen / after reading an entity
-#define PSTATE_IN_KEY						 9	///< Name starts after / + letter, stays with valid char
-#define PSTATE_INFO_SWITCH					10	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
-#define PSTATE_BASE_SWITCH					11	///< Found # while reading a base
-#define PSTATE_ENT_SWITCH					12	///< Found # while reading a base
-#define PSTATE_KEY_SWITCH					13	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
-#define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
-#define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
 
 typedef struct MHD_Response *pMHD_Response;		///< Pointer to a MHD_Response
 typedef struct MHD_Connection *pMHD_Connection;	///< Pointer to a MHD_Connection
@@ -162,11 +139,6 @@ class API : public BaseAPI {
 
 		// parsing methods
 
-		bool parse					   (ApiQueryState &q_state,
-										pChar			p_url,
-										int				method,
-										bool			recurse = false);
-
 		MHD_StatusCode get_static	   (pMHD_Response  &response,
 										pChar			p_url,
 										bool			get_it = true);
@@ -198,16 +170,9 @@ class API : public BaseAPI {
 		bool expand_url_encoded	(pChar			p_buff,
 								 int			buff_size,
 								 pChar			p_url);
-		int move_const			(pChar			p_buff,
-								 int			buff_size,
-								 pChar			p_url,
-								 pChar			p_base = nullptr);
-		bool parse_locator		(Locator	   &loc,
-								 pChar			p_url);
 		bool block_from_const	(pTransaction  &p_txn,
 								 pChar			p_const,
 								 bool			make_tuple = false);
-
 
 		/** This is an internal part of http_get() made independent to keep the function less crowded.
 
