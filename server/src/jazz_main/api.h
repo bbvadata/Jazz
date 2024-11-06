@@ -81,8 +81,6 @@ using namespace jazz_elements;
 using namespace jazz_bebop;
 using namespace jazz_models;
 
-#define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert ApiQueryState -> Locator
-
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
 #define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
 

@@ -59,6 +59,8 @@ namespace jazz_bebop
 
 using namespace jazz_elements;
 
+#define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert ApiQueryState -> Locator
+
 #define BASE_API_GET						 3	///< This is numerically equivalent to HTTP_GET in api.h http predicate GET
 #define BASE_API_PUT						 4	///< This is numerically equivalent to HTTP_PUT in api.h http predicate PUT
 #define BASE_API_DELETE						 5	///< This is numerically equivalent to HTTP_DELETE in api.h http predicate DELETE

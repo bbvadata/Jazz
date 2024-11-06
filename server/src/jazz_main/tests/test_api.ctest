@@ -44,6 +44,13 @@ using namespace jazz_main;
 // Tests
 // -----
 
+SCENARIO("Testing API constants match HTTP API constants") {
+	REQUIRE(HTTP_GET == BASE_API_GET);
+	REQUIRE(HTTP_PUT == BASE_API_PUT);
+	REQUIRE(HTTP_DELETE == BASE_API_DELETE);
+}
+
+
 SCENARIO("Testing all Containers start()/shut_down() at API level") {
 
 	GIVEN("The instances are constructed, but not yet started") {
@@ -87,6 +94,7 @@ SCENARIO("Testing all Containers start()/shut_down() at API level") {
 	REQUIRE(COR.shut_down() == 0);
 	REQUIRE(MDL.shut_down() == 0);
 }
+
 
 SCENARIO("Testing API.parse") {
 	REQUIRE(TT_API.start() == 0);
