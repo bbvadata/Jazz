@@ -78,17 +78,26 @@ pChar const Core::id() {
 */
 StatusCode Core::start() {
 
+	int ret = BaseAPI::start();	// This initializes the one-shot functionality.
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+//TODO: Implement Core::start()
+
 	return SERVICE_NO_ERROR;
 }
 
 
-/** Shuts down the Persisted Service
+/** Shuts down the Core Service
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode Core::shut_down() {
 
-	return SERVICE_NO_ERROR;
+//TODO: Implement Core::shut_down()
+
+	return BaseAPI::shut_down();
 }
 
 

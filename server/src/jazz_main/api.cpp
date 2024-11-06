@@ -159,7 +159,7 @@ StatusCode API::shut_down() {
 
 	www.clear();
 
-	return Container::shut_down();	// Closes the one-shot functionality.
+	return BaseAPI::shut_down();	// Closes the one-shot functionality.
 }
 
 
