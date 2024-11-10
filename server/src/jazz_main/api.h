@@ -148,25 +148,25 @@ class API : public BaseAPI {
 
 		// Specific execution methods
 
-		MHD_StatusCode http_put		   (pChar			p_upload,
-										size_t			size,
-										ApiQueryState &q_state,
-										int				sequence);
-		MHD_StatusCode http_delete	   (ApiQueryState &q_state);
-		MHD_StatusCode http_get		   (pMHD_Response  &response,
-										ApiQueryState &q_state);
+		MHD_StatusCode http_put	   (pChar			p_upload,
+									size_t			size,
+									ApiQueryState  &q_state,
+									int				sequence);
+		MHD_StatusCode http_delete (ApiQueryState  &q_state);
+		MHD_StatusCode http_get	   (pMHD_Response  &response,
+									ApiQueryState  &q_state);
 
 #ifndef CATCH_TEST
 	private:
 #endif
 
 		bool find_myself		();
-		StatusCode load_statics	(pChar			p_base_path,
-								 pChar			p_relative_path,
-								 int			rec_level);
-		bool expand_url_encoded	(pChar			p_buff,
-								 int			buff_size,
-								 pChar			p_url);
+		StatusCode load_statics	(pChar	p_base_path,
+								 pChar	p_relative_path,
+								 int	rec_level);
+		bool expand_url_encoded	(pChar	p_buff,
+								 int	buff_size,
+								 pChar	p_url);
 
 		pCore		p_core;			///< The Core
 		pModelsAPI	p_model;		///< The ModelsAPI

@@ -516,28 +516,24 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-	char		 buffer_1k[1024];
-	Locator		 loc;
-	pTransaction p_txn, p_aux;
-	pContainer	 p_container;
-	int			 ret, size;
+	int			 ret;
+	pTransaction p_txn;
 	pChar		 p_str;
 
 	switch (q_state.apply) {
-	case APPLY_NOTHING ... APPLY_TEXT:
-		if (q_state.l_node[0] != 0)
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-		else
-			ret = get_left_local(p_txn, q_state);
+	case APPLY_NOTHING ... APPLY_TEXT: {
+		pBaseAPI p_base_api = (pBaseAPI) base_server[TenBitsAtAddress(q_state.base)];
+		p_base_api = (p_base_api == p_core || p_base_api == p_model) ? p_base_api : this;
 
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
-
-		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
-			p_txn->p_owner->destroy_transaction(p_txn);
-
+		switch (p_base_api->get(p_txn, q_state)) {
+		case SERVICE_NO_ERROR:
+			break;
+		case SERVICE_ERROR_WRONG_ARGUMENTS:
 			return MHD_HTTP_BAD_REQUEST;
+		default:
+			return MHD_HTTP_NOT_FOUND;
 		}
+		// This is the "auto-magic" conversion into string from blocks of string with one element.
 		if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
 			p_str = p_txn->p_block->get_string(0);
 			response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
@@ -553,164 +549,59 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 		}
 		p_txn->p_owner->destroy_transaction(p_txn);
 
-		return MHD_HTTP_OK;
+		return MHD_HTTP_OK; }
 
-	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_TEXT:
-		if (q_state.r_node[0] != 0)
-			ret = get_right_remote(p_txn, q_state);
-		else
-			ret = get_right_local(p_txn, q_state);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
-
-		if (q_state.l_node[0] != 0) {
-			sprintf(buffer_1k, "//%s/%s/%s", q_state.base, q_state.entity, q_state.key);
-
-			ret = p_channels->forward_put(q_state.l_node, buffer_1k, p_txn->p_block);
-		} else
-			ret = put_left_local(q_state, p_txn->p_block);
-
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_GATEWAY;
-
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
-
-		return MHD_HTTP_OK;
-
-	case APPLY_ASSIGN_CONST:
-		if (q_state.l_node[0] != 0) {
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-
-			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_BAD_REQUEST;
-		} else {
-			ret = get_right_local(p_txn, q_state);
-
-			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_BAD_REQUEST;
-
-			ret = put_left_local(q_state, p_txn->p_block);
-		}
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
+	case APPLY_ASSIGN_NOTHING ... APPLY_NEW_ENTITY:
+	case APPLY_SET_ATTRIBUTE:
+		switch (get(p_txn, q_state)) {
+		case SERVICE_NO_ERROR:
+			break;
+		case SERVICE_ERROR_WRONG_BASE:
+			return MHD_HTTP_SERVICE_UNAVAILABLE;
+		default:
 			return MHD_HTTP_BAD_REQUEST;
-
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
-
-		return MHD_HTTP_OK;
-
-	case APPLY_NEW_ENTITY:
-		if (q_state.l_node[0] != 0) {
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-			if (ret == SERVICE_NO_ERROR)
-				p_channels->destroy_transaction(p_txn); }
-		else {
-			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-			if (p_container == nullptr)
-				return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-			if (q_state.url[0] == 0) {
-				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-				ret = p_container->new_entity(loc);
-			} else
-				ret = p_container->new_entity((pChar) q_state.url);
 		}
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
 		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
+
+		if (q_state.apply == APPLY_SET_ATTRIBUTE
+			&& q_state.r_value.attribute == BLOCK_ATTRIB_URL
+			&& strcmp(q_state.base, "lmdb") == 0
+			&& strcmp(q_state.entity, "www") == 0)
+				www[q_state.url] = q_state.key;
 
 		return MHD_HTTP_OK;
 
 	case APPLY_GET_ATTRIBUTE:
-		if (q_state.l_node[0] != 0) {
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-
-			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_NOT_FOUND;
-
+		switch (get(p_txn, q_state)) {
+		case SERVICE_NO_ERROR:
+			break;
+		case SERVICE_ERROR_WRONG_BASE:
+			return MHD_HTTP_SERVICE_UNAVAILABLE;
+		default:
+			return MHD_HTTP_NOT_FOUND;
+		}
+		if (q_state.l_node[0] != 0)
 			if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
 				p_str	 = p_txn->p_block->get_string(0);
 				response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
 			} else {
-				size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+				int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
 				response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 			}
-			p_channels->destroy_transaction(p_txn);
+		else {
+			p_str = p_txn->p_block->get_attribute(q_state.r_value.attribute);
 
-			return MHD_HTTP_OK;
-		}
-		p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+			if (p_str == nullptr) {
+				p_txn->p_owner->destroy_transaction(p_txn);
 
-		if (p_container == nullptr)
-			return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
-
-		p_str = p_txn->p_block->get_attribute(q_state.r_value.attribute);
-
-		if (p_str == nullptr) {
-			p_container->destroy_transaction(p_txn);
-
-			return MHD_HTTP_NOT_FOUND;
+				return MHD_HTTP_NOT_FOUND;
+			}
 		}
 		response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
 
 		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
-		p_container->destroy_transaction(p_txn);
-
-		return MHD_HTTP_OK;
-
-	case APPLY_SET_ATTRIBUTE:
-		if (q_state.l_node[0] != 0)
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-		else {
-			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-			if (p_container == nullptr)
-				return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-			memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-			if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
-				return MHD_HTTP_NOT_FOUND;
-
-			AttributeMap atts;
-			p_aux->p_block->get_attributes(&atts);
-
-			atts[q_state.r_value.attribute] = q_state.url;
-
-			if (new_block(p_txn, p_aux->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
-				p_container->destroy_transaction(p_aux);
-
-				return MHD_HTTP_BAD_REQUEST;
-			}
-			p_container->destroy_transaction(p_aux);
-
-			ret = p_container->put(loc, p_txn->p_block);
-
-			destroy_transaction(p_txn);
-
-			if (   ret == SERVICE_NO_ERROR
-				&& q_state.r_value.attribute == BLOCK_ATTRIB_URL
-				&& strcmp(loc.base, "lmdb") == 0
-				&& strcmp(loc.entity, "www") == 0)
-					www[q_state.url] = loc.key;
-		}
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
+		p_txn->p_owner->destroy_transaction(p_txn);
 
 		return MHD_HTTP_OK;
 
@@ -727,6 +618,8 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 #endif
 		struct utsname unn;
 		uname(&unn);
+
+		char buffer_1k[1024];
 
 		int my_idx	 = p_channels->jazz_node_my_index;
 		int my_port	 = p_channels->jazz_node_port[my_idx];
