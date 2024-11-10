@@ -708,14 +708,18 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 	case APPLY_ASSIGN_CONST:
 		if (what.l_node[0] != 0) {
 			ret = p_channels->forward_get(p_txn, what.l_node, what.url);
+
+			if (ret != SERVICE_NO_ERROR)
+				return ret;
 		} else {
 			ret = get_right_local(p_txn, what);
+
+			if (ret != SERVICE_NO_ERROR)
+				return ret;
+
+			ret = put_left_local(what, p_txn->p_block);
 		}
 
-		if (ret != SERVICE_NO_ERROR)
-			return ret;
-
-		ret = put_left_local(what, p_txn->p_block);
 		destroy_transaction(p_txn);
 
 		return ret;
