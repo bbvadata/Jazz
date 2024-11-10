@@ -62,6 +62,7 @@ using namespace jazz_elements;
 #define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert ApiQueryState -> Locator
 
 #define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
+#define SIZE_BUFFER_REMOTE_CALL			  2048	///< The size of the buffer in which URLS for remote calls are built.
 
 #define BASE_API_GET						 3	///< This is numerically equivalent to HTTP_GET in api.h http predicate GET
 #define BASE_API_PUT						 4	///< This is numerically equivalent to HTTP_PUT in api.h http predicate PUT
@@ -231,6 +232,395 @@ class BaseAPI : public Container {
 			*(p_buff) = 0;
 
 			return ret;
+		}
+
+		/** This is an internal part of get() made independent to keep the function less crowded.
+
+			\param p_txn		A pointer to the transaction that will be used to store the result.
+			\param q_state		The structure containing the parts of the url successfully parsed.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
+
+		Context: This in any possible assignment in which the right part is NOT a remote call. Functionally, it is similar to
+		get_left_local(), but since it is the right of an assignment, arguments are stored at a different place and also, apply
+		code are in range APPLY_ASSIGN_NOTHING..APPLY_ASSIGN_CONST instead of APPLY_NOTHING..APPLY_TEXT.
+		It returns the final block as it will be returned with a new_block() interface.
+		*/
+		inline StatusCode get_right_local(pTransaction &p_txn, ApiQueryState &q_state) {
+
+			pTransaction p_aux;
+			pContainer	 p_container, p_aux_cont;
+			Name		 ent;
+
+			if (q_state.apply == APPLY_ASSIGN_CONST)
+				return block_from_const(p_txn, q_state.url) ? SERVICE_NO_ERROR : SERVICE_ERROR_WRONG_ARGUMENTS;
+
+			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.r_value.base)];
+
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
+
+			switch (q_state.apply) {
+			case APPLY_ASSIGN_NOTHING:
+				return p_container->get(p_txn, q_state.r_value);
+
+			case APPLY_ASSIGN_NAME:
+				return p_container->get(p_txn, q_state.r_value, q_state.name);
+
+			case APPLY_ASSIGN_URL:
+				return p_container->get(p_txn, (pChar) q_state.url);
+
+			case APPLY_ASSIGN_FUNCTION:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.rr_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.rr_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (q_state.r_value.key[0] == 0) {
+					if (p_container->modify(q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				p_aux_cont->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_FUNCT_CONST:
+				if (!block_from_const(p_aux, q_state.url, q_state.r_value.key[0] == 0))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				if (q_state.r_value.key[0] == 0) {
+					if (p_container->modify(q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, q_state.r_value, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_FILTER:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.rr_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.rr_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (p_container->get(p_txn, q_state.r_value, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_aux_cont->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_aux_cont->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_FILT_CONST:
+				if (!block_from_const(p_aux, q_state.url))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				if (p_container->get(p_txn, q_state.r_value, p_aux->p_block) != SERVICE_NO_ERROR) {
+					destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_RAW:
+				if (p_container->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_ASSIGN_TEXT:
+				if (p_container->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block, (pChar) nullptr, true) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+			}
+			return SERVICE_ERROR_MISC_SERVER;
+		}
+
+		/** This is an internal part of get() made independent to keep the function less crowded.
+
+			\param p_txn		A pointer to the transaction that will be used to store the result.
+			\param q_state		The structure containing the parts of the url successfully parsed.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
+
+		Context: This in any possible assignment in which the right part is a remote call. Since q_state.url does not have
+				 a valid url, itt is necessary to reconstruct it. We do have the constants if any.
+		It returns the final block as it will be returned to the user with a new_block() interface.
+		*/
+		inline StatusCode get_right_remote(pTransaction &p_txn, ApiQueryState &q_state) {
+
+			char buffer_2k[SIZE_BUFFER_REMOTE_CALL];
+
+			switch (q_state.apply) {
+			case APPLY_ASSIGN_NOTHING:
+				sprintf(buffer_2k, "//%s/%s/%s", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key);
+				break;
+			case APPLY_ASSIGN_NAME:
+				sprintf(buffer_2k, "//%s/%s/%s:%s", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key, q_state.name);
+				break;
+			case APPLY_ASSIGN_URL:
+				sprintf(buffer_2k, "//%s&%s;", q_state.r_value.base, q_state.url);
+				break;
+			case APPLY_ASSIGN_FUNCTION:
+				sprintf(buffer_2k, "//%s/%s/%s(//%s/%s/%s)", q_state.r_value.base,  q_state.r_value.entity,  q_state.r_value.key,
+															 q_state.rr_value.base, q_state.rr_value.entity, q_state.rr_value.key);
+				break;
+			case APPLY_ASSIGN_FUNCT_CONST:
+				sprintf(buffer_2k, "//%s/%s/%s(&%s)", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key, q_state.url);
+				break;
+			case APPLY_ASSIGN_FILTER:
+				sprintf(buffer_2k, "//%s/%s/%s[//%s/%s/%s]", q_state.r_value.base,  q_state.r_value.entity,  q_state.r_value.key,
+															 q_state.rr_value.base, q_state.rr_value.entity, q_state.rr_value.key);
+				break;
+			case APPLY_ASSIGN_FILT_CONST:
+				sprintf(buffer_2k, "//%s/%s/%s[&%s]", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key, q_state.url);
+				break;
+			case APPLY_ASSIGN_RAW:
+				sprintf(buffer_2k, "//%s/%s/%s.raw", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key);
+				break;
+			case APPLY_ASSIGN_TEXT:
+				sprintf(buffer_2k, "//%s/%s/%s.text", q_state.r_value.base, q_state.r_value.entity, q_state.r_value.key);
+				break;
+			default:
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+			}
+			return p_channels->forward_get(p_txn, q_state.r_node, buffer_2k);
+		}
+
+		/** This is an internal part of get() made independent to keep the function less crowded.
+
+			\param p_txn		A pointer to the transaction that will be used to store the result.
+			\param q_state		The structure containing the parts of the url successfully parsed.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
+
+		Context: This is called when q_state.apply is APPLY_NOTHING ... APPLY_TEXT and there is no forwarding.
+		It returns the final block as it will be returned to the user with a new_block() interface.
+		*/
+		inline StatusCode get_left_local(pTransaction &p_txn, ApiQueryState &q_state) {
+
+			Locator		 loc;
+			pTransaction p_aux;
+			pContainer	 p_container, p_aux_cont;
+			Name		 ent;
+
+			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
+
+			switch (q_state.apply) {
+			case APPLY_NOTHING:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				return p_container->get(p_txn, loc);
+
+			case APPLY_NAME:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				return p_container->get(p_txn, loc, q_state.name);
+
+			case APPLY_URL:
+				return p_container->get(p_txn, (pChar) q_state.url);
+
+			case APPLY_FUNCTION:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.r_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (q_state.key[0] == 0) {
+					if (p_container->modify(loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						p_aux_cont->destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				p_aux_cont->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_FUNCT_CONST:
+				if (!block_from_const(p_aux, q_state.url, q_state.key[0] == 0))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (q_state.key[0] == 0) {
+					if (p_container->modify(loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+					strcpy(ent, "result");
+					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				} else {
+					if (p_container->exec(p_txn, loc, (pTuple) p_aux->p_block) != SERVICE_NO_ERROR) {
+						destroy_transaction(p_aux);
+
+						return SERVICE_ERROR_IO_ERROR;
+					}
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_FILTER:
+				p_aux_cont = (pContainer) base_server[TenBitsAtAddress(q_state.r_value.base)];
+
+				if (p_aux_cont == nullptr)
+					return SERVICE_ERROR_WRONG_BASE;
+
+				if (p_aux_cont->get(p_aux, q_state.r_value) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_txn, loc, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_aux_cont->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_aux_cont->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_FILT_CONST:
+				if (!block_from_const(p_aux, q_state.url))
+					return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_txn, loc, p_aux->p_block) != SERVICE_NO_ERROR) {
+					destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_RAW:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block, CELL_TYPE_UNDEFINED) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+
+			case APPLY_TEXT:
+				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+				if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+
+				if (new_block(p_txn, p_aux->p_block) != SERVICE_NO_ERROR) {
+					p_container->destroy_transaction(p_aux);
+
+					return SERVICE_ERROR_IO_ERROR;
+				}
+				p_container->destroy_transaction(p_aux);
+
+				return SERVICE_NO_ERROR;
+			}
+			return SERVICE_ERROR_MISC_SERVER;
+		}
+
+		/** This is an internal part of put() made independent to keep the function less crowded.
+
+			\param q_state		The structure containing the parts of the url successfully parsed.
+			\param p_block		The block to be stored.
+
+			\return				SERVICE_NO_ERROR if successful, or an error code.
+
+		Context: This in any possible assignment in which we could successfully solve the right part and have a valid p_block.
+		We have to do a put call and return whatever status code happened.
+		*/
+		inline StatusCode put_left_local(ApiQueryState &q_state, pBlock p_block) {
+
+			pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
+
+			Locator where;
+
+			memcpy(&where, &q_state.base, SIZE_OF_BASE_ENT_KEY);
+
+			return p_container->put(where, p_block);
 		}
 
 		pChannels	p_channels;		///< The Channels container
