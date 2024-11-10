@@ -623,7 +623,23 @@ bool BaseAPI::parse_locator(Locator &loc, pChar p_url) {
 // API Container interface
 // -----------------------
 
+
+/** "API" interface **metadata of a Block** retrieval. This uses a parse()ed what and is the only BasePI + descendants GET method.
+
+	\param hea	A StaticBlockHeader structure that will receive the metadata.
+	\param what	Some successfully parse()ed ApiQueryState that also distinguishes API interface from Container interface.
+
+	\return	SERVICE_NO_ERROR on success (and a valid hea), or some negative value (error).
+
+This is a faster, not involving RAM allocation version of the other form of header. For a tensor, is will be the only thing you need, but
+for a Kind or a Tuple, you probably want the types of all its items and need to pass a pTransaction to hold the data.
+
+NOTE: It only supports APPLY_NOTHING and APPLY_NAME. It is used by Core to check argument types of Tensors or Tuple items.
+*/
 StatusCode BaseAPI::header(StaticBlockHeader &hea, ApiQueryState &what) {
+
+//TODO: Implement BaseAPI::header
+
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
