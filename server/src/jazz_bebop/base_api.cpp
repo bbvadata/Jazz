@@ -618,6 +618,76 @@ bool BaseAPI::parse_locator(Locator &loc, pChar p_url) {
 		}
 	}
 }
+// Protected methods
+// -----------------
+
+/** Creates a block from a constant read in the URL.
+
+	\param p_txn	  A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					  Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction() when done.
+	\param p_const	  The constant.
+	\param make_tuple Insert it into a Tuple with "input" and "result".
+
+	\return			'true' if successful.
+*/
+bool BaseAPI::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) {
+
+	p_txn = nullptr;
+
+	pTransaction p_text, p_tensor, p_result;
+
+	int dim[MAX_TENSOR_RANK];
+
+	if (make_tuple) {
+		int size = strlen(p_const);
+		dim[0] = size;
+		dim[1] = 0;
+
+		if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
+			return false;
+
+		memcpy(&p_text->p_block->tensor, p_const, size);
+	} else {
+		if (new_block(p_text, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_const, 0) != SERVICE_NO_ERROR)
+			return false;
+	}
+
+	if (new_block(p_tensor, p_text->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR)
+		destroy_transaction(p_text);
+	else
+		p_tensor = p_text;
+
+	if (!make_tuple) {
+		p_txn = p_tensor;
+
+		return true;
+	}
+
+	dim[0] = RESULT_BUFFER_SIZE;
+	dim[1] = 0;
+	if (new_block(p_result, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_WITH_ZERO) !=  SERVICE_NO_ERROR) {
+		destroy_transaction(p_tensor);
+
+		return false;
+	}
+
+	StaticBlockHeader hea[2];
+	Name			  names[2]	 = {"input", "result"};
+	pBlock			  p_block[2] = {p_tensor->p_block, p_result->p_block};
+
+	memcpy(&hea[0], p_block[0], sizeof(StaticBlockHeader));
+	memcpy(&hea[1], p_block[1], sizeof(StaticBlockHeader));
+
+	p_block[0]->get_dimensions(hea[0].range.dim);
+	p_block[1]->get_dimensions(hea[1].range.dim);
+
+	int ret = new_block(p_txn, 2, hea, names, p_block);
+
+	destroy_transaction(p_tensor);
+	destroy_transaction(p_result);
+
+	return ret == SERVICE_NO_ERROR;
+}
 
 
 #ifdef CATCH_TEST

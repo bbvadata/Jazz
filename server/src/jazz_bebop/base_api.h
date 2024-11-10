@@ -61,6 +61,8 @@ using namespace jazz_elements;
 
 #define SIZE_OF_BASE_ENT_KEY	(sizeof(Locator) - sizeof(pExtraLocator))	///< Used to convert ApiQueryState -> Locator
 
+#define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
+
 #define BASE_API_GET						 3	///< This is numerically equivalent to HTTP_GET in api.h http predicate GET
 #define BASE_API_PUT						 4	///< This is numerically equivalent to HTTP_PUT in api.h http predicate PUT
 #define BASE_API_DELETE						 5	///< This is numerically equivalent to HTTP_DELETE in api.h http predicate DELETE
@@ -134,20 +136,9 @@ class BaseAPI : public Container {
 					int				method,
 					bool			recurse = false);
 
-//TODO: Move block_from_const() from API + test
-
-		// Linking method
-
-//TODO: Clarify this does NOT implement a Container interface. The process is parse()/link()/call() and it requires block_from_const to
-//		work with every possible expression.
-
-//TODO: Define link() interface. It keeps a pointer to the container, locators as required, and a definition of what interface method
-//		must be called.
-
-		// Calling method
-
-//TODO: Define call() interface. It uses a structure filled by a successful link() call. It returns a "pTransaction	   &p_txn" it must
-//		be understood how to destroy it with awareness of who owns the memory.
+		bool block_from_const	(pTransaction  &p_txn,
+								 pChar			p_const,
+								 bool			make_tuple = false);
 
 
 #ifndef CATCH_TEST
@@ -229,9 +220,6 @@ class BaseAPI : public Container {
 
 			return ret;
 		}
-
-
-
 
 		pChannels	p_channels;		///< The Channels container
 		pVolatile	p_volatile;		///< The Volatile container

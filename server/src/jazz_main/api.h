@@ -82,7 +82,6 @@ using namespace jazz_bebop;
 using namespace jazz_models;
 
 #define MAX_RECURSE_LEVEL_ON_STATICS		16	///< The max directory recursion depth for load_statics()
-#define RESULT_BUFFER_SIZE				  4096	///< The "result" item size in a Tuple used in a modify() call.
 
 // Values of http_put(sequence)
 #define	SEQUENCE_FIRST_CALL					 0	///< First call, no pTransaction was yet assigned (data must be stored)
@@ -168,9 +167,6 @@ class API : public BaseAPI {
 		bool expand_url_encoded	(pChar			p_buff,
 								 int			buff_size,
 								 pChar			p_url);
-		bool block_from_const	(pTransaction  &p_txn,
-								 pChar			p_const,
-								 bool			make_tuple = false);
 
 		/** This is an internal part of http_get() made independent to keep the function less crowded.
 
