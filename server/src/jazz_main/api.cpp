@@ -442,7 +442,6 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-	int			 ret;
 	pTransaction p_txn;
 	pChar		 p_str;
 
