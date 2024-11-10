@@ -665,8 +665,7 @@ and not just APPLY_FUNCTION.
 */
 StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 
-	char buffer_2k[SIZE_BUFFER_REMOTE_CALL];
-	int	 ret;
+	int	ret;
 
 	switch (what.apply) {
 	case APPLY_NOTHING ... APPLY_TEXT:
@@ -695,6 +694,8 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 			return ret;
 
 		if (what.l_node[0] != 0) {
+			char buffer_2k[SIZE_BUFFER_REMOTE_CALL];
+
 			sprintf(buffer_2k, "//%s/%s/%s", what.base, what.entity, what.key);
 
 			ret = p_channels->forward_put(what.l_node, buffer_2k, p_txn->p_block);
@@ -772,7 +773,7 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 		memcpy(&loc, &what.base, SIZE_OF_BASE_ENT_KEY);
 
 		pTransaction p_aux;
-		if (ret = p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+		if ((ret = p_container->get(p_aux, loc)) != SERVICE_NO_ERROR)
 			return ret;
 
 		AttributeMap atts;
