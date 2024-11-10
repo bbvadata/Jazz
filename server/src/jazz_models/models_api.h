@@ -71,6 +71,11 @@ class ModelsAPI : public BaseAPI {
 		StatusCode shut_down();
 
 		void base_names(BaseNames &base_names);
+
+		// API Container interface
+
+		virtual StatusCode get (pTransaction  &p_txn,
+								ApiQueryState &what);
 };
 typedef ModelsAPI *pModelsAPI;	///< A pointer to a ModelsAPI
 

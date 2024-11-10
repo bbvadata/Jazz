@@ -112,6 +112,33 @@ void ModelsAPI::base_names(BaseNames &base_names) {
 	base_names["resolve"] = this;	// The default resolver (in case there are more than one models)
 }
 
+
+// API Container interface
+// -----------------------
+
+
+/** "API" interface **complete Block** retrieval. This uses a parse()d what and is the only BasePI + descendants GET method.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some successfully parse()d ApiQueryState that also distinguishes API interface from Container interface.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+It should support the range from APPLY_NOTHING to APPLY_TEXT. This includes function calls APPLY_FUNCTION and APPLY_FUNCT_CONST,
+but also APPLY_FILTER and APPLY_FILT_CONST to select from the result of a function call. Also, APPLY_URL is very convenient for
+passing text as an argument to a function. APPLY_NOTHING can return some metadata about the model including a list of endpoints.
+APPLY_NAME can define specifics of an endpoint. APPLY_RAW and APPLY_TEXT can be used to select the favorite serialization format
+of the result. Therefore, the function interface should be considered as the whole range and not just APPLY_FUNCTION.
+*/
+StatusCode ModelsAPI::get(pTransaction &p_txn, ApiQueryState &what) {
+
+//TODO: Implement ModelsAPI::get
+
+	return SERVICE_NOT_IMPLEMENTED;
+
+}
+
 #ifdef CATCH_TEST
 
 ModelsAPI MDL(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
