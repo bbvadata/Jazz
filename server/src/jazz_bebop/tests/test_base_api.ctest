@@ -2439,6 +2439,14 @@ SCENARIO("Testing BaseAPI.parse") {
 }
 
 
+SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
+
+	REQUIRE(1 < 2);
+
+//TODO: Implement this test
+}
+
+
 SCENARIO("Testing BaseAPI struct sizes and positions") {
 
 	REQUIRE(sizeof(ApiQueryState) == 2048);
@@ -2458,4 +2466,3 @@ SCENARIO("Testing BaseAPI struct sizes and positions") {
 	REQUIRE(strcmp(loc.entity, "entity") == 0);
 	REQUIRE(strcmp(loc.key,	   "abcdefghij0123456789ABCDEFGHIJ-") == 0);
 }
-
