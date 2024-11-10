@@ -140,6 +140,18 @@ class BaseAPI : public Container {
 								 pChar			p_const,
 								 bool			make_tuple = false);
 
+		// API Container interface
+
+		virtual StatusCode header	   (StaticBlockHeader &hea,
+										ApiQueryState	  &what);
+		virtual StatusCode get		   (pTransaction	  &p_txn,
+										ApiQueryState	  &what);
+		virtual StatusCode put		   (ApiQueryState	  &where,
+										pBlock			   p_block);
+		virtual StatusCode new_entity  (ApiQueryState	  &where);
+		virtual StatusCode remove	   (ApiQueryState	  &what);
+		virtual StatusCode copy		   (ApiQueryState	  &what);
+
 
 #ifndef CATCH_TEST
 	protected:

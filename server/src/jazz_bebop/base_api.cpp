@@ -618,6 +618,40 @@ bool BaseAPI::parse_locator(Locator &loc, pChar p_url) {
 		}
 	}
 }
+
+
+// API Container interface
+// -----------------------
+
+StatusCode BaseAPI::header(StaticBlockHeader &hea, ApiQueryState &what) {
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode BaseAPI::put(ApiQueryState &where, pBlock p_block) {
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode BaseAPI::new_entity(ApiQueryState &where) {
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode BaseAPI::remove(ApiQueryState &what) {
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode BaseAPI::copy(ApiQueryState&what) {
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
 // Protected methods
 // -----------------
 
