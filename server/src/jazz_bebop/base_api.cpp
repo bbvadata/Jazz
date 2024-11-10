@@ -142,6 +142,8 @@ pChar const BaseAPI::id() {
 */
 StatusCode BaseAPI::start() {
 
+//TODO: Once everything is implemented, consider if a separate configuration is needed for BaseAPI specifically.
+
 	int ret = Container::start();	// This initializes the one-shot functionality.
 
 	if (ret != SERVICE_NO_ERROR)
@@ -175,8 +177,6 @@ StatusCode BaseAPI::start() {
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode BaseAPI::shut_down() {
-
-//TODO: Implement BaseAPI::shut_down()
 
 	return destroy_container();
 }
