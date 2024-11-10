@@ -337,6 +337,8 @@ MHD_StatusCode API::http_put(pChar p_upload, size_t size, ApiQueryState &q_state
 	if (unwrap_received(p_txn) != SERVICE_NO_ERROR)
 		return MHD_HTTP_INSUFFICIENT_STORAGE;
 
+//TODO: Move the rest to BaseAPI.put()
+
 	if (q_state.l_node[0] != 0) {
 		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block);
 
@@ -453,6 +455,8 @@ MHD_StatusCode API::http_delete(ApiQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
+
+//TODO: Move the rest to BaseAPI.remove()
 
 	if (q_state.l_node[0] != 0) {
 		if (p_channels->forward_del(q_state.l_node, q_state.url) == SERVICE_NO_ERROR)
