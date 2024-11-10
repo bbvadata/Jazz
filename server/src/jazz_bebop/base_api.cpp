@@ -628,8 +628,152 @@ StatusCode BaseAPI::header(StaticBlockHeader &hea, ApiQueryState &what) {
 }
 
 
+/** "API" interface **complete Block** retrieval. This uses a parse()ed what and is the only BasePI + descendants GET method.
+
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some successfully parse()ed ApiQueryState that also distinguishes API interface from Container interface.
+
+	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+
+In the BaseAPI class, this implements all the apply cases from APPLY_NOTHING to APPLY_SET_ATTRIBUTE (APPLY_JAZZ_INFO is http only).
+What the aseAPI class does is forwarding the request to the right container (if the base is found, returning SERVICE_ERROR_WRONG_BASE
+if not).
+
+In the descendants (Core and ModelsAPI) if should support the range from APPLY_NOTHING to APPLY_TEXT. This includes function calls
+APPLY_FUNCTION and APPLY_FUNCT_CONST, but also APPLY_FILTER and APPLY_FILT_CONST to select from the result of a function call.
+Also, APPLY_URL is very convenient for passing text as an argument to a function. APPLY_NOTHING can return some metadata about
+the model including a list of endpoints. APPLY_NAME can define specifics of an endpoint. APPLY_RAW and APPLY_TEXT can be used to
+select the favorite serialization format of the result. Therefore, the function interface should be considered as the whole range
+and not just: APPLY_FUNCTION
+*/
 StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
-	return SERVICE_NOT_IMPLEMENTED;
+
+	char buffer_2k[SIZE_BUFFER_REMOTE_CALL];
+	int	 ret;
+
+	switch (what.apply) {
+	case APPLY_NOTHING ... APPLY_TEXT:
+		if (what.l_node[0] != 0)
+			ret = p_channels->forward_get(p_txn, what.l_node, what.url);
+		else
+			ret = get_left_local(p_txn, what);
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
+			p_txn->p_owner->destroy_transaction(p_txn);
+
+			return SERVICE_ERROR_WRONG_ARGUMENTS;
+		}
+		return SERVICE_NO_ERROR;
+
+	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_TEXT:
+		if (what.r_node[0] != 0)
+			ret = get_right_remote(p_txn, what);
+		else
+			ret = get_right_local(p_txn, what);
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		if (what.l_node[0] != 0) {
+			sprintf(buffer_2k, "//%s/%s/%s", what.base, what.entity, what.key);
+
+			ret = p_channels->forward_put(what.l_node, buffer_2k, p_txn->p_block);
+		} else
+			ret = put_left_local(what, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		return ret;
+
+	case APPLY_ASSIGN_CONST:
+		if (what.l_node[0] != 0) {
+			ret = p_channels->forward_get(p_txn, what.l_node, what.url);
+		} else {
+			ret = get_right_local(p_txn, what);
+		}
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		ret = put_left_local(what, p_txn->p_block);
+		destroy_transaction(p_txn);
+
+		return ret;
+
+	case APPLY_NEW_ENTITY:
+		if (what.l_node[0] != 0) {
+			ret = p_channels->forward_get(p_txn, what.l_node, what.url);
+			if (ret == SERVICE_NO_ERROR)
+				p_channels->destroy_transaction(p_txn); }
+		else {
+			Locator	   loc;
+			pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
+
+			if (p_container == nullptr)
+				return SERVICE_ERROR_WRONG_BASE;
+
+			if (what.url[0] == 0) {
+				memcpy(&loc, &what.base, SIZE_OF_BASE_ENT_KEY);
+
+				ret = p_container->new_entity(loc);
+			} else
+				ret = p_container->new_entity((pChar) what.url);
+		}
+		return ret;
+
+	case APPLY_GET_ATTRIBUTE: {
+		if (what.l_node[0] != 0)
+			return p_channels->forward_get(p_txn, what.l_node, what.url);
+
+		Locator	   loc;
+		pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
+
+		if (p_container == nullptr)
+			return SERVICE_ERROR_WRONG_BASE;
+
+		memcpy(&loc, &what.base, SIZE_OF_BASE_ENT_KEY);
+
+		return p_container->get(p_txn, loc); }
+
+	case APPLY_SET_ATTRIBUTE:
+		if (what.l_node[0] != 0)
+			return p_channels->forward_get(p_txn, what.l_node, what.url);
+
+		Locator	   loc;
+		pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
+
+		if (p_container == nullptr)
+			return SERVICE_ERROR_WRONG_BASE;
+
+		memcpy(&loc, &what.base, SIZE_OF_BASE_ENT_KEY);
+
+		pTransaction p_aux;
+		if (ret = p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
+			return ret;
+
+		AttributeMap atts;
+		p_aux->p_block->get_attributes(&atts);
+
+		atts[what.r_value.attribute] = what.url;
+
+		ret = new_block(p_txn, p_aux->p_block, (pBlock) nullptr, &atts);
+		p_container->destroy_transaction(p_aux);
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		ret = p_container->put(loc, p_txn->p_block);
+
+		destroy_transaction(p_txn);
+
+		return ret;
+	}
+
+	return SERVICE_ERROR_WRONG_ARGUMENTS;
 }
 
 

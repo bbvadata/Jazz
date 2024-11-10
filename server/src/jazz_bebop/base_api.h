@@ -628,7 +628,6 @@ class BaseAPI : public Container {
 		pPersisted	p_persisted;	///< The Persisted container
 
 		TenBitPtrLUT base_server;	///< A LUT to convert TenBitsAtAddress(base) into a pContainer.
-
 };
 typedef BaseAPI *pBaseAPI;			///< A pointer to a BaseAPI
 
