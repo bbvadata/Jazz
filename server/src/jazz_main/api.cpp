@@ -337,97 +337,19 @@ MHD_StatusCode API::http_put(pChar p_upload, size_t size, ApiQueryState &q_state
 	if (unwrap_received(p_txn) != SERVICE_NO_ERROR)
 		return MHD_HTTP_INSUFFICIENT_STORAGE;
 
-//TODO: Move the rest to BaseAPI.put()
-
-	if (q_state.l_node[0] != 0) {
-		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block);
-
+	switch (put(q_state, p_txn->p_block)) {
+	case SERVICE_NO_ERROR:
 		destroy_transaction(p_txn);
+		return MHD_HTTP_CREATED;
 
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED;
-
-		return MHD_HTTP_BAD_GATEWAY;
-	}
-
-	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-	if (p_container == nullptr) {
+	case SERVICE_ERROR_WRONG_BASE:
 		destroy_transaction(p_txn);
-
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
-	}
 
-	Locator loc;
-
-	switch (q_state.apply) {
-	case APPLY_NOTHING: {
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		int ret = p_container->put(loc, p_txn->p_block);
-
+	default:
 		destroy_transaction(p_txn);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
-		return MHD_HTTP_BAD_GATEWAY;
-
-	case APPLY_RAW: {
-		pTransaction p_aux;
-
-		int ret = new_block(p_aux, p_txn->p_block, CELL_TYPE_UNDEFINED);
-
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		ret = p_container->put(loc, p_aux->p_block);
-
-		destroy_transaction(p_aux);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
-		return MHD_HTTP_BAD_GATEWAY;
-
-	case APPLY_TEXT: {
-		pTransaction p_aux;
-
-		int ret = new_block(p_aux, p_txn->p_block, nullptr, true);
-
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		ret = p_container->put(loc, p_aux->p_block);
-
-		destroy_transaction(p_aux);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
-		return MHD_HTTP_BAD_GATEWAY;
-
-	case APPLY_URL: {
-		int ret = p_container->put(q_state.url, p_txn->p_block);
-
-		destroy_transaction(p_txn);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
 		return MHD_HTTP_BAD_GATEWAY;
 	}
-	destroy_transaction(p_txn);
-
-	return MHD_HTTP_BAD_GATEWAY;
 }
 
 

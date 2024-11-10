@@ -816,9 +816,59 @@ NOTE: From an API perspective, put() only supports: APPLY_NOTHING, APPLY_RAW, AP
 */
 StatusCode BaseAPI::put(ApiQueryState &where, pBlock p_block, int mode) {
 
-//TODO: Implement BaseAPI::put
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if (where.l_node[0] != 0)
+		return p_channels->forward_put(where.l_node, where.url, p_block);
+
+	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(where.base)];
+
+	if (p_container == nullptr)
+		return SERVICE_ERROR_WRONG_BASE;
+
+	int			 ret;
+	Locator		 loc;
+	pTransaction p_aux;
+
+	switch (where.apply) {
+	case APPLY_NOTHING:
+		memcpy(&loc, &where.base, SIZE_OF_BASE_ENT_KEY);
+
+		return p_container->put(loc, p_block);
+
+	case APPLY_RAW:
+		ret = new_block(p_aux, p_block, CELL_TYPE_UNDEFINED);
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		memcpy(&loc, &where.base, SIZE_OF_BASE_ENT_KEY);
+
+		ret = p_container->put(loc, p_aux->p_block);
+
+		destroy_transaction(p_aux);
+
+		return ret;
+
+	case APPLY_TEXT:
+		ret = new_block(p_aux, p_block, nullptr, true);
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		memcpy(&loc, &where.base, SIZE_OF_BASE_ENT_KEY);
+
+		ret = p_container->put(loc, p_aux->p_block);
+
+		destroy_transaction(p_aux);
+
+		return ret;
+
+	case APPLY_URL:
+		return p_container->put(where.url, p_block);
+
+	default:
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
+	}
 }
 
 
