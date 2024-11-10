@@ -656,7 +656,7 @@ In the BaseAPI class, this implements all the apply cases from APPLY_NOTHING to 
 What the aseAPI class does is forwarding the request to the right container (if the base is found, returning SERVICE_ERROR_WRONG_BASE
 if not).
 
-In the descendants (Core and ModelsAPI) if should support the range from APPLY_NOTHING to APPLY_TEXT. This includes function calls
+In the descendants (Core and ModelsAPI) it should support the range from APPLY_NOTHING to APPLY_TEXT. This includes function calls
 APPLY_FUNCTION and APPLY_FUNCT_CONST, but also APPLY_FILTER and APPLY_FILT_CONST to select from the result of a function call.
 Also, APPLY_URL is very convenient for passing text as an argument to a function. APPLY_NOTHING can return some metadata about
 the model including a list of endpoints. APPLY_NAME can define specifics of an endpoint. APPLY_RAW and APPLY_TEXT can be used to
