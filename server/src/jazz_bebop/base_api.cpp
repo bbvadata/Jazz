@@ -661,7 +661,7 @@ APPLY_FUNCTION and APPLY_FUNCT_CONST, but also APPLY_FILTER and APPLY_FILT_CONST
 Also, APPLY_URL is very convenient for passing text as an argument to a function. APPLY_NOTHING can return some metadata about
 the model including a list of endpoints. APPLY_NAME can define specifics of an endpoint. APPLY_RAW and APPLY_TEXT can be used to
 select the favorite serialization format of the result. Therefore, the function interface should be considered as the whole range
-and not just: APPLY_FUNCTION
+and not just APPLY_FUNCTION.
 */
 StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 
@@ -793,7 +793,27 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 }
 
 
-StatusCode BaseAPI::put(ApiQueryState &where, pBlock p_block) {
+/** "API" interface for **Block storing**: This uses a parse()ed `where` and is the only BasePI + descendants PUT method.
+
+	\param where	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param p_block	A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
+					disc, PUT it via http, etc. The container does not own the pointer in any way.
+	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA returns
+					the error SERVICE_ERROR_WRONG_ARGUMENTS. (See NOTE below.
+
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+NOTE: The http API does not use mode, but everything in jazz_elements does. Especially, anything in Channels that uses http as a client
+makes intensive use of WRITE_AS_STRING, WRITE_AS_CONTENT, ... Also, it is nice that Persisted supports WRITE_ONLY_IF_EXISTS and
+WRITE_ONLY_IF_NOT_EXISTS to support things like one-time initialization or preventing undesired creation of new variables. Therefore,
+think twice before completely removing mode even if the http API does not use it. At Bebop level and model level, it can be used.
+
+NOTE: From an API perspective, put() only supports: APPLY_NOTHING, APPLY_RAW, APPLY_TEXT and APPLY_URL (both local and remote).
+*/
+StatusCode BaseAPI::put(ApiQueryState &where, pBlock p_block, int mode) {
+
+//TODO: Implement BaseAPI::put
+
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
