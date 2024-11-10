@@ -624,10 +624,10 @@ bool BaseAPI::parse_locator(Locator &loc, pChar p_url) {
 // -----------------------
 
 
-/** "API" interface **metadata of a Block** retrieval. This uses a parse()ed what and is the only BasePI + descendants GET method.
+/** "API" interface **metadata of a Block** retrieval. This uses a parse()d what and is the only BasePI + descendants GET method.
 
 	\param hea	A StaticBlockHeader structure that will receive the metadata.
-	\param what	Some successfully parse()ed ApiQueryState that also distinguishes API interface from Container interface.
+	\param what	Some successfully parse()d ApiQueryState that also distinguishes API interface from Container interface.
 
 	\return	SERVICE_NO_ERROR on success (and a valid hea), or some negative value (error).
 
@@ -644,11 +644,11 @@ StatusCode BaseAPI::header(StaticBlockHeader &hea, ApiQueryState &what) {
 }
 
 
-/** "API" interface **complete Block** retrieval. This uses a parse()ed what and is the only BasePI + descendants GET method.
+/** "API" interface **complete Block** retrieval. This uses a parse()d what and is the only BasePI + descendants GET method.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 					Transaction inside the Container.
-	\param what		Some successfully parse()ed ApiQueryState that also distinguishes API interface from Container interface.
+	\param what		Some successfully parse()d ApiQueryState that also distinguishes API interface from Container interface.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -793,9 +793,9 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 }
 
 
-/** "API" interface for **Block storing**: This uses a parse()ed `where` and is the only BasePI + descendants PUT method.
+/** "API" interface for **Block storing**: This uses a parse()d `where` and is the only BasePI + descendants PUT method.
 
-	\param where	Some string that as_locator() can parse into a Locator. E.g. //base/entity/key
+	\param where	Some successfully parse()d ApiQueryState that also distinguishes API interface from Container interface.
 	\param p_block	A block to be stored. Notice it is a block, not a Transaction. If necessary, the Container will make a copy, write to
 					disc, PUT it via http, etc. The container does not own the pointer in any way.
 	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA returns
@@ -818,17 +818,26 @@ StatusCode BaseAPI::put(ApiQueryState &where, pBlock p_block, int mode) {
 }
 
 
-StatusCode BaseAPI::new_entity(ApiQueryState &where) {
-	return SERVICE_NOT_IMPLEMENTED;
-}
+/** The "API" interface: This uses a parse()d `what` and
 
+	\param what Some successfully parse()d ApiQueryState that also distinguishes API interface from Container interface.
 
+	\return	SERVICE_NO_ERROR on success or some negative value (error).
+
+Internals
+---------
+
+It supports any successful HTTP_PUT syntax, that is:
+
+APPLY_NOTHING: With or without node, mandatory base and entity, with of without a key.
+APPLY_URL: With or without node and just a base.
+
+In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
+*/
 StatusCode BaseAPI::remove(ApiQueryState &what) {
-	return SERVICE_NOT_IMPLEMENTED;
-}
 
+//TODO: Implement BaseAPI::remove
 
-StatusCode BaseAPI::copy(ApiQueryState&what) {
 	return SERVICE_NOT_IMPLEMENTED;
 }
 

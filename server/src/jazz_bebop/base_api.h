@@ -143,17 +143,14 @@ class BaseAPI : public Container {
 
 		// API Container interface
 
-		virtual StatusCode header	   (StaticBlockHeader &hea,
-										ApiQueryState	  &what);
-		virtual StatusCode get		   (pTransaction	  &p_txn,
-										ApiQueryState	  &what);
-		virtual StatusCode put		   (ApiQueryState	  &where,
-										pBlock			   p_block,
-										int				   mode = WRITE_AS_BASE_DEFAULT);
-		virtual StatusCode new_entity  (ApiQueryState	  &where);
-		virtual StatusCode remove	   (ApiQueryState	  &what);
-		virtual StatusCode copy		   (ApiQueryState	  &what);
-
+		virtual StatusCode header  (StaticBlockHeader &hea,
+									ApiQueryState	  &what);
+		virtual StatusCode get	   (pTransaction	  &p_txn,
+									ApiQueryState	  &what);
+		virtual StatusCode put	   (ApiQueryState	  &where,
+									pBlock			   p_block,
+									int				   mode = WRITE_AS_BASE_DEFAULT);
+		virtual StatusCode remove  (ApiQueryState	  &what);
 
 #ifndef CATCH_TEST
 	protected:
