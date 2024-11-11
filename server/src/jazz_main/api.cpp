@@ -429,7 +429,14 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 
 		switch (p_base_api->get(p_txn, q_state)) {
 		case SERVICE_NO_ERROR:
+			// This condition is required by http. The BaseAPI::get() can return an index block.
+			if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
+				p_txn->p_owner->destroy_transaction(p_txn);
+
+				return MHD_HTTP_BAD_REQUEST;
+			}
 			break;
+
 		case SERVICE_ERROR_WRONG_ARGUMENTS:
 			return MHD_HTTP_BAD_REQUEST;
 		default:

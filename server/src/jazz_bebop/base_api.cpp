@@ -698,22 +698,14 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 
 	int	ret;
 
+	p_txn = nullptr;
+
 	switch (what.apply) {
 	case APPLY_NOTHING ... APPLY_TEXT:
 		if (what.l_node[0] != 0)
-			ret = p_channels->forward_get(p_txn, what.l_node, what.url);
-		else
-			ret = get_left_local(p_txn, what);
+			return p_channels->forward_get(p_txn, what.l_node, what.url);
 
-		if (ret != SERVICE_NO_ERROR)
-			return ret;
-
-		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
-			p_txn->p_owner->destroy_transaction(p_txn);
-
-			return SERVICE_ERROR_WRONG_ARGUMENTS;
-		}
-		return SERVICE_NO_ERROR;
+		return get_left_local(p_txn, what);
 
 	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_TEXT:
 		if (what.r_node[0] != 0)
@@ -763,8 +755,6 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 		else {
 			Locator	   loc;
 			pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
-
-			p_txn  = nullptr;
 
 			if (p_container == nullptr)
 				return SERVICE_ERROR_WRONG_BASE;
