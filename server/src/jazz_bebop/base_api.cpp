@@ -636,9 +636,42 @@ NOTE: It only supports APPLY_NOTHING and APPLY_NAME. It is used by Core to check
 */
 StatusCode BaseAPI::header(StaticBlockHeader &hea, ApiQueryState &what) {
 
-//TODO: Implement BaseAPI::header
+	switch (what.apply) {
+	case APPLY_NOTHING:
+	case APPLY_NAME:
+		break;
+	default:
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
+	}
 
-	return SERVICE_NOT_IMPLEMENTED;
+	if (what.l_node[0] != 0) {
+		pTransaction p_txn;
+		int ret = p_channels->forward_get(p_txn, what.l_node, what.url);
+		if (ret == SERVICE_NO_ERROR) {
+			memcpy(&hea, p_txn->p_block, sizeof(StaticBlockHeader));
+			p_channels->destroy_transaction(p_txn);
+		}
+		return ret;
+	}
+
+	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
+
+	if (p_container == nullptr)
+		return SERVICE_ERROR_WRONG_BASE;
+
+	Locator loc;
+	memcpy(&loc, &what.base, SIZE_OF_BASE_ENT_KEY);
+
+	if (what.apply == APPLY_NOTHING)
+		return p_container->header(hea, loc);
+
+	pTransaction p_txn;
+	int ret = p_container->get(p_txn, loc, what.name);
+	if (ret == SERVICE_NO_ERROR) {
+		memcpy(&hea, p_txn->p_block, sizeof(StaticBlockHeader));
+		p_container->destroy_transaction(p_txn);
+	}
+	return ret;
 }
 
 
