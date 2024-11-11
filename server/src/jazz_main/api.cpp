@@ -378,39 +378,16 @@ MHD_StatusCode API::http_delete(ApiQueryState &q_state) {
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-//TODO: Move the rest to BaseAPI.remove()
+	switch (remove(q_state)) {
+	case SERVICE_NO_ERROR:
+		return MHD_HTTP_OK;
 
-	if (q_state.l_node[0] != 0) {
-		if (p_channels->forward_del(q_state.l_node, q_state.url) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK;
-
-		return MHD_HTTP_NOT_FOUND;
-	}
-
-	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-	if (p_container == nullptr)
+	case SERVICE_ERROR_WRONG_BASE:
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-	switch (q_state.apply) {
-	case APPLY_NOTHING: {
-		Locator loc;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		if (p_container->remove(loc) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK; }
-
-		return MHD_HTTP_NOT_FOUND;
-
-	case APPLY_URL:
-		if (p_container->remove((pChar) q_state.url) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK;
-
+	default:
 		return MHD_HTTP_NOT_FOUND;
 	}
-
-	return MHD_HTTP_NOT_FOUND;
 }
 
 

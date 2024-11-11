@@ -142,8 +142,6 @@ pChar const BaseAPI::id() {
 */
 StatusCode BaseAPI::start() {
 
-//TODO: Once everything is implemented, consider if a separate configuration is needed for BaseAPI specifically.
-
 	int ret = Container::start();	// This initializes the one-shot functionality.
 
 	if (ret != SERVICE_NO_ERROR)
@@ -887,13 +885,31 @@ It supports any successful HTTP_PUT syntax, that is:
 APPLY_NOTHING: With or without node, mandatory base and entity, with of without a key.
 APPLY_URL: With or without node and just a base.
 
-In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
+In all cases, calls with a node (it can only be l_node) `what.url` contains exactly what has to be forwarded.
 */
 StatusCode BaseAPI::remove(ApiQueryState &what) {
 
-//TODO: Implement BaseAPI::remove
+	if (what.l_node[0] != 0)
+		return p_channels->forward_del(what.l_node, what.url);
 
-	return SERVICE_NOT_IMPLEMENTED;
+	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
+
+	if (p_container == nullptr)
+		return SERVICE_ERROR_WRONG_BASE;
+
+	Locator loc;
+
+	switch (what.apply) {
+	case APPLY_NOTHING:
+		memcpy(&loc, &what.base, SIZE_OF_BASE_ENT_KEY);
+
+		return p_container->remove(loc);
+	case APPLY_URL:
+		return p_container->remove((pChar) what.url);
+
+	default:
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
+	}
 }
 
 // Protected methods
