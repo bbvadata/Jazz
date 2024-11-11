@@ -2662,7 +2662,138 @@ SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
 
 	REQUIRE(BAPI.start() == 0);
 
-	// ...
+	GIVEN("The BaseAPI is running") {
+		pChar pID = BAPI.id();
+		REQUIRE(strlen(pID) > 7);
+		REQUIRE(pID[0] == 'B');
+
+		pTransaction  p_txn;
+		ApiQueryState q_state;
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi.new", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl1=&[[1,0],[0,1]];", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl2=&[0,0,0,1];", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.block_from_const(p_txn, (pChar) "(echo \"2 + 2 = $(expr 2 + 2)\")", true));
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_PUT));
+		REQUIRE(BAPI.put(q_state, p_txn->p_block) == SERVICE_NO_ERROR);
+		p_txn->p_owner->destroy_transaction(p_txn);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+		p_txn->p_owner->destroy_transaction(p_txn);
+		REQUIRE(p_txn == nullptr);
+
+		WHEN("We test header()") {
+			StaticBlockHeader hea;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//no_base/tt3bapi/key.attribute(1)", BASE_API_GET));
+			REQUIRE(BAPI.header(hea, q_state) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state)  == SERVICE_NO_ERROR);
+			REQUIRE(BAPI.header(hea, q_state) == SERVICE_NO_ERROR);
+
+			REQUIRE(memcmp(&hea, p_txn->p_block, sizeof(StaticBlockHeader)) == 0);
+
+			p_txn->p_owner->destroy_transaction(p_txn);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3:input", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state)  == SERVICE_NO_ERROR);
+			REQUIRE(BAPI.header(hea, q_state) == SERVICE_NO_ERROR);
+
+			REQUIRE(memcmp(&hea, p_txn->p_block, sizeof(StaticBlockHeader)) == 0);
+
+			p_txn->p_owner->destroy_transaction(p_txn);
+			REQUIRE(p_txn == nullptr);
+
+			REQUIRE(BAPI.parse(q_state, (pChar) "//no_lmdb/tt3bapi/bl3", BASE_API_GET));
+			REQUIRE(BAPI.header(hea, q_state) == SERVICE_ERROR_WRONG_BASE);
+
+			REQUIRE(BAPI.parse(q_state, (pChar) "///www//no_lmdb/tt3bapi/bl3", BASE_API_GET));
+			REQUIRE(BAPI.header(hea, q_state) != SERVICE_NO_ERROR);
+		}
+
+		WHEN("We test get()") {
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/kaka_db/bl1=&[[1,0],[0,1]];", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) != SERVICE_NO_ERROR);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//no_base/tt3bapi.new", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//no_base/tt3bapi/key.attribute(1)", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//no_base/tt3bapi/key.attribute(1)=&text/html;", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3.attribute(1)=&text/html;", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl99.attribute(1)=&text/html;", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(p_txn == nullptr);
+
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_GET));
+			q_state.apply = APPLY_JAZZ_INFO;
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_ERROR_WRONG_ARGUMENTS);
+			REQUIRE(p_txn == nullptr);
+		}
+
+		WHEN("We test put()") {
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+
+			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_PUT));
+			q_state.apply = APPLY_JAZZ_INFO;
+			REQUIRE(BAPI.put(q_state, p_txn->p_block) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			p_txn->p_owner->destroy_transaction(p_txn);
+			REQUIRE(p_txn == nullptr);
+		}
+
+		WHEN("We test remove()") {
+			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_DELETE));
+			q_state.apply = APPLY_JAZZ_INFO;
+			REQUIRE(BAPI.remove(q_state) == SERVICE_ERROR_WRONG_ARGUMENTS);
+		}
+
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi", BASE_API_DELETE));
+		REQUIRE(BAPI.remove(q_state) == SERVICE_NO_ERROR);
+	}
 
 	REQUIRE(BAPI.shut_down() == 0);
 
