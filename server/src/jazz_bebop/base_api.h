@@ -80,9 +80,9 @@ using namespace jazz_elements;
 #define PSTATE_IN_ENTITY					 7	///< Name starts after / + letter, stays with valid char
 #define PSTATE_KEY0							 8	///< Already seen / after reading an entity
 #define PSTATE_IN_KEY						 9	///< Name starts after / + letter, stays with valid char
-#define PSTATE_INFO_SWITCH					10	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
-#define PSTATE_BASE_SWITCH					11	///< Found # while reading a base
-#define PSTATE_ENT_SWITCH					12	///< Found # while reading a base
+#define PSTATE_INFO_SWITCH					10	///< The final switch inside or after a key: END
+#define PSTATE_BASE_SWITCH					11	///< Found # while reading a base (PSTATE_IN_BASE)
+#define PSTATE_ENT_SWITCH					12	///< Found # while reading an entity (PSTATE_IN_ENTITY)
 #define PSTATE_KEY_SWITCH					13	///< The final switch inside or after a key: END, =, ., :, [, [&, (, or (&
 #define PSTATE_FAILED						98	///< Set by the parser on any error (possibly in the r_value too)
 #define PSTATE_COMPLETE_OK					99	///< Set by the parser on complete success
@@ -161,15 +161,15 @@ class BaseAPI : public Container {
 
 		/** Copy the string "as-is" (without percent-decoding) a string into a buffer.
 
-			\param p_buff	 A buffer to store the result. This first char must be a zero on call or it will not write anything, just check for
-							 the return code and return. (This is a trick to avoid overriding the buffer in forward call. This function is an
-							 internal part of parse().)
+			\param p_buff	 A buffer to store the result. This first char must be a zero on call or it will not write anything, just
+							 check for the return code and return. (This is a trick to avoid overriding the buffer in forward call. This
+							 function is an internal part of parse().)
 			\param buff_size The size of the output buffer (ending zero included).
 			\param p_url	 The input string.
 			\param p_base	 (optional) Prefix with a base to be prefixed
 
-			\return			 RET_MV_CONST_FAILED on error (buffer sizes or start and final characters), RET_MV_CONST_NOTHING normal moving or
-							 RET_MV_CONST_NEW_ENTITY there is a ";.new" ending and no errors.
+			\return			 RET_MV_CONST_FAILED on error (buffer sizes or start and final characters), RET_MV_CONST_NOTHING normal moving
+							 or RET_MV_CONST_NEW_ENTITY there is a ";.new" ending and no errors.
 
 		Note: This replaces expand_url_encoded() since the string passed to parse() is already %-decoded by libmicrohttpd.
 		*/
