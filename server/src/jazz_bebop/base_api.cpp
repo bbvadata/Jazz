@@ -848,7 +848,6 @@ NOTE: From an API perspective, put() only supports: APPLY_NOTHING, APPLY_RAW, AP
 */
 StatusCode BaseAPI::put(ApiQueryState &where, pBlock p_block, int mode) {
 
-
 	if (where.l_node[0] != 0)
 		return p_channels->forward_put(where.l_node, where.url, p_block);
 

@@ -767,6 +767,15 @@ SCENARIO("Testing API.parse") {
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
+		hqs.r_value.entity[0] = 1;
+		hqs.r_value.key[0]	  = 1;
+		REQUIRE(TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_en]", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+
+		REQUIRE(strcmp(hqs.r_value.entity, "r_en") == 0);
+		REQUIRE(hqs.r_value.key[0] == 0);
+
 		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_ent/r_key", HTTP_PUT));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);

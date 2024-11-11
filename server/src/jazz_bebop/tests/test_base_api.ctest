@@ -2175,6 +2175,10 @@ SCENARIO("Testing BaseAPI.parse") {
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
 		hqs.state = PSTATE_COMPLETE_OK;
+		REQUIRE(!BAPI.parse(hqs, (pChar) "//base3/ent2/key4=//r_base/r_ent.", BASE_API_GET));
+		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.state = PSTATE_COMPLETE_OK;
 		REQUIRE(!BAPI.parse(hqs, (pChar) "//base_s3/entity2/key4=//r_base/r_ent/r_key", BASE_API_DELETE));
 		REQUIRE(hqs.state == PSTATE_FAILED);
 
@@ -2439,11 +2443,85 @@ SCENARIO("Testing BaseAPI.parse") {
 }
 
 
+SCENARIO("Testing BaseAPI protected: move_const(), get_right_local(), get_right_remote(), get_left_local() and put_left_local()") {
+
+	REQUIRE(BAPI.start() == 0);
+
+	GIVEN("The BaseAPI is running") {
+		pChar pID = BAPI.id();
+		REQUIRE(strlen(pID) > 7);
+		REQUIRE(pID[0] == 'B');
+
+		WHEN("We test move_const()") {
+			char buff[1024] = {"What?"};
+			REQUIRE(BAPI.move_const(buff, 1023, (pChar) "&this;") == RET_MV_CONST_NOTHING);
+			REQUIRE(strcmp(buff, "What?") == 0);	// Doing nothing and returning ok when output is already created is expected behavior.
+
+			THEN("We get the right return values") {
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 1023, (pChar) "&this;") == RET_MV_CONST_NOTHING);
+				REQUIRE(strcmp(buff, "this") == 0);
+
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 1023, (pChar) "&this;", (pChar) "that") == RET_MV_CONST_NOTHING);
+				REQUIRE(strcmp(buff, "//that/this") == 0);
+
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 1023, (pChar) "this;") == RET_MV_CONST_FAILED);
+				REQUIRE(buff[0]	== 0);
+
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 1023, (pChar) "&this;.new") == RET_MV_CONST_NEW_ENTITY);
+				REQUIRE(strcmp(buff, "this") == 0);
+
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 1023, (pChar) "&this;.jew") == RET_MV_CONST_FAILED);
+				REQUIRE(buff[0]	== 0);
+
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 8, (pChar) "&this;", (pChar) "that") == RET_MV_CONST_FAILED);
+				REQUIRE(buff[0]	== 0);
+
+				buff[0]	= 0;
+				REQUIRE(BAPI.move_const(buff, 30, (pChar) "&1234567890abcdefghij1234567890abcdef;") == RET_MV_CONST_FAILED);
+				REQUIRE(buff[0]	== 0);
+			}
+		}
+
+		WHEN("We test get_right_local()") {
+			THEN("We get the right return values") {
+			}
+		}
+
+		WHEN("We test get_right_remote()") {
+			ApiQueryState  q_state;
+
+			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_GET));
+
+			THEN("We get the right return values") {
+			}
+		}
+
+		WHEN("We test get_left_local()") {
+			THEN("We get the right return values") {
+			}
+		}
+
+		WHEN("We test put_left_local()") {
+			THEN("We get the right return values") {
+			}
+		}
+
+	}
+
+	REQUIRE(BAPI.shut_down() == 0);
+}
+
+
 SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
 
 	REQUIRE(1 < 2);
 
-//TODO: Implement this test
 }
 
 
