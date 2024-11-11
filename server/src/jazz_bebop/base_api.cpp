@@ -751,7 +751,6 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 
 			ret = put_left_local(what, p_txn->p_block);
 		}
-
 		destroy_transaction(p_txn);
 
 		return ret;
@@ -764,6 +763,8 @@ StatusCode BaseAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 		else {
 			Locator	   loc;
 			pContainer p_container = (pContainer) base_server[TenBitsAtAddress(what.base)];
+
+			p_txn  = nullptr;
 
 			if (p_container == nullptr)
 				return SERVICE_ERROR_WRONG_BASE;

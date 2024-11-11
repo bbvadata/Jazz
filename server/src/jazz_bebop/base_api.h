@@ -248,7 +248,6 @@ class BaseAPI : public Container {
 
 			pTransaction p_aux;
 			pContainer	 p_container, p_aux_cont;
-			Name		 ent;
 
 			if (q_state.apply == APPLY_ASSIGN_CONST)
 				return block_from_const(p_txn, q_state.url) ? SERVICE_NO_ERROR : SERVICE_ERROR_WRONG_ARGUMENTS;
@@ -283,7 +282,7 @@ class BaseAPI : public Container {
 
 						return SERVICE_ERROR_IO_ERROR;
 					}
-					strcpy(ent, "result");
+					Name ent = {"result"};
 					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
 						p_aux_cont->destroy_transaction(p_aux);
 
@@ -310,7 +309,7 @@ class BaseAPI : public Container {
 
 						return SERVICE_ERROR_IO_ERROR;
 					}
-					strcpy(ent, "result");
+					Name ent = {"result"};
 					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
 						destroy_transaction(p_aux);
 
@@ -453,7 +452,6 @@ class BaseAPI : public Container {
 			Locator		 loc;
 			pTransaction p_aux;
 			pContainer	 p_container, p_aux_cont;
-			Name		 ent;
 
 			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
 
@@ -488,7 +486,7 @@ class BaseAPI : public Container {
 
 						return SERVICE_ERROR_IO_ERROR;
 					}
-					strcpy(ent, "result");
+					Name ent = {"result"};
 					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
 						p_aux_cont->destroy_transaction(p_aux);
 
@@ -516,7 +514,7 @@ class BaseAPI : public Container {
 
 						return SERVICE_ERROR_IO_ERROR;
 					}
-					strcpy(ent, "result");
+					Name ent = {"result"};
 					if (new_block(p_txn, (pTuple) p_aux->p_block, ent) != SERVICE_NO_ERROR) {
 						destroy_transaction(p_aux);
 
