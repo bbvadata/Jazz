@@ -38,6 +38,7 @@
 #ifndef INCLUDED_JAZZ_BEBOP
 #define INCLUDED_JAZZ_BEBOP
 
+//TODO: Review valgrind output and either fix or generate suppressions as explained in dynamic_analysis.sh
 
 /** \brief Includes everything in namespace jazz_bebop.
 
