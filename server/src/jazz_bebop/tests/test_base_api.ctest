@@ -2445,12 +2445,56 @@ SCENARIO("Testing BaseAPI.parse") {
 
 SCENARIO("Testing BaseAPI protected: move_const(), get_right_local(), get_right_remote(), get_left_local() and put_left_local()") {
 
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(BAPI.p_channels	 == &CHN);
+		REQUIRE(BAPI.p_volatile	 == &VOL);
+		REQUIRE(BAPI.p_persisted == &PER);
+	}
+
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
+	REQUIRE(PER.start() == 0);
+
 	REQUIRE(BAPI.start() == 0);
 
 	GIVEN("The BaseAPI is running") {
 		pChar pID = BAPI.id();
 		REQUIRE(strlen(pID) > 7);
 		REQUIRE(pID[0] == 'B');
+
+		pTransaction  p_txn;
+		ApiQueryState q_state;
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi.new", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl1=&[[1,0],[0,1]];", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl2=&[0,0,0,1];", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.block_from_const(p_txn, (pChar) "(echo \"2 + 2 = $(expr 2 + 2)\")", true));
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_PUT));
+		REQUIRE(BAPI.put(q_state, p_txn->p_block) == SERVICE_NO_ERROR);
+		p_txn->p_owner->destroy_transaction(p_txn);
+		REQUIRE(p_txn == nullptr);
+
+		p_txn = (pTransaction) &q_state;
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
+		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+		p_txn->p_owner->destroy_transaction(p_txn);
+		REQUIRE(p_txn == nullptr);
 
 		WHEN("We test move_const()") {
 			char buff[1024] = {"What?"};
@@ -2489,39 +2533,142 @@ SCENARIO("Testing BaseAPI protected: move_const(), get_right_local(), get_right_
 		}
 
 		WHEN("We test get_right_local()") {
+
+			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key=//r_base/r_entity/r_key(//t_base/t_entity/t_key)", BASE_API_GET));
+			REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+
 			THEN("We get the right return values") {
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//no_base/no_ent/key(//lmdb/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//lmdb/tt3bapi/bl99(//no_base/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//lmdb/tt3bapi/bl99(//lmdb/tt3bapi/bl22)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//lmdb/tt3bapi/bl99(//lmdb/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//bash/exec/(//lmdb/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//bash/exec/(//lmdb/tt3bapi/bl3)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+				REQUIRE(strcmp((char *) &p_txn->p_block->tensor.cell_byte, "2 + 2 = 4\n") == 0);
+				p_txn->p_owner->destroy_transaction(p_txn);
+				REQUIRE(p_txn == nullptr);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//bash/exec/(&echo \"2 + 2 = $(expr 2 + 2)\")", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+				REQUIRE(strcmp((char *) &p_txn->p_block->tensor.cell_byte, "2 + 2 = 4\n") == 0);
+				p_txn->p_owner->destroy_transaction(p_txn);
+				REQUIRE(p_txn == nullptr);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//bash/exec/(&h23k71p39 2>/dev/null)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl9=//bash/exec/key(&aaa)", BASE_API_GET));
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_GET));
+				q_state.apply = APPLY_JAZZ_INFO;
+				REQUIRE(BAPI.get_right_local(p_txn, q_state) == SERVICE_ERROR_MISC_SERVER);
 			}
 		}
 
 		WHEN("We test get_right_remote()") {
-			ApiQueryState  q_state;
-
-			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_GET));
-
 			THEN("We get the right return values") {
+				REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_GET));
+				q_state.apply = APPLY_JAZZ_INFO;
+				REQUIRE(BAPI.get_right_remote(p_txn, q_state) == SERVICE_ERROR_WRONG_ARGUMENTS);
+				// Every other functionality is tested via ./test_cluster.sh
 			}
 		}
 
 		WHEN("We test get_left_local()") {
+			REQUIRE(BAPI.parse(q_state, (pChar) "//no_base/entity/key", BASE_API_GET));
+			REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+
 			THEN("We get the right return values") {
+				REQUIRE(BAPI.parse(q_state, (pChar) "//no_base/no_ent/key(//lmdb/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl99(//no_base/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_WRONG_BASE);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl99(//lmdb/tt3bapi/bl22)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl99(//lmdb/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//bash/exec/(//lmdb/tt3bapi/bl2)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+				REQUIRE(BAPI.parse(q_state, (pChar) "//bash/exec/(//lmdb/tt3bapi/bl3)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+				REQUIRE(strcmp((char *) &p_txn->p_block->tensor.cell_byte, "2 + 2 = 4\n") == 0);
+				p_txn->p_owner->destroy_transaction(p_txn);
+				REQUIRE(p_txn == nullptr);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//bash/exec/(&echo \"2 + 2 = $(expr 2 + 2)\")", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+				REQUIRE(strcmp((char *) &p_txn->p_block->tensor.cell_byte, "2 + 2 = 4\n") == 0);
+				p_txn->p_owner->destroy_transaction(p_txn);
+				REQUIRE(p_txn == nullptr);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//bash/exec/(&h23k71p39 2>/dev/null)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//bash/exec/key(&aaa)", BASE_API_GET));
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_IO_ERROR);
+
+				REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_GET));
+				q_state.apply = APPLY_JAZZ_INFO;
+				REQUIRE(BAPI.get_left_local(p_txn, q_state) == SERVICE_ERROR_MISC_SERVER);
 			}
 		}
 
 		WHEN("We test put_left_local()") {
+			p_txn = (pTransaction) &q_state;
+			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl2", BASE_API_GET));
+			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INTEGER);
 			THEN("We get the right return values") {
+				REQUIRE(BAPI.parse(q_state, (pChar) "//kaka/tt3bapi/bl2", BASE_API_PUT));
+				REQUIRE(BAPI.put_left_local(q_state, p_txn->p_block) == SERVICE_ERROR_WRONG_BASE);
 			}
+			p_txn->p_owner->destroy_transaction(p_txn);
 		}
 
+		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi", BASE_API_DELETE));
+		REQUIRE(BAPI.remove(q_state) == SERVICE_NO_ERROR);
 	}
 
 	REQUIRE(BAPI.shut_down() == 0);
+
+	REQUIRE(CHN.shut_down() == 0);
+	REQUIRE(VOL.shut_down() == 0);
+	REQUIRE(PER.shut_down() == 0);
 }
 
 
 SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
 
-	REQUIRE(1 < 2);
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(BAPI.p_channels	 == &CHN);
+		REQUIRE(BAPI.p_volatile	 == &VOL);
+		REQUIRE(BAPI.p_persisted == &PER);
+	}
 
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
+	REQUIRE(PER.start() == 0);
+
+	REQUIRE(BAPI.start() == 0);
+
+	// ...
+
+	REQUIRE(BAPI.shut_down() == 0);
+
+	REQUIRE(CHN.shut_down() == 0);
+	REQUIRE(VOL.shut_down() == 0);
+	REQUIRE(PER.shut_down() == 0);
 }
 
 
