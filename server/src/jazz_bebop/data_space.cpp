@@ -46,8 +46,9 @@ namespace jazz_bebop
 
 	\param a_logger		A pointer to the logger.
 	\param a_config		A pointer to the configuration.
+	\param an_api		A pointer to the BaseAPI.
 */
-DataSpace::DataSpace(pLogger a_logger, pConfigFile a_config) : Space(a_logger, a_config) {}
+DataSpace::DataSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api) : Space(a_logger, a_config, an_api) {}
 
 DataSpace::~DataSpace() { destroy_container(); }
 

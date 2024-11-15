@@ -64,7 +64,7 @@ class DataSpace : public Space {
 
 	public:
 
-		DataSpace(pLogger a_logger, pConfigFile a_config);
+		DataSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api);
 	   ~DataSpace();
 };
 typedef DataSpace *pDataSpace;		///< A pointer to a DataSpace
