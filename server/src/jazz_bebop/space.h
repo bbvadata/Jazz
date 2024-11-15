@@ -48,19 +48,92 @@
 #define INCLUDED_JAZZ_BEBOP_SPACE
 
 
-/** \brief The abstract parent of DataSpace and SemSpace.
-
-	This is the abstract parent of DataSpace and SemSpace.
-
-	\see DataSpace, SemSpace
-*/
-
 namespace jazz_bebop
 {
 
+typedef uint64_t RowNumber;		///< A row number in a Space
+typedef Name	 ColumnName;	///< A column name in a Space
+
+#define SPACE_NOT_A_ROW				0xffffFFFFffffFFFE	///< A row number that is not valid used for initialization.
+#define SPACE_ROW_STOP_ITERATOR		0xffffFFFFffffFFFF	///< A row number returned by the iterator when it is done.
+
+
+class Space;					///< Forward definition of Space
+typedef Space *pSpace;			///< A pointer to a Space
+
+
+/** \brief RowSelection: An iterator over the rows of a Space.
+
+	This is an abstract class that provides the interface of an iterator over rows. The where() method of a Space returns a RowSelection
+	descendant that is compatible with this interface.
+
+	\see Space
+
+*/
+class RowSelection {
+
+	/** \brief The constructor for a RowSelection.
+
+		\param query	A query string that is understood by the descendant. In Bop, this is the content of a WHERE clause with a syntax
+					    that depends on how the Space is indexed (Time, categorical, Embedding storage, ...).
+		\param p_space	The Space that created the object and is being queried.
+	*/
+	RowSelection(pChar query, pSpace p_space) {}
+
+	/** \brief Restart the iterator.
+
+		\return True if the iterator was successfully restarted, false if it is not possible.
+	*/
+	virtual bool restart() {
+		return false;
+	}
+
+	/** \brief Get the next row.
+
+		\return The next row number or SPACE_ROW_STOP_ITERATOR if the iteration is exhausted.
+	*/
+	virtual RowNumber next() {
+		return SPACE_ROW_STOP_ITERATOR;
+	}
+};
+typedef RowSelection *pRowSelection;	///< A pointer to a RowSelection
+
+
+/** \brief ColSelection: A selection of columns from a Space.
+
+	The interface is consistent with RowSelection, but unlike RowSelection the parent class is probably all you need.
+
+	\see Space
+
+*/
+class ColSelection {
+
+	/** \brief The constructor for a ColSelection.
+
+		\param query	By default, a list of comma separated column names. A descendant may define a different interface.
+						In Bop, this is the content of a SELECT clause.
+		\param p_space	This is not used in the parent class, but provided to a hypothetical descendant. (May be removed in the future.)
+	*/
+	ColSelection(pChar query, pSpace p_space);
+
+	virtual bool restart();
+
+	virtual pName next();
+};
+typedef ColSelection *pColSelection;	///< A pointer to a ColSelection
+
+
 /** \brief Space: The abstract space.
 
-	This is the abstract parent of DataSpace and SemSpace.
+	This is the abstract parent of DataSpace and SemSpace. A Space is an abstraction over many blocks that provides:
+
+	- An abstraction in the form of rows and columns.
+	- Sharding and replication across a cluster.
+	- A mechanism to load, update, invalidate blocks. This supports continuous update like in time series.
+	- A mechanism to load and update its own metadata in a persisted way.
+
+	The class Space is mostly empty. It provides the parent virtual interface and the parents of all the auxiliary classes used
+	to access data.
 
 	\see DataSpace, SemSpace
 
@@ -69,14 +142,50 @@ class Space : public Container {
 
 	public:
 
-		Space(pLogger a_logger, pConfigFile a_config);
+	// Container interface
+
+		Space(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api);
+//TODO: Define alternative constructors for building a Space from just its name.
+//TODO: Define a mechanism for extra arguments. ???
 	   ~Space();
 
 		StatusCode start	();
 		StatusCode shut_down();
 
+	// Persistence interface
+
+//TODO: Define how Space stores its metadata.
+
+	// Internal interface for ColSelection to have access to data by rows.
+
+//TODO: Define internal interface for ColSelection to have access to data by rows.
+
+
+	// Space interface
+
+	/** \brief Get a RowSelection from a query.
+
+		\param query	A query string that is understood by the descendant. In Bop, this is the content of a WHERE clause with a syntax
+						that depends on how the Space is indexed (Time, categorical, Embedding storage, ...).
+
+		\return A RowSelection object that can be used to iterate over the rows that match the query.
+	*/
+	virtual pRowSelection where(pChar query) {
+		return nullptr;
+	}
+
+	/** \brief Get a ColSelection from a query.
+
+		\param query By default, a list of comma separated column names. Spaces that use descendants of ColSelection may define a
+					 different interface.
+		\return A ColSelection object that can be used to iterate over the selected columns.
+	*/
+	virtual pColSelection select(pChar query) {
+		return nullptr;
+	}
+
+//TODO: Complete the Space interface.
 };
-typedef Space *pSpace;		///< A pointer to a Space
 
 } // namespace jazz_bebop
 
