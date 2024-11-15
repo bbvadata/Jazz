@@ -61,7 +61,7 @@ class SemSpace : public Space {
 
 	public:
 
-		SemSpace(pLogger a_logger, pConfigFile a_config);
+		SemSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api);
 	   ~SemSpace();
 };
 typedef SemSpace *pSemSpace;		///< A pointer to a SemSpace
