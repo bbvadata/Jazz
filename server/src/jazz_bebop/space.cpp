@@ -41,6 +41,37 @@ namespace jazz_bebop
 using namespace jazz_elements;
 
 /*	-----------------------------------------------
+	 ColSelection : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+ColSelection::ColSelection(pChar query, pSpace p_space) {
+//TODO: Implement ColSelection::ColSelection()
+}
+
+
+/** \brief ColSelection: Restart the iterator.
+
+	\return true if successful, false otherwise.
+ */
+bool ColSelection::restart() {
+//TODO: Implement ColSelection::restart()
+
+	return false;
+}
+
+
+/** \brief ColSelection: Get the next column name.
+
+	\return The next column name or nullptr if the iteration is exhausted.
+ */
+pName ColSelection::next() {
+
+//TODO: Implement ColSelection::next()
+
+	return nullptr;
+}
+
+/*	-----------------------------------------------
 	 Space : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
@@ -48,8 +79,9 @@ using namespace jazz_elements;
 
 	\param a_logger		A pointer to the logger.
 	\param a_config		A pointer to the configuration.
+	\param an_api		A pointer to the BaseAPI.
 */
-Space::Space(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
+Space::Space(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api) : Container(a_logger, a_config) {}
 
 Space::~Space() { destroy_container(); }
 
