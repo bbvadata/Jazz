@@ -163,6 +163,7 @@ Names are vanilla ASCII NAME_LENGTH long string starting with a letter and conta
 They can be validated using the function valid_name() or the regex REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
+typedef Name *pName;						///< A pointer to a Name
 typedef char *pChar;						///< A pointer to a char buffer
 
 
