@@ -354,8 +354,6 @@ class Service {
 		bool get_conf_key(const char *key, std::string &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
-	private:
-
 		pLogger		p_log;		///< The logger
 		pConfigFile	p_conf;		///< The configuration file
 };
