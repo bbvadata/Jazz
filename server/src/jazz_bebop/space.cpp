@@ -52,7 +52,7 @@ ColSelection::ColSelection(pChar query, pSpace p_space) {
 /** \brief ColSelection: Restart the iterator.
 
 	\return true if successful, false otherwise.
- */
+*/
 bool ColSelection::restart() {
 //TODO: Implement ColSelection::restart()
 
@@ -63,7 +63,7 @@ bool ColSelection::restart() {
 /** \brief ColSelection: Get the next column name.
 
 	\return The next column name or nullptr if the iteration is exhausted.
- */
+*/
 pName ColSelection::next() {
 
 //TODO: Implement ColSelection::next()
@@ -77,11 +77,13 @@ pName ColSelection::next() {
 
 /** \brief Bop: Start the Space.
 
-	\param a_logger		A pointer to the logger.
-	\param a_config		A pointer to the configuration.
-	\param an_api		A pointer to the BaseAPI.
+	\param api	A pointer to a BaseAPI that provides access to containers.
+	\param name	The name of the Space.
 */
-Space::Space(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api) : Container(a_logger, a_config) {}
+Space::Space(pBaseAPI api, pName name) : Container(api->p_log, api->p_conf) {
+
+	p_api = api;
+}
 
 Space::~Space() { destroy_container(); }
 

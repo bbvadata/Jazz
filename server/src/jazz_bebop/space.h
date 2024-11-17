@@ -144,9 +144,7 @@ class Space : public Container {
 
 	// Container interface
 
-		Space(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api);
-//TODO: Define alternative constructors for building a Space from just its name.
-//TODO: Define a mechanism for extra arguments. ???
+		Space(pBaseAPI api, pName name);
 	   ~Space();
 
 		StatusCode start	();
@@ -185,6 +183,10 @@ class Space : public Container {
 	}
 
 //TODO: Complete the Space interface.
+
+	protected:
+
+		pBaseAPI p_api;		///< A pointer to the BaseAPI that provides access to containers.
 };
 
 } // namespace jazz_bebop
