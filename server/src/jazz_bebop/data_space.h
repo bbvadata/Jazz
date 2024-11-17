@@ -57,6 +57,22 @@ and lazy-loaded. It also provides indexing which can select rows, keys of find n
 namespace jazz_bebop
 {
 
+#define DATASPACE_INDEX_ROW_NUM		1	///< The space is indexed by row number.
+#define DATASPACE_INDEX_KEY			2	///< The space is indexed by key.
+#define DATASPACE_INDEX_EMBEDDING	3	///< The space is indexed by partial row embedding.
+
+
+/** \brief DataSpaceDefinition: The definition of a DataSpace.
+*/
+struct DataSpaceDefinition {
+	int index_type;						///< The type of index. (In DATASPACE_INDEX_ROW_NUM..DATASPACE_INDEX_EMBEDDING)
+
+//TODO: Complete the DataSpaceDefinition structure.
+
+};
+typedef DataSpaceDefinition *pDataSpaceDefinition;	///< A pointer to a DataSpaceDefinition
+
+
 /** \brief DataSpace: The data space.
 
 */
@@ -64,8 +80,12 @@ class DataSpace : public Space {
 
 	public:
 
-		DataSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api);
+		DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def);
 	   ~DataSpace();
+
+	private:
+
+		DataSpaceDefinition def;	///< The definition of the DataSpace.
 };
 typedef DataSpace *pDataSpace;		///< A pointer to a DataSpace
 

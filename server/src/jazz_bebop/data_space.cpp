@@ -44,11 +44,14 @@ namespace jazz_bebop
 
 /** \brief Bop: Start the DataSpace.
 
-	\param a_logger		A pointer to the logger.
-	\param a_config		A pointer to the configuration.
-	\param an_api		A pointer to the BaseAPI.
+	\param api	 A pointer to a BaseAPI that provides access to containers.
+	\param name	 The name of the DataSpace.
+	\param p_def The definition of the DataSpace. The content is copied on construction.
 */
-DataSpace::DataSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api) : Space(a_logger, a_config, an_api) {}
+DataSpace::DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Space(api, name) {
+
+	def = *p_def;
+}
 
 DataSpace::~DataSpace() { destroy_container(); }
 
