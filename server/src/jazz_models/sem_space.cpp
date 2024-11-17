@@ -44,11 +44,14 @@ namespace jazz_models
 
 /** \brief Bop: Start the SemSpace.
 
-	\param a_logger		A pointer to the logger.
-	\param a_config		A pointer to the configuration.
-	\param an_api		A pointer to the BaseAPI.
+	\param api	 A pointer to a BaseAPI that provides access to containers.
+	\param name	 The name of the SemSpace.
+	\param p_def The definition of the SemSpace. The content is copied on construction.
 */
-SemSpace::SemSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api) : Space(a_logger, a_config, an_api) {}
+SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Space(api, name) {
+
+	def = *p_def;
+}
 
 SemSpace::~SemSpace() { destroy_container(); }
 

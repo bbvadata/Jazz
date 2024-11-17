@@ -55,14 +55,33 @@
 namespace jazz_models
 {
 
+/** \brief SemSpaceDefinition: The definition of a SemSpace.
+
+*/
+class SemSpaceDefinition : public DataSpaceDefinition {
+	bool is_implemented;	///< A flag to signal that the SemSpace is implemented.
+
+//TODO: Define the SemSpaceDefinition.
+};
+
+typedef SemSpaceDefinition *pSemSpaceDefinition;	///< A pointer to a SemSpaceDefinition
+
+
 /** \brief SemSpace: A Space of Concepts.
 */
 class SemSpace : public Space {
 
 	public:
 
-		SemSpace(pLogger a_logger, pConfigFile a_config, pBaseAPI an_api);
+		SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def);
 	   ~SemSpace();
+
+
+//TODO: Define the SemSpace interface.
+
+	private:
+
+		SemSpaceDefinition def;		///< The definition of the SemSpace.
 };
 typedef SemSpace *pSemSpace;		///< A pointer to a SemSpace
 
