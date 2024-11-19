@@ -77,8 +77,8 @@ pName ColSelection::next() {
 
 /** \brief Bop: Start the Space.
 
-	\param api	A pointer to a BaseAPI that provides access to containers.
-	\param name	The name of the Space.
+	\param api	  A pointer to a BaseAPI that provides access to containers.
+	\param a_name The name of the Space.
 */
 Space::Space(pBaseAPI api, pName a_name) : Container(api->p_log, api->p_conf) {
 
