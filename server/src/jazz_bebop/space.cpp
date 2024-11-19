@@ -80,8 +80,9 @@ pName ColSelection::next() {
 	\param api	A pointer to a BaseAPI that provides access to containers.
 	\param name	The name of the Space.
 */
-Space::Space(pBaseAPI api, pName name) : Container(api->p_log, api->p_conf) {
+Space::Space(pBaseAPI api, pName a_name) : Container(api->p_log, api->p_conf) {
 
+	memcpy(&name, a_name, sizeof(Name));
 	p_api = api;
 }
 

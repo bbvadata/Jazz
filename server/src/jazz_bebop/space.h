@@ -144,7 +144,7 @@ class Space : public Container {
 
 	// Container interface
 
-		Space(pBaseAPI api, pName name);
+		Space(pBaseAPI api, pName a_name);
 	   ~Space();
 
 		StatusCode start	();
@@ -186,6 +186,7 @@ class Space : public Container {
 
 	protected:
 
+		Name	 name;		///< The name of the Space.
 		pBaseAPI p_api;		///< A pointer to the BaseAPI that provides access to containers.
 };
 
