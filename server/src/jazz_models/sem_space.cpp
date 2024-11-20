@@ -50,7 +50,10 @@ namespace jazz_models
 */
 SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Space(api, name) {
 
-	def = *p_def;
+	def.load_on_start = true;		// Forces loading when p_def is nullptr.
+
+	if (p_def != nullptr)
+		def = *p_def;
 }
 
 
@@ -81,7 +84,7 @@ StatusCode SemSpace::start() {
 
 	strcpy(storage_ent, s.c_str());
 
-	return SERVICE_NO_ERROR;
+	return load_or_create_space();
 }
 
 
@@ -92,6 +95,103 @@ StatusCode SemSpace::start() {
 pChar const SemSpace::id() {
     static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
     return arr;
+}
+
+
+StatusCode SemSpace::load_meta() {
+
+//TODO: Implement SemSpace::load_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode SemSpace::save_meta() {
+
+//TODO: Implement SemSpace::save_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+RowNumber SemSpace::num_rows() {
+
+//TODO: Implement SemSpace::num_rows
+
+	return SPACE_NOT_A_ROW;
+}
+
+
+void* SemSpace::get_index_data(RowNumber row) {
+
+//TODO: Implement SemSpace::get_index_data
+
+	return nullptr;
+}
+
+
+int SemSpace::num_cols() {
+
+//TODO: Implement SemSpace::num_cols
+
+	return 0;
+}
+
+
+pName SemSpace::col_name(int col) {
+
+//TODO: Implement SemSpace::col_name
+
+	return nullptr;
+}
+
+
+int SemSpace::col_index(pName name) {
+
+//TODO: Implement SemSpace::col_index
+
+	return -1;
+}
+
+
+pLocator SemSpace::locator(RowNumber row, int col, int &index) {
+
+//TODO: Implement SemSpace::locator
+
+	return nullptr;
+}
+
+
+pRowSelection SemSpace::where(pChar query) {
+
+//TODO: Implement SemSpace::where
+
+	return nullptr;
+}
+
+
+StatusCode SemSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols) {
+
+//TODO: Implement SemSpace::get_row
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Load or create the space.
+
+	This is called once when start() has successfully completed.
+	It will load from persistence (and not write into persistence) if def.load_on_start.
+	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the SemSpace-ETL interface.-
+	Otherwise, it will create the table using the definition in `def`.
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode SemSpace::load_or_create_space() {
+
+//TODO: Implement SemSpace::load_or_create_space
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
 } // namespace jazz_models

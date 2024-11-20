@@ -104,8 +104,6 @@ class DataSpace : public Space {
 //TODO: Define the DataSpace-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
 //		special Bop scripts to populate/update/destroy the DataSpace.
 
-		// DataSpace-Index interface
-
 	private:
 
 		StatusCode load_or_create_space();
