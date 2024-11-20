@@ -76,7 +76,8 @@ class RowSelection {
 
 		\param query	A query string that is understood by the descendant. In Bop, this is the content of a WHERE clause with a syntax
 					    that depends on how the Space is indexed (Time, categorical, Embedding storage, ...).
-		\param p_space	The Space that created the object and is being queried.
+		\param p_space	The Space that created the object is required because the descendant may need to call .get_index_data() or other
+						methods.
 	*/
 	RowSelection(pChar query, pSpace p_space) {}
 
