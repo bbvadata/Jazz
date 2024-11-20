@@ -62,6 +62,27 @@ class Space;					///< Forward definition of Space
 typedef Space *pSpace;			///< A pointer to a Space
 
 
+/** \brief A wrapped Name that supports being stacked in an std::vector.
+*/
+class stdName {
+
+	public:
+		stdName() {}
+
+		/** \brief Copy constructor for stdName.
+
+			\param name	The stdName to copy.
+		*/
+		stdName(const stdName &name) {
+			memcpy(&this->name, &name, sizeof(stdName));
+		}
+
+		Name name;				///< The name
+};
+
+typedef std::vector<stdName> stdNames;	///< A vector of stdName
+
+
 /** \brief RowSelection: An iterator over the rows of a Space.
 
 	This is an abstract class that provides the interface of an iterator over rows. The where() method of a Space returns a RowSelection
@@ -96,6 +117,8 @@ class RowSelection {
 	virtual RowNumber next() {
 		return SPACE_ROW_STOP_ITERATOR;
 	}
+
+	bool is_valid = false;	///< True if the iterator was created by a successful query.
 };
 typedef RowSelection *pRowSelection;	///< A pointer to a RowSelection
 
@@ -118,18 +141,21 @@ class ColSelection {
 
 			\param query	By default, a list of comma separated column names. A descendant may define a different interface.
 							In Bop, this is the content of a SELECT clause.
+			\param p_space	The Space that created the object is required to call col_index().
 		*/
-		ColSelection(pChar query);
+		ColSelection(pChar query, pSpace p_space);
 
 		virtual bool restart();
 
 		virtual int	  next_index();
 		virtual pName next_name();
 
+		bool is_valid = false;	///< True if the iterator was created by a successful query.
+
 	private:
 
 		int current_col = 0;			///< The index of the current column (the next to be retrieved).
-		std::vector<Name> name = {};	///< The list of column names in the selection.
+		stdNames name = {};				///< The list of column names in the selection.
 		std::vector<int>  index = {};	///< The list of column indices in the selection.
 };
 typedef ColSelection *pColSelection;	///< A pointer to a ColSelection
@@ -222,6 +248,16 @@ class Space : public Service {
 		*/
 		virtual pName col_name(int col) {
 			return nullptr;
+		}
+
+		/** \brief Get the index of a column.
+
+			\param name The name of the column.
+
+			\return The index of the column or -1 if the column is not found.
+		*/
+		virtual int col_index(pName name) {
+			return -1;
 		}
 
 		/** \brief Get the location of a cell as a Locator

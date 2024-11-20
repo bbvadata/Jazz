@@ -45,7 +45,47 @@ using namespace jazz_elements;
 --------------------------------------------------- */
 
 ColSelection::ColSelection(pChar query, pSpace p_space) {
-//TODO: Implement ColSelection::ColSelection()
+
+	stdName sn;
+	pChar p = (pChar) &sn.name;
+	int i, l = 0;
+
+	while (char c = *query++) {
+		switch (c){
+		case ' ':
+		case '\t':
+			continue;
+
+		case 0:
+		case ',':
+			p[0] = 0;
+			name.push_back(sn);
+
+			i = p_space->col_index(&sn.name);
+			if (i < 0)
+				return;
+
+			index.push_back(i);
+
+			if (c == 0) {
+				is_valid = true;
+				return;
+			}
+
+			p = (pChar) &sn.name;
+			l = 0;
+
+			continue;
+
+		default:
+			if (l >= sizeof(Name) - 2)
+				return;
+
+			p[0] = c;
+			p++;
+			l++;
+		}
+	}
 }
 
 
@@ -54,7 +94,7 @@ ColSelection::ColSelection(pChar query, pSpace p_space) {
 	\return true if successful, false failed or was already pointing to the first element.
 */
 bool ColSelection::restart() {
-	if (current_col == 0)
+	if (!is_valid || (current_col == 0))
 		return false;
 
 	current_col = 0;
@@ -69,7 +109,7 @@ bool ColSelection::restart() {
 */
 int ColSelection::next_index() {
 
-	if (current_col < index.size())
+	if (is_valid && (current_col < index.size()))
 		return index[current_col++];
 
 	return -1;
@@ -82,8 +122,8 @@ int ColSelection::next_index() {
 */
 pName ColSelection::next_name() {
 
-	if (current_col < name.size())
-		return &name[current_col++];
+	if (is_valid && (current_col < name.size()))
+		return &name[current_col++].name;
 
 	return nullptr;
 }
