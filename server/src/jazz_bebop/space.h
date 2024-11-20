@@ -138,17 +138,16 @@ typedef ColSelection *pColSelection;	///< A pointer to a ColSelection
 	\see DataSpace, SemSpace
 
 */
-class Space : public Container {
+class Space : public Service {
 
 	public:
 
-	// Container interface
+	// Service interface
 
 		Space(pBaseAPI api, pName a_name);
-	   ~Space();
 
-		StatusCode start	();
-		StatusCode shut_down();
+		virtual StatusCode start	();
+		virtual StatusCode shut_down();
 
 	// Persistence interface
 
@@ -186,8 +185,9 @@ class Space : public Container {
 
 	protected:
 
-		Name	 name;		///< The name of the Space.
-		pBaseAPI p_api;		///< A pointer to the BaseAPI that provides access to containers.
+		char storage_base [SHORT_NAME_SIZE];	///< The base name of the storage container.
+		Name	 name;							///< The name of the Space.
+		pBaseAPI p_api;							///< A pointer to the BaseAPI that provides access to containers.
 };
 
 } // namespace jazz_bebop

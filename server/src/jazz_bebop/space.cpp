@@ -80,13 +80,11 @@ pName ColSelection::next() {
 	\param api	  A pointer to a BaseAPI that provides access to containers.
 	\param a_name The name of the Space.
 */
-Space::Space(pBaseAPI api, pName a_name) : Container(api->p_log, api->p_conf) {
+Space::Space(pBaseAPI api, pName a_name) : Service(api->p_log, api->p_conf) {
 
 	memcpy(&name, a_name, sizeof(Name));
 	p_api = api;
 }
-
-Space::~Space() { destroy_container(); }
 
 
 /** Starts the Space service
@@ -95,15 +93,23 @@ Space::~Space() { destroy_container(); }
 */
 StatusCode Space::start() {
 
-	int ret = Container::start();	// This initializes the one-shot functionality.
+	std::string s;
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (!get_conf_key("SPACE_STORAGE_BASE", s)) {
+		log(LOG_ERROR, "Config key SPACE_STORAGE_BASE not found in Space::start");
 
-//TODO: Implement Space::start()
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
 
+	if ((s.length() < 2) || (s.length() >= SHORT_NAME_SIZE) || (p_api->base_server[TenBitsAtAddress(s.c_str())] != nullptr)) {
+		log(LOG_ERROR, "Config key SPACE_STORAGE_BASE is not a valid base in Space::start");
 
-	return SERVICE_NOT_IMPLEMENTED;
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	strcpy(storage_base, s.c_str());
+
+	return SERVICE_NO_ERROR;
 }
 
 
@@ -113,9 +119,7 @@ StatusCode Space::start() {
 */
 StatusCode Space::shut_down() {
 
-//TODO: Implement Space::shut_down()
-
-	return destroy_container();
+	return SERVICE_NO_ERROR;
 }
 
 
