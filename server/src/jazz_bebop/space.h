@@ -109,17 +109,28 @@ typedef RowSelection *pRowSelection;	///< A pointer to a RowSelection
 */
 class ColSelection {
 
-	/** \brief The constructor for a ColSelection.
+	public:
 
-		\param query	By default, a list of comma separated column names. A descendant may define a different interface.
-						In Bop, this is the content of a SELECT clause.
-		\param p_space	This is not used in the parent class, but provided to a hypothetical descendant. (May be removed in the future.)
-	*/
-	ColSelection(pChar query, pSpace p_space);
+		/** \brief The constructor for a ColSelection.
 
-	virtual bool restart();
+			The constructor will parse the query and create a list of column names and indices. These will not change during the lifetime
+			of the object.
 
-	virtual pName next();
+			\param query	By default, a list of comma separated column names. A descendant may define a different interface.
+							In Bop, this is the content of a SELECT clause.
+		*/
+		ColSelection(pChar query);
+
+		virtual bool restart();
+
+		virtual int	  next_index();
+		virtual pName next_name();
+
+	private:
+
+		int current_col = 0;			///< The index of the current column (the next to be retrieved).
+		std::vector<Name> name = {};	///< The list of column names in the selection.
+		std::vector<int>  index = {};	///< The list of column indices in the selection.
 };
 typedef ColSelection *pColSelection;	///< A pointer to a ColSelection
 

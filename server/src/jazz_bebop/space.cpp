@@ -51,12 +51,28 @@ ColSelection::ColSelection(pChar query, pSpace p_space) {
 
 /** \brief ColSelection: Restart the iterator.
 
-	\return true if successful, false otherwise.
+	\return true if successful, false failed or was already pointing to the first element.
 */
 bool ColSelection::restart() {
-//TODO: Implement ColSelection::restart()
+	if (current_col == 0)
+		return false;
 
-	return false;
+	current_col = 0;
+
+	return true;
+}
+
+
+/** \brief ColSelection: Get the next column index.
+
+	\return The next column index or -i if the iteration is exhausted.
+*/
+int ColSelection::next_index() {
+
+	if (current_col < index.size())
+		return index[current_col++];
+
+	return -1;
 }
 
 
@@ -64,9 +80,10 @@ bool ColSelection::restart() {
 
 	\return The next column name or nullptr if the iteration is exhausted.
 */
-pName ColSelection::next() {
+pName ColSelection::next_name() {
 
-//TODO: Implement ColSelection::next()
+	if (current_col < name.size())
+		return &name[current_col++];
 
 	return nullptr;
 }
@@ -121,7 +138,6 @@ StatusCode Space::shut_down() {
 
 	return SERVICE_NO_ERROR;
 }
-
 
 } // namespace jazz_bebop
 
