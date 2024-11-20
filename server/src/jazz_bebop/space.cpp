@@ -49,41 +49,58 @@ ColSelection::ColSelection(pChar query, pSpace p_space) {
 	stdName sn;
 	pChar p = (pChar) &sn.name;
 	int i, l = 0;
+	bool word_in = false, new_line = false;
 
-	while (char c = *query++) {
-		switch (c){
+	while (true) {
+		switch (char c = *query++){
 		case ' ':
 		case '\t':
+			if (new_line)
+				return;
+
+			if (l > 0)
+				word_in = true;
+
 			continue;
 
-		case 0:
+		case '\n':
+			new_line = true;
+
+			continue;
+
 		case ',':
-			p[0] = 0;
-			name.push_back(sn);
+			if (new_line)
+				return;
+
+		case 0:
+			p[l] = 0;
 
 			i = p_space->col_index(&sn.name);
 			if (i < 0)
 				return;
 
+			for (int j = 0; j < index.size(); j++)
+				if (index[j] == i)
+					return;
+
+			name.push_back(sn);
 			index.push_back(i);
 
 			if (c == 0) {
-				is_valid = true;
+				is_valid = l > 0;
 				return;
 			}
 
-			p = (pChar) &sn.name;
+			word_in = false;
 			l = 0;
 
 			continue;
 
 		default:
-			if (l >= sizeof(Name) - 2)
+			if ((word_in) || (new_line) || (l >= sizeof(Name) - 1))
 				return;
 
-			p[0] = c;
-			p++;
-			l++;
+			p[l++] = c;
 		}
 	}
 }
@@ -158,7 +175,7 @@ StatusCode Space::start() {
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
-	if ((s.length() < 2) || (s.length() >= SHORT_NAME_SIZE) || (p_api->base_server[TenBitsAtAddress(s.c_str())] != nullptr)) {
+	if ((s.length() < 2) || (s.length() >= SHORT_NAME_SIZE) || (p_api->base_server[TenBitsAtAddress(s.c_str())] == nullptr)) {
 		log(LOG_ERROR, "Config key SPACE_STORAGE_BASE is not a valid base in Space::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;

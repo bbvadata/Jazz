@@ -152,7 +152,9 @@ class ColSelection {
 
 		bool is_valid = false;	///< True if the iterator was created by a successful query.
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		int current_col = 0;			///< The index of the current column (the next to be retrieved).
 		stdNames name = {};				///< The list of column names in the selection.
@@ -287,10 +289,12 @@ class Space : public Service {
 
 			\param query By default, a list of comma separated column names. Spaces that use descendants of ColSelection may define a
 						 different interface.
-			\return A ColSelection object that can be used to iterate over the selected columns.
+			\return A ColSelection object that can be used to iterate over the selected columns. If the query is invalid, the object
+					will be invalid and return no columns. This is intentional since nullptr in a get_row() call means "all columns".
+					An invalid query produces a selection of "no columns".
 		*/
 		virtual pColSelection select(pChar query) {
-			return nullptr;
+			return new ColSelection(query, this);
 		}
 
 		/** \brief Get a row from the Space as a Tuple
@@ -306,7 +310,9 @@ class Space : public Service {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
+#ifndef CATCH_TEST
 	protected:
+#endif
 
 		char storage_base [SHORT_NAME_SIZE];	///< The base name of the storage container.
 		Name	 name;							///< The name of the Space.
