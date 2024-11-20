@@ -65,7 +65,8 @@ namespace jazz_bebop
 /** \brief DataSpaceDefinition: The definition of a DataSpace.
 */
 struct DataSpaceDefinition {
-	int index_type;						///< The type of index. (In DATASPACE_INDEX_ROW_NUM..DATASPACE_INDEX_EMBEDDING)
+	bool load_on_start;			///< True if the DataSpace requires loading from persistence. In that case, the rest is ignored.
+	int index_type;				///< The type of index. (In DATASPACE_INDEX_ROW_NUM..DATASPACE_INDEX_EMBEDDING)
 
 //TODO: Complete the DataSpaceDefinition structure.
 
@@ -85,7 +86,29 @@ class DataSpace : public Space {
 		virtual StatusCode start();
 		virtual pChar const id();
 
+		// Space interface
+
+		virtual StatusCode load_meta();
+		virtual StatusCode save_meta();
+		virtual RowNumber num_rows();
+		virtual void* get_index_data(RowNumber row);
+		virtual int num_cols();
+		virtual pName col_name(int col);
+		virtual int col_index(pName name);
+		virtual pLocator locator(RowNumber row, int col, int &index);
+		virtual pRowSelection where(pChar query);
+		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr);
+
+		// DataSpace-ETL interface
+
+//TODO: Define the DataSpace-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
+//		special Bop scripts to populate/update/destroy the DataSpace.
+
+		// DataSpace-Index interface
+
 	private:
+
+		StatusCode load_or_create_space();
 
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
 		DataSpaceDefinition def;	///< The definition of the DataSpace.

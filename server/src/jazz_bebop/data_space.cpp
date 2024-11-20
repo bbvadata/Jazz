@@ -50,7 +50,10 @@ namespace jazz_bebop
 */
 DataSpace::DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Space(api, name) {
 
-	def = *p_def;
+	def.load_on_start = true;		// Forces loading when p_def is nullptr.
+
+	if (p_def != nullptr)
+		def = *p_def;
 }
 
 
@@ -81,7 +84,7 @@ StatusCode DataSpace::start() {
 
 	strcpy(storage_ent, s.c_str());
 
-	return SERVICE_NO_ERROR;
+	return load_or_create_space();
 }
 
 
@@ -92,6 +95,103 @@ StatusCode DataSpace::start() {
 pChar const DataSpace::id() {
     static char arr[] = "DataSpace from Jazz-" JAZZ_VERSION;
     return arr;
+}
+
+
+StatusCode DataSpace::load_meta() {
+
+//TODO: Implement DataSpace::load_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode DataSpace::save_meta() {
+
+//TODO: Implement DataSpace::save_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+RowNumber DataSpace::num_rows() {
+
+//TODO: Implement DataSpace::num_rows
+
+	return SPACE_NOT_A_ROW;
+}
+
+
+void* DataSpace::get_index_data(RowNumber row) {
+
+//TODO: Implement DataSpace::get_index_data
+
+	return nullptr;
+}
+
+
+int DataSpace::num_cols() {
+
+//TODO: Implement DataSpace::num_cols
+
+	return 0;
+}
+
+
+pName DataSpace::col_name(int col) {
+
+//TODO: Implement DataSpace::col_name
+
+	return nullptr;
+}
+
+
+int DataSpace::col_index(pName name) {
+
+//TODO: Implement DataSpace::col_index
+
+	return -1;
+}
+
+
+pLocator DataSpace::locator(RowNumber row, int col, int &index) {
+
+//TODO: Implement DataSpace::locator
+
+	return nullptr;
+}
+
+
+pRowSelection DataSpace::where(pChar query) {
+
+//TODO: Implement DataSpace::where
+
+	return nullptr;
+}
+
+
+StatusCode DataSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols) {
+
+//TODO: Implement DataSpace::get_row
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+/** Load or create the space.
+
+	This is called once when start() has successfully completed.
+	It will load from persistence (and not write into persistence) if def.load_on_start.
+	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the DataSpace-ETL interface.-
+	Otherwise, it will create the table using the definition in `def`.
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode DataSpace::load_or_create_space() {
+
+//TODO: Implement DataSpace::load_or_create_space
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
 } // namespace jazz_bebop
