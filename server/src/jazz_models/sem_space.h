@@ -74,13 +74,16 @@ class SemSpace : public Space {
 	public:
 
 		SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def);
-	   ~SemSpace();
 
+		virtual StatusCode start	();
+
+		virtual pChar const id();
 
 //TODO: Define the SemSpace interface.
 
 	private:
 
+		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
 		SemSpaceDefinition def;		///< The definition of the SemSpace.
 };
 typedef SemSpace *pSemSpace;		///< A pointer to a SemSpace

@@ -53,7 +53,46 @@ SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Space(
 	def = *p_def;
 }
 
-SemSpace::~SemSpace() { destroy_container(); }
+
+/** Starts the SemSpace service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode SemSpace::start() {
+
+	int ret = Space::start();
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+	std::string s;
+
+	if (!get_conf_key("SEMSPACE_STORAGE_ENTITY", s)) {
+		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpace::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
+		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpace::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	strcpy(storage_ent, s.c_str());
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const SemSpace::id() {
+    static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 } // namespace jazz_models
 
