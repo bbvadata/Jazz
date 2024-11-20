@@ -163,37 +163,112 @@ class Space : public Service {
 
 	// Persistence interface
 
-//TODO: Define how Space stores its metadata.
+		/** \brief Load the metadata of the Space.
+
+			This method must be implemented by descendants. It will load a record of metadata from `//storage_base/storage_ent/name`.
+
+			\return SERVICE_NO_ERROR if successful, an error code otherwise.
+		*/
+		virtual StatusCode load_meta() {
+			return SERVICE_NOT_IMPLEMENTED;
+		}
+
+		/** \brief Save the metadata of the Space.
+
+			This method must be implemented by descendants. It will store a record of metadata into `//storage_base/storage_ent/name`.
+
+			\return SERVICE_NO_ERROR if successful, an error code otherwise.
+		*/
+		virtual StatusCode save_meta() {
+			return SERVICE_NOT_IMPLEMENTED;
+		}
 
 	// Internal interface for ColSelection to have access to data by rows.
 
-//TODO: Define internal interface for ColSelection to have access to data by rows.
+		/** \brief Return the number of rows in the Space.
 
+			\return The number of rows in the Space or SPACE_NOT_A_ROW if the Space is invalid.
+		*/
+		virtual RowNumber num_rows() {
+			return SPACE_NOT_A_ROW;
+		}
+
+		/** \brief Get a pointer to the data of the index of a given row.
+
+			\param row	The row number.
+
+			\return A pointer to the index or nullptr if there is no index. Examples include a vector for an embedding, of a string for
+					a key-based index and a TimePoint for a time-based index.
+		*/
+		virtual void* get_index_data(RowNumber row) {
+			return nullptr;
+		}
 
 	// Space interface
 
-	/** \brief Get a RowSelection from a query.
+		/** \brief Get the number of columns in the Space.
 
-		\param query	A query string that is understood by the descendant. In Bop, this is the content of a WHERE clause with a syntax
-						that depends on how the Space is indexed (Time, categorical, Embedding storage, ...).
+			\return The number of columns in the Space.
+		*/
+		virtual int num_cols() {
+			return 0;
+		}
 
-		\return A RowSelection object that can be used to iterate over the rows that match the query.
-	*/
-	virtual pRowSelection where(pChar query) {
-		return nullptr;
-	}
+		/** \brief Get the name of a column.
 
-	/** \brief Get a ColSelection from a query.
+			\param col The column index.
 
-		\param query By default, a list of comma separated column names. Spaces that use descendants of ColSelection may define a
-					 different interface.
-		\return A ColSelection object that can be used to iterate over the selected columns.
-	*/
-	virtual pColSelection select(pChar query) {
-		return nullptr;
-	}
+			\return The name of the column or nullptr if the index is out of range.
+		*/
+		virtual pName col_name(int col) {
+			return nullptr;
+		}
 
-//TODO: Complete the Space interface.
+		/** \brief Get the location of a cell as a Locator
+
+			\param row	 The row number.
+			\param col	 The column index.
+			\param index If the block contains multiple rows, which is the index of `row` in the block.
+
+			\return A pointer to a Locator object that can be used to access the cell or nullptr if the cell is not found.
+		*/
+		virtual pLocator locator(RowNumber row, int col, int &index) {
+			return nullptr;
+		}
+
+		/** \brief Get a RowSelection from a query.
+
+			\param query A query string that is understood by the descendant. In Bop, this is the content of a WHERE clause with a syntax
+						 that depends on how the Space is indexed (Time, categorical, Embedding storage, ...).
+
+			\return A RowSelection object that can be used to iterate over the rows that match the query.
+		*/
+		virtual pRowSelection where(pChar query) {
+			return nullptr;
+		}
+
+		/** \brief Get a ColSelection from a query.
+
+			\param query By default, a list of comma separated column names. Spaces that use descendants of ColSelection may define a
+						 different interface.
+			\return A ColSelection object that can be used to iterate over the selected columns.
+		*/
+		virtual pColSelection select(pChar query) {
+			return nullptr;
+		}
+
+		/** \brief Get a row from the Space as a Tuple
+
+			\param p_txn A transaction that will be used to get the result. It must be destroyed with:
+						 p_txn->p_owner->destroy_transaction(p_txn)
+			\param row	 The row number as obtained from a RowSelection.next() call.
+			\param cols	 Pointer to a ColSelection to specify columns to be retrieved. If nullptr, all columns are retrieved.
+
+			\return SERVICE_NO_ERROR if successful, an error code otherwise.
+		*/
+		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr) {
+			return SERVICE_NOT_IMPLEMENTED;
+		}
 
 	protected:
 
