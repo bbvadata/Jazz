@@ -152,6 +152,10 @@ class BaseAPI : public Container {
 									int				   mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode remove  (ApiQueryState	  &what);
 
+		// The base_server is public to support objects using this to see what Containers are available.
+
+		TenBitPtrLUT base_server;	///< A LUT to convert TenBitsAtAddress(base) into a pContainer.
+
 #ifndef CATCH_TEST
 	protected:
 #endif
@@ -622,8 +626,6 @@ class BaseAPI : public Container {
 		pChannels	p_channels;		///< The Channels container
 		pVolatile	p_volatile;		///< The Volatile container
 		pPersisted	p_persisted;	///< The Persisted container
-
-		TenBitPtrLUT base_server;	///< A LUT to convert TenBitsAtAddress(base) into a pContainer.
 };
 typedef BaseAPI *pBaseAPI;			///< A pointer to a BaseAPI
 
