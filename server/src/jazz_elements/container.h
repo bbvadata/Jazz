@@ -191,6 +191,7 @@ struct Locator {
 		pExtraLocator p_extra;		///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
 	};
 };
+typedef Locator *pLocator;			///< A pointer to a Locator
 
 
 /// An internal (for Container) Transaction with pointers for a deque
