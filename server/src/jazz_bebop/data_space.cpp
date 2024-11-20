@@ -53,7 +53,46 @@ DataSpace::DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Spa
 	def = *p_def;
 }
 
-DataSpace::~DataSpace() { destroy_container(); }
+
+/** Starts the DataSpace service
+
+	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+*/
+StatusCode DataSpace::start() {
+
+	int ret = Space::start();
+
+	if (ret != SERVICE_NO_ERROR)
+		return ret;
+
+	std::string s;
+
+	if (!get_conf_key("DATASPACE_STORAGE_ENTITY", s)) {
+		log(LOG_ERROR, "Config key DATASPACE_STORAGE_ENTITY not found in DataSpace::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
+		log(LOG_ERROR, "Config key DATASPACE_STORAGE_ENTITY is not a valid base in DataSpace::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	strcpy(storage_ent, s.c_str());
+
+	return SERVICE_NO_ERROR;
+}
+
+
+/** Return object ID.
+
+	\return A string identifying the object that is especially useful to track uplifts and versions.
+*/
+pChar const DataSpace::id() {
+    static char arr[] = "DataSpace from Jazz-" JAZZ_VERSION;
+    return arr;
+}
 
 } // namespace jazz_bebop
 

@@ -81,10 +81,13 @@ class DataSpace : public Space {
 	public:
 
 		DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def);
-	   ~DataSpace();
+
+		virtual StatusCode start();
+		virtual pChar const id();
 
 	private:
 
+		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
 		DataSpaceDefinition def;	///< The definition of the DataSpace.
 };
 typedef DataSpace *pDataSpace;		///< A pointer to a DataSpace
