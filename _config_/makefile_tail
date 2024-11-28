@@ -50,6 +50,7 @@ clean  :
 	@rm -rf jazz_dbg_mdb/
 	@rm -rf src/lmdb/testdb/
 	@rm -f src/lmdb/*.a src/lmdb/*.o src/lmdb/*.lo src/lmdb/*.so
+	@rm -f src/onnx_proto/example/example_write_onnx src/onnx_proto/example/model.onnx
 	@find src/lmdb/ -executable -type f | xargs rm -f
 
 .PHONY     : clean-data
