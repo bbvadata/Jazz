@@ -5,7 +5,7 @@
 int main() {
     // Initialize the ONNX model
     onnx::ModelProto model;
-    model.set_ir_version(onnx::IR_VERSION);
+    model.set_ir_version(onnx::IR_VERSION_2024_3_25);
     model.set_producer_name("example_producer");
 
     // Add opset version
@@ -24,10 +24,8 @@ int main() {
     onnx::TypeProto::Tensor* input_tensor_type = input_type->mutable_tensor_type();
     input_tensor_type->set_elem_type(onnx::TensorProto::FLOAT);
     onnx::TensorShapeProto* input_shape = input_tensor_type->mutable_shape();
-    input_shape->add_dim()->set_dim_value(1);
+    input_shape->add_dim()->set_dim_value(2);
     input_shape->add_dim()->set_dim_value(3);
-    input_shape->add_dim()->set_dim_value(224);
-    input_shape->add_dim()->set_dim_value(224);
 
     // Add output tensor
     onnx::ValueInfoProto* output = graph->add_output();
@@ -37,7 +35,7 @@ int main() {
     output_tensor_type->set_elem_type(onnx::TensorProto::FLOAT);
     onnx::TensorShapeProto* output_shape = output_tensor_type->mutable_shape();
     output_shape->add_dim()->set_dim_value(1);
-    output_shape->add_dim()->set_dim_value(1000);
+    output_shape->add_dim()->set_dim_value(3);
 
     // Add a node (e.g., a ReLU node)
     onnx::NodeProto* node = graph->add_node();
