@@ -339,9 +339,13 @@ ConfigFile::ConfigFile(const char *input_file_name) {
 bool ConfigFile::load_config(const char *input_file_name) {
 	config.clear();
 
+	if (input_file_name == nullptr)
+		return false;
+
 	std::ifstream fh(input_file_name);
 
-	if (!fh.is_open()) return false;
+	if (!fh.is_open())
+		return false;
 
 	std::string ln, key, val;
 

@@ -703,6 +703,12 @@ SCENARIO("Testing class ConfigFile") {
 	REQUIRE(conf2.get_key("one zero", tt_cfg_s));
 
 	REQUIRE((tt_cfg_i == 10 && tt_cfg_d == 10.0 && tt_cfg_s.compare("10") == 0));
+
+	ConfigFile conf3(nullptr);
+
+	REQUIRE(conf3.num_keys() == 0);
+
+	REQUIRE(conf3.load_config(nullptr) == false);
 }
 
 
