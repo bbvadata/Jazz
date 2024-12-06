@@ -48,6 +48,12 @@
 #define INCLUDED_JAZZ_BEBOP_OPCODES
 
 
+struct OnnxParameter {
+
+};
+
+
+
 /** \brief In Bop-25, opcodes are onnx-runtime operations.
 
 */
@@ -62,7 +68,19 @@ class OpCodes : public Service {
 	public:
 
 		OpCodes(pLogger a_logger, pConfigFile a_config);
-	   ~OpCodes();
+
+		virtual StatusCode start	();
+		virtual StatusCode shut_down();
+
+		int latest_opset_version();
+
+		bool set_opset_version(int version);
+
+	private:
+
+		ConfigFile onnx_conf = ConfigFile(nullptr);		///< The ONNX opcodes reference stored as a ConfigFile.
+		int ir_version;									///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
+
 };
 typedef OpCodes *pOpCodes;		///< A pointer to a OpCodes
 
