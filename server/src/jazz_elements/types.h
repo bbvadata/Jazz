@@ -90,6 +90,14 @@ at [host]/develop/rfc2/jazz_actor_model.html
 #define CELL_TYPE_BYTE			0x001		///< A tensor of unsigned 8-bit binaries. NA is not defined for this type
 #define CELL_TYPE_BYTE_BOOLEAN	0x101		///< A tensor 8-bit booleans: 0, 1, BYTE_BOOLEAN_NA = NA
 
+// 16 bit cell types (Introduced for Bop-25)
+
+//TODO: Understand what else is required make 16 bit types available. Add some tests too.
+#define CELL_TYPE_INT16			0x002		///< A tensor of 16-bit signed integers. No NA is defined for this type
+#define CELL_TYPE_UINT16		0x102		///< A tensor of 16-bit unsigned integers. No NA is defined for this type
+#define CELL_TYPE_FLOAT16		0x202		///< A tensor of IEEE 754 half-precision floating point. NA is standard IEEE 754 NaN
+#define CELL_TYPE_BFLOAT16		0x302		///< A tensor of Brain Floating Point, half-precision. FP16_NAN should be defined if available.
+
 // 32 bit cell types
 #define CELL_TYPE_INTEGER		0x004		///< A tensor of 32-bit signed integers. NA is INTEGER_NA
 #define CELL_TYPE_FACTOR		0x104		///< A tensor of 32-bit unsorted categorical. NA is INTEGER_NA
