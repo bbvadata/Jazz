@@ -49,7 +49,55 @@ namespace jazz_bebop
 */
 OpCodes::OpCodes(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
 
-OpCodes::~OpCodes() {}
+
+StatusCode OpCodes::start() {
+	if (!get_conf_key("ONNX_IR_VERSION", ir_version)) {
+		log(LOG_ERROR, "Config key ONNX_IR_VERSION not valid in OpCodes::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	std::string s;
+
+	if (!get_conf_key("ONNX_OPCODE_DEFS_FN", s)) {
+		log(LOG_ERROR, "Config key ONNX_OPCODE_DEFS_FN not found in OpCodes::start");
+
+		return SERVICE_ERROR_BAD_CONFIG;
+	}
+
+	if (!onnx_conf.load_config(s.c_str())) {
+		log_printf(LOG_ERROR, "Failed reading configuration file '%s' in OpCodes::start", s.c_str());
+
+		return SERVICE_ERROR_IO_ERROR;
+	}
+
+	return SERVICE_NO_ERROR;
+}
+
+
+StatusCode OpCodes::shut_down() {
+	return SERVICE_NO_ERROR;
+}
+
+
+/** \brief Get the latest opset version.
+
+	\return The latest opset version.
+*/
+int OpCodes::latest_opset_version() {
+	return 0;
+}
+
+
+/** \brief Set the opset version.
+
+	\param version	The version to set.
+
+	\return True if the version was set, false otherwise.
+*/
+bool OpCodes::set_opset_version(int version) {
+	return false;
+}
 
 } // namespace jazz_bebop
 
