@@ -252,7 +252,27 @@ jazz_depends=$(depends)
 cd "$jazz_pwd" || return 1
 
 
-# 1.9 Dump all variables if debugging
+# 1.9 Create an include path list without duplicates
+
+incl_paths=(
+    "$mhd_inclpath"
+    "$curl_inclpath"
+    "$zmq_inclpath"
+    "$onnx_rt_inclpath"
+    "$onnx_proto_inclpath"
+)
+
+# Deduplicate the array
+unique_incl_paths=($(printf "%s\n" "${incl_paths[@]}" | awk '!seen[$0]++'))
+
+# Build the neat_includes string
+neat_includes=$(printf -- "-I%s " "${unique_incl_paths[@]}")
+
+# Trim any trailing space
+neat_includes=$(echo "$neat_includes" | sed 's/[[:space:]]*$//')
+
+
+# 1.a Dump all variables if debugging
 
 if [[ $mode =~ 'DEBUG' ]]; then
   echo "jazz_pwd            = $jazz_pwd"
@@ -277,6 +297,9 @@ if [[ $mode =~ 'DEBUG' ]]; then
   echo "jazz_depends        = $jazz_depends"
   echo "uplifted_mod        = $uplifted_mod"
   echo "uplifted_api        = $uplifted_api"
+  echo "incl_paths          = $(printf "%s " "${incl_paths[@]}")"
+  echo "unique_incl_paths   = $(printf "%s " "${unique_incl_paths[@]}")"
+  echo "neat_includes       = $neat_includes"
 
   printf "\n"
 fi
@@ -319,7 +342,7 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++17 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath -I$onnx_rt_inclpath -I$onnx_proto_inclpath
+CXXFLAGS     := -std=c++17 -I. $neat_includes
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version
