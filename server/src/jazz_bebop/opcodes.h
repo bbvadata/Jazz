@@ -33,6 +33,8 @@
 
 
 #include "src/jazz_bebop/data_space.h"
+#include "src/onnx_proto/onnx.pb.h"
+#include "onnxruntime_c_api.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -48,7 +50,15 @@
 #define INCLUDED_JAZZ_BEBOP_OPCODES
 
 
-struct OnnxParameter {
+class TensorType {
+	int jazz_type;
+	onnx::TensorProto::DataType onnx_proto_type;
+	ONNXTensorElementDataType onnx_rt_type;
+};
+
+
+class OnnxParameter {
+
 
 };
 
