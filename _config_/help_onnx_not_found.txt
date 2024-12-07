@@ -1,7 +1,10 @@
 
-The Jazz server requires onnxruntime!
+The Jazz server requires onnx support!
+--------------------------------------
 
-1. If you haven't yet installed onnxruntime:
+1. ONNX runtime
+
+1.a If you haven't yet installed onnxruntime:
 
   You have to compile it from source.
 
@@ -13,11 +16,11 @@ The Jazz server requires onnxruntime!
   First download it:
 
     git clone https://github.com/microsoft/onnxruntime.git
-	cd onnxruntime
+    cd onnxruntime
 
   Compile it:
 
-	./build.sh --config Release --build_shared_lib --parallel
+    ./build.sh --config Release --build_shared_lib --parallel
 
   Install it
 
@@ -27,11 +30,29 @@ The Jazz server requires onnxruntime!
     sudo ln -s /usr/local/lib/libonnxruntime.so.1.20.0 /usr/local/lib/libonnxruntime.so.1
     sudo ldconfig
 
-2. If you know where to find the library (libonnxruntime.so) and the header (onnxruntime_c_api.h):
+1.b If you know where to find the library (libonnxruntime.so) and the header (onnxruntime_c_api.h):
 
   You can set the paths (ONLY the paths, no extra characters) in _config_ as follows:
 
-    echo '/home/me/my_lib/include' > _config_/onnx_include_path
-    echo '/home/me/my_lib/libs'    > _config_/onnx_library_path
+    echo '/home/me/my_lib/include' > _config_/onnx_rt_include_path
+    echo '/home/me/my_lib/libs'    > _config_/onnx_rt_library_path
 
   and run ./config.sh again. It will use these paths instead of trying to guess.
+
+
+2. ONNX protocol buffers.
+
+Even if the ONNX definition (onnx.proto) and c++ interface (onnx.pb.h, onnx.pb.cc) are part of the Jazz project,
+these require google protocol buffers which is typically installed when you install the protobuf compiler.
+
+2.a If you haven't yet installed protobuf:
+
+  Do it:
+
+    sudo apt install protobuf-compiler
+
+2.b If you know where to find <?>/google/protobuf/port_def.inc
+
+  You can set the paths (ONLY the paths, no extra characters, not including /google/protobuf) in _config_ as follows:
+
+    echo '/home/me/my_lib/include' > _config_/onnx_proto_include_path

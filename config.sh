@@ -109,26 +109,35 @@ if [ ! -e "$zmq_libpath/libzmq.so" ]; then
   exit 1
 fi
 
-# 1.6 Link to onnxruntime library
+# 1.6 Link to onnxruntime and proto library
 
-if [ -e '_config_/onnx_include_path' ]; then onnx_inclpath=$(cat _config_/onnx_include_path); else onnx_inclpath='/usr/local/include'; fi
+if [ -e '_config_/onnx_rt_include_path' ]; then onnx_rt_inclpath=$(cat _config_/onnx_rt_include_path); else onnx_rt_inclpath='/usr/local/include'; fi
 
-if [ ! -e "$onnx_inclpath/onnxruntime_c_api.h" ]; then
-  echo "** File $onnx_inclpath/onnxruntime_c_api.h was not found. **"
+if [ ! -e "$onnx_rt_inclpath/onnxruntime_c_api.h" ]; then
+  echo "** File $onnx_rt_inclpath/onnxruntime_c_api.h was not found. **"
   cat _config_/help_onnx_not_found.txt
   exit
 fi
 
-if [ -e '_config_/onnx_library_path' ]; then onnx_libpath=$(cat _config_/onnx_library_path)
+if [ -e '_config_/onnx_rt_library_path' ]; then onnx_rt_libpath=$(cat _config_/onnx_rt_library_path)
 else
-  if [ -e '/usr/local/lib/libonnxruntime.so' ]; then onnx_libpath='/usr/local/lib'; else onnx_libpath='/usr/lib/x86_64-linux-gnu'; fi
+  if [ -e '/usr/local/lib/libonnxruntime.so' ]; then onnx_rt_libpath='/usr/local/lib'; else onnx_rt_libpath='/usr/lib/x86_64-linux-gnu'; fi
 fi
 
-if [ ! -e "$onnx_libpath/libonnxruntime.so" ]; then
-  echo "** File $onnx_libpath/libonnxruntime.so was not found. **"
+if [ ! -e "$onnx_rt_libpath/libonnxruntime.so" ]; then
+  echo "** File $onnx_rt_libpath/libonnxruntime.so was not found. **"
   cat _config_/help_onnx_not_found.txt
   exit 1
 fi
+
+if [ -e '_config_/onnx_proto_include_path' ]; then onnx_proto_inclpath=$(cat _config_/onnx_proto_include_path); else onnx_proto_inclpath='/usr/include'; fi
+
+if [ ! -e "$onnx_proto_inclpath/google/protobuf/port_def.inc" ]; then
+  echo "** File $onnx_proto_inclpath/google/protobuf/port_def.inc was not found. **"
+  cat _config_/help_onnx_not_found.txt
+  exit
+fi
+
 
 # 1.7 Get all the Uplifted modules
 
@@ -178,15 +187,15 @@ jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
 
 if [ "$uplifted_mod" != "$uplifted_mod_parent" ]; then
-	vpath+="$uplifted_mod_source "
-	jzpat+="$uplifted_mod_source "
-	cpps+="$(ls $uplifted_mod_source*.cpp) "
+    vpath+="$uplifted_mod_source "
+    jzpat+="$uplifted_mod_source "
+    cpps+="$(ls $uplifted_mod_source*.cpp) "
 fi
 
 if [ "$uplifted_api" != "$uplifted_api_parent" ]; then
-	vpath+="$uplifted_api_source "
-	jzpat+="$uplifted_api_source "
-	cpps+="$(ls $uplifted_api_source*.cpp) "
+    vpath+="$uplifted_api_source "
+    jzpat+="$uplifted_api_source "
+    cpps+="$(ls $uplifted_api_source*.cpp) "
 fi
 
 # 1.8 Get all the dependencies
@@ -246,27 +255,28 @@ cd "$jazz_pwd" || return 1
 # 1.9 Dump all variables if debugging
 
 if [[ $mode =~ 'DEBUG' ]]; then
-  echo "jazz_pwd      = $jazz_pwd"
-  echo "jazz_version  = $jazz_version"
-  echo "jz_processor  = $jz_processor"
-  echo "jazz_distro1  = $jazz_distro1"
-  echo "jazz_distro2  = $jazz_distro2"
-  echo "jazz_years    = $jazz_years"
-  echo "mhd_inclpath  = $mhd_inclpath"
-  echo "mhd_libpath   = $mhd_libpath"
-  echo "curl_inclpath = $curl_inclpath"
-  echo "curl_libpath  = $curl_libpath"
-  echo "zmq_inclpath  = $zmq_inclpath"
-  echo "zmq_libpath   = $zmq_libpath"
-  echo "onnx_inclpath = $onnx_inclpath"
-  echo "onnx_libpath  = $onnx_libpath"
-  echo "vpath         = $vpath"
-  echo "jzpat         = $jzpat"
-  echo "cpps          = $cpps"
-  echo "objs          = $objs"
-  echo "jazz_depends  = $jazz_depends"
-  echo "uplifted_mod  = $uplifted_mod"
-  echo "uplifted_api  = $uplifted_api"
+  echo "jazz_pwd            = $jazz_pwd"
+  echo "jazz_version        = $jazz_version"
+  echo "jz_processor        = $jz_processor"
+  echo "jazz_distro1        = $jazz_distro1"
+  echo "jazz_distro2        = $jazz_distro2"
+  echo "jazz_years          = $jazz_years"
+  echo "mhd_inclpath        = $mhd_inclpath"
+  echo "mhd_libpath         = $mhd_libpath"
+  echo "curl_inclpath       = $curl_inclpath"
+  echo "curl_libpath        = $curl_libpath"
+  echo "zmq_inclpath        = $zmq_inclpath"
+  echo "zmq_libpath         = $zmq_libpath"
+  echo "onnx_rt_inclpath    = $onnx_rt_inclpath"
+  echo "onnx_rt_libpath     = $onnx_rt_libpath"
+  echo "onnx_proto_inclpath = $onnx_proto_inclpath"
+  echo "vpath               = $vpath"
+  echo "jzpat               = $jzpat"
+  echo "cpps                = $cpps"
+  echo "objs                = $objs"
+  echo "jazz_depends        = $jazz_depends"
+  echo "uplifted_mod        = $uplifted_mod"
+  echo "uplifted_api        = $uplifted_api"
 
   printf "\n"
 fi
@@ -309,14 +319,14 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++17 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath -I$onnx_inclpath
+CXXFLAGS     := -std=c++17 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath -I$onnx_rt_inclpath -I$onnx_proto_inclpath
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version
 mhd_libpath  := $mhd_libpath
 curl_libpath := $curl_libpath
 zmq_libpath  := $zmq_libpath
-onnx_libpath := $onnx_libpath
+onnx_libpath := $onnx_rt_libpath
 
 VPATH = $vpath
 
