@@ -17,6 +17,10 @@
 
 mode='RUN'    # Set mode='DEBUG' for echoing all variables before confirmation.
 
+if [[ "$1" == "--debug" ]]; then
+    mode='DEBUG'
+fi
+
 
 # Section 1. Gathering all necessary information. 1. Fail if necessary. 2. Do nothing without confirmation
 # ----------
@@ -28,7 +32,7 @@ if [[ $1 = '--help' ]]; then
   exit 0
 fi
 
-printf "(usage: ./config.sh --help)\n\nGathering information ...\n\n"
+printf "(usage: ./config.sh [--debug] [--help])\n\nGathering information ...\n\n"
 
 # 1.2 Get Jazz environment variables
 
