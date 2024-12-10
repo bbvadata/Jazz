@@ -45,14 +45,12 @@ using namespace jazz_bebop;
 // -----
 
 SCENARIO("Testing opcodes") {
+	OpCodes opset = OpCodes(&LOGGER, &CONFIG);
 
-//TODO: Write tests for opcodes!
+	REQUIRE(opset.start() == 0);
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
+	REQUIRE(opset.ir_version >= 10);
+	REQUIRE(opset.onnx_conf.num_keys() > 5000);
+
+	REQUIRE(opset.shut_down() == 0);
 }

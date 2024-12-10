@@ -88,11 +88,12 @@ class OpCodes : public Service {
 
 		bool set_opset_version(int version);
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		ConfigFile onnx_conf = ConfigFile(nullptr);		///< The ONNX opcodes reference stored as a ConfigFile.
 		int ir_version;									///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
-
 };
 typedef OpCodes *pOpCodes;		///< A pointer to a OpCodes
 
