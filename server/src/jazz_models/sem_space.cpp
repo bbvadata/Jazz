@@ -170,7 +170,7 @@ pRowSelection SemSpace::where(pChar query) {
 }
 
 
-StatusCode SemSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols) {
+StatusCode SemSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
 
 //TODO: Implement SemSpace::get_row
 

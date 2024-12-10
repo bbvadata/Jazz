@@ -170,7 +170,7 @@ pRowSelection DataSpace::where(pChar query) {
 }
 
 
-StatusCode DataSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols) {
+StatusCode DataSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
 
 //TODO: Implement DataSpace::get_row
 

@@ -97,7 +97,7 @@ class DataSpace : public Space {
 		virtual int col_index(pName name);
 		virtual pLocator locator(RowNumber row, int col, int &index);
 		virtual pRowSelection where(pChar query);
-		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr);
+		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
 
 		// DataSpace-ETL interface
 
