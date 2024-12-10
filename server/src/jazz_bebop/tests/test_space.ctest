@@ -68,7 +68,7 @@ class DummyColSpace : public Space {
 class DummyCaster : public Caster {
 	public:
 
-		DummyCaster(pVolatile a_volatile) : Caster(a_volatile) {name = stdName((pChar) "dummy");}
+		DummyCaster(pBaseAPI api) : Caster(api) {name = stdName((pChar) "dummy");}
 
 		virtual StatusCode get(pTransaction	&p_txn, pBlock p_block) {
 			p_txn = nullptr;
@@ -500,7 +500,7 @@ SCENARIO("Testing Space/Caster") {
 		REQUIRE(space.start() == 0);
 		REQUIRE(space.num_cols() == 6);
 
-		DummyCaster dummy = DummyCaster(&VOL);
+		DummyCaster dummy = DummyCaster(&BAPI);
 
 		REQUIRE(strcmp(dummy.name.name, "dummy") == 0);
 

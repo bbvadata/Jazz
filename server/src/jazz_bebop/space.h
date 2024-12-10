@@ -205,9 +205,9 @@ class Caster {
 
 	/** \brief The constructor for a Caster.
 
-		\param a_volatile	An instance of a (the) Volatile shared by many bebop classes. It is used to create new blocks.
+		\param api	A BaseAPI. It is used to create new blocks.
 	*/
-	Caster(pVolatile a_volatile) {}
+	Caster(pBaseAPI api) {}
 
 	/** \brief Convert a block doing whatever the caster does.
 
