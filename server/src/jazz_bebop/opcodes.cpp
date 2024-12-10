@@ -38,6 +38,49 @@
 namespace jazz_bebop
 {
 
+/** \brief A table to locate all the possible ONNX tensor types by their name in the config file "onnx.ini".
+
+	The table is a map of strings to a TensorType: Jazz native type, ONNX protocol buffer type and ONNX runtime type.
+*/
+const TensorTypeDict TENSOR_TYPES = {
+
+	{(pChar) "bool",	{CELL_TYPE_BYTE_BOOLEAN, onnx::TensorProto::BOOL,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL}},
+	{(pChar) "double",	{CELL_TYPE_DOUBLE,		 onnx::TensorProto::DOUBLE,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE}},
+	{(pChar) "float",	{CELL_TYPE_SINGLE,		 onnx::TensorProto::FLOAT,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT}},
+	{(pChar) "string",	{CELL_TYPE_STRING,		 onnx::TensorProto::STRING,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING}},
+
+	{(pChar) "bfloat16",{CELL_TYPE_BFLOAT16,	 onnx::TensorProto::BFLOAT16, ONNX_TENSOR_ELEMENT_DATA_TYPE_BFLOAT16}},
+	{(pChar) "float16",	{CELL_TYPE_FLOAT16,		 onnx::TensorProto::FLOAT16,  ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT16}},
+
+	{(pChar) "int16",	{CELL_TYPE_INT16,		 onnx::TensorProto::INT16,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_INT16}},
+	{(pChar) "int32",	{CELL_TYPE_INTEGER,		 onnx::TensorProto::INT32,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_INT32}},
+	{(pChar) "int64",	{CELL_TYPE_LONG_INTEGER, onnx::TensorProto::INT64,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64}},
+	{(pChar) "int8",	{CELL_TYPE_INT8,		 onnx::TensorProto::INT8,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_INT8}},
+
+	{(pChar) "uint16",	{CELL_TYPE_UINT16,		 onnx::TensorProto::UINT16,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT16}},
+	{(pChar) "uint32",	{CELL_TYPE_UINT32,		 onnx::TensorProto::UINT32,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT32}},
+	{(pChar) "uint64",	{CELL_TYPE_UINT64,		 onnx::TensorProto::UINT64,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT64}},
+	{(pChar) "uint8",	{CELL_TYPE_BYTE,		 onnx::TensorProto::UINT8,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_UINT8}}
+};
+
+
+/** \brief A table to locate all the possible ONNX attribute types by their name in the config file "onnx.ini".
+
+	The table is a map of strings to an AttributeType: Jazz native type, ONNX protobuf type and a boolean if the attribute is a list.
+*/
+const AttributeTypeDict ATTRIBUTE_TYPES = {
+
+	{(pChar) "float",	{CELL_TYPE_SINGLE,		 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_FLOAT, false}},
+	{(pChar) "floats",	{CELL_TYPE_SINGLE,		 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_FLOATS, true}},
+	{(pChar) "int",		{CELL_TYPE_LONG_INTEGER, onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_INT, false}},
+	{(pChar) "ints",	{CELL_TYPE_LONG_INTEGER, onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_INTS, true}},
+	{(pChar) "string",	{CELL_TYPE_STRING,		 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_STRING, false}},
+	{(pChar) "strings",	{CELL_TYPE_STRING,		 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_STRING, true}},
+
+	{(pChar) "graph",	{CELL_TYPE_ONNX_GRAPH,	 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_GRAPH, false}},
+	{(pChar) "tensor",	{CELL_TYPE_ONNX_TENSOR,	 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_TENSOR, false}}
+};
+
 /*	-----------------------------------------------
 	 OpCodes : I m p l e m e n t a t i o n
 --------------------------------------------------- */
