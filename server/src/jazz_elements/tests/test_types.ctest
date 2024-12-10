@@ -66,4 +66,29 @@ SCENARIO("Testing (types) structure sizes.") {
 	REQUIRE(&p_block->has_NA		 == &sbh.has_NA);
 	REQUIRE(&p_block->hash64		 == &sbh.hash64);
 	REQUIRE(&p_block->tensor		 == &sbh.tensor);
+
+	Tensor t;
+
+	void *p_t0 = &t;
+	void *p_t1 = (void*)((uintptr_t)p_t0 + 1);
+	void *p_t2 = (void*)((uintptr_t)p_t0 + 2);
+	void *p_t4 = (void*)((uintptr_t)p_t0 + 4);
+	void *p_t8 = (void*)((uintptr_t)p_t0 + 8);
+
+	REQUIRE(p_t1 == &t.cell_byte[1]);
+	REQUIRE(p_t1 == &t.cell_int8[1]);
+	REQUIRE(p_t1 == &t.cell_bool[1]);
+
+	REQUIRE(p_t2 == &t.cell_int16[1]);
+	REQUIRE(p_t2 == &t.cell_word[1]);
+	REQUIRE(p_t2 == &t.cell_float16[1]);
+
+	REQUIRE(p_t4 == &t.cell_int[1]);
+	REQUIRE(p_t4 == &t.cell_uint[1]);
+	REQUIRE(p_t4 == &t.cell_single[1]);
+
+	REQUIRE(p_t8 == &t.cell_longint[1]);
+	REQUIRE(p_t8 == &t.cell_time[1]);
+	REQUIRE(p_t8 == &t.cell_ulongint[1]);
+	REQUIRE(p_t8 == &t.cell_double[1]);
 }

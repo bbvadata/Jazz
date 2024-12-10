@@ -53,8 +53,10 @@ inline double R_ValueOfNA() {
 	return na.d;
 }
 
-float  F_NA = nanf("");
-double R_NA = R_ValueOfNA();
+float	F_NA	= nanf("");
+double	R_NA	= R_ValueOfNA();
+ff_fp16	F16_NA	= {0x7e00};			///< FLOAT16_NA: 0x7e00 is the IEEE 754 half-precision floating point representation of NaN
+ff_fp16	BF16_NA	= {0x7fc0};			///< BFLOAT16_NA: 0x7fc0 is the Brain Floating Point, half-precision representation of NaN
 
 } // namespace jazz_elements
 

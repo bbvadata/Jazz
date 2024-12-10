@@ -89,10 +89,10 @@ at [host]/develop/rfc2/jazz_actor_model.html
 // 8 bit cell types
 #define CELL_TYPE_BYTE			0x001		///< A tensor of unsigned 8-bit binaries. NA is not defined for this type
 #define CELL_TYPE_BYTE_BOOLEAN	0x101		///< A tensor 8-bit booleans: 0, 1, BYTE_BOOLEAN_NA = NA
+#define CELL_TYPE_INT8			0x201		///< A tensor of 8-bit signed integers. NA is INTEGER_NA
 
 // 16 bit cell types (Introduced for Bop-25)
 
-//TODO: Understand what else is required make 16 bit types available. Add some tests too.
 #define CELL_TYPE_INT16			0x002		///< A tensor of 16-bit signed integers. No NA is defined for this type
 #define CELL_TYPE_UINT16		0x102		///< A tensor of 16-bit unsigned integers. No NA is defined for this type
 #define CELL_TYPE_FLOAT16		0x202		///< A tensor of IEEE 754 half-precision floating point. NA is standard IEEE 754 NaN
@@ -105,11 +105,13 @@ at [host]/develop/rfc2/jazz_actor_model.html
 #define CELL_TYPE_BOOLEAN		0x304		///< A tensor of 32-bit booleans: 0, 1, BOOLEAN_NA = NA
 #define CELL_TYPE_SINGLE		0x404		///< A tensor of IEEE 754 32-bit float (aka single). NA is SINGLE_NA
 #define CELL_TYPE_STRING		0x504		///< A tensor or 32-bit offsets to immutable strings or STRING_NA or STRING_EMPTY
+#define CELL_TYPE_UINT32		0x604		///< A tensor of 32-bit unsigned integers. No NA is defined for this type
 
 // 64 bit cell types
 #define CELL_TYPE_LONG_INTEGER	0x008		///< A tensor of 64-bit signed integers. NA is LONG_INTEGER_NA
 #define CELL_TYPE_TIME			0x108		///< A tensor of 64-bit TimePoint. NA is TIME_POINT_NA
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
+#define CELL_TYPE_UINT64		0x308		///< A tensor of 64-bit unsigned integers. No NA is defined for this type
 
 // 40 byte cell types
 #define CELL_TYPE_TUPLE_ITEM	0x028		///< A vector of ItemHeader (in a Tuple)
@@ -118,9 +120,15 @@ at [host]/develop/rfc2/jazz_actor_model.html
 // 48 byte cell types
 #define CELL_TYPE_INDEX			0x030		///< An Index (accessed via a pBlockHeader instead of a pBlock)
 
+// Special cell types (Used in onnx::AttributeProto::AttributeType)
+#define CELL_TYPE_ONNX_GRAPH	0x040		///< An ONNX Graph (Used in If and Loop to define separate computation paths.)
+#define CELL_TYPE_ONNX_TENSOR	0x140		///< An ONNX Tensor (Used in Constant to define a constant tensor.)
+
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
 #define BOOLEAN_NA				0x0ff		///< NA for a 32-bit boolean is binary 0xff. This is R compatible.
+#define FLOAT16_NA				F16_NA		///< NA for a 16-bit float is the value returned by nanf(). CELL_TYPE_FLOAT16
+#define BFLOAT16_NA				BF16_NA		///< NA for a 16-bit bfloat is the value returned by nanf(). CELL_TYPE_BFLOAT16
 #define INTEGER_NA				INT_MIN		///< NA for a 32-bit integer. This is R compatible.
 #define SINGLE_NA				F_NA		///< NA for a float is the value returned by nanf(). Type does not exist in R.
 #define STRING_NA				0			///< NA for a string coded as CELL_TYPE_STRING
@@ -197,16 +205,26 @@ struct ItemHeader {
 };
 
 
+typedef uint16_t ff_fp16;		///< A future (C++23 declares std::float16_t) 16-bit floating point placeholder for float16 and bfloat16.
+
+
 /// A tensor of cell size 1, 4, 8 or sizeof(BlockHeader)
 union Tensor {
 	uint8_t	   cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
+	int8_t	   cell_int8[0];		///< .. CELL_TYPE_INT8
 	bool	   cell_bool[0];		///< .. CELL_TYPE_BYTE_BOOLEAN
+
+	int16_t	   cell_int16[0];		///< .. CELL_TYPE_INT16
+	uint16_t   cell_word[0];		///< .. CELL_TYPE_UINT16
+	ff_fp16	   cell_float16[0];		///< .. CELL_TYPE_FLOAT16 or CELL_TYPE_BFLOAT16
+
 	int		   cell_int[0];			///< .. CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
-	uint32_t   cell_uint[0];		///< .. CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	uint32_t   cell_uint[0];		///< .. CELL_TYPE_UINT32 or CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
 	float	   cell_single[0];		///< .. CELL_TYPE_SINGLE
+
 	long long  cell_longint[0];		///< .. CELL_TYPE_LONG_INTEGER
 	time_t	   cell_time[0];		///< .. CELL_TYPE_TIME
-	uint64_t   cell_ulongint[0];	///< .. CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
+	uint64_t   cell_ulongint[0];	///< .. CELL_TYPE_UINT64 or CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
 	double	   cell_double[0];		///< .. CELL_TYPE_DOUBLE
 	ItemHeader cell_item[0];		///< .. An array of BlockHeader used by Kinds and Tuples
 };
