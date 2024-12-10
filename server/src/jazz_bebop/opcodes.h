@@ -50,10 +50,12 @@
 #define INCLUDED_JAZZ_BEBOP_OPCODES
 
 
+/** \brief A type definition for tensors across all the technologies: Jazz native, ONNX protocol buffer and ONNX runtime.
+*/
 class TensorType {
-	int jazz_type;
-	onnx::TensorProto::DataType onnx_proto_type;
-	ONNXTensorElementDataType onnx_rt_type;
+	int jazz_type;									///< The Jazz native type.
+	onnx::TensorProto::DataType onnx_proto_type;	///< The ONNX protocol buffer type.
+	ONNXTensorElementDataType onnx_rt_type;			///< The ONNX runtime type.
 };
 
 
