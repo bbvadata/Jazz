@@ -62,12 +62,21 @@ class Space;					///< Forward definition of Space
 typedef Space *pSpace;			///< A pointer to a Space
 
 
-/** \brief A wrapped Name that supports being stacked in an std::vector.
+/** \brief A wrapped Name that supports being stacked in an std::vector and used as a key in an std::map.
 */
 class stdName {
 
 	public:
 		stdName() {}
+
+		/** \brief Constructor from cChar.
+
+			\param name	A C string with a name.
+		*/
+		stdName(const pChar &name) {
+			strncpy(this->name, name, NAME_SIZE);
+			this->name[NAME_LENGTH] = 0;
+		}
 
 		/** \brief Copy constructor for stdName.
 
@@ -75,6 +84,26 @@ class stdName {
 		*/
 		stdName(const stdName &name) {
 			memcpy(&this->name, &name, sizeof(stdName));
+		}
+
+		/** \brief Operator name == o.name.
+
+			\param o	The object to compare with.
+
+			\return True if the names are equal.
+		*/
+		bool operator==(const stdName &o) const {
+			return strcmp(name, o.name) == 0;
+		}
+
+		/** \brief Operator name < o.name.
+
+			\param o	The object to compare with.
+
+			\return True if the name is less than o.name.
+		*/
+		bool operator<(const stdName &o) const {
+			return strcmp(name, o.name) < 0;
 		}
 
 		Name name;				///< The name
@@ -163,6 +192,41 @@ class ColSelection {
 typedef ColSelection *pColSelection;	///< A pointer to a ColSelection
 
 
+/** \brief Caster: An optional converter of the output.
+
+	This is a function that converts the result returned by a Space.get_row(). It can be a conversion from text to tokens or vice versa,
+from wave to aperiodic, a sentence embedding, an image format converter, etc. Something deterministic. Is is identified by a name and
+used in a query with the AS keyword.
+
+	The collection of all the available Caster descendants is managed by a Casters object.
+*/
+class Caster {
+	public:
+
+	/** \brief The constructor for a Caster.
+
+		\param a_volatile	An instance of a (the) Volatile shared by many bebop classes. It is used to create new blocks.
+	*/
+	Caster(pVolatile a_volatile) {}
+
+	/** \brief Convert a block doing whatever the caster does.
+
+		\param p_txn	The transaction that contains the new block.
+		\param p_block	The block to convert.
+
+		\return SERVICE_NO_ERROR if successful, an error code otherwise.
+	*/
+	virtual StatusCode get(pTransaction	&p_txn, pBlock p_block) {
+		return SERVICE_NOT_IMPLEMENTED;
+	}
+
+	stdName name;		///< The name of the Caster.
+};
+typedef Caster *pCaster;						///< A pointer to a Caster
+typedef std::map<stdName, pCaster> Casters;		///< A map of Caster pointers
+typedef Casters *pCasters;						///< A pointer to a Casters
+
+
 /** \brief Space: The abstract space.
 
 	This is the abstract parent of DataSpace and SemSpace. A Space is an abstraction over many blocks that provides:
@@ -176,7 +240,6 @@ typedef ColSelection *pColSelection;	///< A pointer to a ColSelection
 	to access data.
 
 	\see DataSpace, SemSpace
-
 */
 class Space : public Service {
 
@@ -297,16 +360,47 @@ class Space : public Service {
 			return new ColSelection(query, this);
 		}
 
+		/** \brief Get the appropriate Caster from the AS clause of a query.
+
+			\param query The name of the Caster to get.
+
+			\return A pointer to the Caster or nullptr if the Caster is not found.
+		*/
+		virtual pCaster as(pChar query) {
+			stdName name(query);
+			Casters::iterator it = casters.find(name);
+			if (it == casters.end())
+				return nullptr;
+
+			return it->second;
+		}
+
+		/** \brief Register a Caster descendant to make it available in queries.
+
+			\param cast The Caster to register.
+
+			\return True if the Caster was successfully registered, false if a Caster with the same name is already registered.
+		*/
+		virtual bool register_caster(pCaster cast) {
+			Casters::iterator it = casters.find(cast->name);
+			if (it != casters.end())
+				return false;
+
+			casters[cast->name] = cast;
+			return true;
+		}
+
 		/** \brief Get a row from the Space as a Tuple
 
 			\param p_txn A transaction that will be used to get the result. It must be destroyed with:
 						 p_txn->p_owner->destroy_transaction(p_txn)
 			\param row	 The row number as obtained from a RowSelection.next() call.
 			\param cols	 Pointer to a ColSelection to specify columns to be retrieved. If nullptr, all columns are retrieved.
+			\param cast	 Pointer to a Caster to convert the result. If nullptr, no conversion is done.
 
 			\return SERVICE_NO_ERROR if successful, an error code otherwise.
 		*/
-		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr) {
+		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr) {
 			return SERVICE_NOT_IMPLEMENTED;
 		}
 
@@ -317,6 +411,7 @@ class Space : public Service {
 		char storage_base [SHORT_NAME_SIZE];	///< The base name of the storage container.
 		Name	 name;							///< The name of the Space.
 		pBaseAPI p_api;							///< A pointer to the BaseAPI that provides access to containers.
+		Casters	 casters;						///< A map of all the available Casters.
 };
 
 } // namespace jazz_bebop

@@ -149,7 +149,7 @@ pName ColSelection::next_name() {
 	 Space : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the Space.
+/** \brief Bop: Create the Space.
 
 	\param api	  A pointer to a BaseAPI that provides access to containers.
 	\param a_name The name of the Space.
@@ -158,6 +158,7 @@ Space::Space(pBaseAPI api, pName a_name) : Service(api->p_log, api->p_conf) {
 
 	memcpy(&name, a_name, sizeof(Name));
 	p_api = api;
+	casters = {};
 }
 
 
