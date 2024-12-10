@@ -65,6 +65,17 @@ class DummyColSpace : public Space {
 };
 
 
+class DummyCaster : public Caster {
+	public:
+
+		DummyCaster(pVolatile a_volatile) : Caster(a_volatile) {name = stdName((pChar) "dummy");}
+
+		virtual StatusCode get(pTransaction	&p_txn, pBlock p_block) {
+			p_txn = nullptr;
+			return SERVICE_ERROR_STARTING;
+		}
+};
+
 // Tests
 // -----
 
@@ -458,6 +469,50 @@ SCENARIO("Testing Space/ColSelection") {
 			REQUIRE(sel->next_name() == nullptr);
 			delete sel;
 		}
+
+		REQUIRE(space.shut_down() == 0);
+	}
+
+	REQUIRE(BAPI.shut_down() == 0);
+
+	REQUIRE(CHN.shut_down() == 0);
+	REQUIRE(VOL.shut_down() == 0);
+	REQUIRE(PER.shut_down() == 0);
+}
+
+
+SCENARIO("Testing Space/Caster") {
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(BAPI.p_channels	 == &CHN);
+		REQUIRE(BAPI.p_volatile	 == &VOL);
+		REQUIRE(BAPI.p_persisted == &PER);
+	}
+
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
+	REQUIRE(PER.start() == 0);
+
+	REQUIRE(BAPI.start() == 0);
+
+	WHEN("We have a properly initializedSpace") {
+		DummyColSpace space = DummyColSpace(&BAPI, (pName) "dummy");
+
+		REQUIRE(space.start() == 0);
+		REQUIRE(space.num_cols() == 6);
+
+		DummyCaster dummy = DummyCaster(&VOL);
+
+		REQUIRE(strcmp(dummy.name.name, "dummy") == 0);
+
+		REQUIRE(space.as((pChar) "mickey") == nullptr);
+		REQUIRE(space.as((pChar) "dummy") == nullptr);
+
+		REQUIRE(space.register_caster(&dummy));
+
+		REQUIRE(space.as((pChar) "mickey") == nullptr);
+		REQUIRE(space.as((pChar) "dummy") == &dummy);
+
+		REQUIRE(!space.register_caster(&dummy));
 
 		REQUIRE(space.shut_down() == 0);
 	}
