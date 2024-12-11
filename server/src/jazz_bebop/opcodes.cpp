@@ -129,6 +129,11 @@ StatusCode OpCodes::shut_down() {
 }
 
 
+/** \brief Build the opcode dictionary.
+	This build the vector opcodes and the dictionary opcodes_idx from the content of onnx_conf.
+
+	\return True if the dictionary was built.
+*/
 bool OpCodes::build_opcode_dict() {
 	std::string all_name_vers;
 	if (!onnx_conf.get_key("__name_vers", all_name_vers))
@@ -150,7 +155,7 @@ bool OpCodes::build_opcode_dict() {
 			if (op == nullptr)
 				return false;
 
-			fill_op_code(*op, name, vers);
+			fill_op_code(*op);
 			opcodes.push_back(op);
 			opcodes_idx[stdNameVersion(name, vers)] = opcodes.back();
 
@@ -158,9 +163,8 @@ bool OpCodes::build_opcode_dict() {
 
 			if (c == 0) {
 				op_vers_current = op_vers_latest;
-				fill_all_dict_versions();
 
-				return true;
+				return fill_all_dict_versions();
 			}
 
 			break;
@@ -189,22 +193,30 @@ bool OpCodes::build_opcode_dict() {
 }
 
 
-bool OpCodes::fill_op_code(OnnxOpCode &op, stdName name, int version) {
-	char buff[64];
+/** \brief Fill an ONNX OpCode.
+	This completes all the fields of an OpCode other than name and version. It reads the configuration file onnx_conf and creates
+	the necessary objects.
+
+	\param op		The OpCode to fill. (It must have the name and version set). This method fills its inputs, outputs and attributes.
+
+	\return True if the OpCode was filled.
+*/
+bool OpCodes::fill_op_code(OnnxOpCode &op) {
+	char buff[256];
 	int n;
 	std::string nam, typ;
 
-	sprintf(buff, "%s.%d.num_inputs", name.name, version);
+	sprintf(buff, "%s.%d.num_inputs", op.name.name, op.opset_version);
 	if (!onnx_conf.get_key(buff, n))
 		return false;
 
 	for (int i = 0; i < n; i++) {
-		sprintf(buff, "%s.%d.input.%d.name", name.name, version, i);
+		sprintf(buff, "%s.%d.input.%d.name", op.name.name, op.opset_version, i);
 
 		if (!onnx_conf.get_key(buff, nam))
 			return false;
 
-		sprintf(buff, "%s.%d.input.%d.tensor_types", name.name, version, i);
+		sprintf(buff, "%s.%d.input.%d.tensor_types", op.name.name, op.opset_version, i);
 
 		if (!onnx_conf.get_key(buff, typ))
 			return false;
@@ -217,17 +229,17 @@ bool OpCodes::fill_op_code(OnnxOpCode &op, stdName name, int version) {
 		op.inputs.push_back(inp);
 	}
 
-	sprintf(buff, "%s.%d.num_outputs", name.name, version);
+	sprintf(buff, "%s.%d.num_outputs", op.name.name, op.opset_version);
 	if (!onnx_conf.get_key(buff, n))
 		return false;
 
 	for (int i = 0; i < n; i++) {
-		sprintf(buff, "%s.%d.output.%d.name", name.name, version, i);
+		sprintf(buff, "%s.%d.output.%d.name", op.name.name, op.opset_version, i);
 
 		if (!onnx_conf.get_key(buff, nam))
 			return false;
 
-		sprintf(buff, "%s.%d.output.%d.tensor_types", name.name, version, i);
+		sprintf(buff, "%s.%d.output.%d.tensor_types", op.name.name, op.opset_version, i);
 
 		if (!onnx_conf.get_key(buff, typ))
 			return false;
@@ -240,17 +252,17 @@ bool OpCodes::fill_op_code(OnnxOpCode &op, stdName name, int version) {
 		op.outputs.push_back(out);
 	}
 
-	sprintf(buff, "%s.%d.num_attributes", name.name, version);
+	sprintf(buff, "%s.%d.num_attributes", op.name.name, op.opset_version);
 	if (!onnx_conf.get_key(buff, n))
 		return false;
 
 	for (int i = 0; i < n; i++) {
-		sprintf(buff, "%s.%d.attribute.%d.name", name.name, version, i);
+		sprintf(buff, "%s.%d.attribute.%d.name", op.name.name, op.opset_version, i);
 
 		if (!onnx_conf.get_key(buff, nam))
 			return false;
 
-		sprintf(buff, "%s.%d.attribute.%d.type", name.name, version, i);
+		sprintf(buff, "%s.%d.attribute.%d.type", op.name.name, op.opset_version, i);
 
 		if (!onnx_conf.get_key(buff, typ))
 			return false;
@@ -267,6 +279,15 @@ bool OpCodes::fill_op_code(OnnxOpCode &op, stdName name, int version) {
 }
 
 
+/** \brief Fill all versions of the dictionary.
+
+	This fills every non existing version of an opcode to the previous existing one. E.g., if and opcode "foo" exists for versions 7 and 13,
+	it makes the versions 8 to 12 point to the version 7 opcode and the versions 14 to 19 (latest) point to version 13.
+
+	This simplifies the search for the opcodes for any version predefined using set_opset_version().
+
+	\return True if all versions were filled
+*/
 bool OpCodes::fill_all_dict_versions() {
 	std::string all_names;
 	if (!onnx_conf.get_key("__names", all_names))
@@ -293,6 +314,15 @@ bool OpCodes::fill_all_dict_versions() {
 	return true;
 }
 
+
+/** \brief Fill the tensor types.
+	This fills a list of tensor types from a string with the names of the types separated by commas.
+
+	\param types		The list of types to fill.
+	\param all_types	The string with the names of the types separated by commas.
+
+	\return True if all types were found.
+*/
 bool OpCodes::fill_tensor_types(TensorTypes &types, std::string &all_types) {
 	std::stringstream ss(all_types);
 	std::string typ;
@@ -309,6 +339,14 @@ bool OpCodes::fill_tensor_types(TensorTypes &types, std::string &all_types) {
 }
 
 
+/** \brief Fill the attribute type.
+	This fills an attribute type from a string with the name of the type.
+
+	\param type			The attribute type to fill.
+	\param type_name	The name of the type.
+
+	\return True if the type was found.
+*/
 bool OpCodes::fill_attribute_type(AttributeType &type, std::string &type_name) {
 	AttributeTypeDict::iterator it = ATTRIBUTE_TYPES.find((pChar) type_name.c_str());
 	if (it == ATTRIBUTE_TYPES.end())
