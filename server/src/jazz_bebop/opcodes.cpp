@@ -267,12 +267,31 @@ bool OpCodes::fill_op_code(OnnxOpCode &op, stdName name, int version) {
 }
 
 
-void OpCodes::fill_all_dict_versions() {
+bool OpCodes::fill_all_dict_versions() {
+	std::string all_names;
+	if (!onnx_conf.get_key("__names", all_names))
+		return false;
 
-	// ...
+	std::stringstream ss(all_names);
+	std::string name;
 
+	while (std::getline(ss, name, ',')) {
+		int lowest_vers = -1, x;
+		char buff[256];
+
+		for (int vers = 1; vers <= op_vers_latest; vers++) {
+			sprintf(buff, "%s.%d.num_inputs", name.c_str(), vers);
+
+			if (onnx_conf.get_key(buff, x))
+				lowest_vers = vers;
+			else if (lowest_vers > 0) {
+				opcodes_idx[stdNameVersion((pChar) name.c_str(), vers)] = opcodes_idx[stdNameVersion((pChar) name.c_str(), lowest_vers)];
+			}
+		}
+	}
+
+	return true;
 }
-
 
 bool OpCodes::fill_tensor_types(TensorTypes &types, std::string &all_types) {
 	std::stringstream ss(all_types);
