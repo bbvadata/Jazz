@@ -148,8 +148,8 @@ class OnnxOpCode {
 		OnnxParameters outputs;					///< The output parameters.
 		OnnxAttributes attributes;				///< The attributes.
 };
-typedef OnnxOpCode *pOnnxOpCode;				///< A pointer to an OnnxOpCode
-typedef std::vector<pOnnxOpCode> OnnxOpCodes;	///< A list of OnnxOpCode objects.
+typedef OnnxOpCode *pOnnxOpCode;				///< A pointer to an OnnxOpCode object.
+typedef std::vector<OnnxOpCode> OnnxOpCodes;	///< A list of OnnxOpCode objects.
 
 
 /** \brief A pair of a name and a version to be used as a key in a dictionary.
@@ -190,7 +190,7 @@ class stdNameVersion {
 		stdName name;				///< The name of the ONNX OpCode.
 		int opset_version;			///< The version of the opset.
 };
-typedef std::map<stdNameVersion, pOnnxOpCode> OnnxOpCodeDict;		///< A map of OnnxOpCode objects.
+typedef std::map<stdNameVersion, int> OnnxOpCodeDict;		///< A map of OnnxOpCode objects.
 
 
 /** \brief OpCodes: The opcodes.
@@ -216,7 +216,7 @@ class OpCodes : public Service {
 			\return True if the version was set. It must be between 1 and latest_opset_version().
 		*/
 		bool set_opset_version(int version) {
-			if (version < 0 || version > op_vers_latest)
+			if (version <= 0 || version > op_vers_latest)
 				return false;
 
 			op_vers_current = version;
@@ -234,7 +234,7 @@ class OpCodes : public Service {
 			if (it == opcodes_idx.end())
 				return nullptr;
 
-			return it->second;
+			return &opcodes.at(it->second);
 		}
 
 #ifndef CATCH_TEST
@@ -250,9 +250,9 @@ class OpCodes : public Service {
 									std::string	  &type_name);
 
 		ConfigFile onnx_conf = ConfigFile(nullptr);		///< The ONNX opcodes reference stored as a ConfigFile.
-		int ir_vers;									///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
-		int op_vers_latest;								///< The latest opset version in onnx.ini.
-		int op_vers_current;							///< The opset version in use, set by set_opset_version() or op_vers_latest.
+		int ir_vers = 0;								///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
+		int op_vers_latest = 0;							///< The latest opset version in onnx.ini.
+		int op_vers_current = 0;						///< The opset version in use, set by set_opset_version() or op_vers_latest.
 		OnnxOpCodeDict opcodes_idx = {};				///< The index to the opcodes.
 		OnnxOpCodes	opcodes = {};						///< The opcodes parsed as binary objects.
 };

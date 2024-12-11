@@ -155,9 +155,13 @@ bool OpCodes::build_opcode_dict() {
 			if (op == nullptr)
 				return false;
 
-			fill_op_code(*op);
-			opcodes.push_back(op);
-			opcodes_idx[stdNameVersion(name, vers)] = opcodes.back();
+			if (!fill_op_code(*op)) {
+				delete op;
+				return false;
+			}
+
+			opcodes.push_back(*op);
+			opcodes_idx[stdNameVersion(name, vers)] = opcodes.size() - 1;
 
 			delete op;
 
