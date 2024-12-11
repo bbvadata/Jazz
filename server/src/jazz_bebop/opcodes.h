@@ -204,10 +204,17 @@ class OpCodes : public Service {
 		virtual StatusCode start	();
 		virtual StatusCode shut_down();
 
+		/** \brief Get the latest opset version.
+			\return The latest opset version.
+		*/
 		int latest_opset_version() {
 			return op_vers_latest;
 		}
 
+		/** \brief Set the opset version.
+			\param version	The version to set.
+			\return True if the version was set. It must be between 1 and latest_opset_version().
+		*/
 		bool set_opset_version(int version) {
 			if (version < 0 || version > op_vers_latest)
 				return false;
@@ -216,6 +223,11 @@ class OpCodes : public Service {
 			return true;
 		}
 
+		/** \brief Get an ONNX OpCode.
+			\param name	The name of the OpCode.
+			\return The OpCode. Null if not found.
+				The version returned is highest version smaller or equal to the one set by set_opset_version().
+		*/
 		pOnnxOpCode get(stdName name) {
 			OnnxOpCodeDict::iterator it = opcodes_idx.find(stdNameVersion(name, op_vers_current));
 
@@ -229,15 +241,13 @@ class OpCodes : public Service {
 	private:
 #endif
 
-		bool			build_opcode_dict	   ();
-		bool			fill_op_code		   (OnnxOpCode	  &op,
-												stdName		   name,
-												int			   version);
-		void			fill_all_dict_versions ();
-		bool			fill_tensor_types	   (TensorTypes	  &types,
-												std::string	  &all_types);
-		bool			fill_attribute_type	   (AttributeType &type,
-												std::string	  &type_name);
+		bool build_opcode_dict	   ();
+		bool fill_op_code		   (OnnxOpCode	  &op);
+		bool fill_all_dict_versions();
+		bool fill_tensor_types	   (TensorTypes	  &types,
+									std::string	  &all_types);
+		bool fill_attribute_type   (AttributeType &type,
+									std::string	  &type_name);
 
 		ConfigFile onnx_conf = ConfigFile(nullptr);		///< The ONNX opcodes reference stored as a ConfigFile.
 		int ir_vers;									///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
