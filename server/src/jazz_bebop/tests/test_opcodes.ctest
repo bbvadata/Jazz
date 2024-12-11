@@ -47,10 +47,59 @@ using namespace jazz_bebop;
 SCENARIO("Testing opcodes") {
 	OpCodes opset = OpCodes(&LOGGER, &CONFIG);
 
+	TensorTypes tt = {};
+
+	std::string typ_names = "float,float16,uint16";
+
+	REQUIRE(opset.fill_tensor_types(tt, typ_names));
+	REQUIRE(tt.size() == 3);
+	REQUIRE(tt[0].jazz_type == CELL_TYPE_SINGLE);
+
+	typ_names = "bfloat16,ethereal";
+
+	REQUIRE(!opset.fill_tensor_types(tt, typ_names));
+
+	typ_names = "";
+	tt = {};
+
+	REQUIRE(opset.fill_tensor_types(tt, typ_names));
+	REQUIRE(tt.size() == 0);
+
+	typ_names = "floats";
+
+	AttributeType ta = {};
+
+	REQUIRE(opset.fill_attribute_type(ta, typ_names));
+
+	REQUIRE(ta.jazz_type == CELL_TYPE_SINGLE);
+	REQUIRE(ta.is_multi  == true);
+
+	typ_names = "graph";
+
+	REQUIRE(opset.fill_attribute_type(ta, typ_names));
+
+	REQUIRE(ta.jazz_type == CELL_TYPE_ONNX_GRAPH);
+	REQUIRE(ta.is_multi  == false);
+
+	typ_names = "not_a_type";
+
+	REQUIRE(!opset.fill_attribute_type(ta, typ_names));
+
+	typ_names = "";
+
+	REQUIRE(!opset.fill_attribute_type(ta, typ_names));
+
 	REQUIRE(opset.start() == 0);
 
-	REQUIRE(opset.ir_version >= 10);
+	REQUIRE(opset.ir_vers >= 10);
 	REQUIRE(opset.onnx_conf.num_keys() > 5000);
+
+	REQUIRE(opset.op_vers_latest >= 19);
+	REQUIRE(opset.op_vers_current >= 19);
+	REQUIRE(opset.op_vers_latest <= 99);
+	REQUIRE(opset.op_vers_current <= 99);
+
+	// ...
 
 	REQUIRE(opset.shut_down() == 0);
 }

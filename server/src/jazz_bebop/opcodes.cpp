@@ -42,7 +42,7 @@ namespace jazz_bebop
 
 	The table is a map of strings to a TensorType: Jazz native type, ONNX protocol buffer type and ONNX runtime type.
 */
-const TensorTypeDict TENSOR_TYPES = {
+TensorTypeDict TENSOR_TYPES = {
 
 	{(pChar) "bool",	{CELL_TYPE_BYTE_BOOLEAN, onnx::TensorProto::BOOL,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_BOOL}},
 	{(pChar) "double",	{CELL_TYPE_DOUBLE,		 onnx::TensorProto::DOUBLE,	  ONNX_TENSOR_ELEMENT_DATA_TYPE_DOUBLE}},
@@ -68,7 +68,7 @@ const TensorTypeDict TENSOR_TYPES = {
 
 	The table is a map of strings to an AttributeType: Jazz native type, ONNX protobuf type and a boolean if the attribute is a list.
 */
-const AttributeTypeDict ATTRIBUTE_TYPES = {
+AttributeTypeDict ATTRIBUTE_TYPES = {
 
 	{(pChar) "float",	{CELL_TYPE_SINGLE,		 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_FLOAT, false}},
 	{(pChar) "floats",	{CELL_TYPE_SINGLE,		 onnx::AttributeProto::AttributeType::AttributeProto_AttributeType_FLOATS, true}},
@@ -94,7 +94,7 @@ OpCodes::OpCodes(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_c
 
 
 StatusCode OpCodes::start() {
-	if (!get_conf_key("ONNX_IR_VERSION", ir_version)) {
+	if (!get_conf_key("ONNX_IR_VERSION", ir_vers)) {
 		log(LOG_ERROR, "Config key ONNX_IR_VERSION not valid in OpCodes::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
@@ -114,6 +114,12 @@ StatusCode OpCodes::start() {
 		return SERVICE_ERROR_IO_ERROR;
 	}
 
+	if (!build_opcode_dict()) {
+		log(LOG_ERROR, "Failed building opcode dictionary in OpCodes::start");
+
+		return SERVICE_ERROR_IO_ERROR;
+	}
+
 	return SERVICE_NO_ERROR;
 }
 
@@ -123,23 +129,177 @@ StatusCode OpCodes::shut_down() {
 }
 
 
-/** \brief Get the latest opset version.
+bool OpCodes::build_opcode_dict() {
+	std::string all_name_vers;
+	if (!onnx_conf.get_key("__name_vers", all_name_vers))
+		return false;
 
-	\return The latest opset version.
-*/
-int OpCodes::latest_opset_version() {
-	return 0;
+	Name name;
+	int vers, n;
+	pChar p_ori = (pChar) all_name_vers.c_str();
+	pChar p_dst = (pChar) &name;
+	pOnnxOpCode op;
+
+	while (true) {
+		switch (char c = p_ori++[0]) {
+		case 0:
+		case ',':
+			// Name and version are valid, start reading inputs, outputs and attributes
+
+			op = new OnnxOpCode(name, vers, OnnxParameters(), OnnxParameters(), OnnxAttributes());
+			if (op == nullptr)
+				return false;
+
+			fill_op_code(*op, name, vers);
+			opcodes.push_back(op);
+			opcodes_idx[stdNameVersion(name, vers)] = opcodes.back();
+
+			delete op;
+
+			if (c == 0) {
+				op_vers_current = op_vers_latest;
+				fill_all_dict_versions();
+
+				return true;
+			}
+
+			break;
+
+		case '.':
+			// Point found. The Name is complete, read the version as an integer.
+
+			if (sscanf(p_ori, "%d%n", &vers, &n) != 1)
+				return false;
+
+			p_ori += n;
+
+			p_dst[0] = 0;
+			p_dst = (pChar) &name;
+
+			op_vers_latest = std::max(op_vers_latest, vers);
+
+			break;
+
+		default:
+			// Continue copying the name
+
+			p_dst++[0] = c;
+		}
+	}
 }
 
 
-/** \brief Set the opset version.
+bool OpCodes::fill_op_code(OnnxOpCode &op, stdName name, int version) {
+	char buff[64];
+	int n;
+	std::string nam, typ;
 
-	\param version	The version to set.
+	sprintf(buff, "%s.%d.num_inputs", name.name, version);
+	if (!onnx_conf.get_key(buff, n))
+		return false;
 
-	\return True if the version was set, false otherwise.
-*/
-bool OpCodes::set_opset_version(int version) {
-	return false;
+	for (int i = 0; i < n; i++) {
+		sprintf(buff, "%s.%d.input.%d.name", name.name, version, i);
+
+		if (!onnx_conf.get_key(buff, nam))
+			return false;
+
+		sprintf(buff, "%s.%d.input.%d.tensor_types", name.name, version, i);
+
+		if (!onnx_conf.get_key(buff, typ))
+			return false;
+
+		OnnxParameter inp = OnnxParameter((pChar) nam.c_str(), TensorTypes());
+
+		if (!fill_tensor_types(inp.types, typ))
+			return false;
+
+		op.inputs.push_back(inp);
+	}
+
+	sprintf(buff, "%s.%d.num_outputs", name.name, version);
+	if (!onnx_conf.get_key(buff, n))
+		return false;
+
+	for (int i = 0; i < n; i++) {
+		sprintf(buff, "%s.%d.output.%d.name", name.name, version, i);
+
+		if (!onnx_conf.get_key(buff, nam))
+			return false;
+
+		sprintf(buff, "%s.%d.output.%d.tensor_types", name.name, version, i);
+
+		if (!onnx_conf.get_key(buff, typ))
+			return false;
+
+		OnnxParameter out = OnnxParameter((pChar) nam.c_str(), TensorTypes());
+
+		if (!fill_tensor_types(out.types, typ))
+			return false;
+
+		op.outputs.push_back(out);
+	}
+
+	sprintf(buff, "%s.%d.num_attributes", name.name, version);
+	if (!onnx_conf.get_key(buff, n))
+		return false;
+
+	for (int i = 0; i < n; i++) {
+		sprintf(buff, "%s.%d.attribute.%d.name", name.name, version, i);
+
+		if (!onnx_conf.get_key(buff, nam))
+			return false;
+
+		sprintf(buff, "%s.%d.attribute.%d.type", name.name, version, i);
+
+		if (!onnx_conf.get_key(buff, typ))
+			return false;
+
+		OnnxAttribute attr = OnnxAttribute((pChar) nam.c_str(), AttributeType());
+
+		if (!fill_attribute_type(attr.type, typ))
+			return false;
+
+		op.attributes.push_back(attr);
+	}
+
+	return true;
+}
+
+
+void OpCodes::fill_all_dict_versions() {
+
+	// ...
+
+}
+
+
+bool OpCodes::fill_tensor_types(TensorTypes &types, std::string &all_types) {
+	std::stringstream ss(all_types);
+	std::string typ;
+
+	while (std::getline(ss, typ, ',')) {
+		TensorTypeDict::iterator it = TENSOR_TYPES.find((pChar) typ.c_str());
+		if (it == TENSOR_TYPES.end()) {
+			return false;
+		}
+		types.push_back(it->second);
+	}
+
+	return true;
+}
+
+
+bool OpCodes::fill_attribute_type(AttributeType &type, std::string &type_name) {
+	AttributeTypeDict::iterator it = ATTRIBUTE_TYPES.find((pChar) type_name.c_str());
+	if (it == ATTRIBUTE_TYPES.end())
+		return false;
+
+	type.jazz_type		 = it->second.jazz_type;
+	type.onnx_proto_type = it->second.onnx_proto_type;
+	type.is_multi		 = it->second.is_multi;
+
+	return true;
 }
 
 } // namespace jazz_bebop

@@ -58,52 +58,25 @@ namespace jazz_bebop
 
 /** \brief A type definition for tensors across all the technologies: Jazz native, ONNX protocol buffer and ONNX runtime.
 */
-class TensorType {
-
-	public:
-
-		/** \brief The constructor for a TensorType.
-			\param jazz		The Jazz native type.
-			\param proto	The ONNX protocol buffer type.
-			\param rt		The ONNX runtime type.
-		*/
-    	TensorType(int jazz, onnx::TensorProto::DataType proto, ONNXTensorElementDataType rt) {
-			jazz_type		= jazz;
-			onnx_proto_type = proto;
-			onnx_rt_type	= rt;
-		}
-
-		int jazz_type;											///< The Jazz native type.
-		onnx::TensorProto::DataType onnx_proto_type;			///< The ONNX protocol buffer type.
-		ONNXTensorElementDataType onnx_rt_type;					///< The ONNX runtime type.
+struct TensorType {
+	int jazz_type;											///< The Jazz native type.
+	onnx::TensorProto::DataType onnx_proto_type;			///< The ONNX protocol buffer type.
+	ONNXTensorElementDataType onnx_rt_type;					///< The ONNX runtime type.
 };
-typedef std::map<stdName, TensorType>	TensorTypeDict;			///< A map of TensorType objects.
-typedef std::vector<TensorType>			TensorTypes;			///< A list of TensorType objects.
+typedef std::map<stdName, TensorType>	TensorTypeDict;		///< A map of TensorType objects.
+typedef std::vector<TensorType>			TensorTypes;		///< A list of TensorType objects.
+typedef TensorTypes *pTensorTypes;							///< A pointer to a TensorTypes.
 
 
 /** \brief A type definition for attributes across Jazz native (with special codes), and ONNX protocol buffer.
 */
-class AttributeType {
-
-	public:
-
-		/** \brief The constructor for an AttributeType.
-			\param jazz		The Jazz native type.
-			\param proto	The ONNX protocol buffer type.
-			\param multi	True if the attribute is a list of the type.
-		*/
-		AttributeType(int jazz, onnx::AttributeProto::AttributeType proto, bool multi) {
-			jazz_type		= jazz;
-			onnx_proto_type = proto;
-			is_multi		= multi;
-		}
-
-		int jazz_type;											///< The Jazz native type.
-		onnx::AttributeProto::AttributeType onnx_proto_type;	///< The ONNX protocol buffer type.
-		bool is_multi = false;									///< True if the attribute is a list of the type.
+struct AttributeType {
+	int jazz_type;											///< The Jazz native type.
+	onnx::AttributeProto::AttributeType onnx_proto_type;	///< The ONNX protocol buffer type.
+	bool is_multi = false;									///< True if the attribute is a list of the type.
 };
-typedef std::map<stdName, AttributeType>	AttributeTypeDict;	///< A map of AttributeType objects.
-typedef std::vector<AttributeType>			AttributeTypes;		///< A list of AttributeType objects.
+typedef std::map<stdName, AttributeType> AttributeTypeDict;	///< A map of AttributeType objects.
+typedef AttributeType *pAttributeType;						///< A pointer to a AttributeType.
 
 
 /** \brief A parameter (input or output) for an ONNX OpCode.
@@ -121,7 +94,7 @@ class OnnxParameter {
 			types	= typ;
 		}
 
-		stdName name;											///< The name of the parameter.
+		stdName		name;										///< The name of the parameter.
 		TensorTypes types;										///< The types of the parameter.
 };
 typedef std::vector<OnnxParameter>			OnnxParameters;		///< A list of OnnxParameter objects.
@@ -137,13 +110,13 @@ class OnnxAttribute {
 			\param nam	The name of the attribute.
 			\param typ	The types of the attribute.
 		*/
-		OnnxAttribute(stdName nam, AttributeTypes typ) {
-			name	= nam;
-			types	= typ;
+		OnnxAttribute(stdName nam, AttributeType typ) {
+			name = nam;
+			type = typ;
 		}
 
-		stdName name;											///< The name of the attribute.
-		AttributeTypes types;									///< The types of the attribute.
+		stdName		  name;										///< The name of the attribute.
+		AttributeType type;										///< The types of the attribute.
 };
 typedef std::vector<OnnxAttribute>			OnnxAttributes;		///< A list of OnnxAttribute objects.
 
@@ -169,12 +142,14 @@ class OnnxOpCode {
 			attributes		= attr;
 		}
 
-		stdName name;				///< The name of the ONNX OpCode.
-		int opset_version;			///< The version of the opset.
-		OnnxParameters inputs;		///< The input parameters.
-		OnnxParameters outputs;		///< The output parameters.
-		OnnxAttributes attributes;	///< The attributes.
+		stdName name;							///< The name of the ONNX OpCode.
+		int opset_version;						///< The version of the opset.
+		OnnxParameters inputs;					///< The input parameters.
+		OnnxParameters outputs;					///< The output parameters.
+		OnnxAttributes attributes;				///< The attributes.
 };
+typedef OnnxOpCode *pOnnxOpCode;				///< A pointer to an OnnxOpCode
+typedef std::vector<pOnnxOpCode> OnnxOpCodes;	///< A list of OnnxOpCode objects.
 
 
 /** \brief A pair of a name and a version to be used as a key in a dictionary.
@@ -215,8 +190,7 @@ class stdNameVersion {
 		stdName name;				///< The name of the ONNX OpCode.
 		int opset_version;			///< The version of the opset.
 };
-typedef std::map<stdNameVersion, OnnxOpCode> OnnxOpCodeDict;		///< A map of OnnxOpCode objects.
-
+typedef std::map<stdNameVersion, pOnnxOpCode> OnnxOpCodeDict;		///< A map of OnnxOpCode objects.
 
 
 /** \brief OpCodes: The opcodes.
@@ -230,19 +204,49 @@ class OpCodes : public Service {
 		virtual StatusCode start	();
 		virtual StatusCode shut_down();
 
-		int latest_opset_version();
+		int latest_opset_version() {
+			return op_vers_latest;
+		}
 
-		bool set_opset_version(int version);
+		bool set_opset_version(int version) {
+			if (version < 0 || version > op_vers_latest)
+				return false;
+
+			op_vers_current = version;
+			return true;
+		}
+
+		pOnnxOpCode get(stdName name) {
+			OnnxOpCodeDict::iterator it = opcodes_idx.find(stdNameVersion(name, op_vers_current));
+
+			if (it == opcodes_idx.end())
+				return nullptr;
+
+			return it->second;
+		}
 
 #ifndef CATCH_TEST
 	private:
 #endif
 
+		bool			build_opcode_dict	   ();
+		bool			fill_op_code		   (OnnxOpCode	  &op,
+												stdName		   name,
+												int			   version);
+		void			fill_all_dict_versions ();
+		bool			fill_tensor_types	   (TensorTypes	  &types,
+												std::string	  &all_types);
+		bool			fill_attribute_type	   (AttributeType &type,
+												std::string	  &type_name);
+
 		ConfigFile onnx_conf = ConfigFile(nullptr);		///< The ONNX opcodes reference stored as a ConfigFile.
-		int ir_version;									///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
-		OnnxOpCodeDict opcodes;							///< The opcodes parsed as binary objects.
+		int ir_vers;									///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)
+		int op_vers_latest;								///< The latest opset version in onnx.ini.
+		int op_vers_current;							///< The opset version in use, set by set_opset_version() or op_vers_latest.
+		OnnxOpCodeDict opcodes_idx = {};				///< The index to the opcodes.
+		OnnxOpCodes	opcodes = {};						///< The opcodes parsed as binary objects.
 };
-typedef OpCodes *pOpCodes;		///< A pointer to a OpCodes
+typedef OpCodes *pOpCodes;		///< A pointer to an OpCodes object
 
 } // namespace jazz_bebop
 
