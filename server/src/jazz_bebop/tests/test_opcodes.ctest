@@ -99,7 +99,175 @@ SCENARIO("Testing opcodes") {
 	REQUIRE(opset.op_vers_latest <= 99);
 	REQUIRE(opset.op_vers_current <= 99);
 
-	// ...
+	REQUIRE(!opset.set_opset_version(0));
+	REQUIRE(!opset.set_opset_version(99));
+
+	WHEN("opset is already populated, I can check some opcodes") {
+		REQUIRE(opset.get((pChar) "Loretta") == nullptr);
+		for (int vers = 1; vers < 11; vers++) {
+
+			REQUIRE(opset.set_opset_version(vers));
+
+			pOnnxOpCode p_op = opset.get((pChar) "ArgMin");
+
+			REQUIRE(p_op != nullptr);
+
+			REQUIRE(strcmp(p_op->name.name, (pChar) "ArgMin") == 0);
+			REQUIRE(p_op->opset_version == 1);
+
+			REQUIRE(p_op->attributes.size() == 2);
+
+			REQUIRE(strcmp(p_op->attributes[0].name.name, (pChar) "axis") == 0);
+			REQUIRE(p_op->attributes[0].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[0].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[1].name.name, (pChar) "keepdims") == 0);
+			REQUIRE(p_op->attributes[1].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[1].type.is_multi == false);
+
+			REQUIRE(p_op->inputs.size() == 1);
+			REQUIRE(strcmp(p_op->inputs[0].name.name, (pChar) "data") == 0);
+			REQUIRE(p_op->inputs[0].types.size() == 11);
+			REQUIRE(p_op->inputs[0].types[0].jazz_type  == CELL_TYPE_DOUBLE);
+			REQUIRE(p_op->inputs[0].types[1].jazz_type  == CELL_TYPE_SINGLE);
+			REQUIRE(p_op->inputs[0].types[2].jazz_type  == CELL_TYPE_FLOAT16);
+			REQUIRE(p_op->inputs[0].types[10].jazz_type == CELL_TYPE_BYTE);
+
+			REQUIRE(p_op->outputs.size() == 1);
+			REQUIRE(strcmp(p_op->outputs[0].name.name, (pChar) "reduced") == 0);
+			REQUIRE(p_op->outputs[0].types.size() == 1);
+			REQUIRE(p_op->outputs[0].types[0].jazz_type == CELL_TYPE_LONG_INTEGER);
+		}
+
+		for (int vers = 13; vers < 20; vers++) {
+
+			REQUIRE(opset.set_opset_version(vers));
+
+			pOnnxOpCode p_op = opset.get((pChar) "ArgMin");
+
+			REQUIRE(p_op != nullptr);
+
+			REQUIRE(strcmp(p_op->name.name, (pChar) "ArgMin") == 0);
+			REQUIRE(p_op->opset_version == 13);
+
+			REQUIRE(p_op->attributes.size() == 3);
+
+			REQUIRE(strcmp(p_op->attributes[0].name.name, (pChar) "axis") == 0);
+			REQUIRE(p_op->attributes[0].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[0].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[1].name.name, (pChar) "keepdims") == 0);
+			REQUIRE(p_op->attributes[1].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[1].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[2].name.name, (pChar) "select_last_index") == 0);
+			REQUIRE(p_op->attributes[2].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[2].type.is_multi == false);
+
+			REQUIRE(p_op->inputs.size() == 1);
+			REQUIRE(strcmp(p_op->inputs[0].name.name, (pChar) "data") == 0);
+			REQUIRE(p_op->inputs[0].types.size() == 12);
+			REQUIRE(p_op->inputs[0].types[0].jazz_type  == CELL_TYPE_BFLOAT16);
+			REQUIRE(p_op->inputs[0].types[1].jazz_type  == CELL_TYPE_DOUBLE);
+			REQUIRE(p_op->inputs[0].types[2].jazz_type  == CELL_TYPE_SINGLE);
+			REQUIRE(p_op->inputs[0].types[3].jazz_type  == CELL_TYPE_FLOAT16);
+			REQUIRE(p_op->inputs[0].types[11].jazz_type == CELL_TYPE_BYTE);
+
+			REQUIRE(p_op->outputs.size() == 1);
+			REQUIRE(strcmp(p_op->outputs[0].name.name, (pChar) "reduced") == 0);
+			REQUIRE(p_op->outputs[0].types.size() == 1);
+			REQUIRE(p_op->outputs[0].types[0].jazz_type == CELL_TYPE_LONG_INTEGER);
+		}
+
+		REQUIRE(opset.set_opset_version(19));
+
+		pOnnxOpCode p_op = opset.get((pChar) "BatchNormalization");
+
+		REQUIRE(p_op != nullptr);
+
+		REQUIRE(strcmp(p_op->name.name, (pChar) "BatchNormalization") == 0);
+		REQUIRE(p_op->opset_version == 15);
+
+		REQUIRE(p_op->attributes.size() == 3);
+		REQUIRE(strcmp(p_op->attributes[0].name.name, (pChar) "epsilon") == 0);
+		REQUIRE(strcmp(p_op->attributes[1].name.name, (pChar) "momentum") == 0);
+		REQUIRE(strcmp(p_op->attributes[2].name.name, (pChar) "training_mode") == 0);
+
+		REQUIRE(p_op->inputs.size() == 5);
+		REQUIRE(strcmp(p_op->inputs[0].name.name, (pChar) "X") == 0);
+		REQUIRE(strcmp(p_op->inputs[1].name.name, (pChar) "scale") == 0);
+		REQUIRE(strcmp(p_op->inputs[2].name.name, (pChar) "B") == 0);
+		REQUIRE(strcmp(p_op->inputs[3].name.name, (pChar) "input_mean") == 0);
+		REQUIRE(strcmp(p_op->inputs[4].name.name, (pChar) "input_var") == 0);
+
+		REQUIRE(p_op->outputs.size() == 3);
+		REQUIRE(strcmp(p_op->outputs[0].name.name, (pChar) "Y") == 0);
+		REQUIRE(strcmp(p_op->outputs[1].name.name, (pChar) "running_mean") == 0);
+		REQUIRE(strcmp(p_op->outputs[2].name.name, (pChar) "running_var") == 0);
+
+		p_op = opset.get((pChar) "If");
+
+		REQUIRE(p_op != nullptr);
+
+		REQUIRE(strcmp(p_op->name.name, (pChar) "If") == 0);
+		REQUIRE(p_op->opset_version == 19);
+
+		REQUIRE(p_op->attributes.size() == 2);
+		REQUIRE(strcmp(p_op->attributes[0].name.name, (pChar) "else_branch") == 0);
+		REQUIRE(p_op->attributes[0].type.jazz_type == CELL_TYPE_ONNX_GRAPH);
+		REQUIRE(p_op->attributes[0].type.is_multi == false);
+		REQUIRE(strcmp(p_op->attributes[1].name.name, (pChar) "then_branch") == 0);
+		REQUIRE(p_op->attributes[1].type.jazz_type == CELL_TYPE_ONNX_GRAPH);
+		REQUIRE(p_op->attributes[1].type.is_multi == false);
+
+		REQUIRE(p_op->inputs.size() == 1);
+		REQUIRE(strcmp(p_op->inputs[0].name.name, (pChar) "cond") == 0);
+		REQUIRE(p_op->inputs[0].types.size() == 1);
+		REQUIRE(p_op->inputs[0].types[0].jazz_type  == CELL_TYPE_BYTE_BOOLEAN);
+
+		REQUIRE(p_op->outputs.size() == 1);
+		REQUIRE(strcmp(p_op->outputs[0].name.name, (pChar) "outputs") == 0);
+		REQUIRE(p_op->outputs[0].types.size() == 14);
+
+		for (int vers = 1; vers < 7; vers++) {
+			REQUIRE(opset.set_opset_version(vers));
+
+			pOnnxOpCode p_op = opset.get((pChar) "LSTM");
+
+			REQUIRE(p_op != nullptr);
+
+			REQUIRE(strcmp(p_op->name.name, (pChar) "LSTM") == 0);
+			REQUIRE(p_op->opset_version == 1);
+
+			REQUIRE(p_op->attributes.size() == 8);
+
+			REQUIRE(strcmp(p_op->attributes[0].name.name, (pChar) "activation_alpha") == 0);
+			REQUIRE(p_op->attributes[0].type.jazz_type == CELL_TYPE_SINGLE);
+			REQUIRE(p_op->attributes[0].type.is_multi == true);
+			REQUIRE(strcmp(p_op->attributes[1].name.name, (pChar) "activation_beta") == 0);
+			REQUIRE(p_op->attributes[1].type.jazz_type == CELL_TYPE_SINGLE);
+			REQUIRE(p_op->attributes[1].type.is_multi == true);
+			REQUIRE(strcmp(p_op->attributes[2].name.name, (pChar) "activations") == 0);
+			REQUIRE(p_op->attributes[2].type.jazz_type == CELL_TYPE_STRING);
+			REQUIRE(p_op->attributes[2].type.is_multi == true);
+			REQUIRE(strcmp(p_op->attributes[3].name.name, (pChar) "clip") == 0);
+			REQUIRE(p_op->attributes[3].type.jazz_type == CELL_TYPE_SINGLE);
+			REQUIRE(p_op->attributes[3].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[4].name.name, (pChar) "direction") == 0);
+			REQUIRE(p_op->attributes[4].type.jazz_type == CELL_TYPE_STRING);
+			REQUIRE(p_op->attributes[4].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[5].name.name, (pChar) "hidden_size") == 0);
+			REQUIRE(p_op->attributes[5].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[5].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[6].name.name, (pChar) "input_forget") == 0);
+			REQUIRE(p_op->attributes[6].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[6].type.is_multi == false);
+			REQUIRE(strcmp(p_op->attributes[7].name.name, (pChar) "output_sequence") == 0);
+			REQUIRE(p_op->attributes[7].type.jazz_type == CELL_TYPE_LONG_INTEGER);
+			REQUIRE(p_op->attributes[7].type.is_multi == false);
+
+			REQUIRE(p_op->inputs.size() == 8);
+			REQUIRE(p_op->outputs.size() == 3);
+		}
+
+	}
 
 	REQUIRE(opset.shut_down() == 0);
 }
