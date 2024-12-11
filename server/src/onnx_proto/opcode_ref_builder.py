@@ -69,8 +69,10 @@ class OperatorRef:
 
 			t = self.rex_tensor.sub('\\1', t)
 
-			tensor_types.add(t)
+			if t not in self.unused_types:
+				tensor_types.add(t)
 
+		assert len(tensor_types) > 0
 		tensor_types = list(tensor_types)
 		tensor_types.sort()
 		return ','.join(tensor_types)
