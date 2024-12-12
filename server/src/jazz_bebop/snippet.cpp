@@ -47,7 +47,7 @@ namespace jazz_bebop
 	\param a_logger		A pointer to the logger.
 	\param a_config		A pointer to the configuration.
 */
-Snippet::Snippet(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Snippet::Snippet(pBaseAPI api, pName a_name) : Space(api, a_name) {}
 
 Snippet::~Snippet() {}
 

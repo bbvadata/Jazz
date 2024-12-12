@@ -47,7 +47,7 @@ namespace jazz_models
 	\param a_logger		A pointer to the logger.
 	\param a_config		A pointer to the configuration.
 */
-Concept::Concept(pLogger a_logger, pConfigFile a_config) : Snippet(a_logger, a_config) {}
+Concept::Concept(pBaseAPI api, pName a_name) : Snippet(api, a_name) {}
 
 Concept::~Concept() {}
 

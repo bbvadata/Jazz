@@ -60,11 +60,11 @@ namespace jazz_bebop
 
 /** \brief Snippet: A code snippet and the ancestor of Concept.
 */
-class Snippet : public Service {
+class Snippet : public Space {
 
 	public:
 
-		Snippet(pLogger a_logger, pConfigFile a_config);
+		Snippet(pBaseAPI api, pName a_name);
 	   ~Snippet();
 };
 typedef Snippet *pSnippet;		///< A pointer to a Snippet

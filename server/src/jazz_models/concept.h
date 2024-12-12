@@ -64,7 +64,7 @@ class Concept : public Snippet {
 
 	public:
 
-		Concept(pLogger a_logger, pConfigFile a_config);
+		Concept(pBaseAPI api, pName a_name);
 	   ~Concept();
 };
 typedef Concept *pConcept;		///< A pointer to a Concept
