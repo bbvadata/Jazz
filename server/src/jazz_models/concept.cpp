@@ -42,10 +42,10 @@ namespace jazz_models
 	 Concept : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the Concept.
+/** \brief Bop: Construct the Concept.
 
-	\param a_logger		A pointer to the logger.
-	\param a_config		A pointer to the configuration.
+	\param api			A pointer to a working BaseAPI that exposes all the containers.
+	\param a_name		A (Space) name for the Snippet.
 */
 Concept::Concept(pBaseAPI api, pName a_name) : Snippet(api, a_name) {}
 
