@@ -3364,7 +3364,7 @@ int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3520,7 +3520,7 @@ int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3625,7 +3625,7 @@ int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3744,7 +3744,7 @@ int Container::tensor_string_as_text(pBlock p_block, pChar p_dest) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3902,7 +3902,7 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	struct tm timeinfo;
 

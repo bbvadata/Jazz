@@ -960,7 +960,7 @@ bool BaseAPI::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tup
 		dim[0] = size;
 		dim[1] = 0;
 
-		if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
+		if (new_block(p_text, CELL_TYPE_BYTE, &dim[0], FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
 			return false;
 
 		memcpy(&p_text->p_block->tensor, p_const, size);
@@ -982,7 +982,7 @@ bool BaseAPI::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tup
 
 	dim[0] = RESULT_BUFFER_SIZE;
 	dim[1] = 0;
-	if (new_block(p_result, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_WITH_ZERO) !=  SERVICE_NO_ERROR) {
+	if (new_block(p_result, CELL_TYPE_BYTE, &dim[0], FILL_NEW_WITH_ZERO) !=  SERVICE_NO_ERROR) {
 		destroy_transaction(p_tensor);
 
 		return false;

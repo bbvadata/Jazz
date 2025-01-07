@@ -496,7 +496,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 	MDB_val l_key, l_data;
 
 	l_key.mv_size  = strlen(where.key);
-	l_key.mv_data  = (void *) &where.key;
+	l_key.mv_data  = &where.key[0];
 	l_data.mv_size = p_block->total_bytes;
 	l_data.mv_data = p_block;
 
@@ -578,7 +578,7 @@ StatusCode Persisted::remove(Locator &where) {
 	MDB_val l_key;
 
 	l_key.mv_size = strlen(where.key);
-	l_key.mv_data = (void *) &where.key;
+	l_key.mv_data = &where.key[0];
 
 	if (int lmdb_err = mdb_del(lm_tx, hh, &l_key, NULL)) {
 		if (lmdb_err != MDB_NOTFOUND)
@@ -699,7 +699,7 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 	MDB_val l_key, l_data;
 
 	l_key.mv_size = strlen(what.key);
-	l_key.mv_data = (void *) &what.key;
+	l_key.mv_data = &what.key[0];
 
 	if (int lmdb_err = mdb_get(lm_tx, hh, &l_key, &l_data)) {
 		if (lmdb_err != MDB_NOTFOUND)

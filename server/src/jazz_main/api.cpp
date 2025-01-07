@@ -301,7 +301,7 @@ MHD_StatusCode API::http_put(pChar p_upload, size_t size, ApiQueryState &q_state
 
 		dim[0] = size;
 
-		if (new_block(p_txn, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
+		if (new_block(p_txn, CELL_TYPE_BYTE, &dim[0], FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
 			return MHD_HTTP_INSUFFICIENT_STORAGE;
 
 		memcpy(&p_txn->p_block->tensor.cell_byte[0], p_upload, size);
@@ -319,7 +319,7 @@ MHD_StatusCode API::http_put(pChar p_upload, size_t size, ApiQueryState &q_state
 
 		pTransaction p_aux;
 
-		if (new_block(p_aux, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
+		if (new_block(p_aux, CELL_TYPE_BYTE, &dim[0], FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
 			destroy_transaction(p_txn);
 
 			return MHD_HTTP_INSUFFICIENT_STORAGE;
