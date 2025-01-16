@@ -60,6 +60,8 @@ namespace jazz_models
 */
 class ModelsAPI : public BaseAPI {
 
+//TODO: Synchronize http://localhost:8888/jazz_reference/api_ref_model.html#models-in-modelsapi (Erase this only when Core is done.)
+
 	public:
 
 		ModelsAPI(pLogger a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted);

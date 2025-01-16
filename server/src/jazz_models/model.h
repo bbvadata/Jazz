@@ -59,6 +59,10 @@ namespace jazz_models
 */
 class Model : public Container {
 
+//TODO: A Model has entrypoints http://localhost:8888/jazz_reference/api_ref_model.html#models-in-modelsapi
+//TODO: Every Model supports run and id (Document that)
+//TODO: A model is no longer a base in the ModelAPI, it is an entity. Review all doc and update.
+
 	public:
 
 		Model(pLogger a_logger, pConfigFile a_config);
