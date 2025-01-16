@@ -48,7 +48,7 @@ namespace jazz_models
 	\param name	 The name of the SemSpace.
 	\param p_def The definition of the SemSpace. The content is copied on construction.
 */
-SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Space(api, name) {
+SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Field(api, name) {
 
 	def.load_on_start = true;		// Forces loading when p_def is nullptr.
 
@@ -63,7 +63,7 @@ SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Space(
 */
 StatusCode SemSpace::start() {
 
-	int ret = Space::start();
+	int ret = Field::start();
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
