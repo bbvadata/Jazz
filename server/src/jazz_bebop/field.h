@@ -50,6 +50,9 @@
 
 namespace jazz_bebop
 {
+
+/** \brief Field: A Space for Snippets.
+*/
 class Field : public Space {
 
 	public:
