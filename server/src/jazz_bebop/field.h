@@ -32,27 +32,55 @@
 */
 
 
-#include "src/include/jazz_elements.h"
-
-
-#ifndef INCLUDED_JAZZ_BEBOP
-#define INCLUDED_JAZZ_BEBOP
-
-//TODO: Review valgrind output and either fix or generate suppressions as explained in dynamic_analysis.sh
-
-/** \brief Includes everything in namespace jazz_bebop.
-
-This is everything to run bebop code.
-*/
-
-#include "src/jazz_bebop/base_api.h"
-#include "src/jazz_bebop/space.h"
-#include "src/jazz_bebop/data_space.h"
 #include "src/jazz_bebop/opcodes.h"
-#include "src/jazz_bebop/field.h"
-#include "src/jazz_bebop/snippet.h"
-#include "src/jazz_bebop/bop.h"
-#include "src/jazz_bebop/core.h"
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
 
 
-#endif // ifndef INCLUDED_JAZZ_BEBOP
+#ifndef INCLUDED_JAZZ_BEBOP_FIELD
+#define INCLUDED_JAZZ_BEBOP_FIELD
+
+
+namespace jazz_bebop
+{
+class Field : public Space {
+
+	public:
+
+		Field(pBaseAPI api, pName name);
+
+		virtual StatusCode start();
+
+		virtual pChar const id();
+
+		// Space interface
+
+		virtual StatusCode load_meta();
+		virtual StatusCode save_meta();
+		virtual RowNumber num_rows();
+		virtual void* get_index_data(RowNumber row);
+		virtual int num_cols();
+		virtual pName col_name(int col);
+		virtual int col_index(pName name);
+		virtual pLocator locator(RowNumber row, int col, int &index);
+		virtual pRowSelection where(pChar query);
+		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
+
+	private:
+
+		StatusCode load_or_create_space();
+
+		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
+};
+typedef Field *pField;				///< A pointer to a Field
+
+} // namespace jazz_bebop
+
+#endif // ifndef INCLUDED_JAZZ_BEBOP_FIELD
