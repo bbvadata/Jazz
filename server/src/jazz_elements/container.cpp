@@ -1976,7 +1976,7 @@ StatusCode Container::copy(pChar p_where, pChar p_what) {
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 					Transaction inside the Container.
 	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
-					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+					the pipeline. In Core, the key is field/snippet, In Model (via ModelAPI), model/<entry point>.
 	\param p_args	A Tuple passed as argument to the call that is not modified.
 
 	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.

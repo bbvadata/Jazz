@@ -637,8 +637,7 @@ StatusCode Persisted::copy(Locator &where, Locator &what) {
 interfere with existing base names. The API object will forward names that do not match any base names to Persisted in case they
 are the name of a database (and will fail otherwise).
 
-	Besides these user-defined names, there is a number of reserved databases that keep track of objects. "sys" keeps cluster-level
-config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
+	Besides these user-defined names, there is a number of reserved databases that keep track of things and are found in the configuration.
 "static" is a database of objects with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
 */
 void Persisted::base_names(BaseNames &base_names) {
