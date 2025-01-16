@@ -64,7 +64,7 @@ using namespace jazz_elements;
 class Core : public BaseAPI {
 
 //TODO: Synchronize http://localhost:8888/jazz_reference/api_ref_core.html (Erase this only when Core is done.)
-//TODO: Use SNIPPETSPACE_STORAGE_ENTITY
+//TODO: Use SNIPPET_STORAGE_ENTITY
 //TODO: Use ONNXRT_MAX_NUM_SESSIONS
 
 	public:
