@@ -25,3 +25,7 @@ are modified.
 
 2. The model/* project can have as many files as necessary as long as their imports are explicit. You have to define a service that
 inherits ModelAPI to serve the models, but also, another instance that inherits Models and the models themselves which inherit Model.
+
+### Uplifts Reference
+
+  * https://kaalam.github.io/jazz_reference/using_extend.html
