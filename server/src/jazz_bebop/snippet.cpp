@@ -42,15 +42,6 @@ namespace jazz_bebop
 	 Snippet : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Construct the Snippet.
-
-	\param api			A pointer to a working BaseAPI that exposes all the containers.
-	\param a_name		A (Space) name for the Snippet.
-*/
-Snippet::Snippet(pBaseAPI api, pName a_name) : Space(api, a_name) {}
-
-Snippet::~Snippet() {}
-
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST

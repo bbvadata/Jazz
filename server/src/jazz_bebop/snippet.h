@@ -55,17 +55,17 @@ It supports a number of serializations to and from Jazz Blocks. It forms the min
 
 */
 
+//TODO: Synchronize http://localhost:8888/jazz_reference/api_ref_core.html (Erase this only when Core is done.)
+
 namespace jazz_bebop
 {
 
 /** \brief Snippet: A code snippet and the ancestor of Concept.
 */
-class Snippet : public Space {
+class Snippet : public Tuple {
 
 	public:
 
-		Snippet(pBaseAPI api, pName a_name);
-	   ~Snippet();
 };
 typedef Snippet *pSnippet;		///< A pointer to a Snippet
 
