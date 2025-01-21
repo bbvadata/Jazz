@@ -42,14 +42,6 @@ namespace jazz_models
 	 Concept : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Construct the Concept.
-
-	\param api			A pointer to a working BaseAPI that exposes all the containers.
-	\param a_name		A (Space) name for the Snippet.
-*/
-Concept::Concept(pBaseAPI api, pName a_name) : Snippet(api, a_name) {}
-
-Concept::~Concept() {}
 
 } // namespace jazz_models
 

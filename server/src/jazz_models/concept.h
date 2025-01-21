@@ -64,8 +64,6 @@ class Concept : public Snippet {
 
 	public:
 
-		Concept(pBaseAPI api, pName a_name);
-	   ~Concept();
 };
 typedef Concept *pConcept;		///< A pointer to a Concept
 
