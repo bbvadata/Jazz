@@ -1638,7 +1638,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
 						it when done.
-	\param cell_type	The type of index (from CELL_TYPE_INDEX_II to CELL_TYPE_INDEX_SS)
+	\param cell_type	The type of index (a 48 bit CELL_TYPE_INDEX)
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
