@@ -6,7 +6,7 @@
 sudo apt  install protobuf-compiler
 protoc --version
 ```
-  -> `libprotoc 3.12.4`
+  -> `libprotoc 3.21.12`
 
 ## 2. onnx.proto
 
