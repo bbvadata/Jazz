@@ -52,6 +52,10 @@ namespace jazz_bebop
 {
 
 /** \brief Field: A Space for Snippets.
+
+A Field is Space interface to the base `index` of the Volatile Container. The entity is the Field and the key is the name of the snippet.
+
+//TODO: Rename this class to Fields. A Field is a namespace inside Fields.
 */
 class Field : public Space {
 
