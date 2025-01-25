@@ -61,6 +61,33 @@ namespace jazz_bebop
 {
 
 /** \brief Snippet: A code snippet and the ancestor of Concept.
+
+A Snippet is a Tuple with items and some attributes. The items are sources and compiled onnx code. The attributes identify it as a Snippet
+and manage state (). The Snippet object provides an interface to access the text parts (`uses` and `source`) as a std::vector of std::string.
+Also, it provides many constructors to create a Snippet from source, object, ...
+
+The items are:
+
+source, input, output, reads, writes, calls, body, object
+------  -----------------------------------------  ------
+   |  				        |                         +--> The Onnx object code
+   |                        +----------------------------> The preprocessed source code (Possibly reverse engineered)
+   +-----------------------------------------------------> The original source code (If available)
+
+The attributes are set in BLOCK_SNIPPET_STATE and are:
+
+- SNIPSTATE_SOURCE_AVAILABLE	: The source code is available (has original source)
+- SNIPSTATE_SOURCE_PREPROCESSED	: The source code has been preprocessed (has input, output, reads, writes, calls, body)
+- SNIPSTATE_SOURCE_COMPILED		: The object code has been compiled (has object)
+- SNIPSTATE_OBJECT_AVAILABLE	: The object code is available (the object is the original source)
+- SNIPSTATE_OBJECT_PREPROCESSED	: The object code has been preprocessed (has input, output, reads, writes, calls, body)
+- SNIPSTATE_RUNS				: The snippet has run successfully, (was either SNIPSTATE_SOURCE_COMPILED or SNIPSTATE_OBJECT_PREPROCESSED)
+- SNIPSTATE_IS_RUNNING			: The snippet is currently mounted in an ONNX runtime session
+- SNIPSTATE_FAILED_SRC_PREPROC	: The source code preprocessing failed
+- SNIPSTATE_FAILED_SRC_COMPILE	: The object code compilation failed
+- SNIPSTATE_FAILED_OBJ_PREPROC	: The object code preprocessing failed
+- SNIPSTATE_FAILED_RUN			: The snippet failed to run
+
 */
 class Snippet : public Tuple {
 
