@@ -48,14 +48,14 @@
 #define INCLUDED_JAZZ_BEBOP_SEM_SPACE
 
 
-/** \brief Semantic space: SemSpace class.
+/** \brief Semantic space: SemSpaces class.
 
 */
 
 namespace jazz_models
 {
 
-/** \brief SemSpaceDefinition: The definition of a SemSpace.
+/** \brief SemSpaceDefinition: The definition of a SemSpaces.
 
 */
 class SemSpaceDefinition : public DataSpaceDefinition {
@@ -66,13 +66,13 @@ class SemSpaceDefinition : public DataSpaceDefinition {
 typedef SemSpaceDefinition *pSemSpaceDefinition;	///< A pointer to a SemSpaceDefinition
 
 
-/** \brief SemSpace: A Fields for Concepts.
+/** \brief SemSpaces: A Fields for Concepts.
 */
-class SemSpace : public Fields {
+class SemSpaces : public Fields {
 
 	public:
 
-		SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def);
+		SemSpaces(pBaseAPI api, pName name, pSemSpaceDefinition p_def);
 
 		virtual StatusCode start();
 
@@ -91,21 +91,21 @@ class SemSpace : public Fields {
 		virtual pRowSelection where(pChar query);
 		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
 
-		// SemSpace-ETL interface
+		// SemSpaces-ETL interface
 
-//TODO: Define the SemSpace-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
-//		special Bop scripts to populate/update/destroy the SemSpace.
+//TODO: Define the SemSpaces-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
+//		special Bop scripts to populate/update/destroy the SemSpaces.
 
-//TODO: Define the SemSpace interface.
+//TODO: Define the SemSpaces interface.
 
 	private:
 
 		StatusCode load_or_create_space();
 
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
-		SemSpaceDefinition def;		///< The definition of the SemSpace.
+		SemSpaceDefinition def;		///< The definition of the SemSpaces.
 };
-typedef SemSpace *pSemSpace;		///< A pointer to a SemSpace
+typedef SemSpaces *pSemSpaces;		///< A pointer to a SemSpaces
 
 } // namespace jazz_models
 

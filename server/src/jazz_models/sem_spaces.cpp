@@ -39,16 +39,16 @@ namespace jazz_models
 {
 
 /*	-----------------------------------------------
-	 SemSpace : I m p l e m e n t a t i o n
+	 SemSpaces : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the SemSpace.
+/** \brief Bop: Start the SemSpaces.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
-	\param name	 The name of the SemSpace.
-	\param p_def The definition of the SemSpace. The content is copied on construction.
+	\param name	 The name of the SemSpaces.
+	\param p_def The definition of the SemSpaces. The content is copied on construction.
 */
-SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Fields(api, name) {
+SemSpaces::SemSpaces(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Fields(api, name) {
 
 	def.load_on_start = true;		// Forces loading when p_def is nullptr.
 
@@ -57,11 +57,11 @@ SemSpace::SemSpace(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Fields
 }
 
 
-/** Starts the SemSpace service
+/** Starts the SemSpaces service
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode SemSpace::start() {
+StatusCode SemSpaces::start() {
 
 	int ret = Fields::start();
 
@@ -71,13 +71,13 @@ StatusCode SemSpace::start() {
 	std::string s;
 
 	if (!get_conf_key("SEMSPACE_STORAGE_ENTITY", s)) {
-		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpace::start");
+		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpaces::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
-		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpace::start");
+		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpaces::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -92,87 +92,87 @@ StatusCode SemSpace::start() {
 
 	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-pChar const SemSpace::id() {
-    static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
+pChar const SemSpaces::id() {
+    static char arr[] = "SemSpaces from Jazz-" JAZZ_VERSION;
     return arr;
 }
 
 
-StatusCode SemSpace::load_meta() {
+StatusCode SemSpaces::load_meta() {
 
-//TODO: Implement SemSpace::load_meta
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-StatusCode SemSpace::save_meta() {
-
-//TODO: Implement SemSpace::save_meta
+//TODO: Implement SemSpaces::load_meta
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
 
-RowNumber SemSpace::num_rows() {
+StatusCode SemSpaces::save_meta() {
 
-//TODO: Implement SemSpace::num_rows
+//TODO: Implement SemSpaces::save_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+RowNumber SemSpaces::num_rows() {
+
+//TODO: Implement SemSpaces::num_rows
 
 	return SPACE_NOT_A_ROW;
 }
 
 
-void* SemSpace::get_index_data(RowNumber row) {
+void* SemSpaces::get_index_data(RowNumber row) {
 
-//TODO: Implement SemSpace::get_index_data
+//TODO: Implement SemSpaces::get_index_data
 
 	return nullptr;
 }
 
 
-int SemSpace::num_cols() {
+int SemSpaces::num_cols() {
 
-//TODO: Implement SemSpace::num_cols
+//TODO: Implement SemSpaces::num_cols
 
 	return 0;
 }
 
 
-pName SemSpace::col_name(int col) {
+pName SemSpaces::col_name(int col) {
 
-//TODO: Implement SemSpace::col_name
+//TODO: Implement SemSpaces::col_name
 
 	return nullptr;
 }
 
 
-int SemSpace::col_index(pName name) {
+int SemSpaces::col_index(pName name) {
 
-//TODO: Implement SemSpace::col_index
+//TODO: Implement SemSpaces::col_index
 
 	return -1;
 }
 
 
-pLocator SemSpace::locator(RowNumber row, int col, int &index) {
+pLocator SemSpaces::locator(RowNumber row, int col, int &index) {
 
-//TODO: Implement SemSpace::locator
-
-	return nullptr;
-}
-
-
-pRowSelection SemSpace::where(pChar query) {
-
-//TODO: Implement SemSpace::where
+//TODO: Implement SemSpaces::locator
 
 	return nullptr;
 }
 
 
-StatusCode SemSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
+pRowSelection SemSpaces::where(pChar query) {
 
-//TODO: Implement SemSpace::get_row
+//TODO: Implement SemSpaces::where
+
+	return nullptr;
+}
+
+
+StatusCode SemSpaces::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
+
+//TODO: Implement SemSpaces::get_row
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
@@ -182,14 +182,14 @@ StatusCode SemSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection c
 
 	This is called once when start() has successfully completed.
 	It will load from persistence (and not write into persistence) if def.load_on_start.
-	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the SemSpace-ETL interface.-
+	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the SemSpaces-ETL interface.-
 	Otherwise, it will create the table using the definition in `def`.
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode SemSpace::load_or_create_space() {
+StatusCode SemSpaces::load_or_create_space() {
 
-//TODO: Implement SemSpace::load_or_create_space
+//TODO: Implement SemSpaces::load_or_create_space
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
@@ -197,5 +197,5 @@ StatusCode SemSpace::load_or_create_space() {
 } // namespace jazz_models
 
 #if defined CATCH_TEST
-#include "src/jazz_models/tests/test_sem_space.ctest"
+#include "src/jazz_models/tests/test_sem_spaces.ctest"
 #endif
