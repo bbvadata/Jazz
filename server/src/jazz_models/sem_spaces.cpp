@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_models/sem_space.h"
+#include "src/jazz_models/sem_spaces.h"
 
 
 namespace jazz_models
