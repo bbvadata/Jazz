@@ -229,7 +229,7 @@ typedef Casters *pCasters;						///< A pointer to a Casters
 
 /** \brief Space: The abstract space.
 
-	This is the abstract parent of DataSpace, Field/SemSpace and Snippet/Concept. A Space is an abstraction over many blocks that provides:
+	This is the abstract parent of DataSpace, Fields/SemSpace and Snippet/Concept. A Space is an abstraction over many blocks that provides:
 
 	- An abstraction in the form of rows and columns.
 	- A mechanism to load and update its own metadata in a persisted way.
@@ -243,7 +243,7 @@ typedef Casters *pCasters;						///< A pointer to a Casters
 	The class Space is mostly empty. It provides the parent virtual interface and the parents of all the auxiliary classes used
 	to access data.
 
-	\see DataSpace, Field, SemSpace, Snippet, Concept
+	\see DataSpace, Fields, SemSpace, Snippet, Concept
 */
 class Space : public Service {
 

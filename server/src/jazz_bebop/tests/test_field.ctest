@@ -42,7 +42,7 @@ using namespace jazz_bebop;
 
 SCENARIO("Testing field") {
 
-//TODO: Write tests for Field!
+//TODO: Write tests for Fields!
 
 	GIVEN("Something") {
 		WHEN("someone looks at it") {

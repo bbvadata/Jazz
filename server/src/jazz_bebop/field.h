@@ -51,17 +51,17 @@
 namespace jazz_bebop
 {
 
-/** \brief Field: A Space for Snippets.
+/** \brief Fields: A Space for Snippets.
 
-A Field is Space interface to the base `index` of the Volatile Container. The entity is the Field and the key is the name of the snippet.
+A Fields is Space interface to the base `index` of the Volatile Container. The entity is the Fields and the key is the name of the snippet.
 
-//TODO: Rename this class to Fields. A Field is a namespace inside Fields.
+A field is a namespace inside Fields.
 */
-class Field : public Space {
+class Fields : public Space {
 
 	public:
 
-		Field(pBaseAPI api, pName name);
+		Fields(pBaseAPI api, pName name);
 
 		virtual StatusCode start();
 
@@ -86,7 +86,7 @@ class Field : public Space {
 
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
 };
-typedef Field *pField;				///< A pointer to a Field
+typedef Fields *pFields;			///< A pointer to a Fields
 
 } // namespace jazz_bebop
 

@@ -66,9 +66,9 @@ class SemSpaceDefinition : public DataSpaceDefinition {
 typedef SemSpaceDefinition *pSemSpaceDefinition;	///< A pointer to a SemSpaceDefinition
 
 
-/** \brief SemSpace: A Field for Concepts.
+/** \brief SemSpace: A Fields for Concepts.
 */
-class SemSpace : public Field {
+class SemSpace : public Fields {
 
 	public:
 

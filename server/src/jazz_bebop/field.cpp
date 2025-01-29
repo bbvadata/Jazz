@@ -38,25 +38,25 @@
 namespace jazz_bebop
 {
 /*	-----------------------------------------------
-	 Field : I m p l e m e n t a t i o n
+	 Fields : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the Field.
+/** \brief Bop: Start the Fields.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
-	\param name	 The name of the Field.
+	\param name	 The name of the Fields object.
 */
-Field::Field(pBaseAPI api, pName name) : Space(api, name) {
+Fields::Fields(pBaseAPI api, pName name) : Space(api, name) {
 }
 
 
-/** Starts the Field service
+/** Starts the Fields service
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode Field::start() {
+StatusCode Fields::start() {
 
-	int ret = Field::start();
+	int ret = Fields::start();
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -64,13 +64,13 @@ StatusCode Field::start() {
 	std::string s;
 
 	if (!get_conf_key("FIELD_STORAGE_ENTITY", s)) {
-		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY not found in Field::start");
+		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY not found in Fields::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
-		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY is not a valid base in Field::start");
+		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY is not a valid base in Fields::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -85,87 +85,87 @@ StatusCode Field::start() {
 
 	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-pChar const Field::id() {
-    static char arr[] = "Field from Jazz-" JAZZ_VERSION;
+pChar const Fields::id() {
+    static char arr[] = "Fields from Jazz-" JAZZ_VERSION;
     return arr;
 }
 
 
-StatusCode Field::load_meta() {
+StatusCode Fields::load_meta() {
 
-//TODO: Implement Field::load_meta
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-StatusCode Field::save_meta() {
-
-//TODO: Implement Field::save_meta
+//TODO: Implement Fields::load_meta
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
 
-RowNumber Field::num_rows() {
+StatusCode Fields::save_meta() {
 
-//TODO: Implement Field::num_rows
+//TODO: Implement Fields::save_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+RowNumber Fields::num_rows() {
+
+//TODO: Implement Fields::num_rows
 
 	return SPACE_NOT_A_ROW;
 }
 
 
-void* Field::get_index_data(RowNumber row) {
+void* Fields::get_index_data(RowNumber row) {
 
-//TODO: Implement Field::get_index_data
+//TODO: Implement Fields::get_index_data
 
 	return nullptr;
 }
 
 
-int Field::num_cols() {
+int Fields::num_cols() {
 
-//TODO: Implement Field::num_cols
+//TODO: Implement Fields::num_cols
 
 	return 0;
 }
 
 
-pName Field::col_name(int col) {
+pName Fields::col_name(int col) {
 
-//TODO: Implement Field::col_name
+//TODO: Implement Fields::col_name
 
 	return nullptr;
 }
 
 
-int Field::col_index(pName name) {
+int Fields::col_index(pName name) {
 
-//TODO: Implement Field::col_index
+//TODO: Implement Fields::col_index
 
 	return -1;
 }
 
 
-pLocator Field::locator(RowNumber row, int col, int &index) {
+pLocator Fields::locator(RowNumber row, int col, int &index) {
 
-//TODO: Implement Field::locator
-
-	return nullptr;
-}
-
-
-pRowSelection Field::where(pChar query) {
-
-//TODO: Implement Field::where
+//TODO: Implement Fields::locator
 
 	return nullptr;
 }
 
 
-StatusCode Field::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
+pRowSelection Fields::where(pChar query) {
 
-//TODO: Implement Field::get_row
+//TODO: Implement Fields::where
+
+	return nullptr;
+}
+
+
+StatusCode Fields::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
+
+//TODO: Implement Fields::get_row
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
@@ -175,14 +175,14 @@ StatusCode Field::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols
 
 	This is called once when start() has successfully completed.
 	It will load from persistence (and not write into persistence) if def.load_on_start.
-	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the Field-ETL interface.-
+	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the Fields-ETL interface.-
 	Otherwise, it will create the table using the definition in `def`.
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode Field::load_or_create_space() {
+StatusCode Fields::load_or_create_space() {
 
-//TODO: Implement Field::load_or_create_space
+//TODO: Implement Fields::load_or_create_space
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
