@@ -49,7 +49,7 @@ This is everything to run bebop code.
 #include "src/jazz_bebop/space.h"
 #include "src/jazz_bebop/data_space.h"
 #include "src/jazz_bebop/opcodes.h"
-#include "src/jazz_bebop/field.h"
+#include "src/jazz_bebop/fields.h"
 #include "src/jazz_bebop/snippet.h"
 #include "src/jazz_bebop/bop.h"
 #include "src/jazz_bebop/core.h"
