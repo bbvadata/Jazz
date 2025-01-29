@@ -190,5 +190,5 @@ StatusCode Fields::load_or_create_space() {
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
-#include "src/jazz_bebop/tests/test_field.ctest"
+#include "src/jazz_bebop/tests/test_fields.ctest"
 #endif
