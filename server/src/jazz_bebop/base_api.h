@@ -152,6 +152,32 @@ class BaseAPI : public Container {
 									int				   mode = WRITE_AS_BASE_DEFAULT);
 		virtual StatusCode remove  (ApiQueryState	  &what);
 
+		// Access to the individual Containers
+
+		/** Get the Channels container.
+
+			\return A pointer to the Channels container.
+		*/
+		inline pChannels get_channels() {
+			return p_channels;
+		}
+
+		/** Get the Volatile container.
+
+			\return A pointer to the Volatile container.
+		*/
+		inline pVolatile get_volatile() {
+			return p_volatile;
+		}
+
+		/** Get the Persisted container.
+
+			\return A pointer to the Persisted container.
+		*/
+		inline pPersisted get_persisted() {
+			return p_persisted;
+		}
+
 		// The base_server is public to support objects using this to see what Containers are available.
 
 		TenBitPtrLUT base_server;	///< A LUT to convert TenBitsAtAddress(base) into a pContainer.
