@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_bebop/data_space.h"
+#include "src/jazz_bebop/data_spaces.h"
 #include "src/onnx_proto/onnx.pb.h"
 #include "onnxruntime_c_api.h"
 
