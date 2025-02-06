@@ -77,6 +77,15 @@ StatusCode Fields::start() {
 
 	strcpy(storage_ent, s.c_str());
 
+	p_volatile	= p_api->get_volatile();
+	p_persisted	= p_api->get_persisted();
+
+	if (p_volatile == nullptr || p_persisted == nullptr) {
+		log(LOG_ERROR, "Volatile or Persisted container not valid in BaseAPI detected in Fields::start");
+
+		return SERVICE_ERROR_WRONG_ARGUMENTS;
+	}
+
 	return load_or_create_space();
 }
 
