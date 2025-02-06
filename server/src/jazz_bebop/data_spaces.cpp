@@ -32,23 +32,23 @@
 */
 
 
-#include "src/jazz_bebop/data_space.h"
+#include "src/jazz_bebop/data_spaces.h"
 
 
 namespace jazz_bebop
 {
 
 /*	-----------------------------------------------
-	 DataSpace : I m p l e m e n t a t i o n
+	 DataSpaces : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the DataSpace.
+/** \brief Bop: Start the DataSpaces.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
-	\param name	 The name of the DataSpace.
-	\param p_def The definition of the DataSpace. The content is copied on construction.
+	\param name	 The name of the DataSpaces.
+	\param p_def The definition of the DataSpaces. The content is copied on construction.
 */
-DataSpace::DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Space(api, name) {
+DataSpaces::DataSpaces(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Space(api, name) {
 
 	def.load_on_start = true;		// Forces loading when p_def is nullptr.
 
@@ -57,11 +57,11 @@ DataSpace::DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Spa
 }
 
 
-/** Starts the DataSpace service
+/** Starts the DataSpaces service
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode DataSpace::start() {
+StatusCode DataSpaces::start() {
 
 	int ret = Space::start();
 
@@ -70,14 +70,14 @@ StatusCode DataSpace::start() {
 
 	std::string s;
 
-	if (!get_conf_key("DATASPACE_STORAGE_ENTITY", s)) {
-		log(LOG_ERROR, "Config key DATASPACE_STORAGE_ENTITY not found in DataSpace::start");
+	if (!get_conf_key("DATASPACES_STORAGE_ENTITY", s)) {
+		log(LOG_ERROR, "Config key DATASPACES_STORAGE_ENTITY not found in DataSpaces::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
-		log(LOG_ERROR, "Config key DATASPACE_STORAGE_ENTITY is not a valid base in DataSpace::start");
+		log(LOG_ERROR, "Config key DATASPACES_STORAGE_ENTITY is not a valid base in DataSpaces::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -92,87 +92,87 @@ StatusCode DataSpace::start() {
 
 	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-pChar const DataSpace::id() {
-    static char arr[] = "DataSpace from Jazz-" JAZZ_VERSION;
+pChar const DataSpaces::id() {
+    static char arr[] = "DataSpaces from Jazz-" JAZZ_VERSION;
     return arr;
 }
 
 
-StatusCode DataSpace::load_meta() {
+StatusCode DataSpaces::load_meta() {
 
-//TODO: Implement DataSpace::load_meta
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
-
-
-StatusCode DataSpace::save_meta() {
-
-//TODO: Implement DataSpace::save_meta
+//TODO: Implement DataSpaces::load_meta
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
 
-RowNumber DataSpace::num_rows() {
+StatusCode DataSpaces::save_meta() {
 
-//TODO: Implement DataSpace::num_rows
+//TODO: Implement DataSpaces::save_meta
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+RowNumber DataSpaces::num_rows() {
+
+//TODO: Implement DataSpaces::num_rows
 
 	return SPACE_NOT_A_ROW;
 }
 
 
-void* DataSpace::get_index_data(RowNumber row) {
+void* DataSpaces::get_index_data(RowNumber row) {
 
-//TODO: Implement DataSpace::get_index_data
+//TODO: Implement DataSpaces::get_index_data
 
 	return nullptr;
 }
 
 
-int DataSpace::num_cols() {
+int DataSpaces::num_cols() {
 
-//TODO: Implement DataSpace::num_cols
+//TODO: Implement DataSpaces::num_cols
 
 	return 0;
 }
 
 
-pName DataSpace::col_name(int col) {
+pName DataSpaces::col_name(int col) {
 
-//TODO: Implement DataSpace::col_name
+//TODO: Implement DataSpaces::col_name
 
 	return nullptr;
 }
 
 
-int DataSpace::col_index(pName name) {
+int DataSpaces::col_index(pName name) {
 
-//TODO: Implement DataSpace::col_index
+//TODO: Implement DataSpaces::col_index
 
 	return -1;
 }
 
 
-pLocator DataSpace::locator(RowNumber row, int col, int &index) {
+pLocator DataSpaces::locator(RowNumber row, int col, int &index) {
 
-//TODO: Implement DataSpace::locator
-
-	return nullptr;
-}
-
-
-pRowSelection DataSpace::where(pChar query) {
-
-//TODO: Implement DataSpace::where
+//TODO: Implement DataSpaces::locator
 
 	return nullptr;
 }
 
 
-StatusCode DataSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
+pRowSelection DataSpaces::where(pChar query) {
 
-//TODO: Implement DataSpace::get_row
+//TODO: Implement DataSpaces::where
+
+	return nullptr;
+}
+
+
+StatusCode DataSpaces::get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols, pCaster cast) {
+
+//TODO: Implement DataSpaces::get_row
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
@@ -182,14 +182,14 @@ StatusCode DataSpace::get_row(pTransaction	&p_txn, RowNumber row, pColSelection 
 
 	This is called once when start() has successfully completed.
 	It will load from persistence (and not write into persistence) if def.load_on_start.
-	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the DataSpace-ETL interface.-
+	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the DataSpaces-ETL interface.-
 	Otherwise, it will create the table using the definition in `def`.
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode DataSpace::load_or_create_space() {
+StatusCode DataSpaces::load_or_create_space() {
 
-//TODO: Implement DataSpace::load_or_create_space
+//TODO: Implement DataSpaces::load_or_create_space
 
 	return SERVICE_NOT_IMPLEMENTED;
 }
@@ -197,5 +197,5 @@ StatusCode DataSpace::load_or_create_space() {
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
-#include "src/jazz_bebop/tests/test_data_space.ctest"
+#include "src/jazz_bebop/tests/test_data_spaces.ctest"
 #endif

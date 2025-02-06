@@ -48,7 +48,7 @@
 #define INCLUDED_JAZZ_BEBOP_DATA_SPACE
 
 
-/** \brief The DataSpace and its utilities.
+/** \brief The DataSpaces and its utilities.
 
 This is an essential part of Bop to abstract data storage supporting dataframes, possibly sharded
 and lazy-loaded. It also provides indexing which can select rows, keys of find nearest neighbors.
@@ -62,10 +62,10 @@ namespace jazz_bebop
 #define DATASPACE_INDEX_EMBEDDING	3	///< The space is indexed by partial row embedding.
 
 
-/** \brief DataSpaceDefinition: The definition of a DataSpace.
+/** \brief DataSpaceDefinition: The definition of a DataSpaces.
 */
 struct DataSpaceDefinition {
-	bool load_on_start;			///< True if the DataSpace requires loading from persistence. In that case, the rest is ignored.
+	bool load_on_start;			///< True if the DataSpaces requires loading from persistence. In that case, the rest is ignored.
 	int index_type;				///< The type of index. (In DATASPACE_INDEX_ROW_NUM..DATASPACE_INDEX_EMBEDDING)
 
 //TODO: Complete the DataSpaceDefinition structure.
@@ -74,14 +74,14 @@ struct DataSpaceDefinition {
 typedef DataSpaceDefinition *pDataSpaceDefinition;	///< A pointer to a DataSpaceDefinition
 
 
-/** \brief DataSpace: The data space.
+/** \brief DataSpaces: The data space.
 
 */
-class DataSpace : public Space {
+class DataSpaces : public Space {
 
 	public:
 
-		DataSpace(pBaseAPI api, pName name, pDataSpaceDefinition p_def);
+		DataSpaces(pBaseAPI api, pName name, pDataSpaceDefinition p_def);
 
 		virtual StatusCode start();
 		virtual pChar const id();
@@ -99,19 +99,19 @@ class DataSpace : public Space {
 		virtual pRowSelection where(pChar query);
 		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
 
-		// DataSpace-ETL interface
+		// DataSpaces-ETL interface
 
-//TODO: Define the DataSpace-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
-//		special Bop scripts to populate/update/destroy the DataSpace.
+//TODO: Define the DataSpaces-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
+//		special Bop scripts to populate/update/destroy the DataSpaces.
 
 	private:
 
 		StatusCode load_or_create_space();
 
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
-		DataSpaceDefinition def;	///< The definition of the DataSpace.
+		DataSpaceDefinition def;	///< The definition of the DataSpaces.
 };
-typedef DataSpace *pDataSpace;		///< A pointer to a DataSpace
+typedef DataSpaces *pDataSpace;		///< A pointer to a DataSpaces
 
 } // namespace jazz_bebop
 
