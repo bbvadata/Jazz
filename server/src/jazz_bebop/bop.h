@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_bebop/snippet.h"
+#include "src/jazz_bebop/fields.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
