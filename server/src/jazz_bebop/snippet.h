@@ -60,6 +60,18 @@ It supports a number of serializations to and from Jazz Blocks. It forms the min
 namespace jazz_bebop
 {
 
+/** The kind of a Snippet
+*/
+#define KIND_SNIPPET	"{\"object\" : BYTE[obj_size], \"body\" : STRING[body_len], \"calls\" : STRING[calls_len]," \
+						"\"input\" : STRING[input_len], \"output\" : STRING[output_len], \"reads\" : STRING[reads_len]," \
+						"\"source\" : STRING[source_len], \"writes\" : STRING[writes_len]}"
+
+/** The empty Snippet
+*/
+#define EMPTY_SNIPPET	"(\"object\" : [], \"body\" : [], \"calls\" : [], \"input\" : [], \"output\" : [], \"reads\" : []," \
+						"\"source\" : [], \"writes\" : [])"
+
+
 /** \brief Snippet: A code snippet and the ancestor of Concept.
 
 A Snippet is a Tuple with items and some attributes. The items are sources and compiled onnx code. The attributes identify it as a Snippet
