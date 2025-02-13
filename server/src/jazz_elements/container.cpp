@@ -276,8 +276,8 @@ Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger,
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
 
-	memcpy(&F_NA_uint32, &F_NA, sizeof(&F_NA));
-	memcpy(&R_NA_uint64, &R_NA, sizeof(&R_NA));
+	memcpy(&F_NA_uint32, &F_NA, sizeof(F_NA));
+	memcpy(&R_NA_uint64, &R_NA, sizeof(R_NA));
 
 	max_transactions = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
