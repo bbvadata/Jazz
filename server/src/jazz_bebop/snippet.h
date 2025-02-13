@@ -71,6 +71,29 @@ namespace jazz_bebop
 #define EMPTY_SNIPPET	"(\"object\" : [], \"body\" : [], \"calls\" : [], \"input\" : [], \"output\" : [], \"reads\" : []," \
 						"\"source\" : [], \"writes\" : [])"
 
+const char SNIPSTATE_EMPTY_SNIPPET[]		= "____";	///< The snippet is empty
+const char SNIPSTATE_SOURCE_AVAILABLE[]		= "s___";	///< The source code is available
+const char SNIPSTATE_SOURCE_PREPROCESSED[]	= "sx__";	///< The source code has been preprocessed successfully
+const char SNIPSTATE_SOURCE_COMPILED[]		= "sxo_";	///< The source code has been compiled successfully
+const char SNIPSTATE_OBJECT_AVAILABLE[]		= "__o_";	///< The snippet is created from an onnx object
+const char SNIPSTATE_OBJECT_PREPROCESSED[]	= "_xo_";	///< The snippet (from onnx) has been reverse engineered successfully
+const char SNIPSTATE_CAN_RUN[]				= "___a";	///< The global state is neither error nor empty state() >= SNIPSTATE_CAN_RUN
+const char SNIPSTATE_CAN_RUN_OBJECT[]		= "_xor";	///< The snippet (from onnx) is ready to run (or has run before)
+const char SNIPSTATE_CAN_RUN_SOURCE[]		= "sxor";	///< The snippet (from source) is ready to run (or has run before)
+const char SNIPSTATE_IS_RUNNING_OBJECT[]	= "_xoi";	///< The snippet is currently running (from onnx)
+const char SNIPSTATE_IS_RUNNING_SOURCE[]	= "sxoi";	///< The snippet is currently running (from source)
+const char SNIPSTATE_FAILED_SRC_PREPROC[] 	= "sX_!";	///< The source code preprocessing failed
+const char SNIPSTATE_FAILED_SRC_COMPILE[] 	= "sxO!";	///< The source code compilation failed
+const char SNIPSTATE_FAILED_OBJ_PREPROC[] 	= "_Xo!";	///< The snippet (from onnx) reverse engineering failed
+const char SNIPSTATE_FAILED_RUN_OBJECT[]	= "_xo!";	///< The snippet failed to run (from onnx)
+const char SNIPSTATE_FAILED_RUN_SOURCE[]	= "sxo!";	///< The snippet failed to run (from source)
+
+#define MASK_SNIPSTATE_GENERAL	0xff000000				///< The mask for the general state
+#define MASK_SNIPSTATE_OBJECT	0x00ff0000				///< The mask for the object state
+#define MASK_SNIPSTATE_INTER	0x0000ff00				///< The mask for the intermediate state
+#define MASK_SNIPSTATE_SOURCE	0x000000ff				///< The mask for the source state
+#define SNIPSTATE_UNDEFINED		0x7fffffff				///< An error state returned when there is no attribute
+
 
 /** \brief Snippet: A code snippet and the ancestor of Concept.
 
