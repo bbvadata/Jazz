@@ -93,6 +93,17 @@ const char SNIPSTATE_FAILED_RUN_SOURCE[]	= "sxo!";	///< The snippet failed to ru
 #define MASK_SNIPSTATE_INTER	0x0000ff00				///< The mask for the intermediate state
 #define MASK_SNIPSTATE_SOURCE	0x000000ff				///< The mask for the source state
 #define SNIPSTATE_UNDEFINED		0x7fffffff				///< An error state returned when there is no attribute
+
+#define SNIP_INDEX_OBJECT		0						///< The index of the object code in a Snippet
+#define SNIP_INDEX_BODY			1						///< The index of the body code in a Snippet
+#define SNIP_INDEX_CALLS		2						///< The index of the calls code in a Snippet
+#define SNIP_INDEX_INPUT		3						///< The index of the input code in a Snippet
+#define SNIP_INDEX_OUTPUT		4						///< The index of the output code in a Snippet
+#define SNIP_INDEX_READS		5						///< The index of the reads code in a Snippet
+#define SNIP_INDEX_SOURCE		6						///< The index of the source code in a Snippet
+#define SNIP_INDEX_WRITES		7						///< The index of the writes code in a Snippet
+
+
 /** \brief A SnippetText is a vector of strings
 
 	A std::vector of std::string to hold the source and intermediate code of a Snippet. This is used to make compilation
