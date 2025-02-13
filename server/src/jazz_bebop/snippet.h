@@ -165,8 +165,13 @@ Since Snippets are immutable, the logic of adding blocks to the tuple is managed
 */
 class Snippet : public Tuple {
 
-	public:
+	using Tuple::get_block;
 
+	int	  get_state();
+	bool  get_block(int idx, SnippetText &snip_text);
+	bool  get_block(pChar name, SnippetText &snip_text);
+	int	  object_size();
+	void* get_object();
 };
 typedef Snippet *pSnippet;		///< A pointer to a Snippet
 
