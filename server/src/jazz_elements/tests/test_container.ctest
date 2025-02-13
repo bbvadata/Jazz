@@ -241,6 +241,11 @@ void check_string_block(pBlock p_block) {
 
 SCENARIO("Testing (container) structure sizes.") {
 
+	REQUIRE(sizeof(float) == 4);
+	REQUIRE(sizeof(double) == 8);
+	REQUIRE(sizeof(F_NA) == 4);
+	REQUIRE(sizeof(R_NA) == 8);
+
 	REQUIRE(sizeof(Name)			  == 32);
 	REQUIRE(sizeof(Lock32)			  == 4);
 	REQUIRE(sizeof(Transaction)		  == 24);
@@ -5150,7 +5155,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(s_stx->p_block->size == 85);
 			REQUIRE(s_stx->p_block->tensor.cell_byte[0] == '[');
 			REQUIRE(s_stx->p_block->tensor.cell_byte[84] == 0);
-			REQUIRE(strcmp((pChar) &s_stx->p_block->tensor, sl) == 0);
+			REQUIRE(strcmp((pChar) &s_stx->p_block->tensor.cell_byte, sl) == 0);
 
 			REQUIRE(CNT.unwrap_received(z_tp1, (pBlock) &s_tp1->p_block->tensor, s_tp1->p_block->size - 1) == SERVICE_NO_ERROR);
 			REQUIRE(z_tp1->p_block != nullptr);
