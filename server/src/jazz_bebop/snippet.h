@@ -107,30 +107,49 @@ typedef SnippetText *pSnippetText;				///< A pointer to a SnippetText
 /** \brief Snippet: A code snippet and the ancestor of Concept.
 
 A Snippet is a Tuple with items and some attributes. The items are sources and compiled onnx code. The attributes identify it as a Snippet
-and manage state (). The Snippet object provides an interface to access the text parts (`uses` and `source`) as a std::vector of std::string.
-Also, it provides many constructors to create a Snippet from source, object, ...
+and manage state ().
+
+Attributes
+----------
+
+A snippet always defines two attributes:
+
+BLOCK_ATTRIB_SNIPVERS	: The version of the Snippet '1' reserved for future use or extension in general (Concepts).
+BLOCK_ATTRIB_SNIPSTATE	: A four character from SNIPSTATE_EMPTY_SNIPPET to SNIPSTATE_FAILED_RUN_SOURCE
+
+The string is made by binary sorted ASCII characters with 4 fields: general, object, intermediate (body, input, output, reads, writes,
+calls) and source. The characters are (lower is problematic: ! (33) is irrecoverable error, 'A'..'Z' (65..90) are
+explanations for error states, _ (93) is empty, 'a'..'z' (97..122) are valid states). The order of the fields is general goes in the
+top bits when represented as an integer. state() >= SNIPSTATE_CAN_RUN matches any can_run or is_running,
+state() < SNIPSTATE_EMPTY_SNIPPET matches any error.
+
+You can also mask using MASK_SNIPSTATE_GENERAL .. MASK_SNIPSTATE_SOURCE to get the state of a specific part of the Snippet. The indices
+are defines as SNIP_INDEX_OBJECT .. SNIP_INDEX_WRITES.
+
+Kind
+----
+
+A Valid snippet satisfies the Kind defined as KIND_SNIPPET
 
 The items are:
 
+\verbatim
 source, input, output, reads, writes, calls, body, object
 ------  -----------------------------------------  ------
-   |  				        |                         +--> The Onnx object code
-   |                        +----------------------------> The preprocessed source code (Possibly reverse engineered)
+   |                        |                         +--> The Onnx object code
+   |                        +----------------------------> The intermediate (preprocessed) source code
    +-----------------------------------------------------> The original source code (If available)
+\endverbatim
 
-The attributes are set in BLOCK_SNIPPET_STATE and are:
+Item indices: Since the order of the blocks in a tuple are fixed, you can retrieve the items both by name of by index.
 
-- SNIPSTATE_SOURCE_AVAILABLE	: The source code is available (has original source)
-- SNIPSTATE_SOURCE_PREPROCESSED	: The source code has been preprocessed (has input, output, reads, writes, calls, body)
-- SNIPSTATE_SOURCE_COMPILED		: The object code has been compiled (has object)
-- SNIPSTATE_OBJECT_AVAILABLE	: The object code is available (the object is the original source)
-- SNIPSTATE_OBJECT_PREPROCESSED	: The object code has been preprocessed (has input, output, reads, writes, calls, body)
-- SNIPSTATE_RUNS				: The snippet has run successfully, (was either SNIPSTATE_SOURCE_COMPILED or SNIPSTATE_OBJECT_PREPROCESSED)
-- SNIPSTATE_IS_RUNNING			: The snippet is currently mounted in an ONNX runtime session
-- SNIPSTATE_FAILED_SRC_PREPROC	: The source code preprocessing failed
-- SNIPSTATE_FAILED_SRC_COMPILE	: The object code compilation failed
-- SNIPSTATE_FAILED_OBJ_PREPROC	: The object code preprocessing failed
-- SNIPSTATE_FAILED_RUN			: The snippet failed to run
+Interface
+---------
+
+The Snippet object provides an interface to access the text parts as a SnippetText and also returns its state as an
+integer and its onnx object as a pointer.
+
+Since Snippets are immutable, the logic of adding blocks to the tuple is managed by the Fields object.
 
 */
 class Snippet : public Tuple {
