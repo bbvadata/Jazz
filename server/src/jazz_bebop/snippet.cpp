@@ -42,6 +42,102 @@ namespace jazz_bebop
 	 Snippet : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Returns the state of the Snippet as an integer.
+
+	Returns the value of the attribute BLOCK_ATTRIB_SNIPSTATE (only the first 4 chars) as an integer.
+
+	\see Snippet
+
+	\return The state of the Snippet as an integer.
+
+*/
+int Snippet::get_state() {
+	pChar pt = get_attribute(BLOCK_ATTRIB_SNIPSTATE);
+
+	if (pt == nullptr)
+		return SNIPSTATE_UNDEFINED;
+
+	return reinterpret_cast<int*>(pt)[0];
+}
+
+
+/** Get a specific block (whose type is a tensor of strings) into a SnippetText.
+
+	\param idx			The index of the block.
+	\param snip_text	The SnippetText to fill. The caller must provide an empty object and is responsible of
+						disposing it. If not empty, the content will be appended.
+
+	\return True if the block was found and either is is empty or snip_text was filled.
+
+*/
+bool Snippet::get_block(int idx, SnippetText &snip_text) {
+
+	pBlock pt = get_block(SNIP_INDEX_OBJECT);
+
+	if ((pt == nullptr) || (pt->cell_type != CELL_TYPE_STRING))
+		return false;
+
+	for (int i = 0; i < pt->size; i++) {
+		std::string s = pt->get_string(i);
+		snip_text.push_back(s);
+	}
+
+	return true;
+}
+
+
+/** Get a specific block (whose type is a tensor of strings) into a SnippetText.
+
+	\param name			The name of the block.
+	\param snip_text	The SnippetText to fill. The caller must provide an empty object and is responsible of
+						disposing it. If not empty, the content will be appended.
+
+	\return True if the block was found and either is is empty or snip_text was filled.
+
+*/
+bool Snippet::get_block(pChar name, SnippetText &snip_text) {
+
+	int idx = index(name);
+
+	if (idx < 0)
+		return false;
+
+	return get_block(idx, snip_text);
+}
+
+
+/** Get the size of the onnx object block.
+
+	\return The size of the object block or 0 if the block is not found.
+*/
+int	Snippet::object_size() {
+
+	pBlock pt = get_block(SNIP_INDEX_OBJECT);
+
+	if (pt)
+		return pt->size;
+
+	return 0;
+}
+
+
+/** Get the onnx object block.
+
+	This does not copy or allocate memory, it returns a pointer inside the Snippet object which will be valid
+	as long as the Snippet object is valid. Do not try to free it.
+
+	\return A pointer to the onnx object block or nullptr if the block is not found.
+*/
+void* Snippet::get_object() {
+
+	pBlock pt = get_block(SNIP_INDEX_OBJECT);
+
+	if (pt)
+		return &pt->tensor.cell_byte[0];
+
+	return nullptr;
+}
+
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
