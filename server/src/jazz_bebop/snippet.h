@@ -93,6 +93,15 @@ const char SNIPSTATE_FAILED_RUN_SOURCE[]	= "sxo!";	///< The snippet failed to ru
 #define MASK_SNIPSTATE_INTER	0x0000ff00				///< The mask for the intermediate state
 #define MASK_SNIPSTATE_SOURCE	0x000000ff				///< The mask for the source state
 #define SNIPSTATE_UNDEFINED		0x7fffffff				///< An error state returned when there is no attribute
+/** \brief A SnippetText is a vector of strings
+
+	A std::vector of std::string to hold the source and intermediate code of a Snippet. This is used to make compilation
+and code generation easier to interface in c++.
+
+The caller owns the object (initially empty) and is responsible for freeing it when no longer needed.
+*/
+typedef std::vector<std::string> SnippetText;
+typedef SnippetText *pSnippetText;				///< A pointer to a SnippetText
 
 
 /** \brief Snippet: A code snippet and the ancestor of Concept.
