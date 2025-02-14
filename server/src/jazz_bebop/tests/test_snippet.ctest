@@ -44,15 +44,58 @@ using namespace jazz_bebop;
 // Tests
 // -----
 
-SCENARIO("Testing snippet") {
+const char TEST_SNIPPET[]	= "(\"object\" : [1, 2, 3, 4], \"body\" : [\"begin\", \"end\"], \"calls\" : [\"math::pi\"]," \
+							  "\"input\" : [\"r\", \"s\", \"t\"], \"output\" : [\"X\", \"Y\", ], \"reads\" : [\"space::+\", ]," \
+							  "\"source\" : [\"interface\", \"implementation\", \"end\"], \"writes\" : [])";
 
-//TODO: Write tests for Snippet!
+SCENARIO("Testing Snippet") {
+	GIVEN("The instances are constructed, but not yet started") {
+		REQUIRE(BAPI.p_channels	 == &CHN);
+		REQUIRE(BAPI.p_volatile	 == &VOL);
+		REQUIRE(BAPI.p_persisted == &PER);
+	}
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
+	REQUIRE(CHN.start()	== 0);
+	REQUIRE(VOL.start()	== 0);
+	REQUIRE(PER.start() == 0);
+
+	REQUIRE(BAPI.start() == 0);
+
+	GIVEN("The BaseAPI is running") {
+		WHEN("We create a Kind KIND_SNIPPET as and a Snippet as EMPTY_SNIPPET ") {
+			pTransaction p_kind, p_snip, p_empt, p_aux;
+
+			int len = strlen(KIND_SNIPPET);
+
+			REQUIRE(BAPI.new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, len, KIND_SNIPPET, '\n', nullptr) == 0);
+			REQUIRE(p_aux != nullptr);
+			REQUIRE(p_aux->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_aux->p_block->size == 1);
+
+			REQUIRE(BAPI.new_block(p_kind, p_aux->p_block, CELL_TYPE_KIND_ITEM, nullptr, nullptr) == 0);
+			REQUIRE(p_kind != nullptr);
+			REQUIRE(p_kind->p_block->cell_type == CELL_TYPE_KIND_ITEM);
+			REQUIRE(p_kind->p_block->size == 8);
+
+			p_aux->p_owner->destroy_transaction(p_aux);
+
+			// ...
+
+			THEN("We try the Snippet interface") {
+
+				// ...
+
 			}
+
+			// ...
+
+			p_kind->p_owner->destroy_transaction(p_kind);
 		}
 	}
+
+	REQUIRE(BAPI.shut_down() == 0);
+
+	REQUIRE(CHN.shut_down() == 0);
+	REQUIRE(VOL.shut_down() == 0);
+	REQUIRE(PER.shut_down() == 0);
 }
