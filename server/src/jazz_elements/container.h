@@ -81,7 +81,7 @@ namespace jazz_elements
 #define FILL_NEW_DONT_FILL				  0		///< Don't initialize at all.
 #define FILL_NEW_WITH_ZERO				  1		///< Initialize with binary zero.
 #define FILL_NEW_WITH_NA				  2		///< Initialize with the appropriate NA for the cell_type.
-#define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
+#define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_block().
 
 #define BUILD_TUPLE						  1		///< Build a Tuple out of data items or fail.
 #define BUILD_KIND						  2		///< Build a Kind out of metadata items or fail.

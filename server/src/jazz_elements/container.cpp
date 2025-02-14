@@ -546,7 +546,7 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 							FILL_NEW_WITH_ZERO (fill with binary zero no matter what the cell_type is), FILL_NEW_WITH_NA fill with the
 							appropriate NA for the cell_type).
 	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
-							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
+							will be allocated with this size plus whatever size is required by the strings in att. new_block() will
 							only allocate the space and do nothing with it. The caller should assign strings with Block.set_string().
 	\param p_text			The other possible way to allocate space for strings is by declaring p_text. Imagine the content of p_text
 							as a text file with n = size rows that will be pushed into the tensor and the string buffer. The eol character
@@ -557,7 +557,7 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 	\param att				The attributes to set when creating the block. They are immutable.
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be
-	changed	only creating a new block with new = new_jazz_block(p_from = old, att = new_att). String buffer allocation should only be
+	changed	only creating a new block with new = new_block(p_from = old, att = new_att). String buffer allocation should only be
 	used for cell_type == CELL_TYPE_STRING and either with stringbuff_size or with p_text (and eol).
 	If stringbuff_size is used, Block.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
 	Block.set_string() **should not** be called after that.
@@ -826,7 +826,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param dims			For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
 						like when Kinds are built using Kind.new_kind() followed by Kind.add_item()
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+						use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -953,7 +953,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 						have the same first dimension.
 	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+						use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -1148,7 +1148,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_from	The Tuple from which the item is selected.
 	\param name		The name of the item to be selected.
 	\param att		The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-					use the version of new_jazz_block() with parameter p_from.
+					use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -1194,7 +1194,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						CELL_TYPE_STRING. The serialization of a Kind includes types and does not use this.
 						E.g. "{"temperature":INTEGER[num_places,2], "sensation":STRING[num_places]}"
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+						use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -1476,7 +1476,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						 tensors will use it. (This may imply converting integer to double depending on the specifier.)
 	\param ret_as_string Return the serialization as a tensor of just one string rather than a vector of byte.
 	\param att			 The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						 use the version of new_jazz_block() with parameter p_from.
+						 use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
