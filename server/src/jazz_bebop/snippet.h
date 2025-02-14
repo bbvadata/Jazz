@@ -62,14 +62,14 @@ namespace jazz_bebop
 
 /** The kind of a Snippet
 */
-#define KIND_SNIPPET	"{\"object\" : BYTE[obj_size], \"body\" : STRING[body_len], \"calls\" : STRING[calls_len]," \
-						"\"input\" : STRING[input_len], \"output\" : STRING[output_len], \"reads\" : STRING[reads_len]," \
-						"\"source\" : STRING[source_len], \"writes\" : STRING[writes_len]}"
+const char KIND_SNIPPET[]	= "{\"object\" : BYTE[obj_size], \"body\" : STRING[body_len], \"calls\" : STRING[calls_len]," \
+							  "\"input\" : STRING[input_len], \"output\" : STRING[output_len], \"reads\" : STRING[reads_len]," \
+							  "\"source\" : STRING[source_len], \"writes\" : STRING[writes_len]}";
 
 /** The empty Snippet
 */
-#define EMPTY_SNIPPET	"(\"object\" : [], \"body\" : [], \"calls\" : [], \"input\" : [], \"output\" : [], \"reads\" : []," \
-						"\"source\" : [], \"writes\" : [])"
+const char EMPTY_SNIPPET[]	= "(\"object\" : [], \"body\" : [], \"calls\" : [], \"input\" : [], \"output\" : [], \"reads\" : []," \
+							  "\"source\" : [], \"writes\" : [])";
 
 const char SNIPSTATE_EMPTY_SNIPPET[]		= "____";	///< The snippet is empty
 const char SNIPSTATE_SOURCE_AVAILABLE[]		= "s___";	///< The source code is available
