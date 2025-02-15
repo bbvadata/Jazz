@@ -158,8 +158,8 @@ at [host]/develop/rfc2/jazz_actor_model.html
 #define BLOCK_ATTRIB_MIMETYPE	4			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
 #define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
 #define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
-#define BLOCK_ATTRIB_SNIPVERS	7			///< The Snippet interface version.
-#define BLOCK_ATTRIB_SNIPSTATE	8			///< The compilation/running state of a Snippet.
+#define BLOCK_ATTRIB_SNIPSTATE	7			///< The compilation/running state of a Snippet.
+#define BLOCK_ATTRIB_SNIPVERS	8			///< The Snippet interface version.
 
 /// Values for argument set_has_NA of close_block()
 #define SET_HAS_NA_
@@ -263,17 +263,17 @@ typedef BlockHeader	*pBlockHeader;		///< A pointer to a BlockHeader
 
 /// A Binary Compatible BlockHeader without Index (and therefore constructors/destructors)
 struct StaticBlockHeader {
-	int	cell_type;								///< The type for the cells in the tensor. See CELL_TYPE_*
-	int size;									///< The total number of cells in the tensor
-	TimePoint created;							///< Timestamp when the block was created
-			int	rank;							///< The number of dimensions
-			TensorDim range;					///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
-			int num_attributes;					///< Number of elements in the JazzAttributesMap
-			int total_bytes;					///< Total size of the block everything included
-			bool has_NA;						///< If true, at least one value is a NA and block requires NA-aware arithmetic
-			uint64_t hash64;					///< Hash of everything but the header
+	int	cell_type;						///< The type for the cells in the tensor. See CELL_TYPE_*
+	int size;							///< The total number of cells in the tensor
+	TimePoint created;					///< Timestamp when the block was created
+	int	rank;							///< The number of dimensions
+	TensorDim range;					///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+	int num_attributes;					///< Number of elements in the JazzAttributesMap
+	int total_bytes;					///< Total size of the block everything included
+	bool has_NA;						///< If true, at least one value is a NA and block requires NA-aware arithmetic
+	uint64_t hash64;					///< Hash of everything but the header
 
-			Tensor tensor;						///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
+	Tensor tensor;						///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
 };
 typedef StaticBlockHeader *pStaticBlockHeader;	///< A pointer to a StaticBlockHeader
 
