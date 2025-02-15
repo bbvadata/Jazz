@@ -111,7 +111,7 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 #define REX_TIME				"[0-9a-zA-Z :\\-]"					// Enforces DEF_FLOAT_TIME = "%Y-%m-%d %H:%M:%S"
 
 #define MAX_NUM_PSTATES			27		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	75		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define NUM_STATE_TRANSITIONS	76		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 #define PSTATE_IN_AUTO			 0		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_UNDEFINED
 #define PSTATE_IN_INT			 1		///< Parser state: Reached "[" (shape in), cell type is any integer
@@ -146,6 +146,8 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 #define PSTATE_OUT_STRING		25		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_STRING
 #define PSTATE_OUT_TIME			26		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_TIME
 
+#define PSTATE_EMPTY_FILE		27		///< Parser state: Empty array of byte (File of size 0) (Any other type must use NA for empty)
+
 /** A vector of StateTransition.l This only runs once, when construction the API object, initializes the LUTs from a sequence of
 StateTransition constants in the source of api.cpp.
 */
@@ -163,6 +165,7 @@ ParseStateTransitions state_tr = {
 	{PSTATE_IN_INT,				PSTATE_IN_INT,			REX_ALL_SPACES_LEFT_BR},
 	{PSTATE_IN_INT,				PSTATE_CONST_INT,		REX_NUMBER_FIRST},
 	{PSTATE_IN_INT,				PSTATE_NA_INT,			REX_NA_FIRST},
+	{PSTATE_IN_INT,				PSTATE_EMPTY_FILE,		REX_RIGHT_BR},
 
 	{PSTATE_IN_REAL,			PSTATE_IN_REAL,			REX_ALL_SPACES_LEFT_BR},
 	{PSTATE_IN_REAL,			PSTATE_CONST_REAL,		REX_NUMBER_FIRST},
@@ -2606,6 +2609,10 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 		case PSTATE_END_STRING:
 			break;
 
+		case PSTATE_EMPTY_FILE:		// Only CELL_TYPE_BYTE supports empty files because there is no NA for bytes. syntax is [] (no space)
+			memset(item_hea->dim, 0, sizeof(TensorDim));
+			return (cursor == ']') && (level == 0) && (cell_type == CELL_TYPE_BYTE) && (item_hea->rank == 1) && (item_hea->item_size == 0);
+
 		default:
 			return false;
 		}
@@ -2837,6 +2844,9 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 				*(p_st++) = cursor;
 
 				break;
+
+			case PSTATE_EMPTY_FILE:
+				return true;
 
 			default:
 
