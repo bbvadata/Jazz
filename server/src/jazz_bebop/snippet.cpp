@@ -72,14 +72,16 @@ int Snippet::get_state() {
 */
 bool Snippet::get_block(int idx, SnippetText &snip_text) {
 
-	pBlock pt = get_block(SNIP_INDEX_OBJECT);
+	pBlock pt = get_block(idx);
 
 	if ((pt == nullptr) || (pt->cell_type != CELL_TYPE_STRING))
 		return false;
 
 	for (int i = 0; i < pt->size; i++) {
-		std::string s = pt->get_string(i);
-		snip_text.push_back(s);
+		if (pt->tensor.cell_int[i] != STRING_NA) {
+			std::string s = pt->get_string(i);
+			snip_text.push_back(s);
+		}
 	}
 
 	return true;
@@ -132,7 +134,7 @@ void* Snippet::get_object() {
 
 	pBlock pt = get_block(SNIP_INDEX_OBJECT);
 
-	if (pt)
+	if (pt && pt->size > 0)
 		return &pt->tensor.cell_byte[0];
 
 	return nullptr;
