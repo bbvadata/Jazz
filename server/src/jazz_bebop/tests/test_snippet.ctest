@@ -45,8 +45,8 @@ using namespace jazz_bebop;
 // -----
 
 const char TEST_SNIPPET[]	= "(\"object\" : [1, 2, 3, 4], \"body\" : [\"begin\", \"end\"], \"calls\" : [\"math::pi\"]," \
-							  "\"input\" : [\"r\", \"s\", \"t\"], \"output\" : [\"X\", \"Y\", ], \"reads\" : [\"space::+\", ]," \
-							  "\"source\" : [\"interface\", \"implementation\", \"end\"], \"writes\" : [])";
+							  "\"input\" : [\"r\", \"s\", \"t\"], \"output\" : [\"X\", \"Y\"], \"reads\" : [\"space::*\"]," \
+							  "\"source\" : [\"interface\", \"implementation\", \"end\"], \"writes\" : [NA])";
 
 SCENARIO("Testing Snippet") {
 	GIVEN("The instances are constructed, but not yet started") {
@@ -62,7 +62,7 @@ SCENARIO("Testing Snippet") {
 	REQUIRE(BAPI.start() == 0);
 
 	GIVEN("The BaseAPI is running") {
-		WHEN("We create a Kind KIND_SNIPPET as and a Snippet as EMPTY_SNIPPET ") {
+		WHEN("We create a Kind as KIND_SNIPPET and a Snippet as EMPTY_SNIPPET ") {
 			pTransaction p_kind, p_snip, p_empt, p_aux;
 
 			int len = strlen(KIND_SNIPPET);
@@ -79,16 +79,299 @@ SCENARIO("Testing Snippet") {
 
 			p_aux->p_owner->destroy_transaction(p_aux);
 
-			// ...
+			len = strlen(TEST_SNIPPET);
+
+			REQUIRE(BAPI.new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, len, TEST_SNIPPET, '\n', nullptr) == 0);
+			REQUIRE(p_aux != nullptr);
+			REQUIRE(p_aux->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_aux->p_block->size == 1);
+
+			AttributeMap attr = {};
+			attr[BLOCK_ATTRIB_SNIPSTATE] = SNIPSTATE_SOURCE_COMPILED;
+			attr[BLOCK_ATTRIB_SNIPVERS]	 = SNIPPET_VERSION;
+
+			REQUIRE(BAPI.new_block(p_snip, p_aux->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_kind->p_block, &attr) == 0);
+			REQUIRE(p_snip != nullptr);
+			REQUIRE(p_snip->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_snip->p_block->size == 8);
+
+			p_aux->p_owner->destroy_transaction(p_aux);
+
+			pTuple p_tuple = reinterpret_cast<pTuple>(p_snip->p_block);
+
+			REQUIRE(p_tuple->size == 8);
+			REQUIRE(p_tuple->is_a((pKind) p_kind->p_block));
+			REQUIRE(p_tuple->num_attributes == 2);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_OBJECT), "object") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_BODY), "body") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_CALLS), "calls") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_INPUT), "input") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_OUTPUT), "output") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_READS), "reads") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_SOURCE), "source") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_WRITES), "writes") == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OBJECT)->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OBJECT)->size == 4);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OBJECT)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->size == 2);	// "begin", "end"
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->size == 1);	// "math::pi"
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->size == 3);	// "r", "s", "t"
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->size == 2);	// "X", "Y"
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->size == 1);	// "space::*"
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->size == 3);	// "interface", "implementation", "end"
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->num_attributes == 0);
+
+			len = strlen(EMPTY_SNIPPET);
+
+			REQUIRE(BAPI.new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, len, EMPTY_SNIPPET, '\n', nullptr) == 0);
+			REQUIRE(p_aux != nullptr);
+			REQUIRE(p_aux->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_aux->p_block->size == 1);
+
+			attr[BLOCK_ATTRIB_SNIPSTATE] = SNIPSTATE_FAILED_SRC_COMPILE;
+
+			REQUIRE(BAPI.new_block(p_empt, p_aux->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_kind->p_block, &attr) == 0);
+			REQUIRE(p_empt != nullptr);
+			REQUIRE(p_empt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+
+			p_aux->p_owner->destroy_transaction(p_aux);
+
+			p_tuple = reinterpret_cast<pTuple>(p_empt->p_block);
+
+			REQUIRE(p_tuple->size == 8);
+			REQUIRE(p_tuple->is_a((pKind) p_kind->p_block));
+			REQUIRE(p_tuple->num_attributes == 2);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_OBJECT), "object") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_BODY), "body") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_CALLS), "calls") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_INPUT), "input") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_OUTPUT), "output") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_READS), "reads") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_SOURCE), "source") == 0);
+			REQUIRE(strcmp(p_tuple->item_name(SNIP_INDEX_WRITES), "writes") == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OBJECT)->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OBJECT)->size == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OBJECT)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_BODY)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_CALLS)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_INPUT)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_OUTPUT)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_READS)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_SOURCE)->num_attributes == 0);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->cell_type == CELL_TYPE_STRING);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->size == 1);	// NA
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->tensor.cell_int[0] == STRING_NA);
+			REQUIRE(p_tuple->get_block(SNIP_INDEX_WRITES)->num_attributes == 0);
 
 			THEN("We try the Snippet interface") {
+				pSnippet p_test_snip = reinterpret_cast<pSnippet>(p_snip->p_block);
+				pSnippet p_empt_snip = reinterpret_cast<pSnippet>(p_empt->p_block);
 
-				// ...
+				REQUIRE(p_test_snip->object_size() == 4);
+				REQUIRE(p_test_snip->get_object() != nullptr);
 
+				REQUIRE(p_empt_snip->object_size() == 0);
+				REQUIRE(p_empt_snip->get_object() == nullptr);
+
+				REQUIRE(strcmp(p_test_snip->get_attribute(BLOCK_ATTRIB_SNIPVERS), SNIPPET_VERSION) == 0);
+				REQUIRE(strcmp(p_empt_snip->get_attribute(BLOCK_ATTRIB_SNIPVERS), SNIPPET_VERSION) == 0);
+
+				REQUIRE((p_test_snip->get_state() & MASK_SNIPSTATE_GENERAL) >> 24 == '_');	// "sxo_"
+				REQUIRE((p_test_snip->get_state() & MASK_SNIPSTATE_OBJECT)  >> 16 == 'o');
+				REQUIRE((p_test_snip->get_state() & MASK_SNIPSTATE_INTER)   >> 8  == 'x');
+				REQUIRE((p_test_snip->get_state() & MASK_SNIPSTATE_SOURCE)		  == 's');
+
+				REQUIRE((p_empt_snip->get_state() & MASK_SNIPSTATE_GENERAL) >> 24 == '!');	// "sxO!"
+				REQUIRE((p_empt_snip->get_state() & MASK_SNIPSTATE_OBJECT)  >> 16 == 'O');
+				REQUIRE((p_empt_snip->get_state() & MASK_SNIPSTATE_INTER)   >> 8  == 'x');
+				REQUIRE((p_empt_snip->get_state() & MASK_SNIPSTATE_SOURCE)		  == 's');
+
+				SnippetText text = {};
+
+				REQUIRE(text.size() == 0);
+				REQUIRE(!p_test_snip->get_block(SNIP_INDEX_OBJECT, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(!p_test_snip->get_block(-1, text));
+				REQUIRE(!p_test_snip->get_block(8, text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_BODY, text));
+				REQUIRE(text.size() == 2);
+				REQUIRE(text[0] == "begin");
+				REQUIRE(text[1] == "end");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_CALLS, text));
+				REQUIRE(text.size() == 1);
+				REQUIRE(text[0] == "math::pi");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_INPUT, text));
+				REQUIRE(text.size() == 3);
+				REQUIRE(text[0] == "r");
+				REQUIRE(text[1] == "s");
+				REQUIRE(text[2] == "t");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_OUTPUT, text));
+				REQUIRE(text.size() == 2);
+				REQUIRE(text[0] == "X");
+				REQUIRE(text[1] == "Y");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_READS, text));
+				REQUIRE(text.size() == 1);
+				REQUIRE(text[0] == "space::*");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_SOURCE, text));
+				REQUIRE(text.size() == 3);
+				REQUIRE(text[0] == "interface");
+				REQUIRE(text[1] == "implementation");
+				REQUIRE(text[2] == "end");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_WRITES, text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_INPUT, text));
+				REQUIRE(p_test_snip->get_block(SNIP_INDEX_OUTPUT, text));
+				REQUIRE(text.size() == 5);
+				REQUIRE(text[0] == "r");
+				REQUIRE(text[1] == "s");
+				REQUIRE(text[2] == "t");
+				REQUIRE(text[3] == "X");
+				REQUIRE(text[4] == "Y");
+
+				text.clear();
+
+				REQUIRE(!p_empt_snip->get_block(SNIP_INDEX_OBJECT, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_BODY, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_CALLS, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_INPUT, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_OUTPUT, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_READS, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_SOURCE, text));
+				REQUIRE(text.size() == 0);
+				REQUIRE(p_empt_snip->get_block(SNIP_INDEX_WRITES, text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(!p_test_snip->get_block((pChar) "what?", text));
+
+				REQUIRE(p_test_snip->get_block((pChar) "body", text));
+				REQUIRE(text.size() == 2);
+				REQUIRE(text[0] == "begin");
+				REQUIRE(text[1] == "end");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block((pChar) "calls", text));
+				REQUIRE(text.size() == 1);
+				REQUIRE(text[0] == "math::pi");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block((pChar) "input", text));
+				REQUIRE(text.size() == 3);
+				REQUIRE(text[0] == "r");
+				REQUIRE(text[1] == "s");
+				REQUIRE(text[2] == "t");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block((pChar) "output", text));
+				REQUIRE(text.size() == 2);
+				REQUIRE(text[0] == "X");
+				REQUIRE(text[1] == "Y");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block((pChar) "reads", text));
+				REQUIRE(text.size() == 1);
+				REQUIRE(text[0] == "space::*");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block((pChar) "source", text));
+				REQUIRE(text.size() == 3);
+				REQUIRE(text[0] == "interface");
+				REQUIRE(text[1] == "implementation");
+				REQUIRE(text[2] == "end");
+
+				text.clear();
+
+				REQUIRE(p_test_snip->get_block((pChar) "writes", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "body", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "calls", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "input", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "output", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "reads", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "source", text));
+				REQUIRE(text.size() == 0);
+
+				REQUIRE(p_empt_snip->get_block((pChar) "writes", text));
+				REQUIRE(text.size() == 0);
 			}
 
-			// ...
-
+			p_empt->p_owner->destroy_transaction(p_empt);
+			p_snip->p_owner->destroy_transaction(p_snip);
 			p_kind->p_owner->destroy_transaction(p_kind);
 		}
 	}
