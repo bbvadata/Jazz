@@ -68,8 +68,12 @@ const char KIND_SNIPPET[]	= "{\"object\" : BYTE[obj_size], \"body\" : STRING[bod
 
 /** The empty Snippet
 */
-const char EMPTY_SNIPPET[]	= "(\"object\" : [], \"body\" : [], \"calls\" : [], \"input\" : [], \"output\" : [], \"reads\" : []," \
-							  "\"source\" : [], \"writes\" : [])";
+const char EMPTY_SNIPPET[]	= "(\"object\" : [], \"body\" : [NA], \"calls\" : [NA], \"input\" : [NA], \"output\" : [NA]," \
+							  "\"reads\" : [NA], \"source\" : [NA], \"writes\" : [NA])";
+
+/** The empty Snippet
+*/
+const char SNIPPET_VERSION[]				= "snp1";	///< The content of the attribute BLOCK_ATTRIB_SNIPVERS
 
 const char SNIPSTATE_EMPTY_SNIPPET[]		= "____";	///< The snippet is empty
 const char SNIPSTATE_SOURCE_AVAILABLE[]		= "s___";	///< The source code is available
@@ -165,13 +169,15 @@ Since Snippets are immutable, the logic of adding blocks to the tuple is managed
 */
 class Snippet : public Tuple {
 
-	using Tuple::get_block;
+	public:
 
-	int	  get_state();
-	bool  get_block(int idx, SnippetText &snip_text);
-	bool  get_block(pChar name, SnippetText &snip_text);
-	int	  object_size();
-	void* get_object();
+		using Tuple::get_block;
+
+		int	  get_state();
+		bool  get_block(int idx, SnippetText &snip_text);
+		bool  get_block(pChar name, SnippetText &snip_text);
+		int	  object_size();
+		void* get_object();
 };
 typedef Snippet *pSnippet;		///< A pointer to a Snippet
 
