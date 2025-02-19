@@ -60,6 +60,31 @@ using namespace jazz_elements;
 
 
 /** \brief Core: The execution unit is now a wrapper around onnx-runtime.
+
+This class:
+
+  * Manages dataspaces.
+  * Manages fields.
+  * Manages life cycle of Snippets: create from source, from object, update, delete.
+  * Compiles or decompiles Snippets.
+  * Manages onnx runtime sessions.
+  * Runs bop objects.
+
+API Container interface:
+------------------------
+
+This is the only interface this class has. Everything, is done using this interface, even when this object is used by a ModelsAPI.
+
+Everything here can be called from the API + destroy_transaction() (You don't override destroy_transaction() since you don't
+override new_transaction()). Of course, not everything must be supported, but since it could be called by some possibly nonsensical
+API query, it is better to reject whatever is not supported with a proper error code.
+
+The class must support all forms of: `new_entity`, `put`, `remove`, `header`, `get`, `exec`, `modify`.
+
+Unlike in other containers, the override is based on only on types, using the locate() mechanism is optional.
+Unlike in other containers, copy() is not called from the API. copy() is just an internal function to copy inside a Container in the
+most efficient way.
+
 */
 class Core : public BaseAPI {
 
