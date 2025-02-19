@@ -47,7 +47,7 @@ namespace jazz_bebop
 	\param a_logger		A pointer to the logger.
 	\param a_config		A pointer to the configuration.
 */
-Bop::Bop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {}
+Bop::Bop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config), opcodes(a_logger, a_config) {}
 
 Bop::~Bop() {}
 

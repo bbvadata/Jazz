@@ -48,13 +48,7 @@ namespace jazz_models
 	\param name	 The name of the SemSpaces.
 	\param p_def The definition of the SemSpaces. The content is copied on construction.
 */
-SemSpaces::SemSpaces(pBaseAPI api, pName name, pSemSpaceDefinition p_def) : Fields(api, name) {
-
-	def.load_on_start = true;		// Forces loading when p_def is nullptr.
-
-	if (p_def != nullptr)
-		def = *p_def;
-}
+SemSpaces::SemSpaces(pBaseAPI api) : Fields(api) {}
 
 
 /** Starts the SemSpaces service

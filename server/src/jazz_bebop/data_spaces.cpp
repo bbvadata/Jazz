@@ -48,12 +48,9 @@ namespace jazz_bebop
 	\param name	 The name of the DataSpaces.
 	\param p_def The definition of the DataSpaces. The content is copied on construction.
 */
-DataSpaces::DataSpaces(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : Space(api, name) {
+DataSpaces::DataSpaces(pBaseAPI api) : Service(api->p_log, api->p_conf) {
 
-	def.load_on_start = true;		// Forces loading when p_def is nullptr.
-
-	if (p_def != nullptr)
-		def = *p_def;
+	p_api = api;
 }
 
 
@@ -62,11 +59,6 @@ DataSpaces::DataSpaces(pBaseAPI api, pName name, pDataSpaceDefinition p_def) : S
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
 StatusCode DataSpaces::start() {
-
-	int ret = Space::start();
-
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
 
 	std::string s;
 

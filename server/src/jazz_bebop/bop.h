@@ -62,6 +62,11 @@ class Bop : public Service {
 
 		Bop(pLogger a_logger, pConfigFile a_config);
 	   ~Bop();
+
+	private:
+
+		OpCodes	   opcodes;
+
 };
 typedef Bop *pBop;		///< A pointer to a Bop
 

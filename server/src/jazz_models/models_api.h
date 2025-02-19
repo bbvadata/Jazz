@@ -64,7 +64,7 @@ class ModelsAPI : public BaseAPI {
 
 	public:
 
-		ModelsAPI(pLogger a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted);
+		ModelsAPI(pLogger a_logger, pConfigFile a_config, pChannels a_channels, pVolatile a_volatile, pPersisted a_persisted, pCore a_core);
 	   ~ModelsAPI();
 
 		virtual pChar const id();

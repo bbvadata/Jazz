@@ -62,26 +62,14 @@ namespace jazz_bebop
 #define DATASPACE_INDEX_EMBEDDING	3	///< The space is indexed by partial row embedding.
 
 
-/** \brief DataSpaceDefinition: The definition of a DataSpaces.
-*/
-struct DataSpaceDefinition {
-	bool load_on_start;			///< True if the DataSpaces requires loading from persistence. In that case, the rest is ignored.
-	int index_type;				///< The type of index. (In DATASPACE_INDEX_ROW_NUM..DATASPACE_INDEX_EMBEDDING)
-
-//TODO: Complete the DataSpaceDefinition structure.
-
-};
-typedef DataSpaceDefinition *pDataSpaceDefinition;	///< A pointer to a DataSpaceDefinition
-
-
 /** \brief DataSpaces: The data space.
 
 */
-class DataSpaces : public Space {
+class DataSpaces : public Service {
 
 	public:
 
-		DataSpaces(pBaseAPI api, pName name, pDataSpaceDefinition p_def);
+		DataSpaces(pBaseAPI api);
 
 		virtual StatusCode start();
 		virtual pChar const id();
@@ -108,8 +96,8 @@ class DataSpaces : public Space {
 
 		StatusCode load_or_create_space();
 
+		pBaseAPI p_api;				///< A pointer to the BaseAPI that provides access to containers.
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
-		DataSpaceDefinition def;	///< The definition of the DataSpaces.
 };
 typedef DataSpaces *pDataSpace;		///< A pointer to a DataSpaces
 

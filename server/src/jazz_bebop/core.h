@@ -79,10 +79,11 @@ class Core : public BaseAPI {
 
 		void base_names(BaseNames &base_names);
 
-		// API Container interface
+	private:
 
-		virtual StatusCode get (pTransaction  &p_txn,
-								ApiQueryState &what);
+		DataSpaces data_spaces;
+		Fields	   fields;
+		Bop		   bop;
 };
 typedef Core *pCore;		///< A pointer to a Core
 

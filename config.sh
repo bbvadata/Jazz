@@ -462,7 +462,7 @@ printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
 
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
-$uplifted_mod MODELS_API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);
+$uplifted_mod MODELS_API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE);
 $uplifted_api HTTP_API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE, &MODELS_API);\n" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"

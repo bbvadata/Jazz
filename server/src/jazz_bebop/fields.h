@@ -57,11 +57,11 @@ A Fields is Space interface to the base `index` of the Volatile Container. The e
 
 A field is a namespace inside Fields.
 */
-class Fields : public Space {
+class Fields : public Service {
 
 	public:
 
-		Fields(pBaseAPI api, pName name);
+		Fields(pBaseAPI api);
 
 		virtual StatusCode start();
 
@@ -87,6 +87,7 @@ class Fields : public Space {
 		Name		storage_ent;	///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
 		pVolatile	p_volatile;		///< The Volatile container
 		pPersisted	p_persisted;	///< The Persisted container
+		pBaseAPI	p_api;			///< A pointer to the BaseAPI that provides access to containers.
 };
 typedef Fields *pFields;			///< A pointer to a Fields
 

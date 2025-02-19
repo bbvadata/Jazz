@@ -56,7 +56,8 @@ ModelsAPI::ModelsAPI(pLogger	 a_logger,
 					 pConfigFile a_config,
 					 pChannels	 a_channels,
 					 pVolatile	 a_volatile,
-					 pPersisted	 a_persisted) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {}
+					 pPersisted	 a_persisted,
+					 pCore		 a_core) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {}
 
 
 ModelsAPI::~ModelsAPI() { destroy_container(); }
@@ -141,7 +142,7 @@ StatusCode ModelsAPI::get(pTransaction &p_txn, ApiQueryState &what) {
 
 #ifdef CATCH_TEST
 
-ModelsAPI MDL(&LOGGER, &CONFIG, &CHN, &VOL, &PER);
+ModelsAPI MDL(&LOGGER, &CONFIG, &CHN, &VOL, &PER, &COR);
 
 #endif
 

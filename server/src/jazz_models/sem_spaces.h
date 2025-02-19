@@ -55,24 +55,13 @@
 namespace jazz_models
 {
 
-/** \brief SemSpaceDefinition: The definition of a SemSpaces.
-
-*/
-class SemSpaceDefinition : public DataSpaceDefinition {
-
-//TODO: Define the SemSpaceDefinition.
-};
-
-typedef SemSpaceDefinition *pSemSpaceDefinition;	///< A pointer to a SemSpaceDefinition
-
-
 /** \brief SemSpaces: A Fields for Concepts.
 */
 class SemSpaces : public Fields {
 
 	public:
 
-		SemSpaces(pBaseAPI api, pName name, pSemSpaceDefinition p_def);
+		SemSpaces(pBaseAPI api);
 
 		virtual StatusCode start();
 
@@ -103,7 +92,6 @@ class SemSpaces : public Fields {
 		StatusCode load_or_create_space();
 
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
-		SemSpaceDefinition def;		///< The definition of the SemSpaces.
 };
 typedef SemSpaces *pSemSpaces;		///< A pointer to a SemSpaces
 
