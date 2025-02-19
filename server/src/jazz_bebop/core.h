@@ -104,6 +104,48 @@ class Core : public BaseAPI {
 
 		void base_names(BaseNames &base_names);
 
+		// API Container interface: (see docstring)
+
+		virtual StatusCode new_entity  (pChar				p_where);
+		virtual StatusCode new_entity  (Locator			   &where);
+		virtual StatusCode put		   (pChar				p_where,
+										pBlock				p_block,
+										int					mode = WRITE_AS_BASE_DEFAULT);
+		virtual StatusCode put		   (Locator			   &where,
+										pBlock				p_block,
+										int					mode = WRITE_AS_BASE_DEFAULT);
+		virtual StatusCode remove	   (pChar				p_where);
+		virtual StatusCode remove	   (Locator			   &where);
+		virtual StatusCode header	   (StaticBlockHeader  &hea,
+										pChar				p_what);
+		virtual StatusCode header	   (pTransaction	   &p_txn,
+										pChar				p_what);
+		virtual StatusCode header	   (StaticBlockHeader  &hea,
+										Locator			   &what);
+		virtual StatusCode header	   (pTransaction	   &p_txn,
+										Locator			   &what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what,
+										pBlock				p_row_filter);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										pChar				p_what,
+										pChar				name);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										Locator			   &what);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+										Locator			   &what,
+										pBlock				p_row_filter);
+		virtual StatusCode get		   (pTransaction	   &p_txn,
+							  			Locator			   &what,
+							  			pChar				name);
+		virtual StatusCode exec		   (pTransaction	   &p_txn,
+										Locator			   &function,
+										pTuple				p_args);
+		virtual StatusCode modify	   (Locator			   &function,
+										pTuple				p_args);
+
 	private:
 
 		DataSpaces data_spaces;

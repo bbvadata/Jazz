@@ -118,30 +118,151 @@ void Core::base_names(BaseNames &base_names) {
 }
 
 
-// API Container interface
-// -----------------------
+// Core Container interface
+// ------------------------
 
 
-/** "API" interface **complete Block** retrieval. This uses a parse()d what and is the only BasePI + descendants GET method.
+StatusCode Core::new_entity(pChar p_where) {
 
-	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					Transaction inside the Container.
-	\param what		Some successfully parse()d ApiQueryState that also distinguishes API interface from Container interface.
-
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
-
-It should support the range from APPLY_NOTHING to APPLY_TEXT. This includes function calls APPLY_FUNCTION and APPLY_FUNCT_CONST,
-but also APPLY_FILTER and APPLY_FILT_CONST to select from the result of a function call. Also, APPLY_URL is very convenient for
-passing text as an argument to a function. APPLY_NOTHING can return some metadata about the model including a list of endpoints.
-APPLY_NAME can define specifics of an endpoint. APPLY_RAW and APPLY_TEXT can be used to select the favorite serialization format
-of the result. Therefore, the function interface should be considered as the whole range and not just APPLY_FUNCTION.
-*/
-StatusCode Core::get(pTransaction &p_txn, ApiQueryState &what) {
-
-//TODO: Implement Core::get
+//TODO: Implement Core::new_entity() (1)
 
 	return SERVICE_NOT_IMPLEMENTED;
+}
 
+
+StatusCode Core::new_entity(Locator &where) {
+
+//TODO: Implement Core::new_entity() (2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::put(pChar p_where, pBlock p_block, int mode) {
+
+//TODO: Implement Core::put() (1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::put(Locator &where, pBlock p_block, int mode) {
+
+//TODO: Implement Core::put() (2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::remove(pChar p_where) {
+
+//TODO: Implement Core::remove() (1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::remove(Locator &where) {
+
+//TODO: Implement Core::remove() (2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::header(StaticBlockHeader &hea, pChar p_what) {
+
+//TODO: Implement Core::header() (1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::header(pTransaction &p_txn, pChar p_what) {
+
+//TODO: Implement Core::header() (2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::header(StaticBlockHeader &hea, Locator &what) {
+
+//TODO: Implement Core::header() (3)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::header(pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement Core::header() (4)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::get(pTransaction &p_txn, pChar p_what) {
+
+//TODO: Implement Core::get() (1)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::get(pTransaction &p_txn, pChar p_what, pBlock p_row_filter) {
+
+//TODO: Implement Core::get() (2)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::get(pTransaction &p_txn, pChar p_what, pChar name) {
+
+//TODO: Implement Core::get() (3)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::get(pTransaction &p_txn, Locator &what) {
+
+//TODO: Implement Core::get() (4)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
+
+//TODO: Implement Core::get() (5)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::get(pTransaction &p_txn, Locator &what, pChar name) {
+
+//TODO: Implement Core::get() (6)
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::exec(pTransaction &p_txn, Locator &function, pTuple p_args) {
+
+//TODO: Implement Core::exec()
+
+	return SERVICE_NOT_IMPLEMENTED;
+}
+
+
+StatusCode Core::modify(Locator &function, pTuple p_args) {
+
+//TODO: Implement Core::modify()
+
+	return SERVICE_NOT_IMPLEMENTED;
 }
 
 #ifdef CATCH_TEST
