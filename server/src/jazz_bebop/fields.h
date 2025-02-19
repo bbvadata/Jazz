@@ -91,6 +91,15 @@ class Fields : public Service {
 };
 typedef Fields *pFields;			///< A pointer to a Fields
 
+#ifdef CATCH_TEST
+
+// Instancing Fields
+// -----------------
+
+extern Fields	FIELDS;
+
+#endif
+
 } // namespace jazz_bebop
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP_FIELD

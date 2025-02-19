@@ -197,6 +197,13 @@ StatusCode Fields::load_or_create_space() {
 	return SERVICE_NOT_IMPLEMENTED;
 }
 
+
+#ifdef CATCH_TEST
+
+Fields FIELDS(&BAPI);
+
+#endif
+
 } // namespace jazz_bebop
 
 #if defined CATCH_TEST
