@@ -51,6 +51,7 @@ using namespace jazz_elements;
 	\param a_channels A pointer to the ChannelsAPI.
 	\param a_volatile A pointer to the VolatileAPI.
 	\param a_persisted A pointer to the PersistedAPI.
+	\param a_core A pointer to the CoreAPI.
 */
 ModelsAPI::ModelsAPI(pLogger	 a_logger,
 					 pConfigFile a_config,

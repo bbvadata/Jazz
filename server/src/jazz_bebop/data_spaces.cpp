@@ -45,8 +45,6 @@ namespace jazz_bebop
 /** \brief Bop: Start the DataSpaces.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
-	\param name	 The name of the DataSpaces.
-	\param p_def The definition of the DataSpaces. The content is copied on construction.
 */
 DataSpaces::DataSpaces(pBaseAPI api) : Service(api->p_log, api->p_conf) {
 

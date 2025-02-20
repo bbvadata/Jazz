@@ -65,7 +65,7 @@ class Bop : public Service {
 
 	private:
 
-		OpCodes	   opcodes;
+		OpCodes	opcodes;		///< The list of opcodes.
 
 };
 typedef Bop *pBop;		///< A pointer to a Bop

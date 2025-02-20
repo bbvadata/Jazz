@@ -45,8 +45,6 @@ namespace jazz_models
 /** \brief Bop: Start the SemSpaces.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
-	\param name	 The name of the SemSpaces.
-	\param p_def The definition of the SemSpaces. The content is copied on construction.
 */
 SemSpaces::SemSpaces(pBaseAPI api) : Fields(api) {}
 

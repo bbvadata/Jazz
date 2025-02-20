@@ -44,7 +44,6 @@ namespace jazz_bebop
 /** \brief Bop: Start the Fields.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
-	\param name	 The name of the Fields object.
 */
 Fields::Fields(pBaseAPI api) : Service(api->p_log, api->p_conf) {
 	p_api = api;

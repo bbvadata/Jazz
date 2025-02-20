@@ -148,9 +148,9 @@ class Core : public BaseAPI {
 
 	private:
 
-		DataSpaces data_spaces;
-		Fields	   fields;
-		Bop		   bop;
+		DataSpaces data_spaces;		///< The data spaces.
+		Fields	   fields;			///< The fields.
+		Bop		   bop;				///< The Bop compiler.
 };
 typedef Core *pCore;		///< A pointer to a Core
 
