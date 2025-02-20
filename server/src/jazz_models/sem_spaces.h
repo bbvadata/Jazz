@@ -76,8 +76,6 @@ class SemSpaces : public Fields {
 
 	private:
 
-		StatusCode load_or_create_space();
-
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
 };
 typedef SemSpaces *pSemSpaces;		///< A pointer to a SemSpaces

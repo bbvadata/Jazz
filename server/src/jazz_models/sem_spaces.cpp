@@ -76,7 +76,7 @@ StatusCode SemSpaces::start() {
 
 	strcpy(storage_ent, s.c_str());
 
-	return load_or_create_space();
+	return true;
 }
 
 

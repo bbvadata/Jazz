@@ -96,8 +96,6 @@ class DataSpaces : public Service {
 
 	private:
 
-		StatusCode load_or_create_space();
-
 		pBaseAPI p_api;				///< A pointer to the BaseAPI that provides access to containers.
 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
 };

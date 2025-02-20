@@ -74,7 +74,7 @@ StatusCode DataSpaces::start() {
 
 	strcpy(storage_ent, s.c_str());
 
-	return load_or_create_space();
+	return true;
 }
 
 
@@ -87,22 +87,6 @@ pChar const DataSpaces::id() {
     return arr;
 }
 
-
-/** Load or create the space.
-
-	This is called once when start() has successfully completed.
-	It will load from persistence (and not write into persistence) if def.load_on_start.
-	Otherwise, if the table metadata exists, it will fail. To override a table, you must use the DataSpaces-ETL interface.-
-	Otherwise, it will create the table using the definition in `def`.
-
-	\return SERVICE_NO_ERROR if successful, an error code otherwise.
-*/
-StatusCode DataSpaces::load_or_create_space() {
-
-//TODO: Implement DataSpaces::load_or_create_space
-
-	return SERVICE_NOT_IMPLEMENTED;
-}
 
 } // namespace jazz_bebop
 

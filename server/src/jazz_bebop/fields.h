@@ -69,8 +69,6 @@ class Fields : public Service {
 
 	private:
 
-		StatusCode load_or_create_space();
-
 		Name		storage_ent;	///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
 		pVolatile	p_volatile;		///< The Volatile container
 		pPersisted	p_persisted;	///< The Persisted container

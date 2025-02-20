@@ -86,7 +86,7 @@ StatusCode Fields::start() {
 		return SERVICE_ERROR_WRONG_ARGUMENTS;
 	}
 
-	return load_or_create_space();
+	return true;
 }
 
 
