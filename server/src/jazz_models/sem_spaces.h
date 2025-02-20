@@ -67,19 +67,6 @@ class SemSpaces : public Fields {
 
 		virtual pChar const id();
 
-		// Space interface
-
-		virtual StatusCode load_meta();
-		virtual StatusCode save_meta();
-		virtual RowNumber num_rows();
-		virtual void* get_index_data(RowNumber row);
-		virtual int num_cols();
-		virtual pName col_name(int col);
-		virtual int col_index(pName name);
-		virtual pLocator locator(RowNumber row, int col, int &index);
-		virtual pRowSelection where(pChar query);
-		virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
-
 		// SemSpaces-ETL interface
 
 //TODO: Define the SemSpaces-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
