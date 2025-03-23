@@ -11,3 +11,4 @@ _config_/*_include_path
 _config_/*_library_path
 dynamic_analysis_reports/
 static_analysis_reports/
+_tags_/
