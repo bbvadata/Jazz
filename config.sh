@@ -308,14 +308,16 @@ fi
 # Section 2. Ask for confirmation. Do nothing if not.
 # ----------
 
-printf "You will now override:\n\n"
-< _config_/help_on_config.txt grep '  - '
-printf "\n"
+if [[ "$1" != "-y" ]]; then
+	printf "You will now override:\n\n"
+	< _config_/help_on_config.txt grep '  - '
+	printf "\n"
 
-read -p "Do you want to continue? [y/N] " -r
-echo    # (optional) move to a new line
+	read -p "Do you want to continue? [y/N] " -r
+	echo    # (optional) move to a new line
 
-if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
+	if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
+fi
 
 
 # Section 3. Start the Kung-fu
