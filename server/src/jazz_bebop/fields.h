@@ -48,6 +48,9 @@
 #define INCLUDED_JAZZ_BEBOP_FIELD
 
 
+//TODO: The Field (API) - Since A Snippet is immutable, the Field creates a new one that replaces the old one.
+
+
 namespace jazz_bebop
 {
 

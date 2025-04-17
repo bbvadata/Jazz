@@ -47,6 +47,8 @@
 #ifndef INCLUDED_JAZZ_BEBOP_DATA_SPACE
 #define INCLUDED_JAZZ_BEBOP_DATA_SPACE
 
+//TODO: Make DataSpaces just an interface with the language and an internal container. A different one for each storage type.
+
 
 /** \brief The DataSpaces and its utilities.
 
