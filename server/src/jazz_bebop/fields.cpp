@@ -37,6 +37,10 @@
 
 namespace jazz_bebop
 {
+
+///> The name of the Fields class required by Spaces.
+Name NAME_CLASS_FIELDS = "Fields";
+
 /*	-----------------------------------------------
 	 Fields : I m p l e m e n t a t i o n
 --------------------------------------------------- */
@@ -45,7 +49,7 @@ namespace jazz_bebop
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
 */
-Fields::Fields(pBaseAPI api) : Service(api->p_log, api->p_conf) {
+Fields::Fields(pBaseAPI api) : Space(api, &NAME_CLASS_FIELDS) {
 	p_api = api;
 }
 

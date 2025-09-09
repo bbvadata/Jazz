@@ -38,6 +38,9 @@
 namespace jazz_bebop
 {
 
+///> The name of the DataSpaces class required by Spaces.
+Name NAME_CLASS_DATASPACES = "DataSpaces";
+
 /*	-----------------------------------------------
 	 DataSpaces : I m p l e m e n t a t i o n
 --------------------------------------------------- */
@@ -46,7 +49,7 @@ namespace jazz_bebop
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
 */
-DataSpaces::DataSpaces(pBaseAPI api) : Service(api->p_log, api->p_conf) {
+DataSpaces::DataSpaces(pBaseAPI api) : Space(api, &NAME_CLASS_DATASPACES) {
 
 	p_api = api;
 }

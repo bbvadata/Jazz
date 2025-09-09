@@ -67,7 +67,7 @@ namespace jazz_bebop
 /** \brief DataSpaces: The data space.
 
 */
-class DataSpaces : public Service {
+class DataSpaces : public Space {
 
 	public:
 

@@ -60,7 +60,7 @@ A Fields is Space interface to the base `index` of the Volatile Container. The e
 
 A field is a namespace inside Fields.
 */
-class Fields : public Service {
+class Fields : public Space {
 
 	public:
 
