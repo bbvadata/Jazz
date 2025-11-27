@@ -244,7 +244,7 @@ typedef Casters *pCasters;						///< A pointer to a Casters
 	The class Space is mostly empty. It provides the parent virtual interface and the parents of all the auxiliary classes used
 	to access data.
 
-	\see DataSpaces, Fields, SemSpaces, Snippet, Concept
+	\see DataSpaces, Fields, jazz_models::SemSpaces, Snippet, jazz_models::Concept
 */
 class Space : public Service {
 

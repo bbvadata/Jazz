@@ -115,7 +115,8 @@ struct ApiQueryState {
 
 /** \brief BaseAPI: The parent of API and Core.
 
-This manages parsing queries and them to the appropriate containers.
+This class is a Container itself and a gateway to all the containers in jazz_elements. It implements all the fundamental API syntax. The
+final jazz_main::API class just handles its connection via http. Normally, jazz_main::API is uplifted for security reasons.
 
 */
 class BaseAPI : public Container {
