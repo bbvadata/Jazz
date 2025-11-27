@@ -14,10 +14,10 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 
-grep -rnw server/src/ -e "^//TODO:\(.*\)$" > neat_todos.txt
-grep -rnw server/src/ -e "TODO:" > sloppy_todos.txt
+grep -rnw server/ -e "^//TODO:\(.*\)$" > neat_todos.txt
+grep -rnw server/ -e "TODO:" > sloppy_todos.txt
 
-printf "List of sloppy TODOs (in server/src/):\n"
+printf "List of sloppy TODOs (in server/):\n"
 diff neat_todos.txt sloppy_todos.txt
 
 grep -rnw uplifts/ -e "^//TODO:\(.*\)$" > neat_todos.txt
@@ -28,11 +28,11 @@ diff neat_todos.txt sloppy_todos.txt
 
 rm neat_todos.txt sloppy_todos.txt
 
-printf "\nList of neat TODOs (in server/src/):\n\n"
-grep -rnw server/src/ -e "^//TODO:\(.*\)$"
+printf "\nList of neat TODOs (in server/):\n\n"
+grep -rnw server/ -e "^//TODO:\(.*\)$"
 
-printf "\nNumber of neat TODOs (in server/src/):\n\n"
-grep -rnw server/src/ -e "^//TODO:\(.*\)$" | wc -l
+printf "\nNumber of neat TODOs (in server/):\n\n"
+grep -rnw server/ -e "^//TODO:\(.*\)$" | wc -l
 
 printf "\nList of neat TODOs (in uplifts/):\n\n"
 grep -rnw uplifts/ -e "^//TODO:\(.*\)$"
