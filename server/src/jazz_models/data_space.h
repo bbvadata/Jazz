@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_bebop/space.h"
+#include "src/include/jazz_bebop.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -44,19 +44,20 @@
 #endif
 
 
-#ifndef INCLUDED_JAZZ_BEBOP_DATA_SPACE
-#define INCLUDED_JAZZ_BEBOP_DATA_SPACE
+#ifndef INCLUDED_JAZZ_MODELS_DATA_SPACE
+#define INCLUDED_JAZZ_MODELS_DATA_SPACE
+
 
 //TODO: Make DataSpaces just an interface with the language and an internal container. A different one for each storage type.
 
 
-/** \brief The DataSpaces and its utilities.
+/** \brief The DataSpace and its utilities.
 
 This is an essential part of Bop to abstract data storage supporting dataframes, possibly sharded
 and lazy-loaded. It also provides indexing which can select rows, keys of find nearest neighbors.
 */
 
-namespace jazz_bebop
+namespace jazz_models
 {
 
 #define DATASPACE_INDEX_ROW_NUM		1	///< The space is indexed by row number.
@@ -64,45 +65,46 @@ namespace jazz_bebop
 #define DATASPACE_INDEX_EMBEDDING	3	///< The space is indexed by partial row embedding.
 
 
-/** \brief DataSpaces: The data space.
+// TODO: Take whatever is still valid from this old version.
+// /** \brief DataSpaces: The data space.
 
-*/
-class DataSpaces : public Space {
+// */
+// class DataSpaces : public Space {
 
-	public:
+// 	public:
 
-		DataSpaces(pBaseAPI api);
+// 		DataSpaces(pBaseAPI api);
 
-		virtual StatusCode start();
-		virtual pChar const id();
+// 		virtual StatusCode start();
+// 		virtual pChar const id();
 
-		// Space interface
+// 		// Space interface
 
-//TODO: This is similar but not quite identical, since it has a FROM predicate
+// //TODO: This is similar but not quite identical, since it has a FROM predicate
 
-		// virtual StatusCode load_meta();
-		// virtual StatusCode save_meta();
-		// virtual RowNumber num_rows();
-		// virtual void* get_index_data(RowNumber row);
-		// virtual int num_cols();
-		// virtual pName col_name(int col);
-		// virtual int col_index(pName name);
-		// virtual pLocator locator(RowNumber row, int col, int &index);
-		// virtual pRowSelection where(pChar query);
-		// virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
+// 		// virtual StatusCode load_meta();
+// 		// virtual StatusCode save_meta();
+// 		// virtual RowNumber num_rows();
+// 		// virtual void* get_index_data(RowNumber row);
+// 		// virtual int num_cols();
+// 		// virtual pName col_name(int col);
+// 		// virtual int col_index(pName name);
+// 		// virtual pLocator locator(RowNumber row, int col, int &index);
+// 		// virtual pRowSelection where(pChar query);
+// 		// virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
 
-		// DataSpaces-ETL interface
+// 		// DataSpaces-ETL interface
 
-//TODO: Define the DataSpaces-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
-//		special Bop scripts to populate/update/destroy the DataSpaces.
+// //TODO: Define the DataSpaces-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
+// //		special Bop scripts to populate/update/destroy the DataSpaces.
 
-	private:
+// 	private:
 
-		pBaseAPI p_api;				///< A pointer to the BaseAPI that provides access to containers.
-		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
-};
-typedef DataSpaces *pDataSpace;		///< A pointer to a DataSpaces
+// 		pBaseAPI p_api;				///< A pointer to the BaseAPI that provides access to containers.
+// 		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all DataSpaces).
+// };
+// typedef DataSpaces *pDataSpace;		///< A pointer to a DataSpaces
 
-} // namespace jazz_bebop
+} // namespace jazz_models
 
-#endif // ifndef INCLUDED_JAZZ_BEBOP_DATA_SPACE
+#endif // ifndef INCLUDED_JAZZ_MODELS_DATA_SPACE
