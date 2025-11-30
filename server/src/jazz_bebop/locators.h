@@ -32,9 +32,7 @@
 */
 
 
-// #include <stl_whatever>
-
-#include "src/jazz_bebop/namespace.h"
+#include "src/jazz_bebop/base_api.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2

@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_bebop/base_api.h"
+#include "src/jazz_bebop/locators.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
