@@ -56,10 +56,10 @@ Core::Core(pLogger a_logger,
 		   pConfigFile a_config,
 		   pChannels a_channels,
 		   pVolatile a_volatile,
-		   pPersisted a_persisted) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted),
-									 data_spaces((pBaseAPI) this),
-									 fields((pBaseAPI) this),
-									 bop(a_logger, a_config) {}
+		   pPersisted a_persisted) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {}
+									//  data_spaces((pBaseAPI) this),
+									//  fields((pBaseAPI) this),
+									//  bop(a_logger, a_config) {}
 
 
 Core::~Core() { destroy_container(); }

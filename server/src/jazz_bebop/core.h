@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_bebop/bop.h"
+#include "src/jazz_bebop/snippet.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -152,9 +152,9 @@ class Core : public BaseAPI {
 
 	private:
 
-		DataSpaces data_spaces;		///< The data spaces.
-		Fields	   fields;			///< The fields.
-		Bop		   bop;				///< The Bop compiler.
+		// DataSpaces data_spaces;		///< The data spaces.
+		// Fields	   fields;			///< The fields.
+		// Bop		   bop;				///< The Bop compiler.
 };
 typedef Core *pCore;		///< A pointer to a Core
 
