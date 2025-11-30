@@ -35,6 +35,82 @@
 #include "src/jazz_bebop/bop.h"
 
 
+//TODO: All this Fields idea is obsolete. The Fields server is just a Space, but the function is still needed.
+//TODO: Remove FIELD_STORAGE_ENTITY from the config as it no longer exists.
+
+// ///> The name of the Fields class required by Spaces.
+// Name NAME_CLASS_FIELDS = "Fields";
+
+// /*	-----------------------------------------------
+// 	 Fields : I m p l e m e n t a t i o n
+// --------------------------------------------------- */
+
+// /** \brief Bop: Start the Fields.
+
+// 	\param api	 A pointer to a BaseAPI that provides access to containers.
+// */
+// Fields::Fields(pBaseAPI api) : Space(api, &NAME_CLASS_FIELDS) {
+// 	p_api = api;
+// }
+
+
+// /** Starts the Fields service
+
+// 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+// */
+// StatusCode Fields::start() {
+
+// 	int ret = Fields::start();
+
+// 	if (ret != SERVICE_NO_ERROR)
+// 		return ret;
+
+// 	std::string s;
+
+// 	if (!get_conf_key("FIELD_STORAGE_ENTITY", s)) {
+// 		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY not found in Fields::start");
+
+// 		return SERVICE_ERROR_BAD_CONFIG;
+// 	}
+
+// 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
+// 		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY is not a valid base in Fields::start");
+
+// 		return SERVICE_ERROR_BAD_CONFIG;
+// 	}
+
+// 	strcpy(storage_ent, s.c_str());
+
+// 	p_volatile	= p_api->get_volatile();
+// 	p_persisted	= p_api->get_persisted();
+
+// 	if (p_volatile == nullptr || p_persisted == nullptr) {
+// 		log(LOG_ERROR, "Volatile or Persisted container not valid in BaseAPI detected in Fields::start");
+
+// 		return SERVICE_ERROR_WRONG_ARGUMENTS;
+// 	}
+
+// 	return true;
+// }
+
+
+// /** Return object ID.
+
+// 	\return A string identifying the object that is especially useful to track uplifts and versions.
+// */
+// pChar const Fields::id() {
+//     static char arr[] = "Fields from Jazz-" JAZZ_VERSION;
+//     return arr;
+// }
+
+
+// #ifdef CATCH_TEST
+
+// Fields FIELDS(&BAPI);
+
+// #endif
+
+
 namespace jazz_bebop
 {
 

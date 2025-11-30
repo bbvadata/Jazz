@@ -32,7 +32,7 @@
 */
 
 
-#include "src/jazz_bebop/fields.h"
+#include "src/jazz_bebop/casters.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -46,6 +46,36 @@
 
 #ifndef INCLUDED_JAZZ_BEBOP_BOP
 #define INCLUDED_JAZZ_BEBOP_BOP
+
+
+//TODO: All this Fields idea is obsolete. The Fields server is just a Space, but the function is still needed.
+//The Field (API) - Since A Snippet is immutable, the Field creates a new one that replaces the old one.
+
+
+// /** \brief Fields: A Space for Snippets.
+
+// A Fields is Space interface to the base `index` of the Volatile Container. The entity is the Fields and the key is the name of the snippet.
+
+// A field is a namespace inside Fields.
+// */
+// class Fields : public Space {
+
+// 	public:
+
+// 		Fields(pBaseAPI api);
+
+// 		virtual StatusCode start();
+
+// 		virtual pChar const id();
+
+// 	private:
+
+// 		Name		storage_ent;	///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
+// 		pVolatile	p_volatile;		///< The Volatile container
+// 		pPersisted	p_persisted;	///< The Persisted container
+// 		pBaseAPI	p_api;			///< A pointer to the BaseAPI that provides access to containers.
+// };
+// typedef Fields *pFields;			///< A pointer to a Fields
 
 
 /** \brief The Bop compiler
