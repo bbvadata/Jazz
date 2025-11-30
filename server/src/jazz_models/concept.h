@@ -32,7 +32,7 @@
 */
 
 
-#include "src/include/jazz_bebop.h"
+#include "src/jazz_models/data_space.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -49,6 +49,8 @@
 
 
 /** \brief Concepts: A tree of Snippets with support fro blending that populates a semantic space
+
+//TODO: Update this.
 
 Concepts are the higher level equivalent of a Snippet with all the support fos the resolver to convert them into code.
 */
