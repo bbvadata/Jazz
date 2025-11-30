@@ -32,27 +32,54 @@
 */
 
 
-// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
-// .cpp file of the same name for unit testing. It has no effect on compilation.
-#pragma once
-#include "src/jazz_models/sem_spaces.h"
+#include "src/jazz_models/concept.h"
+
+#if defined CATCH_TEST
+#ifndef INCLUDED_JAZZ_CATCH2
+#define INCLUDED_JAZZ_CATCH2
+
+#include "src/catch2/catch.hpp"
+
+#endif
+#endif
 
 
-using namespace jazz_models;
+#ifndef INCLUDED_JAZZ_BEBOP_SEM_SPACE
+#define INCLUDED_JAZZ_BEBOP_SEM_SPACE
 
 
-// Tests
-// -----
+/** \brief Semantic space: SemSpace class.
 
-SCENARIO("Testing sem_space") {
+*/
 
-//TODO: Write tests for SemSpaces.
+namespace jazz_models
+{
 
-	GIVEN("Something") {
-		WHEN("someone looks at it") {
-			THEN("it breaks") {
-				REQUIRE(2 > 1);
-			}
-		}
-	}
-}
+/** \brief SemSpace: A Fields for Concepts.
+*/
+class SemSpace : public Space {
+
+	public:
+
+		SemSpace(pBaseAPI api);
+
+		virtual StatusCode start();
+
+		virtual pChar const id();
+
+		// SemSpace-ETL interface
+
+//TODO: Define the SemSpace-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
+//		special Bop scripts to populate/update/destroy the SemSpace.
+
+//TODO: Define the SemSpace interface.
+
+	private:
+
+		Name storage_ent;			///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpace).
+};
+typedef SemSpace *pSemSpace;		///< A pointer to a SemSpace
+
+} // namespace jazz_models
+
+#endif // ifndef INCLUDED_JAZZ_BEBOP_SEM_SPACE

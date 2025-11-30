@@ -32,30 +32,33 @@
 */
 
 
-#include "src/jazz_models/sem_spaces.h"
+#include "src/jazz_models/sem_space.h"
 
 
 namespace jazz_models
 {
 
+//TODO: This is just for compilation after the huge refactor.
+Name NAME_CLASS_SEM = "Sem";
+
 /*	-----------------------------------------------
-	 SemSpaces : I m p l e m e n t a t i o n
+	 SemSpace : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the SemSpaces.
+/** \brief Bop: Start the SemSpace.
 
 	\param api	 A pointer to a BaseAPI that provides access to containers.
 */
-SemSpaces::SemSpaces(pBaseAPI api) : Fields(api) {}
+SemSpace::SemSpace(pBaseAPI api) : Space(api, &NAME_CLASS_SEM) {}
 
 
-/** Starts the SemSpaces service
+/** Starts the SemSpace service
 
 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
 */
-StatusCode SemSpaces::start() {
+StatusCode SemSpace::start() {
 
-	int ret = Fields::start();
+	int ret = Space::start();
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
@@ -63,13 +66,13 @@ StatusCode SemSpaces::start() {
 	std::string s;
 
 	if (!get_conf_key("SEMSPACE_STORAGE_ENTITY", s)) {
-		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpaces::start");
+		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpace::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
-		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpaces::start");
+		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpace::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -84,13 +87,13 @@ StatusCode SemSpaces::start() {
 
 	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-pChar const SemSpaces::id() {
-    static char arr[] = "SemSpaces from Jazz-" JAZZ_VERSION;
+pChar const SemSpace::id() {
+    static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
     return arr;
 }
 
 } // namespace jazz_models
 
 #if defined CATCH_TEST
-#include "src/jazz_models/tests/test_sem_spaces.ctest"
+#include "src/jazz_models/tests/test_sem_space.ctest"
 #endif
