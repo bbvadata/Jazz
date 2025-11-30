@@ -50,6 +50,8 @@
 
 /** \brief Model: The abstract model.
 
+//TODO: A model is not a Container and not even a Service. The imbecilic <-
+
 */
 
 namespace jazz_models

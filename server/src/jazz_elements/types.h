@@ -158,6 +158,7 @@ at [host]/develop/rfc2/jazz_actor_model.html
 #define BLOCK_ATTRIB_MIMETYPE	4			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
 #define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
 #define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
+//TODO: The BLOCK_ATTRIB_ from bop are yet to be defined.
 #define BLOCK_ATTRIB_SNIPSTATE	7			///< The compilation/running state of a Snippet.
 #define BLOCK_ATTRIB_SNIPVERS	8			///< The Snippet interface version.
 

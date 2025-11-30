@@ -227,6 +227,13 @@ typedef std::map<stdName, pCaster> Casters;		///< A map of Caster pointers
 typedef Casters *pCasters;						///< A pointer to a Casters
 
 
+//TODO: Clarify why space is a Service. Spoiler: It is not!
+//TODO: Clarify how spaces build a tree.
+//TODO: Clarify why we need singular/plural like collections of, because we want to have just one service for all the spaces at a level.
+//TODO: Think that in Bop, a space is something that accepts then [] and the '.' the latter being just a property of what is on its left:
+		// (E.g.: this.is.just.a.hierarchy.defining.some.path.on.a.tree)
+//TODO: Is row the appropriate abstraction? Is a space somehow always tabular? A row is a key
+
 /** \brief Space: The abstract space.
 
 	This is the abstract parent of DataSpaces, Fields/SemSpaces and Snippet/Concept. A Space is an abstraction over many blocks that

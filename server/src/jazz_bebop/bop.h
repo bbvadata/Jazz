@@ -55,6 +55,9 @@ namespace jazz_bebop
 {
 
 /** \brief Bop: The Bebop compiler and decompiler.
+
+//TODO: Bop is not a Service!
+
 */
 class Bop : public Service {
 

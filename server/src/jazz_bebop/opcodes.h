@@ -52,6 +52,8 @@
 
 /** \brief In Bop-25, opcodes are onnx-runtime operations.
 
+//TODO: OpCode is not a Service!
+
 */
 namespace jazz_bebop
 {
