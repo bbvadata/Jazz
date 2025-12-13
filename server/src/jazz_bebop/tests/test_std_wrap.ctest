@@ -84,8 +84,50 @@ SCENARIO("Testing stdLocator, stdLocators, std::map<stdLocator, ..>") {
 
 	REQUIRE(sizeof(Locator) == sizeof(stdLocator));
 
-//TODO: make it like the stdName test above
+	auto make_locator = [](const char *base, const char *entity, const char *key) {
+		Locator loc{};
+		strncpy(loc.base, base, SHORT_NAME_SIZE);
+		loc.base[SHORT_NAME_SIZE - 1] = 0;
+		strncpy(loc.entity, entity, NAME_SIZE);
+		loc.entity[NAME_LENGTH] = 0;
+		strncpy(loc.key, key, NAME_SIZE);
+		loc.key[NAME_LENGTH] = 0;
+		loc.attribute = 0;
+		return loc;
+	};
 
+	stdLocators locators {
+		stdLocator(make_locator("NodeB", "EntityZ", "KeyB")),
+		stdLocator(make_locator("NodeA", "EntityZ", "KeyA")),
+		stdLocator(make_locator("NodeA", "EntityA", "KeyC"))
+	};
+
+	REQUIRE(locators.size() == 3);
+
+	std::sort(locators.begin(), locators.end());
+
+	REQUIRE(locators[0] == stdLocator(make_locator("NodeA", "EntityA", "KeyC")));
+	REQUIRE(locators[1] == stdLocator(make_locator("NodeA", "EntityZ", "KeyA")));
+	REQUIRE(locators[2] == stdLocator(make_locator("NodeB", "EntityZ", "KeyB")));
+
+	locators.push_back(stdLocator(make_locator("NodeC", "EntityB", "KeyD")));
+
+	REQUIRE(locators.size() == 4);
+
+	stdLocator last_locator = locators.back();
+	locators.pop_back();
+
+	REQUIRE(locators.size() == 3);
+
+	std::map<stdLocator, int> dict;
+	dict[stdLocator(make_locator("NodeB", "EntityZ", "KeyB"))] = 3;
+	dict[stdLocator(make_locator("NodeA", "EntityZ", "KeyA"))] = 2;
+	dict[stdLocator(make_locator("NodeA", "EntityA", "KeyC"))] = 1;
+	REQUIRE(dict.size() == 3);
+
+	REQUIRE(dict[stdLocator(make_locator("NodeA", "EntityA", "KeyC"))] == 1);
+	REQUIRE(dict[stdLocator(make_locator("NodeA", "EntityZ", "KeyA"))] == 2);
+	REQUIRE(dict[stdLocator(make_locator("NodeB", "EntityZ", "KeyB"))] == 3);
 }
 
 
@@ -93,6 +135,60 @@ SCENARIO("Testing stdAPIQueryState, stdAPIQueryStates, std::map<stdAPIQueryState
 
 	REQUIRE(sizeof(ApiQueryState) == sizeof(stdAPIQueryState));
 
-//TODO: make it like the stdName test above
+	auto make_api_query_state = [](int state, int apply, const char *base, const char *entity, const char *key) {
+		ApiQueryState q{};
+		q.state = state;
+		q.apply = apply;
 
+		auto copy_name = [](char *dest, size_t size, const char *src) {
+			strncpy(dest, src, size);
+			dest[size - 1] = 0;
+		};
+
+		copy_name(q.base, SHORT_NAME_SIZE, base);
+		copy_name(q.entity, NAME_SIZE, entity);
+		copy_name(q.key, NAME_SIZE, key);
+
+		Locator loc{};
+		copy_name(loc.base, SHORT_NAME_SIZE, base);
+		copy_name(loc.entity, NAME_SIZE, entity);
+		copy_name(loc.key, NAME_SIZE, key);
+		q.r_value = loc;
+		q.rr_value = loc;
+
+		return q;
+	};
+
+	stdAPIQueryStates q_states {
+		stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB")),
+		stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA")),
+		stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC"))
+	};
+
+	REQUIRE(q_states.size() == 3);
+
+	std::sort(q_states.begin(), q_states.end());
+
+	REQUIRE(q_states[0] == stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA")));
+	REQUIRE(q_states[1] == stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB")));
+	REQUIRE(q_states[2] == stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC")));
+
+	q_states.push_back(stdAPIQueryState(make_api_query_state(4, 40, "BaseD", "EntityD", "KeyD")));
+
+	REQUIRE(q_states.size() == 4);
+
+	stdAPIQueryState last_state = q_states.back();
+	q_states.pop_back();
+
+	REQUIRE(q_states.size() == 3);
+
+	std::map<stdAPIQueryState, int> dict;
+	dict[stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC"))] = 3;
+	dict[stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB"))] = 2;
+	dict[stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA"))] = 1;
+	REQUIRE(dict.size() == 3);
+
+	REQUIRE(dict[stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA"))] == 1);
+	REQUIRE(dict[stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB"))] == 2);
+	REQUIRE(dict[stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC"))] == 3);
 }
