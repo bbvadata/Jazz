@@ -213,7 +213,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	case HTTP_OPTIONS: {	// Shield variable "allow" initialization to support the goto logic.
 
-			std::string allow;
+			String allow;
 
 			if (url[0] != '/' || url[1] != '/') {
 				if (HTTP_API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)

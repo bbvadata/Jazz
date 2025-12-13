@@ -117,7 +117,7 @@ StatusCode API::start() {
 		base_server[tt] = it->second;
 	}
 
-	std::string statics_path;
+	String statics_path;
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
 		ret = load_statics((pChar) statics_path.c_str(), (pChar) "/", 0);
@@ -174,7 +174,7 @@ StatusCode API::shut_down() {
 */
 MHD_StatusCode API::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
 
-	Index::iterator it = www.find(std::string(p_url));
+	Index::iterator it = www.find(String(p_url));
 
 	if (it == www.end())
 		return MHD_HTTP_NOT_FOUND;
@@ -521,9 +521,9 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 				p_channels->search_my_node_index = true;
 		}
 #ifdef DEBUG
-		std::string st("DEBUG");
+		String st("DEBUG");
 #else
-		std::string st("RELEASE");
+		String st("RELEASE");
 #endif
 		struct utsname unn;
 		uname(&unn);
@@ -534,8 +534,8 @@ MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 		int my_port	 = p_channels->jazz_node_port[my_idx];
 		int nn_nodes = p_channels->jazz_node_cluster_size;
 
-		std::string my_name = p_channels->jazz_node_name[my_idx];
-		std::string my_ip	= p_channels->jazz_node_ip[my_idx];
+		String my_name = p_channels->jazz_node_name[my_idx];
+		String my_ip   = p_channels->jazz_node_ip[my_idx];
 
 		sprintf(buffer_1k, "Jazz\n\n version : %s\n build   : %s\n artifact: %s\n jazznode: %s (%s:%d) (%d of %d)\n "
 				"sysname : %s\n hostname: %s\n kernel\x20 : %s\n sysvers : %s\n machine : %s",
@@ -820,8 +820,8 @@ bool API::find_myself() {
 
 	p_channels->jazz_node_my_index = p_channels->jazz_node_cluster_size + 1;
 
-	p_channels->jazz_node_name[p_channels->jazz_node_my_index] = std::string(name);
-	p_channels->jazz_node_ip  [p_channels->jazz_node_my_index] = std::string("");
+	p_channels->jazz_node_name[p_channels->jazz_node_my_index] = String(name);
+	p_channels->jazz_node_ip  [p_channels->jazz_node_my_index] = String("");
 	p_channels->jazz_node_port[p_channels->jazz_node_my_index] = 0;
 
 	pTransaction p_txn;
