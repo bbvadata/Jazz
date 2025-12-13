@@ -237,10 +237,11 @@ union Tensor {
 };
 
 
-typedef std::set<std::string> Dimensions;				///< An set::set with the dimension names returned by kind.dimensions()
+typedef std::string String;						///< A standard string used in many other places in Jazz
 
+typedef std::set<String> Dimensions;			///< An set::set with the dimension names returned by kind.dimensions()
 
-typedef std::map<std::string, std::string>	Index;		///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
+typedef std::map<String, String>	Index;		///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
 
 
 /// Header for a Movable Block (Tensor, Kind or Tuple) or a Dynamic Block (Index)
