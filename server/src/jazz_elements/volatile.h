@@ -184,8 +184,8 @@ This map allows doing the reverse conversion to a hash() function finding out th
 typedef std::map<uint64_t, NameUse> HashNameUseMap;
 
 
-/// A pointer to an std::string
-typedef std::string* pString;
+/// A pointer to an String
+typedef String* pString;
 
 
 /** \brief Volatile: A Service to manage data objects in RAM.
@@ -729,7 +729,7 @@ class Volatile : public Container {
 		/** Internal non-copy version of get() form 1.
 
 			\param p_txn	A Transaction **inside the Container** that will be returned for anything except an index.
-			\param p_str	A pointer to a std::string.c_str() **inside the Container** for index.
+			\param p_str	A pointer to a String.c_str() **inside the Container** for index.
 			\param pop_ent	The hash of the entity from which the returned block is expected to be pop()-ed.
 			\param what		Some Locator to the block, just like what get() expects.
 

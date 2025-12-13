@@ -84,7 +84,7 @@ StatusCode Persisted::start() {
 		return SERVICE_ERROR_STARTING;
 	}
 
-	std::string db_path;
+	String db_path;
 
 	bool ok = get_conf_key("MDB_PERSISTENCE_PATH", db_path);
 
@@ -766,7 +766,7 @@ bool Persisted::open_all_databases() {
 
 	MDB_val key, data;
 	while (!mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) {
-		std::string name((pChar) key.mv_data);
+		String name((pChar) key.mv_data);
 
 		source_dbi[name] = INVALID_MDB_DBI;
 	}

@@ -128,7 +128,7 @@ class Kind : public Block {
 					if (k < 0) {
 						char *pt = (&p_string_buffer()->buffer[-k]);
 
-						dims.insert(std::string(pt));
+						dims.insert(String(pt));
 					}
 				}
 			}

@@ -152,7 +152,7 @@ StatusCode Channels::start() {
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
-	std::string my_name;
+	String my_name;
 
 	if (!get_conf_key("JAZZ_NODE_MY_NAME", my_name)) {
 		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME");
@@ -168,7 +168,7 @@ StatusCode Channels::start() {
 	int min_port = 999999;
 	int max_port = 0;
 
-	std::string s;
+	String s;
 	char key[40];
 
 	for (int i = 1;; i++) {
@@ -407,7 +407,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			*pt = '/';
 		}
 		if (it != connect.end()) {
-			std::string url = it->second["URL"];
+			String url = it->second["URL"];
 
 			if (pt != nullptr)
 				url += ++pt;
@@ -651,7 +651,7 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 			*pt = '/';
 		}
 		if (it != connect.end()) {
-			std::string url = it->second["URL"];
+			String url = it->second["URL"];
 
 			if (pt != nullptr)
 				url += ++pt;
@@ -816,7 +816,7 @@ StatusCode Channels::remove(pChar p_where) {
 			*pt = '/';
 		}
 		if (it != connect.end()) {
-			std::string url = it->second["URL"];
+			String url = it->second["URL"];
 
 			if (pt != nullptr)
 				url += ++pt;

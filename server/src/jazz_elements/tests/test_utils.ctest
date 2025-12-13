@@ -538,9 +538,9 @@ SCENARIO("Testing valid_name().") {
 
 
 SCENARIO("Testing CleanConfigArgument().") {
-	std::string a("This Is\tIt");
+	String a("This Is\tIt");
 
-	std::string b = CleanConfigArgument(a);
+	String b = CleanConfigArgument(a);
 
 	REQUIRE(b == "ThisIsIt");
 
@@ -576,7 +576,7 @@ SCENARIO("Testing class ConfigFile") {
 
 	int	   tt_cfg_i = 54321;
 	double tt_cfg_d = 123.456;
-	std::string tt_cfg_s ("nothing");
+	String tt_cfg_s ("nothing");
 
 	REQUIRE(!conf1.get_key("key00", tt_cfg_i));
 	REQUIRE(!conf1.get_key("key00", tt_cfg_d));
@@ -744,7 +744,7 @@ SCENARIO("Testing class Logger") {
 
 	ConfigFile J_CONFIG("/tmp/jzz_unit_cnf.ini");
 
-	std::string key;
+	String key;
 
 	J_CONFIG.get_key("LOGGER_PATH", key);
 

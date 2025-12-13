@@ -92,11 +92,11 @@ namespace jazz_elements
 
 
 /// A map for defining http config names
-typedef std::map<int, std::string>	MapIS;
+typedef std::map<int, String>	MapIS;
 
 
 /// A structure holding connections.
-typedef std::map<std::string, Index> ConnMap;
+typedef std::map<String, Index> ConnMap;
 
 
 /// A structure to hold a single pipeline
@@ -120,7 +120,7 @@ typedef PutBuffer *pPutBuffer;				///< A pointer to a PutBuffer
 
 
 /// A structure holding pipeline.
-typedef std::map<std::string, Socket> PipeMap;
+typedef std::map<String, Socket> PipeMap;
 
 
 /// A map for defining http config ports
@@ -284,7 +284,7 @@ class Channels : public Container {
 		int  jazz_node_my_index		= -1;		///< The index of the node in the cluster.
 		int  jazz_node_cluster_size =  0;		///< The number of nodes in the cluster.
 
-		std::string filesystem_root = {};		///< The root of the filesystem.
+		String filesystem_root = {};			///< The root of the filesystem.
 
 #ifndef CATCH_TEST
 	protected:

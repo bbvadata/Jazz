@@ -69,7 +69,7 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 		ParseNextStateLUT *p_next = &lut[trans[i].from];
 
 		std::regex  rex(trans[i].rex);
-		std::string s("-");
+		String s("-");
 
 		for (int j = 0; j < 256; j++) {
 			s[0] = j;

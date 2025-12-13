@@ -149,7 +149,7 @@ typedef class Container *pContainer;
 
 
 /// A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
-typedef std::map<std::string, pContainer> BaseNames;
+typedef std::map<String, pContainer> BaseNames;
 
 
 /** \brief Transaction: A wrapper over a Block that defines the communication of a block with a Container.
@@ -202,7 +202,7 @@ typedef StoredTransaction *pStoredTransaction;		///< A pointer to a StoredTransa
 
 
 /// An internal map for managing dimension parsing
-typedef std::map<std::string, int>	MapSI;
+typedef std::map<String, int>	MapSI;
 
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.

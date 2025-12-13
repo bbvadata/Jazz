@@ -298,7 +298,7 @@ uint64_t MurmurHash64A(const void *key, int len) {
 	\param s Input string
 	\return	 String without space or tab.
 */
-std::string CleanConfigArgument(std::string s) {
+String CleanConfigArgument(String s) {
 	bool in_quote = false;
 
 	for (int i = s.length() - 1; i >= 0; i--) {
@@ -347,7 +347,7 @@ bool ConfigFile::load_config(const char *input_file_name) {
 	if (!fh.is_open())
 		return false;
 
-	std::string ln, key, val;
+	String ln, key, val;
 
 	while (!fh.eof()) {
 		getline(fh, ln);
@@ -355,11 +355,11 @@ bool ConfigFile::load_config(const char *input_file_name) {
 		size_t p;
 		p = ln.find("//");
 
-		if (p != std::string::npos) ln.erase(p, ln.length());
+		if (p != String::npos) ln.erase(p, ln.length());
 
 		p = ln.find("=");
 
-		if (p != std::string::npos) {
+		if (p != String::npos) {
 			key = CleanConfigArgument(ln.substr(0, p));
 			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
 
@@ -389,13 +389,13 @@ int ConfigFile::num_keys() {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, int &value) {
-	std::map<std::string, std::string>::iterator it = config.find(key);
+	std::map<String, String>::iterator it = config.find(key);
 
 	if (it == config.end())
 		return false;
 
 	try	{
-		std::string::size_type extra;
+		String::size_type extra;
 
 		int i = stoi(it->second, &extra);
 
@@ -420,13 +420,13 @@ bool ConfigFile::get_key(const char *key, int &value) {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, double &value) {
-	std::map<std::string, std::string>::iterator it = config.find(key);
+	std::map<String, String>::iterator it = config.find(key);
 
 	if (it == config.end())
 		return false;
 
 	try {
-		std::string::size_type extra;
+		String::size_type extra;
 
 		double d = stod(it->second, &extra);
 
@@ -450,8 +450,8 @@ bool ConfigFile::get_key(const char *key, double &value) {
 	\param value Value to be returned only when the function returns true.
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
-bool ConfigFile::get_key(const char *key, std::string &value) {
-	std::map<std::string, std::string>::iterator it = config.find(key);
+bool ConfigFile::get_key(const char *key, String &value) {
+	std::map<String, String>::iterator it = config.find(key);
 
 	if (it == config.end())
 		return false;
@@ -467,7 +467,7 @@ bool ConfigFile::get_key(const char *key, std::string &value) {
 	\param key	The configuration key to be set.
 	\param val	New value of the key as a string (also valid for int and double if the string can be converted).
 */
-void ConfigFile::debug_put(const std::string key, const std::string val) {
+void ConfigFile::debug_put(const String key, const String val) {
 	config[key] = val;
 }
 
@@ -497,7 +497,7 @@ Logger::Logger(const char *output_file_name) {
  Logger::Logger(ConfigFile  config, const char *config_key) {
 	file_name[0] = 0;
 
-	std::string log_name;
+	String log_name;
 
 	if (config.get_key(config_key, log_name)) strncpy(file_name, log_name.c_str(), MAX_FILENAME_LENGTH - 1);
 

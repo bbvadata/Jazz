@@ -145,7 +145,7 @@ bool		 FileExists			  (const char* file_name);
 char		*ExpandEscapeSequences(char *buff);
 pid_t		 FindProcessIdByName  (const char *name);
 uint64_t	 MurmurHash64A		  (const void *key, int len);
-std::string	 CleanConfigArgument  (std::string s);
+String		 CleanConfigArgument  (String s);
 
 
 /// A lookup table for all the possible results of a TenBitsAtAddress() call -> integer.
@@ -226,15 +226,15 @@ class ConfigFile {
 
 		bool get_key(const char *key, int &value);
 		bool get_key(const char *key, double &value);
-		bool get_key(const char *key, std::string &value);
+		bool get_key(const char *key, String &value);
 
-		void debug_put(const std::string key, const std::string val);
+		void debug_put(const String key, const String val);
 
 	private:
 
-		std::map<std::string, std::string> config;	///< The configuration key/value store
+		std::map<String, String> config;	///< The configuration key/value store
 };
-typedef ConfigFile *pConfigFile;					///< A pointer to a ConfigFile object
+typedef ConfigFile *pConfigFile;			///< A pointer to a ConfigFile object
 
 
 /** \brief A simple logger.
@@ -351,7 +351,7 @@ class Service {
 
 			See ConfigFile for details.
 		*/
-		bool get_conf_key(const char *key, std::string &value) {
+		bool get_conf_key(const char *key, String &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
 		pLogger		p_log;		///< The logger
