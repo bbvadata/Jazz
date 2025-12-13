@@ -152,13 +152,17 @@ at [host]/develop/rfc2/jazz_actor_model.html
 
 #define BLOCK_ATTRIB_
 
+//TODO: Refactor almost everything under BLOCK_ATTRIB_
+// BLOCK_ATTRIB_BLOCKTYPE, BLOCK_ATTRIB_SOURCE are not used outside remarks and tests in which they are set in the test.
+// BLOCK_ATTRIB_SNIPSTATE, BLOCK_ATTRIB_SNIPVERS are obsolete.
+// BLOCK_ATTRIB_DEST is not used at all.
+
 #define BLOCK_ATTRIB_BLOCKTYPE	1			///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
 #define BLOCK_ATTRIB_SOURCE		2			///< The location of the source set by Channels, also Source of a Kind in Persisted
 #define BLOCK_ATTRIB_DEST		3			///< The location of the destination. Less frequent, but may help Channels for a PUT.
 #define BLOCK_ATTRIB_MIMETYPE	4			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
 #define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
 #define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
-//TODO: The BLOCK_ATTRIB_ from bop are yet to be defined.
 #define BLOCK_ATTRIB_SNIPSTATE	7			///< The compilation/running state of a Snippet.
 #define BLOCK_ATTRIB_SNIPVERS	8			///< The Snippet interface version.
 
