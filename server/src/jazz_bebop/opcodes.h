@@ -247,9 +247,9 @@ class OpCodes : public Service {
 		bool fill_op_code		   (OnnxOpCode	  &op);
 		bool fill_all_dict_versions();
 		bool fill_tensor_types	   (TensorTypes	  &types,
-									std::string	  &all_types);
+									String	  &all_types);
 		bool fill_attribute_type   (AttributeType &type,
-									std::string	  &type_name);
+									String	  &type_name);
 
 		ConfigFile onnx_conf = ConfigFile(nullptr);		///< The ONNX opcodes reference stored as a ConfigFile.
 		int ir_vers = 0;								///< Argument of `model.set_ir_version()` (Stored as ONNX_IR_VERSION in config.)

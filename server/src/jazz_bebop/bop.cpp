@@ -65,7 +65,7 @@
 // 	if (ret != SERVICE_NO_ERROR)
 // 		return ret;
 
-// 	std::string s;
+// 	String s;
 
 // 	if (!get_conf_key("FIELD_STORAGE_ENTITY", s)) {
 // 		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY not found in Fields::start");

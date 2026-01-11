@@ -100,7 +100,7 @@ StatusCode OpCodes::start() {
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 
-	std::string s;
+	String s;
 
 	if (!get_conf_key("ONNX_OPCODE_DEFS_FN", s)) {
 		log(LOG_ERROR, "Config key ONNX_OPCODE_DEFS_FN not found in OpCodes::start");
@@ -135,7 +135,7 @@ StatusCode OpCodes::shut_down() {
 	\return True if the dictionary was built.
 */
 bool OpCodes::build_opcode_dict() {
-	std::string all_name_vers;
+	String all_name_vers;
 	if (!onnx_conf.get_key("__name_vers", all_name_vers))
 		return false;
 
@@ -208,7 +208,7 @@ bool OpCodes::build_opcode_dict() {
 bool OpCodes::fill_op_code(OnnxOpCode &op) {
 	char buff[256];
 	int n;
-	std::string nam, typ;
+	String nam, typ;
 
 	sprintf(buff, "%s.%d.num_inputs", op.name.name, op.opset_version);
 	if (!onnx_conf.get_key(buff, n))
@@ -293,12 +293,12 @@ bool OpCodes::fill_op_code(OnnxOpCode &op) {
 	\return True if all versions were filled
 */
 bool OpCodes::fill_all_dict_versions() {
-	std::string all_names;
+	String all_names;
 	if (!onnx_conf.get_key("__names", all_names))
 		return false;
 
 	std::stringstream ss(all_names);
-	std::string name;
+	String name;
 
 	while (std::getline(ss, name, ',')) {
 		int lowest_vers = -1, x;
@@ -327,9 +327,9 @@ bool OpCodes::fill_all_dict_versions() {
 
 	\return True if all types were found.
 */
-bool OpCodes::fill_tensor_types(TensorTypes &types, std::string &all_types) {
+bool OpCodes::fill_tensor_types(TensorTypes &types, String &all_types) {
 	std::stringstream ss(all_types);
-	std::string typ;
+	String typ;
 
 	while (std::getline(ss, typ, ',')) {
 		TensorTypeDict::iterator it = TENSOR_TYPES.find((pChar) typ.c_str());
@@ -351,7 +351,7 @@ bool OpCodes::fill_tensor_types(TensorTypes &types, std::string &all_types) {
 
 	\return True if the type was found.
 */
-bool OpCodes::fill_attribute_type(AttributeType &type, std::string &type_name) {
+bool OpCodes::fill_attribute_type(AttributeType &type, String &type_name) {
 	AttributeTypeDict::iterator it = ATTRIBUTE_TYPES.find((pChar) type_name.c_str());
 	if (it == ATTRIBUTE_TYPES.end())
 		return false;

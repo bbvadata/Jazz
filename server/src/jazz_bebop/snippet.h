@@ -110,12 +110,12 @@ const char SNIPSTATE_FAILED_RUN_SOURCE[]	= "sxo!";	///< The snippet failed to ru
 
 /** \brief A SnippetText is a vector of strings
 
-	A std::vector of std::string to hold the source and intermediate code of a Snippet. This is used to make compilation
+	A std::vector of String to hold the source and intermediate code of a Snippet. This is used to make compilation
 and code generation easier to interface in c++.
 
 The caller owns the object (initially empty) and is responsible for freeing it when no longer needed.
 */
-typedef std::vector<std::string> SnippetText;
+typedef std::vector<String> SnippetText;
 typedef SnippetText *pSnippetText;				///< A pointer to a SnippetText
 
 

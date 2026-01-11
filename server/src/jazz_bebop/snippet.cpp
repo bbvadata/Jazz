@@ -79,7 +79,7 @@ bool Snippet::get_block(int idx, SnippetText &snip_text) {
 
 	for (int i = 0; i < pt->size; i++) {
 		if (pt->tensor.cell_int[i] != STRING_NA) {
-			std::string s = pt->get_string(i);
+			String s = pt->get_string(i);
 			snip_text.push_back(s);
 		}
 	}
