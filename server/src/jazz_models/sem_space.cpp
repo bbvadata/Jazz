@@ -39,7 +39,7 @@ namespace jazz_models
 {
 
 //TODO: This is just for compilation after the huge refactor.
-Name NAME_CLASS_SEM = "Sem";
+//Name NAME_CLASS_SEM = "Sem";
 
 /*	-----------------------------------------------
 	 SemSpace : I m p l e m e n t a t i o n
