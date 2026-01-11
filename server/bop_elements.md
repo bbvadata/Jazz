@@ -1,4 +1,4 @@
-# Bebop by the pieces it is made of and how are written as source code
+# Bebop by the pieces it is made of and how they are written as source code
 
 ## What the elements are:
 
