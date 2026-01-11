@@ -45,52 +45,52 @@ Name NAME_CLASS_SEM = "Sem";
 	 SemSpace : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-/** \brief Bop: Start the SemSpace.
+// /** \brief Bop: Start the SemSpace.
 
-	\param api	 A pointer to a BaseAPI that provides access to containers.
-*/
-SemSpace::SemSpace(pBaseAPI api) : Space(api, &NAME_CLASS_SEM) {}
-
-
-/** Starts the SemSpace service
-
-	\return SERVICE_NO_ERROR if successful, an error code otherwise.
-*/
-StatusCode SemSpace::start() {
-
-	int ret = Space::start();
-
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
-
-	std::string s;
-
-	if (!get_conf_key("SEMSPACE_STORAGE_ENTITY", s)) {
-		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpace::start");
-
-		return SERVICE_ERROR_BAD_CONFIG;
-	}
-
-	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
-		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpace::start");
-
-		return SERVICE_ERROR_BAD_CONFIG;
-	}
-
-	strcpy(storage_ent, s.c_str());
-
-	return true;
-}
+// 	\param api	 A pointer to a BaseAPI that provides access to containers.
+// */
+// SemSpace::SemSpace(pBaseAPI api) : Space(api, &NAME_CLASS_SEM) {}
 
 
-/** Return object ID.
+// /** Starts the SemSpace service
 
-	\return A string identifying the object that is especially useful to track uplifts and versions.
-*/
-pChar const SemSpace::id() {
-    static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
-    return arr;
-}
+// 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+// */
+// StatusCode SemSpace::start() {
+
+// 	int ret = Space::start();
+
+// 	if (ret != SERVICE_NO_ERROR)
+// 		return ret;
+
+// 	String s;
+
+// 	if (!get_conf_key("SEMSPACE_STORAGE_ENTITY", s)) {
+// 		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY not found in SemSpace::start");
+
+// 		return SERVICE_ERROR_BAD_CONFIG;
+// 	}
+
+// 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
+// 		log(LOG_ERROR, "Config key SEMSPACE_STORAGE_ENTITY is not a valid base in SemSpace::start");
+
+// 		return SERVICE_ERROR_BAD_CONFIG;
+// 	}
+
+// 	strcpy(storage_ent, s.c_str());
+
+// 	return true;
+// }
+
+
+// /** Return object ID.
+
+// 	\return A string identifying the object that is especially useful to track uplifts and versions.
+// */
+// pChar const SemSpace::id() {
+//     static char arr[] = "SemSpace from Jazz-" JAZZ_VERSION;
+//     return arr;
+// }
 
 } // namespace jazz_models
 

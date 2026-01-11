@@ -44,6 +44,490 @@ using namespace jazz_models;
 // Tests
 // -----
 
+// class DummyColSpace : public Space {
+// 	public:
+
+// 		DummyColSpace(pBaseAPI api, pName a_name) : Space(api, a_name) {}
+
+// 		// DummyColSpace is a dummy class to test the ColSelection interface.
+
+// 		virtual int num_cols() {
+// 			return 6;
+// 		}
+
+// 		virtual int col_index(pName name) {
+// 			if (strcmp((pChar) name, "area") == 0) return 0;
+// 			if (strcmp((pChar) name, "date") == 0) return 1;
+// 			if (strcmp((pChar) name, "Time") == 0) return 2;
+// 			if (strcmp((pChar) name, "Y") == 0) return 3;
+// 			if (strcmp((pChar) name, "abcdefghij0123456789abcdefghij0") == 0) return 4;
+// 			if (strcmp((pChar) name, "abcdefghij0123456789abcdefghij01") == 0) return 5;
+
+// 			return -1;
+// 		}
+// };
+
+
+// class DummyCaster : public Caster {
+// 	public:
+
+// 		DummyCaster(pBaseAPI api) : Caster(api) {name = stdName((pChar) "dummy");}
+
+// 		virtual StatusCode get(pTransaction	&p_txn, pBlock p_block) {
+// 			p_txn = nullptr;
+// 			return SERVICE_ERROR_STARTING;
+// 		}
+// };
+
+// // Tests
+// // -----
+
+// SCENARIO("Testing Space/ColSelection") {
+// 	GIVEN("The instances are constructed, but not yet started") {
+// 		REQUIRE(BAPI.p_channels	 == &CHN);
+// 		REQUIRE(BAPI.p_volatile	 == &VOL);
+// 		REQUIRE(BAPI.p_persisted == &PER);
+// 	}
+
+// 	REQUIRE(CHN.start()	== 0);
+// 	REQUIRE(VOL.start()	== 0);
+// 	REQUIRE(PER.start() == 0);
+
+// 	REQUIRE(BAPI.start() == 0);
+
+// 	WHEN("We have a properly initializedSpace") {
+// 		DummyColSpace space = DummyColSpace(&BAPI, (pName) "dummy");
+
+// 		REQUIRE(space.start() == 0);
+// 		REQUIRE(space.num_cols() == 6);
+
+// 		REQUIRE(strcmp(space.name, "dummy") == 0);
+// 		REQUIRE(strcmp(space.storage_base, "lmdb") == 0);
+
+// 		REQUIRE(space.col_index((pName) "area") == 0);
+// 		REQUIRE(space.col_index((pName) "abcdefghij0123456789abcdefghij0") == 4);
+// 		REQUIRE(space.col_index((pName) "abcdefghij0123456789abcdefghij01") == 5);
+// 		REQUIRE(space.col_index((pName) "time") < 0);
+
+// 		THEN("We can test all the ColSelection cases") {
+// 			pColSelection sel = space.select((pChar) "");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "  area\t  ");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 1);
+// 			REQUIRE(strcmp(sel->name[0].name, "area") == 0);
+// 			REQUIRE(sel->index.size() == 1);
+// 			REQUIRE(sel->index[0] == 0);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "area") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "ar ea");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "  Y\t  ");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 1);
+// 			REQUIRE(strcmp(sel->name[0].name, "Y") == 0);
+// 			REQUIRE(sel->index.size() == 1);
+// 			REQUIRE(sel->index[0] == 3);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Y") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "not");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Time");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 1);
+// 			REQUIRE(strcmp(sel->name[0].name, "Time") == 0);
+// 			REQUIRE(sel->index.size() == 1);
+// 			REQUIRE(sel->index[0] == 2);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Time") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "too_long_indeed_to_be_valid_as_a_query_string_for_a_col_selection");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Y, Time");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 2);
+// 			REQUIRE(strcmp(sel->name[0].name, "Y") == 0);
+// 			REQUIRE(strcmp(sel->name[1].name, "Time") == 0);
+// 			REQUIRE(sel->index.size() == 2);
+// 			REQUIRE(sel->index[0] == 3);
+// 			REQUIRE(sel->index[1] == 2);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Y") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Time") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Y, Time, Y");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Y , Time,date\t");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 3);
+// 			REQUIRE(strcmp(sel->name[0].name, "Y") == 0);
+// 			REQUIRE(strcmp(sel->name[1].name, "Time") == 0);
+// 			REQUIRE(strcmp(sel->name[2].name, "date") == 0);
+// 			REQUIRE(sel->index.size() == 3);
+// 			REQUIRE(sel->index[0] == 3);
+// 			REQUIRE(sel->index[1] == 2);
+// 			REQUIRE(sel->index[2] == 1);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() == 1);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() == 1);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Y") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Time") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "date") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Time, y");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "\t  area,Y ,  Time,date\t");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 4);
+// 			REQUIRE(strcmp(sel->name[0].name, "area") == 0);
+// 			REQUIRE(strcmp(sel->name[1].name, "Y") == 0);
+// 			REQUIRE(strcmp(sel->name[2].name, "Time") == 0);
+// 			REQUIRE(strcmp(sel->name[3].name, "date") == 0);
+// 			REQUIRE(sel->index.size() == 4);
+// 			REQUIRE(sel->index[0] == 0);
+// 			REQUIRE(sel->index[1] == 3);
+// 			REQUIRE(sel->index[2] == 2);
+// 			REQUIRE(sel->index[3] == 1);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() == 1);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 2);
+// 			REQUIRE(sel->next_index() == 1);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "area") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Y") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Time") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "date") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Y.");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "area\n");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 1);
+// 			REQUIRE(strcmp(sel->name[0].name, "area") == 0);
+// 			REQUIRE(sel->index.size() == 1);
+// 			REQUIRE(sel->index[0] == 0);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "area") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "\narea");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "abcdefghij0123456789abcdefghij0");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 1);
+// 			REQUIRE(strcmp(sel->name[0].name, "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(sel->index.size() == 1);
+// 			REQUIRE(sel->index[0] == 4);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "abcdefghij0123456789abcdefghij01");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Y, abcdefghij0123456789abcdefghij0\n");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 2);
+// 			REQUIRE(strcmp(sel->name[0].name, "Y") == 0);
+// 			REQUIRE(strcmp(sel->name[1].name, "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(sel->index.size() == 2);
+// 			REQUIRE(sel->index[0] == 3);
+// 			REQUIRE(sel->index[1] == 4);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 3);
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "Y") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "Y, abcdefghij0123456789abcdefghij0,");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "abcdefghij0123456789abcdefghij0, area\n");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 2);
+// 			REQUIRE(strcmp(sel->name[0].name, "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(strcmp(sel->name[1].name, "area") == 0);
+// 			REQUIRE(sel->index.size() == 2);
+// 			REQUIRE(sel->index[0] == 4);
+// 			REQUIRE(sel->index[1] == 0);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "area") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "abcdefghij0123456789abcdefghij0, area\n, Y");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "abcdefghij0123456789abcdefghij0, area\n\n");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(sel->is_valid);
+// 			REQUIRE(sel->current_col == 0);
+// 			REQUIRE(sel->name.size() == 2);
+// 			REQUIRE(strcmp(sel->name[0].name, "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(strcmp(sel->name[1].name, "area") == 0);
+// 			REQUIRE(sel->index.size() == 2);
+// 			REQUIRE(sel->index[0] == 4);
+// 			REQUIRE(sel->index[1] == 0);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(sel->next_index() == 4);
+// 			REQUIRE(sel->next_index() == 0);
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->restart());
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "abcdefghij0123456789abcdefghij0") == 0);
+// 			REQUIRE(strcmp((pChar) sel->next_name(), "area") == 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+
+// 			sel = space.select((pChar) "abcdefghij0123456789abcdefghij0, area\n \n");
+// 			REQUIRE(sel != nullptr);
+// 			REQUIRE(!sel->is_valid);
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(!sel->restart());
+// 			REQUIRE(sel->next_index() < 0);
+// 			REQUIRE(sel->next_name() == nullptr);
+// 			delete sel;
+// 		}
+
+// 		REQUIRE(space.shut_down() == 0);
+// 	}
+
+// 	REQUIRE(BAPI.shut_down() == 0);
+
+// 	REQUIRE(CHN.shut_down() == 0);
+// 	REQUIRE(VOL.shut_down() == 0);
+// 	REQUIRE(PER.shut_down() == 0);
+// }
+
+
+// SCENARIO("Testing Space/Caster") {
+// 	GIVEN("The instances are constructed, but not yet started") {
+// 		REQUIRE(BAPI.p_channels	 == &CHN);
+// 		REQUIRE(BAPI.p_volatile	 == &VOL);
+// 		REQUIRE(BAPI.p_persisted == &PER);
+// 	}
+
+// 	REQUIRE(CHN.start()	== 0);
+// 	REQUIRE(VOL.start()	== 0);
+// 	REQUIRE(PER.start() == 0);
+
+// 	REQUIRE(BAPI.start() == 0);
+
+// 	WHEN("We have a properly initializedSpace") {
+// 		DummyColSpace space = DummyColSpace(&BAPI, (pName) "dummy");
+
+// 		REQUIRE(space.start() == 0);
+// 		REQUIRE(space.num_cols() == 6);
+
+// 		DummyCaster dummy = DummyCaster(&BAPI);
+
+// 		REQUIRE(strcmp(dummy.name.name, "dummy") == 0);
+
+// 		REQUIRE(space.as((pChar) "mickey") == nullptr);
+// 		REQUIRE(space.as((pChar) "dummy") == nullptr);
+
+// 		REQUIRE(space.register_caster(&dummy));
+
+// 		REQUIRE(space.as((pChar) "mickey") == nullptr);
+// 		REQUIRE(space.as((pChar) "dummy") == &dummy);
+
+// 		REQUIRE(!space.register_caster(&dummy));
+
+// 		REQUIRE(space.shut_down() == 0);
+// 	}
+
+// 	REQUIRE(BAPI.shut_down() == 0);
+
+// 	REQUIRE(CHN.shut_down() == 0);
+// 	REQUIRE(VOL.shut_down() == 0);
+// 	REQUIRE(PER.shut_down() == 0);
+// }
+
+
 SCENARIO("Testing data_space") {
 
 //TODO: Write tests for this!

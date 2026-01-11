@@ -61,11 +61,11 @@ class SemSpace : public Space {
 
 	public:
 
-		SemSpace(pBaseAPI api);
+		// SemSpace(pBaseAPI api);
 
-		virtual StatusCode start();
+		// virtual StatusCode start();
 
-		virtual pChar const id();
+		// virtual pChar const id();
 
 		// SemSpace-ETL interface
 

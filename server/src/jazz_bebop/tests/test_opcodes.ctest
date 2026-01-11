@@ -49,7 +49,7 @@ SCENARIO("Testing opcodes") {
 
 	TensorTypes tt = {};
 
-	std::string typ_names = "float,float16,uint16";
+	String typ_names = "float,float16,uint16";
 
 	REQUIRE(opset.fill_tensor_types(tt, typ_names));
 	REQUIRE(tt.size() == 3);

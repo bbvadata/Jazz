@@ -56,6 +56,40 @@
 namespace jazz_bebop
 {
 
+/** \brief Caster: An optional converter of the output.
+
+	This is a function that converts the result returned by a Space.get_row(). It can be a conversion from text to tokens or vice versa,
+from wave to aperiodic, a sentence embedding, an image format converter, etc. Something deterministic. Is is identified by a name and
+used in a query with the AS keyword.
+
+	The collection of all the available Caster descendants is managed by a Casters object.
+*/
+class Caster {
+	public:
+
+	/** \brief The constructor for a Caster.
+
+		\param api	A BaseAPI. It is used to create new blocks.
+	*/
+	Caster(pBaseAPI api) {}
+
+	/** \brief Convert a block doing whatever the caster does.
+
+		\param p_txn	The transaction that contains the new block.
+		\param p_block	The block to convert.
+
+		\return SERVICE_NO_ERROR if successful, an error code otherwise.
+	*/
+	virtual StatusCode get(pTransaction	&p_txn, pBlock p_block) {
+		return SERVICE_NOT_IMPLEMENTED;
+	}
+
+	stdName name;		///< The name of the Caster.
+};
+typedef Caster *pCaster;						///< A pointer to a Caster
+typedef std::map<stdName, pCaster> Casters;		///< A map of Caster pointers
+typedef Casters *pCasters;						///< A pointer to a Casters
+
 
 } // namespace jazz_bebop
 
