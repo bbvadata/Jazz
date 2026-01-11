@@ -131,7 +131,7 @@ class BaseAPI : public Container {
 		StatusCode start	();
 		StatusCode shut_down();
 
-		// Parsing method
+		// Parsing methods
 
 		bool parse (ApiQueryState  &q_state,
 					pChar			p_url,
