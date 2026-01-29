@@ -38,6 +38,7 @@ help:
 	@echo "make djazz      : Make the DEBUG Jazz executable."
 	@echo "make jazz       : Make the RELEASE Jazz executable."
 	@echo "make tjazz      : Make the DEBUG&TEST Jazz executable."
+	@echo "make cjazz      : Make the DEBUG&TEST Jazz executable with coverage."
 	@echo ""
 	@echo "make clean      : Clean up all files not stored in the repo."
 	@echo "make clean-data : Clean up log, cookies, reports, lmdb data. Keep build trees."
@@ -66,6 +67,7 @@ midl.o:
 DFLAGS := -DDEBUG -g
 RFLAGS := -DNDEBUG
 TFLAGS := -DDEBUG -DCATCH_TEST -g
+CFLAGS := -DDEBUG -DCATCH_TEST -g --coverage
 
 # Auto detect compile_mode and set CPPFLAGS accordingly
 # -----------
@@ -80,4 +82,8 @@ endif
 
 ifneq ("$(wildcard compile_mode_test)","")
 	CPPFLAGS := $(TFLAGS)
+endif
+
+ifneq ("$(wildcard compile_mode_coverage)","")
+	CPPFLAGS := $(CFLAGS)
 endif
