@@ -67,7 +67,7 @@ midl.o:
 DFLAGS := -DDEBUG -g
 RFLAGS := -DNDEBUG
 TFLAGS := -DDEBUG -DCATCH_TEST -g
-CFLAGS := -DDEBUG -DCATCH_TEST -g --coverage
+CFLAGS := -DDEBUG -DCATCH_TEST -g --coverage -fprofile-update=atomic
 
 # Auto detect compile_mode and set CPPFLAGS accordingly
 # -----------
