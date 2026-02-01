@@ -38,6 +38,9 @@
 #include <zmq.h>
 #include <microhttpd.h>
 
+#include <ifaddrs.h>
+#include <netdb.h>
+#include <net/if.h>
 
 #include "src/jazz_elements/channel.h"
 
@@ -159,9 +162,6 @@ StatusCode Channels::start() {
 
 		return EXIT_FAILURE;
 	}
-	search_my_node_index = my_name == "";	// Note that /// starts a remark resulting in the value being empty.
-	if (search_my_node_index)
-		my_name = "localhost";
 
 	jazz_node_cluster_size =  0;
 	jazz_node_my_index	   = -1;
@@ -210,15 +210,52 @@ StatusCode Channels::start() {
 	}
 
 	if (jazz_node_my_index < 0) {
-		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME in JAZZ_NODE_NAME_*");
+		struct ifaddrs *ifaddr, *ifa;
 
-		return EXIT_FAILURE;
-	}
+		if (getifaddrs(&ifaddr) == -1) {
+			log(LOG_ERROR, "Channels::start() failed to get network interfaces");
 
-	if (search_my_node_index && min_port != max_port) {
-		log(LOG_ERROR, "Channels::start() failed. Automatic JAZZ_NODE_MY_NAME detection requires all ports being identical.");
+			return EXIT_FAILURE;
+		}
 
-		return EXIT_FAILURE;
+		for (ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
+			if (ifa->ifa_addr == nullptr)
+				continue;
+
+			int family = ifa->ifa_addr->sa_family;
+
+			if (!(ifa->ifa_flags & IFF_UP))
+				continue;
+
+			char host[NI_MAXHOST];
+
+			if (family == AF_INET || family == AF_INET6) {
+				socklen_t family_size = (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
+				int s = getnameinfo(ifa->ifa_addr, family_size, host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+				if (s != 0) {
+					log_printf(LOG_ERROR, "Channels::start() getnameinfo() failed: %s", gai_strerror(s));
+
+					freeifaddrs(ifaddr);
+
+					return EXIT_FAILURE;
+				}
+
+				for (int i = 1; i <= jazz_node_cluster_size; i++) {
+					if (jazz_node_ip[i] == host) {
+						if (jazz_node_my_index < 0 || jazz_node_my_index > i)	// The lowest index to avoid selecting localhost.
+							jazz_node_my_index = i;
+					}
+				}
+			}
+		}
+		freeifaddrs(ifaddr);
+
+		if (jazz_node_my_index < 0) {
+			log(LOG_ERROR, "Channels::start() could not determine this node's index in the cluster");
+
+			return EXIT_FAILURE;
+		}
+
 	}
 
 	if (!get_conf_key("ENABLE_ZEROMQ_CLIENT", can_zmq)) {

@@ -280,7 +280,6 @@ class Channels : public Container {
 		MapIS jazz_node_ip   = {};				///< The ip addresses of the nodes in the cluster.
 		MapII jazz_node_port = {};				///< The ports of the nodes in the cluster.
 
-		bool search_my_node_index	= false;	///< If true, the node index is searched in the cluster.
 		int  jazz_node_my_index		= -1;		///< The index of the node in the cluster.
 		int  jazz_node_cluster_size =  0;		///< The number of nodes in the cluster.
 
