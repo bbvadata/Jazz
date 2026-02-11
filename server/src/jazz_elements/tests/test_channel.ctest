@@ -102,6 +102,7 @@ SCENARIO("Testing compose_url()") {
 
 	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
 
+	REQUIRE(strstr(CHN.id(), "Channels from Jazz-") != nullptr);
 	REQUIRE(CHN.max_transactions > 0);
 	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CHN.warn_alloc_bytes > 0);
