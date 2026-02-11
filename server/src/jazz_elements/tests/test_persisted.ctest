@@ -44,6 +44,19 @@ using namespace jazz_elements;
 // Utils
 // -----
 
+int count_occurrences(const String &haystack, const char *needle) {
+	int count = 0;
+	size_t pos = 0;
+	size_t needle_len = strlen(needle);
+
+	while ((pos = haystack.find(needle, pos)) != String::npos) {
+		count++;
+		pos += needle_len;
+	}
+
+	return count;
+}
+
 void test_block_names(pChar prefix, pBlock p_block) {
 
 char		 buf[128];
@@ -129,6 +142,74 @@ pTransaction p_txn;
 
 // Tests
 // -----
+
+SCENARIO("Testing Persisted::log_lmdb_err()") {
+	const char *log_fn = "/tmp/jzz_unit_lmdb_err.log";
+	remove(log_fn);
+
+	Logger lmdb_log(log_fn);
+	Persisted per_case(&lmdb_log, nullptr);
+
+	struct {
+		int lmdb_err;
+		const char *expected;
+	} cases[] = {
+		{MDB_KEYEXIST, "LMDB MDB_KEYEXIST: Key/data pair already exists."},
+		{MDB_NOTFOUND, "LMDB MDB_NOTFOUND: Key/data pair not found (EOF)."},
+		{MDB_PAGE_NOTFOUND, "LMDB MDB_PAGE_NOTFOUND: Requested page not found - this usually indicates corruption."},
+		{MDB_CORRUPTED, "LMDB MDB_CORRUPTED: Located page was wrong type."},
+		{MDB_PANIC, "LMDB MDB_PANIC: Update of meta page failed or environment had a fatal error."},
+		{MDB_VERSION_MISMATCH, "LMDB MDB_VERSION_MISMATCH: Environment version mismatch."},
+		{MDB_INVALID, "LMDB MDB_INVALID: File is not a valid LMDB file."},
+		{MDB_MAP_FULL, "LMDB MDB_MAP_FULL: Environment mapsize reached."},
+		{MDB_DBS_FULL, "LMDB MDB_DBS_FULL: Environment maxdbs reached."},
+		{MDB_READERS_FULL, "LMDB MDB_READERS_FULL: Environment maxreaders reached."},
+		{MDB_TLS_FULL, "LMDB MDB_TLS_FULL: Too many TLS keys in use - Windows only."},
+		{MDB_TXN_FULL, "LMDB MDB_TXN_FULL: Txn has too many dirty pages."},
+		{MDB_CURSOR_FULL, "LMDB MDB_CURSOR_FULL: Cursor stack too deep - internal error."},
+		{MDB_PAGE_FULL, "LMDB MDB_PAGE_FULL: Page has not enough space - internal error."},
+		{MDB_MAP_RESIZED, "LMDB MDB_MAP_RESIZED: Database contents grew beyond environment mapsize."},
+		{MDB_INCOMPATIBLE, "LMDB MDB_INCOMPATIBLE: Operation and DB incompatible, or DB type changed (see doc)."},
+		{MDB_BAD_RSLOT, "LMDB MDB_BAD_RSLOT: Invalid reuse of reader lock table slot."},
+		{MDB_BAD_TXN, "LMDB MDB_BAD_TXN: Transaction must abort, has a child, or is invalid."},
+		{MDB_BAD_VALSIZE, "LMDB MDB_BAD_VALSIZE: Unsupported size of key/DB name/data, or wrong DUPFIXED size."},
+		{MDB_BAD_DBI, "LMDB MDB_BAD_DBI: The specified DBI was changed unexpectedly."},
+		{MDB_PROBLEM, "LMDB MDB_PROBLEM: Unexpected problem - txn should abort."},
+		{EACCES, "LMDB EACCES: An attempt was made to write in a read-only transaction."},
+		{EINVAL, "LMDB EINVAL: An invalid parameter was specified."},
+		{EIO, "LMDB EIO: A low-level I/O error occurred while writing."},
+		{ENOSPC, "LMDB ENOSPC: No more disk space."},
+		{ENOMEM, "LMDB ENOMEM: Out of memory."},
+		{123456, "LMDB Unknown code 123456."}
+	};
+
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
+		char detail[64];
+		sprintf(detail, "log_lmdb_err detail #%zu", i);
+		per_case.log_lmdb_err(LOG_DEBUG, cases[i].lmdb_err, detail);
+	}
+
+	std::ifstream fh(log_fn);
+	REQUIRE(fh.good());
+
+	String logs;
+	String line;
+	while (std::getline(fh, line)) {
+		logs += line;
+		logs += "\n";
+	}
+
+	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
+		char detail[64];
+		sprintf(detail, "log_lmdb_err detail #%zu", i);
+
+		REQUIRE(logs.find(cases[i].expected) != String::npos);
+		REQUIRE(logs.find(detail) != String::npos);
+	}
+
+	REQUIRE(count_occurrences(logs, "log_lmdb_err detail #") == int(sizeof(cases) / sizeof(cases[0])));
+}
+
 
 SCENARIO("Write/read some blocks in a new source and close the Container.") {
 
