@@ -6265,3 +6265,39 @@ SCENARIO("Testing Container::as_locator()") {
 	REQUIRE(strcmp(loc.key,	   "node0a7ef~-.2") == 0);
 	REQUIRE(loc.p_extra == nullptr);
 }
+
+
+SCENARIO("Testing Container by instancing the parent class and checking error conditions") {
+
+	Container cnt = Container(&LOGGER, &CONFIG);
+
+	pTransaction p_txn = nullptr;
+	Locator what = {};
+
+	REQUIRE(cnt.get(p_txn, what) == SERVICE_NOT_IMPLEMENTED);				// Abstract method.
+
+	pBlock p_block = nullptr;
+
+	REQUIRE(cnt.get(p_txn, what, p_block) == SERVICE_NOT_IMPLEMENTED);		// Abstract method.
+	pChar name = nullptr;
+
+	REQUIRE(cnt.get(p_txn, what, name) == SERVICE_NOT_IMPLEMENTED);			// Abstract method.
+
+	StaticBlockHeader hea = {};
+
+	REQUIRE(cnt.header(hea, what) == SERVICE_NOT_IMPLEMENTED);				// Abstract method.
+	REQUIRE(cnt.header(p_txn, what) == SERVICE_NOT_IMPLEMENTED);			// Abstract method.
+
+	Locator where = {};
+
+	REQUIRE(cnt.put(where, p_block, 0) == SERVICE_NOT_IMPLEMENTED);			// Abstract method.
+	REQUIRE(cnt.new_entity(where) == SERVICE_NOT_IMPLEMENTED);				// Abstract method.
+	REQUIRE(cnt.remove(where) == SERVICE_NOT_IMPLEMENTED);					// Abstract method.
+	REQUIRE(cnt.copy(where, what) == SERVICE_NOT_IMPLEMENTED);				// Abstract method.
+
+	BaseNames bn = {};
+
+	cnt.base_names(bn);
+
+
+}
