@@ -1582,3 +1582,58 @@ SCENARIO("Testing AlignToThis") {
 		}
 	}
 }
+
+
+SCENARIO ("Testing error conditions in Block") {
+	char buf[4096] = {0};
+
+	pBlock pjb = reinterpret_cast<pBlock>(&buf);
+
+	GIVEN("A block pjb") {
+		int6 d1 = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_TIME;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 255);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 255*8 + 12 + 20;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
+
+		THEN("A call to set_attributes() on a closed block fails silently") {
+			REQUIRE(pjb->num_attributes == 1);		// Already has 1 attribute
+
+			AttributeMap att2;
+			att2[123] = nullptr;
+			att2[456] = nullptr;
+
+			pjb->set_attributes(&att2);				// This exists silently
+
+			REQUIRE(pjb->num_attributes == 1);		// Still has 1 attribute
+		}
+	}
+
+	pStringBuffer psb = pjb->p_string_buffer();
+
+	pjb->total_bytes = ((uintptr_t) psb - (uintptr_t) &pjb->cell_type) + sizeof(StringBuffer);	// Makes buff_size == 0
+
+	REQUIRE(!psb->alloc_failed);
+	pjb->init_string_buffer();
+	REQUIRE(psb->alloc_failed);
+}
