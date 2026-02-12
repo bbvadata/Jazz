@@ -253,7 +253,33 @@ SCENARIO("Testing ExpandEscapeSequences().") {
 
 SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
-//	REQUIRE(FindProcessIdByName("/usr/bin/") != 0);
+	REQUIRE(FindProcessIdByName("/usr/lib/systemd/systemd") != 0);
+}
+
+
+SCENARIO("Testing FileExists() and base Service methods.") {
+	char fn[128];
+	sprintf(fn, "/tmp/jzz_unit_utils_service_%i.tmp", (int)getpid());
+	remove(fn);
+
+	REQUIRE(FileExists(fn) == false);
+
+	FILE *fh = fopen(fn, "w");
+	REQUIRE(fh != nullptr);
+	if (fh != nullptr) {
+		fputs("Jazz unit test file\n", fh);
+		fclose(fh);
+	}
+
+	REQUIRE(FileExists(fn) == true);
+	remove(fn);
+	REQUIRE(FileExists(fn) == false);
+
+	Service svc(nullptr, nullptr);
+
+	REQUIRE(!strcmp(svc.id(), "!ABSTRACT CLASS!"));
+	REQUIRE(svc.start() == SERVICE_NOT_IMPLEMENTED);
+	REQUIRE(svc.shut_down() == SERVICE_NOT_IMPLEMENTED);
 }
 
 
