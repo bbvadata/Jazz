@@ -63,12 +63,13 @@ SCENARIO("Testing kind") {
 		Name nam_wave	= "wave";
 		Name nam_frame	= "frame.2";
 
+		TensorDim null_rank	= {0, 0, 0, 0, 0, 0};
 		TensorDim one_cell	= {1, 0, 0, 0, 0, 0};
 		TensorDim vector_10	= {10, 0, 0, 0, 0, 0};
 		TensorDim image_rgb	= {640, 480, 3, 0, 0, 0};
 		TensorDim video_rgb	= {10000, 640, 480, 3, 0, 0};
 
-		AttributeMap attr = {}, dims = {};
+		AttributeMap attr = {}, dims = {}, empty_dims = {};
 
 		attr[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) &nam_bl_type;
 		attr[BLOCK_ATTRIB_SOURCE]	 = (pChar) &nam_at_type;
@@ -98,6 +99,21 @@ SCENARIO("Testing kind") {
 		vector_10.dim[0] = -999;
 		REQUIRE(p_kind3->add_item(1, nam_wave,  vector_10.dim, CELL_TYPE_INTEGER, &dims));
 		REQUIRE(p_kind3->add_item(2, nam_title, one_cell.dim,  CELL_TYPE_STRING,  &dims));
+
+		int req_size = sizeof(BlockHeader) + sizeof(StringBuffer) + 2*sizeof(ItemHeader) + 2*2;	// req size for 2 items
+		REQUIRE(p_kind4->new_kind(3, req_size, &attr) == SERVICE_ERROR_NO_MEM);
+
+		REQUIRE(p_kind4->new_kind(2, req_size + 8, &attr) == SERVICE_NO_ERROR);
+		REQUIRE(!p_kind4->add_item(0, nam_buffer, null_rank.dim, CELL_TYPE_BYTE, &empty_dims));
+
+		REQUIRE(p_kind4->new_kind(2, req_size + 8, &attr) == SERVICE_NO_ERROR);
+		REQUIRE(!p_kind4->add_item(0, nam_buffer, one_cell.dim, CELL_TYPE_BYTE, &empty_dims));
+
+		REQUIRE(p_kind4->new_kind(2, req_size + 8, &attr) == SERVICE_NO_ERROR);
+		REQUIRE(!p_kind4->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE, &dims));
+
+		REQUIRE(p_kind4->new_kind(2, req_size + 8, &attr) == SERVICE_NO_ERROR);
+		REQUIRE(!p_kind4->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE, &empty_dims));
 
 		REQUIRE(p_kind4->new_kind(2, 4096, &attr) == SERVICE_NO_ERROR);
 
@@ -243,9 +259,8 @@ SCENARIO("Testing kind") {
 		WHEN("Kind 4 fails .audit()") {
 			REQUIRE(p_kind4->audit() == MIXED_TYPE_INVALID);
 
-			THEN("We do nothing else") {
-				REQUIRE(true);
-			}
+			p_kind4->cell_type = CELL_TYPE_TUPLE_ITEM;
+			REQUIRE(p_kind4->audit() == MIXED_TYPE_INVALID);
 		}
 
 		WHEN("Kind 5 fails .audit()") {
