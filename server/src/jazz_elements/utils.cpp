@@ -185,46 +185,42 @@ pid_t FindProcessIdByName(const char *name) {
 	char				 buf[512];
 	char				*saveptr1;
 
-	if (!(dir = opendir("/proc"))) {
-		perror("can't open /proc");
+	if (dir = opendir("/proc")) {
+		pid_t pid_self = getpid();
 
-		return 0;
-	}
+		while((ent = readdir(dir)) != nullptr) {		// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
+														// readdir() (3) is thread safe.
 
-	pid_t pid_self = getpid();
+			// if endptr is not null, the directory is not entirely numeric, so ignore it
+			long lpid = strtol(ent->d_name, &endptr, 10);
 
-	while((ent = readdir(dir)) != nullptr) {		// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
-													// readdir() (3) is thread safe.
-
-		// if endptr is not null, the directory is not entirely numeric, so ignore it
-		long lpid = strtol(ent->d_name, &endptr, 10);
-
-		if (*endptr != '\0') {
-			continue;
-		}
-
-		// try to open the cmdline file
-		snprintf(buf, sizeof(buf), "/proc/%ld/cmdline", lpid);
-		FILE* fp = fopen(buf, "r");
-
-		if (fp) {
-			if (fgets(buf, sizeof(buf), fp) != nullptr) {
-				// check the first token in the file, the program name
-				const char* first = strtok_r(buf, " ", &saveptr1);
-
-				// cout << first << endl;
-				if (!strcmp(first, name) && (pid_t) lpid != pid_self) {
-					fclose(fp);
-					closedir(dir);
-
-					return (pid_t) lpid;
-				}
+			if (*endptr != '\0') {
+				continue;
 			}
-			fclose(fp);
-		}
-	}
 
-	closedir(dir);
+			// try to open the cmdline file
+			snprintf(buf, sizeof(buf), "/proc/%ld/cmdline", lpid);
+			FILE* fp = fopen(buf, "r");
+
+			if (fp) {
+				if (fgets(buf, sizeof(buf), fp) != nullptr) {
+					// check the first token in the file, the program name
+					const char* first = strtok_r(buf, " ", &saveptr1);
+
+					// cout << first << endl;
+					if (!strcmp(first, name) && (pid_t) lpid != pid_self) {
+						fclose(fp);
+						closedir(dir);
+
+						return (pid_t) lpid;
+					}
+				}
+				fclose(fp);
+			}
+		}
+
+		closedir(dir);
+	}
 
 	return 0;
 }
@@ -592,11 +588,6 @@ void Logger::log(int loglevel, const char *message) {
 #define LEFTAUTO	28
 
 	sprintf(buffer, "%12.6f : %02d : %5zu : ", sec, loglevel, syscall(SYS_gettid));	// This fills LEFTAUTO char
-	while (strlen(buffer) > LEFTAUTO) {
-		int j = strlen(buffer);
-		for (int i = 1; i < j; i++) buffer[i] = buffer[i + 1];
-		buffer[0] = '+';
-	}
 	strncpy(&buffer[LEFTAUTO], message, 256 - LEFTAUTO);					// This fills in the range [LEFTAUTO..254]
 	buffer[255] = '\0';														// Last pos gets the terminator
 
