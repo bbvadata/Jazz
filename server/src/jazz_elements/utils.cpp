@@ -179,17 +179,17 @@ char *ExpandEscapeSequences(char *buff) {
 	\return The pid of the process if found, 0 if not.
 */
 pid_t FindProcessIdByName(const char *name) {
-	DIR					*dir;
-	const struct dirent	*ent;
-	char				*endptr;
-	char				 buf[512];
-	char				*saveptr1;
+	DIR	*dir;
 
 	if (dir = opendir("/proc")) {
 		pid_t pid_self = getpid();
 
+		const struct dirent	*ent;
+
 		while((ent = readdir(dir)) != nullptr) {		// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
 														// readdir() (3) is thread safe.
+
+			char *endptr;
 
 			// if endptr is not null, the directory is not entirely numeric, so ignore it
 			long lpid = strtol(ent->d_name, &endptr, 10);
@@ -198,12 +198,16 @@ pid_t FindProcessIdByName(const char *name) {
 				continue;
 			}
 
+			char buf[512];
+
 			// try to open the cmdline file
 			snprintf(buf, sizeof(buf), "/proc/%ld/cmdline", lpid);
 			FILE* fp = fopen(buf, "r");
 
 			if (fp) {
 				if (fgets(buf, sizeof(buf), fp) != nullptr) {
+					char *saveptr1;
+
 					// check the first token in the file, the program name
 					const char* first = strtok_r(buf, " ", &saveptr1);
 

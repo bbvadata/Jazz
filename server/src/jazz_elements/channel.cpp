@@ -88,7 +88,7 @@ size_t get_callback(char *ptr, size_t size, size_t nmemb, void *container) {	// 
 
 	(see https://curl.haxx.se/libcurl/c/CURLOPT_WRITEFUNCTION.html)
 */
-size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {	// cppcheck-suppress [unusedFunction, constParameterPointer]
+size_t dev_null(char *_ignore, size_t size, size_t nmemb, void *_ignore_2) {	// cppcheck-suppress [unusedFunction]
 	size = size*nmemb;
 
 	return size;
@@ -169,10 +169,10 @@ StatusCode Channels::start() {
 	int min_port = 999999;
 	int max_port = 0;
 
-	String s;
-	char key[40];
-
 	for (int i = 1;; i++) {
+		char key[40];
+
+		String s;
 		sprintf(key, "JAZZ_NODE_NAME_%i", i);
 
 		if (!get_conf_key(key, s))
@@ -228,9 +228,9 @@ StatusCode Channels::start() {
 			if (!(ifa->ifa_flags & IFF_UP))
 				continue;
 
-			char host[NI_MAXHOST];
-
 			if (family == AF_INET || family == AF_INET6) {
+				char host[NI_MAXHOST];
+
 				socklen_t family_size = (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
 				int s = getnameinfo(ifa->ifa_addr, family_size, host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
 				if (s != 0) {
