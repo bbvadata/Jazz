@@ -953,7 +953,7 @@ bool BaseAPI::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tup
 
 	pTransaction p_text, p_tensor, p_result;
 
-	int dim[MAX_TENSOR_RANK];
+	int dim[MAX_TENSOR_RANK] = {0};
 
 	if (make_tuple) {
 		int size = strlen(p_const);

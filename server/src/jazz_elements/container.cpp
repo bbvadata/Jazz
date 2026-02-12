@@ -619,16 +619,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
-		TensorDim i_dim;
-		i_dim.dim[0] = num_lines;
-		i_dim.dim[1] = 0;
-#ifdef DEBUG				// Initialize i_dim for Valgrind.
-		i_dim.dim[2] = 0;
-		i_dim.dim[3] = 0;
-		i_dim.dim[4] = 0;
-		i_dim.dim[5] = 0;
-#endif
-		reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
+			TensorDim i_dim = {};
+			i_dim.dim[0] = num_lines;
+			i_dim.dim[1] = 0;
+			reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
 	} else {
 		reinterpret_cast<pBlock>(&hea)->set_dimensions(dim);
 
@@ -848,15 +842,9 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 		return ret;
 
 	StaticBlockHeader hea;
-	TensorDim i_dim;
+	TensorDim i_dim = {};
 	i_dim.dim[0] = num_items;
 	i_dim.dim[1] = 0;
-#ifdef DEBUG				// Initialize i_dim for Valgrind.
-	i_dim.dim[2] = 0;
-	i_dim.dim[3] = 0;
-	i_dim.dim[4] = 0;
-	i_dim.dim[5] = 0;
-#endif
 
 	if (p_block == nullptr)
 		hea.cell_type = CELL_TYPE_KIND_ITEM;
@@ -1562,16 +1550,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_WRONG_TYPE;
 	}
 
-	int dim[MAX_TENSOR_RANK];
+	int dim[MAX_TENSOR_RANK] = {0};
 
 	dim[0] = total_bytes;
 	dim[1] = 0;
-#ifdef DEBUG				// Initialize i_dim for Valgrind.
-	dim[2] = 0;
-	dim[3] = 0;
-	dim[4] = 0;
-	dim[5] = 0;
-#endif
 
 	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, 0, nullptr, 0, att);
 
