@@ -44,6 +44,7 @@
 
 #include "src/jazz_elements/channel.h"
 
+//TODO: Increase test coverage to 100%.
 
 namespace jazz_elements
 {

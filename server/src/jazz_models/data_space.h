@@ -318,7 +318,6 @@ namespace jazz_models
 // };
 
 
-// TODO: Take whatever is still valid from this old version.
 // /** \brief DataSpaces: The data space.
 
 // */
@@ -333,8 +332,6 @@ namespace jazz_models
 
 // 		// Space interface
 
-// //TODO: This is similar but not quite identical, since it has a FROM predicate
-
 // 		// virtual StatusCode load_meta();
 // 		// virtual StatusCode save_meta();
 // 		// virtual RowNumber num_rows();
@@ -347,9 +344,6 @@ namespace jazz_models
 // 		// virtual StatusCode get_row(pTransaction	&p_txn, RowNumber row, pColSelection cols = nullptr, pCaster cast = nullptr);
 
 // 		// DataSpaces-ETL interface
-
-// //TODO: Define the DataSpaces-ETL interface. This is understood by the Bop compiler and is used by ETL maintenance software that writes
-// //		special Bop scripts to populate/update/destroy the DataSpaces.
 
 // 	private:
 

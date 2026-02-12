@@ -52,6 +52,7 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_CHANNEL
 #define INCLUDED_JAZZ_ELEMENTS_CHANNEL
 
+//TODO: Increase test coverage to 100%.
 
 namespace jazz_elements
 {

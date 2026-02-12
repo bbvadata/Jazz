@@ -195,8 +195,6 @@ namespace jazz_models
 // 	return SERVICE_NO_ERROR;
 // }
 
-// TODO: Take whatever is still valid from this old version.
-
 // ///> The name of the DataSpaces class required by Spaces.
 // Name NAME_CLASS_DATASPACES = "DataSpaces";
 

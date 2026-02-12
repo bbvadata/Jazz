@@ -132,5 +132,3 @@ C-style comments: /* ... */ and // ... to end of line.
 def name (args)
 	...
 
-
-TODO: function calls, introspection, function definition, space nesting

@@ -47,6 +47,7 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_VOLATILE
 #define INCLUDED_JAZZ_ELEMENTS_VOLATILE
 
+//TODO: Increase test coverage to 100%.
 
 namespace jazz_elements
 {
