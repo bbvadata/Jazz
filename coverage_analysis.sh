@@ -18,7 +18,7 @@ make cjazz
 ./cjazz
 
 lcov --capture --directory . --output-file coverage.info --rc geninfo_unexecuted_blocks=1
-lcov --remove coverage.info '/usr/include/*' '*catch2*' --output-file coverage.info
+lcov --remove coverage.info '/usr/include/*' '*catch2*' '*/tests/*' '*/uplifts/*' 'jazz_main/*' --output-file coverage.info
 
 genhtml coverage.info --output-directory coverage_html
 
