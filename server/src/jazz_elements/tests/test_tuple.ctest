@@ -565,6 +565,11 @@ SCENARIO("Testing tuple") {
 	REQUIRE(p_tup5->new_tuple(MAX_ITEMS_IN_KIND + 1, blocks, tup_pic, 8192, &attr_tuple) == SERVICE_ERROR_WRONG_ARGUMENTS);
 	REQUIRE(p_tup5->new_tuple(MAX_ITEMS_IN_KIND, blocks, tup_pic, 0, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
+	p_bl1->cell_type = CELL_TYPE_ONNX_GRAPH;
+	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8192, nullptr) == SERVICE_ERROR_WRONG_TYPE);
+
+	p_bl1->cell_type = CELL_TYPE_BYTE;
+
 	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 
 	REQUIRE(p_tup5->new_tuple(2, blocks, tup_pic, 8192, &attr_tuple) == SERVICE_ERROR_WRONG_ARGUMENTS);
