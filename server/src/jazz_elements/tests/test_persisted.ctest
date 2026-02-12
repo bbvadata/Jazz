@@ -579,6 +579,8 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
+	REQUIRE(strstr(PER.id(), "Persisted from Jazz") != nullptr);
+
 	REQUIRE(PER.max_transactions > 0);
 	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(PER.warn_alloc_bytes > 0);
