@@ -40,7 +40,7 @@ namespace jazz_elements
 
 /** \brief Audit a Kind.
 
-	Check the internal validity of a Kind (item structure, dimensions, etc.) not repeated of invalid item names.
+	Check the internal validity of a Kind (item structure, dimensions, etc.) not repeated or invalid item names.
 
 	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */
@@ -72,9 +72,6 @@ int Kind::audit() {
 		for (int j = 0; j < p_it_hea->rank; j++) {
 			int k = p_it_hea->dim[j];
 			if (k < 0) {
-				if (items.find(-k) != items.end())
-					return MIXED_TYPE_INVALID;
-
 				if (!valid_name(&p_string_buffer()->buffer[-k]))
 					return MIXED_TYPE_INVALID;
 			}
