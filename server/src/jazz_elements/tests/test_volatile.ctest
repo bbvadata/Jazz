@@ -2844,6 +2844,8 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
 
+	REQUIRE(strstr(VOL.id(), "Volatile from Jazz") != nullptr);
+
 	REQUIRE(VOL.max_transactions > 0);
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.warn_alloc_bytes > 0);
