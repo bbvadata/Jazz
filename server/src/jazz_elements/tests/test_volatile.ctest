@@ -695,6 +695,102 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~-2", false));
 }
 
+SCENARIO("Coverage hunting low-covered Volatile branches") {
+	struct KeyBackup {
+		const char *key;
+		String value;
+		bool existed;
+	};
+
+	KeyBackup backup[] = {
+		{"VOLATILE_MAX_TRANSACTIONS", "", false},
+		{"VOLATILE_WARN_BLOCK_KBYTES", "", false},
+		{"VOLATILE_ERROR_BLOCK_KBYTES", "", false}
+	};
+
+	for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+		backup[i].existed = CONFIG.get_key(backup[i].key, backup[i].value);
+	}
+
+	auto restore_config = [&]() {
+		for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+			if (backup[i].existed)
+				CONFIG.debug_put(backup[i].key, backup[i].value);
+		}
+	};
+
+	struct RestoreOnExit {
+		decltype(restore_config) *fn;
+		~RestoreOnExit() { (*fn)(); }
+	};
+	RestoreOnExit restore_on_exit = {&restore_config};
+
+	{
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_1.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+		CONFIG.debug_put("VOLATILE_MAX_TRANSACTIONS", "not_an_int");
+		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	{
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_2.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+		CONFIG.debug_put("VOLATILE_WARN_BLOCK_KBYTES", "not_an_int");
+		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	{
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_3.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+		CONFIG.debug_put("VOLATILE_ERROR_BLOCK_KBYTES", "not_an_int");
+		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	{
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_entities.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+		REQUIRE(vol_case.start() == SERVICE_NO_ERROR);
+
+		REQUIRE(vol_case.new_entity((pChar) "//deque/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//deque/dup_ent") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(vol_case.new_entity((pChar) "//queue/dup_ent/~4") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//queue/dup_ent/~4") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(vol_case.new_entity((pChar) "//tree/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//tree/dup_ent") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(vol_case.new_entity((pChar) "//index/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//index/dup_ent") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		pTransaction p_tx_str;
+		REQUIRE(vol_case.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "hello-index") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.put((pChar) "//index/dup_ent/key_one", p_tx_str->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
+
+		REQUIRE(vol_case.remove((pChar) "//index/dup_ent/key_one") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//index/dup_ent/key_one") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+		p_tx_str->p_owner = nullptr;
+		vol_case.destroy_transaction(p_tx_str);
+		REQUIRE(p_tx_str != nullptr);
+		p_tx_str->p_owner = &vol_case;
+		vol_case.destroy_transaction(p_tx_str);
+		REQUIRE(p_tx_str == nullptr);
+
+		REQUIRE(vol_case.remove((pChar) "//deque/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//queue/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//tree/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//index/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+}
+
 
 SCENARIO("Strong End-to-end index tests") {
 
