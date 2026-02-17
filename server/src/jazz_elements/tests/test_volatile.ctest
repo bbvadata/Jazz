@@ -695,6 +695,7 @@ SCENARIO("Auxiliary inline Volatile parts") {
 	REQUIRE(!VOL.parse_command(key_out, command, parent, (pChar) "key~-2", false));
 }
 
+
 SCENARIO("Coverage hunting low-covered Volatile branches") {
 	struct KeyBackup {
 		const char *key;

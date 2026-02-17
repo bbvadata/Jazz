@@ -6283,6 +6283,121 @@ SCENARIO("Testing Container::as_locator()") {
 }
 
 
+SCENARIO("Coverage hunting Container unwrap/config/serialization branches") {
+	struct KeyBackup {
+		const char *key;
+		String value;
+		bool existed;
+	};
+
+	KeyBackup backup[] = {
+		{"ONE_SHOT_WARN_BLOCK_KBYTES", "", false},
+		{"ONE_SHOT_ERROR_BLOCK_KBYTES", "", false}
+	};
+
+	for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+		backup[i].existed = CONFIG.get_key(backup[i].key, backup[i].value);
+	}
+
+	auto restore_config = [&]() {
+		for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+			if (backup[i].existed)
+				CONFIG.debug_put(backup[i].key, backup[i].value);
+		}
+	};
+
+	struct RestoreOnExit {
+		decltype(restore_config) *fn;
+		~RestoreOnExit() { (*fn)(); }
+	};
+	RestoreOnExit restore_on_exit = {&restore_config};
+
+	{
+		Logger cov_log("/tmp/jzz_unit_container_cov_badcfg_warn.log");
+		Container cnt_case(&cov_log, &CONFIG);
+		CONFIG.debug_put("ONE_SHOT_WARN_BLOCK_KBYTES", "not_an_int");
+		REQUIRE(cnt_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(cnt_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	{
+		Logger cov_log("/tmp/jzz_unit_container_cov_badcfg_err.log");
+		Container cnt_case(&cov_log, &CONFIG);
+		CONFIG.debug_put("ONE_SHOT_ERROR_BLOCK_KBYTES", "not_an_int");
+		REQUIRE(cnt_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(cnt_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	{
+		Logger cov_log("/tmp/jzz_unit_container_cov_unwrap.log");
+		Container cnt_case(&cov_log, &CONFIG);
+		REQUIRE(cnt_case.start() == SERVICE_NO_ERROR);
+
+		pTransaction p_src;
+		int dim_src[MAX_TENSOR_RANK] = {6, 0};
+		REQUIRE(cnt_case.new_block(p_src, CELL_TYPE_INTEGER, dim_src, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_src->p_block->close_block();
+		REQUIRE(p_src->p_block->check_hash());
+
+		pTransaction p_rxn1;
+		int dim_rxn1[MAX_TENSOR_RANK] = {p_src->p_block->total_bytes, 0};
+		REQUIRE(cnt_case.new_block(p_rxn1, CELL_TYPE_BYTE, dim_rxn1, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		memcpy(&p_rxn1->p_block->tensor.cell_byte[0], p_src->p_block, p_src->p_block->total_bytes);
+		pBlock p_embedded = (pBlock) &p_rxn1->p_block->tensor.cell_byte[0];
+		REQUIRE(p_embedded->total_bytes == p_src->p_block->total_bytes);
+		REQUIRE(p_embedded->check_hash());
+		REQUIRE(cnt_case.unwrap_received(p_rxn1) == SERVICE_NO_ERROR);
+		compare_full_blocks(p_rxn1->p_block, p_src->p_block);
+
+		pTransaction p_rxn2;
+		REQUIRE(cnt_case.unwrap_received(p_rxn2, p_src->p_block, p_src->p_block->total_bytes) == SERVICE_NO_ERROR);
+		compare_full_blocks(p_rxn2->p_block, p_src->p_block);
+
+		char raw_bin[5] = {'A', 0, 'B', 1, 'C'};
+		pTransaction p_bin;
+		REQUIRE(cnt_case.unwrap_received(p_bin, (pBlock) raw_bin, 5) == SERVICE_NO_ERROR);
+		REQUIRE(p_bin->p_block->cell_type == CELL_TYPE_BYTE);
+		REQUIRE(p_bin->p_block->size == 5);
+		REQUIRE(p_bin->p_block->tensor.cell_byte[0] == 'A');
+		REQUIRE(p_bin->p_block->tensor.cell_byte[1] == 0);
+		REQUIRE(p_bin->p_block->tensor.cell_byte[2] == 'B');
+		REQUIRE(p_bin->p_block->tensor.cell_byte[3] == 1);
+		REQUIRE(p_bin->p_block->tensor.cell_byte[4] == 'C');
+
+		char raw_txt[6] = {'a', '\\', 'v', 'b', 'c', 0};
+		pTransaction p_txt;
+		REQUIRE(cnt_case.unwrap_received(p_txt, (pBlock) raw_txt, 5) == SERVICE_NO_ERROR);
+		REQUIRE(p_txt->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(p_txt->p_block->get_string(0), "a\\vbc") == 0);
+
+		const char utf_mix[] = "A" "\xC3\xB1" "\xE2\x82\xAC" "\xF0\x9F\x98\x80" "\x01" "Z";
+		pTransaction p_utf;
+		REQUIRE(cnt_case.new_block(p_utf, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, utf_mix, 0) == SERVICE_NO_ERROR);
+
+		pTransaction p_ser;
+		REQUIRE(cnt_case.new_block(p_ser, p_utf->p_block) == SERVICE_NO_ERROR);
+		REQUIRE(p_ser->p_block->cell_type == CELL_TYPE_BYTE);
+
+		pTransaction p_back;
+		REQUIRE(cnt_case.new_block(p_back, p_ser->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
+		compare_full_blocks(p_back->p_block, p_utf->p_block);
+
+		cnt_case.destroy_transaction(p_back);
+		cnt_case.destroy_transaction(p_ser);
+		cnt_case.destroy_transaction(p_utf);
+		cnt_case.destroy_transaction(p_txt);
+		cnt_case.destroy_transaction(p_bin);
+		cnt_case.destroy_transaction(p_rxn2);
+		cnt_case.destroy_transaction(p_rxn1);
+		cnt_case.destroy_transaction(p_src);
+
+		REQUIRE(cnt_case.shut_down() == SERVICE_NO_ERROR);
+	}
+}
+
+
 SCENARIO("Testing Container by instancing the parent class and checking error conditions") {
 
 	Container cnt = Container(&LOGGER, &CONFIG);
