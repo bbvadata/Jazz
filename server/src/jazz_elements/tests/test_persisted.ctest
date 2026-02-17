@@ -211,6 +211,86 @@ SCENARIO("Testing Persisted::log_lmdb_err()") {
 }
 
 
+SCENARIO("Coverage hunting low-covered Persisted branches") {
+	struct KeyBackup {
+		const char *key;
+		String value;
+		bool existed;
+	};
+
+	KeyBackup backup[] = {
+		{"MDB_PERSISTENCE_PATH", "", false},
+		{"MDB_ENV_SET_MAXREADERS", "", false},
+		{"MDB_NOSYNC", "", false},
+		{"MDB_ENV_SET_MAXDBS", "", false}
+	};
+
+	for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+		backup[i].existed = CONFIG.get_key(backup[i].key, backup[i].value);
+	}
+
+	auto restore_config = [&]() {
+		for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+			if (backup[i].existed)
+				CONFIG.debug_put(backup[i].key, backup[i].value);
+		}
+	};
+
+	struct RestoreOnExit {
+		decltype(restore_config) *fn;
+		~RestoreOnExit() { (*fn)(); }
+	};
+	RestoreOnExit restore_on_exit = {&restore_config};
+
+	GIVEN("A dedicated persisted instance and controlled config mutations") {
+		Logger cov_log("/tmp/jzz_unit_persisted_cov.log");
+		Persisted per_case(&cov_log, &CONFIG);
+
+		WHEN("start() is called twice without a shutdown") {
+			REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+			REQUIRE(per_case.start() == SERVICE_ERROR_STARTING);
+			REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+		}
+
+		WHEN("MDB_PERSISTENCE_PATH is oversized") {
+			char long_path[MAX_LMDB_HOME_LEN + 32];
+			memset(long_path, 'x', sizeof(long_path) - 1);
+			long_path[sizeof(long_path) - 1] = 0;
+
+			CONFIG.debug_put("MDB_PERSISTENCE_PATH", long_path);
+			REQUIRE(per_case.start() == SERVICE_ERROR_BAD_CONFIG);
+			REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+		}
+
+		WHEN("An integer MDB config key is malformed") {
+			CONFIG.debug_put("MDB_ENV_SET_MAXREADERS", "this_is_not_an_int");
+			REQUIRE(per_case.start() == SERVICE_ERROR_BAD_CONFIG);
+			REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+		}
+
+		WHEN("A boolean-like MDB flag is out of range") {
+			CONFIG.debug_put("MDB_NOSYNC", "2");
+			REQUIRE(per_case.start() == SERVICE_ERROR_BAD_CONFIG);
+			REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+		}
+
+		WHEN("MDB_ENV_SET_MAXDBS exceeds MAX_POSSIBLE_SOURCES") {
+			char too_many_dbs[16];
+			sprintf(too_many_dbs, "%d", MAX_POSSIBLE_SOURCES + 1);
+			CONFIG.debug_put("MDB_ENV_SET_MAXDBS", too_many_dbs);
+			REQUIRE(per_case.start() == SERVICE_ERROR_BAD_CONFIG);
+			REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+		}
+
+		WHEN("remove() is called for a key in an unknown entity") {
+			REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+			REQUIRE(per_case.remove((pChar) "//lmdb/unknown_entity/ghost_key") == SERVICE_ERROR_REMOVE_FAILED);
+			REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+		}
+	}
+}
+
+
 SCENARIO("Write/read some blocks in a new source and close the Container.") {
 
 	REQUIRE(PER.start() == SERVICE_NO_ERROR);
