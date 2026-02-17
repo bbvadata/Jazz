@@ -729,6 +729,9 @@ SCENARIO("Coverage hunting low-covered Volatile branches") {
 	{
 		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_1.log");
 		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
 		CONFIG.debug_put("VOLATILE_MAX_TRANSACTIONS", "not_an_int");
 		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
 		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
@@ -738,6 +741,9 @@ SCENARIO("Coverage hunting low-covered Volatile branches") {
 	{
 		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_2.log");
 		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
 		CONFIG.debug_put("VOLATILE_WARN_BLOCK_KBYTES", "not_an_int");
 		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
 		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
@@ -747,6 +753,9 @@ SCENARIO("Coverage hunting low-covered Volatile branches") {
 	{
 		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_3.log");
 		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
 		CONFIG.debug_put("VOLATILE_ERROR_BLOCK_KBYTES", "not_an_int");
 		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
 		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
@@ -756,6 +765,9 @@ SCENARIO("Coverage hunting low-covered Volatile branches") {
 	{
 		Logger cov_log("/tmp/jzz_unit_volatile_cov_entities.log");
 		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
 		REQUIRE(vol_case.start() == SERVICE_NO_ERROR);
 
 		REQUIRE(vol_case.new_entity((pChar) "//deque/dup_ent") == SERVICE_NO_ERROR);

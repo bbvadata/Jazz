@@ -150,6 +150,8 @@ SCENARIO("Testing Persisted::log_lmdb_err()") {
 	Logger lmdb_log(log_fn);
 	Persisted per_case(&lmdb_log, nullptr);
 
+	per_case.log_error_level = LOG_DEBUG;
+
 	struct {
 		int lmdb_err;
 		const char *expected;
@@ -246,6 +248,8 @@ SCENARIO("Coverage hunting low-covered Persisted branches") {
 		Logger cov_log("/tmp/jzz_unit_persisted_cov.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
+		per_case.log_error_level = LOG_DEBUG;
+
 		WHEN("start() is called twice without a shutdown") {
 			REQUIRE(per_case.start() == SERVICE_NO_ERROR);
 			REQUIRE(per_case.start() == SERVICE_ERROR_STARTING);
@@ -296,6 +300,8 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_open.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
+		per_case.log_error_level = LOG_DEBUG;
+
 		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
 		REQUIRE(per_case.open_all_databases() == true);
 		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
@@ -304,6 +310,8 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 	GIVEN("We test some malformed database names") {
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_checks.log");
 		Persisted per_case(&cov_log, &CONFIG);
+
+		per_case.log_error_level = LOG_DEBUG;
 
 		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
 
@@ -326,6 +334,8 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_txn.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
+		per_case.log_error_level = LOG_DEBUG;
+
 		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
 
 		REQUIRE(per_case.new_database((pChar) "") == SERVICE_ERROR_CREATE_FAILED);
@@ -341,6 +351,8 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 	GIVEN("We test some removed database transactions") {
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_removedb_txn.log");
 		Persisted per_case(&cov_log, &CONFIG);
+
+		per_case.log_error_level = LOG_DEBUG;
 
 		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
 		REQUIRE(per_case.remove_database((pChar) "missing_entity") == SERVICE_ERROR_ENTITY_NOT_FOUND);
@@ -364,6 +376,8 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 
 
 SCENARIO("Write/read some blocks in a new source and close the Container.") {
+
+	PER.log_error_level = LOG_DEBUG;
 
 	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
