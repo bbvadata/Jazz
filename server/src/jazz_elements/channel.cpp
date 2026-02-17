@@ -159,7 +159,7 @@ StatusCode Channels::start() {
 	String my_name;
 
 	if (!get_conf_key("JAZZ_NODE_MY_NAME", my_name)) {
-		log(LOG_ERROR, "Channels::start() failed to find JAZZ_NODE_MY_NAME");
+		log(log_error_level, "Channels::start() failed to find JAZZ_NODE_MY_NAME");
 
 		return EXIT_FAILURE;
 	}
@@ -186,7 +186,7 @@ StatusCode Channels::start() {
 		sprintf(key, "JAZZ_NODE_IP_%i", i);
 
 		if (!get_conf_key(key, s)) {
-			log_printf(LOG_ERROR, "Channels::start() failed to find %s", key);
+			log_printf(log_error_level, "Channels::start() failed to find %s", key);
 
 			return EXIT_FAILURE;
 		}
@@ -198,7 +198,7 @@ StatusCode Channels::start() {
 		int port;
 
 		if (!get_conf_key(key, port)) {
-			log_printf(LOG_ERROR, "Channels::start() failed to find %s", key);
+			log_printf(log_error_level, "Channels::start() failed to find %s", key);
 
 			return EXIT_FAILURE;
 		}
@@ -214,7 +214,7 @@ StatusCode Channels::start() {
 		struct ifaddrs *ifaddr, *ifa;
 
 		if (getifaddrs(&ifaddr) == -1) {
-			log(LOG_ERROR, "Channels::start() failed to get network interfaces");
+			log(log_error_level, "Channels::start() failed to get network interfaces");
 
 			return EXIT_FAILURE;
 		}
@@ -234,7 +234,7 @@ StatusCode Channels::start() {
 				socklen_t family_size = (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
 				int s = getnameinfo(ifa->ifa_addr, family_size, host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
 				if (s != 0) {
-					log_printf(LOG_ERROR, "Channels::start() getnameinfo() failed: %s", gai_strerror(s));
+					log_printf(log_error_level, "Channels::start() getnameinfo() failed: %s", gai_strerror(s));
 
 					freeifaddrs(ifaddr);
 
@@ -252,7 +252,7 @@ StatusCode Channels::start() {
 		freeifaddrs(ifaddr);
 
 		if (jazz_node_my_index < 0) {
-			log(LOG_ERROR, "Channels::start() could not determine this node's index in the cluster");
+			log(log_error_level, "Channels::start() could not determine this node's index in the cluster");
 
 			return EXIT_FAILURE;
 		}
@@ -260,25 +260,25 @@ StatusCode Channels::start() {
 	}
 
 	if (!get_conf_key("ENABLE_ZEROMQ_CLIENT", can_zmq)) {
-		log(LOG_ERROR, "Channels::start() failed to find ENABLE_ZEROMQ_CLIENT");
+		log(log_error_level, "Channels::start() failed to find ENABLE_ZEROMQ_CLIENT");
 
 		return EXIT_FAILURE;
 	}
 
 	if (!get_conf_key("ENABLE_HTTP_CLIENT", can_curl)) {
-		log(LOG_ERROR, "Channels::start() failed to find ENABLE_HTTP_CLIENT");
+		log(log_error_level, "Channels::start() failed to find ENABLE_HTTP_CLIENT");
 
 		return EXIT_FAILURE;
 	}
 
 	if (!get_conf_key("ENABLE_BASH_EXEC", can_bash)) {
-		log(LOG_ERROR, "Channels::start() failed to find ENABLE_BASH_EXEC");
+		log(log_error_level, "Channels::start() failed to find ENABLE_BASH_EXEC");
 
 		return EXIT_FAILURE;
 	}
 
 	if (!get_conf_key("ENABLE_FILE_LEVEL", file_lev)) {
-		log(LOG_ERROR, "Channels::start() failed to find ENABLE_FILE_LEVEL");
+		log(log_error_level, "Channels::start() failed to find ENABLE_FILE_LEVEL");
 
 		return EXIT_FAILURE;
 	}

@@ -76,7 +76,7 @@ StatusCode Volatile::start() {
 	key_seed = MurmurHash64A(&rawtime, sizeof(rawtime)) & 0x0fffffFFFFFFFF;
 
 	if (!get_conf_key("VOLATILE_MAX_TRANSACTIONS", max_transactions)) {
-		log(LOG_ERROR, "Config key VOLATILE_MAX_TRANSACTIONS not found in Container::start");
+		log(log_error_level, "Config key VOLATILE_MAX_TRANSACTIONS not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -84,14 +84,14 @@ StatusCode Volatile::start() {
 	int i = 0;
 
 	if (!get_conf_key("VOLATILE_WARN_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key VOLATILE_WARN_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key VOLATILE_WARN_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
 
 	if (!get_conf_key("VOLATILE_ERROR_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key VOLATILE_ERROR_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key VOLATILE_ERROR_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -121,7 +121,7 @@ StatusCode Volatile::new_volatile() {
 #ifdef CATCH_TEST
 		destroy_volatile();
 #else
-		log(LOG_ERROR, "new_volatile() called on a running Volatile().");
+		log(log_error_level, "new_volatile() called on a running Volatile().");
 		return SERVICE_ERROR_STARTING;
 #endif
 	}
@@ -230,7 +230,7 @@ Transaction returned is actually a VolatileTransaction which is good for any of 
 void Volatile::destroy_transaction  (pTransaction &p_txn) {
 
 	if (p_txn->p_owner == nullptr) {
-		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
+		log_printf(log_error_level, "Transaction %p has no p_owner", p_txn);
 
 		return;
 	}

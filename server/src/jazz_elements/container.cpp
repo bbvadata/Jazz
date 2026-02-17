@@ -301,7 +301,7 @@ Container::~Container() { destroy_container(); }
 StatusCode Container::start() {
 
 	if (!get_conf_key("ONE_SHOT_MAX_TRANSACTIONS", max_transactions)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_MAX_TRANSACTIONS not found in Container::start");
+		log(log_error_level, "Config key ONE_SHOT_MAX_TRANSACTIONS not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -309,14 +309,14 @@ StatusCode Container::start() {
 	int i = 0;
 
 	if (!get_conf_key("ONE_SHOT_WARN_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_WARN_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key ONE_SHOT_WARN_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
 
 	if (!get_conf_key("ONE_SHOT_ERROR_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_ERROR_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key ONE_SHOT_ERROR_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -494,7 +494,7 @@ inserted into different structures.
 void Container::destroy_transaction  (pTransaction &p_txn) {
 
 	if (p_txn->p_owner == nullptr) {
-		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
+		log_printf(log_error_level, "Transaction %p has no p_owner", p_txn);
 
 		return;
 	}
@@ -2265,7 +2265,7 @@ StatusCode Container::new_container() {
 #ifdef CATCH_TEST
 		destroy_container();
 #else
-		log(LOG_ERROR, "new_container() called on a running Container().");
+		log(log_error_level, "new_container() called on a running Container().");
 		return SERVICE_ERROR_STARTING;
 #endif
 	}
