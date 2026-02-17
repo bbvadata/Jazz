@@ -291,6 +291,78 @@ SCENARIO("Coverage hunting low-covered Persisted branches") {
 }
 
 
+SCENARIO("Force error handling in open_all_databases/new_database/remove_database") {
+	{
+		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_open.log");
+		Persisted per_case(&cov_log, &CONFIG);
+
+		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+		REQUIRE(per_case.open_all_databases() == true);
+		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	{
+		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_checks.log");
+		Persisted per_case(&cov_log, &CONFIG);
+
+		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+
+		per_case.source_dbi.clear();
+		for (int i = 0; i < MAX_POSSIBLE_SOURCES; i++) {
+			char name[32];
+			sprintf(name, "full_%02d", i);
+			per_case.source_dbi[name] = INVALID_MDB_DBI;
+		}
+		REQUIRE(per_case.new_database((pChar) "one_more") == SERVICE_ERROR_TOO_MANY_ENTITIES);
+
+		per_case.source_dbi.clear();
+		per_case.source_dbi["already_here"] = INVALID_MDB_DBI;
+		REQUIRE(per_case.new_database((pChar) "already_here") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	{
+		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_txn.log");
+		Persisted per_case(&cov_log, &CONFIG);
+
+		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+
+		REQUIRE(per_case.new_database((pChar) "") == SERVICE_ERROR_CREATE_FAILED);
+
+		char too_long_name[700];
+		memset(too_long_name, 'x', sizeof(too_long_name) - 1);
+		too_long_name[sizeof(too_long_name) - 1] = 0;
+		REQUIRE(per_case.new_database((pChar) too_long_name) == SERVICE_ERROR_CREATE_FAILED);
+
+		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	{
+		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_removedb_txn.log");
+		Persisted per_case(&cov_log, &CONFIG);
+
+		REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+		REQUIRE(per_case.remove_database((pChar) "missing_entity") == SERVICE_ERROR_ENTITY_NOT_FOUND);
+
+		char too_long_name[700];
+		memset(too_long_name, 'y', sizeof(too_long_name) - 1);
+		too_long_name[sizeof(too_long_name) - 1] = 0;
+
+		per_case.source_dbi[too_long_name] = INVALID_MDB_DBI;
+		REQUIRE(per_case.remove_database((pChar) too_long_name) == SERVICE_ERROR_REMOVE_FAILED);
+		per_case.source_dbi.erase(too_long_name);
+
+		REQUIRE(per_case.new_database((pChar) "exists_for_bad_drop") == SERVICE_NO_ERROR);
+		per_case.source_dbi["exists_for_bad_drop"] = (MDB_dbi) 0x7fffffff;
+		REQUIRE(per_case.remove_database((pChar) "exists_for_bad_drop") == SERVICE_ERROR_REMOVE_FAILED);
+		per_case.source_dbi["exists_for_bad_drop"] = INVALID_MDB_DBI;
+		REQUIRE(per_case.remove_database((pChar) "exists_for_bad_drop") == SERVICE_NO_ERROR);
+		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+	}
+}
+
+
 SCENARIO("Write/read some blocks in a new source and close the Container.") {
 
 	REQUIRE(PER.start() == SERVICE_NO_ERROR);
