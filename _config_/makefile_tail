@@ -50,7 +50,7 @@ cjazz: compile_mode_coverage $(objects) mdb.o midl.o
 .PHONY : clean
 clean  :
 	@echo "Cleaning up all files not stored in the repo ..."
-	@rm -f *.o *.gcda *.gcno
+	@rm -f *.o *.gcda *.gcno *.gcov
 	@rm -f *jazz
 	@rm -f compile_mode_*
 	@rm -f jazz_dbg.log
