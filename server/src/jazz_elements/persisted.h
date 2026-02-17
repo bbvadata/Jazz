@@ -166,11 +166,12 @@ class Persisted : public Container {
 
 		void log_lmdb_err(int loglevel, int lmdb_err, const char *msg);
 
-		DBImap			 source_dbi = {};		///< The lmdb MDB_dbi handles for each source.
-		JazzLmdbOptions  lmdb_opt;				///< The LMDB options
-		MDB_env		    *lmdb_env = nullptr;	///< The LMDB environment
+		DBImap			 source_dbi = {};				///< The lmdb MDB_dbi handles for each source.
+		JazzLmdbOptions  lmdb_opt;						///< The LMDB options
+		MDB_env		    *lmdb_env = nullptr;			///< The LMDB environment
+		int				 lmdb_log_error	= LOG_ERROR;	///< The log level for LMDB errors made a variable to silence it in tests.
 };
-typedef Persisted *pPersisted;					///< A pointer to a Persisted object
+typedef Persisted *pPersisted;							///< A pointer to a Persisted object
 
 #ifdef CATCH_TEST
 
