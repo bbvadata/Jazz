@@ -292,7 +292,7 @@ SCENARIO("Coverage hunting low-covered Persisted branches") {
 
 
 SCENARIO("Force error handling in open_all_databases/new_database/remove_database") {
-	{
+	GIVEN("We test starting and closing methods") {
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_open.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
@@ -301,7 +301,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
 	}
 
-	{
+	GIVEN("We test some malformed database names") {
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_checks.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
@@ -322,7 +322,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
 	}
 
-	{
+	GIVEN("We test some new database transactions") {
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_txn.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
@@ -338,7 +338,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
 	}
 
-	{
+	GIVEN("We test some removed database transactions") {
 		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_removedb_txn.log");
 		Persisted per_case(&cov_log, &CONFIG);
 
