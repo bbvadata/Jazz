@@ -6384,6 +6384,25 @@ SCENARIO("Coverage hunting Container unwrap/config/serialization branches") {
 		REQUIRE(cnt_case.new_block(p_back, p_ser->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
 		compare_full_blocks(p_back->p_block, p_utf->p_block);
 
+		MapSI dims = {};
+		ItemHeader item_hea = {};
+		char src_factor[] = "FACTOR[3]";
+		pChar p_fac = src_factor;
+		int n_fac = strlen(src_factor);
+		REQUIRE(cnt_case.get_type_and_shape(p_fac, n_fac, &item_hea, dims));
+		REQUIRE(item_hea.cell_type == CELL_TYPE_FACTOR);
+
+		char src_double[] = "DOUBLE[2,2]";
+		pChar p_dbl = src_double;
+		int n_dbl = strlen(src_double);
+		REQUIRE(cnt_case.get_type_and_shape(p_dbl, n_dbl, &item_hea, dims));
+		REQUIRE(item_hea.cell_type == CELL_TYPE_DOUBLE);
+
+		char src_bbool[] = "BYTE_BOOLEAN[5]";
+		pChar p_bbo = src_bbool;
+		int n_bbo = strlen(src_bbool);
+		REQUIRE(!cnt_case.get_type_and_shape(p_bbo, n_bbo, &item_hea, dims));
+
 		cnt_case.destroy_transaction(p_back);
 		cnt_case.destroy_transaction(p_ser);
 		cnt_case.destroy_transaction(p_utf);
