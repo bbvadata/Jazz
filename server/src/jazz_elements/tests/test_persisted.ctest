@@ -1077,7 +1077,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 
 			THEN("We get expected structure") {
 				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -1130,7 +1130,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				REQUIRE(PER.put((pChar) "//lmdb/ent_one/~last", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
 
 				REQUIRE(PER.header(p_txn, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -1155,7 +1155,7 @@ SCENARIO("Strong End-to-end lmdb tests") {
 				StaticBlockHeader hea;
 
 				REQUIRE(PER.header(hea, (pChar) "//lmdb/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(hea.size == 2);
 				REQUIRE(hea.rank == 1);
 

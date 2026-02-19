@@ -2769,7 +2769,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 			REQUIRE(p_tx_knd3->p_block->hash64 == 0);
 
 			THEN("we get the expected blocks") {
-				REQUIRE(p_tx_tup1->p_block->cell_type	 == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_tx_tup1->p_block->cell_type	 == CELL_TYPE_TUPLE);
 				REQUIRE(p_tx_tup1->p_block->rank		 == 1);
 				REQUIRE(p_tx_tup1->p_block->range.dim[0] == 1);
 				REQUIRE(p_tx_tup1->p_block->size		 == 4);
@@ -2855,7 +2855,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(p_tuple->audit() == MIXED_TYPE_TUPLE);
 
-				REQUIRE(p_tx_tup2->p_block->cell_type	 == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_tx_tup2->p_block->cell_type	 == CELL_TYPE_TUPLE);
 				REQUIRE(p_tx_tup2->p_block->rank		 == 1);
 				REQUIRE(p_tx_tup2->p_block->range.dim[0] == 1);
 				REQUIRE(p_tx_tup2->p_block->size		 == 2);
@@ -2899,7 +2899,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(p_tuple->audit() == MIXED_TYPE_TUPLE);
 
-				REQUIRE(p_tx_tup3->p_block->cell_type	 == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_tx_tup3->p_block->cell_type	 == CELL_TYPE_TUPLE);
 				REQUIRE(p_tx_tup3->p_block->rank		 == 1);
 				REQUIRE(p_tx_tup3->p_block->range.dim[0] == 1);
 				REQUIRE(p_tx_tup3->p_block->size		 == 1);
@@ -2927,7 +2927,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(p_tuple->audit() == MIXED_TYPE_TUPLE);
 
-				REQUIRE(p_tx_knd1->p_block->cell_type	 == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_tx_knd1->p_block->cell_type	 == CELL_TYPE_TUPLE_KIND);
 				REQUIRE(p_tx_knd1->p_block->rank		 == 1);
 				REQUIRE(p_tx_knd1->p_block->range.dim[0] == 1);
 				REQUIRE(p_tx_knd1->p_block->size		 == 4);
@@ -2959,7 +2959,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(p_kind->audit() == MIXED_TYPE_KIND);
 
-				REQUIRE(p_tx_knd2->p_block->cell_type	 == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_tx_knd2->p_block->cell_type	 == CELL_TYPE_TUPLE_KIND);
 				REQUIRE(p_tx_knd2->p_block->rank		 == 1);
 				REQUIRE(p_tx_knd2->p_block->range.dim[0] == 1);
 				REQUIRE(p_tx_knd2->p_block->size		 == 2);
@@ -2991,7 +2991,7 @@ SCENARIO("Testing new_block() (2) Create a Kind or Tuple") {
 
 				REQUIRE(p_kind->audit() == MIXED_TYPE_KIND);
 
-				REQUIRE(p_tx_knd3->p_block->cell_type	 == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_tx_knd3->p_block->cell_type	 == CELL_TYPE_TUPLE_KIND);
 				REQUIRE(p_tx_knd3->p_block->rank		 == 1);
 				REQUIRE(p_tx_knd3->p_block->range.dim[0] == 1);
 				REQUIRE(p_tx_knd3->p_block->size		 == 1);
@@ -5344,28 +5344,28 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(x_dou->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_dou->p_block->hash64 == 0);
 
-				REQUIRE(CNT.new_block(x_ki1, s_ki1->p_block, CELL_TYPE_KIND_ITEM) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(x_ki1, s_ki1->p_block, CELL_TYPE_TUPLE_KIND) == SERVICE_NO_ERROR);
 				REQUIRE(x_ki1->p_block != nullptr);
 				REQUIRE(x_ki1->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_ki1->p_block->hash64 == 0);
 
 				REQUIRE(reinterpret_cast<pKind>(x_ki1->p_block)->audit() == MIXED_TYPE_KIND);
 
-				REQUIRE(CNT.new_block(x_ki2, s_ki2->p_block, CELL_TYPE_KIND_ITEM) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(x_ki2, s_ki2->p_block, CELL_TYPE_TUPLE_KIND) == SERVICE_NO_ERROR);
 				REQUIRE(x_ki2->p_block != nullptr);
 				REQUIRE(x_ki2->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_ki2->p_block->hash64 == 0);
 
 				REQUIRE(reinterpret_cast<pKind>(x_ki2->p_block)->audit() == MIXED_TYPE_KIND);
 
-				REQUIRE(CNT.new_block(x_tp1, s_tp1->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(x_tp1, s_tp1->p_block, CELL_TYPE_TUPLE, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp1->p_block != nullptr);
 				REQUIRE(x_tp1->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_tp1->p_block->hash64 == 0);
 
 				REQUIRE(reinterpret_cast<pTuple>(x_tp1->p_block)->audit() == MIXED_TYPE_TUPLE);
 
-				REQUIRE(CNT.new_block(x_tp2, s_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(x_tp2, s_tp2->p_block, CELL_TYPE_TUPLE, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp2->p_block != nullptr);
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_tp2->p_block->hash64 == 0);
@@ -5374,7 +5374,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				CNT.destroy_transaction(x_tp2);
 
-				REQUIRE(CNT.new_block(x_tp2, z_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(x_tp2, z_tp2->p_block, CELL_TYPE_TUPLE, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp2->p_block != nullptr);
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_tp2->p_block->hash64 == 0);
@@ -5383,7 +5383,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				CNT.destroy_transaction(x_tp2);
 
-				REQUIRE(CNT.new_block(x_tp2, t_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(x_tp2, t_tp2->p_block, CELL_TYPE_TUPLE, (pKind) p_ki2->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp2->p_block != nullptr);
 				REQUIRE(x_tp2->status  == BLOCK_STATUS_READY);
 				REQUIRE(x_tp2->p_block->hash64 == 0);
@@ -5420,14 +5420,14 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(y_dou->status  == BLOCK_STATUS_READY);
 				REQUIRE(y_dou->p_block->hash64 == 0);
 
-				REQUIRE(CNT.new_block(y_ki1, f_ki1->p_block, CELL_TYPE_KIND_ITEM) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(y_ki1, f_ki1->p_block, CELL_TYPE_TUPLE_KIND) == SERVICE_NO_ERROR);
 				REQUIRE(y_ki1->p_block != nullptr);
 				REQUIRE(y_ki1->status  == BLOCK_STATUS_READY);
 				REQUIRE(y_ki1->p_block->hash64 == 0);
 
 				REQUIRE(reinterpret_cast<pKind>(y_ki1->p_block)->audit() == MIXED_TYPE_KIND);
 
-				REQUIRE(CNT.new_block(y_tp1, f_tp1->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
+				REQUIRE(CNT.new_block(y_tp1, f_tp1->p_block, CELL_TYPE_TUPLE, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(y_tp1->p_block != nullptr);
 				REQUIRE(y_tp1->status  == BLOCK_STATUS_READY);
 				REQUIRE(y_tp1->p_block->hash64 == 0);
@@ -5572,15 +5572,15 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				REQUIRE(x_err == nullptr);
 
 				x_err = s_byt;
-				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_KIND_ITEM) == PARSE_ERROR_UNEXPECTED_CHAR);
+				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_TUPLE_KIND) == PARSE_ERROR_UNEXPECTED_CHAR);
 				REQUIRE(x_err == nullptr);
 
 				x_err = s_byt;
-				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_TUPLE_ITEM) == PARSE_ERROR_UNEXPECTED_CHAR);
+				REQUIRE(CNT.new_block(x_err, s_byt->p_block, CELL_TYPE_TUPLE) == PARSE_ERROR_UNEXPECTED_CHAR);
 				REQUIRE(x_err == nullptr);
 
 				x_err = s_byt;
-				REQUIRE(   CNT.new_block(x_err, s_tp2->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_ki1->p_block)
+				REQUIRE(   CNT.new_block(x_err, s_tp2->p_block, CELL_TYPE_TUPLE, (pKind) p_ki1->p_block)
 						== PARSE_ERROR_ITEM_NAME_MISMATCH);
 				REQUIRE(x_err == nullptr);
 
@@ -5920,7 +5920,7 @@ SCENARIO("Testing new_block() (8) Create Tuple from Index") {
 			THEN("We check everything inside") {
 				pTuple tup = (pTuple) p_tup_ii->p_block;
 
-				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(tup->rank == 1);
 				REQUIRE(tup->size == 2);
 
@@ -5959,7 +5959,7 @@ SCENARIO("Testing new_block() (8) Create Tuple from Index") {
 
 				tup = (pTuple) p_tup_is->p_block;
 
-				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(tup->rank == 1);
 				REQUIRE(tup->size == 2);
 
@@ -6015,7 +6015,7 @@ SCENARIO("Testing new_block() (8) Create Tuple from Index") {
 
 				tup = (pTuple) p_tup_si->p_block;
 
-				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(tup->rank == 1);
 				REQUIRE(tup->size == 2);
 
@@ -6036,7 +6036,7 @@ SCENARIO("Testing new_block() (8) Create Tuple from Index") {
 
 				tup = (pTuple) p_tup_ss->p_block;
 
-				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(tup->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(tup->rank == 1);
 				REQUIRE(tup->size == 2);
 

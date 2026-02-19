@@ -72,7 +72,7 @@ SCENARIO("Testing kind") {
 		AttributeMap attr = {}, dims = {}, empty_dims = {};
 
 		attr[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) &nam_bl_type;
-		attr[BLOCK_ATTRIB_SOURCE]	 = (pChar) &nam_at_type;
+		attr[BLOCK_ATTRIB_KIND_DEF]	 = (pChar) &nam_at_type;
 
 		REQUIRE(p_kind1->new_kind(1, 4096, &attr) == SERVICE_NO_ERROR);
 
@@ -145,7 +145,7 @@ SCENARIO("Testing kind") {
 			REQUIRE(p_kind1->audit() == MIXED_TYPE_KIND);
 
 			THEN("We can check a few things") {
-				REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind1->cell_type	  == CELL_TYPE_TUPLE_KIND);
 				REQUIRE(p_kind1->rank		  == 1);
 				REQUIRE(p_kind1->range.dim[0] == 1);
 				REQUIRE(p_kind1->size		  == 1);
@@ -163,7 +163,7 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind1->index((pChar) "buffer ")  == -1);
 
 				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+				REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_KIND_DEF),	"sys.kinds.ThisKind"));
 
 				Dimensions dims = {};
 				p_kind1->dimensions(dims);
@@ -176,7 +176,7 @@ SCENARIO("Testing kind") {
 			REQUIRE(p_kind2->audit() == MIXED_TYPE_INVALID);
 
 			THEN("We can check a few types") {
-				REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind2->cell_type	  == CELL_TYPE_TUPLE_KIND);
 				REQUIRE(p_kind2->rank		  == 1);
 				REQUIRE(p_kind2->range.dim[0] == 1);
 				REQUIRE(p_kind2->size		  == 2);
@@ -199,7 +199,7 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind2->index((pChar) "_titlee") == -1);
 
 				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+				REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_KIND_DEF),	"sys.kinds.ThisKind"));
 
 				Dimensions dims = {};
 				p_kind2->dimensions(dims);
@@ -215,7 +215,7 @@ SCENARIO("Testing kind") {
 			REQUIRE(p_kind3->audit() == MIXED_TYPE_INVALID);
 
 			THEN("We can check a few types") {
-				REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
+				REQUIRE(p_kind3->cell_type	  == CELL_TYPE_TUPLE_KIND);
 				REQUIRE(p_kind3->rank		  == 1);
 				REQUIRE(p_kind3->range.dim[0] == 1);
 				REQUIRE(p_kind3->size		  == 3);
@@ -243,7 +243,7 @@ SCENARIO("Testing kind") {
 				REQUIRE(p_kind3->index((pChar) "wave ")  == -1);
 
 				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+				REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_KIND_DEF),	"sys.kinds.ThisKind"));
 
 				Dimensions dims = {};
 				p_kind3->dimensions(dims);
@@ -259,7 +259,7 @@ SCENARIO("Testing kind") {
 		WHEN("Kind 4 fails .audit()") {
 			REQUIRE(p_kind4->audit() == MIXED_TYPE_INVALID);
 
-			p_kind4->cell_type = CELL_TYPE_TUPLE_ITEM;
+			p_kind4->cell_type = CELL_TYPE_TUPLE;
 			REQUIRE(p_kind4->audit() == MIXED_TYPE_INVALID);
 		}
 

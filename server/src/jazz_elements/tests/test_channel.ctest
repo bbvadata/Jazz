@@ -431,7 +431,7 @@ SCENARIO("Testing bash end-to-end") {
 			CHN.can_bash = 1;
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
-			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
@@ -621,7 +621,7 @@ SCENARIO("Testing file end-to-end") {
 
 				p_blk = p_txn->p_block;
 
-				REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_blk->size == 2);
 				REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 				REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -656,7 +656,7 @@ SCENARIO("Testing file end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1189,7 +1189,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
-			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
@@ -1204,7 +1204,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
-			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
@@ -1355,7 +1355,7 @@ SCENARIO("Testing http end-to-end") {
 		pTuple p_tup;
 		pBlock p_key, p_val, p_blk = p_tx_tp1->p_block;
 
-		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 		REQUIRE(p_blk->size == 2);
 		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 		REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1379,7 +1379,7 @@ SCENARIO("Testing http end-to-end") {
 
 		p_blk = p_tx_tp1->p_block;
 
-		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 		REQUIRE(p_blk->size == 2);
 		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 		REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1484,7 +1484,7 @@ SCENARIO("Testing http end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1535,7 +1535,7 @@ SCENARIO("Testing http end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1573,7 +1573,7 @@ SCENARIO("Testing http end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);

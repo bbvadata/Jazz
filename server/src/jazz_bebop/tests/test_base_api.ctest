@@ -2479,7 +2479,7 @@ SCENARIO("Testing BaseAPI protected: move_const(), get_right_local(), get_right_
 
 		p_txn = (pTransaction) &q_state;
 		REQUIRE(BAPI.block_from_const(p_txn, (pChar) "(echo \"2 + 2 = $(expr 2 + 2)\")", true));
-		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 
 		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_PUT));
 		REQUIRE(BAPI.put(q_state, p_txn->p_block) == SERVICE_NO_ERROR);
@@ -2489,7 +2489,7 @@ SCENARIO("Testing BaseAPI protected: move_const(), get_right_local(), get_right_
 		p_txn = (pTransaction) &q_state;
 		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
 		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
-		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 		p_txn->p_owner->destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
@@ -2684,7 +2684,7 @@ SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
 
 		p_txn = (pTransaction) &q_state;
 		REQUIRE(BAPI.block_from_const(p_txn, (pChar) "(echo \"2 + 2 = $(expr 2 + 2)\")", true));
-		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 
 		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_PUT));
 		REQUIRE(BAPI.put(q_state, p_txn->p_block) == SERVICE_NO_ERROR);
@@ -2694,7 +2694,7 @@ SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
 		p_txn = (pTransaction) &q_state;
 		REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
 		REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
-		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 		p_txn->p_owner->destroy_transaction(p_txn);
 		REQUIRE(p_txn == nullptr);
 
@@ -2772,7 +2772,7 @@ SCENARIO("Testing BaseAPI: header(), get(), put(), delete()") {
 		WHEN("We test put()") {
 			REQUIRE(BAPI.parse(q_state, (pChar) "//lmdb/tt3bapi/bl3", BASE_API_GET));
 			REQUIRE(BAPI.get(p_txn, q_state) == SERVICE_NO_ERROR);
-			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 
 			REQUIRE(BAPI.parse(q_state, (pChar) "//base/entity/key", BASE_API_PUT));
 			q_state.apply = APPLY_JAZZ_INFO;

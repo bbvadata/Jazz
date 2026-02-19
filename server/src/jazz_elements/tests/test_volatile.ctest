@@ -1066,7 +1066,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_four/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				pTuple p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -1079,7 +1079,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_five/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -1093,7 +1093,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -1104,7 +1104,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_nope/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -1654,7 +1654,7 @@ SCENARIO("Strong End-to-end deque tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.header(p_txn, (pChar) "//deque/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -1679,7 +1679,7 @@ SCENARIO("Strong End-to-end deque tests") {
 				StaticBlockHeader hea;
 
 				REQUIRE(VOL.header(hea, (pChar) "//deque/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(hea.size == 2);
 				REQUIRE(hea.rank == 1);
 
@@ -2179,7 +2179,7 @@ SCENARIO("Strong End-to-end queue tests") {
 
 			THEN("We get expected structure") {
 				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -2815,7 +2815,7 @@ SCENARIO("Strong End-to-end tree tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.header(p_txn, (pChar) "//tree/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -2840,7 +2840,7 @@ SCENARIO("Strong End-to-end tree tests") {
 				StaticBlockHeader hea;
 
 				REQUIRE(VOL.header(hea, (pChar) "//tree/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(hea.size == 2);
 				REQUIRE(hea.rank == 1);
 

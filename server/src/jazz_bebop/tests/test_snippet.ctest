@@ -72,9 +72,9 @@ SCENARIO("Testing Snippet") {
 			REQUIRE(p_aux->p_block->cell_type == CELL_TYPE_STRING);
 			REQUIRE(p_aux->p_block->size == 1);
 
-			REQUIRE(BAPI.new_block(p_kind, p_aux->p_block, CELL_TYPE_KIND_ITEM, nullptr, nullptr) == 0);
+			REQUIRE(BAPI.new_block(p_kind, p_aux->p_block, CELL_TYPE_TUPLE_KIND, nullptr, nullptr) == 0);
 			REQUIRE(p_kind != nullptr);
-			REQUIRE(p_kind->p_block->cell_type == CELL_TYPE_KIND_ITEM);
+			REQUIRE(p_kind->p_block->cell_type == CELL_TYPE_TUPLE_KIND);
 			REQUIRE(p_kind->p_block->size == 8);
 
 			p_aux->p_owner->destroy_transaction(p_aux);
@@ -90,9 +90,9 @@ SCENARIO("Testing Snippet") {
 			attr[BLOCK_ATTRIB_SNIPSTATE] = SNIPSTATE_SOURCE_COMPILED;
 			attr[BLOCK_ATTRIB_SNIPVERS]	 = SNIPPET_VERSION;
 
-			REQUIRE(BAPI.new_block(p_snip, p_aux->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_kind->p_block, &attr) == 0);
+			REQUIRE(BAPI.new_block(p_snip, p_aux->p_block, CELL_TYPE_TUPLE, (pKind) p_kind->p_block, &attr) == 0);
 			REQUIRE(p_snip != nullptr);
-			REQUIRE(p_snip->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_snip->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_snip->p_block->size == 8);
 
 			p_aux->p_owner->destroy_transaction(p_aux);
@@ -145,9 +145,9 @@ SCENARIO("Testing Snippet") {
 
 			attr[BLOCK_ATTRIB_SNIPSTATE] = SNIPSTATE_FAILED_SRC_COMPILE;
 
-			REQUIRE(BAPI.new_block(p_empt, p_aux->p_block, CELL_TYPE_TUPLE_ITEM, (pKind) p_kind->p_block, &attr) == 0);
+			REQUIRE(BAPI.new_block(p_empt, p_aux->p_block, CELL_TYPE_TUPLE, (pKind) p_kind->p_block, &attr) == 0);
 			REQUIRE(p_empt != nullptr);
-			REQUIRE(p_empt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_empt->p_block->cell_type == CELL_TYPE_TUPLE);
 
 			p_aux->p_owner->destroy_transaction(p_aux);
 
