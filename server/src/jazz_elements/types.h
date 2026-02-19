@@ -154,21 +154,18 @@ at [host]/develop/rfc2/jazz_actor_model.html
 
 #define BLOCK_ATTRIB_
 
-//TODO: Refactor almost everything under BLOCK_ATTRIB_
-// BLOCK_ATTRIB_BLOCKTYPE, BLOCK_ATTRIB_SOURCE are not used outside remarks and tests in which they are set in the test.
-// BLOCK_ATTRIB_SNIPSTATE, BLOCK_ATTRIB_SNIPVERS are obsolete.
-// BLOCK_ATTRIB_DEST is not used at all.
+#define BLOCK_ATTRIB_BLOCKTYPE		1		///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
+#define BLOCK_ATTRIB_KIND_DEF		2		///< The location of the definition of the Kind of any Block descendant.
+#define BLOCK_ATTRIB_HOME			3		///< The location of the this Block in Persisted.
+#define BLOCK_ATTRIB_MIMETYPE		4		///< HTTP static API: The mime type (can be anything. E.g., "Adobe PhotoShop Image")
+#define BLOCK_ATTRIB_URL			5		///< HTTP static API: A url for the server to expose the file by.
+#define BLOCK_ATTRIB_LANGUAGE		6		///< HTTP static API: An http language identifier that will be returned in an API GET call.
 
-#define BLOCK_ATTRIB_BLOCKTYPE	1			///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
-#define BLOCK_ATTRIB_SOURCE		2			///< The location of the source set by Channels, also Source of a Kind in Persisted
-#define BLOCK_ATTRIB_DEST		3			///< The location of the destination. Less frequent, but may help Channels for a PUT.
-#define BLOCK_ATTRIB_MIMETYPE	4			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
-#define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
-#define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
-#define BLOCK_ATTRIB_SNIPSTATE	7			///< The compilation/running state of a Snippet.
-#define BLOCK_ATTRIB_SNIPVERS	8			///< The Snippet interface version.
+#define BLOCK_ATTRIB_BASE_BOP	  100		///< Base for block attributes in the namespace jazz_bebop. (Defined outside jazz_elements.)
+#define BLOCK_ATTRIB_BASE_MODELS  200		///< Base for block attributes in the namespace jazz_models. (Defined outside jazz_elements.)
 
 /// Values for argument set_has_NA of close_block()
+
 #define SET_HAS_NA_
 
 #define SET_HAS_NA_FALSE		0			///< Set to false without checking

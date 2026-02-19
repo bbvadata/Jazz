@@ -107,6 +107,8 @@ const char SNIPSTATE_FAILED_RUN_SOURCE[]	= "sxo!";	///< The snippet failed to ru
 #define SNIP_INDEX_SOURCE		6						///< The index of the source code in a Snippet
 #define SNIP_INDEX_WRITES		7						///< The index of the writes code in a Snippet
 
+#define BLOCK_ATTRIB_SNIPSTATE	(BLOCK_ATTRIB_BASE_BOP + 1)		///< The compilation/running state of a Snippet.
+#define BLOCK_ATTRIB_SNIPVERS	(BLOCK_ATTRIB_BASE_BOP + 2)		///< The Snippet interface version.
 
 /** \brief A SnippetText is a vector of strings
 
