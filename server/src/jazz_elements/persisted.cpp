@@ -384,6 +384,8 @@ For Tuples, it does what you expect: returning a Block with the metadata of all 
 */
 StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 
+//TODO: Add support for CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND.
+
 	pMDB_txn p_l_txn;
 
 	pBlock p_blx = lock_pointer_to_block(what, p_l_txn);

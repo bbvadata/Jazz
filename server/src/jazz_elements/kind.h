@@ -253,6 +253,23 @@ class Kind : public Block {
 			return true;
 		}
 
+//TODO: Document new_object_kind()
+		inline bool new_object_kind(char const   *p_def,
+									char		  sep,
+			   						AttributeMap *att = nullptr) {
+//TODO: Implement new_object_kind
+			return false;
+		}
+
+//TODO: Document to_block_kind()
+		inline bool to_block_kind() {
+			if (size != 1 || cell_type != CELL_TYPE_TUPLE_KIND)
+				return false;
+
+			cell_type = CELL_TYPE_BLOCK_KIND;
+			return true;
+		}
+
 		int audit();
 };
 typedef Kind *pKind;		///< A pointer to a Kind object

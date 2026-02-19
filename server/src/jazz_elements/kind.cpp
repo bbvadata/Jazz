@@ -45,6 +45,7 @@ namespace jazz_elements
 	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */
 int Kind::audit() {
+//TODO: Add support for CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND.
 	if (cell_type != CELL_TYPE_TUPLE_KIND || size <= 0)
 		return MIXED_TYPE_INVALID;
 

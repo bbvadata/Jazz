@@ -489,6 +489,8 @@ For Tuples, it does what you expect: returning a Block with the metadata of all 
 */
 StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 
+//TODO: Add support for CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND.
+
 	pTransaction p_int_txn;
 	pString		 p_str;
 	uint64_t	 pop_ent;

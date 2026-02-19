@@ -743,6 +743,8 @@ SCENARIO("Testing LMDB entity and key names.") {
 
 SCENARIO("Strong End-to-end lmdb tests") {
 
+//TODO: Extend tests for header() that include: CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND
+
 	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
 	REQUIRE(strstr(PER.id(), "Persisted from Jazz") != nullptr);

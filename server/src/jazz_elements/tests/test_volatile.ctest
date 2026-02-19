@@ -807,6 +807,8 @@ SCENARIO("Coverage hunting low-covered Volatile branches") {
 
 SCENARIO("Strong End-to-end index tests") {
 
+//TODO: Extend tests for header() that include: CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND
+
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
 
 	REQUIRE(VOL.max_transactions > 0);

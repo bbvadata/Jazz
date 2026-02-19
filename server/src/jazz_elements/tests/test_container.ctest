@@ -4773,6 +4773,8 @@ SCENARIO("Testing new_block() (4) Create a Tensor by selecting an item from a Tu
 
 SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing.") {
 
+//TODO: Extend testing for new_block() (5)/(6) involving creation/serialization with CELL_TYPE_BLOCK_KIND/CELL_TYPE_OBJECT_KIND.
+
 	REQUIRE(2*MAX_TENSOR_RANK + 3 < MAX_SIZE_OF_CELL_AS_TEXT);
 
 	long long now64;

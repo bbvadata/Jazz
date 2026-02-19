@@ -1196,6 +1196,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								pKind		  p_as_kind,
 								AttributeMap *att) {
 
+//TODO: Add support for creating CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND from text.
+
 	pChar p_source;
 	int	  source_l;
 	switch (p_from_text->cell_type) {
@@ -1477,6 +1479,9 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  p_fmt,
 								bool		  ret_as_string,
 								AttributeMap *att) {
+
+
+//TODO: Add support for serializing a CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND.
 
 	int item_len[MAX_ITEMS_IN_KIND];
 	int total_bytes;

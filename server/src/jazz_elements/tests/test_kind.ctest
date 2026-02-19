@@ -44,6 +44,9 @@ using namespace jazz_elements;
 // Tests
 // -----
 
+//TODO: Include new_object_kind() in tests.
+//TODO: Include to_block_kind() in tests.
+
 SCENARIO("Testing kind") {
 
 	GIVEN("We have some kinds") {
