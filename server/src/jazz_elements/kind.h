@@ -61,12 +61,23 @@ strings.
 It is a block with special attributes to store an array of Tensor. A Kind is a single Block! A kind has **dimensions** which are integer
 variables that are used to define variable shapes.
 
-Technically, a Kind is a Block of type CELL_TYPE_KIND_ITEM. Each item contains the Tensor metadata.
+Technically, a Kind is a Block of type CELL_TYPE_TUPLE_KIND. Each item contains the Tensor metadata.
 
-Since kinds keep only metadata, the space, unlike in Tuples, is uninterrupted as in a normal block: (header, vector of CELL_TYPE_KIND_ITEM,
+Since kinds keep only metadata, the space, unlike in Tuples, is uninterrupted as in a normal block: (header, vector of CELL_TYPE_TUPLE_KIND,
 attribute keys, StringBuffer).
 
 The StringBuffer contains the item names and dimension names.
+
+How Bebop uses Kinds
+--------------------
+
+In Bebop, Kinds are not only the definition of the metadata of a Tuple, but the type of any object. Bop uses Kind instead of "type" because
+"type" is the data type of the Tensors, Kind is a higher level concept. A Kind can just be: CELL_TYPE_BLOCK_KIND (a single ItemHeader)
+that defines the type of the block, CELL_TYPE_TUPLE_KIND (as before Bop-26) the kind of a Tuple or CELL_TYPE_OBJECT_KIND (which is an
+array or string) with the definition of the kind of an object (which is a path in a hierarchy of object kinds).
+
+Bop uses the attributes: BLOCK_ATTRIB_KIND_DEF (to keep the definition of all the kinds in persistence and assign kinds to objects) and
+BLOCK_ATTRIB_HOME
 
 Creating Kinds
 --------------
@@ -77,7 +88,9 @@ build by parts: new_kind(), add_item() to do the basic building. It also has fun
 Also, kinds should define, these attributes, but that is left to the Container:
 
 - BLOCK_ATTRIB_BLOCKTYPE as the const "Kind"
-- BLOCK_ATTRIB_SOURCE as the location where the definition of the Kind can be found. Kind names are global.
+- BLOCK_ATTRIB_KIND_DEF as the location where the definition of the Kind of any object can be found. Kind names are global.
+- BLOCK_ATTRIB_HOME is the location of any object in persistence. The BLOCK_ATTRIB_HOME of a Kind is the BLOCK_ATTRIB_KIND_DEF of all the
+objects of that Kind.
 
 */
 class Kind : public Block {
@@ -159,7 +172,7 @@ class Kind : public Block {
 
 			memset(&cell_type, 0, num_bytes);
 
-			cell_type	 = CELL_TYPE_KIND_ITEM;
+			cell_type	 = CELL_TYPE_TUPLE_KIND;
 			rank		 = 1;
 			range.dim[0] = 1;
 			size		 = num_items;
