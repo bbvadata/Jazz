@@ -405,8 +405,8 @@ StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 	int hea_size = sizeof(StaticBlockHeader);
 
 	switch (p_blx->cell_type) {
-	case CELL_TYPE_TUPLE_ITEM:
-	case CELL_TYPE_KIND_ITEM:
+	case CELL_TYPE_TUPLE:
+	case CELL_TYPE_TUPLE_KIND:
 		hea_size += p_blx->size*sizeof(ItemHeader);
 	}
 

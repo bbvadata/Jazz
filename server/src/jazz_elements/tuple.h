@@ -64,9 +64,9 @@ Physically, like a Kind, it is a single block with some differences:
 - It holds data and metadata.
 - It has constant values for the dimensions.
 - It has a one step creation process: new_tuple().
-- It also stores all the Blocks "as is" in the same space (after its header, vector of CELL_TYPE_KIND_ITEM, attribute keys and StringBuffer)
+- It also stores all the Blocks "as is" in the same space (after its header, vector of CELL_TYPE_TUPLE_KIND, attribute keys and StringBuffer)
 - The data stored &tensor is the metadata (like in a Kind) and the method .block(item) returns a pointer to each Block.
-- A Tuple is a Block of type CELL_TYPE_TUPLE_ITEM (instead of CELL_TYPE_KIND_ITEM).
+- A Tuple is a Block of type CELL_TYPE_TUPLE (instead of CELL_TYPE_TUPLE_KIND).
 - The StringBuffer contains the item names and Tuple attributes. Blocks may have their own StringBuffers
 
 Also, Tuples should define, if the Container sets them as expected, the attribute:
@@ -126,7 +126,7 @@ class Tuple : public Block {
 
 			memset(&cell_type, 0, rq_sz);
 
-			cell_type	 = CELL_TYPE_TUPLE_ITEM;
+			cell_type	 = CELL_TYPE_TUPLE;
 			rank		 = 1;
 			range.dim[0] = 1;
 			size		 = num_items;
@@ -234,7 +234,7 @@ class Tuple : public Block {
 			\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
 		*/
 		inline bool is_a(pKind kind) {
-			if (kind->cell_type != CELL_TYPE_KIND_ITEM || kind->size != size)
+			if (kind->cell_type != CELL_TYPE_TUPLE_KIND || kind->size != size)
 				return false;
 
 			std::map<String, int> dimension;

@@ -326,7 +326,7 @@ class Volatile : public Container {
 		*/
 		inline StatusCode populate_index(Index &index, pBlock p_block) {
 
-			if (p_block->cell_type != CELL_TYPE_TUPLE_ITEM || p_block->size != 2)
+			if (p_block->cell_type != CELL_TYPE_TUPLE || p_block->size != 2)
 				return SERVICE_ERROR_BAD_BLOCK;
 
 			pBlock p_key = pTuple(p_block)->get_block(0);

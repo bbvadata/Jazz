@@ -660,7 +660,7 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 			pTuple p_tup;
 			pBlock p_key, p_val;
 
-			if (	p_block->cell_type != CELL_TYPE_TUPLE_ITEM || p_block->size != 2
+			if (	p_block->cell_type != CELL_TYPE_TUPLE || p_block->size != 2
 				|| (p_tup = (pTuple) p_block)->index((pChar) "key") != 0 || p_tup->index((pChar) "value") != 1
 				|| (p_key = p_tup->get_block(0))->cell_type != CELL_TYPE_STRING || p_key->rank != 1
 				|| (p_val = p_tup->get_block(1))->cell_type != CELL_TYPE_STRING || p_val->rank != 1
@@ -948,7 +948,7 @@ to run their own models.
 */
 StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
-	if (   p_args->cell_type != CELL_TYPE_TUPLE_ITEM || p_args->size != 2
+	if (   p_args->cell_type != CELL_TYPE_TUPLE || p_args->size != 2
 		|| p_args->index((pChar) "input") != 0 || p_args->index((pChar) "result") != 1)
 		return SERVICE_ERROR_WRONG_ARGUMENTS;
 

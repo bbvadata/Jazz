@@ -45,7 +45,7 @@ namespace jazz_elements
 	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */
 int Kind::audit() {
-	if (cell_type != CELL_TYPE_KIND_ITEM || size <= 0)
+	if (cell_type != CELL_TYPE_TUPLE_KIND || size <= 0)
 		return MIXED_TYPE_INVALID;
 
 	std::set <int> items;

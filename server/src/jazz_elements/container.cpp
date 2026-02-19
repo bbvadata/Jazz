@@ -847,9 +847,9 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 	i_dim.dim[1] = 0;
 
 	if (p_block == nullptr)
-		hea.cell_type = CELL_TYPE_KIND_ITEM;
+		hea.cell_type = CELL_TYPE_TUPLE_KIND;
 	else
-		hea.cell_type = CELL_TYPE_TUPLE_ITEM;
+		hea.cell_type = CELL_TYPE_TUPLE;
 
 	reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
 
@@ -1152,7 +1152,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  name,
 								AttributeMap *att) {
 
-	if (p_from->cell_type != CELL_TYPE_TUPLE_ITEM) {
+	if (p_from->cell_type != CELL_TYPE_TUPLE) {
 		p_txn = nullptr;
 
 		return SERVICE_ERROR_WRONG_TYPE;
@@ -1234,14 +1234,14 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	if (cell_type == CELL_TYPE_UNDEFINED) {
 		if (*p_in == '(')
-			cell_type = CELL_TYPE_TUPLE_ITEM;
+			cell_type = CELL_TYPE_TUPLE;
 
 		if (*p_in == '{')
-			cell_type = CELL_TYPE_KIND_ITEM;
+			cell_type = CELL_TYPE_TUPLE_KIND;
 	}
 
 	switch (cell_type) {
-	case CELL_TYPE_TUPLE_ITEM: {
+	case CELL_TYPE_TUPLE: {
 		if (get_char(p_in, num_bytes) != '(')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
 
@@ -1289,7 +1289,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 	}
-	case CELL_TYPE_KIND_ITEM: {
+	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
 		if (get_char(p_in, num_bytes) != '{')
@@ -1344,7 +1344,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	skip_space(p_in, num_bytes);
 
 	switch (cell_type) {
-	case CELL_TYPE_TUPLE_ITEM: {
+	case CELL_TYPE_TUPLE: {
 		pTransaction p_aux_txn[MAX_ITEMS_IN_KIND];
 
 		get_char(p_in, num_bytes);		// '(')
@@ -1401,7 +1401,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		return ret;
 	}
-	case CELL_TYPE_KIND_ITEM: {
+	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
 		get_char(p_in, num_bytes);		// '{')
@@ -1530,7 +1530,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 
-	case CELL_TYPE_TUPLE_ITEM:
+	case CELL_TYPE_TUPLE:
 		total_bytes = tensor_tuple_as_text((pTuple) p_from_raw, nullptr, p_fmt, item_len);
 
 		if (total_bytes == 0)
@@ -1538,7 +1538,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 
-	case CELL_TYPE_KIND_ITEM:
+	case CELL_TYPE_TUPLE_KIND:
 		total_bytes = tensor_kind_as_text((pKind) p_from_raw, nullptr);
 
 		if (total_bytes == 0)
@@ -1592,7 +1592,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 
-	case CELL_TYPE_TUPLE_ITEM:
+	case CELL_TYPE_TUPLE:
 		tensor_tuple_as_text((pTuple) p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt, item_len);
 
 		break;
@@ -4309,7 +4309,7 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 		}
 		break;
 
-	case CELL_TYPE_KIND_ITEM:
+	case CELL_TYPE_TUPLE_KIND:
 		for (int i = 0; i < p_bl1->size; i++) {
 			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
 				all_cells_equal = false;
@@ -4340,7 +4340,7 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 		}
 		break;
 
-	case CELL_TYPE_TUPLE_ITEM:
+	case CELL_TYPE_TUPLE:
 		for (int i = 0; i < p_bl1->size; i++) {
 			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
 				all_cells_equal = false;

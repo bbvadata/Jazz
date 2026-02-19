@@ -45,7 +45,7 @@ namespace jazz_elements
 int Tuple::audit() {
 	int dims[MAX_TENSOR_RANK];
 
-	if (cell_type != CELL_TYPE_TUPLE_ITEM || size <= 0)
+	if (cell_type != CELL_TYPE_TUPLE || size <= 0)
 		return MIXED_TYPE_INVALID;
 
 	for (int i = 0; i < size; i++) {

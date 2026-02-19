@@ -420,7 +420,7 @@ class Block: public StaticBlockHeader {
 #ifdef DEBUG	// Initialize the RAM between the end of the string buffer and last allocated byte for Valgrind.
 
 			void *p_start;
-			if (cell_type != CELL_TYPE_TUPLE_ITEM) {
+			if (cell_type != CELL_TYPE_TUPLE) {
 				pStringBuffer psb = p_string_buffer();
 				p_start			  = &psb->buffer[psb->last_idx];
 			} else {
