@@ -44,16 +44,13 @@ using namespace jazz_elements;
 // Tests
 // -----
 
-//TODO: Include new_object_kind() in tests.
-//TODO: Include to_block_kind() in tests.
-
 SCENARIO("Testing kind") {
 
 	GIVEN("We have some kinds") {
-		char a1[4096], a2[4096], a3[4096], a4[4096], a5[4096], a6[4096];
+		char a1[4096], a2[4096], a3[4096], a4[4096], a5[4096], a6[4096], a7[4096], a8[4096];
 
-		pKind p_kind1 = (pKind) &a1, p_kind2 = (pKind) &a2, p_kind3 = (pKind) &a3;
-		pKind p_kind4 = (pKind) &a4, p_kind5 = (pKind) &a5, p_kind6 = (pKind) &a6;
+		pKind p_kind1 = (pKind) &a1, p_kind2 = (pKind) &a2, p_kind3 = (pKind) &a3, p_kind4 = (pKind) &a4;
+		pKind p_kind5 = (pKind) &a5, p_kind6 = (pKind) &a6, p_kind7 = (pKind) &a7, p_kind8 = (pKind) &a8;
 
 		Name nam_bl_type = "kind";
 		Name nam_at_type = "sys.kinds.ThisKind";
@@ -90,6 +87,46 @@ SCENARIO("Testing kind") {
 
 		REQUIRE(p_kind2->add_item(0, nam_buffer, image_rgb.dim, CELL_TYPE_BYTE,	  &dims));
 		REQUIRE(p_kind2->add_item(1, nam_title_, one_cell.dim,  CELL_TYPE_STRING, &dims));
+
+		REQUIRE(p_kind7->new_kind(3, 4096, &attr) == SERVICE_NO_ERROR);
+		REQUIRE(p_kind7->add_item(0, nam_buffer, video_rgb.dim, CELL_TYPE_BYTE, &dims));
+		REQUIRE(p_kind7->add_item(1, nam_wave,  vector_10.dim, CELL_TYPE_INTEGER, &dims));
+		REQUIRE(p_kind7->add_item(2, nam_title, one_cell.dim,  CELL_TYPE_STRING,  &dims));
+
+		REQUIRE(!p_kind7->to_block_kind());
+		REQUIRE(p_kind7->cell_type == CELL_TYPE_TUPLE_KIND);
+		REQUIRE(p_kind7->audit() == MIXED_TYPE_KIND);
+
+		REQUIRE(p_kind7->new_kind(1, 4096, &attr) == SERVICE_NO_ERROR);
+		REQUIRE(p_kind7->add_item(0, nam_wave,  vector_10.dim, CELL_TYPE_INTEGER, &dims));
+
+		REQUIRE(p_kind7->cell_type == CELL_TYPE_TUPLE_KIND);
+		REQUIRE(p_kind7->to_block_kind());
+		REQUIRE(p_kind7->cell_type == CELL_TYPE_BLOCK_KIND);
+
+		REQUIRE(p_kind8->new_object_kind(32, "buffer\nwave\ntitle", '\n', &attr) == SERVICE_ERROR_NO_MEM);
+
+		REQUIRE(p_kind8->new_object_kind(4096, "buffer\nwave\ntitle", '\n', &attr) == SERVICE_NO_ERROR);
+
+		REQUIRE(p_kind8->cell_type == CELL_TYPE_OBJECT_KIND);
+		REQUIRE(p_kind8->rank == 1);
+		REQUIRE(p_kind8->size == 3);
+
+		REQUIRE(strcmp(p_kind8->get_string(0), "buffer") == 0);
+		REQUIRE(strcmp(p_kind8->get_string(1), "wave") == 0);
+		REQUIRE(strcmp(p_kind8->get_string(2), "title") == 0);
+
+		REQUIRE(p_kind8->new_object_kind(4096, "abcdefghij_ABCDEFGHIJ_0123456789.abc", '.', &attr) == SERVICE_ERROR_WRONG_ARGUMENTS);
+		REQUIRE(p_kind8->new_object_kind(4096, "abc.abcdefghij_ABCDEFGHIJ_0123456789", '.', &attr) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+		REQUIRE(p_kind8->new_object_kind(4096, "abcdefghijABCDEFGHIJ_0123456789.abcdefghij_0123456789", '.', &attr) == SERVICE_NO_ERROR);
+
+		REQUIRE(p_kind8->cell_type == CELL_TYPE_OBJECT_KIND);
+		REQUIRE(p_kind8->rank == 1);
+		REQUIRE(p_kind8->size == 2);
+
+		REQUIRE(strcmp(p_kind8->get_string(0), "abcdefghijABCDEFGHIJ_0123456789") == 0);
+		REQUIRE(strcmp(p_kind8->get_string(1), "abcdefghij_0123456789") == 0);
 
 		REQUIRE(p_kind3->new_kind(3, 4096, &attr) == SERVICE_NO_ERROR);
 
@@ -276,6 +313,23 @@ SCENARIO("Testing kind") {
 
 		WHEN("Kind 6 fails .audit()") {
 			REQUIRE(p_kind6->audit() == MIXED_TYPE_INVALID);
+
+			THEN("We cover this error check") {
+				p_kind6->size = 0;
+				REQUIRE(p_kind6->audit() == MIXED_TYPE_INVALID);
+			}
+		}
+
+		WHEN("Kind 7 passes .audit()") {
+			REQUIRE(p_kind7->audit() == MIXED_TYPE_KIND);
+
+			THEN("We do nothing else") {
+				REQUIRE(true);
+			}
+		}
+
+		WHEN("Kind 8 passes .audit()") {
+			REQUIRE(p_kind8->audit() == MIXED_TYPE_KIND);
 
 			THEN("We do nothing else") {
 				REQUIRE(true);
