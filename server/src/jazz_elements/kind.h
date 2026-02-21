@@ -172,11 +172,12 @@ class Kind : public Block {
 
 			memset(&cell_type, 0, num_bytes);
 
-			cell_type	 = CELL_TYPE_TUPLE_KIND;
-			rank		 = 1;
-			range.dim[0] = 1;
-			size		 = num_items;
-			total_bytes	 = num_bytes;
+			cell_type	   = CELL_TYPE_TUPLE_KIND;
+			rank		   = 1;
+			range.dim[0]   = 1;
+			size		   = num_items;
+			total_bytes	   = num_bytes;
+			num_attributes = 0;				// set_attributes() is done just once when it is not already set.
 
 			set_attributes(att);
 
@@ -253,15 +254,76 @@ class Kind : public Block {
 			return true;
 		}
 
-//TODO: Document new_object_kind()
-		inline bool new_object_kind(char const   *p_def,
+		/** Creates a Kind for an object (CELL_TYPE_OBJECT_KIND) in just one call.
+
+			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
+			\param p_def	 The definition of the object kind as a string. It is a list of lines separated by sep. Each is a name.
+			\param sep		 The separator for the lines in p_def.
+			\param att		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
+
+			\return			 SERVICE_NO_ERROR or error code for insufficient alloc size or wrong arguments.
+		*/
+		inline int new_object_kind (int			  num_bytes,
+									char const	 *p_def,
 									char		  sep,
 			   						AttributeMap *att = nullptr) {
-//TODO: Implement new_object_kind
-			return false;
+			Name name;
+			int num_lines = 1, j = 0;
+			for (char const *p = p_def; *p; p++) {
+				if (*p == sep) {
+					if (j >= sizeof(Name))
+						return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+					j = 0;
+					num_lines++;
+				} else {
+					j++;
+				}
+			}
+			if (j >= sizeof(Name))
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + strlen(p_def) + num_lines*sizeof(int);
+
+			if (att != nullptr)
+				rq_sz += 2*att->size();
+
+			if (rq_sz > num_bytes)
+				return SERVICE_ERROR_NO_MEM;
+
+			cell_type	   = CELL_TYPE_OBJECT_KIND;
+			rank		   = 1;
+			range.dim[0]   = num_lines;
+			size		   = num_lines;
+			total_bytes	   = num_bytes;
+			num_attributes = 0;				// set_attributes() is done just once when it is not already set.
+
+			set_attributes(att);			// This also calls init_string_buffer()
+
+			pStringBuffer psb = p_string_buffer();
+
+			int i = 0;
+			j = 0;
+			for (char const *p = p_def; *p; p++) {
+				if (*p == sep) {
+					name[j] = 0;
+					j = 0;
+					set_string(i, name);
+					i++;
+				} else {
+					name[j++] = *p;
+				}
+			}
+			name[j] = 0;
+			set_string(i, name);
+
+			return SERVICE_NO_ERROR;
 		}
 
-//TODO: Document to_block_kind()
+		/** Initializes a Kind object (step 3) when it is just simple Block: Make cell_type = CELL_TYPE_BLOCK_KIND
+
+			\return True if the Kind was converted to a Block Kind, false if wrong type or wrong size.
+		*/
 		inline bool to_block_kind() {
 			if (size != 1 || cell_type != CELL_TYPE_TUPLE_KIND)
 				return false;
