@@ -76,8 +76,7 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 			s[0] = j;
 			if (std::regex_match(s, rex)) {
 #ifdef DEBUG
-				if (p_next->next[j] != PSTATE_INVALID_CHAR)
-					throw 1;
+				if (p_next->next[j] != PSTATE_INVALID_CHAR) { throw 1; }
 #endif
 				p_next->next[j] = trans[i].to;
 			}
