@@ -117,7 +117,7 @@ at [host]/develop/rfc2/jazz_actor_model.html
 #define CELL_TYPE_TUPLE			0x028		///< A vector of ItemHeader (in a Tuple)
 #define CELL_TYPE_BLOCK_KIND	0x128		///< A vector with just one ItemHeader element defining the Kind of a simple Tensor.
 #define CELL_TYPE_TUPLE_KIND	0x228		///< A vector of ItemHeader (in a Kind) defining the Kind of a Tuple.
-#define CELL_TYPE_OBJECT_KIND	0x504		///< Is a CELL_TYPE_STRING. A vector of strings defining the Kind of any object.
+#define CELL_TYPE_OBJECT_KIND	0x704		///< Another flavor of CELL_TYPE_STRING. A vector of strings defining the Kind of any object.
 
 // 48 byte cell types
 #define CELL_TYPE_INDEX			0x030		///< An Index (accessed via a pBlockHeader instead of a pBlock)
