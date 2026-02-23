@@ -6286,35 +6286,23 @@ SCENARIO("Testing Container::as_locator()") {
 
 
 SCENARIO("Coverage hunting Container unwrap/config/serialization branches") {
-	struct KeyBackup {
-		const char *key;
-		String value;
-		bool existed;
-	};
 
-	KeyBackup backup[] = {
-		{"ONE_SHOT_WARN_BLOCK_KBYTES", "", false},
-		{"ONE_SHOT_ERROR_BLOCK_KBYTES", "", false}
-	};
+	std::map<String, String> backup = CONFIG.config;
 
-	for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
-		backup[i].existed = CONFIG.get_key(backup[i].key, backup[i].value);
+	WHEN ("We alter the config key ONE_SHOT_MAX_TRANSACTIONS") {
+		Logger cov_log("/tmp/jzz_unit_container_cov_badcfg_warn.log");
+		Container cnt_case(&cov_log, &CONFIG);
+
+		cnt_case.log_error_level = LOG_DEBUG;
+
+		CONFIG.debug_put("ONE_SHOT_MAX_TRANSACTIONS", "not_an_int");
+		REQUIRE(cnt_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(cnt_case.shut_down() == SERVICE_NO_ERROR);
+
+		CONFIG.config = backup;
 	}
 
-	auto restore_config = [&]() {
-		for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
-			if (backup[i].existed)
-				CONFIG.debug_put(backup[i].key, backup[i].value);
-		}
-	};
-
-	struct RestoreOnExit {
-		decltype(restore_config) *fn;
-		~RestoreOnExit() { (*fn)(); }
-	};
-	RestoreOnExit restore_on_exit = {&restore_config};
-
-	{
+	WHEN ("We alter the config key ONE_SHOT_WARN_BLOCK_KBYTES") {
 		Logger cov_log("/tmp/jzz_unit_container_cov_badcfg_warn.log");
 		Container cnt_case(&cov_log, &CONFIG);
 
@@ -6323,10 +6311,11 @@ SCENARIO("Coverage hunting Container unwrap/config/serialization branches") {
 		CONFIG.debug_put("ONE_SHOT_WARN_BLOCK_KBYTES", "not_an_int");
 		REQUIRE(cnt_case.start() == SERVICE_ERROR_BAD_CONFIG);
 		REQUIRE(cnt_case.shut_down() == SERVICE_NO_ERROR);
+
+		CONFIG.config = backup;
 	}
 
-	restore_config();
-	{
+	WHEN ("We alter the config key ONE_SHOT_ERROR_BLOCK_KBYTES") {
 		Logger cov_log("/tmp/jzz_unit_container_cov_badcfg_err.log");
 		Container cnt_case(&cov_log, &CONFIG);
 
@@ -6335,10 +6324,11 @@ SCENARIO("Coverage hunting Container unwrap/config/serialization branches") {
 		CONFIG.debug_put("ONE_SHOT_ERROR_BLOCK_KBYTES", "not_an_int");
 		REQUIRE(cnt_case.start() == SERVICE_ERROR_BAD_CONFIG);
 		REQUIRE(cnt_case.shut_down() == SERVICE_NO_ERROR);
+
+		CONFIG.config = backup;
 	}
 
-	restore_config();
-	{
+	WHEN ("We carry on with a normal config") {
 		Logger cov_log("/tmp/jzz_unit_container_cov_unwrap.log");
 		Container cnt_case(&cov_log, &CONFIG);
 
