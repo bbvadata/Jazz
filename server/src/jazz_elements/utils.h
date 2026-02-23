@@ -230,7 +230,9 @@ class ConfigFile {
 
 		void debug_put(const String key, const String val);
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
 		std::map<String, String> config;	///< The configuration key/value store
 };
