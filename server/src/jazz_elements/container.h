@@ -449,7 +449,7 @@ class Container : public Service {
 				return SERVICE_NO_ERROR;
 			}
 			if (strnlen((pChar) p_blk, size) != size)
-				return SERVICE_NO_ERROR;
+				return SERVICE_NO_ERROR;	// ???
 
 			pTransaction p_aux;
 
@@ -534,11 +534,6 @@ class Container : public Service {
 			if (ret != nullptr)
 				alloc_bytes += size;
 
-#ifdef CATCH_TEST
-			if ((uint64_t) ret & 0x7)
-				log(LOG_ERROR, "Misaligned block !!");
-#endif
-
 			return ret;
 		}
 
@@ -560,9 +555,11 @@ class Container : public Service {
 
 		/** A private hard lock for Container-critical operations. E.g., Adding a new block to the deque.
 
+			\param total_times An optional (typically for debugging) option to give up after a number of yield() calls.
+
 			Needless to say: Use only for a few clock-cycles over the critical part and always unlock_container() no matter what.
 		*/
-		inline void lock_container() {
+		inline void lock_container(int total_times = 0) {
 			int		retry = 0;
 			int32_t lock = 0;
 			int32_t next = 1;
@@ -574,6 +571,10 @@ class Container : public Service {
 				if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 					std::this_thread::yield();
 					retry = 0;
+					if (total_times) {
+						if (--total_times == 0)
+							return;
+					}
 				}
 			}
 		}
