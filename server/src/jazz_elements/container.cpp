@@ -1195,8 +1195,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								pKind		  p_as_kind,
 								AttributeMap *att) {
 
-//TODO: Add support for creating CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND from text.
-
 	pChar p_source;
 	int	  source_l;
 	switch (p_from_text->cell_type) {
@@ -1237,8 +1235,37 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		if (*p_in == '(')
 			cell_type = CELL_TYPE_TUPLE;
 
-		if (*p_in == '{')
-			cell_type = CELL_TYPE_TUPLE_KIND;
+		if (*p_in == '{') {
+			pChar p_copy = p_in;
+			int nb_copy = num_bytes;
+			get_char(p_copy, nb_copy);	// Skip '{'
+
+			bool has_name = get_item_name(p_copy, nb_copy, item_name[0]);
+
+			if (has_name) {
+				MapSI idx_dims = {};
+				bool has_type_and_shape = get_type_and_shape(p_copy, nb_copy, &item_hea[0], idx_dims);
+
+				if (has_type_and_shape)
+					cell_type = CELL_TYPE_TUPLE_KIND;
+				else
+					cell_type = CELL_TYPE_OBJECT_KIND;	// An Object Kind with just one name "geo" (instead of "geo.city.Madrid")
+				}
+			else {
+				p_copy = p_in;
+				nb_copy = num_bytes;
+				get_char(p_copy, nb_copy);	// Skip '{'
+
+				MapSI idx_dims = {};
+				bool has_type_and_shape = get_type_and_shape(p_copy, nb_copy, &item_hea[0], idx_dims);
+
+				if (has_type_and_shape)
+					cell_type = CELL_TYPE_BLOCK_KIND;	// The Kind of a block is like a CELL_TYPE_TUPLE_KIND with 1 item an no name.
+				else
+					cell_type = CELL_TYPE_OBJECT_KIND;	// A string "x,y,z" fails both get_item_name() and get_type_and_shape()
+														// Syntax errors will be caught later.
+			}
+		}
 	}
 
 	switch (cell_type) {
@@ -1290,6 +1317,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 	}
+	case CELL_TYPE_BLOCK_KIND: {
+//TODO: Write this.
+		break;
+	}
 	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
@@ -1326,6 +1357,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		if (skip_space(p_in, num_bytes) != 0)
 			return PARSE_ERROR_EXPECTED_EOF;
 
+		break;
+	}
+	case CELL_TYPE_OBJECT_KIND: {
+//TODO: Write this.
 		break;
 	}
 	default:
@@ -1402,6 +1437,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		return ret;
 	}
+	case CELL_TYPE_BLOCK_KIND: {
+//TODO: Write this.
+		break;
+	}
 	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
@@ -1439,6 +1478,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
 		} else
 			return new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
+	}
+	case CELL_TYPE_OBJECT_KIND: {
+//TODO: Write this.
+		break;
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
@@ -1479,8 +1522,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								bool		  ret_as_string,
 								AttributeMap *att) {
 
-
-//TODO: Add support for serializing a CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND.
 
 	int item_len[MAX_ITEMS_IN_KIND];
 	int total_bytes;
@@ -1542,12 +1583,20 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 
+	case CELL_TYPE_BLOCK_KIND:
+//TODO: Write this.
+		break;
+
 	case CELL_TYPE_TUPLE_KIND:
 		total_bytes = tensor_kind_as_text((pKind) p_from_raw, nullptr);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
 
+		break;
+
+	case CELL_TYPE_OBJECT_KIND:
+//TODO: Write this.
 		break;
 
 	default:
@@ -1601,8 +1650,18 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 
-	default:
+	case CELL_TYPE_BLOCK_KIND:
+//TODO: Write this.
+		break;
+
+	case CELL_TYPE_TUPLE_KIND:
 		tensor_kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
+
+		break;
+
+	case CELL_TYPE_OBJECT_KIND:
+//TODO: Write this.
+		break;
 
 	}
 
