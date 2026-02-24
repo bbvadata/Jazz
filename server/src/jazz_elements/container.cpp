@@ -1318,7 +1318,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 	case CELL_TYPE_BLOCK_KIND: {
-//TODO: Write this.
+//TODO: Write: new Block (5): CELL_TYPE_BLOCK_KIND: Step 1: Parse the text into a ItemHeader (item_hea[0])
+
 		break;
 	}
 	case CELL_TYPE_TUPLE_KIND: {
@@ -1360,7 +1361,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 	case CELL_TYPE_OBJECT_KIND: {
-//TODO: Write this.
+//TODO: Write: new Block (5): CELL_TYPE_OBJECT_KIND: Step 1: Parse the text, fail on errors.
+
 		break;
 	}
 	default:
@@ -1438,8 +1440,34 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return ret;
 	}
 	case CELL_TYPE_BLOCK_KIND: {
-//TODO: Write this.
+//TODO: Write: new Block (5): CELL_TYPE_BLOCK_KIND: Step 2: Create the block
+
 		break;
+
+		// get_char(p_in, num_bytes);		// '{'
+
+		// MapSI idx_dims = {};
+		// get_type_and_shape(p_in, num_bytes, &item_hea[0], idx_dims);
+
+		// skip_space(p_in, num_bytes);
+		// get_char(p_in, num_bytes);		// '}'
+
+		// StaticBlockHeader hea;
+		// hea.cell_type = item_hea[0].cell_type;
+		// hea.rank      = item_hea[0].rank;
+		// memcpy(&hea.range, &item_hea[0].dim, sizeof(TensorDim));
+
+		// Name empty_name = {""};
+
+		// if (idx_dims.size() > 0) {
+		// 	AttributeMap dims = {};
+		// 	MapSI::iterator it;
+		// 	for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
+		// 		dims[it->second] = it->first.c_str();
+
+		// 	return new_block(p_txn, 1, &hea, &empty_name, nullptr, &dims, att);
+		// } else
+		// 	return new_block(p_txn, 1, &hea, &empty_name, nullptr, nullptr, att);
 	}
 	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
@@ -1480,8 +1508,25 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			return new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
 	}
 	case CELL_TYPE_OBJECT_KIND: {
-//TODO: Write this.
+//TODO: Write: new Block (5): CELL_TYPE_OBJECT_KIND: Step 2: Create the block
+
 		break;
+
+		// // Create string block with dot-separated names
+		// char text_buffer[1024] = {0};
+		// pChar p_buf = text_buffer;
+
+		// for (int i = 0; i < num_items; i++) {
+		// 	strcpy(p_buf, item_name[i]);
+		// 	p_buf += strlen(item_name[i]);
+		// 	if (i < num_items - 1) {
+		// 		*p_buf = '\n';
+		// 		p_buf++;
+		// 	}
+		// }
+		// *p_buf = 0;
+
+		// return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, text_buffer, '\n', att);
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
@@ -1521,7 +1566,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  p_fmt,
 								bool		  ret_as_string,
 								AttributeMap *att) {
-
 
 	int item_len[MAX_ITEMS_IN_KIND];
 	int total_bytes;
@@ -1576,7 +1620,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_TUPLE:
-		total_bytes = tensor_tuple_as_text((pTuple) p_from_raw, nullptr, p_fmt, item_len);
+		total_bytes = tuple_as_text((pTuple) p_from_raw, nullptr, p_fmt, item_len);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
@@ -1584,19 +1628,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_BLOCK_KIND:
-//TODO: Write this.
-		break;
-
 	case CELL_TYPE_TUPLE_KIND:
-		total_bytes = tensor_kind_as_text((pKind) p_from_raw, nullptr);
+	case CELL_TYPE_OBJECT_KIND:
+		total_bytes = kind_as_text((pKind) p_from_raw, nullptr);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
 
-		break;
-
-	case CELL_TYPE_OBJECT_KIND:
-//TODO: Write this.
 		break;
 
 	default:
@@ -1646,23 +1684,16 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 
 	case CELL_TYPE_TUPLE:
-		tensor_tuple_as_text((pTuple) p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt, item_len);
+		tuple_as_text((pTuple) p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt, item_len);
 
 		break;
 
 	case CELL_TYPE_BLOCK_KIND:
-//TODO: Write this.
-		break;
-
 	case CELL_TYPE_TUPLE_KIND:
-		tensor_kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
-
-		break;
-
 	case CELL_TYPE_OBJECT_KIND:
-//TODO: Write this.
-		break;
+		kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
 
+		break;
 	}
 
 	if (ret_as_string) {
@@ -4016,14 +4047,14 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	\param p_tuple	The raw Tuple to be serialized as text.
 	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
 	\param p_fmt	Optionally, format specifier that will be applied to all items. (default is each type uses its default)
-	\param item_len	A buffer storing the length of each item: computed by tensor_tuple_as_text(p_dest == nullptr),
-					used by tensor_tuple_as_text(p_dest != nullptr).
+	\param item_len	A buffer storing the length of each item: computed by tuple_as_text(p_dest == nullptr),
+					used by tuple_as_text(p_dest != nullptr).
 
 	\return	The length in bytes required to store the output if p_dest == nullptr
 
 The serialization includes item names and the content of each tensor as written by the tensor methods.
 */
-int Container::tensor_tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
+int Container::tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
 	if (p_dest == nullptr) {
 		int total_len = 1;		// 3 for opening and closing () + /0 - 2 (for the last item not having final ', ')
 
@@ -4142,7 +4173,9 @@ int Container::tensor_tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, i
 
 The serialization includes item names, types and shapes.
 */
-int Container::tensor_kind_as_text(pKind p_kind, pChar p_dest) {
+int Container::kind_as_text(pKind p_kind, pChar p_dest) {
+
+//TODO: Can no longer assume cell_type == CELL_TYPE_TUPLE_KIND, must support CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND
 
 	if (p_dest == nullptr) {
 		int total_len = 1;		// 3 for opening and closing {} + /0 - 2 (for the last item not having final ', ')
