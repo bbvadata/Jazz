@@ -1254,7 +1254,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				bool has_type_and_shape = get_type_and_shape(p_copy, nb_copy, &item_hea[0], idx_dims);
 
 				if (has_type_and_shape)
-					cell_type = CELL_TYPE_BLOCK_KIND;	// The Kind of a block is like a CELL_TYPE_TUPLE_KIND with 1 item an no name.
+					cell_type = CELL_TYPE_BLOCK_KIND;	// The Kind of a block is like a CELL_TYPE_TUPLE_KIND with 1 item and no name.
 				else
 					cell_type = CELL_TYPE_OBJECT_KIND;	// A string "x,y,z" fails both get_item_name() and get_type_and_shape()
 														// Syntax errors will be caught later.
@@ -1311,11 +1311,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 	}
-	case CELL_TYPE_BLOCK_KIND: {
-//TODO: Write: new Block (5): CELL_TYPE_BLOCK_KIND: Step 1: Parse the text into a ItemHeader (item_hea[0])
-
-		break;
-	}
+	case CELL_TYPE_BLOCK_KIND:
 	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
@@ -1324,7 +1320,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		int item_idx = 0;
 		while (true) {
-			if (!get_item_name(p_in, num_bytes, item_name[item_idx]))
+			if ((cell_type == CELL_TYPE_TUPLE_KIND) && !get_item_name(p_in, num_bytes, item_name[item_idx]))
 				return PARSE_ERROR_ITEM_NAME;
 
 			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], idx_dims))
@@ -1347,6 +1343,9 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
 
+		if ((cell_type == CELL_TYPE_BLOCK_KIND) && (item_idx != 1))
+			return PARSE_ERROR_TOO_MANY_ITEMS;
+
 		num_items = item_idx;
 
 		if (skip_space(p_in, num_bytes) != 0)
@@ -1355,7 +1354,33 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		break;
 	}
 	case CELL_TYPE_OBJECT_KIND: {
-//TODO: Write: new Block (5): CELL_TYPE_OBJECT_KIND: Step 1: Parse the text, fail on errors.
+		if (get_char(p_in, num_bytes) != '{')
+			return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		if (get_char(p_in, num_bytes) != '"')
+			return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		Name name;
+
+		int item_idx = 0;
+		while (true) {
+			if (!get_item_name(p_in, num_bytes, name, false, false, true))
+				return PARSE_ERROR_ITEM_NAME;
+
+			item_idx++;
+
+			char cl = get_char(p_in, num_bytes);
+
+			if (cl == '}')
+				break;
+
+			if (cl != '.')
+				return PARSE_ERROR_UNEXPECTED_CHAR;
+		}
+		num_items = item_idx;
+
+		if (skip_space(p_in, num_bytes) != 0)
+			return PARSE_ERROR_EXPECTED_EOF;
 
 		break;
 	}
@@ -1433,36 +1458,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		return ret;
 	}
-	case CELL_TYPE_BLOCK_KIND: {
-//TODO: Write: new Block (5): CELL_TYPE_BLOCK_KIND: Step 2: Create the block
-
-		break;
-
-		// get_char(p_in, num_bytes);		// '{'
-
-		// MapSI idx_dims = {};
-		// get_type_and_shape(p_in, num_bytes, &item_hea[0], idx_dims);
-
-		// skip_space(p_in, num_bytes);
-		// get_char(p_in, num_bytes);		// '}'
-
-		// StaticBlockHeader hea;
-		// hea.cell_type = item_hea[0].cell_type;
-		// hea.rank      = item_hea[0].rank;
-		// memcpy(&hea.range, &item_hea[0].dim, sizeof(TensorDim));
-
-		// Name empty_name = {""};
-
-		// if (idx_dims.size() > 0) {
-		// 	AttributeMap dims = {};
-		// 	MapSI::iterator it;
-		// 	for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
-		// 		dims[it->second] = it->first.c_str();
-
-		// 	return new_block(p_txn, 1, &hea, &empty_name, nullptr, &dims, att);
-		// } else
-		// 	return new_block(p_txn, 1, &hea, &empty_name, nullptr, nullptr, att);
-	}
+	case CELL_TYPE_BLOCK_KIND:
 	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
@@ -1470,7 +1466,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		for (int i = 0; i < num_items; i++) {
 			Name it_name;
-			get_item_name(p_in, num_bytes, it_name);
+			if (cell_type == CELL_TYPE_TUPLE_KIND)
+				get_item_name(p_in, num_bytes, it_name);
 
 			get_type_and_shape(p_in, num_bytes, &item_hea[i], idx_dims);
 
@@ -1489,6 +1486,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			memcpy(&hea[i].range, &item_hea[i].dim, sizeof(TensorDim));
 		}
 
+		int ret;
+
 		if (idx_dims.size() != 0) {
 			AttributeMap dims = {};
 
@@ -1497,30 +1496,36 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
 				dims[it->second] = it->first.c_str();
 
-			return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
+			ret = new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
 		} else
-			return new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
+			ret = new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
+
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
+
+		if (cell_type == CELL_TYPE_BLOCK_KIND)
+			if (!reinterpret_cast<pKind>(p_txn->p_block)->to_block_kind()) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_BAD_NEW_KIND;
+			}
+		return SERVICE_NO_ERROR;
 	}
 	case CELL_TYPE_OBJECT_KIND: {
-//TODO: Write: new Block (5): CELL_TYPE_OBJECT_KIND: Step 2: Create the block
+		get_char(p_in, num_bytes);		// '{')
+		get_char(p_in, num_bytes);		// '"')
 
-		break;
+		int ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_in, '.');
 
-		// // Create string block with dot-separated names
-		// char text_buffer[1024] = {0};
-		// pChar p_buf = text_buffer;
+		if (ret != SERVICE_NO_ERROR)
+			return ret;
 
-		// for (int i = 0; i < num_items; i++) {
-		// 	strcpy(p_buf, item_name[i]);
-		// 	p_buf += strlen(item_name[i]);
-		// 	if (i < num_items - 1) {
-		// 		*p_buf = '\n';
-		// 		p_buf++;
-		// 	}
-		// }
-		// *p_buf = 0;
+		p_txn->p_block->cell_type = CELL_TYPE_OBJECT_KIND;
+		pChar p_last = p_txn->p_block->get_string(p_txn->p_block->size - 1);
 
-		// return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, text_buffer, '\n', att);
+		p_last[strlen(p_last) - 2] = '\0';	// Remove the last '"}'
+
+		return SERVICE_NO_ERROR;
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);

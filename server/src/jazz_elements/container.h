@@ -659,10 +659,16 @@ class Container : public Service {
 			\param p_out		The Name buffer that gets the answer if no error was found
 			\param check_quotes	Expects the name to be quoted (like item names) or not (like dimensions)
 			\param check_colon	Expects the name to be followed by a colon (like item names).
+			\param dot_ended	Accepts a dot as the end of the name. Also, the quote, to parse "x.y.z" as 3 names.
 
 			\return	True on success
 		*/
-		inline bool get_item_name(pChar &p_in, int &num_bytes, pChar p_out, bool check_quotes = true, bool check_colon = true) {
+		inline bool get_item_name(pChar &p_in,
+								  int   &num_bytes,
+								  pChar	 p_out,
+								  bool	 check_quotes = true,
+								  bool	 check_colon = true,
+								  bool	 dot_ended = false) {
 			if (skip_space(p_in, num_bytes) <= 1)
 				return false;
 
@@ -680,9 +686,12 @@ class Container : public Service {
 				if (!check_quotes && (*p_in == ',' || *p_in == ']'))
 					break;
 
+				if (dot_ended && (*p_in == '.'))
+					break;
+
 				ch = get_char(p_in, num_bytes);
 
-				if (check_quotes && ch == '"')
+				if ((check_quotes || dot_ended) && ch == '"')
 					break;
 
 				if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
