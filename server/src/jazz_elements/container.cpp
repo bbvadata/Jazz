@@ -52,9 +52,6 @@ char DEF_FLOAT32_FMT [8] = {"%.9e\0"};					///< The default format for float
 char DEF_FLOAT64_FMT [8] = {"%.18e\0"};					///< The default format for double
 char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};		///< The default format for time_t
 
-uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
-uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
-
 int LOCATOR_SIZE[3] = {SHORT_NAME_SIZE - 1, NAME_SIZE - 1, NAME_SIZE - 1};	///< The size for each section
 
 /*	--------------------------------------------------------
@@ -278,9 +275,6 @@ ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
-
-	memcpy(&F_NA_uint32, &F_NA, sizeof(F_NA));
-	memcpy(&R_NA_uint64, &R_NA, sizeof(R_NA));
 
 	max_transactions = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
