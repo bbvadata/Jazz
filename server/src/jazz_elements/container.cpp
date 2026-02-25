@@ -4430,6 +4430,7 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 		}
 		break;
 
+	case CELL_TYPE_OBJECT_KIND:
 	case CELL_TYPE_STRING:
 		for (int i = 0; i < p_bl1->size; i++) {
 			if (strcmp(p_bl1->get_string(i), p_bl2->get_string(i)) != 0) {
@@ -4440,6 +4441,7 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 		}
 		break;
 
+	case CELL_TYPE_BLOCK_KIND:
 	case CELL_TYPE_TUPLE_KIND:
 		for (int i = 0; i < p_bl1->size; i++) {
 			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
@@ -4448,7 +4450,8 @@ void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
 			if (p_bl1->tensor.cell_item[i].rank != p_bl2->tensor.cell_item[i].rank)
 				all_cells_equal = false;
 
-			if (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0)
+			if (   (p_bl1->cell_type == CELL_TYPE_TUPLE_KIND)
+				&& (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0))
 				all_cells_equal = false;
 
 			for (int j = 0; j < p_bl1->tensor.cell_item[i].rank; j++) {

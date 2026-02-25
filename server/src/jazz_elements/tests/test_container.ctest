@@ -5168,12 +5168,15 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(s_ki3->p_block->hash64 == 0);
 
 			REQUIRE(s_ki3->p_block->cell_type == CELL_TYPE_BYTE);
-			// REQUIRE(strcmp(s_ki3->p_block->tensor
+			REQUIRE(memcmp((void *) &s_ki3->p_block->tensor.cell_byte[0], (void *) "{INTEGER[6, 5, 3, 3]}", s_ki3->p_block->size) == 0);
 
 			REQUIRE(CNT.new_block(s_ki4, p_ki4->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(s_ki4->p_block != nullptr);
 			REQUIRE(s_ki4->status  == BLOCK_STATUS_READY);
 			REQUIRE(s_ki4->p_block->hash64 == 0);
+
+			REQUIRE(s_ki4->p_block->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(memcmp((void *) &s_ki4->p_block->tensor.cell_byte[0], (void *) "{\"geo.city.Madrid\"}", s_ki4->p_block->size) == 0);
 
 			REQUIRE(CNT.new_block(s_tp1, p_tp1->p_block) == SERVICE_NO_ERROR);
 			REQUIRE(s_tp1->p_block != nullptr);
@@ -5401,19 +5404,27 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				REQUIRE(reinterpret_cast<pKind>(x_ki2->p_block)->audit() == MIXED_TYPE_KIND);
 
-				// REQUIRE(CNT.new_block(x_ki3, s_ki3->p_block, CELL_TYPE_BLOCK_KIND) == SERVICE_NO_ERROR);
-				// REQUIRE(x_ki3->p_block != nullptr);
-				// REQUIRE(x_ki3->status  == BLOCK_STATUS_READY);
-				// REQUIRE(x_ki3->p_block->hash64 == 0);
+				REQUIRE(CNT.new_block(x_ki3, s_ki3->p_block, CELL_TYPE_BLOCK_KIND) == SERVICE_NO_ERROR);
+				REQUIRE(x_ki3->p_block != nullptr);
+				REQUIRE(x_ki3->status  == BLOCK_STATUS_READY);
+				REQUIRE(x_ki3->p_block->hash64 == 0);
 
-				// REQUIRE(reinterpret_cast<pKind>(x_ki3->p_block)->audit() == MIXED_TYPE_KIND);
+				REQUIRE(x_ki3->p_block->cell_type == CELL_TYPE_BLOCK_KIND);
 
-				// REQUIRE(CNT.new_block(x_ki4, s_ki4->p_block, CELL_TYPE_OBJECT_KIND) == SERVICE_NO_ERROR);
-				// REQUIRE(x_ki4->p_block != nullptr);
-				// REQUIRE(x_ki4->status  == BLOCK_STATUS_READY);
-				// REQUIRE(x_ki4->p_block->hash64 == 0);
+				REQUIRE(reinterpret_cast<pKind>(x_ki3->p_block)->audit() == MIXED_TYPE_KIND);
 
-				// REQUIRE(reinterpret_cast<pKind>(x_ki4->p_block)->audit() == MIXED_TYPE_KIND);
+				REQUIRE(CNT.new_block(x_ki4, s_ki4->p_block, CELL_TYPE_OBJECT_KIND) == SERVICE_NO_ERROR);
+				REQUIRE(x_ki4->p_block != nullptr);
+				REQUIRE(x_ki4->status  == BLOCK_STATUS_READY);
+				REQUIRE(x_ki4->p_block->hash64 == 0);
+
+				REQUIRE(x_ki4->p_block->cell_type == CELL_TYPE_OBJECT_KIND);
+
+				REQUIRE(strcmp(x_ki4->p_block->get_string(0), "geo") == 0);
+				REQUIRE(strcmp(x_ki4->p_block->get_string(1), "city") == 0);
+				REQUIRE(strcmp(x_ki4->p_block->get_string(2), "Madrid") == 0);
+
+				REQUIRE(reinterpret_cast<pKind>(x_ki4->p_block)->audit() == MIXED_TYPE_KIND);
 
 				REQUIRE(CNT.new_block(x_tp1, s_tp1->p_block, CELL_TYPE_TUPLE, (pKind) p_ki1->p_block) == SERVICE_NO_ERROR);
 				REQUIRE(x_tp1->p_block != nullptr);
@@ -5533,8 +5544,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				compare_full_blocks(x_ki1->p_block, p_ki1->p_block);
 				compare_full_blocks(x_ki2->p_block, p_ki2->p_block);
-				// compare_full_blocks(x_ki3->p_block, p_ki3->p_block);
-				// compare_full_blocks(x_ki4->p_block, p_ki4->p_block);
+				compare_full_blocks(x_ki3->p_block, p_ki3->p_block);
+				compare_full_blocks(x_ki4->p_block, p_ki4->p_block);
 
 				compare_full_blocks(y_ki1->p_block, p_ki1->p_block);
 
@@ -5582,19 +5593,27 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				REQUIRE(reinterpret_cast<pKind>(a_ki2->p_block)->audit() == MIXED_TYPE_KIND);
 
-				// REQUIRE(CNT.new_block(a_ki3, s_ki3->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
-				// REQUIRE(a_ki3->p_block != nullptr);
-				// REQUIRE(a_ki3->status  == BLOCK_STATUS_READY);
-				// REQUIRE(a_ki3->p_block->hash64 == 0);
+				REQUIRE(CNT.new_block(a_ki3, s_ki3->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_ki3->p_block != nullptr);
+				REQUIRE(a_ki3->status  == BLOCK_STATUS_READY);
+				REQUIRE(a_ki3->p_block->hash64 == 0);
 
-				// REQUIRE(reinterpret_cast<pKind>(a_ki3->p_block)->audit() == MIXED_TYPE_KIND);
+				REQUIRE(a_ki3->p_block->cell_type == CELL_TYPE_BLOCK_KIND);
 
-				// REQUIRE(CNT.new_block(a_ki4, s_ki4->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
-				// REQUIRE(a_ki4->p_block != nullptr);
-				// REQUIRE(a_ki4->status  == BLOCK_STATUS_READY);
-				// REQUIRE(a_ki4->p_block->hash64 == 0);
+				REQUIRE(reinterpret_cast<pKind>(a_ki3->p_block)->audit() == MIXED_TYPE_KIND);
 
-				// REQUIRE(reinterpret_cast<pKind>(a_ki4->p_block)->audit() == MIXED_TYPE_KIND);
+				REQUIRE(CNT.new_block(a_ki4, s_ki4->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
+				REQUIRE(a_ki4->p_block != nullptr);
+				REQUIRE(a_ki4->status  == BLOCK_STATUS_READY);
+				REQUIRE(a_ki4->p_block->hash64 == 0);
+
+				REQUIRE(a_ki4->p_block->cell_type == CELL_TYPE_OBJECT_KIND);
+
+				REQUIRE(strcmp(a_ki4->p_block->get_string(0), "geo") == 0);
+				REQUIRE(strcmp(a_ki4->p_block->get_string(1), "city") == 0);
+				REQUIRE(strcmp(a_ki4->p_block->get_string(2), "Madrid") == 0);
+
+				REQUIRE(reinterpret_cast<pKind>(a_ki4->p_block)->audit() == MIXED_TYPE_KIND);
 
 				REQUIRE(CNT.new_block(a_tp1, s_tp1->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR);
 				REQUIRE(a_tp1->p_block != nullptr);
@@ -5635,8 +5654,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				compare_full_blocks(a_ki1->p_block, p_ki1->p_block);
 				compare_full_blocks(a_ki2->p_block, p_ki2->p_block);
-				// compare_full_blocks(a_ki3->p_block, p_ki3->p_block);
-				// compare_full_blocks(a_ki4->p_block, p_ki4->p_block);
+				compare_full_blocks(a_ki3->p_block, p_ki3->p_block);
+				compare_full_blocks(a_ki4->p_block, p_ki4->p_block);
 				compare_full_blocks(a_tp1->p_block, p_tp1->p_block);
 
 				x_err = s_byt;
@@ -5661,8 +5680,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 
 				CNT.destroy_transaction(a_ki1);
 				CNT.destroy_transaction(a_ki2);
-				// CNT.destroy_transaction(a_ki3);
-				// CNT.destroy_transaction(a_ki4);
+				CNT.destroy_transaction(a_ki3);
+				CNT.destroy_transaction(a_ki4);
 				CNT.destroy_transaction(a_tp1);
 
 				CNT.destroy_transaction(a_int);
@@ -5693,8 +5712,8 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 				CNT.destroy_transaction(x_dou);
 				CNT.destroy_transaction(x_ki1);
 				CNT.destroy_transaction(x_ki2);
-				// CNT.destroy_transaction(x_ki3);
-				// CNT.destroy_transaction(x_ki4);
+				CNT.destroy_transaction(x_ki3);
+				CNT.destroy_transaction(x_ki4);
 				CNT.destroy_transaction(x_tp1);
 				CNT.destroy_transaction(x_tp2);
 				CNT.destroy_transaction(x_stx);
