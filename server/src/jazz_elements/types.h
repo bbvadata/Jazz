@@ -294,8 +294,11 @@ struct StringBuffer {
 typedef StringBuffer *pStringBuffer;	///< A pointer to a StringBuffer
 
 
-extern float  F_NA;		///< NaN in single
-extern double R_NA;		///< NaN in double (binary R-compatible)
+extern float  F_NA;				///< NaN in single
+extern double R_NA;				///< NaN in double (binary R-compatible)
+
+extern uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
+extern uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
 } // namespace jazz_elements
 

@@ -33,6 +33,7 @@
 
 
 #include <math.h>
+#include <cstring>
 
 
 #include "src/jazz_elements/types.h"
@@ -57,6 +58,18 @@ float	F_NA	= nanf("");
 double	R_NA	= R_ValueOfNA();
 ff_fp16	F16_NA	= {0x7e00};			///< FLOAT16_NA: 0x7e00 is the IEEE 754 half-precision floating point representation of NaN
 ff_fp16	BF16_NA	= {0x7fc0};			///< BFLOAT16_NA: 0x7fc0 is the Brain Floating Point, half-precision representation of NaN
+
+uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
+uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
+
+inline bool init_uint_na() {
+	memcpy(&F_NA_uint32, &F_NA, sizeof(F_NA));
+	memcpy(&R_NA_uint64, &R_NA, sizeof(R_NA));
+
+	return true;
+}
+
+bool uinit_na_initialized = init_uint_na();	///< A flag to ensure that F_NA_uint32 and R_NA_uint64 are initialized before use.
 
 } // namespace jazz_elements
 
