@@ -236,6 +236,29 @@ void check_string_block(pBlock p_block) {
 	REQUIRE(n_hi == 0);
 }
 
+void change_block_to_array(pContainer p_cnt, pTransaction p_txn) {
+
+	REQUIRE(p_txn->p_block->cell_type	 == CELL_TYPE_STRING);
+	REQUIRE(p_txn->p_block->size		 == 1);
+	REQUIRE(p_txn->p_block->rank		 == 1);
+	REQUIRE(p_txn->p_block->range.dim[0] == 1);
+
+	pChar p_ori = p_txn->p_block->get_string(0);
+
+	pTransaction p_aux;
+
+	TensorDim td = {0, 0, 0, 0, 0, 0};
+	td.dim[0] = strlen(p_ori) + 1;
+	REQUIRE(p_cnt->new_block(p_aux, CELL_TYPE_BYTE, (int *) &td) == SERVICE_NO_ERROR);
+	pChar p_dest = (pChar) &p_aux->p_block->tensor.cell_byte[0];
+	strcpy(p_dest, p_ori);
+	p_dest[td.dim[0] - 1] = 0;
+
+	std::swap(p_txn->p_block, p_aux->p_block);
+
+	p_cnt->destroy_transaction(p_aux);
+}
+
 // Tests
 // -----
 
@@ -5212,8 +5235,59 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 			REQUIRE(CNT.unwrap_received(z_tp3, (pBlock) &s_tp1->p_block->tensor, s_tp1->p_block->size - 1) == SERVICE_NO_ERROR);
 
 			check_string_block(z_tp3->p_block);
+			change_block_to_array(&CNT, z_tp3);
 
+			uint64_t alloc_backup = CNT.fail_alloc_bytes;
+			CNT.fail_alloc_bytes = 1;
+
+			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_ERROR_NO_MEM);	// This forced error destroys z_tp3!!
+			REQUIRE(z_tp3 == nullptr);
+
+			CNT.fail_alloc_bytes = alloc_backup;
+			// Creating z_tp3 again after destruction.
+
+			REQUIRE(CNT.unwrap_received(z_tp3, (pBlock) &s_tp1->p_block->tensor, s_tp1->p_block->size - 1) == SERVICE_NO_ERROR);
+
+			check_string_block(z_tp3->p_block);
+			change_block_to_array(&CNT, z_tp3);
+
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_BYTE);
 			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_NO_ERROR);
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_STRING);
+			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_NO_ERROR);	// A second call does nothing and returns success.
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_STRING);
+
+			z_tp3->p_block->size = 0;
+			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_ERROR_WRONG_TYPE);	// This forced error destroys z_tp3!!
+			REQUIRE(z_tp3 == nullptr);
+
+			// Creating z_tp3 again after destruction.
+
+			REQUIRE(CNT.unwrap_received(z_tp3, (pBlock) &s_tp1->p_block->tensor, s_tp1->p_block->size - 1) == SERVICE_NO_ERROR);
+
+			check_string_block(z_tp3->p_block);
+			change_block_to_array(&CNT, z_tp3);
+
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_NO_ERROR);
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_STRING);
+
+			z_tp3->p_block->cell_type = CELL_TYPE_INTEGER;
+			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_ERROR_WRONG_TYPE);	// This forced error destroys z_tp3!!
+			REQUIRE(z_tp3 == nullptr);
+
+			// Creating z_tp3 again after destruction.
+
+			REQUIRE(CNT.unwrap_received(z_tp3, (pBlock) &s_tp1->p_block->tensor, s_tp1->p_block->size - 1) == SERVICE_NO_ERROR);
+
+			check_string_block(z_tp3->p_block);
+			change_block_to_array(&CNT, z_tp3);
+
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_BYTE);
+			z_tp3->p_block->tensor.cell_byte[3] = 0;							// Makes the string shorter than the size of the block.
+																				// and makes the block stay an array of bytes.
+			REQUIRE(CNT.unwrap_received(z_tp3) == SERVICE_NO_ERROR);
+			REQUIRE(z_tp3->p_block->cell_type == CELL_TYPE_BYTE);
 
 			REQUIRE(CNT.unwrap_received(z_tp2, (pBlock) &s_tp2->p_block->tensor, s_tp2->p_block->size - 1) == SERVICE_NO_ERROR);
 			REQUIRE(z_tp2->p_block != nullptr);
@@ -6449,10 +6523,39 @@ SCENARIO("Coverage for Container start and some error conditions") {
 		pBlock p_embedded = (pBlock) &p_rxn1->p_block->tensor.cell_byte[0];
 		REQUIRE(p_embedded->total_bytes == p_src->p_block->total_bytes);
 		REQUIRE(p_embedded->check_hash());
+
+		uint64_t alloc_back = cnt_case.fail_alloc_bytes;
+		cnt_case.fail_alloc_bytes = 0;
+		REQUIRE(cnt_case.unwrap_received(p_rxn1) == SERVICE_ERROR_NO_MEM);	// This forced error destroys p_rxn1
+		REQUIRE(p_rxn1 == nullptr);
+		cnt_case.fail_alloc_bytes = alloc_back;
+
+		// Creating p_rxn1 again, since the previous one was destroyed by the forced error.
+		REQUIRE(cnt_case.new_block(p_rxn1, CELL_TYPE_BYTE, dim_rxn1, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		memcpy(&p_rxn1->p_block->tensor.cell_byte[0], p_src->p_block, p_src->p_block->total_bytes);
+		p_embedded = (pBlock) &p_rxn1->p_block->tensor.cell_byte[0];
+		REQUIRE(p_embedded->total_bytes == p_src->p_block->total_bytes);
+		REQUIRE(p_embedded->check_hash());
+
 		REQUIRE(cnt_case.unwrap_received(p_rxn1) == SERVICE_NO_ERROR);
 		compare_full_blocks(p_rxn1->p_block, p_src->p_block);
 
 		pTransaction p_rxn2;
+
+		pTransaction p_backup = cnt_case.p_free;
+		cnt_case.p_free = nullptr;
+
+		REQUIRE(cnt_case.unwrap_received(p_rxn2, p_src->p_block, p_src->p_block->total_bytes) == SERVICE_ERROR_NO_MEM);
+
+		cnt_case.p_free = p_backup;
+
+		alloc_back = cnt_case.fail_alloc_bytes;
+		cnt_case.fail_alloc_bytes = 0;
+
+		REQUIRE(cnt_case.unwrap_received(p_rxn2, p_src->p_block, p_src->p_block->total_bytes) == SERVICE_ERROR_NO_MEM);
+
+		cnt_case.fail_alloc_bytes = alloc_back;
+
 		REQUIRE(cnt_case.unwrap_received(p_rxn2, p_src->p_block, p_src->p_block->total_bytes) == SERVICE_NO_ERROR);
 		compare_full_blocks(p_rxn2->p_block, p_src->p_block);
 
@@ -6560,16 +6663,53 @@ SCENARIO("Testing Container by instancing the parent class and checking error co
 
 SCENARIO("Testing inline functions in container.h") {
 
-//TODO: Implement this to 100% coverage on container.h
+	REQUIRE(CNT._lock_ == 0);
+	CNT.lock_container();
+	REQUIRE(CNT._lock_ == 1);
+	CNT.lock_container(3);	// This fails silently after 3 yields
+	REQUIRE(CNT._lock_ == 1);
+	CNT.unlock_container();
+	REQUIRE(CNT._lock_ == 0);
 
-	REQUIRE(2 > 1);
+/*
+//TODO: Pending error lines in:
+
+get_char
+get_item_name
+sscanf_int32
+push_int_cell (1)
+push_int_cell (2)
+push_real_cell (1)
+push_real_cell (2)
+push_time_cell
+*/
 }
 
 
 SCENARIO("Testing partial functions in container.cpp") {
 
-//TODO: Implement this to 100% coverage on container.h
-
+//TODO: Implement test for enter_write up to 100% coverage.
+//TODO: Implement test for leave_write up to 100% coverage.
+//TODO: Implement test for destroy_transaction up to 100% coverage.
+//TODO: Implement test for new_block (1) up to 100% coverage.
+//TODO: Implement test for new_block (2) up to 100% coverage.
+//TODO: Implement test for new_block (3) up to 100% coverage.
+//TODO: Implement test for new_block (5) up to 100% coverage.
+//TODO: Implement test for new_block (6) up to 100% coverage.
+//TODO: Implement test for new_block (7) up to 100% coverage.
+//TODO: Implement test for new_block (8) up to 100% coverage.
+//TODO: Implement test for new_block (8) up to 100% coverage.
+//TODO: Implement test for get (1) up to 100% coverage.
+//TODO: Implement test for get (2) up to 100% coverage.
+//TODO: Implement test for get (3) up to 100% coverage.
+//TODO: Implement test for header (1) up to 100% coverage.
+//TODO: Implement test for header (2) up to 100% coverage.
+//TODO: Implement test for put up to 100% coverage.
+//TODO: Implement test for new_entity up to 100% coverage.
+//TODO: Implement test for remove up to 100% coverage.
+//TODO: Implement test for copy up to 100% coverage.
+//TODO: Implement test for as_locator up to 100% coverage.
+//TODO: Implement test for destroy_container up to 100% coverage.
 //TODO: Implement test for get_type_and_shape up to 100% coverage.
 //TODO: Implement test for get_shape_and_size up to 100% coverage.
 //TODO: Implement test for fill_text_buffer up to 100% coverage.
@@ -6580,8 +6720,9 @@ SCENARIO("Testing partial functions in container.cpp") {
 //TODO: Implement test for tensor_float_as_text up to 100% coverage.
 //TODO: Implement test for tensor_string_as_text up to 100% coverage.
 //TODO: Implement test for tensor_time_as_text up to 100% coverage.
-//TODO: Implement test for tuple_as_text up to 100% coverage.
 //TODO: Implement test for kind_as_text up to 100% coverage.
+
+//TODO: Find a way to remove compare_full_blocks from coverage.
 
 	REQUIRE(2 > 1);
 }
