@@ -53,8 +53,6 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINER
 #define INCLUDED_JAZZ_ELEMENTS_CONTAINER
 
-//TODO: Increase test coverage to 100%.
-
 namespace jazz_elements
 {
 
@@ -423,11 +421,30 @@ class Container : public Service {
 			\param p_txn  An already allocated transaction with the data in an array of rank 1 of CELL_TYPE_BYTE
 			\return		  SERVICE_NO_ERROR except if alloc is necessary and fails, then SERVICE_ERROR_NO_MEM and destroys the p_txn.
 
-		Logic:	If the content is a valid (== hash64-checked) block -> The block is replaced by the block inside
-				else, if the content is a string (its length == the length of the block) -> The block is replaced by a CELL_TYPE_STRING
-					  else, -> it is left as it is.
+		Warning: This function destroys the transaction in case of error. That is how it is used in the API.
+
+		Logic: The block is either a string (CELL_TYPE_STRING of size 1) or a vector or bytes (CELL_TYPE_BYTE of rank 1), anything else
+			   produces an error. If it is a string, it is kept as it is.
+			Else: If the content is a valid (== hash64-checked) block -> The block is replaced by the block inside
+			Else: If the content is anything but a string (its length != the length of the block), it is left as it is.
+			Else: The block is replaced by a CELL_TYPE_STRING
 		*/
 		inline StatusCode unwrap_received(pTransaction &p_txn) {
+
+			if (p_txn->p_block->cell_type == CELL_TYPE_STRING)
+				if (p_txn->p_block->size == 1)
+					return SERVICE_NO_ERROR;	// The block is already a string, we just leave it as it is.
+				else {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_WRONG_TYPE;
+				}
+
+			if ((p_txn->p_block->cell_type != CELL_TYPE_BYTE) || (p_txn->p_block->rank != 1)) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_WRONG_TYPE;
+			}
 
 			pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
 			int	   size  = p_txn->p_block->size;
@@ -448,8 +465,10 @@ class Container : public Service {
 
 				return SERVICE_NO_ERROR;
 			}
-			if (strnlen((pChar) p_blk, size) != size)
-				return SERVICE_NO_ERROR;	// ???
+
+			int block_len = strnlen((pChar) p_blk, size);
+			if (block_len < size - 1)
+				return SERVICE_NO_ERROR;	// This is when the content is not a string, we just leave it as it is.
 
 			pTransaction p_aux;
 
@@ -537,7 +556,7 @@ class Container : public Service {
 			return ret;
 		}
 
-		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed valid by destroy_transaction().
+		/** A special alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed valid by destroy_transaction().
 
 			\param size	The size in bytes to allocate.
 			\return		A pointer to the allocated new Block.
@@ -560,11 +579,11 @@ class Container : public Service {
 			Needless to say: Use only for a few clock-cycles over the critical part and always unlock_container() no matter what.
 		*/
 		inline void lock_container(int total_times = 0) {
-			int		retry = 0;
-			int32_t lock = 0;
-			int32_t next = 1;
+			int	retry = 0;
 
 			while (true) {
+				int32_t lock = 0;
+				int32_t next = 1;
 				if (_lock_.compare_exchange_weak(lock, next))
 					return;
 
