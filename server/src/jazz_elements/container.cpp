@@ -34,8 +34,6 @@
 
 #include "src/jazz_elements/container.h"
 
-//TODO: Increase test coverage to 100%.
-
 namespace jazz_elements
 {
 
