@@ -62,6 +62,9 @@ ff_fp16	BF16_NA	= {0x7fc0};			///< BFLOAT16_NA: 0x7fc0 is the Brain Floating Poi
 uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
 uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
+/** Initialize F_NA_uint32 and R_NA_uint64 with the binary representation of F_NA and R_NA, respectively.
+	\return true	Always true, just to set a flag.
+*/
 inline bool init_uint_na() {
 	memcpy(&F_NA_uint32, &F_NA, sizeof(F_NA));
 	memcpy(&R_NA_uint64, &R_NA, sizeof(R_NA));
