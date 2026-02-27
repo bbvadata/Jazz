@@ -365,7 +365,7 @@ NOTE: This is not used in API queries or normal Bop execution. In those cases, B
 in multithreaded algorithms like MCTS.
 
 */
-void Container::enter_write(pTransaction p_txn) {
+void Container::enter_write(pTransaction p_txn, int total_times) {
 	int retry = 0;
 
 	while (true) {
@@ -381,6 +381,10 @@ void Container::enter_write(pTransaction p_txn) {
 					if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 						std::this_thread::yield();
 						retry = 0;
+						if (total_times) {
+							if (--total_times == 0)
+								return;
+						}
 					}
 				}
 			}
@@ -389,6 +393,10 @@ void Container::enter_write(pTransaction p_txn) {
 		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 			std::this_thread::yield();
 			retry = 0;
+			if (total_times) {
+				if (--total_times == 0)
+					return;
+			}
 		}
 	}
 }
@@ -424,13 +432,7 @@ in multithreaded algorithms like MCTS.
 */
 void Container::leave_write(pTransaction p_txn) {
 
-	while (true) {
-		int32_t lock = p_txn->_lock_;
-		int32_t next = lock + LOCK_WEIGHT_OF_WRITE;
-
-		if (p_txn->_lock_.compare_exchange_weak(lock, next))
-			return;
-	}
+	p_txn->_lock_ = 0;
 }
 
 

@@ -293,7 +293,7 @@ class Container : public Service {
 		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 
 		void enter_read	(pTransaction p_txn);
-		void enter_write(pTransaction p_txn);
+		void enter_write(pTransaction p_txn, int total_times = 0);
 		void leave_read	(pTransaction p_txn);
 		void leave_write(pTransaction p_txn);
 

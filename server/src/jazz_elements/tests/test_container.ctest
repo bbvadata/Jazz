@@ -6914,9 +6914,38 @@ SCENARIO("Testing inline functions in container.h") {
 
 SCENARIO("Testing partial functions in container.cpp") {
 
-//TODO: Implement test for enter_write up to 100% coverage.
-//TODO: Implement test for leave_write up to 100% coverage.
-//TODO: Implement test for destroy_transaction up to 100% coverage.
+	Transaction x_act = {};
+
+	REQUIRE(x_act._lock_ == 0);
+	CNT.enter_write(&x_act);
+	REQUIRE(x_act._lock_ != 0);
+	CNT.enter_write(&x_act, 3);	// This fails silently after 3 yields
+	REQUIRE(x_act._lock_ != 0);
+	CNT.leave_write(&x_act);
+	REQUIRE(x_act._lock_ == 0);
+
+	CNT.enter_read(&x_act);
+	REQUIRE(x_act._lock_ != 0);
+	CNT.enter_write(&x_act, 3);	// This fails silently after 3 yields
+	CNT.leave_read(&x_act);
+	CNT.leave_write(&x_act);
+	REQUIRE(x_act._lock_ == 0);
+
+	Container cnt = Container(&LOGGER, &CONFIG);
+
+	REQUIRE(cnt.start() == SERVICE_NO_ERROR);
+
+	cnt.log_error_level = LOG_DEBUG;
+
+	x_act.p_owner = nullptr;
+
+	pTransaction p_tx = &x_act;
+
+	cnt.destroy_transaction(p_tx);	// No owner, just logs an error.
+	REQUIRE(cnt.new_transaction(p_tx) == SERVICE_NO_ERROR);
+	REQUIRE(p_tx->p_owner == &cnt);
+	CNT.destroy_transaction(p_tx);	// Now it works, handled by cnt.
+
 //TODO: Implement test for new_block (1) up to 100% coverage.
 //TODO: Implement test for new_block (2) up to 100% coverage.
 //TODO: Implement test for new_block (3) up to 100% coverage.
@@ -6948,5 +6977,5 @@ SCENARIO("Testing partial functions in container.cpp") {
 //TODO: Implement test for tensor_time_as_text up to 100% coverage.
 //TODO: Implement test for kind_as_text up to 100% coverage.
 
-	REQUIRE(2 > 1);
+	REQUIRE(cnt.shut_down() == SERVICE_NO_ERROR);
 }
