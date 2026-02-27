@@ -930,8 +930,7 @@ class Container : public Service {
 				return false;
 
 			time_t xx = timegm(&timeinfo);
-			if (xx < 0)
-				return false;
+			if (xx < 0) return false;
 
 			*(p_out++) = xx;
 

@@ -6816,18 +6816,99 @@ SCENARIO("Testing inline functions in container.h") {
 	CNT.unlock_container();
 	REQUIRE(CNT._lock_ == 0);
 
-/*
-//TODO: Pending error lines in:
+	char const text_1[] = "anything";
+	pChar p_in = (pChar) text_1;
+	int num_bytes = 0;
 
-get_char
-get_item_name
-sscanf_int32
-push_int_cell (1)
-push_int_cell (2)
-push_real_cell (1)
-push_real_cell (2)
-push_time_cell
-*/
+	REQUIRE(CNT.get_char(p_in, num_bytes) == 0);
+
+	char const text_2[] = "";
+	p_in = (pChar) text_2;
+	Name name;
+
+	REQUIRE(!CNT.get_item_name(p_in, num_bytes, name));
+
+	char const text_3[] = "_name";
+	p_in = (pChar) text_3;
+	num_bytes = strlen(text_3);
+
+	REQUIRE(!CNT.get_item_name(p_in, num_bytes, name, false));
+
+	char const text_4[] = "\"name_123456789_123456789_123456789";
+	p_in = (pChar) text_4;
+	num_bytes = strlen(text_4);
+
+	REQUIRE(!CNT.get_item_name(p_in, num_bytes, name, true, true));
+
+	char const text_5[] = "\"name\"";
+	p_in = (pChar) text_5;
+	num_bytes = strlen(text_5);
+
+	REQUIRE(!CNT.get_item_name(p_in, num_bytes, name, true, true));
+
+	char const text_6[] = "\"name\"; more";
+	p_in = (pChar) text_6;
+	num_bytes = strlen(text_6);
+
+	REQUIRE(!CNT.get_item_name(p_in, num_bytes, name, true, true));
+
+	char const text_7[] = "\"name\": more";
+	p_in = (pChar) text_7;
+	num_bytes = strlen(text_7);
+
+	REQUIRE(CNT.get_item_name(p_in, num_bytes, name, true, true));
+
+	char const text_8[] = "\"name\"        : more";
+	p_in = (pChar) text_8;
+	num_bytes = strlen(text_8);
+
+	REQUIRE(CNT.get_item_name(p_in, num_bytes, name, true, true));
+
+	char const text_9[] = "not_a_number";
+	p_in = (pChar) text_9;
+	num_bytes = strlen(text_9);
+
+	int result;
+
+	REQUIRE(!CNT.sscanf_int32(p_in, num_bytes, result));
+
+	p_in = (pChar) text_9;
+	num_bytes = strlen(text_9);
+	pChar p_cell_end = p_in + 4;
+
+	int * p_out_int = &result;
+
+	REQUIRE(!CNT.push_int_cell(p_in, p_cell_end, p_out_int));
+
+	long long long_result;
+
+	p_in = (pChar) text_9;
+	num_bytes = strlen(text_9);
+	p_cell_end = p_in + 4;
+
+	long long * p_out_long_int = &long_result;
+
+	REQUIRE(!CNT.push_int_cell(p_in, p_cell_end, p_out_long_int));
+
+	float float_result;
+
+	p_in = (pChar) text_9;
+	num_bytes = strlen(text_9);
+	p_cell_end = p_in + 4;
+
+	float * p_out_float = &float_result;
+
+	REQUIRE(!CNT.push_real_cell(p_in, p_cell_end, p_out_float));
+
+	double double_result;
+
+	p_in = (pChar) text_9;
+	num_bytes = strlen(text_9);
+	p_cell_end = p_in + 4;
+
+	double * p_out_double = &double_result;
+
+	REQUIRE(!CNT.push_real_cell(p_in, p_cell_end, p_out_double));
 }
 
 
