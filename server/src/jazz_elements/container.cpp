@@ -360,6 +360,7 @@ void Container::enter_read(pTransaction p_txn) {
 /** Enter (hard lock) a Block for writing. No readers are allowed during writing.
 
 	\param p_txn		The address of the Block's Transaction.
+	\param total_times	An optional (typically for debugging) option to give up after a number of yield() calls.
 
 NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
 in multithreaded algorithms like MCTS.
