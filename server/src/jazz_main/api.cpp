@@ -598,7 +598,7 @@ StatusCode API::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 		while ((ent = readdir(dir)) != nullptr) {	// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
 													// readdir() (3) is thread safe.
 			if (ent->d_type == DT_REG) {
-				char fn[1024];
+				char fn[2048];						// Compile warning: "output between 1 and 1279 bytes into a destination of size 1024"
 				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
