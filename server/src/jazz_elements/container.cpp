@@ -631,8 +631,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
-	if (att != nullptr && att->size() == 0)
-		att = nullptr;
+	if (att != nullptr && att->size() == 0) att = nullptr;
 
 	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
@@ -670,8 +669,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		char *pt1 = reinterpret_cast<char *>(&p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size),
 			 *pt2 = reinterpret_cast<char *>(p_txn->p_block->align64bit((uintptr_t) pt1));
 
-		while (pt1 < pt2)
-			*(pt1++) = 0;
+		while (pt1 < pt2) *(pt1++) = 0;
 
 		if (cell_type == CELL_TYPE_STRING && fill_tensor == FILL_NEW_DONT_FILL) {
 			pStringBuffer psb = p_txn->p_block->p_string_buffer();
@@ -832,8 +830,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 	StatusCode ret = new_transaction(p_txn);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	StaticBlockHeader hea;
 	TensorDim i_dim = {};
@@ -851,8 +848,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
-	if (att != nullptr && att->size() == 0)
-		att = nullptr;
+	if (att != nullptr && att->size() == 0) att = nullptr;
 
 	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
@@ -1001,8 +997,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	int attrib_diff		   = 0,
 		new_num_attributes = 0;
 
-	if (att != nullptr && att->size() == 0)
-		att = nullptr;
+	if (att != nullptr && att->size() == 0) att = nullptr;
 
 	if (att	!= nullptr) {
 		int new_attrib_bytes = 0;
@@ -1223,8 +1218,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	p_txn = nullptr;
 
-	if (skip_space(p_in, num_bytes) <= 0)
-		return PARSE_ERROR_UNEXPECTED_EOF;
+	if (skip_space(p_in, num_bytes) <= 0) return PARSE_ERROR_UNEXPECTED_EOF;
 
 	if (cell_type == CELL_TYPE_UNDEFINED) {
 		if (*p_in == '(')
@@ -1275,8 +1269,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 			int item_type;
 			if (p_as_kind != nullptr) {
-				if (item_idx >= p_as_kind->size)
-					return PARSE_ERROR_TOO_MANY_ITEMS;
+				if (item_idx >= p_as_kind->size) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 				if (strcmp(p_as_kind->item_name(item_idx), item_name[item_idx]) != 0)
 					return PARSE_ERROR_ITEM_NAME_MISMATCH;
@@ -1288,27 +1281,23 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (!get_shape_and_size(p_in, num_bytes, item_type, &item_hea[item_idx]))
 				return PARSE_ERROR_TENSOR_EXPLORATION;
 
-			if (skip_space(p_in, num_bytes) <= 0)
-				return PARSE_ERROR_UNEXPECTED_EOF;
+			if (skip_space(p_in, num_bytes) <= 0) return PARSE_ERROR_UNEXPECTED_EOF;
 
 			item_idx++;
 
-			if (item_idx >= MAX_ITEMS_IN_KIND)
-				return PARSE_ERROR_TOO_MANY_ITEMS;
+			if (item_idx >= MAX_ITEMS_IN_KIND) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 			char cl = get_char(p_in, num_bytes);
 
 			if (cl == ')')
 				break;
 
-			if (cl != ',')
-				return PARSE_ERROR_UNEXPECTED_CHAR;
+			if (cl != ',') return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
 
 		num_items = item_idx;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		break;
 	}
@@ -1316,57 +1305,46 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
-		if (get_char(p_in, num_bytes) != '{')
-			return PARSE_ERROR_UNEXPECTED_CHAR;
+		if (get_char(p_in, num_bytes) != '{') return PARSE_ERROR_UNEXPECTED_CHAR;
 
 		int item_idx = 0;
 		while (true) {
-			if ((cell_type == CELL_TYPE_TUPLE_KIND) && !get_item_name(p_in, num_bytes, item_name[item_idx]))
-				return PARSE_ERROR_ITEM_NAME;
+			if ((cell_type == CELL_TYPE_TUPLE_KIND) && !get_item_name(p_in, num_bytes, item_name[item_idx])) return PARSE_ERROR_ITEM_NAME;
 
-			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], idx_dims))
-				return PARSE_ERROR_KIND_EXPLORATION;
+			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], idx_dims)) return PARSE_ERROR_KIND_EXPLORATION;
 
-			if (skip_space(p_in, num_bytes) <= 0)
-				return PARSE_ERROR_UNEXPECTED_EOF;
+			if (skip_space(p_in, num_bytes) <= 0) return PARSE_ERROR_UNEXPECTED_EOF;
 
 			item_idx++;
 
-			if (item_idx >= MAX_ITEMS_IN_KIND)
-				return PARSE_ERROR_TOO_MANY_ITEMS;
+			if (item_idx >= MAX_ITEMS_IN_KIND) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 			char cl = get_char(p_in, num_bytes);
 
 			if (cl == '}')
 				break;
 
-			if (cl != ',')
-				return PARSE_ERROR_UNEXPECTED_CHAR;
+			if (cl != ',') return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
 
-		if ((cell_type == CELL_TYPE_BLOCK_KIND) && (item_idx != 1))
-			return PARSE_ERROR_TOO_MANY_ITEMS;
+		if ((cell_type == CELL_TYPE_BLOCK_KIND) && (item_idx != 1)) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 		num_items = item_idx;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		break;
 	}
 	case CELL_TYPE_OBJECT_KIND: {
-		if (get_char(p_in, num_bytes) != '{')
-			return PARSE_ERROR_UNEXPECTED_CHAR;
+		if (get_char(p_in, num_bytes) != '{') return PARSE_ERROR_UNEXPECTED_CHAR;
 
-		if (get_char(p_in, num_bytes) != '"')
-			return PARSE_ERROR_UNEXPECTED_CHAR;
+		if (get_char(p_in, num_bytes) != '"') return PARSE_ERROR_UNEXPECTED_CHAR;
 
 		Name name;
 
 		int item_idx = 0;
 		while (true) {
-			if (!get_item_name(p_in, num_bytes, name, false, false, true))
-				return PARSE_ERROR_ITEM_NAME;
+			if (!get_item_name(p_in, num_bytes, name, false, false, true)) return PARSE_ERROR_ITEM_NAME;
 
 			item_idx++;
 
@@ -1375,22 +1353,18 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (cl == '}')
 				break;
 
-			if (cl != '.')
-				return PARSE_ERROR_UNEXPECTED_CHAR;
+			if (cl != '.') return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
 		num_items = item_idx;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		break;
 	}
 	default:
-		if (!get_shape_and_size(p_in, num_bytes, cell_type, &item_hea[0]))
-			return PARSE_ERROR_TENSOR_EXPLORATION;
+		if (!get_shape_and_size(p_in, num_bytes, cell_type, &item_hea[0])) return PARSE_ERROR_TENSOR_EXPLORATION;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		if (cell_type == CELL_TYPE_UNDEFINED)
 			cell_type = item_hea[0].cell_type;
@@ -1501,8 +1475,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		} else
 			ret = new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
 
-		if (ret != SERVICE_NO_ERROR)
-			return ret;
+		if (ret != SERVICE_NO_ERROR) return ret;
 
 		if (cell_type == CELL_TYPE_BLOCK_KIND)
 			if (!reinterpret_cast<pKind>(p_txn->p_block)->to_block_kind()) {
@@ -1518,8 +1491,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		int ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_in, '.');
 
-		if (ret != SERVICE_NO_ERROR)
-			return ret;
+		if (ret != SERVICE_NO_ERROR) return ret;
 
 		p_txn->p_block->cell_type = CELL_TYPE_OBJECT_KIND;
 		pChar p_last = p_txn->p_block->get_string(p_txn->p_block->size - 1);
@@ -1534,8 +1506,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, 0, nullptr, '\n', att);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	if (!fill_tensor(p_in, num_bytes, p_txn->p_block)) {
 		destroy_transaction(p_txn);
@@ -1580,8 +1551,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_LONG_INTEGER:
 		total_bytes = tensor_int_as_text(p_from_raw, nullptr, p_fmt);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
@@ -1589,8 +1559,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_BOOLEAN:
 		total_bytes = tensor_bool_as_text(p_from_raw, nullptr);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
@@ -1598,24 +1567,21 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_DOUBLE:
 		total_bytes = tensor_float_as_text(p_from_raw, nullptr, p_fmt);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
 	case CELL_TYPE_STRING:
 		total_bytes = tensor_string_as_text(p_from_raw, nullptr);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
 	case CELL_TYPE_TIME:
 		total_bytes = tensor_time_as_text(p_from_raw, nullptr, p_fmt);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
@@ -1648,8 +1614,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, 0, nullptr, 0, att);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	switch (p_from_raw->cell_type) {
 	case CELL_TYPE_BYTE:
@@ -1738,8 +1703,7 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
 	StatusCode ret = new_transaction(p_txn);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	p_txn->p_block = block_malloc(sizeof(BlockHeader));
 
@@ -1790,8 +1754,7 @@ StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
 
 	int ret;
 
-	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
-		return ret;
+	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR) return ret;
 
 	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
 		destroy_transaction(p_key);
@@ -4003,8 +3966,7 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 				total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
 			else {
-				if (gmtime_r(p_t, &timeinfo) == nullptr)
-					return 0;
+				if (gmtime_r(p_t, &timeinfo) == nullptr) return 0;
 
 				char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
@@ -4026,8 +3988,7 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_dest += LENGTH_NA_AS_TEXT;
 
 		} else {
-			if (gmtime_r(p_t, &timeinfo) == nullptr)
-				return 0;
+			if (gmtime_r(p_t, &timeinfo) == nullptr) return 0;
 
 			p_dest += strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, &timeinfo);
 		}
