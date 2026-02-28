@@ -344,7 +344,7 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++17 -I. $neat_includes
+CXXFLAGS     := -std=c++17 -funsigned-char -I. $neat_includes
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version

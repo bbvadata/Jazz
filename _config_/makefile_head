@@ -65,7 +65,7 @@ midl.o:
 # ----------
 
 DFLAGS := -DDEBUG -g
-RFLAGS := -DNDEBUG
+RFLAGS := -DNDEBUG -O3
 TFLAGS := -DDEBUG -DCATCH_TEST -g
 CFLAGS := -DDEBUG -DCATCH_TEST -g --coverage -fprofile-update=atomic
 
