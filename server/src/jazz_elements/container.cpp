@@ -2076,8 +2076,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 		case '~':
 			number = section == 2;
 
-			if (--size < 0)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (--size < 0) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = ch;
 			written	   = true;
@@ -2085,8 +2084,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			break;
 
 		case '.':
-			if (!number)
-				return SERVICE_ERROR_PARSING_NUMBERS;
+			if (!number) return SERVICE_ERROR_PARSING_NUMBERS;
 
 		case 'a' ... 'z':
 		case 'A' ... 'Z':
@@ -2094,8 +2092,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			number = false;
 		case '0' ... '9':
 		case '-':
-			if (--size < 0)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (--size < 0) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = ch;
 			written	   = true;
@@ -2103,13 +2100,11 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			break;
 
 		case '/':
-			if (!written)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (!written) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = 0;
 
-			if (++section > 2)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (++section > 2) return SERVICE_ERROR_PARSING_NAMES;
 
 			if (section == 1)
 				p_out = (pChar) &result.entity;
@@ -2122,13 +2117,11 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			break;
 
 		case 0:
-			if (!written)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (!written) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = 0;
 
-			if (section == 0)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (section == 0) return SERVICE_ERROR_PARSING_NAMES;
 
 			if (section == 1)
 				result.key[0] = 0;
@@ -2391,18 +2384,21 @@ StatusCode Container::destroy_container() {
 */
 bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, MapSI &dims) {
 
-	if (skip_space(p_in, num_bytes) < 7)
-		return false;
+	if (skip_space(p_in, num_bytes) < 7) return false;
 
 	if (strncmp(p_in, "INTEGER", 7) == 0) {
 		item_hea->cell_type = CELL_TYPE_INTEGER;
 		num_bytes -= 7;
 		p_in	  += 7;
-	} else if (strncmp(p_in, "DOUBLE", 6) == 0) {
-		item_hea->cell_type = CELL_TYPE_DOUBLE;
-		num_bytes -= 6;
-		p_in	  += 6;
-	} else if (strncmp(p_in, "BYTE", 4) == 0) {
+	} else if (strncmp(p_in, "LONG_INTEGER", 12) == 0) {
+		item_hea->cell_type = CELL_TYPE_LONG_INTEGER;
+		num_bytes -= 12;
+		p_in	  += 12;
+	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12) == 0) {	// IMPORTANT: This must be before BYTE, since it starts with BYTE
+		item_hea->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+		num_bytes -= 12;
+		p_in	  += 12;
+	} else if (strncmp(p_in, "BYTE", 4) == 0) {				// IMPORTANT: Must be after BYTE_BOOLEAN, since it is a prefix of BYTE_BOOLEAN
 		item_hea->cell_type = CELL_TYPE_BYTE;
 		num_bytes -= 4;
 		p_in	  += 4;
@@ -2418,18 +2414,14 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 		item_hea->cell_type = CELL_TYPE_SINGLE;
 		num_bytes -= 6;
 		p_in	  += 6;
+	} else if (strncmp(p_in, "DOUBLE", 6) == 0) {
+		item_hea->cell_type = CELL_TYPE_DOUBLE;
+		num_bytes -= 6;
+		p_in	  += 6;
 	} else if (strncmp(p_in, "TIME", 4) == 0) {
 		item_hea->cell_type = CELL_TYPE_TIME;
 		num_bytes -= 4;
 		p_in	  += 4;
-	} else if (strncmp(p_in, "LONG_INTEGER", 12) == 0) {
-		item_hea->cell_type = CELL_TYPE_LONG_INTEGER;
-		num_bytes -= 12;
-		p_in	  += 12;
-	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12) == 0) {
-		item_hea->cell_type = CELL_TYPE_BYTE_BOOLEAN;
-		num_bytes -= 12;
-		p_in	  += 12;
 	} else if (strncmp(p_in, "FACTOR", 6) == 0) {
 		item_hea->cell_type = CELL_TYPE_FACTOR;
 		num_bytes -= 6;
@@ -2441,11 +2433,9 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 	} else
 		return false;
 
-	if (skip_space(p_in, num_bytes) < 3)
-		return false;
+	if (skip_space(p_in, num_bytes) < 3) return false;
 
-	if (get_char(p_in, num_bytes) != '[')
-		return false;
+	if (get_char(p_in, num_bytes) != '[') return false;
 
 	item_hea->rank = 0;
 
@@ -2453,18 +2443,15 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 
 	while (true) {
 		Name dim_name;
-		if (skip_space(p_in, num_bytes) < 2)
-			return false;
+		if (skip_space(p_in, num_bytes) < 2) return false;
 
 		char cl = *p_in;
 
 		if (cl >= '0' && cl <= '9') {
-			if (!sscanf_int32(p_in, num_bytes, item_hea->dim[item_hea->rank]) || item_hea->dim[item_hea->rank] < 1)
-				return false;
+			if (!sscanf_int32(p_in, num_bytes, item_hea->dim[item_hea->rank]) || item_hea->dim[item_hea->rank] < 1) return false;
 
 		} else if ((cl >= 'A' && cl <= 'Z') || (cl >= 'a' && cl <= 'z')) {
-			if (!get_item_name(p_in, num_bytes, dim_name, false, false))
-				return false;
+			if (!get_item_name(p_in, num_bytes, dim_name, false, false)) return false;
 
 			if (dims.find(dim_name) == dims.end()) {
 				int ix = -(dims.size() + 1);
@@ -2475,19 +2462,15 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 			} else
 				item_hea->dim[item_hea->rank] = dims[dim_name];
 		}
-		if (skip_space(p_in, num_bytes) < 1)
-			return false;
+		if (skip_space(p_in, num_bytes) < 1) return false;
 
 		cl = get_char(p_in, num_bytes);
 
-		if (item_hea->rank++ >= MAX_TENSOR_RANK)
-			return false;
+		if (item_hea->rank++ >= MAX_TENSOR_RANK) return false;
 
-		if (cl == ']')
-			return true;
+		if (cl == ']') return true;
 
-		if (cl != ',')
-			return false;
+		if (cl != ',') return false;
 	}
 }
 
@@ -2546,8 +2529,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	while (true) {
 		unsigned char cursor;
 
-		if (num_bytes == 0)
-			return false;
+		if (num_bytes <= 0) return false;
 
 		cursor = get_char(p_in, num_bytes);
 		state  = parser_state_switch[state].next[cursor];
@@ -2572,8 +2554,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 				if (item_hea->dim[level] < 0)
 					item_hea->dim[level] = n_item.dim[level];
 				else {
-					if (item_hea->dim[level] != n_item.dim[level])
-						return false;
+					if (item_hea->dim[level] != n_item.dim[level]) return false;
 				};
 				level--;
 
@@ -2599,11 +2580,9 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 				if (first_row)
 					item_hea->rank = level + 1;
 				else {
-					if (level >= item_hea->rank)
-						return false;
+					if (level >= item_hea->rank) return false;
 				}
-				if (level >= MAX_TENSOR_RANK)
-					return false;
+				if (level >= MAX_TENSOR_RANK) return false;
 
 				n_item.dim[level] = 0;
 			};
@@ -2614,8 +2593,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 		case PSTATE_SEP_STRING:
 		case PSTATE_SEP_TIME:
 			if (cursor == ',') {
-				if (level != item_hea->rank - 1)
-					return false;
+				if (level != item_hea->rank - 1) return false;
 
 				n_item.dim[level]++;
 			}
@@ -2685,7 +2663,7 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 	while (true) {
 		unsigned char cursor;
 
-		if (num_bytes == 0)
+		if (num_bytes <= 0)
 			return false;
 
 		cursor = get_char(p_in, num_bytes);
@@ -2803,9 +2781,11 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 		case PSTATE_CONST_STRING_E2:
 		case PSTATE_SEP_STRING:
 			break;
+#ifndef CATCH_TEST
+		default:			// Only binary corruption of the state table can force this, still better keeping it.
 
-		default:
 			return false;
+#endif
 		}
 	}
 }
@@ -2834,8 +2814,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2847,8 +2826,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 						*p_st = 0;
 						p_st  = (pChar) &cell;
 
-						if (sscanf(p_st, "%hhu", p_out) != 1)
-							return false;
+						if (sscanf(p_st, "%hhu", p_out) != 1) return false;
 
 						p_out++;
 					}
@@ -2870,16 +2848,14 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					*p_st = 0;
 					p_st  = (pChar) &cell;
 
-					if (sscanf(p_st, "%hhu", p_out) != 1)
-						return false;
+					if (sscanf(p_st, "%hhu", p_out) != 1) return false;
 
 					p_out++;
 				}
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
@@ -2888,9 +2864,11 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			case PSTATE_EMPTY_FILE:
 				return true;
 
-			default:
+#ifndef CATCH_TEST
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -2904,8 +2882,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2913,8 +2890,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -2937,22 +2913,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_int_cell(cell, p_st, p_out))
-						return false;
+					if (!push_int_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -2964,8 +2940,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2973,8 +2948,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -2997,22 +2971,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_int_cell(cell, p_st, p_out))
-						return false;
+					if (!push_int_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3024,8 +2998,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3033,8 +3006,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3057,22 +3029,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (!push_bool_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3084,8 +3056,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3093,8 +3064,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3117,22 +3087,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (!push_bool_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3144,8 +3114,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3153,8 +3122,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3177,22 +3145,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_REAL:
 				if (cursor == ',')
-					if (!push_real_cell(cell, p_st, p_out))
-						return false;
+					if (!push_real_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_REAL:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3204,8 +3172,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3213,8 +3180,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3237,22 +3203,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_REAL:
 				if (cursor == ',')
-					if (!push_real_cell(cell, p_st, p_out))
-						return false;
+					if (!push_real_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_REAL:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3264,8 +3230,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3273,8 +3238,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_TIME:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
-						return false;
+					if (level == p_block->rank && !push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME)) return false;
 
 					level--;
 
@@ -3297,21 +3261,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_TIME:
 				if (cursor == ',')
-					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
-						return false;
+					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME)) return false;
 
 				break;
 
 			case PSTATE_CONST_TIME:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
+
 				return false;
+#endif
 			}
 		}
 	}
@@ -3345,26 +3310,19 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 
 	pChar p_txt = (pChar) malloc(bf_size);
 
-	if (p_txt == nullptr)
-		return SERVICE_ERROR_NO_MEM;
+	if (p_txt == nullptr) return SERVICE_ERROR_NO_MEM;
 
 	int *p_is_NA = reinterpret_cast<int *>(malloc(ix_size));
 
 	StatusCode ret;
 
-	if (p_is_NA == nullptr)
-		ret = SERVICE_ERROR_NO_MEM;
-
+	if (p_is_NA == nullptr) ret = SERVICE_ERROR_NO_MEM;
 	else {
 		int *p_hasLN = reinterpret_cast<int *>(malloc(ix_size));
 
-		if (p_hasLN == nullptr)
-			ret = SERVICE_ERROR_NO_MEM;
-
+		if (p_hasLN == nullptr) ret = SERVICE_ERROR_NO_MEM;
 		else {
-			if (!fill_text_buffer(p_in, num_bytes, p_txt, num_cells, p_is_NA, p_hasLN))
-				ret = PARSE_ERROR_TEXT_FILLING;
-
+			if (!fill_text_buffer(p_in, num_bytes, p_txt, num_cells, p_is_NA, p_hasLN)) ret = PARSE_ERROR_TEXT_FILLING;
 			else {
 				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, 0, p_txt, '\n', att);
 
@@ -3480,7 +3438,7 @@ int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 			return total_len + 1;
 		}
 		default:
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3551,7 +3509,7 @@ int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 		return 0;
 	}
 	default:
-		return 0;
+		return -1;
 	}
 }
 
@@ -3605,7 +3563,7 @@ int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 			return total_len + 1;
 		}
 		default:
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3655,7 +3613,7 @@ int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 		return 0;
 	}
 	default:
-		return 0;
+		return -1;
 	}
 }
 
@@ -3716,7 +3674,7 @@ int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 			return total_len + 1;
 		}
 		default:
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3760,7 +3718,7 @@ int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 		return 0;
 	}
 	default:
-		return 0;
+		return -1;
 	}
 }
 

@@ -5112,7 +5112,7 @@ SCENARIO("Testing new_block() (5) & (6) Serializing/parsing every possible thing
 		REQUIRE(p_st1->status  == BLOCK_STATUS_READY);
 		REQUIRE(p_st1->p_block->hash64 == 0);
 
-		char const *text_2 = "This is neat!\n\n\na: \a b: \bf: \f r: \r\nThis too!\náéíóú\nÄËÏÖÜ\n\n読み\nYomi\nThis is.\n\n\" a b \\ c \n";
+		char const *text_2 = "This is neat!\n\n\na: \a b: \bf: \f \v r: \r\nThis!\náéíóú\nÄËÏÖÜ\n\n読み\nYomi\nThis is.\n\n\" a b \\ c \n";
 
 		REQUIRE(CNT.new_block(p_st2, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, text_2, ' ') == SERVICE_NO_ERROR);
 		REQUIRE(p_st2 != nullptr);
@@ -6750,7 +6750,7 @@ SCENARIO("Coverage for Container start and some error conditions") {
 		char src_bbool[] = "BYTE_BOOLEAN[5]";
 		pChar p_bbo = src_bbool;
 		int n_bbo = strlen(src_bbool);
-		REQUIRE(!cnt_case.get_type_and_shape(p_bbo, n_bbo, &item_hea, dims));
+		REQUIRE(cnt_case.get_type_and_shape(p_bbo, n_bbo, &item_hea, dims));
 
 		cnt_case.destroy_transaction(p_back);
 		cnt_case.destroy_transaction(p_ser);
@@ -7185,30 +7185,98 @@ SCENARIO("Testing partial functions in container.cpp") {
 //TODO: Implement test for new_block (7) up to 100% coverage.
 //TODO: Implement test for new_block (8) up to 100% coverage.
 //TODO: Implement test for new_block (8) up to 100% coverage.
-//TODO: Implement test for get (1) up to 100% coverage.
-//TODO: Implement test for get (2) up to 100% coverage.
-//TODO: Implement test for get (3) up to 100% coverage.
-//TODO: Implement test for header (1) up to 100% coverage.
-//TODO: Implement test for header (2) up to 100% coverage.
-//TODO: Implement test for put up to 100% coverage.
-//TODO: Implement test for new_entity up to 100% coverage.
-//TODO: Implement test for remove up to 100% coverage.
-//TODO: Implement test for copy up to 100% coverage.
-//TODO: Implement test for as_locator up to 100% coverage.
-//TODO: Implement test for destroy_container up to 100% coverage.
-//TODO: Implement test for get_type_and_shape up to 100% coverage.
-//TODO: Implement test for get_shape_and_size up to 100% coverage.
-//TODO: Implement test for fill_text_buffer up to 100% coverage.
-//TODO: Implement test for fill_tensor up to 100% coverage.
-//TODO: Implement test for new_text_block up to 100% coverage.
-//TODO: Implement test for tensor_int_as_text up to 100% coverage.
-//TODO: Implement test for tensor_bool_as_text up to 100% coverage.
-//TODO: Implement test for tensor_float_as_text up to 100% coverage.
+
+	GIVEN("We have check for errors in Locator-based API") {
+		pTransaction p_txn;
+		const char wrong_what[] = "!no-base";
+		const char good_what[]  = "//base/ent/key";
+		Name name = {"name"};
+		REQUIRE(cnt.get(p_txn, (pChar) wrong_what) == SERVICE_ERROR_PARSING_NAMES);
+		REQUIRE(cnt.get(p_txn, (pChar) wrong_what, (pBlock) nullptr) == SERVICE_ERROR_PARSING_NAMES);
+		REQUIRE(cnt.get(p_txn, (pChar) wrong_what, name) == SERVICE_ERROR_PARSING_NAMES);
+
+		StaticBlockHeader hea;
+
+		REQUIRE(cnt.header(hea, (pChar) wrong_what) == SERVICE_ERROR_PARSING_NAMES);
+		REQUIRE(cnt.header(p_txn, (pChar) wrong_what) == SERVICE_ERROR_PARSING_NAMES);
+
+		REQUIRE(cnt.put((pChar) wrong_what, (pBlock) nullptr, 0) == SERVICE_ERROR_PARSING_NAMES);
+
+		REQUIRE(cnt.new_entity((pChar) wrong_what) == SERVICE_ERROR_PARSING_NAMES);
+
+		REQUIRE(cnt.remove((pChar) wrong_what) == SERVICE_ERROR_PARSING_NAMES);
+
+		REQUIRE(cnt.copy((pChar) wrong_what, (pChar) good_what) == SERVICE_ERROR_PARSING_NAMES);
+		REQUIRE(cnt.copy((pChar) good_what, (pChar) wrong_what) == SERVICE_ERROR_PARSING_NAMES);
+	}
+
+	GIVEN("We have some purpose blocks") {
+		pTransaction p_bl1, p_bl2;
+
+		TensorDim dim_t1 {{27, 7, 3}}, dim_t2 {{3, 5, 4, 2, 0}};
+
+		REQUIRE(cnt.new_block(p_bl1, CELL_TYPE_LONG_INTEGER, dim_t1.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_bl1 != nullptr);
+		REQUIRE(p_bl1->p_block->cell_type == CELL_TYPE_LONG_INTEGER);
+
+		REQUIRE(cnt.new_block(p_bl2, CELL_TYPE_TIME, dim_t2.dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(p_bl2 != nullptr);
+		REQUIRE(p_bl2->p_block->cell_type == CELL_TYPE_TIME);
+
+		WHEN("We serialize the content into source blocks") {
+			pTransaction p_tx1, p_tx2;
+			REQUIRE(cnt.new_block(p_tx1, p_bl1->p_block) == SERVICE_NO_ERROR);
+			REQUIRE(cnt.new_block(p_tx2, p_bl2->p_block) == SERVICE_NO_ERROR);
+
+			REQUIRE(p_tx1->p_block->cell_type == CELL_TYPE_BYTE);
+			REQUIRE(p_tx2->p_block->cell_type == CELL_TYPE_BYTE);
+
+			THEN("We use the serialization on fill_tensor()") {
+				pChar p_in = (pChar) p_tx1->p_block->tensor.cell_byte;
+				int num_bytes = p_tx1->p_block->total_bytes;
+
+				REQUIRE(cnt.fill_tensor(p_in, num_bytes, p_bl1->p_block));
+
+				p_in = (pChar) p_tx2->p_block->tensor.cell_byte;
+				num_bytes = p_tx2->p_block->total_bytes;
+
+				REQUIRE(cnt.fill_tensor(p_in, num_bytes, p_bl2->p_block));
+
+				p_bl1->p_block->cell_type = CELL_TYPE_OBJECT_KIND;
+
+				p_in = (pChar) p_tx1->p_block->tensor.cell_byte;
+				num_bytes = p_tx1->p_block->total_bytes;
+
+				REQUIRE(!cnt.fill_tensor(p_in, num_bytes, p_bl1->p_block));
+
+				p_bl1->p_block->cell_type = CELL_TYPE_LONG_INTEGER;
+
+				num_bytes = 0;
+
+				Name name;
+				pChar p_out = (pChar) name;
+				int is_NA[4];
+				int hasLN[4];
+				ItemHeader item_hea[4];
+
+				REQUIRE(!cnt.fill_text_buffer(p_in, num_bytes, p_out, 1, is_NA, hasLN));
+
+				REQUIRE(!cnt.get_shape_and_size(p_in, num_bytes, CELL_TYPE_ONNX_GRAPH, item_hea));
+			}
+
+			cnt.destroy_transaction(p_tx1);
+			cnt.destroy_transaction(p_tx2);
+		}
+
+		cnt.destroy_transaction(p_bl1);
+		cnt.destroy_transaction(p_bl2);
+	}
+
 	GIVEN("We exhaustively test tensor_string_as_text()") {
 		char output[1024];
 
 		WHEN("I serialize some strings") {
-			const char input[] = "ABC\x1a""DEF\"JKL -- ∄🌎🎹🌀∞";
+			const char input[] = "A\x1a""D\"J -- ∄🎹🌀\xfa";
 
 			pTransaction p_txn;
 
@@ -7216,12 +7284,59 @@ SCENARIO("Testing partial functions in container.cpp") {
 
 			REQUIRE(cnt.new_block(p_txn, CELL_TYPE_STRING, dim.dim, FILL_WITH_TEXTFILE, 0, input) == SERVICE_NO_ERROR);
 
-			REQUIRE(cnt.tensor_string_as_text(p_txn->p_block, nullptr) < sizeof(output));
-			REQUIRE(cnt.tensor_string_as_text(p_txn->p_block, output) == 0);
+			THEN("I get the expected text") {
+				REQUIRE(cnt.tensor_string_as_text(p_txn->p_block, nullptr) < sizeof(output));
+				REQUIRE(cnt.tensor_string_as_text(p_txn->p_block, output) == 0);
 
+				REQUIRE(strcmp(output, "[\"A\\x1aD\\\"J -- \\xe2\\x88\\x84\\xf0\\x9f\\x8e\\xb9\\xf0\\x9f\\x8c\\x80\\xfa\"]") == 0);
+
+				REQUIRE(cnt.tensor_int_as_text(p_txn->p_block, nullptr, nullptr) < 0);
+				REQUIRE(cnt.tensor_int_as_text(p_txn->p_block, output,  nullptr) < 0);
+
+				REQUIRE(cnt.tensor_bool_as_text(p_txn->p_block, nullptr) < 0);
+				REQUIRE(cnt.tensor_bool_as_text(p_txn->p_block, output)  < 0);
+
+				REQUIRE(cnt.tensor_float_as_text(p_txn->p_block, nullptr, nullptr) < 0);
+				REQUIRE(cnt.tensor_float_as_text(p_txn->p_block, output,  nullptr) < 0);
+			}
 
 			cnt.destroy_transaction(p_txn);
 		}
+	}
+
+	GIVEN("We create an array of text of rank 2") {
+		const char input[] = "[[\"one\",\"uno\"],[\"two\",\"dos\"],[\"three\",\"tres\"]]";
+
+		pTransaction p_txn;
+
+		TensorDim dim = {1, 0, 0, 0, 0, 0};
+
+		REQUIRE(cnt.new_block(p_txn, CELL_TYPE_STRING, dim.dim, FILL_WITH_TEXTFILE, 0, input) == SERVICE_NO_ERROR);
+
+		WHEN("I convert that using new_block(5)") {
+			pTransaction p_aux;
+
+			REQUIRE(cnt.new_block(p_aux, p_txn->p_block, CELL_TYPE_STRING) == SERVICE_NO_ERROR);
+
+			THEN("I get the expected has rank > 1") {
+				REQUIRE(p_aux->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_aux->p_block->rank == 2);
+				REQUIRE(p_aux->p_block->range.dim[0] == 2);
+				REQUIRE(p_aux->p_block->range.dim[1] == 1);
+				REQUIRE(p_aux->p_block->size == 6);
+				REQUIRE(p_aux->p_block->has_NA == false);
+				REQUIRE(strcmp(p_aux->p_block->get_string(0), "one") == 0);
+				REQUIRE(strcmp(p_aux->p_block->get_string(1), "uno") == 0);
+				REQUIRE(strcmp(p_aux->p_block->get_string(2), "two") == 0);
+				REQUIRE(strcmp(p_aux->p_block->get_string(3), "dos") == 0);
+				REQUIRE(strcmp(p_aux->p_block->get_string(4), "three") == 0);
+				REQUIRE(strcmp(p_aux->p_block->get_string(5), "tres") == 0);
+			}
+
+			cnt.destroy_transaction(p_aux);
+		}
+
+		cnt.destroy_transaction(p_txn);
 	}
 	GIVEN("We complete kind_as_text") {
 		pTransaction p_tx1, p_tx2, p_tx3;
@@ -7285,6 +7400,9 @@ SCENARIO("Testing partial functions in container.cpp") {
 	REQUIRE(cnt.alloc_bytes == cnt.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(cnt.p_buffer != nullptr);
 	REQUIRE(cnt._lock_	 == 0);
+
+	pTransaction p_txn;
+	cnt.new_transaction(p_txn);		// This transaction is not destroyed intentionally to test destroy_container()
 
 	REQUIRE(cnt.shut_down() == SERVICE_NO_ERROR);
 
