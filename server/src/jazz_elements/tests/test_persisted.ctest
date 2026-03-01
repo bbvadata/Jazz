@@ -375,6 +375,51 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 }
 
 
+SCENARIO("CATCH_TEST LMDB wrapper failure switches in Persisted") {
+	Logger cov_log("/tmp/jzz_unit_persisted_wrapper_cov.log");
+	Persisted per_case(&cov_log, &CONFIG);
+
+	per_case.log_error_level = LOG_DEBUG;
+
+	struct StartFailCase {
+		uint32_t trigger;
+	};
+
+	StartFailCase start_fail_cases[] = {
+		{TRIGGER_FAIL_MDB_ENV_CREATE},
+		{TRIGGER_FAIL_MDB_ENV_SET_MAXREADERS},
+		{TRIGGER_FAIL_MDB_ENV_SET_MAXDBS},
+		{TRIGGER_FAIL_MDB_ENV_SET_MAPSIZE},
+		{TRIGGER_FAIL_MDB_ENV_OPEN}
+	};
+
+	for (size_t i = 0; i < sizeof(start_fail_cases) / sizeof(start_fail_cases[0]); i++) {
+		per_case.debug_trigger_failure = start_fail_cases[i].trigger | TRIGGER_FAIL_MDB_ENV_SYNC;
+		REQUIRE(per_case.start() == SERVICE_ERROR_STARTING);
+		REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	per_case.debug_trigger_failure = 0;
+	REQUIRE(per_case.start() == SERVICE_NO_ERROR);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_CURSOR_OPEN;
+	REQUIRE(per_case.open_all_databases() == false);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_BEGIN;
+	REQUIRE(per_case.new_database((pChar) "txn_begin_fail") == SERVICE_ERROR_CREATE_FAILED);
+
+	per_case.debug_trigger_failure = 0;
+	REQUIRE(per_case.new_database((pChar) "ok_after_trigger") == SERVICE_NO_ERROR);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_DROP;
+	REQUIRE(per_case.remove_database((pChar) "ok_after_trigger") == SERVICE_ERROR_REMOVE_FAILED);
+
+	per_case.debug_trigger_failure = 0;
+	REQUIRE(per_case.remove_database((pChar) "ok_after_trigger") == SERVICE_NO_ERROR);
+	REQUIRE(per_case.shut_down() == SERVICE_NO_ERROR);
+}
+
+
 SCENARIO("Write/read some blocks in a new source and close the Container.") {
 
 	PER.log_error_level = LOG_DEBUG;
