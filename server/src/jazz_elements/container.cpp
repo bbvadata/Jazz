@@ -574,6 +574,11 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								char		  eol,
 								AttributeMap *att) {
 
+#ifdef CATCH_TEST
+	if ((debug_trigger_failure & TRIGGER_FAIL_NEW_STRING_BLOCK) && (cell_type == CELL_TYPE_STRING))
+		return SERVICE_ERROR_TRIGGERED;
+#endif
+
 	StatusCode ret = new_transaction(p_txn);
 
 	if (ret != SERVICE_NO_ERROR)
@@ -892,11 +897,8 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 #endif
 
 	if (p_block == nullptr) {
-		if (reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att) != SERVICE_NO_ERROR) {
-			destroy_transaction(p_txn);
-
-			return SERVICE_ERROR_BAD_NEW_KIND;
-		}
+		bool new_kind = reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att) == SERVICE_NO_ERROR;
+		if (!new_kind) { destroy_transaction(p_txn); return SERVICE_ERROR_BAD_NEW_KIND; }	// Almost no way to make this fail.
 
 		for (int i = 0; i < num_items; i++) {
 			pChar p_name = (pChar) &p_names[i];
@@ -1009,12 +1011,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				new_attrib_bytes += len + 1;
 
 			new_num_attributes++;
-		}
-
-		if (!new_num_attributes) {
-			destroy_transaction(p_txn);
-
-			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
 		new_attrib_bytes += new_num_attributes*2*sizeof(int);
@@ -1229,17 +1225,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			int nb_copy = num_bytes;
 			get_char(p_copy, nb_copy);	// Skip '{'
 
-			bool has_name = get_item_name(p_copy, nb_copy, item_name[0]);
-
-			if (has_name) {
-				MapSI idx_dims = {};
-				bool has_type_and_shape = get_type_and_shape(p_copy, nb_copy, &item_hea[0], idx_dims);
-
-				if (has_type_and_shape)
-					cell_type = CELL_TYPE_TUPLE_KIND;
-				else
-					cell_type = CELL_TYPE_OBJECT_KIND;	// An Object Kind with just one name "geo" (instead of "geo.city.Madrid")
-				}
+			if (get_item_name(p_copy, nb_copy, item_name[0]))	// Note this checks the colon too. A CELL_TYPE_OBJECT_KIND cannot pass
+				cell_type = CELL_TYPE_TUPLE_KIND;				// with either one name or many.
 			else {
 				p_copy = p_in;
 				nb_copy = num_bytes;
@@ -1389,8 +1376,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				StatusCode ret = new_text_block(p_aux_txn[i], item_hea[i], p_in, num_bytes);
 
 				if (ret != SERVICE_NO_ERROR) {
-					for (int j = i - 1; j >= 0; j--)
-						destroy_transaction(p_aux_txn[j]);
+					for (int j = i - 1; j >= 0; j--) destroy_transaction(p_aux_txn[j]);
 
 					return ret;
 				}
@@ -1398,15 +1384,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				int ret = new_block(p_aux_txn[i], item_hea[i].cell_type, item_hea[i].dim, FILL_NEW_DONT_FILL);
 
 				if (ret != SERVICE_NO_ERROR) {
-					for (int j = i - 1; j >= 0; j--)
-						destroy_transaction(p_aux_txn[j]);
+					for (int j = i - 1; j >= 0; j--) destroy_transaction(p_aux_txn[j]);
 
 					return ret;
 				}
 
 				if (!fill_tensor(p_in, num_bytes, p_aux_txn[i]->p_block)) {
-					for (int j = i; j >= 0; j--)
-						destroy_transaction(p_aux_txn[j]);
+					for (int j = i; j >= 0; j--) destroy_transaction(p_aux_txn[j]);
 
 					return PARSE_ERROR_TENSOR_FILLING;
 				}
@@ -1478,11 +1462,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		if (ret != SERVICE_NO_ERROR) return ret;
 
 		if (cell_type == CELL_TYPE_BLOCK_KIND)
-			if (!reinterpret_cast<pKind>(p_txn->p_block)->to_block_kind()) {
-				destroy_transaction(p_txn);
+			reinterpret_cast<pKind>(p_txn->p_block)->to_block_kind();	// Can no longer fail, size and types are already checked.
 
-				return SERVICE_ERROR_BAD_NEW_KIND;
-			}
 		return SERVICE_NO_ERROR;
 	}
 	case CELL_TYPE_OBJECT_KIND: {
@@ -1664,10 +1645,11 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	if (ret_as_string) {
 		pTransaction p_aux;
 
-		if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) &p_txn->p_block->tensor, 0) != SERVICE_NO_ERROR) {
+		ret = new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) &p_txn->p_block->tensor, 0);
+		if (ret != SERVICE_NO_ERROR) {
 			destroy_transaction(p_txn);
 
-			return SERVICE_ERROR_NO_MEM;
+			return ret;
 		}
 		std::swap(p_txn->p_block, p_aux->p_block);
 
@@ -1739,6 +1721,8 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
 */
 StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
+
+	p_txn = nullptr;
 
 	int num_rows = index.size();
 	int bytes_key = 0, bytes_val = 0;
@@ -2801,6 +2785,11 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 */
 bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
+#ifdef CATCH_TEST
+	if (debug_trigger_failure & TRIGGER_FAIL_FILL_TENSOR)
+		return false;
+#endif
+
 	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
 	pChar p_st = (pChar) &cell, p_end = (pChar) &cell + sizeof(cell) - 1;
@@ -3298,7 +3287,10 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 */
 int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
 
-	p_txn = nullptr;
+#ifdef CATCH_TEST
+	if (debug_trigger_failure & TRIGGER_FAIL_TEXT_BLOCK)
+		return SERVICE_ERROR_TRIGGERED;
+#endif
 
 	int num_cells = item_hea.dim[0];
 

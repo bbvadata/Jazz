@@ -132,6 +132,7 @@ without global variables.
 #define SERVICE_ERROR_MISC_SERVER		-34		///< MHD_HTTP_INTERNAL_SERVER_ERROR 500 to MHD_HTTP_LOOP_DETECTED 508 in http call
 #define SERVICE_ERROR_UNKNOWN_JAZZNODE	-35		///< http forward_ compose_url() failed.
 #define SERVICE_ERROR_CORRUPTED			-36		///< An forward_get() block from another Jazz node does no pass size of hash check.
+#define SERVICE_ERROR_TRIGGERED			-37		///< Error triggered for testing purposes
 
 /** Default path to config file
 */

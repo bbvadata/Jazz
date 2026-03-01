@@ -111,7 +111,13 @@ namespace jazz_elements
 #define WRITE_AS_STRING					0x04	///< Highest priority, string if CELL_TYPE_STRING or a C string inside CELL_TYPE_BYTE.
 #define WRITE_AS_CONTENT				0x08	///< Next priority, only for tensors of any type, just write the binary data.
 #define WRITE_AS_FULL_BLOCK				0x10	///< Lowest priority, write full block, can always be done.
-#define WRITE_AS_ANY_WRITE				0x1C	///< if mode & this is zero, use base default
+#define WRITE_AS_ANY_WRITE				0x1C	///< If mode & this is zero, use base default.
+
+// Bit masks to trigger failures in tests when set in debug_trigger_failure
+#define TRIGGER_FAIL_TEXT_BLOCK			0x01	///< Trigger a failure in new_text_block() to test error handling.
+#define TRIGGER_FAIL_FILL_TENSOR		0x02	///< Trigger a failure in fill_tensor() to test error handling.
+#define TRIGGER_FAIL_NEW_STRING_BLOCK	0x04	///< Trigger a failure in new_block() (1) creating a string.
+
 
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
@@ -1068,6 +1074,11 @@ class Container : public Service {
 			}
 			return ret;
 		}
+
+#ifdef CATCH_TEST
+	uint32_t debug_trigger_failure = 0;
+#endif
+
 };
 
 // Instancing container, logger and config

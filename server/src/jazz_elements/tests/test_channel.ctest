@@ -524,6 +524,13 @@ SCENARIO("Testing file end-to-end") {
 
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
+		uint64_t alloc_backup = CHN.fail_alloc_bytes;
+		CHN.fail_alloc_bytes = CHN.alloc_bytes + 140;					// Requires 139 for the first block + 187 for the second. This
+		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_ERROR_NO_MEM);	// forces failure on the second block.
+		REQUIRE(p_tx_pop == nullptr);
+
+		CHN.fail_alloc_bytes = alloc_backup;
+
 		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
 		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
 		REQUIRE(CHN.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
@@ -1342,6 +1349,13 @@ SCENARIO("Testing http end-to-end") {
 		p_block[1]->get_dimensions(hea[1].range.dim);
 
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
+
+		uint64_t alloc_backup = CHN.fail_alloc_bytes;
+		CHN.fail_alloc_bytes = 1;
+		REQUIRE(CHN.new_block(p_tx_ix1, CELL_TYPE_INDEX) == SERVICE_ERROR_NO_MEM);
+		REQUIRE(p_tx_ix1 == nullptr);
+
+		CHN.fail_alloc_bytes = alloc_backup;
 
 		REQUIRE(CHN.new_block(p_tx_ix1, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 
