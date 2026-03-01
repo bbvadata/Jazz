@@ -53,10 +53,28 @@
 namespace jazz_elements
 {
 
-#define MAX_POSSIBLE_SOURCES				32		///< Number of databases: configurable via MDB_ENV_SET_MAXDBS, but cannot exceed this.
-#define MAX_LMDB_HOME_LEN				   128		///< Number of chars for the LMDB home path
-#define LMDB_UNIX_FILE_PERMISSIONS	      0664		///< The file permissions (as in chmod) for the database files
-#define INVALID_MDB_DBI				0xefefEFEF		///< A constant to flag invalid MDB_dbi handle values
+#define MAX_POSSIBLE_SOURCES				32				///< Number of databases: configurable via MDB_ENV_SET_MAXDBS, but not above.
+#define MAX_LMDB_HOME_LEN				   128				///< Number of chars for the LMDB home path
+#define LMDB_UNIX_FILE_PERMISSIONS	      0664				///< The file permissions (as in chmod) for the database files
+#define INVALID_MDB_DBI				0xefefEFEF				///< A constant to flag invalid MDB_dbi handle values
+
+
+// Bit masks to trigger LMDB failures in Persisted wrappers during tests.
+#define TRIGGER_FAIL_MDB_ENV_CREATE			(1u << 0)		///< Trigger a failure in mdb_env_create() to test error handling.
+#define TRIGGER_FAIL_MDB_ENV_SET_MAXREADERS	(1u << 1)		///< Trigger a failure in mdb_env_set_maxreaders() to test error handling.
+#define TRIGGER_FAIL_MDB_ENV_SET_MAXDBS		(1u << 2)		///< Trigger a failure in mdb_env_set_maxdbs() to test error handling.
+#define TRIGGER_FAIL_MDB_ENV_SET_MAPSIZE	(1u << 3)		///< Trigger a failure in mdb_env_set_mapsize() to test error handling.
+#define TRIGGER_FAIL_MDB_ENV_OPEN			(1u << 4)		///< Trigger a failure in mdb_env_open() to test error handling.
+#define TRIGGER_FAIL_MDB_ENV_SYNC			(1u << 5)		///< Trigger a failure in mdb_env_sync() to test error handling.
+#define TRIGGER_FAIL_MDB_TXN_BEGIN			(1u << 6)		///< Trigger a failure in mdb_txn_begin() to test error handling.
+#define TRIGGER_FAIL_MDB_DBI_OPEN			(1u << 7)		///< Trigger a failure in mdb_dbi_open() to test error handling.
+#define TRIGGER_FAIL_MDB_PUT				(1u << 8)		///< Trigger a failure in mdb_put() to test error handling.
+#define TRIGGER_FAIL_MDB_TXN_COMMIT			(1u << 9)		///< Trigger a failure in mdb_txn_commit() to test error handling.
+#define TRIGGER_FAIL_MDB_DEL				(1u << 10)		///< Trigger a failure in mdb_del() to test error handling.
+#define TRIGGER_FAIL_MDB_GET				(1u << 11)		///< Trigger a failure in mdb_get() to test error handling.
+#define TRIGGER_FAIL_MDB_CURSOR_OPEN		(1u << 12)		///< Trigger a failure in mdb_cursor_open() to test error handling.
+#define TRIGGER_FAIL_MDB_CURSOR_GET			(1u << 13)		///< Trigger a failure in mdb_cursor_get() to test error handling.
+#define TRIGGER_FAIL_MDB_DROP				(1u << 14)		///< Trigger a failure in mdb_drop() to test error handling.
 
 
 /** \brief All the necessary LMDB options (a binary representation of the values in the config file)
@@ -166,16 +184,67 @@ class Persisted : public Container {
 
 		void log_lmdb_err(int loglevel, int lmdb_err, const char *msg);
 
+#ifdef CATCH_TEST
+		// LMDB wrappers for tests, allowing deterministic failure injection.
+		int mdb_env_create		   (MDB_env **env);
+		int mdb_env_set_maxreaders (MDB_env *env,
+									unsigned int readers);
+		int mdb_env_set_maxdbs	   (MDB_env *env,
+									MDB_dbi dbs);
+		int mdb_env_set_mapsize	   (MDB_env *env,
+									mdb_size_t size);
+		int mdb_env_open		   (MDB_env *env,
+									const char *path,
+									unsigned int flags,
+									mdb_mode_t mode);
+		int mdb_env_sync		   (MDB_env *env,
+									int force);
+		int mdb_txn_begin		   (MDB_env *env,
+									MDB_txn *parent,
+									unsigned int flags,
+									MDB_txn **txn);
+		int mdb_dbi_open		   (MDB_txn *txn,
+									const char *name,
+									unsigned int flags,
+									MDB_dbi *dbi);
+		int mdb_put				   (MDB_txn *txn,
+									MDB_dbi dbi,
+									MDB_val *key,
+									MDB_val *data,
+									unsigned int flags);
+		int mdb_txn_commit		   (MDB_txn *txn);
+		int mdb_del				   (MDB_txn *txn,
+									MDB_dbi dbi,
+									MDB_val *key,
+									MDB_val *data);
+		int mdb_get				   (MDB_txn *txn,
+									MDB_dbi dbi,
+									MDB_val *key,
+									MDB_val *data);
+		int mdb_cursor_open		   (MDB_txn *txn,
+									MDB_dbi dbi,
+									MDB_cursor **cursor);
+		int mdb_cursor_get		   (MDB_cursor *cursor,
+									MDB_val *key,
+									MDB_val *data,
+									MDB_cursor_op op);
+		int mdb_drop			   (MDB_txn *txn,
+									MDB_dbi dbi,
+									int del);
+
+		uint32_t debug_trigger_failure = 0;
+#endif
+
 		DBImap			 source_dbi = {};		///< The lmdb MDB_dbi handles for each source.
 		JazzLmdbOptions  lmdb_opt;				///< The LMDB options
 		MDB_env		    *lmdb_env = nullptr;	///< The LMDB environment
 };
 typedef Persisted *pPersisted;					///< A pointer to a Persisted object
 
-#ifdef CATCH_TEST
-
 // Instancing Persisted
 // --------------------
+
+#ifdef CATCH_TEST
 
 extern Persisted PER;
 

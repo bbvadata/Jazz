@@ -1078,6 +1078,115 @@ void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 
 #ifdef CATCH_TEST
 
+/*	-----------------------------------------------------------------------
+	 Persisted : W r a p p e r s   a r o u n d   t h e   l m d b   A P I
+------------------------------------------------------------------------- */
+
+int Persisted::mdb_env_create(MDB_env **env) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_CREATE)
+		return EINVAL;
+
+	return ::mdb_env_create(env);
+}
+
+int Persisted::mdb_env_set_maxreaders(MDB_env *env, unsigned int readers) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SET_MAXREADERS)
+		return EINVAL;
+
+	return ::mdb_env_set_maxreaders(env, readers);
+}
+
+int Persisted::mdb_env_set_maxdbs(MDB_env *env, MDB_dbi dbs) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SET_MAXDBS)
+		return EINVAL;
+
+	return ::mdb_env_set_maxdbs(env, dbs);
+}
+
+int Persisted::mdb_env_set_mapsize(MDB_env *env, mdb_size_t size) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SET_MAPSIZE)
+		return EINVAL;
+
+	return ::mdb_env_set_mapsize(env, size);
+}
+
+int Persisted::mdb_env_open(MDB_env *env, const char *path, unsigned int flags, mdb_mode_t mode) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_OPEN)
+		return EINVAL;
+
+	return ::mdb_env_open(env, path, flags, mode);
+}
+
+int Persisted::mdb_env_sync(MDB_env *env, int force) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SYNC)
+		return EINVAL;
+
+	return ::mdb_env_sync(env, force);
+}
+
+int Persisted::mdb_txn_begin(MDB_env *env, MDB_txn *parent, unsigned int flags, MDB_txn **txn) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_TXN_BEGIN)
+		return EINVAL;
+
+	return ::mdb_txn_begin(env, parent, flags, txn);
+}
+
+int Persisted::mdb_dbi_open(MDB_txn *txn, const char *name, unsigned int flags, MDB_dbi *dbi) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_DBI_OPEN)
+		return EINVAL;
+
+	return ::mdb_dbi_open(txn, name, flags, dbi);
+}
+
+int Persisted::mdb_put(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data, unsigned int flags) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_PUT)
+		return EINVAL;
+
+	return ::mdb_put(txn, dbi, key, data, flags);
+}
+
+int Persisted::mdb_txn_commit(MDB_txn *txn) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_TXN_COMMIT)
+		return EINVAL;
+
+	return ::mdb_txn_commit(txn);
+}
+
+int Persisted::mdb_del(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_DEL)
+		return EINVAL;
+
+	return ::mdb_del(txn, dbi, key, data);
+}
+
+int Persisted::mdb_get(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_GET)
+		return EINVAL;
+
+	return ::mdb_get(txn, dbi, key, data);
+}
+
+int Persisted::mdb_cursor_open(MDB_txn *txn, MDB_dbi dbi, MDB_cursor **cursor) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_CURSOR_OPEN)
+		return EINVAL;
+
+	return ::mdb_cursor_open(txn, dbi, cursor);
+}
+
+int Persisted::mdb_cursor_get(MDB_cursor *cursor, MDB_val *key, MDB_val *data, MDB_cursor_op op) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_CURSOR_GET)
+		return EINVAL;
+
+	return ::mdb_cursor_get(cursor, key, data, op);
+}
+
+int Persisted::mdb_drop(MDB_txn *txn, MDB_dbi dbi, int del) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_DROP)
+		return EINVAL;
+
+	return ::mdb_drop(txn, dbi, del);
+}
+
 Persisted PER(&LOGGER, &CONFIG);
 
 #endif
