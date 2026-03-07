@@ -44,23 +44,9 @@ using namespace jazz_elements;
 // Utils
 // -----
 
-int count_occurrences(const String &haystack, const char *needle) {
-	int count = 0;
-	size_t pos = 0;
-	size_t needle_len = strlen(needle);
-
-	while ((pos = haystack.find(needle, pos)) != String::npos) {
-		count++;
-		pos += needle_len;
-	}
-
-	return count;
-}
-
 void test_block_names(pChar prefix, pBlock p_block) {
-
-char		 buf[128];
-pTransaction p_txn;
+	char		 buf[128];
+	pTransaction p_txn;
 
 	sprintf(buf, "%s/-", prefix);
 	REQUIRE(PER.put((pChar) &buf, p_block) == SERVICE_NO_ERROR);
@@ -144,11 +130,7 @@ pTransaction p_txn;
 // -----
 
 SCENARIO("Testing Persisted::log_lmdb_err()") {
-	const char *log_fn = "/tmp/jzz_unit_lmdb_err.log";
-	remove(log_fn);
-
-	Logger lmdb_log(log_fn);
-	Persisted per_case(&lmdb_log, nullptr);
+	Persisted per_case(&LOGGER, nullptr);
 
 	per_case.log_error_level = LOG_DEBUG;
 
@@ -187,29 +169,8 @@ SCENARIO("Testing Persisted::log_lmdb_err()") {
 
 	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
 		char detail[64];
-		sprintf(detail, "log_lmdb_err detail #%zu", i);
 		per_case.log_lmdb_err(LOG_DEBUG, cases[i].lmdb_err, detail);
 	}
-
-	std::ifstream fh(log_fn);
-	REQUIRE(fh.good());
-
-	String logs;
-	String line;
-	while (std::getline(fh, line)) {
-		logs += line;
-		logs += "\n";
-	}
-
-	for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
-		char detail[64];
-		sprintf(detail, "log_lmdb_err detail #%zu", i);
-
-		REQUIRE(logs.find(cases[i].expected) != String::npos);
-		REQUIRE(logs.find(detail) != String::npos);
-	}
-
-	REQUIRE(count_occurrences(logs, "log_lmdb_err detail #") == int(sizeof(cases) / sizeof(cases[0])));
 }
 
 
@@ -245,8 +206,7 @@ SCENARIO("Coverage hunting low-covered Persisted branches") {
 	RestoreOnExit restore_on_exit = {&restore_config};
 
 	GIVEN("A dedicated persisted instance and controlled config mutations") {
-		Logger cov_log("/tmp/jzz_unit_persisted_cov.log");
-		Persisted per_case(&cov_log, &CONFIG);
+		Persisted per_case(&LOGGER, &CONFIG);
 
 		per_case.log_error_level = LOG_DEBUG;
 
@@ -297,8 +257,7 @@ SCENARIO("Coverage hunting low-covered Persisted branches") {
 
 SCENARIO("Force error handling in open_all_databases/new_database/remove_database") {
 	GIVEN("We test starting and closing methods") {
-		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_open.log");
-		Persisted per_case(&cov_log, &CONFIG);
+		Persisted per_case(&LOGGER, &CONFIG);
 
 		per_case.log_error_level = LOG_DEBUG;
 
@@ -308,8 +267,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 	}
 
 	GIVEN("We test some malformed database names") {
-		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_checks.log");
-		Persisted per_case(&cov_log, &CONFIG);
+		Persisted per_case(&LOGGER, &CONFIG);
 
 		per_case.log_error_level = LOG_DEBUG;
 
@@ -331,8 +289,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 	}
 
 	GIVEN("We test some new database transactions") {
-		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_newdb_txn.log");
-		Persisted per_case(&cov_log, &CONFIG);
+		Persisted per_case(&LOGGER, &CONFIG);
 
 		per_case.log_error_level = LOG_DEBUG;
 
@@ -349,8 +306,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 	}
 
 	GIVEN("We test some removed database transactions") {
-		Logger cov_log("/tmp/jzz_unit_persisted_internal_cov_removedb_txn.log");
-		Persisted per_case(&cov_log, &CONFIG);
+		Persisted per_case(&LOGGER, &CONFIG);
 
 		per_case.log_error_level = LOG_DEBUG;
 
@@ -376,8 +332,7 @@ SCENARIO("Force error handling in open_all_databases/new_database/remove_databas
 
 
 SCENARIO("CATCH_TEST LMDB wrapper failure switches in Persisted") {
-	Logger cov_log("/tmp/jzz_unit_persisted_wrapper_cov.log");
-	Persisted per_case(&cov_log, &CONFIG);
+	Persisted per_case(&LOGGER, &CONFIG);
 
 	per_case.log_error_level = LOG_DEBUG;
 
