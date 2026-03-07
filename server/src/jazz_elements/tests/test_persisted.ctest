@@ -760,9 +760,6 @@ SCENARIO("Testing LMDB entity and key names.") {
 
 
 SCENARIO("Strong End-to-end lmdb tests") {
-
-//TODO: Extend tests for header() that include: CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND
-
 	REQUIRE(PER.start() == SERVICE_NO_ERROR);
 
 	REQUIRE(strstr(PER.id(), "Persisted from Jazz") != nullptr);
@@ -1254,6 +1251,324 @@ SCENARIO("Strong End-to-end lmdb tests") {
 	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(PER.p_buffer != nullptr);
 	REQUIRE(PER._lock_	 == 0);
+
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.alloc_bytes == 0);
+	REQUIRE(PER.p_buffer == nullptr);
+	REQUIRE(PER.p_free	 == nullptr);
+	REQUIRE(PER._lock_	 == 0);
+}
+
+
+SCENARIO("Write/read some blocks forcing errors with the wrapper.") {
+	PER.log_error_level = LOG_DEBUG;
+
+	PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;
+	REQUIRE(PER.start() == SERVICE_ERROR_STARTING);
+	PER.debug_trigger_failure = 0;
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	PER.debug_trigger_failure = TRIGGER_FAIL_MDB_DBI_OPEN;
+	REQUIRE(PER.start() == SERVICE_ERROR_STARTING);
+	PER.debug_trigger_failure = 0;
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_BEGIN;
+	REQUIRE(PER.start() == SERVICE_ERROR_STARTING);
+	PER.debug_trigger_failure = 0;
+	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
+
+	PER.debug_trigger_failure = 0;
+	REQUIRE(PER.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(PER.max_transactions > 0);
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.warn_alloc_bytes > 0);
+	REQUIRE(PER.fail_alloc_bytes > 0);
+	REQUIRE(PER.alloc_warning_issued == false);
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER.p_free	 == PER.p_buffer);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next == &pStoredTransaction(PER.p_buffer)[1]);
+	REQUIRE(pStoredTransaction(PER.p_free)->p_next->p_next == &pStoredTransaction(PER.p_buffer)[2]);
+	REQUIRE(	pStoredTransaction(PER.p_buffer)[PER.max_transactions - 2].p_next
+			== &pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1]);
+	REQUIRE(pStoredTransaction(PER.p_buffer)[PER.max_transactions - 1].p_next == nullptr);
+	REQUIRE(PER._lock_ == 0);
+
+	GIVEN("We have some blocks and indices") {
+		Index txt;
+
+		txt["this"]	  = "Whatever we write here";
+		txt["thing"]  = "[[1,2,3,4,5]]";
+		txt["gets"]	  = "";
+		txt["stored"] = "A multiline string\nis okay\nEñe";
+
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_ob_knd, p_bl_knd;
+
+		int dim[MAX_TENSOR_RANK] = {10, 3, 2};
+
+		REQUIRE(PER.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
+
+		REQUIRE(pTuple(p_tx_pop->p_block)->get_block(0)->cell_type == CELL_TYPE_STRING);
+		REQUIRE(strcmp(pTuple(p_tx_pop->p_block)->get_block(1)->get_string(0), txt.begin()->second.c_str()) == 0);
+
+		REQUIRE(PER.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree\n0") == 0);
+		REQUIRE(PER.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
+		p_tx_chr->p_block->tensor.cell_byte[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_int->p_block->tensor.cell_int[0]  = 1;
+		p_tx_int->p_block->tensor.cell_int[59] = 59;
+
+		REQUIRE(PER.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
+		p_tx_rea->p_block->tensor.cell_double[59] = 987.654;
+
+		REQUIRE(PER.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+
+		struct tm junk		= {0};
+		struct tm *timeinfo = &junk;
+
+		char buffer[20] = {"2021-08-01 12:13:14"};
+		char fmt[20]	= {"%Y-%m-%d %H:%M:%S"};
+
+		REQUIRE(strptime(buffer, fmt, timeinfo) != nullptr);
+
+		REQUIRE(timeinfo->tm_mday == 1);
+
+		for (int i = 0; i < 60; i++) {
+			timeinfo->tm_mday =  1 + (3*i % 29);
+			timeinfo->tm_hour =  7 + (5*i % 7);
+			timeinfo->tm_min  = 13 + (7*i % 31);
+			p_tx_tim->p_block->tensor.cell_time[i] = timegm(timeinfo);
+		}
+
+		char const *text = "geo.city.Madrid";
+
+		REQUIRE(PER.new_block(p_ob_knd, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, text, '.') == SERVICE_NO_ERROR);
+		REQUIRE(p_ob_knd != nullptr);
+		REQUIRE(p_ob_knd->p_block != nullptr);
+		REQUIRE(p_ob_knd->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_ob_knd->p_block->hash64 == 0);
+
+		REQUIRE(p_ob_knd->p_block->cell_type == CELL_TYPE_STRING);
+		REQUIRE(p_ob_knd->p_block->size == 3);
+
+		p_ob_knd->p_block->cell_type = CELL_TYPE_OBJECT_KIND;
+
+		REQUIRE(strcmp(p_ob_knd->p_block->get_string(0), "geo") == 0);
+		REQUIRE(strcmp(p_ob_knd->p_block->get_string(1), "city") == 0);
+		REQUIRE(strcmp(p_ob_knd->p_block->get_string(2), "Madrid") == 0);
+
+		StaticBlockHeader p_hea[1];
+
+		memcpy(&p_hea, p_tx_int->p_block, sizeof(StaticBlockHeader));
+		p_tx_int->p_block->get_dimensions(&p_hea->range.dim[0]);
+
+		REQUIRE(p_hea[0].cell_type == CELL_TYPE_INTEGER);
+		REQUIRE(p_hea[0].size == 60);
+		REQUIRE(p_hea[0].rank == 3);
+
+		Name p_names[] = {"int"};
+
+		REQUIRE(PER.new_block(p_bl_knd, 1, p_hea, p_names, nullptr) == SERVICE_NO_ERROR);
+		REQUIRE(p_bl_knd->p_block != nullptr);
+		REQUIRE(p_bl_knd->status  == BLOCK_STATUS_READY);
+		REQUIRE(p_bl_knd->p_block->hash64 == 0);
+
+		REQUIRE(p_bl_knd->p_block->cell_type == CELL_TYPE_TUPLE_KIND);
+
+		REQUIRE(reinterpret_cast<pKind>(p_bl_knd->p_block)->to_block_kind());
+
+		REQUIRE(p_bl_knd->p_block->cell_type == CELL_TYPE_BLOCK_KIND);
+
+		PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;
+		REQUIRE(PER.new_entity((pChar) "//lmdb/save_this_thing") == SERVICE_ERROR_CREATE_FAILED);
+
+		PER.debug_trigger_failure = TRIGGER_FAIL_MDB_PUT;
+		REQUIRE(PER.new_entity((pChar) "//lmdb/save_this_thing") == SERVICE_ERROR_CREATE_FAILED);
+
+		PER.debug_trigger_failure = 0;
+
+		REQUIRE(PER.new_entity((pChar) "//lmdb/save_this_thing") == SERVICE_NO_ERROR);
+
+		pTransaction p_txn;
+
+		WHEN("We test put()/get() of keys") {
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/pop-saved", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/str-saved", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/chr-saved", p_tx_chr->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/int-saved", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/rea-saved", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/tim-saved", p_tx_tim->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/obj__kind", p_ob_knd->p_block, 0) == SERVICE_NO_ERROR);
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/block_knd", p_bl_knd->p_block, 0) == SERVICE_NO_ERROR);
+
+			uint64_t hash64_back = p_bl_knd->p_block->hash64;
+			p_bl_knd->p_block->hash64 = hash64_back ^ 0xcaca;
+
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/corrupted", p_bl_knd->p_block, 0) == SERVICE_NO_ERROR);
+			p_bl_knd->p_block->hash64 = hash64_back;
+
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/duplicate", p_bl_knd->p_block, 0) == SERVICE_NO_ERROR);
+
+			// We force all possible lmdb errors in the middle of a working pipeline and results should still be correct.
+
+			pTransaction p_tx;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_BEGIN;
+			REQUIRE(PER.get(p_tx, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(p_tx == nullptr);
+
+			MDB_dbi dbi_backup = PER.source_dbi["save_this_thing"];
+			PER.source_dbi["save_this_thing"] = INVALID_MDB_DBI;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_DBI_OPEN;
+			REQUIRE(PER.get(p_tx, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(p_tx == nullptr);
+
+			PER.source_dbi["save_this_thing"] = dbi_backup;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_GET;
+			REQUIRE(PER.get(p_tx, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			REQUIRE(p_tx == nullptr);
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;	// Fails done_pointer_to_block() which is not treated as a failure
+			REQUIRE(PER.get(p_tx, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_NO_ERROR);
+			PER.destroy_transaction(p_tx);
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_BEGIN;
+			REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing/duplicate") == SERVICE_ERROR_REMOVE_FAILED);
+
+			dbi_backup = PER.source_dbi["save_this_thing"];
+			PER.source_dbi["save_this_thing"] = INVALID_MDB_DBI;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_DBI_OPEN;
+			REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing/duplicate") == SERVICE_ERROR_REMOVE_FAILED);
+
+			PER.source_dbi["save_this_thing"] = dbi_backup;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_DEL;
+			REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing/duplicate") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;
+			REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing/duplicate") == SERVICE_ERROR_REMOVE_FAILED);
+
+			PER.debug_trigger_failure = 0;
+
+			dbi_backup = PER.source_dbi["save_this_thing"];			// This time, there is no restoring, we free the key if valid.
+			PER.source_dbi["save_this_thing"] = INVALID_MDB_DBI;
+			if (dbi_backup != INVALID_MDB_DBI)
+				mdb_dbi_close(PER.lmdb_env, dbi_backup);
+
+			REQUIRE(PER.remove((pChar) "//lmdb/save_this_thing/duplicate") == SERVICE_NO_ERROR);
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_BEGIN;
+
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/again", p_bl_knd->p_block, 0) == SERVICE_ERROR_WRITE_FAILED);
+
+			dbi_backup = PER.source_dbi["save_this_thing"];
+			PER.source_dbi["save_this_thing"] = INVALID_MDB_DBI;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_DBI_OPEN;
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/again", p_bl_knd->p_block, 0) == SERVICE_ERROR_WRITE_FAILED);
+
+			PER.source_dbi["save_this_thing"] = dbi_backup;
+
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_PUT;
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/again", p_bl_knd->p_block, 0) == SERVICE_ERROR_WRITE_FAILED);
+			PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/again", p_bl_knd->p_block, 0) == SERVICE_ERROR_WRITE_FAILED);
+
+			PER.debug_trigger_failure = 0;
+
+			dbi_backup = PER.source_dbi["save_this_thing"];			// This time, there is no restoring, we free the key if valid.
+			PER.source_dbi["save_this_thing"] = INVALID_MDB_DBI;
+			if (dbi_backup != INVALID_MDB_DBI)
+				mdb_dbi_close(PER.lmdb_env, dbi_backup);
+
+			REQUIRE(PER.put((pChar) "//lmdb/save_this_thing/again", p_bl_knd->p_block, 0) == SERVICE_NO_ERROR);
+
+			pTransaction p_backup = PER.p_free;
+			PER.p_free = nullptr;
+
+			REQUIRE(PER.header(p_tx, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_NO_MEM);
+			REQUIRE(p_tx == nullptr);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_NO_MEM);
+			REQUIRE(p_tx == nullptr);
+
+			PER.p_free = p_backup;
+
+			uint64_t alloc_backup = PER.fail_alloc_bytes;
+			PER.fail_alloc_bytes = 1;
+
+			REQUIRE(PER.header(p_tx, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_NO_MEM);
+			REQUIRE(p_tx == nullptr);
+
+			REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_ERROR_NO_MEM);
+			REQUIRE(p_tx == nullptr);
+
+			PER.fail_alloc_bytes = alloc_backup;
+
+			THEN("We still get the expected structure after having forced errors") {
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/pop-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_pop->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/str-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_str->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/chr-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_chr->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/int-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_int->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/rea-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_rea->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/tim-saved") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_tx_tim->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/obj__kind") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_ob_knd->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/block_knd") == SERVICE_NO_ERROR);
+				compare_full_blocks(p_txn->p_block, p_bl_knd->p_block);
+				PER.destroy_transaction(p_txn);
+
+				REQUIRE(PER.get(p_txn, (pChar) "//lmdb/save_this_thing/corrupted") == SERVICE_ERROR_CORRUPTED);
+				REQUIRE(p_txn == nullptr);
+			}
+		}
+		PER.destroy_transaction(p_bl_knd);
+		PER.destroy_transaction(p_ob_knd);
+		PER.destroy_transaction(p_tx_pop);
+		PER.destroy_transaction(p_tx_str);
+		PER.destroy_transaction(p_tx_chr);
+		PER.destroy_transaction(p_tx_int);
+		PER.destroy_transaction(p_tx_rea);
+		PER.destroy_transaction(p_tx_tim);
+	}
+	REQUIRE(PER.alloc_bytes == PER.max_transactions*sizeof(StoredTransaction));
+	REQUIRE(PER.p_buffer != nullptr);
+	REQUIRE(PER._lock_	 == 0);
+
+	PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;
+	REQUIRE(PER.remove_database((pChar) "save_this_thing") == SERVICE_ERROR_REMOVE_FAILED);
+
+	PER.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_BEGIN;
+	REQUIRE(PER.remove_database((pChar) "save_this_thing") == SERVICE_ERROR_REMOVE_FAILED);
+
+	PER.debug_trigger_failure = 0;
 
 	REQUIRE(PER.shut_down() == SERVICE_NO_ERROR);
 
