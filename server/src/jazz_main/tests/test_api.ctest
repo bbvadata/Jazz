@@ -37,6 +37,7 @@
 #pragma once
 #include "src/jazz_main/api.h"
 
+#include <filesystem>
 
 using namespace jazz_main;
 
@@ -58,6 +59,8 @@ SCENARIO("Testing all Containers start()/shut_down() at API level") {
 		REQUIRE(TT_API.p_volatile	== &VOL);
 		REQUIRE(TT_API.p_persisted	== &PER);
 	}
+
+	std::filesystem::remove_all("./jazz_dbg_mdb/");
 
 	REQUIRE(CHN.start()	== 0);
 	REQUIRE(VOL.start()	== 0);
