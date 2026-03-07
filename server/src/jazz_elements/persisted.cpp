@@ -37,8 +37,6 @@
 
 #include "src/jazz_elements/persisted.h"
 
-//TODO: Increase test coverage to 100%.
-
 namespace jazz_elements
 {
 /*	-----------------------------------------------
@@ -76,8 +74,7 @@ StatusCode Persisted::start() {
 
 	int ret = Container::start();	// This initializes the one-shot functionality.
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	if (lmdb_env != nullptr) {
 		log(log_error_level, "Persisted::start() failed: nested start() call.");
@@ -269,8 +266,13 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 
 	p_txn->status = BLOCK_STATUS_READY;
 
-	if (!p_txn->p_block->check_hash())
-		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+	if (!p_txn->p_block->check_hash()) {
+		log_printf(log_error_level, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+
+		destroy_transaction(p_txn);
+
+		return SERVICE_ERROR_CORRUPTED;
+	}
 
 	return SERVICE_NO_ERROR;
 }
@@ -383,8 +385,6 @@ For Kinds, the metadata of all the items is exactly the same a .get() call retur
 For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
 StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
-
-//TODO: Add support for CELL_TYPE_BLOCK_KIND and CELL_TYPE_OBJECT_KIND.
 
 	pMDB_txn p_l_txn;
 
@@ -575,7 +575,7 @@ StatusCode Persisted::remove(Locator &where) {
 
 			goto release_txn_and_fail;
 		}
-		source_dbi [where.entity] = hh;
+		source_dbi[where.entity] = hh;
 	}
 
 	MDB_val l_key;
