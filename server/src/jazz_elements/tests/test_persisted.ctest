@@ -366,6 +366,24 @@ SCENARIO("CATCH_TEST LMDB wrapper failure switches in Persisted") {
 	per_case.debug_trigger_failure = 0;
 	REQUIRE(per_case.new_database((pChar) "ok_after_trigger") == SERVICE_NO_ERROR);
 
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_DBI_OPEN;
+	REQUIRE(per_case.mdb_dbi_open(nullptr, nullptr, 0, nullptr) == EINVAL);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_PUT;
+	REQUIRE(per_case.mdb_put(nullptr, 0, nullptr, nullptr, 0) == EINVAL);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_TXN_COMMIT;
+	REQUIRE(per_case.mdb_txn_commit(nullptr) == EINVAL);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_DEL;
+	REQUIRE(per_case.mdb_del(nullptr, 0, nullptr, nullptr) == EINVAL);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_GET;
+	REQUIRE(per_case.mdb_get(nullptr, 0, nullptr, nullptr) == EINVAL);
+
+	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_CURSOR_GET;
+	REQUIRE(per_case.mdb_cursor_get(nullptr, nullptr, nullptr, MDB_LAST) == EINVAL);
+
 	per_case.debug_trigger_failure = TRIGGER_FAIL_MDB_DROP;
 	REQUIRE(per_case.remove_database((pChar) "ok_after_trigger") == SERVICE_ERROR_REMOVE_FAILED);
 
