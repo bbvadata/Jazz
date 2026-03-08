@@ -209,26 +209,36 @@ StatusCode Channels::start() {
 	if (jazz_node_my_index < 0) {
 		struct ifaddrs *ifaddr, *ifa;
 
-		if (getifaddrs(&ifaddr) == -1) {
+		int getifaddrs_ret = getifaddrs(&ifaddr);
+
+#ifdef CATCH_TEST
+		if (debug_trigger_failure & TRIGGER_FAIL_GETIFADDRS)
+			getifaddrs_ret = -1;
+#endif
+
+		if (getifaddrs_ret == -1) {
 			log(log_error_level, "Channels::start() failed to get network interfaces");
 
 			return EXIT_FAILURE;
 		}
 
 		for (ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
-			if (ifa->ifa_addr == nullptr)
-				continue;
+			if (ifa->ifa_addr == nullptr) continue;
 
 			int family = ifa->ifa_addr->sa_family;
 
-			if (!(ifa->ifa_flags & IFF_UP))
-				continue;
+			if (!(ifa->ifa_flags & IFF_UP)) continue;
 
 			if (family == AF_INET || family == AF_INET6) {
 				char host[NI_MAXHOST];
 
 				socklen_t family_size = (family == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6);
 				int s = getnameinfo(ifa->ifa_addr, family_size, host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
+
+#ifdef CATCH_TEST
+				if (debug_trigger_failure & TRIGGER_FAIL_GETNAMEINFO)
+					s = -1;
+#endif
 				if (s != 0) {
 					log_printf(log_error_level, "Channels::start() getnameinfo() failed: %s", gai_strerror(s));
 					freeifaddrs(ifaddr);
@@ -245,6 +255,11 @@ StatusCode Channels::start() {
 			}
 		}
 		freeifaddrs(ifaddr);
+
+#ifdef CATCH_TEST
+		if (debug_trigger_failure & TRIGGER_FAIL_MYINDEX_FIND)
+			jazz_node_my_index = -1;
+#endif
 
 		if (jazz_node_my_index < 0) {
 			log(log_error_level, "Channels::start() could not determine this node's index in the cluster");
@@ -301,8 +316,7 @@ StatusCode Channels::shut_down() {
 	}
 
 	if (zmq_ok) {
-		for (PipeMap::iterator it = pipes.begin(); it != pipes.end(); ++it)
-			zmq_close(it->second.requester);
+		for (PipeMap::iterator it = pipes.begin(); it != pipes.end(); ++it) zmq_close(it->second.requester);
 
 		pipes.clear();
 
@@ -313,8 +327,7 @@ StatusCode Channels::shut_down() {
 		zmq_ok		= false;
 	}
 
-	for (ConnMap::iterator it = connect.begin(); it != connect.end(); ++it)
-		it->second.clear();
+	for (ConnMap::iterator it = connect.begin(); it != connect.end(); ++it) it->second.clear();
 
 	connect.clear();
 
@@ -398,7 +411,10 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 
 				fclose(fp);
 			}
-
+#ifdef CATCH_TEST
+			if (debug_trigger_failure & TRIGGER_FAIL_FILE_IO)
+				read_ok = false;
+#endif
 			if (!read_ok) {
 				destroy_transaction(p_txn);
 
@@ -406,7 +422,9 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			}
 			return SERVICE_NO_ERROR;
 		}}
+#ifndef CATCH_TEST						// Unreachable: just in case stat() returns something other that a file or a folder.
 		return SERVICE_ERROR_IO_ERROR;
+#endif
 
 	case BASE_HTTP_10BIT: {
 		if (!curl_ok)
@@ -707,14 +725,21 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 		if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 
-		Socket sock;
+		Socket sock = {};
 		strncpy(sock.endpoint, p_block->get_string(0), sizeof(sock.endpoint));
 
-		if (   (zmq_context == nullptr) || ((sock.requester = zmq_socket(zmq_context, ZMQ_REQ)) == nullptr)
+		void *p_context = zmq_context;
+
+#ifdef CATCH_TEST
+		if (debug_trigger_failure & TRIGGER_FAIL_ZMQ)
+			p_context = nullptr;
+#endif
+
+		if (   (p_context == nullptr)
+			|| ((sock.requester = zmq_socket(p_context, ZMQ_REQ)) == nullptr)
 			|| (zmq_connect(sock.requester, sock.endpoint) != 0)) {
 
-			if (sock.requester != nullptr)
-				zmq_close(sock.requester);
+			if (sock.requester != nullptr) zmq_close(sock.requester);
 
 			return SERVICE_ERROR_IO_ERROR;
 		}
@@ -798,7 +823,9 @@ StatusCode Channels::remove(pChar p_where) {
 
 			return SERVICE_NO_ERROR;
 		}
+#ifndef CATCH_TEST						// Unreachable: just in case stat() returns something other that a file or a folder.
 		return SERVICE_ERROR_IO_ERROR;
+#endif
 
 	case BASE_HTTP_10BIT: {
 		if (!curl_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
@@ -942,22 +969,30 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
 		if (fd < 0) return SERVICE_ERROR_IO_ERROR;
 
-		if (write(fd, p_input, size_input) != size_input) {
+		int written = write(fd, p_input, size_input);
+
+#ifdef CATCH_TEST
+		if (debug_trigger_failure & TRIGGER_FAIL_BASH)
+			written = -1;
+#endif
+
+		if (written != size_input) {
 			close(fd);
 			return SERVICE_ERROR_IO_ERROR;
 		}
 		close(fd);
 
-		FILE *fp;
 		char buffer[128];
 
 		sprintf(buffer, "bash %s", script);
 
-		fp = popen(buffer, "r");
+		FILE *fp = popen(buffer, "r");
 
 		if (fp == nullptr) return SERVICE_ERROR_IO_ERROR;
 
-		while (fgets(buffer, 128, fp) != nullptr) {
+		bool interrupted = false;
+
+		while (fgets(buffer, 127, fp) != nullptr) {
 			int ll = strlen(buffer);
 			if (ll < size_result) {
 				if (ll > 0) {
@@ -966,11 +1001,14 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 					size_result	-= ll;
 				}
 			} else {
-				ll = size_result - 1;
-				memcpy(p_result, buffer, ll);
-				p_result	+= ll;
-				size_result	-= ll;
-				break;
+				if (!interrupted) {
+					ll = size_result - 1;			// This only runs the first time, but ..
+					memcpy(p_result, buffer, ll);
+					p_result	+= ll;
+					size_result	-= ll;
+				}
+				interrupted = true;					// .. the fgets() loop must continue til the child process created by popen() finishes.
+													// .. or pclose() will fail.
 			}
 		}
 		memset(p_result, 0, size_result);
@@ -986,32 +1024,20 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-		switch (p_args->get_block(0)->cell_type) {
-		case CELL_TYPE_BYTE:
-		case CELL_TYPE_BYTE_BOOLEAN:
-		case CELL_TYPE_INTEGER:
-		case CELL_TYPE_FACTOR:
-		case CELL_TYPE_GRADE:
-		case CELL_TYPE_BOOLEAN:
-		case CELL_TYPE_SINGLE:
-		case CELL_TYPE_LONG_INTEGER:
-		case CELL_TYPE_TIME:
-		case CELL_TYPE_DOUBLE:
+		switch (p_args->get_block(0)->cell_type & 0xff) {
+		case 1:
+		case 2:
+		case 4:
+		case 8:
 			break;
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 		}
-		switch (p_args->get_block(1)->cell_type) {
-		case CELL_TYPE_BYTE:
-		case CELL_TYPE_BYTE_BOOLEAN:
-		case CELL_TYPE_INTEGER:
-		case CELL_TYPE_FACTOR:
-		case CELL_TYPE_GRADE:
-		case CELL_TYPE_BOOLEAN:
-		case CELL_TYPE_SINGLE:
-		case CELL_TYPE_LONG_INTEGER:
-		case CELL_TYPE_TIME:
-		case CELL_TYPE_DOUBLE:
+		switch (p_args->get_block(1)->cell_type & 0xff) {
+		case 1:
+		case 2:
+		case 4:
+		case 8:
 			break;
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;

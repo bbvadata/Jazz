@@ -99,6 +99,12 @@ namespace jazz_elements
 #define TRIGGER_FAIL_CURL_EASY_PERFORM	(1u << 16)		///< Trigger a failure in curl_easy_perform() to test error handling.
 #define TRIGGER_FAIL_CURL_EASY_GETINFO	(1u << 17)		///< Trigger a failure in curl_easy_getinfo() to test error handling.
 
+#define TRIGGER_FAIL_GETIFADDRS			(1u << 18)		///< Trigger a failure in getifaddrs() to test error handling.
+#define TRIGGER_FAIL_GETNAMEINFO		(1u << 19)		///< Trigger a failure in getnameinfo() to test error handling.
+#define TRIGGER_FAIL_MYINDEX_FIND		(1u << 20)		///< Trigger a failure in jazz_node_my_index to test error handling.
+#define TRIGGER_FAIL_FILE_IO			(1u << 21)		///< Trigger a failure in file I/O to test error handling.
+#define TRIGGER_FAIL_ZMQ				(1u << 22)		///< Trigger a failure in zmq to test error handling.
+#define TRIGGER_FAIL_BASH				(1u << 23)		///< Trigger a failure in bash to test error handling.
 
 /// A map for defining http config names
 typedef std::map<int, String>	MapIS;
