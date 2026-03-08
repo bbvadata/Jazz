@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -38,18 +38,23 @@
 #ifndef INCLUDED_JAZZ_BEBOP
 #define INCLUDED_JAZZ_BEBOP
 
+//TODO: Review valgrind output and either fix or generate suppressions as explained in dynamic_analysis.sh
 
 /** \brief Includes everything in namespace jazz_bebop.
 
-This is everything to run bebop code: Cores, Fields, Primitives, Snippets, Kernels, etc.
+This is everything to run bebop code.
 */
 
-#include "src/jazz_bebop/bop.h"
-#include "src/jazz_bebop/opcode.h"
-#include "src/jazz_bebop/pack.h"
+#include "src/jazz_bebop/base_api.h"
+#include "src/jazz_bebop/std_wrap.h"
+#include "src/jazz_bebop/space.h"
+#include "src/jazz_bebop/opcodes.h"
 #include "src/jazz_bebop/snippet.h"
-#include "src/jazz_bebop/field.h"
 #include "src/jazz_bebop/core.h"
+#include "src/jazz_bebop/namespace.h"
+#include "src/jazz_bebop/objects.h"
+#include "src/jazz_bebop/casters.h"
+#include "src/jazz_bebop/bop.h"
 
 
 #endif // ifndef INCLUDED_JAZZ_BEBOP

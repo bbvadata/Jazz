@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -33,6 +33,7 @@
 
 
 #include <math.h>
+#include <cstring>
 
 
 #include "src/jazz_elements/types.h"
@@ -41,7 +42,9 @@
 namespace jazz_elements
 {
 
-/// Returns an R-compatible numeric NA.
+/** Constants for the types of cells in a Tensor
+	\return An R-compatible numeric NA.
+*/
 inline double R_ValueOfNA() {
 	union {double d; int i[2];} na;
 
@@ -51,8 +54,25 @@ inline double R_ValueOfNA() {
 	return na.d;
 }
 
-float  F_NA = nanf("");
-double R_NA = R_ValueOfNA();
+float	F_NA	= nanf("");
+double	R_NA	= R_ValueOfNA();
+ff_fp16	F16_NA	= {0x7e00};			///< FLOAT16_NA: 0x7e00 is the IEEE 754 half-precision floating point representation of NaN
+ff_fp16	BF16_NA	= {0x7fc0};			///< BFLOAT16_NA: 0x7fc0 is the Brain Floating Point, half-precision representation of NaN
+
+uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
+uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
+
+/** Initialize F_NA_uint32 and R_NA_uint64 with the binary representation of F_NA and R_NA, respectively.
+	\return true	Always true, just to set a flag.
+*/
+inline bool init_uint_na() {
+	memcpy(&F_NA_uint32, &F_NA, sizeof(F_NA));
+	memcpy(&R_NA_uint64, &R_NA, sizeof(R_NA));
+
+	return true;
+}
+
+bool uinit_na_initialized = init_uint_na();	///< A flag to ensure that F_NA_uint32 and R_NA_uint64 are initialized before use.
 
 } // namespace jazz_elements
 

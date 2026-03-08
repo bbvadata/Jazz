@@ -19,20 +19,30 @@ compile_mode_test:
 	@touch compile_mode_test
 	$(eval CPPFLAGS = $(TFLAGS))
 
+compile_mode_coverage:
+	@echo "Switching to compile mode DEBUG&TEST with coverage ..."
+	@make clean
+	@touch compile_mode_coverage
+	$(eval CPPFLAGS = $(CFLAGS))
+
 # Targets (2): Making the executable
 # ------------
 
 djazz: compile_mode_debug $(objects) mdb.o midl.o
 	@echo "Making DEBUG Jazz ..."
-	g++ -o djazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -lmicrohttpd -lpthread -lcurl -lzmq
+	g++ -o djazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -I$(onnx_inclpath) -L$(onnx_inclpath) -lmicrohttpd -lpthread -lcurl -lzmq -lonnxruntime
 
 jazz: compile_mode_release $(objects) mdb.o midl.o
 	@echo "Making RELEASE Jazz ..."
-	g++ -o  jazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -lmicrohttpd -lpthread -lcurl -lzmq
+	g++ -o  jazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -I$(onnx_inclpath) -L$(onnx_inclpath) -lmicrohttpd -lpthread -lcurl -lzmq -lonnxruntime
 
 tjazz: compile_mode_test $(objects) mdb.o midl.o
 	@echo "Making DEBUG&TEST Jazz ..."
-	g++ -o tjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -lmicrohttpd -lpthread -lcurl -lzmq
+	g++ -o tjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -I$(onnx_inclpath) -L$(onnx_inclpath) -lmicrohttpd -lpthread -lcurl -lzmq -lonnxruntime
+
+cjazz: compile_mode_coverage $(objects) mdb.o midl.o
+	@echo "Making DEBUG&TEST Jazz with coverage ..."
+	g++ --coverage -o cjazz $(objects) mdb.o midl.o -I$(mhd_libpath) -L$(mhd_libpath) -I$(curl_libpath) -L$(curl_libpath) -I$(zmq_libpath) -L$(zmq_libpath) -I$(onnx_inclpath) -L$(onnx_inclpath) -lmicrohttpd -lpthread -lcurl -lzmq -lonnxruntime
 
 # Targets (3): Phony targets
 # ------------
@@ -40,16 +50,19 @@ tjazz: compile_mode_test $(objects) mdb.o midl.o
 .PHONY : clean
 clean  :
 	@echo "Cleaning up all files not stored in the repo ..."
-	@rm -f *.o
+	@rm -f *.o *.gcda *.gcno *.gcov
 	@rm -f *jazz
 	@rm -f compile_mode_*
 	@rm -f jazz_dbg.log
 	@rm -f cookiejar
+	@rm -f coverage.info
 	@rm -rf static_analysis_reports/
 	@rm -rf dynamic_analysis_reports/
+	@rm -rf coverage_html/
 	@rm -rf jazz_dbg_mdb/
 	@rm -rf src/lmdb/testdb/
 	@rm -f src/lmdb/*.a src/lmdb/*.o src/lmdb/*.lo src/lmdb/*.so
+	@rm -f src/onnx_proto/example/example_write_onnx src/onnx_proto/example/model.onnx
 	@find src/lmdb/ -executable -type f | xargs rm -f
 
 .PHONY     : clean-data

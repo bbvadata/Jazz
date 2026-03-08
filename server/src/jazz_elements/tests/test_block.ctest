@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,6 +32,12 @@
 */
 
 
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_elements/block.h"
+
+
 using namespace jazz_elements;
 
 
@@ -54,8 +60,8 @@ SCENARIO("Testing Cell Sizes") {
 		jb_lin.cell_type = CELL_TYPE_LONG_INTEGER;
 		jb_tim.cell_type = CELL_TYPE_TIME;
 		jb_dob.cell_type = CELL_TYPE_DOUBLE;
-		jb_tup.cell_type = CELL_TYPE_TUPLE_ITEM;
-		jb_kin.cell_type = CELL_TYPE_KIND_ITEM;
+		jb_tup.cell_type = CELL_TYPE_TUPLE;
+		jb_kin.cell_type = CELL_TYPE_TUPLE_KIND;
 
 		for (int i = 0; i < 10; i++) {
 			int siz = sizes[i];
@@ -1575,4 +1581,59 @@ SCENARIO("Testing AlignToThis") {
 			REQUIRE(((uintptr_t) pt2 & 0x7) == (b_ofs & 0x7));
 		}
 	}
+}
+
+
+SCENARIO ("Testing error conditions in Block") {
+	char buf[4096] = {0};
+
+	pBlock pjb = reinterpret_cast<pBlock>(&buf);
+
+	GIVEN("A block pjb") {
+		int6 d1 = {17, 5, 3, 0, 0, 0};
+
+		pjb->cell_type = CELL_TYPE_TIME;
+
+		pjb->set_dimensions(d1);
+		REQUIRE(pjb->rank ==   3);
+		REQUIRE(pjb->size == 255);
+
+		pjb->num_attributes = 0;
+		pjb->total_bytes = 64 + 255*8 + 12 + 20;
+
+		AttributeMap att;
+		att[666] = nullptr;
+
+		pjb->set_attributes(&att);	// This calls init_string_buffer()
+
+		REQUIRE(pjb->num_attributes == 1);
+
+		REQUIRE(!pjb->p_string_buffer()->stop_check_4_match);
+		REQUIRE(!pjb->p_string_buffer()->alloc_failed);
+		REQUIRE( pjb->p_string_buffer()->buffer_size == 12);
+
+		pjb->close_block(SET_HAS_NA_FALSE);
+		REQUIRE(pjb->hash64 != 0);
+		REQUIRE(pjb->check_hash());
+
+		THEN("A call to set_attributes() on a closed block fails silently") {
+			REQUIRE(pjb->num_attributes == 1);		// Already has 1 attribute
+
+			AttributeMap att2;
+			att2[123] = nullptr;
+			att2[456] = nullptr;
+
+			pjb->set_attributes(&att2);				// This exists silently
+
+			REQUIRE(pjb->num_attributes == 1);		// Still has 1 attribute
+		}
+	}
+
+	pStringBuffer psb = pjb->p_string_buffer();
+
+	pjb->total_bytes = ((uintptr_t) psb - (uintptr_t) &pjb->cell_type) + sizeof(StringBuffer);	// Makes buff_size == 0
+
+	REQUIRE(!psb->alloc_failed);
+	pjb->init_string_buffer();
+	REQUIRE(psb->alloc_failed);
 }

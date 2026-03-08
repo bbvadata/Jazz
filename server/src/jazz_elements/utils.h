@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -132,6 +132,7 @@ without global variables.
 #define SERVICE_ERROR_MISC_SERVER		-34		///< MHD_HTTP_INTERNAL_SERVER_ERROR 500 to MHD_HTTP_LOOP_DETECTED 508 in http call
 #define SERVICE_ERROR_UNKNOWN_JAZZNODE	-35		///< http forward_ compose_url() failed.
 #define SERVICE_ERROR_CORRUPTED			-36		///< An forward_get() block from another Jazz node does no pass size of hash check.
+#define SERVICE_ERROR_TRIGGERED			-37		///< Error triggered for testing purposes
 
 /** Default path to config file
 */
@@ -145,7 +146,7 @@ bool		 FileExists			  (const char* file_name);
 char		*ExpandEscapeSequences(char *buff);
 pid_t		 FindProcessIdByName  (const char *name);
 uint64_t	 MurmurHash64A		  (const void *key, int len);
-std::string	 CleanConfigArgument  (std::string s);
+String		 CleanConfigArgument  (String s);
 
 
 /// A lookup table for all the possible results of a TenBitsAtAddress() call -> integer.
@@ -157,6 +158,9 @@ typedef void* TenBitPtrLUT[TENBITS_LUT_SIZE];
 
 
 /** \brief Get ten bits taking the least significant 5 of the first two characters of a string.
+
+	\param str A string with at least two characters.
+	\return	   The ten bits as an integer.
 
 	Warning: No pointer validation or length check. Never use on nullptr or "".
 */
@@ -223,15 +227,17 @@ class ConfigFile {
 
 		bool get_key(const char *key, int &value);
 		bool get_key(const char *key, double &value);
-		bool get_key(const char *key, std::string &value);
+		bool get_key(const char *key, String &value);
 
-		void debug_put(const std::string key, const std::string val);
+		void debug_put(const String key, const String val);
 
+#ifndef CATCH_TEST
 	private:
+#endif
 
-		std::map<std::string, std::string> config;
+		std::map<String, String> config;	///< The configuration key/value store
 };
-typedef ConfigFile *pConfigFile;
+typedef ConfigFile *pConfigFile;			///< A pointer to a ConfigFile object
 
 
 /** \brief A simple logger.
@@ -262,12 +268,12 @@ class Logger {
 
 		void InitLogger();
 
-		char file_name [MAX_FILENAME_LENGTH];
-		std::ofstream f_stream;
-		std::filebuf *f_buff;
-		TimePoint big_bang;
+		char file_name [MAX_FILENAME_LENGTH];	///< The name of the log file
+		std::ofstream f_stream;					///< The stream to the log file
+		std::filebuf *f_buff;					///< The buffer for the stream
+		TimePoint big_bang;						///< The time when the logger was created
 };
-typedef Logger *pLogger;
+typedef Logger *pLogger;						///< A pointer to a Logger object
 
 
 /** \brief A Jazz Service is a globally instanced configurable object that may allocate RAM.
@@ -329,18 +335,32 @@ class Service {
 		bool get_conf_key(const char *key, int &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
+		/** Wrapper method to get configuration values when the ConfigFile was passed to the constructor of this class.
+
+			\param key	 The configuration key to be searched.
+			\param value Value to be returned only when the function returns true.
+			\return		 True when the key exists and can be returned with the specific (overloaded) type.
+
+			See ConfigFile for details.
+		*/
 		bool get_conf_key(const char *key, double &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
-		bool get_conf_key(const char *key, std::string &value) {
+		/** Wrapper method to get configuration values when the ConfigFile was passed to the constructor of this class.
+
+			\param key	 The configuration key to be searched.
+			\param value Value to be returned only when the function returns true.
+			\return		 True when the key exists and can be returned with the specific (overloaded) type.
+
+			See ConfigFile for details.
+		*/
+		bool get_conf_key(const char *key, String &value) {
 			if (p_conf != nullptr) return p_conf->get_key(key, value); else return false; }
 
-	private:
-
-		pLogger		p_log;
-		pConfigFile	p_conf;
+		pLogger		p_log;		///< The logger
+		pConfigFile	p_conf;		///< The configuration file
 };
-typedef Service *pService;
+typedef Service *pService;		///< A pointer to a Service object
 
 } // namespace jazz_elements
 

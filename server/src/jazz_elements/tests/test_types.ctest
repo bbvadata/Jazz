@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,6 +32,12 @@
 */
 
 
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_elements/types.h"
+
+
 using namespace jazz_elements;
 
 
@@ -60,4 +66,29 @@ SCENARIO("Testing (types) structure sizes.") {
 	REQUIRE(&p_block->has_NA		 == &sbh.has_NA);
 	REQUIRE(&p_block->hash64		 == &sbh.hash64);
 	REQUIRE(&p_block->tensor		 == &sbh.tensor);
+
+	Tensor t;
+
+	void *p_t0 = &t;
+	void *p_t1 = (void*)((uintptr_t)p_t0 + 1);
+	void *p_t2 = (void*)((uintptr_t)p_t0 + 2);
+	void *p_t4 = (void*)((uintptr_t)p_t0 + 4);
+	void *p_t8 = (void*)((uintptr_t)p_t0 + 8);
+
+	REQUIRE(p_t1 == &t.cell_byte[1]);
+	REQUIRE(p_t1 == &t.cell_int8[1]);
+	REQUIRE(p_t1 == &t.cell_bool[1]);
+
+	REQUIRE(p_t2 == &t.cell_int16[1]);
+	REQUIRE(p_t2 == &t.cell_word[1]);
+	REQUIRE(p_t2 == &t.cell_float16[1]);
+
+	REQUIRE(p_t4 == &t.cell_int[1]);
+	REQUIRE(p_t4 == &t.cell_uint[1]);
+	REQUIRE(p_t4 == &t.cell_single[1]);
+
+	REQUIRE(p_t8 == &t.cell_longint[1]);
+	REQUIRE(p_t8 == &t.cell_time[1]);
+	REQUIRE(p_t8 == &t.cell_ulongint[1]);
+	REQUIRE(p_t8 == &t.cell_double[1]);
 }

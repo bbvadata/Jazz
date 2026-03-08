@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -52,7 +52,6 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_CHANNEL
 #define INCLUDED_JAZZ_ELEMENTS_CHANNEL
 
-
 namespace jazz_elements
 {
 
@@ -64,20 +63,20 @@ namespace jazz_elements
 
 #define MAX_FILE_OR_URL_SIZE		1712		///< Used inside an ExtraLocator, it makes the structure 2 Kbytes.
 
-/// HttpQueryState apply values (on state == PSTATE_COMPLETE_OK)
+/// ApiQueryState apply values (on state == PSTATE_COMPLETE_OK)
 
 #define APPLY_NOTHING					 0		///< Just an l_value with {///node}//base/entity or {///node}//base/entity/key
 #define APPLY_NAME						 1		///< {///node}////base/entity/key:name (Select an item form a Tuple by name)
 #define APPLY_URL						 2		///< {///node}////base& any_url_encoded_url ; (A call to http or file)
-#define APPLY_FUNCTION					 3		///< {///node}//base/entity/key(//r_base/r_entity/r_key) (A function call on a block.)
-#define APPLY_FUNCT_CONST				 4		///< {///node}////base/entity/key(& any_url_encoded_const) (A function call on a const.)
-#define APPLY_FILTER					 5		///< {///node}//base/entity/key[//r_base/r_entity/r_key] (A filter on a block.)
-#define APPLY_FILT_CONST				 6		///< {///node}//base/entity/key[& any_url_encoded_const] (A filter on a const.)
+#define APPLY_FUNCTION					 3		///< {///node}//base/entity/key(//r_base/r_entity/r_key) (A function call with a block.)
+#define APPLY_FUNCT_CONST				 4		///< {///node}////base/entity/key(& any_url_encoded_const) (A function call with a const.)
+#define APPLY_FILTER					 5		///< {///node}//base/entity/key[//r_base/r_entity/r_key] (A filter using a a block.)
+#define APPLY_FILT_CONST				 6		///< {///node}//base/entity/key[& any_url_encoded_const] (A filter using a a const.)
 #define APPLY_RAW						 7		///< {///node}//base/entity/key.raw (Serialize text to raw.)
 #define APPLY_TEXT						 8		///< {///node}//base/entity/key.text (Serialize raw to text.)
 #define APPLY_ASSIGN_NOTHING			 9		///< {///node}//base/entity/key=//r_base/r_entity/r_key (Assign block to block.)
 #define APPLY_ASSIGN_NAME				10		///< {///node}//base/entity/key=//r_base/r_entity/r_key:name (Tuple item -> block)
-#define APPLY_ASSIGN_URL				11		///< {///node}//base/entity/key=//r_base/r_entity/r_key:name (Tuple item -> block)
+#define APPLY_ASSIGN_URL				11		///< {///node}//base/entity/key=//r_base/r_entity& any_url_encoded_url ; (Assign using url.)
 #define APPLY_ASSIGN_FUNCTION			12		///< {///node}//base/entity/key=//r_base/r_entity/r_key(//t_base/t_entity/t_key)
 #define APPLY_ASSIGN_FUNCT_CONST		13		///< {///node}//base/entity/key=//r_base/r_entity/r_key(& any_url_encoded_const)
 #define APPLY_ASSIGN_FILTER				14		///< {///node}//base/entity/key=//r_base/r_entity/r_key[//t_base/t_entity/t_key]
@@ -91,12 +90,28 @@ namespace jazz_elements
 #define APPLY_JAZZ_INFO					22		///< /// Show the server info.
 
 
+// Bit masks to trigger curl failures in Channel wrappers during tests.
+
+#define CURL_EASY_NO_BYPASS				-1				///< Any value >= 0 is returned bypassing the real curl function.
+
+// #define TRIGGER_FAIL_MDB_DROP		(1u << 14)	This is the highest bit used in Persisted,
+#define TRIGGER_FAIL_CURL_EASY_INIT		(1u << 15)		///< Trigger a failure in curl_easy_init() to test error handling.
+#define TRIGGER_FAIL_CURL_EASY_PERFORM	(1u << 16)		///< Trigger a failure in curl_easy_perform() to test error handling.
+#define TRIGGER_FAIL_CURL_EASY_GETINFO	(1u << 17)		///< Trigger a failure in curl_easy_getinfo() to test error handling.
+
+#define TRIGGER_FAIL_GETIFADDRS			(1u << 18)		///< Trigger a failure in getifaddrs() to test error handling.
+#define TRIGGER_FAIL_GETNAMEINFO		(1u << 19)		///< Trigger a failure in getnameinfo() to test error handling.
+#define TRIGGER_FAIL_MYINDEX_FIND		(1u << 20)		///< Trigger a failure in jazz_node_my_index to test error handling.
+#define TRIGGER_FAIL_FILE_IO			(1u << 21)		///< Trigger a failure in file I/O to test error handling.
+#define TRIGGER_FAIL_ZMQ				(1u << 22)		///< Trigger a failure in zmq to test error handling.
+#define TRIGGER_FAIL_BASH				(1u << 23)		///< Trigger a failure in bash to test error handling.
+
 /// A map for defining http config names
-typedef std::map<int, std::string>	MapIS;
+typedef std::map<int, String>	MapIS;
 
 
 /// A structure holding connections.
-typedef std::map<std::string, Index> ConnMap;
+typedef std::map<String, Index> ConnMap;
 
 
 /// A structure to hold a single pipeline
@@ -108,19 +123,19 @@ struct Socket {
 
 /// A structure to share with the libcurl get callback.
 typedef std::vector<uint8_t> GetBuffer;
-typedef GetBuffer *pGetBuffer;
+typedef GetBuffer *pGetBuffer;				///< A pointer to a GetBuffer
 
 
 /// A structure keep state inside a put callback.
 struct PutBuffer {
-	uint64_t to_send;		///< Number of bytes to be sent.
-	uint8_t *p_base;		///< The pointer (updated after each call) to the data.
+	uint64_t to_send;						///< Number of bytes to be sent.
+	uint8_t *p_base;						///< The pointer (updated after each call) to the data.
 };
-typedef PutBuffer *pPutBuffer;
+typedef PutBuffer *pPutBuffer;				///< A pointer to a PutBuffer
 
 
 /// A structure holding pipeline.
-typedef std::map<std::string, Socket> PipeMap;
+typedef std::map<String, Socket> PipeMap;
 
 
 /// A map for defining http config ports
@@ -270,21 +285,20 @@ class Channels : public Container {
 		MHD_StatusCode forward_del	 (Name				 node,
 									  pChar				 p_url);
 
-		// Support for container names in the API .base_names()
+		// Support for container names in the BaseAPI .base_names()
 
 		void base_names(BaseNames &base_names);
 
 		// Public config variables
 
-		MapIS jazz_node_name = {};
-		MapIS jazz_node_ip   = {};
-		MapII jazz_node_port = {};
+		MapIS jazz_node_name = {};				///< The names of the nodes (other Jazz servers) in the cluster.
+		MapIS jazz_node_ip   = {};				///< The ip addresses of the nodes in the cluster.
+		MapII jazz_node_port = {};				///< The ports of the nodes in the cluster.
 
-		bool search_my_node_index	= false;
-		int  jazz_node_my_index		= -1;
-		int  jazz_node_cluster_size =  0;
+		int  jazz_node_my_index		= -1;		///< The index of the node in the cluster.
+		int  jazz_node_cluster_size =  0;		///< The number of nodes in the cluster.
 
-		std::string filesystem_root = {};
+		String filesystem_root = {};			///< The root of the filesystem.
 
 #ifndef CATCH_TEST
 	protected:
@@ -306,8 +320,7 @@ class Channels : public Container {
 			CURLcode c_ret;
 
 			curl = curl_easy_init();
-			if (!curl)
-				return SERVICE_ERROR_NOT_READY;
+			if (curl == nullptr) return SERVICE_ERROR_NOT_READY;
 
 			GetBuffer buff = {};
 
@@ -376,8 +389,7 @@ class Channels : public Container {
 				return SERVICE_ERROR_IO_ERROR;
 			}
 			size_t buf_size = buff.size();
-			if (buf_size > MAX_BLOCK_SIZE)
-				return SERVICE_ERROR_BLOCK_TOO_BIG;
+			if (buf_size > MAX_BLOCK_SIZE) return SERVICE_ERROR_BLOCK_TOO_BIG;
 
 			buff.push_back(0);
 
@@ -400,8 +412,7 @@ class Channels : public Container {
 			CURLcode c_ret;
 
 			curl = curl_easy_init();
-			if (!curl)
-				return SERVICE_ERROR_NOT_READY;
+			if (curl == nullptr) return SERVICE_ERROR_NOT_READY;
 
 			PutBuffer put_buff;
 
@@ -508,8 +519,7 @@ class Channels : public Container {
 			CURLcode c_ret;
 
 			curl = curl_easy_init();
-			if (!curl)
-				return SERVICE_ERROR_NOT_READY;
+			if (curl == nullptr) return SERVICE_ERROR_NOT_READY;
 
 			curl_easy_setopt(curl, CURLOPT_URL, url);
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);
@@ -580,8 +590,18 @@ class Channels : public Container {
 #ifndef CATCH_TEST
 	private:
 #endif
-		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};	///< Hexadecimal digits
 
+		/** \brief Compose a url from a node, a base and an entity.
+
+			\param p_dest		The destination buffer.
+			\param p_node		The node name that has to be resolved to its ip and port.
+			\param p_url		The rul that has to be urlencoded.
+			\param buff_size	The size of the destination buffer.
+
+			\return	true on success, false on error.
+
+		*/
 		inline bool compose_url(pChar p_dest, pChar p_node, pChar p_url, int buff_size) {
 			int nix;
 
@@ -637,17 +657,29 @@ class Channels : public Container {
 			return false;
 		}
 
-		int can_curl = false, curl_ok = false;
-		int can_zmq  = false, zmq_ok  = false;
-		int can_bash = false;
-		int file_lev = 0;
+		int can_curl = false;			///< If true, the server can use libcurl based on configuration key ENABLE_HTTP_CLIENT
+		int curl_ok	 = false;			///< If true, libcurl is ready to be used based on config + libcurl initialization
+		int can_zmq  = false;			///< If true, the server can use zeroMQ based on configuration key ENABLE_ZEROMQ_CLIENT
+		int zmq_ok	 = false;			///< If true, zeroMQ is ready to be used based on config + zeroMQ initialization
+		int can_bash = false;			///< If true, the server can use bash based on configuration key ENABLE_BASH_EXEC
+		int file_lev = 0;				///< The level of file operations allowed based on configuration key ENABLE_FILE_LEVEL
 
-		PipeMap	pipes	= {};
-		ConnMap connect = {};
+		PipeMap	pipes	= {};			///< A map of pipelines (zeroMQ connections)
+		ConnMap connect = {};			///< A map of http connections
 
-		void *zmq_context = nullptr;
+		void *zmq_context = nullptr;	///< The zeroMQ context
+
+#ifdef CATCH_TEST
+		CURL *	 curl_easy_init	  ();
+		CURLcode curl_easy_perform(CURL *curl);
+		CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, uint64_t *response_code);
+
+		int curl_easy_return_code = CURL_EASY_NO_BYPASS;
+		int curl_easy_response	  = CURL_EASY_NO_BYPASS;
+#endif
+
 };
-typedef Channels *pChannels;
+typedef Channels *pChannels;			///< A pointer to a Channels
 
 
 #ifdef CATCH_TEST

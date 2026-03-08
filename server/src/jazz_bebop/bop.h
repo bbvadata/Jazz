@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -31,7 +31,8 @@
 	limitations under the License.
 */
 
-#include "src/include/jazz_elements.h"
+
+#include "src/jazz_bebop/casters.h"
 
 #if defined CATCH_TEST
 #ifndef INCLUDED_JAZZ_CATCH2
@@ -47,19 +48,60 @@
 #define INCLUDED_JAZZ_BEBOP_BOP
 
 
-/** \brief Bop functionality required to implement the classes.
+//TODO: All this Fields idea is obsolete. The Fields server is just a Space, but the function is still needed.
+//The Field (API) - Since A Snippet is immutable, the Field creates a new one that replaces the old one.
 
-This is mainly functionality shared with the API to access resources in other containers in order to get data for the computations.
 
+// /** \brief Fields: A Space for Snippets.
+
+// A Fields is Space interface to the base `index` of the Volatile Container. The entity is the Fields and the key is the name of the snippet.
+
+// A field is a namespace inside Fields.
+// */
+// class Fields : public Space {
+
+// 	public:
+
+// 		Fields(pBaseAPI api);
+
+// 		virtual StatusCode start();
+
+// 		virtual pChar const id();
+
+// 	private:
+
+// 		Name		storage_ent;	///< The name of the storage entity (Typically an lmdb database with the metadata of all SemSpaces).
+// 		pVolatile	p_volatile;		///< The Volatile container
+// 		pPersisted	p_persisted;	///< The Persisted container
+// 		pBaseAPI	p_api;			///< A pointer to the BaseAPI that provides access to containers.
+// };
+// typedef Fields *pFields;			///< A pointer to a Fields
+
+
+/** \brief The Bop compiler
 */
 
 namespace jazz_bebop
 {
 
-//TODO: Refactor syntax parsing elements from Api that get blocks into a function here available for Core.
-//TODO: That function must implement the Actor critic model.
-//TODO: Provide mechanisms to apply to multi-block.
+/** \brief Bop: The Bebop compiler and decompiler.
 
+//TODO: Bop is not a Service!
+
+*/
+class Bop : public Service {
+
+	public:
+
+		Bop(pLogger a_logger, pConfigFile a_config);
+	   ~Bop();
+
+	private:
+
+		OpCodes	opcodes;		///< The list of opcodes.
+
+};
+typedef Bop *pBop;		///< A pointer to a Bop
 
 } // namespace jazz_bebop
 

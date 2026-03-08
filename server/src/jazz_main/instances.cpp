@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -49,7 +49,7 @@ using namespace jazz_main;
 
 namespace jazz_main
 {
-	using namespace std;
+using namespace std;
 
 /*	-----------------------------
 	  I n s t a n t i a t i n g
@@ -57,29 +57,25 @@ namespace jazz_main
 
 #ifndef CATCH_TEST
 
-ConfigFile	CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
-Logger		LOGGER(CONFIG, "LOGGER_PATH");
-
 // Services
 
-Channels	CHANNELS (&LOGGER, &CONFIG);
-Volatile	VOLATILE (&LOGGER, &CONFIG);
-Persisted	PERSISTED(&LOGGER, &CONFIG);
+Channels	CHANNELS (&LOGGER, &CONFIG);								///< The container channeling blocks
+Volatile	VOLATILE (&LOGGER, &CONFIG);								///< The container allocating volatile blocks
+Persisted	PERSISTED(&LOGGER, &CONFIG);								///< The container allocating persisted blocks
 
 // Code execution:
 
-Core		CORE(&LOGGER, &CONFIG, &PACK, &FIELD);
+Core		CORE(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED);	///< The core execution engine
 
 // Http server:
 
-HttpServer	HTTP(&LOGGER, &CONFIG);
+HttpServer	HTTP(&LOGGER, &CONFIG);										///< The http server
 
 #endif
 
 // Callbacks
 
-pMHD_Daemon	Jazz_MHD_Daemon;
-
+pMHD_Daemon	Jazz_MHD_Daemon;											///< The MHD_Daemon created by MHD_start_daemon()
 
 /*	---------------------------------------------
 	 M A I N   H T T P	 E N T R Y	 P O I N T S
@@ -103,17 +99,27 @@ MHD_Result print_out_key(void *cls, enum MHD_ValueKind kind, const char *key, co
 #define	STATE_NOT_ACCEPTABLE	1		///< Data upload failed, query execution failed locating targets. Returns MHD_HTTP_NOT_ACCEPTABLE
 #define	STATE_BAD_REQUEST		2		///< PUT query is call malformed. Returns MHD_HTTP_BAD_REQUEST.
 
-int callback_state [3];
+int callback_state [3];					///< The state of the callback function for each of STATE_NEW_CALL .. STATE_BAD_REQUEST.
 
-char response_put_ok[]			= "0";
-char response_put_fail[]		= "1";
+char response_put_ok[]			= "0";	///< The response for a successful PUT call.
+char response_put_fail[]		= "1";	///< The response for a failed PUT call.
 
 TenBitIntLUT http_methods;				///< A LUT to convert argument const char *method int an integer code.
-TenBitPtrLUT base_server;				///< A LUT to convert argument const char *method int an integer code.
 
 #ifndef CATCH_TEST
 
 /** Callback function for MHD. See: https://www.gnu.org/software/libmicrohttpd/tutorial.html
+
+	\param cls				A pointer to a state variable.
+	\param connection		A pointer to a MHD_Connection.
+	\param url				The url requested.
+	\param method			The http method requested.
+	\param version			The http version requested.
+	\param upload_data		The data uploaded.
+	\param upload_data_size	The size of the data uploaded.
+	\param con_cls			The state of the connection.
+
+	\return					MHD_YES if the connection is still open, MHD_NO if the connection is closed.
 
 	Jazz does not use post processor callbacks linked with MHD_create_post_processor().
 	Jazz does not use request completed callbacks linked with MHD_start_daemon().
@@ -142,14 +148,14 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	int http_method = http_methods[TenBitsAtAddress(method)];
 
-	HttpQueryState q_state;
+	ApiQueryState q_state;
 	q_state.state = PSTATE_INITIAL;
 
 	struct MHD_Response *response = nullptr;
 
 	if ((uintptr_t) *con_cls < (uintptr_t) &callback_state || (uintptr_t) *con_cls > (uintptr_t) &callback_state[2]) {
-		if (http_method != HTTP_PUT || !API.parse(q_state, (pChar) url, HTTP_PUT)) {
-			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but API.parse() failed.");
+		if (http_method != HTTP_PUT || !HTTP_API.parse(q_state, (pChar) url, HTTP_PUT)) {
+			LOGGER.log(LOG_MISS, "http_request_callback(): Trying to continue state_upload_in_progress, but HTTP_API.parse() failed.");
 
 			return MHD_NO;
 		}
@@ -157,7 +163,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 		int sequence = (*upload_data_size == 0) ? SEQUENCE_FINAL_CALL : SEQUENCE_INCREMENT_CALL;
 
-		switch (API.http_put((pChar) upload_data, *upload_data_size, q_state, sequence)) {
+		switch (HTTP_API.http_put((pChar) upload_data, *upload_data_size, q_state, sequence)) {
 		case MHD_HTTP_CREATED:
 			goto create_response_answer_put_ok;
 
@@ -183,7 +189,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 		return MHD_YES;
 	}
 
-	// Step 4 : This point is reached just once per http petition. Parse the query, returns errors and web pages, continue to API.
+	// Step 4 : This point is reached just once per http petition. Parse the query, returns errors and web pages, continue to HTTP_API.
 
 #ifdef DEBUG
 	LOGGER.log_printf(LOG_DEBUG, "+----------------------------------+----------------------------+");
@@ -207,21 +213,21 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 
 	case HTTP_OPTIONS: {	// Shield variable "allow" initialization to support the goto logic.
 
-			std::string allow;
+			String allow;
 
 			if (url[0] != '/' || url[1] != '/') {
-				if (API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)
+				if (HTTP_API.get_static(response, (pChar) url, false) == MHD_HTTP_OK)
 					allow = "HEAD,GET,";
 
 				allow = allow + "OPTIONS";
 			} else {
-				if (API.parse(q_state, (pChar) url, HTTP_GET))
+				if (HTTP_API.parse(q_state, (pChar) url, HTTP_GET))
 					allow = "HEAD,GET,";
 
-				if (API.parse(q_state, (pChar) url, HTTP_PUT))
+				if (HTTP_API.parse(q_state, (pChar) url, HTTP_PUT))
 					allow = allow + "PUT,";
 
-				if (API.parse(q_state, (pChar) url, HTTP_DELETE))
+				if (HTTP_API.parse(q_state, (pChar) url, HTTP_DELETE))
 					allow = allow + "DELETE,";
 
 				allow = allow + "OPTIONS";
@@ -241,45 +247,45 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	case HTTP_GET:
 		if (url[0] != '/' || url[1] != '/') {
 
-			if ((status = API.get_static(response, (pChar) url)) != MHD_HTTP_OK)
-				return API.return_error_message(connection, (pChar) url, status);
+			if ((status = HTTP_API.get_static(response, (pChar) url)) != MHD_HTTP_OK)
+				return HTTP_API.return_error_message(connection, (pChar) url, status);
 
 			goto answer_status;
 
-		} else if (!API.parse(q_state, (pChar) url, HTTP_GET))
-			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
+		} else if (!HTTP_API.parse(q_state, (pChar) url, HTTP_GET))
+			return HTTP_API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 
 		break;
 
 	default:
 		if (url[0] != '/' || url[1] != '/')
-			return API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
+			return HTTP_API.return_error_message(connection, (pChar) url, MHD_HTTP_METHOD_NOT_ALLOWED);
 
-		else if (!API.parse(q_state, (pChar) url, http_method)) {
+		else if (!HTTP_API.parse(q_state, (pChar) url, http_method)) {
 
 			if (http_method == HTTP_PUT)
 				goto continue_in_put_bad_request;
 
-			return API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
+			return HTTP_API.return_error_message(connection, (pChar) url, MHD_HTTP_BAD_REQUEST);
 		}
 	}
 
-	// Step 5 : This is the core. This point is only reached by correct API queries for the first (or only) time.
+	// Step 5 : This is the core. This point is only reached by correct HTTP_API queries for the first (or only) time.
 
 	switch (http_method) {
 	case HTTP_PUT:
-		status = API.http_put((pChar) upload_data, *upload_data_size, q_state, SEQUENCE_FIRST_CALL);
+		status = HTTP_API.http_put((pChar) upload_data, *upload_data_size, q_state, SEQUENCE_FIRST_CALL);
 
 		break;
 
 	case HTTP_DELETE:
-		status = API.http_delete(q_state);
+		status = HTTP_API.http_delete(q_state);
 
 		break;
 
 	default:
 
-		status = API.http_get(response, q_state);
+		status = HTTP_API.http_get(response, q_state);
 	}
 
 	// Step 6 : The core finished, just distribute the answer as appropriate.
@@ -295,7 +301,7 @@ MHD_Result http_request_callback(void *cls, struct MHD_Connection *connection, c
 	}
 
 	if (status != MHD_HTTP_OK)
-		return API.return_error_message(connection, (pChar) url, status);
+		return HTTP_API.return_error_message(connection, (pChar) url, status);
 
 	if (http_method == HTTP_DELETE)
 		response = MHD_create_response_from_buffer(1, response_put_ok, MHD_RESPMEM_PERSISTENT);
@@ -425,6 +431,8 @@ bool stop_service(pService service) {
 
 /** Capture SIGTERM. This callback procedure stops a running server.
 
+	\param signum	The signal number. (SIGTERM = 15)
+
 	See main_server_start() for details on the server's start/stop.
 */
 void signalHandler_SIGTERM(int signum) {
@@ -438,20 +446,17 @@ void signalHandler_SIGTERM(int signum) {
 
 #ifndef CATCH_TEST
 
-	if (!stop_service(&HTTP))	   stop_ok = false;
+	if (!stop_service(&HTTP))	    stop_ok = false;
 
-	if (!stop_service(&API))	   stop_ok = false;
+	if (!stop_service(&HTTP_API))   stop_ok = false;
 
-	if (!stop_service(&MODEL))	   stop_ok = false;
-	if (!stop_service(&SEMSPACE))  stop_ok = false;
+	if (!stop_service(&MODELS_API)) stop_ok = false;
 
-	if (!stop_service(&CORE))	   stop_ok = false;
-	if (!stop_service(&FIELD))	   stop_ok = false;
-	if (!stop_service(&PACK))	   stop_ok = false;
+	if (!stop_service(&CORE))	    stop_ok = false;
 
-	if (!stop_service(&PERSISTED)) stop_ok = false;
-	if (!stop_service(&VOLATILE))  stop_ok = false;
-	if (!stop_service(&CHANNELS))  stop_ok = false;
+	if (!stop_service(&PERSISTED))  stop_ok = false;
+	if (!stop_service(&VOLATILE))   stop_ok = false;
+	if (!stop_service(&CHANNELS))   stop_ok = false;
 
 #endif
 

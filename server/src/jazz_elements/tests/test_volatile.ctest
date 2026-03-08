@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -30,6 +30,12 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+
+
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_elements/volatile.h"
 
 
 using namespace jazz_elements;
@@ -690,9 +696,126 @@ SCENARIO("Auxiliary inline Volatile parts") {
 }
 
 
+SCENARIO("Coverage hunting low-covered Volatile branches") {
+	struct KeyBackup {
+		const char *key;
+		String value;
+		bool existed;
+	};
+
+	KeyBackup backup[] = {
+		{"VOLATILE_MAX_TRANSACTIONS", "", false},
+		{"VOLATILE_WARN_BLOCK_KBYTES", "", false},
+		{"VOLATILE_ERROR_BLOCK_KBYTES", "", false}
+	};
+
+	for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+		backup[i].existed = CONFIG.get_key(backup[i].key, backup[i].value);
+	}
+
+	auto restore_config = [&]() {
+		for (size_t i = 0; i < sizeof(backup) / sizeof(backup[0]); i++) {
+			if (backup[i].existed)
+				CONFIG.debug_put(backup[i].key, backup[i].value);
+		}
+	};
+
+	struct RestoreOnExit {
+		decltype(restore_config) *fn;
+		~RestoreOnExit() { (*fn)(); }
+	};
+	RestoreOnExit restore_on_exit = {&restore_config};
+
+	WHEN ("We have bad configuration values") {
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_1.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
+		CONFIG.debug_put("VOLATILE_MAX_TRANSACTIONS", "not_an_int");
+		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	WHEN ("We have more bad configuration values") {
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_2.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
+		CONFIG.debug_put("VOLATILE_WARN_BLOCK_KBYTES", "not_an_int");
+		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	WHEN ("We have even more bad configuration values") {
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_badcfg_3.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
+		CONFIG.debug_put("VOLATILE_ERROR_BLOCK_KBYTES", "not_an_int");
+		REQUIRE(vol_case.start() == SERVICE_ERROR_BAD_CONFIG);
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+
+	restore_config();
+	WHEN ("We have bad entity configuration values") {
+		Logger cov_log("/tmp/jzz_unit_volatile_cov_entities.log");
+		Volatile vol_case(&cov_log, &CONFIG);
+
+		vol_case.log_error_level = LOG_DEBUG;
+
+		REQUIRE(vol_case.start() == SERVICE_NO_ERROR);
+
+		REQUIRE(vol_case.new_entity((pChar) "//deque/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//deque/dup_ent") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(vol_case.new_entity((pChar) "//queue/dup_ent/~4") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//queue/dup_ent/~4") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(vol_case.new_entity((pChar) "//tree/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//tree/dup_ent") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		REQUIRE(vol_case.new_entity((pChar) "//jindex/dup_ent") == SERVICE_ERROR_WRONG_BASE);
+		REQUIRE(vol_case.new_entity((pChar) "//index/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.new_entity((pChar) "//index/dup_ent") == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+		pTransaction p_tx_str;
+		REQUIRE(vol_case.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "hello-index") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.put((pChar) "//index/dup_ent/key_one", p_tx_str->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
+
+		REQUIRE(vol_case.remove((pChar) "//index/dup_ent/key_one") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//index/dup_ent/key_one") == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+		p_tx_str->p_owner = nullptr;
+		vol_case.destroy_transaction(p_tx_str);
+		REQUIRE(p_tx_str != nullptr);
+		p_tx_str->p_owner = &vol_case;
+		vol_case.destroy_transaction(p_tx_str);
+		REQUIRE(p_tx_str == nullptr);
+
+		REQUIRE(vol_case.remove((pChar) "//deque/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//queue/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//tree/dup_ent") == SERVICE_NO_ERROR);
+		REQUIRE(vol_case.remove((pChar) "//index/dup_ent") == SERVICE_NO_ERROR);
+
+		REQUIRE(vol_case.remove((pChar) "//jindex/dup_ent") == SERVICE_ERROR_WRONG_BASE);
+
+		REQUIRE(vol_case.shut_down() == SERVICE_NO_ERROR);
+	}
+}
+
+
 SCENARIO("Strong End-to-end index tests") {
 
+	VOL.log_error_level = LOG_DEBUG;
+
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(VOL.new_volatile() == SERVICE_ERROR_STARTING);
 
 	REQUIRE(VOL.max_transactions > 0);
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
@@ -885,6 +1008,8 @@ SCENARIO("Strong End-to-end index tests") {
 				REQUIRE(VOL.header(p_txn, (pChar) "//index/ent_three/two") == SERVICE_ERROR_PARSING_COMMAND);
 
 				Locator location;
+				REQUIRE(VOL.locate(location, (pChar) "//index/ent_three/~get") == SERVICE_ERROR_PARSING_COMMAND);
+
 				REQUIRE(VOL.locate(location, (pChar) "//index/ent_three/one") == SERVICE_NO_ERROR);
 
 				REQUIRE(strcmp(location.base,	"index")	 == 0);
@@ -951,7 +1076,8 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_four/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				pTuple p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -964,7 +1090,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_five/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -978,7 +1104,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_six/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -989,7 +1115,7 @@ SCENARIO("Strong End-to-end index tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_nope/~get") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				p_tup = (pTuple) p_txn->p_block;
 				REQUIRE(strcmp(p_tup->item_name(0), "key") == 0);
@@ -1008,12 +1134,28 @@ SCENARIO("Strong End-to-end index tests") {
 		WHEN("We test copy") {
 			REQUIRE(VOL.new_entity((pChar) "//index/ent_six")	== SERVICE_NO_ERROR);
 			REQUIRE(VOL.new_entity((pChar) "//index/ent_seven")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.new_entity((pChar) "//tree/ent_one")	== SERVICE_NO_ERROR);
 
 			REQUIRE(VOL.put((pChar) "//index/ent_six/~put", p_tx_pop3->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 			REQUIRE(VOL.put((pChar) "//index/ent_six/~put", p_tx_pop9->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 			REQUIRE(VOL.put((pChar) "//index/ent_six/bali", p_tx_str1->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.copy((pChar) "//tree/ent_one/get6", (pChar) "//index/ent_six/~get") == SERVICE_NO_ERROR);
+
+				uint64_t alloc_backup = VOL.fail_alloc_bytes;
+				VOL.fail_alloc_bytes = 1;
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/get6") == SERVICE_ERROR_NO_MEM);
+				REQUIRE(p_txn == nullptr);
+
+				VOL.fail_alloc_bytes = alloc_backup;
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_one/get6") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
+				REQUIRE(p_txn->p_block->size == 2);
+				VOL.destroy_transaction(p_txn);
+
 				REQUIRE(VOL.copy((pChar) "//index/ent_seven/alibi", (pChar) "//index/ent_six/bali") == SERVICE_NO_ERROR);
 
 				REQUIRE(VOL.get(p_txn, (pChar) "//index/ent_seven/alibi") == SERVICE_NO_ERROR);
@@ -1060,6 +1202,7 @@ SCENARIO("Strong End-to-end index tests") {
 			}
 			REQUIRE(VOL.remove((pChar) "//index/ent_six")	== SERVICE_NO_ERROR);
 			REQUIRE(VOL.remove((pChar) "//index/ent_seven")	== SERVICE_NO_ERROR);
+			REQUIRE(VOL.remove((pChar) "//tree/ent_one")	== SERVICE_NO_ERROR);
 		}
 
 		VOL.destroy_transaction(p_tx_pop3);
@@ -1071,6 +1214,9 @@ SCENARIO("Strong End-to-end index tests") {
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.p_buffer != nullptr);
 	REQUIRE(VOL._lock_	 == 0);
+
+	pTransaction p_txn;
+	VOL.new_transaction(p_txn);		// This transaction is not destroyed intentionally to test destroy_container()
 
 	REQUIRE(VOL.shut_down() == SERVICE_NO_ERROR);
 
@@ -1108,28 +1254,54 @@ SCENARIO("Strong End-to-end deque tests") {
 		txt["_four"] = "A multiline string\nis okay\n";
 		txt["fi_ve"] = "UTF8 ¡what!\n\nLöwe\n";
 
-		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil;
+		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil, p_tx_tup;
 
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
 
+		AttributeMap att = {};
+		att[BLOCK_ATTRIB_LANGUAGE] = "en";
+		att[BLOCK_ATTRIB_HOME] = "/home/user";
+
 		REQUIRE(VOL.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
 		REQUIRE(VOL.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
-		REQUIRE(VOL.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_chr, CELL_TYPE_BYTE, dim, FILL_NEW_WITH_ZERO, 0, nullptr, 0, &att) == SERVICE_NO_ERROR);
 		p_tx_chr->p_block->tensor.cell_byte[0]  = 1;
 		p_tx_chr->p_block->tensor.cell_byte[99] = 99;
 
 		dim[1] = 8;
-		REQUIRE(VOL.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_int, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO, 0, nullptr, 0, &att) == SERVICE_NO_ERROR);
 		p_tx_int->p_block->tensor.cell_int[0]	= 1;
 		p_tx_int->p_block->tensor.cell_int[159] = 159;
 
 		dim[1] = 4;
-		REQUIRE(VOL.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_rea, CELL_TYPE_DOUBLE, dim, FILL_NEW_WITH_ZERO, 0, nullptr, 0, &att) == SERVICE_NO_ERROR);
 		p_tx_rea->p_block->tensor.cell_double[0]  = 1.23;
 		p_tx_rea->p_block->tensor.cell_double[79] = 21.345;
 
+		Name p_names[] = {"text", "byte", "int", "float"};
+		StaticBlockHeader p_hea[4];
+		pBlock			  p_blk[4];
+
+		p_blk[0] = p_tx_str->p_block;
+		memcpy(&p_hea[0], p_tx_str->p_block, sizeof(StaticBlockHeader));
+		p_tx_str->p_block->get_dimensions(&p_hea[0].range.dim[0]);
+
+		p_blk[1] = p_tx_chr->p_block;
+		memcpy(&p_hea[1], p_tx_chr->p_block, sizeof(StaticBlockHeader));
+		p_tx_chr->p_block->get_dimensions(&p_hea[1].range.dim[0]);
+
+		p_blk[2] = p_tx_int->p_block;
+		memcpy(&p_hea[2], p_tx_int->p_block, sizeof(StaticBlockHeader));
+		p_tx_int->p_block->get_dimensions(&p_hea[2].range.dim[0]);
+
+		p_blk[3] = p_tx_rea->p_block;
+		memcpy(&p_hea[3], p_tx_rea->p_block, sizeof(StaticBlockHeader));
+		p_tx_rea->p_block->get_dimensions(&p_hea[3].range.dim[0]);
+
+		REQUIRE(VOL.new_block(p_tx_tup, 4, p_hea, p_names, p_blk, nullptr, &att) == SERVICE_NO_ERROR);
+
 		dim[1] = 1;
-		REQUIRE(VOL.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_tim, CELL_TYPE_TIME, dim, FILL_NEW_DONT_FILL, 0, nullptr, 0, &att) == SERVICE_NO_ERROR);
 
 		struct tm junk		= {0};
 		struct tm *timeinfo = &junk;
@@ -1150,7 +1322,7 @@ SCENARIO("Strong End-to-end deque tests") {
 
 		dim[0] = 2;
 		dim[1] = 0;
-		REQUIRE(VOL.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO) == SERVICE_NO_ERROR);
+		REQUIRE(VOL.new_block(p_tx_fil, CELL_TYPE_INTEGER, dim, FILL_NEW_WITH_ZERO, 0, nullptr, 0, &att) == SERVICE_NO_ERROR);
 		dim[0] = 20;
 		p_tx_fil->p_block->tensor.cell_int[0] = 0;
 		p_tx_fil->p_block->tensor.cell_int[1] = 2;
@@ -1217,6 +1389,13 @@ SCENARIO("Strong End-to-end deque tests") {
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/key~next")	   == SERVICE_ERROR_EMPTY_ENTITY);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~123")		   == SERVICE_ERROR_EMPTY_ENTITY);
 		REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/~get")		   == SERVICE_ERROR_EMPTY_ENTITY);
+
+		uint64_t alloc_backup = VOL.fail_alloc_bytes;
+		VOL.fail_alloc_bytes = 1;
+
+		REQUIRE(VOL.put((pChar) "//deque/ent_one/something", p_tx_str->p_block, 0) == SERVICE_ERROR_NO_MEM);
+
+		VOL.fail_alloc_bytes = alloc_backup;
 
 		REQUIRE(VOL.put((pChar) "//deque/ent_one/something", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 
@@ -1484,6 +1663,7 @@ SCENARIO("Strong End-to-end deque tests") {
 		WHEN("We test get(2)/get(3)/head(1)/head(2) of entities") {
 			REQUIRE(VOL.new_entity((pChar) "//deque/ent_one") == SERVICE_NO_ERROR);
 
+			REQUIRE(VOL.put((pChar) "//deque/ent_one/tup", p_tx_tup->p_block, 0) == SERVICE_NO_ERROR);
 			REQUIRE(VOL.put((pChar) "//deque/ent_one/pop", p_tx_pop->p_block, 0) == SERVICE_NO_ERROR);
 			REQUIRE(VOL.put((pChar) "//deque/ent_one/rea", p_tx_rea->p_block, 0) == SERVICE_NO_ERROR);
 			REQUIRE(VOL.put((pChar) "//deque/ent_one/txt", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
@@ -1491,6 +1671,26 @@ SCENARIO("Strong End-to-end deque tests") {
 			REQUIRE(VOL.put((pChar) "//deque/ent_one/int", p_tx_int->p_block, 0) == SERVICE_NO_ERROR);
 
 			THEN("We get expected structure") {
+				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/tup", (pChar) "text") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
+				REQUIRE(p_txn->p_block->num_attributes == 2);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/tup", (pChar) "byte") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_BYTE);
+				REQUIRE(p_txn->p_block->num_attributes == 2);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/tup", (pChar) "int") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_INTEGER);
+				REQUIRE(p_txn->p_block->num_attributes == 2);
+				VOL.destroy_transaction(p_txn);
+
+				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/tup", (pChar) "float") == SERVICE_NO_ERROR);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_DOUBLE);
+				REQUIRE(p_txn->p_block->num_attributes == 2);
+				VOL.destroy_transaction(p_txn);
+
 				REQUIRE(VOL.get(p_txn, (pChar) "//deque/ent_one/pop", (pChar) "key") == SERVICE_NO_ERROR);
 				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
 				REQUIRE(p_txn->p_block->size == 5);
@@ -1538,8 +1738,16 @@ SCENARIO("Strong End-to-end deque tests") {
 				REQUIRE(p_txn->p_block->rank == 1);
 				VOL.destroy_transaction(p_txn);
 
+				uint64_t alloc_backup = VOL.fail_alloc_bytes;
+				VOL.fail_alloc_bytes = 1;
+
+				REQUIRE(VOL.header(p_txn, (pChar) "//deque/ent_one/pop") == SERVICE_ERROR_NO_MEM);
+				REQUIRE(p_txn == nullptr);
+
+				VOL.fail_alloc_bytes = alloc_backup;
+
 				REQUIRE(VOL.header(p_txn, (pChar) "//deque/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -1564,7 +1772,7 @@ SCENARIO("Strong End-to-end deque tests") {
 				StaticBlockHeader hea;
 
 				REQUIRE(VOL.header(hea, (pChar) "//deque/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(hea.size == 2);
 				REQUIRE(hea.rank == 1);
 
@@ -1660,6 +1868,7 @@ SCENARIO("Strong End-to-end deque tests") {
 		VOL.destroy_transaction(p_tx_chr);
 		VOL.destroy_transaction(p_tx_int);
 		VOL.destroy_transaction(p_tx_rea);
+		VOL.destroy_transaction(p_tx_tup);
 		VOL.destroy_transaction(p_tx_tim);
 		VOL.destroy_transaction(p_tx_fil);
 	}
@@ -1694,6 +1903,53 @@ SCENARIO("Strong End-to-end queue tests") {
 			== &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
+
+	GIVEN("We want to do some direct aat tree calls") {
+		VolatileTransaction aat[4] = {0};
+
+		pVolatileTransaction p_item = &aat[0];
+
+		VOL.aat_decrease_level(p_item);
+
+		REQUIRE(p_item->level == 1);
+
+		p_item->p_next = &aat[1];
+
+		VOL.aat_decrease_level(p_item);
+
+		REQUIRE(p_item->level == 1);
+
+		p_item->level = 2;
+
+		VOL.aat_decrease_level(p_item);
+
+		REQUIRE(p_item->level == 1);
+
+		p_item->p_prev = &aat[2];
+
+		p_item->p_next = nullptr;
+
+		VOL.aat_decrease_level(p_item);
+
+		REQUIRE(p_item->level == 1);
+
+		p_item->level = 4;
+
+		VOL.aat_decrease_level(p_item);
+
+		REQUIRE(p_item->level == 1);
+
+		p_item->p_next = &aat[1];
+
+		p_item->p_next->level = 3;
+		p_item->p_prev->level = 1;
+		p_item->level = 5;
+
+		VOL.aat_decrease_level(p_item);
+
+		REQUIRE(p_item->level == 2);
+		REQUIRE(p_item->p_next->level == 2);
+	}
 
 	GIVEN("We have some blocks and indices") {
 		Index txt;
@@ -1820,6 +2076,14 @@ SCENARIO("Strong End-to-end queue tests") {
 		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/~get")		   == SERVICE_ERROR_EMPTY_ENTITY);
 
 		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01",   p_tx_str->p_block, 0) == SERVICE_ERROR_PARSING_COMMAND);
+
+		uint64_t alloc_backup = VOL.fail_alloc_bytes;
+		VOL.fail_alloc_bytes = 1;
+
+		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01~5", p_tx_str->p_block, 0) == SERVICE_ERROR_NO_MEM);
+
+		VOL.fail_alloc_bytes = alloc_backup;
+
 		REQUIRE(VOL.put((pChar) "//queue/ent_one/key01~5", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 
 		REQUIRE(VOL.get(p_txn, (pChar) "//queue/ent_one/key01~child")  == SERVICE_ERROR_PARSING_COMMAND);
@@ -2064,7 +2328,7 @@ SCENARIO("Strong End-to-end queue tests") {
 
 			THEN("We get expected structure") {
 				REQUIRE(VOL.header(p_txn, (pChar) "//queue/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -2405,6 +2669,13 @@ SCENARIO("Strong End-to-end tree tests") {
 
 		REQUIRE(VOL.get(p_txn, (pChar) "//tree/ent_two/key_first") == SERVICE_ERROR_EMPTY_ENTITY);
 
+		uint64_t alloc_backup = VOL.fail_alloc_bytes;
+		VOL.fail_alloc_bytes = 1;
+
+		REQUIRE(VOL.put((pChar) "//tree/ent_one/something", p_tx_str->p_block, 0) == SERVICE_ERROR_NO_MEM);
+
+		VOL.fail_alloc_bytes = alloc_backup;
+
 		REQUIRE(VOL.put((pChar) "//tree/ent_one/something", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 		REQUIRE(VOL.put((pChar) "//tree/ent_two/some~void", p_tx_str->p_block, 0) == SERVICE_NO_ERROR);
 
@@ -2700,7 +2971,7 @@ SCENARIO("Strong End-to-end tree tests") {
 				VOL.destroy_transaction(p_txn);
 
 				REQUIRE(VOL.header(p_txn, (pChar) "//tree/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_txn->p_block->size == 2);
 				REQUIRE(p_txn->p_block->rank == 1);
 
@@ -2725,7 +2996,7 @@ SCENARIO("Strong End-to-end tree tests") {
 				StaticBlockHeader hea;
 
 				REQUIRE(VOL.header(hea, (pChar) "//tree/ent_one/pop") == SERVICE_NO_ERROR);
-				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(hea.cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(hea.size == 2);
 				REQUIRE(hea.rank == 1);
 
@@ -2838,6 +3109,8 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 
 	REQUIRE(VOL.start() == SERVICE_NO_ERROR);
 
+	REQUIRE(strstr(VOL.id(), "Volatile from Jazz") != nullptr);
+
 	REQUIRE(VOL.max_transactions > 0);
 	REQUIRE(VOL.alloc_bytes == VOL.max_transactions*sizeof(VolatileTransaction));
 	REQUIRE(VOL.warn_alloc_bytes > 0);
@@ -2851,6 +3124,46 @@ SCENARIO("Stress-testing Volatile new_transaction()/destroy_transaction()") {
 			== &pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1]);
 	REQUIRE(pVolatileTransaction(VOL.p_buffer)[VOL.max_transactions - 1].p_next == nullptr);
 	REQUIRE(VOL._lock_ == 0);
+
+	Volatile vol = Volatile(&LOGGER, &CONFIG);
+
+	REQUIRE(vol.start() == SERVICE_NO_ERROR);
+
+	REQUIRE(vol.max_transactions > 0);
+	REQUIRE(vol.alloc_bytes == vol.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(vol.warn_alloc_bytes > 0);
+	REQUIRE(vol.fail_alloc_bytes > 0);
+	REQUIRE(vol.alloc_warning_issued == false);
+	REQUIRE(vol.p_buffer != nullptr);
+	REQUIRE(vol.p_free	 == vol.p_buffer);
+	REQUIRE(pVolatileTransaction(vol.p_free)->p_next == &pVolatileTransaction(vol.p_buffer)[1]);
+	REQUIRE(pVolatileTransaction(vol.p_free)->p_next->p_next == &pVolatileTransaction(vol.p_buffer)[2]);
+	REQUIRE(	pVolatileTransaction(vol.p_buffer)[vol.max_transactions - 2].p_next
+			== &pVolatileTransaction(vol.p_buffer)[vol.max_transactions - 1]);
+	REQUIRE(pVolatileTransaction(vol.p_buffer)[vol.max_transactions - 1].p_next == nullptr);
+	REQUIRE(vol._lock_ == 0);
+
+	Transaction x_act = {};
+
+	pTransaction p_tx = &x_act;
+
+	vol.log_error_level = LOG_DEBUG;
+
+	vol.destroy_transaction(p_tx);	// No owner, just logs an error.
+	REQUIRE(vol.new_transaction(p_tx) == SERVICE_NO_ERROR);
+	REQUIRE(p_tx->p_owner == &vol);
+	VOL.destroy_transaction(p_tx);	// Now it works, handled by vol.
+
+	REQUIRE(vol.alloc_bytes == vol.max_transactions*sizeof(VolatileTransaction));
+	REQUIRE(vol.p_buffer != nullptr);
+	REQUIRE(vol._lock_	 == 0);
+
+	REQUIRE(vol.shut_down() == SERVICE_NO_ERROR);
+
+	REQUIRE(vol.alloc_bytes == 0);
+	REQUIRE(vol.p_buffer == nullptr);
+	REQUIRE(vol.p_free	 == nullptr);
+	REQUIRE(vol._lock_	 == 0);
 
 	REQUIRE(VOL.destroy_volatile() == SERVICE_NO_ERROR);
 
@@ -3042,7 +3355,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 	memset(&buff, 0, sizeof(buff));
 
-	WHEN("I do simple zero init walkthough, it works") {
+	WHEN("I do simple zero init walkthrough, it works") {
 		p_item = &buff[alloc_items++];
 
 		p_item->key_hash = 1;
@@ -3138,7 +3451,7 @@ SCENARIO("Testing internal AA tree functionality") {
 
 	memset(&buff, 0x5a5a5a5a, sizeof(buff));
 
-	WHEN("I do simple junk init walkthough, it works") {
+	WHEN("I do simple junk init walkthrough, it works") {
 		p_item = &buff[alloc_items++];
 
 		p_item->key_hash = 1;

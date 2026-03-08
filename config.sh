@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#    (c) 2018-2024 kaalam.ai (The Authors of Jazz)
+#    (c) 2018-2026 kaalam.ai (The Authors of Jazz)
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -17,16 +17,24 @@
 
 mode='RUN'    # Set mode='DEBUG' for echoing all variables before confirmation.
 
+if [[ "$1" == "--debug" ]]; then
+    mode='DEBUG'
+fi
+
 
 # Section 1. Gathering all necessary information. 1. Fail if necessary. 2. Do nothing without confirmation
 # ----------
+
+# 1.1 Help on usage
 
 if [[ $1 = '--help' ]]; then
   cat _config_/help_on_config.txt
   exit 0
 fi
 
-printf "(usage: ./config.sh --help)\n\nGathering information ...\n\n"
+printf "(usage: ./config.sh [--debug] [--help])\n\nGathering information ...\n\n"
+
+# 1.2 Get Jazz environment variables
 
 jazz_pwd=$(pwd)
 
@@ -37,6 +45,8 @@ jazz_distro2=$(cat /etc/*-release | grep '^DISTRIB_RELEASE=' | sed 's/^DISTRIB_R
 
 jazz_years=$(date +%Y)
 if [ "$jazz_years" != '2017' ]; then jazz_years="2017-$jazz_years"; fi
+
+# 1.3 Link to the MicroHTTPD library
 
 if [ -e '_config_/mhd_include_path' ]; then mhd_inclpath=$(cat _config_/mhd_include_path); else mhd_inclpath='/usr/include'; fi
 
@@ -57,6 +67,8 @@ if [ ! -e "$mhd_libpath/libmicrohttpd.so" ]; then
   exit 1
 fi
 
+# 1.4 Link to the CURL library
+
 if [ -e '_config_/curl_include_path' ]; then curl_inclpath=$(cat _config_/curl_include_path); else curl_inclpath='/usr/include/x86_64-linux-gnu'; fi
 
 if [ ! -e "$curl_inclpath/curl/curl.h" ]; then
@@ -75,6 +87,8 @@ if [ ! -e "$curl_libpath/libcurl.so" ]; then
   cat _config_/help_curl_not_found.txt
   exit 1
 fi
+
+# 1.5 Link to the ZeroMQ library
 
 if [ -e '_config_/zmq_include_path' ]; then zmq_inclpath=$(cat _config_/zmq_include_path); else zmq_inclpath='/usr/local/include'; fi
 
@@ -95,6 +109,37 @@ if [ ! -e "$zmq_libpath/libzmq.so" ]; then
   exit 1
 fi
 
+# 1.6 Link to onnxruntime and proto library
+
+if [ -e '_config_/onnx_rt_include_path' ]; then onnx_rt_inclpath=$(cat _config_/onnx_rt_include_path); else onnx_rt_inclpath='/usr/local/include'; fi
+
+if [ ! -e "$onnx_rt_inclpath/onnxruntime_c_api.h" ]; then
+  echo "** File $onnx_rt_inclpath/onnxruntime_c_api.h was not found. **"
+  cat _config_/help_onnx_not_found.txt
+  exit
+fi
+
+if [ -e '_config_/onnx_rt_library_path' ]; then onnx_rt_libpath=$(cat _config_/onnx_rt_library_path)
+else
+  if [ -e '/usr/local/lib/libonnxruntime.so' ]; then onnx_rt_libpath='/usr/local/lib'; else onnx_rt_libpath='/usr/lib/x86_64-linux-gnu'; fi
+fi
+
+if [ ! -e "$onnx_rt_libpath/libonnxruntime.so" ]; then
+  echo "** File $onnx_rt_libpath/libonnxruntime.so was not found. **"
+  cat _config_/help_onnx_not_found.txt
+  exit 1
+fi
+
+if [ -e '_config_/onnx_proto_include_path' ]; then onnx_proto_inclpath=$(cat _config_/onnx_proto_include_path); else onnx_proto_inclpath='/usr/include'; fi
+
+if [ ! -e "$onnx_proto_inclpath/google/protobuf/port_def.inc" ]; then
+  echo "** File $onnx_proto_inclpath/google/protobuf/port_def.inc was not found. **"
+  cat _config_/help_onnx_not_found.txt
+  exit
+fi
+
+
+# 1.7 Get all the Uplifted modules
 
 cd server || return 1
 
@@ -126,21 +171,12 @@ get_descendant_name ( )
   done
 }
 
-uplifted_pak_parent='Pack'
-uplifted_fie_parent='Field'
-uplifted_spa_parent='SemSpace'
-uplifted_mod_parent='Model'
-uplifted_api_parent='Api'
+uplifted_mod_parent='ModelsAPI'
+uplifted_api_parent='API'
 
-uplifted_pak_source='../uplifts/pack/'
-uplifted_fie_source='../uplifts/field/'
-uplifted_spa_source='../uplifts/semspace/'
-uplifted_mod_source='../uplifts/model/'
+uplifted_mod_source='../uplifts/models_api/'
 uplifted_api_source='../uplifts/api/'
 
-uplifted_pak=$(get_descendant_name $uplifted_pak_parent $uplifted_pak_source)
-uplifted_fie=$(get_descendant_name $uplifted_fie_parent $uplifted_fie_source)
-uplifted_spa=$(get_descendant_name $uplifted_spa_parent $uplifted_spa_source)
 uplifted_mod=$(get_descendant_name $uplifted_mod_parent $uplifted_mod_source)
 uplifted_api=$(get_descendant_name $uplifted_api_parent $uplifted_api_source)
 
@@ -150,35 +186,19 @@ jzpat=$(echo "$vpath" | sed 's/\ /\n/g' | grep jazz | tr '\n' ' ')
 
 cpps=$(find src/ | grep '.*jazz\(01\)\?_.*cpp$' | tr '\n' ' ')
 
-if [ "$uplifted_pak" != "$uplifted_pak_parent" ]; then
-	vpath+="$uplifted_pak_source "
-	jzpat+="$uplifted_pak_source "
-	cpps+="$(ls $uplifted_pak_source*.cpp) "
-fi
-
-if [ "$uplifted_fie" != "$uplifted_fie_parent" ]; then
-	vpath+="$uplifted_fie_source "
-	jzpat+="$uplifted_fie_source "
-	cpps+="$(ls $uplifted_fie_source*.cpp) "
-fi
-
-if [ "$uplifted_spa" != "$uplifted_spa_parent" ]; then
-	vpath+="$uplifted_spa_source "
-	jzpat+="$uplifted_spa_source "
-	cpps+="$(ls $uplifted_spa_source*.cpp) "
-fi
-
 if [ "$uplifted_mod" != "$uplifted_mod_parent" ]; then
-	vpath+="$uplifted_mod_source "
-	jzpat+="$uplifted_mod_source "
-	cpps+="$(ls $uplifted_mod_source*.cpp) "
+    vpath+="$uplifted_mod_source "
+    jzpat+="$uplifted_mod_source "
+    cpps+="$(ls $uplifted_mod_source*.cpp) "
 fi
 
 if [ "$uplifted_api" != "$uplifted_api_parent" ]; then
-	vpath+="$uplifted_api_source "
-	jzpat+="$uplifted_api_source "
-	cpps+="$(ls $uplifted_api_source*.cpp) "
+    vpath+="$uplifted_api_source "
+    jzpat+="$uplifted_api_source "
+    cpps+="$(ls $uplifted_api_source*.cpp) "
 fi
+
+# 1.8 Get all the dependencies
 
 objs=$(echo "$cpps" | sed 's/\ /\n/g' | sed 's/.*\/\(.*cpp\)$/\1/' | sed 's/cpp/o/' | tr '\n' ' ')
 
@@ -232,30 +252,54 @@ jazz_depends=$(depends)
 cd "$jazz_pwd" || return 1
 
 
-# End of section 1: Dump all variables if debugging
+# 1.9 Create an include path list without duplicates
+
+incl_paths=(
+    "$mhd_inclpath"
+    "$curl_inclpath"
+    "$zmq_inclpath"
+    "$onnx_rt_inclpath"
+    "$onnx_proto_inclpath"
+)
+
+# Deduplicate the array
+unique_incl_paths=($(printf "%s\n" "${incl_paths[@]}" | awk '!seen[$0]++'))
+
+# Build the neat_includes string
+neat_includes=$(printf -- "-I%s " "${unique_incl_paths[@]}")
+
+# Trim any trailing space
+neat_includes=$(echo "$neat_includes" | sed 's/[[:space:]]*$//')
+
+
+# 1.a Dump all variables if debugging
+
 if [[ $mode =~ 'DEBUG' ]]; then
-  echo "jazz_pwd      = $jazz_pwd"
-  echo "jazz_version  = $jazz_version"
-  echo "jz_processor  = $jz_processor"
-  echo "jazz_distro1  = $jazz_distro1"
-  echo "jazz_distro2  = $jazz_distro2"
-  echo "jazz_years    = $jazz_years"
-  echo "mhd_inclpath  = $mhd_inclpath"
-  echo "mhd_libpath   = $mhd_libpath"
-  echo "curl_inclpath = $curl_inclpath"
-  echo "curl_libpath  = $curl_libpath"
-  echo "zmq_inclpath  = $zmq_inclpath"
-  echo "zmq_libpath   = $zmq_libpath"
-  echo "vpath         = $vpath"
-  echo "jzpat         = $jzpat"
-  echo "cpps          = $cpps"
-  echo "objs          = $objs"
-  echo "jazz_depends  = $jazz_depends"
-  echo "uplifted_pak  = $uplifted_pak"
-  echo "uplifted_fie  = $uplifted_fie"
-  echo "uplifted_spa  = $uplifted_spa"
-  echo "uplifted_mod  = $uplifted_mod"
-  echo "uplifted_api  = $uplifted_api"
+  echo "jazz_pwd            = $jazz_pwd"
+  echo "jazz_version        = $jazz_version"
+  echo "jz_processor        = $jz_processor"
+  echo "jazz_distro1        = $jazz_distro1"
+  echo "jazz_distro2        = $jazz_distro2"
+  echo "jazz_years          = $jazz_years"
+  echo "mhd_inclpath        = $mhd_inclpath"
+  echo "mhd_libpath         = $mhd_libpath"
+  echo "curl_inclpath       = $curl_inclpath"
+  echo "curl_libpath        = $curl_libpath"
+  echo "zmq_inclpath        = $zmq_inclpath"
+  echo "zmq_libpath         = $zmq_libpath"
+  echo "onnx_rt_inclpath    = $onnx_rt_inclpath"
+  echo "onnx_rt_libpath     = $onnx_rt_libpath"
+  echo "onnx_proto_inclpath = $onnx_proto_inclpath"
+  echo "vpath               = $vpath"
+  echo "jzpat               = $jzpat"
+  echo "cpps                = $cpps"
+  echo "objs                = $objs"
+  echo "jazz_depends        = $jazz_depends"
+  echo "uplifted_mod        = $uplifted_mod"
+  echo "uplifted_api        = $uplifted_api"
+  echo "incl_paths          = $(printf "%s " "${incl_paths[@]}")"
+  echo "unique_incl_paths   = $(printf "%s " "${unique_incl_paths[@]}")"
+  echo "neat_includes       = $neat_includes"
 
   printf "\n"
 fi
@@ -264,14 +308,16 @@ fi
 # Section 2. Ask for confirmation. Do nothing if not.
 # ----------
 
-printf "You will now override:\n\n"
-< _config_/help_on_config.txt grep '  - '
-printf "\n"
+if [[ "$1" != "-y" ]]; then
+	printf "You will now override:\n\n"
+	< _config_/help_on_config.txt grep '  - '
+	printf "\n"
 
-read -p "Do you want to continue? [y/N] " -r
-echo    # (optional) move to a new line
+	read -p "Do you want to continue? [y/N] " -r
+	echo    # (optional) move to a new line
 
-if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
+	if [[ $REPLY =~ ^[Yy]$ ]]; then printf "\n"; else exit 1; fi
+fi
 
 
 # Section 3. Start the Kung-fu
@@ -298,13 +344,14 @@ printf "Writing: server/Makefile ... "
 
 echo "$(cat _config_/makefile_head)
 
-CXXFLAGS     := -std=c++17 -I. -I$mhd_inclpath -I$curl_inclpath -I$zmq_inclpath
+CXXFLAGS     := -std=c++17 -funsigned-char -I. $neat_includes
 LINUX        := ${jazz_distro1}_${jazz_distro2}
 HOME         := $jazz_pwd
 VERSION      := $jazz_version
 mhd_libpath  := $mhd_libpath
 curl_libpath := $curl_libpath
 zmq_libpath  := $zmq_libpath
+onnx_libpath := $onnx_rt_libpath
 
 VPATH = $vpath
 
@@ -384,33 +431,11 @@ uplifted_incl=""
 using_namespace_bop="0"
 using_namespace_mod="0"
 
-if [ "$uplifted_pak" != "$uplifted_pak_parent" ]; then
-  uplifted_incl+="#include \"$(ls $uplifted_pak_source*.h)\"\n"
-else
-  uplifted_incl+="using namespace jazz_bebop;\n"
-  using_namespace_bop="1"
-fi
-
-if [ "$uplifted_fie" != "$uplifted_fie_parent" ]; then
-  uplifted_incl+="#include \"$(ls $uplifted_fie_source*.h)\"\n"
-else
-  if [ "$using_namespace_bop" != "1" ]; then
-    uplifted_incl+="using namespace jazz_bebop;\n"
-  fi
-fi
-
-if [ "$uplifted_spa" != "$uplifted_spa_parent" ]; then
-  uplifted_incl+="#include \"$(ls $uplifted_spa_source*.h)\"\n"
-else
-  uplifted_incl+="using namespace jazz_model;\n"
-  using_namespace_mod="1"
-fi
-
 if [ "$uplifted_mod" != "$uplifted_mod_parent" ]; then
   uplifted_incl+="#include \"$(ls $uplifted_mod_source*.h)\"\n"
 else
   if [ "$using_namespace_mod" != "1" ]; then
-    uplifted_incl+="using namespace jazz_model;\n"
+    uplifted_incl+="using namespace jazz_models;\n"
   fi
 fi
 
@@ -429,11 +454,8 @@ printf "Writing: server/src/uplifted/uplifted_instances.h ... "
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
 $uplifted_incl
-extern $uplifted_pak PACK;
-extern $uplifted_fie FIELD;
-extern $uplifted_spa SEMSPACE;
-extern $uplifted_mod MODEL;
-extern $uplifted_api API;\n" > server/src/uplifted/uplifted_instances.h
+extern $uplifted_mod MODELS_API;
+extern $uplifted_api HTTP_API;\n" > server/src/uplifted/uplifted_instances.h
 
 printf "Ok.\n"
 
@@ -442,11 +464,8 @@ printf "Writing: server/src/uplifted/uplifted_instances.cpp ... "
 
 printf "// This file is auto generated, do NOT edit, run ./config.sh instead
 
-$uplifted_pak PACK(&LOGGER, &CONFIG);
-$uplifted_fie FIELD(&LOGGER, &CONFIG, &PACK);
-$uplifted_spa SEMSPACE(&LOGGER, &CONFIG);
-$uplifted_mod MODEL(&LOGGER, &CONFIG);
-$uplifted_api API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE, &MODEL);\n" > server/src/uplifted/uplifted_instances.cpp
+$uplifted_mod MODELS_API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE);
+$uplifted_api HTTP_API(&LOGGER, &CONFIG, &CHANNELS, &VOLATILE, &PERSISTED, &CORE, &MODELS_API);\n" > server/src/uplifted/uplifted_instances.cpp
 
 printf "Ok.\n"
 

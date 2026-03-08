@@ -1232,7 +1232,7 @@ typedef union MDB_metabuf {
 	struct {
 		char		mm_pad[PAGEHDRSZ];			// cppcheck-suppress unusedStructMember
 		MDB_meta	mm_meta;					// cppcheck-suppress unusedStructMember
-	} mb_metabuf;
+	} mb_metabuf;								// cppcheck-suppress unusedStructMember
 } MDB_metabuf;
 
 	/** Auxiliary DB info.
@@ -2500,7 +2500,7 @@ mdb_page_alloc(MDB_cursor *mc, int num, MDB_page **mp)
 			if (Paranoid && mc->mc_dbi == FREE_DBI)
 				retry = -1;
 		}
-		if (Paranoid && retry < 0 && mop_len)
+		if (Paranoid && (retry < 0) && mop_len)
 			break;
 
 		last++;

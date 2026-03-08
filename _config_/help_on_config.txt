@@ -1,3 +1,9 @@
+Usage:
+  ./config.sh           # Runs asking for confirmation before overriding files.
+  ./config.sh -y        # Runs and overrides files without asking for confirmation.
+  ./config.sh --debug   # Shows all the values of the configuration variables detected.
+  ./config.sh --help    # Shows this help.
+
 This script creates:
 
   - server/src/include/jazz_platform.h (Version and platform const)
@@ -9,7 +15,7 @@ This script creates:
   - docker/lss/build_upload.sh (build & upload LSS (Latest Stable Server) Docker image)
   - docker/tng/build_upload.sh (build & upload TNG (The Tangle) Docker image)
 
-config.sh usage:
+Setting up options for config.sh:
 
   This script is not configured via arguments, but by creating text
 "chunks" in the _config_ folder. The simple uses are described in
