@@ -1159,21 +1159,36 @@ MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 #ifdef CATCH_TEST
 
 CURL *Channels::curl_easy_init() {
-	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_INIT)
-		return nullptr;
+
+	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_INIT) return nullptr;
 
 	return ::curl_easy_init();
 }
 
 
 CURLcode Channels::curl_easy_perform(CURL *curl) {
-	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_PERFORM)
-		return CURLE_COULDNT_CONNECT;
 
-	if (curl_easy_return_code != CURL_EASY_NO_BYPASS)
-		return (CURLcode) curl_easy_return_code;
+	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_PERFORM) return CURLE_COULDNT_CONNECT;
+
+	if (curl_easy_return_code != CURL_EASY_NO_BYPASS) return (CURLcode) curl_easy_return_code;
 
 	return ::curl_easy_perform(curl);
+}
+
+
+CURLcode Channels::curl_easy_getinfo(CURL *curl, CURLINFO info, uint64_t *response_code) {
+
+	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_GETINFO) return CURLE_COULDNT_CONNECT;
+
+	if (curl_easy_response != CURL_EASY_NO_BYPASS) {
+		*response_code = curl_easy_response;
+
+		if (curl_easy_return_code == CURL_EASY_NO_BYPASS) return CURLE_OK;
+	}
+
+	if (curl_easy_return_code != CURL_EASY_NO_BYPASS) return (CURLcode) curl_easy_return_code;
+
+	return ::curl_easy_getinfo(curl, info, response_code);
 }
 
 

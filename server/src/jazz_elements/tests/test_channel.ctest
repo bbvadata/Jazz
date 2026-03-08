@@ -106,14 +106,34 @@ SCENARIO("Testing curl wrapper") {
 	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_PERFORM;
 	REQUIRE(CHN.curl_easy_perform(nullptr) == CURLE_COULDNT_CONNECT);
 
-	CHN.debug_trigger_failure = 0;
-	CHN.curl_easy_return_code = MHD_HTTP_NOT_ACCEPTABLE;
-	REQUIRE(CHN.curl_easy_perform(nullptr) == MHD_HTTP_NOT_ACCEPTABLE);
+	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_GETINFO;
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, nullptr) == CURLE_COULDNT_CONNECT);
 
-	CHN.curl_easy_return_code = 0;
-	REQUIRE(CHN.curl_easy_perform(nullptr) == 0);
+	CHN.debug_trigger_failure = 0;
+
+	uint64_t response_code = 33;
+
+	CHN.curl_easy_return_code = MHD_HTTP_NOT_ACCEPTABLE;
+
+	REQUIRE(CHN.curl_easy_perform(nullptr) == MHD_HTTP_NOT_ACCEPTABLE);
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, &response_code) == MHD_HTTP_NOT_ACCEPTABLE);
+	REQUIRE(response_code == 33);
 
 	CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+	CHN.curl_easy_response	  = MHD_HTTP_CONFLICT;
+
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, &response_code) == CURLE_OK);
+	REQUIRE(response_code == MHD_HTTP_CONFLICT);
+
+	CHN.curl_easy_return_code = 0;
+	CHN.curl_easy_response	  = 0;
+
+	REQUIRE(CHN.curl_easy_perform(nullptr) == 0);
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, &response_code) == 0);
+	REQUIRE(response_code == 0);
+
+	CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+	CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
 }
 
 

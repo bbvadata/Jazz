@@ -97,6 +97,7 @@ namespace jazz_elements
 // #define TRIGGER_FAIL_MDB_DROP		(1u << 14)	This is the highest bit used in Persisted,
 #define TRIGGER_FAIL_CURL_EASY_INIT		(1u << 15)		///< Trigger a failure in curl_easy_init() to test error handling.
 #define TRIGGER_FAIL_CURL_EASY_PERFORM	(1u << 16)		///< Trigger a failure in curl_easy_perform() to test error handling.
+#define TRIGGER_FAIL_CURL_EASY_GETINFO	(1u << 17)		///< Trigger a failure in curl_easy_getinfo() to test error handling.
 
 
 /// A map for defining http config names
@@ -669,8 +670,10 @@ class Channels : public Container {
 #ifdef CATCH_TEST
 		CURL *	 curl_easy_init	  ();
 		CURLcode curl_easy_perform(CURL *curl);
+		CURLcode curl_easy_getinfo(CURL *curl, CURLINFO info, uint64_t *response_code);
 
 		int curl_easy_return_code = CURL_EASY_NO_BYPASS;
+		int curl_easy_response	  = CURL_EASY_NO_BYPASS;
 #endif
 
 };
