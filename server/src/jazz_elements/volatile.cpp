@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -34,7 +34,6 @@
 
 #include "src/jazz_elements/volatile.h"
 
-
 namespace jazz_elements
 {
 
@@ -42,6 +41,11 @@ namespace jazz_elements
 	 Volatile : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Volatile Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Volatile::Volatile(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
@@ -70,7 +74,7 @@ StatusCode Volatile::start() {
 	key_seed = MurmurHash64A(&rawtime, sizeof(rawtime)) & 0x0fffffFFFFFFFF;
 
 	if (!get_conf_key("VOLATILE_MAX_TRANSACTIONS", max_transactions)) {
-		log(LOG_ERROR, "Config key VOLATILE_MAX_TRANSACTIONS not found in Container::start");
+		log(log_error_level, "Config key VOLATILE_MAX_TRANSACTIONS not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -78,14 +82,14 @@ StatusCode Volatile::start() {
 	int i = 0;
 
 	if (!get_conf_key("VOLATILE_WARN_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key VOLATILE_WARN_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key VOLATILE_WARN_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
 
 	if (!get_conf_key("VOLATILE_ERROR_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key VOLATILE_ERROR_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key VOLATILE_ERROR_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -96,6 +100,8 @@ StatusCode Volatile::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return SERVICE_NO_ERROR if successful, some error and log(LOG_MISS, "further details") if not.
 */
 StatusCode Volatile::shut_down() {
 
@@ -110,12 +116,8 @@ StatusCode Volatile::shut_down() {
 StatusCode Volatile::new_volatile() {
 
 	if (p_buffer != nullptr || max_transactions <= 0) {
-#ifdef CATCH_TEST
-		destroy_volatile();
-#else
-		log(LOG_ERROR, "new_volatile() called on a running Volatile().");
+		log(log_error_level, "new_volatile() called on a running Volatile().");
 		return SERVICE_ERROR_STARTING;
-#endif
 	}
 
 	alloc_bytes = 0;
@@ -222,7 +224,7 @@ Transaction returned is actually a VolatileTransaction which is good for any of 
 void Volatile::destroy_transaction  (pTransaction &p_txn) {
 
 	if (p_txn->p_owner == nullptr) {
-		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
+		log_printf(log_error_level, "Transaction %p has no p_owner", p_txn);
 
 		return;
 	}
@@ -284,8 +286,7 @@ StatusCode Volatile::get(pTransaction &p_txn, Locator &what) {
 	}
 
 	if (p_int_txn != nullptr) {
-		if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
-			return ret;
+		if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR) return ret;
 
 		int size = p_int_txn->p_block->total_bytes;
 
@@ -480,7 +481,6 @@ For Kinds, the metadata of all the items is exactly the same a .get() call retur
 For Tuples, it does what you expect: returning a Block with the metadata of all the items without the data.
 */
 StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
-
 	pTransaction p_int_txn;
 	pString		 p_str;
 	uint64_t	 pop_ent;
@@ -492,14 +492,14 @@ StatusCode Volatile::header(pTransaction &p_txn, Locator &what) {
 		return ret != SERVICE_NO_ERROR ? ret : SERVICE_ERROR_PARSING_COMMAND;
 	}
 
-	if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
-		return ret;
+	if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR) return ret;
 
 	int hea_size = sizeof(StaticBlockHeader);
 
 	switch (p_int_txn->p_block->cell_type) {
-	case CELL_TYPE_TUPLE_ITEM:
-	case CELL_TYPE_KIND_ITEM:
+	case CELL_TYPE_TUPLE:
+	case CELL_TYPE_BLOCK_KIND:
+	case CELL_TYPE_TUPLE_KIND:
 		hea_size += p_int_txn->p_block->size*sizeof(ItemHeader);
 	}
 
@@ -546,44 +546,37 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 	switch (base = TenBitsAtAddress(where.base)) {
 	case BASE_DEQUE_10BIT:
 		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
-		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = deque_ent.find(ek.ent_hash);
 
-		if (it_ent == deque_ent.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it_ent == deque_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		break;
 
 	case BASE_INDEX_10BIT:
 		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_STRING : mode;
-		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_STRING)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_STRING) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = index_ent.find(ek.ent_hash);
 
-		if (it_ent == index_ent.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it_ent == index_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		break;
 
 	case BASE_QUEUE_10BIT:
 		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
-		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if ((mode & WRITE_AS_ANY_WRITE) != WRITE_AS_FULL_BLOCK) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		break;
 
 	case BASE_TREE_10BIT:
 		mode = mode == WRITE_AS_BASE_DEFAULT ? WRITE_AS_FULL_BLOCK : mode;
-		if (mode != WRITE_AS_FULL_BLOCK)
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if (mode != WRITE_AS_FULL_BLOCK) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		it_ent = tree_ent.find(ek.ent_hash);
 
-		if (it_ent == tree_ent.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it_ent == tree_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		break;
 
@@ -594,8 +587,7 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 	Name key, second;
 	int	 command;
 
-	if (!parse_command(key, command, second, where.key, true))
-		return SERVICE_ERROR_PARSING_COMMAND;
+	if (!parse_command(key, command, second, where.key, true)) return SERVICE_ERROR_PARSING_COMMAND;
 
 	switch (command) {
 	case COMMAND_JUST_THE_KEY: {
@@ -604,8 +596,7 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 			return put_index(it_ent->second->p_hea->index, key, p_block, mode);
 
 		case BASE_TREE_10BIT:
-			if (it_ent->second != nullptr)
-				return SERVICE_ERROR_PARSING_COMMAND;
+			if (it_ent->second != nullptr) return SERVICE_ERROR_PARSING_COMMAND;
 
 			ek.key_hash = hash(key);
 
@@ -616,45 +607,39 @@ StatusCode Volatile::put(Locator &where, pBlock p_block, int mode) {
 			EntKeyVolXctMap::iterator it;
 
 			if ((it = deque_key.find(ek)) != deque_key.end()) {
-				if (mode & WRITE_ONLY_IF_NOT_EXISTS)
-					return SERVICE_ERROR_WRITE_FORBIDDEN;
+				if (mode & WRITE_ONLY_IF_NOT_EXISTS) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 				return put_replace(it->second, p_block);
 			}
-			if (mode & WRITE_ONLY_IF_EXISTS)
-				return SERVICE_ERROR_WRITE_FORBIDDEN;
+			if (mode & WRITE_ONLY_IF_EXISTS) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 			return put_in_deque(it_ent, ek, key, p_block); }
 		}
 		return SERVICE_ERROR_PARSING_COMMAND; }
 
 	case COMMAND_FIRST_10BIT:
-		if (base != BASE_DEQUE_10BIT)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (base != BASE_DEQUE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
 		new_key(key);ek.key_hash = hash(key);
 
 		return put_in_deque(it_ent, ek, key, p_block, true);
 
 	case COMMAND_LAST_10BIT:
-		if (base != BASE_DEQUE_10BIT)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (base != BASE_DEQUE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
 		new_key(key);ek.key_hash = hash(key);
 
 		return put_in_deque(it_ent, ek, key, p_block);
 
 	case COMMAND_PUT_10BIT:
-		if (base != BASE_INDEX_10BIT)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (base != BASE_INDEX_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
 		return populate_index(it_ent->second->p_hea->index, p_block);
 
 	case COMMAND_SECOND_ARG:
 		if (base == BASE_QUEUE_10BIT) {
 			double priority;
-			if (sscanf(second, "%lf", &priority) != 1)
-				return SERVICE_ERROR_PARSING_COMMAND;
+			if (sscanf(second, "%lf", &priority) != 1) return SERVICE_ERROR_PARSING_COMMAND;
 
 			return put_queue_insert(ek.ent_hash, key, priority, p_block, mode);
 		}
@@ -686,52 +671,47 @@ StatusCode Volatile::new_entity(Locator &where) {
 
 	switch (TenBitsAtAddress(where.base)) {
 	case BASE_DEQUE_10BIT:
-		if (where.key[0] != 0)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (where.key[0] != 0) return SERVICE_ERROR_PARSING_COMMAND;
 
-		if (deque_ent.find(ent_hash) !=  deque_ent.end())
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if (deque_ent.find(ent_hash) !=  deque_ent.end()) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		deque_ent[ent_hash] = nullptr;
+
 		return SERVICE_NO_ERROR;
 
 	case BASE_QUEUE_10BIT: {
-		if (queue_ent.find(ent_hash) != queue_ent.end())
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if (queue_ent.find(ent_hash) != queue_ent.end()) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		Name key, second;
 		int	 command;
 
-		if (!parse_command(key, command, second, where.key, true) || command <= COMMAND_SIZE)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (!parse_command(key, command, second, where.key, true) || command <= COMMAND_SIZE) return SERVICE_ERROR_PARSING_COMMAND;
 
 		QueueEnt queue = {command - COMMAND_SIZE, 0, nullptr};
 
 		queue_ent[ent_hash] = queue; }
+
 		return SERVICE_NO_ERROR;
 
 	case BASE_TREE_10BIT:
-		if (where.key[0] != 0)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (where.key[0] != 0) return SERVICE_ERROR_PARSING_COMMAND;
 
-		if (tree_ent.find(ent_hash) != tree_ent.end())
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if (tree_ent.find(ent_hash) != tree_ent.end()) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		tree_ent[ent_hash] = nullptr;
+
 		return SERVICE_NO_ERROR;
 
 	case BASE_INDEX_10BIT:
-		if (where.key[0] != 0)
-			return SERVICE_ERROR_PARSING_COMMAND;
+		if (where.key[0] != 0) return SERVICE_ERROR_PARSING_COMMAND;
 
-		if (index_ent.find(ent_hash) != index_ent.end())
-			return SERVICE_ERROR_WRITE_FORBIDDEN;
+		if (index_ent.find(ent_hash) != index_ent.end()) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 		pTransaction p_txn;
-		if (int ret = new_block(p_txn, CELL_TYPE_INDEX) != SERVICE_NO_ERROR)
-			return ret;
+		if (int ret = new_block(p_txn, CELL_TYPE_INDEX) != SERVICE_NO_ERROR) return ret;
 
 		index_ent[ent_hash] = (pVolatileTransaction) p_txn;
+
 		return SERVICE_NO_ERROR;
 	}
 
@@ -757,8 +737,7 @@ StatusCode Volatile::remove(Locator &where) {
 		case BASE_DEQUE_10BIT: {
 			HashVolXctMap::iterator it;
 
-			if ((it = deque_ent.find(ek.ent_hash)) == deque_ent.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if ((it = deque_ent.find(ek.ent_hash)) == deque_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			pVolatileTransaction p_item = it->second, p_next;
 
@@ -773,8 +752,7 @@ StatusCode Volatile::remove(Locator &where) {
 		case BASE_QUEUE_10BIT: {
 			HashQueueEntMap::iterator it;
 
-			if ((it = queue_ent.find(ek.ent_hash)) == queue_ent.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if ((it = queue_ent.find(ek.ent_hash)) == queue_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			destroy_queue(ek.ent_hash, it->second.p_root);
 
@@ -784,8 +762,7 @@ StatusCode Volatile::remove(Locator &where) {
 		case BASE_TREE_10BIT: {
 			HashVolXctMap::iterator it;
 
-			if ((it = tree_ent.find(ek.ent_hash)) == tree_ent.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if ((it = tree_ent.find(ek.ent_hash)) == tree_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			destroy_tree(ek.ent_hash, it->second);
 
@@ -795,8 +772,7 @@ StatusCode Volatile::remove(Locator &where) {
 		case BASE_INDEX_10BIT: {
 			HashVolXctMap::iterator it;
 
-			if ((it = index_ent.find(ek.ent_hash)) == index_ent.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if ((it = index_ent.find(ek.ent_hash)) == index_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			pTransaction p_txn = index_ent[ek.ent_hash];
 			destroy_transaction(p_txn);
@@ -807,6 +783,7 @@ StatusCode Volatile::remove(Locator &where) {
 		default:
 			return SERVICE_ERROR_WRONG_BASE;
 		}
+
 		return SERVICE_NO_ERROR;
 	}
 
@@ -822,24 +799,21 @@ StatusCode Volatile::remove(Locator &where) {
 
 	switch (base) {
 	case BASE_DEQUE_10BIT: {
-		if ((it_key = deque_key.find(ek)) == deque_key.end())
-			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+		if ((it_key = deque_key.find(ek)) == deque_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		destroy_item(BASE_DEQUE_10BIT, ek.ent_hash, it_key->second); }
 
 		return SERVICE_NO_ERROR;
 
 	case BASE_QUEUE_10BIT: {
-		if ((it_key = queue_key.find(ek)) == queue_key.end())
-			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+		if ((it_key = queue_key.find(ek)) == queue_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		destroy_item(BASE_QUEUE_10BIT, ek.ent_hash, it_key->second); }
 
 		return SERVICE_NO_ERROR;
 
 	case BASE_TREE_10BIT: {
-		if ((it_key = tree_key.find(ek)) == tree_key.end())
-			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+		if ((it_key = tree_key.find(ek)) == tree_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		pVolatileTransaction p_item = it_key->second;
 
@@ -874,18 +848,17 @@ StatusCode Volatile::remove(Locator &where) {
 
 	case BASE_INDEX_10BIT: {
 		HashVolXctMap::iterator it_ent = index_ent.find(ek.ent_hash);
-		if (it_ent == index_ent.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it_ent == index_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		Index::iterator it_itm = it_ent->second->p_hea->index.find(key);
 
-		if (it_itm == it_ent->second->p_hea->index.end())
-			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+		if (it_itm == it_ent->second->p_hea->index.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		it_ent->second->p_hea->index.erase(it_itm); }
 
 		return SERVICE_NO_ERROR;
 	}
+
 	return SERVICE_ERROR_WRONG_BASE;
 }
 
@@ -904,8 +877,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 	uint64_t	 pop_ent;
 	StatusCode	 ret;
 
-	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR)
-		return ret;
+	if ((ret = internal_get(p_int_txn, p_str, pop_ent, what)) != SERVICE_NO_ERROR) return ret;
 
 	if (p_int_txn != nullptr) {
 		ret = put(where, p_int_txn->p_block);
@@ -917,8 +889,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 	}
 
 	if (p_str != nullptr) {
-		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR)
-			return ret;
+		if ((ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_str->c_str(), 0)) != SERVICE_NO_ERROR) return ret;
 
 		ret = put(where, p_txn->p_block);
 
@@ -927,8 +898,7 @@ StatusCode Volatile::copy(Locator &where, Locator &what) {
 		return ret;
 	}
 
-	if ((ret = new_block(p_txn, index_ent[pop_ent]->p_hea->index)) != SERVICE_NO_ERROR)
-		return ret;
+	if ((ret = new_block(p_txn, index_ent[pop_ent]->p_hea->index)) != SERVICE_NO_ERROR) return ret;
 
 	ret = put(where, p_txn->p_block);
 

@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -34,7 +34,6 @@
 
 #include "src/jazz_elements/container.h"
 
-
 namespace jazz_elements
 {
 
@@ -42,19 +41,16 @@ namespace jazz_elements
 	 Global const (to avoid local initialization at each call)
 ---------------------------------------------------------------- */
 
-char NA [8]				 = NA_AS_TEXT;
-char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};
-char DEF_INT8_FMT [8]	 = {"%hhu\0"};
-char DEF_INT32_FMT [8]	 = {"%i\0"};
-char DEF_INT64_FMT [8]	 = {"%lli\0"};
-char DEF_FLOAT32_FMT [8] = {"%.9e\0"};
-char DEF_FLOAT64_FMT [8] = {"%.18e\0"};
-char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};
+char NA [8]				 = NA_AS_TEXT;					///< The text "NA" as a char array
+char ESCAPE_LOW_ASCII[8] = {"abtnvfr"};					///< The letters that can be escaped
+char DEF_INT8_FMT [8]	 = {"%hhu\0"};					///< The default format for int8_t
+char DEF_INT32_FMT [8]	 = {"%i\0"};					///< The default format for int32_t
+char DEF_INT64_FMT [8]	 = {"%lli\0"};					///< The default format for int64_t
+char DEF_FLOAT32_FMT [8] = {"%.9e\0"};					///< The default format for float
+char DEF_FLOAT64_FMT [8] = {"%.18e\0"};					///< The default format for double
+char DEF_FLOAT_TIME [24] = {"%Y-%m-%d %H:%M:%S"};		///< The default format for time_t
 
-uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
-uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
-
-int LOCATOR_SIZE[3] = {SHORT_NAME_SIZE - 1, NAME_SIZE - 1, NAME_SIZE - 1};
+int LOCATOR_SIZE[3] = {SHORT_NAME_SIZE - 1, NAME_SIZE - 1, NAME_SIZE - 1};	///< The size for each section
 
 /*	--------------------------------------------------------
 	 Global compile_next_state_LUT() (also used in API)
@@ -69,14 +65,13 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 		ParseNextStateLUT *p_next = &lut[trans[i].from];
 
 		std::regex  rex(trans[i].rex);
-		std::string s("-");
+		String s("-");
 
 		for (int j = 0; j < 256; j++) {
 			s[0] = j;
 			if (std::regex_match(s, rex)) {
 #ifdef DEBUG
-				if (p_next->next[j] != PSTATE_INVALID_CHAR)
-					throw 1;
+				if (p_next->next[j] != PSTATE_INVALID_CHAR) { throw 1; }
 #endif
 				p_next->next[j] = trans[i].to;
 			}
@@ -111,7 +106,7 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 #define REX_TIME				"[0-9a-zA-Z :\\-]"					// Enforces DEF_FLOAT_TIME = "%Y-%m-%d %H:%M:%S"
 
 #define MAX_NUM_PSTATES			27		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	75		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
+#define NUM_STATE_TRANSITIONS	76		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
 
 #define PSTATE_IN_AUTO			 0		///< Parser state: Reached "[" (shape in), cell type is CELL_TYPE_UNDEFINED
 #define PSTATE_IN_INT			 1		///< Parser state: Reached "[" (shape in), cell type is any integer
@@ -146,11 +141,15 @@ void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateT
 #define PSTATE_OUT_STRING		25		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_STRING
 #define PSTATE_OUT_TIME			26		///< Parser state: Reached "]" (shape out), cell type is CELL_TYPE_TIME
 
+#define PSTATE_EMPTY_FILE		27		///< Parser state: Empty array of byte (File of size 0) (Any other type must use NA for empty)
+
 /** A vector of StateTransition.l This only runs once, when construction the API object, initializes the LUTs from a sequence of
 StateTransition constants in the source of api.cpp.
 */
 typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
 
+/** The parser logic defined in terms of transitions between states.
+*/
 ParseStateTransitions state_tr = {
 
 	{PSTATE_IN_AUTO,			PSTATE_IN_AUTO,			REX_ALL_SPACES_LEFT_BR},
@@ -161,6 +160,7 @@ ParseStateTransitions state_tr = {
 	{PSTATE_IN_INT,				PSTATE_IN_INT,			REX_ALL_SPACES_LEFT_BR},
 	{PSTATE_IN_INT,				PSTATE_CONST_INT,		REX_NUMBER_FIRST},
 	{PSTATE_IN_INT,				PSTATE_NA_INT,			REX_NA_FIRST},
+	{PSTATE_IN_INT,				PSTATE_EMPTY_FILE,		REX_RIGHT_BR},
 
 	{PSTATE_IN_REAL,			PSTATE_IN_REAL,			REX_ALL_SPACES_LEFT_BR},
 	{PSTATE_IN_REAL,			PSTATE_CONST_REAL,		REX_NUMBER_FIRST},
@@ -257,18 +257,22 @@ ParseStateTransitions state_tr = {
 	{MAX_NUM_PSTATES}
 };
 
+/** The parser logic defined as a LUT (initialized by compile_next_state_LUT()).
+*/
 ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
 
 /*	--------------------------------------------------
 	 Container : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Container::Container(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config) {
 
 	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
-
-	memcpy(&F_NA_uint32, &F_NA, sizeof(&F_NA));
-	memcpy(&R_NA_uint64, &R_NA, sizeof(&R_NA));
 
 	max_transactions = 0;
 	alloc_bytes = warn_alloc_bytes = fail_alloc_bytes = 0;
@@ -281,11 +285,14 @@ Container::~Container() { destroy_container(); }
 
 
 /** Reads variables from config and sets private variables accordingly.
+
+	\return SERVICE_NO_ERROR on success, or some error.
+
 */
 StatusCode Container::start() {
 
 	if (!get_conf_key("ONE_SHOT_MAX_TRANSACTIONS", max_transactions)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_MAX_TRANSACTIONS not found in Container::start");
+		log(log_error_level, "Config key ONE_SHOT_MAX_TRANSACTIONS not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -293,14 +300,14 @@ StatusCode Container::start() {
 	int i = 0;
 
 	if (!get_conf_key("ONE_SHOT_WARN_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_WARN_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key ONE_SHOT_WARN_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
 	warn_alloc_bytes = 1024; warn_alloc_bytes *= i;
 
 	if (!get_conf_key("ONE_SHOT_ERROR_BLOCK_KBYTES", i)) {
-		log(LOG_ERROR, "Config key ONE_SHOT_ERROR_BLOCK_KBYTES not found in Container::start");
+		log(log_error_level, "Config key ONE_SHOT_ERROR_BLOCK_KBYTES not found in Container::start");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -311,6 +318,9 @@ StatusCode Container::start() {
 
 
 /** Destroys everything and zeroes allocation.
+
+	\return SERVICE_NO_ERROR on success, or some error.
+
 */
 StatusCode Container::shut_down() {
 
@@ -350,12 +360,13 @@ void Container::enter_read(pTransaction p_txn) {
 /** Enter (hard lock) a Block for writing. No readers are allowed during writing.
 
 	\param p_txn		The address of the Block's Transaction.
+	\param total_times	An optional (typically for debugging) option to give up after a number of yield() calls.
 
 NOTE: This is not used in API queries or normal Bop execution. In those cases, Blocks are immutable. This allows for mutable blocks
 in multithreaded algorithms like MCTS.
 
 */
-void Container::enter_write(pTransaction p_txn) {
+void Container::enter_write(pTransaction p_txn, int total_times) {
 	int retry = 0;
 
 	while (true) {
@@ -371,6 +382,10 @@ void Container::enter_write(pTransaction p_txn) {
 					if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 						std::this_thread::yield();
 						retry = 0;
+						if (total_times) {
+							if (--total_times == 0)
+								return;
+						}
 					}
 				}
 			}
@@ -379,6 +394,10 @@ void Container::enter_write(pTransaction p_txn) {
 		if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 			std::this_thread::yield();
 			retry = 0;
+			if (total_times) {
+				if (--total_times == 0)
+					return;
+			}
 		}
 	}
 }
@@ -414,13 +433,7 @@ in multithreaded algorithms like MCTS.
 */
 void Container::leave_write(pTransaction p_txn) {
 
-	while (true) {
-		int32_t lock = p_txn->_lock_;
-		int32_t next = lock + LOCK_WEIGHT_OF_WRITE;
-
-		if (p_txn->_lock_.compare_exchange_weak(lock, next))
-			return;
-	}
+	p_txn->_lock_ = 0;
 }
 
 
@@ -475,7 +488,7 @@ inserted into different structures.
 void Container::destroy_transaction  (pTransaction &p_txn) {
 
 	if (p_txn->p_owner == nullptr) {
-		log_printf(LOG_ERROR, "Transaction %p has no p_owner", p_txn);
+		log_printf(log_error_level, "Transaction %p has no p_owner", p_txn);
 
 		return;
 	}
@@ -531,7 +544,7 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 							FILL_NEW_WITH_ZERO (fill with binary zero no matter what the cell_type is), FILL_NEW_WITH_NA fill with the
 							appropriate NA for the cell_type).
 	\param stringbuff_size	One of the possible ways to allocate space for strings is declaring this size. When this is non-zero a buffer
-							will be allocated with this size plus whatever size is required by the strings in att. new_jazz_block() will
+							will be allocated with this size plus whatever size is required by the strings in att. new_block() will
 							only allocate the space and do nothing with it. The caller should assign strings with Block.set_string().
 	\param p_text			The other possible way to allocate space for strings is by declaring p_text. Imagine the content of p_text
 							as a text file with n = size rows that will be pushed into the tensor and the string buffer. The eol character
@@ -542,7 +555,7 @@ void Container::destroy_transaction  (pTransaction &p_txn) {
 	\param att				The attributes to set when creating the block. They are immutable.
 
 	NOTES: String buffer allocation should not be used to dynamically change attribute values. Attributes are immutable and should be
-	changed	only creating a new block with new = new_jazz_block(p_from = old, att = new_att). String buffer allocation should only be
+	changed	only creating a new block with new = new_block(p_from = old, att = new_att). String buffer allocation should only be
 	used for cell_type == CELL_TYPE_STRING and either with stringbuff_size or with p_text (and eol).
 	If stringbuff_size is used, Block.set_string() should be used afterwards. If p_text is used, the tensor is already filled and
 	Block.set_string() **should not** be called after that.
@@ -560,6 +573,11 @@ StatusCode Container::new_block(pTransaction &p_txn,
 								const char	 *p_text,
 								char		  eol,
 								AttributeMap *att) {
+
+#ifdef CATCH_TEST
+	if ((debug_trigger_failure & TRIGGER_FAIL_NEW_STRING_BLOCK) && (cell_type == CELL_TYPE_STRING))
+		return SERVICE_ERROR_TRIGGERED;
+#endif
 
 	StatusCode ret = new_transaction(p_txn);
 
@@ -600,16 +618,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
-		TensorDim i_dim;
-		i_dim.dim[0] = num_lines;
-		i_dim.dim[1] = 0;
-#ifdef DEBUG				// Initialize i_dim for Valgrind.
-		i_dim.dim[2] = 0;
-		i_dim.dim[3] = 0;
-		i_dim.dim[4] = 0;
-		i_dim.dim[5] = 0;
-#endif
-		reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
+			TensorDim i_dim = {};
+			i_dim.dim[0] = num_lines;
+			i_dim.dim[1] = 0;
+			reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
 	} else {
 		reinterpret_cast<pBlock>(&hea)->set_dimensions(dim);
 
@@ -624,8 +636,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
-	if (att != nullptr && att->size() == 0)
-		att = nullptr;
+	if (att != nullptr && att->size() == 0) att = nullptr;
 
 	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
@@ -663,8 +674,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		char *pt1 = reinterpret_cast<char *>(&p_txn->p_block->tensor + (p_txn->p_block->cell_type & 0xf)*p_txn->p_block->size),
 			 *pt2 = reinterpret_cast<char *>(p_txn->p_block->align64bit((uintptr_t) pt1));
 
-		while (pt1 < pt2)
-			*(pt1++) = 0;
+		while (pt1 < pt2) *(pt1++) = 0;
 
 		if (cell_type == CELL_TYPE_STRING && fill_tensor == FILL_NEW_DONT_FILL) {
 			pStringBuffer psb = p_txn->p_block->p_string_buffer();
@@ -811,7 +821,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param dims			For Kinds only, the names of the dimensions. Note that p_hea must have negative values for the dimensions, just
 						like when Kinds are built using Kind.new_kind() followed by Kind.add_item()
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+						use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -825,24 +835,17 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 	StatusCode ret = new_transaction(p_txn);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	StaticBlockHeader hea;
-	TensorDim i_dim;
+	TensorDim i_dim = {};
 	i_dim.dim[0] = num_items;
 	i_dim.dim[1] = 0;
-#ifdef DEBUG				// Initialize i_dim for Valgrind.
-	i_dim.dim[2] = 0;
-	i_dim.dim[3] = 0;
-	i_dim.dim[4] = 0;
-	i_dim.dim[5] = 0;
-#endif
 
 	if (p_block == nullptr)
-		hea.cell_type = CELL_TYPE_KIND_ITEM;
+		hea.cell_type = CELL_TYPE_TUPLE_KIND;
 	else
-		hea.cell_type = CELL_TYPE_TUPLE_ITEM;
+		hea.cell_type = CELL_TYPE_TUPLE;
 
 	reinterpret_cast<pBlock>(&hea)->set_dimensions(i_dim.dim);
 
@@ -850,8 +853,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 
 	hea.total_bytes = (uintptr_t) reinterpret_cast<pBlock>(&hea)->p_string_buffer() - (uintptr_t) (&hea) + sizeof(StringBuffer) + 4;
 
-	if (att != nullptr && att->size() == 0)
-		att = nullptr;
+	if (att != nullptr && att->size() == 0) att = nullptr;
 
 	if (att	!= nullptr) {
 		for (AttributeMap::iterator it = att->begin(); it != att->end(); ++it) {
@@ -895,11 +897,8 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 #endif
 
 	if (p_block == nullptr) {
-		if (!reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att)) {
-			destroy_transaction(p_txn);
-
-			return SERVICE_ERROR_BAD_NEW_KIND;
-		}
+		bool new_kind = reinterpret_cast<pKind>(p_txn->p_block)->new_kind(num_items, hea.total_bytes, att) == SERVICE_NO_ERROR;
+		if (!new_kind) { destroy_transaction(p_txn); return SERVICE_ERROR_BAD_NEW_KIND; }	// Almost no way to make this fail.
 
 		for (int i = 0; i < num_items; i++) {
 			pChar p_name = (pChar) &p_names[i];
@@ -938,7 +937,7 @@ StatusCode Container::new_block(pTransaction	   &p_txn,
 						have the same first dimension.
 	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+						use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -1000,8 +999,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	int attrib_diff		   = 0,
 		new_num_attributes = 0;
 
-	if (att != nullptr && att->size() == 0)
-		att = nullptr;
+	if (att != nullptr && att->size() == 0) att = nullptr;
 
 	if (att	!= nullptr) {
 		int new_attrib_bytes = 0;
@@ -1013,12 +1011,6 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				new_attrib_bytes += len + 1;
 
 			new_num_attributes++;
-		}
-
-		if (!new_num_attributes) {
-			destroy_transaction(p_txn);
-
-			return SERVICE_ERROR_NEW_BLOCK_ARGS;
 		}
 
 		new_attrib_bytes += new_num_attributes*2*sizeof(int);
@@ -1133,7 +1125,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_from	The Tuple from which the item is selected.
 	\param name		The name of the item to be selected.
 	\param att		The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-					use the version of new_jazz_block() with parameter p_from.
+					use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -1145,7 +1137,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						   		pChar		  name,
 								AttributeMap *att) {
 
-	if (p_from->cell_type != CELL_TYPE_TUPLE_ITEM) {
+	if (p_from->cell_type != CELL_TYPE_TUPLE) {
 		p_txn = nullptr;
 
 		return SERVICE_ERROR_WRONG_TYPE;
@@ -1179,7 +1171,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						CELL_TYPE_STRING. The serialization of a Kind includes types and does not use this.
 						E.g. "{"temperature":INTEGER[num_places,2], "sensation":STRING[num_places]}"
 	\param att			The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						use the version of new_jazz_block() with parameter p_from.
+						use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -1222,19 +1214,38 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	p_txn = nullptr;
 
-	if (skip_space(p_in, num_bytes) <= 0)
-		return PARSE_ERROR_UNEXPECTED_EOF;
+	if (skip_space(p_in, num_bytes) <= 0) return PARSE_ERROR_UNEXPECTED_EOF;
 
 	if (cell_type == CELL_TYPE_UNDEFINED) {
 		if (*p_in == '(')
-			cell_type = CELL_TYPE_TUPLE_ITEM;
+			cell_type = CELL_TYPE_TUPLE;
 
-		if (*p_in == '{')
-			cell_type = CELL_TYPE_KIND_ITEM;
+		if (*p_in == '{') {
+			pChar p_copy = p_in;
+			int nb_copy = num_bytes;
+			get_char(p_copy, nb_copy);	// Skip '{'
+
+			if (get_item_name(p_copy, nb_copy, item_name[0]))	// Note this checks the colon too. A CELL_TYPE_OBJECT_KIND cannot pass
+				cell_type = CELL_TYPE_TUPLE_KIND;				// with either one name or many.
+			else {
+				p_copy = p_in;
+				nb_copy = num_bytes;
+				get_char(p_copy, nb_copy);	// Skip '{'
+
+				MapSI idx_dims = {};
+				bool has_type_and_shape = get_type_and_shape(p_copy, nb_copy, &item_hea[0], idx_dims);
+
+				if (has_type_and_shape)
+					cell_type = CELL_TYPE_BLOCK_KIND;	// The Kind of a block is like a CELL_TYPE_TUPLE_KIND with 1 item and no name.
+				else
+					cell_type = CELL_TYPE_OBJECT_KIND;	// A string "x,y,z" fails both get_item_name() and get_type_and_shape()
+														// Syntax errors will be caught later.
+			}
+		}
 	}
 
 	switch (cell_type) {
-	case CELL_TYPE_TUPLE_ITEM: {
+	case CELL_TYPE_TUPLE: {
 		if (get_char(p_in, num_bytes) != '(')
 			return PARSE_ERROR_UNEXPECTED_CHAR;
 
@@ -1245,8 +1256,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 			int item_type;
 			if (p_as_kind != nullptr) {
-				if (item_idx >= p_as_kind->size)
-					return PARSE_ERROR_TOO_MANY_ITEMS;
+				if (item_idx >= p_as_kind->size) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 				if (strcmp(p_as_kind->item_name(item_idx), item_name[item_idx]) != 0)
 					return PARSE_ERROR_ITEM_NAME_MISMATCH;
@@ -1258,74 +1268,90 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			if (!get_shape_and_size(p_in, num_bytes, item_type, &item_hea[item_idx]))
 				return PARSE_ERROR_TENSOR_EXPLORATION;
 
-			if (skip_space(p_in, num_bytes) <= 0)
-				return PARSE_ERROR_UNEXPECTED_EOF;
+			if (skip_space(p_in, num_bytes) <= 0) return PARSE_ERROR_UNEXPECTED_EOF;
 
 			item_idx++;
 
-			if (item_idx >= MAX_ITEMS_IN_KIND)
-				return PARSE_ERROR_TOO_MANY_ITEMS;
+			if (item_idx >= MAX_ITEMS_IN_KIND) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 			char cl = get_char(p_in, num_bytes);
 
 			if (cl == ')')
 				break;
 
-			if (cl != ',')
-				return PARSE_ERROR_UNEXPECTED_CHAR;
+			if (cl != ',') return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
 
 		num_items = item_idx;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		break;
 	}
-	case CELL_TYPE_KIND_ITEM: {
+	case CELL_TYPE_BLOCK_KIND:
+	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
-		if (get_char(p_in, num_bytes) != '{')
-			return PARSE_ERROR_UNEXPECTED_CHAR;
+		if (get_char(p_in, num_bytes) != '{') return PARSE_ERROR_UNEXPECTED_CHAR;
 
 		int item_idx = 0;
 		while (true) {
-			if (!get_item_name(p_in, num_bytes, item_name[item_idx]))
-				return PARSE_ERROR_ITEM_NAME;
+			if ((cell_type == CELL_TYPE_TUPLE_KIND) && !get_item_name(p_in, num_bytes, item_name[item_idx])) return PARSE_ERROR_ITEM_NAME;
 
-			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], idx_dims))
-				return PARSE_ERROR_KIND_EXPLORATION;
+			if (!get_type_and_shape(p_in, num_bytes, &item_hea[item_idx], idx_dims)) return PARSE_ERROR_KIND_EXPLORATION;
 
-			if (skip_space(p_in, num_bytes) <= 0)
-				return PARSE_ERROR_UNEXPECTED_EOF;
+			if (skip_space(p_in, num_bytes) <= 0) return PARSE_ERROR_UNEXPECTED_EOF;
 
 			item_idx++;
 
-			if (item_idx >= MAX_ITEMS_IN_KIND)
-				return PARSE_ERROR_TOO_MANY_ITEMS;
+			if (item_idx >= MAX_ITEMS_IN_KIND) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 			char cl = get_char(p_in, num_bytes);
 
 			if (cl == '}')
 				break;
 
-			if (cl != ',')
-				return PARSE_ERROR_UNEXPECTED_CHAR;
+			if (cl != ',') return PARSE_ERROR_UNEXPECTED_CHAR;
 		}
+
+		if ((cell_type == CELL_TYPE_BLOCK_KIND) && (item_idx != 1)) return PARSE_ERROR_TOO_MANY_ITEMS;
 
 		num_items = item_idx;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
+
+		break;
+	}
+	case CELL_TYPE_OBJECT_KIND: {
+		if (get_char(p_in, num_bytes) != '{') return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		if (get_char(p_in, num_bytes) != '"') return PARSE_ERROR_UNEXPECTED_CHAR;
+
+		Name name;
+
+		int item_idx = 0;
+		while (true) {
+			if (!get_item_name(p_in, num_bytes, name, false, false, true)) return PARSE_ERROR_ITEM_NAME;
+
+			item_idx++;
+
+			char cl = get_char(p_in, num_bytes);
+
+			if (cl == '}')
+				break;
+
+			if (cl != '.') return PARSE_ERROR_UNEXPECTED_CHAR;
+		}
+		num_items = item_idx;
+
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		break;
 	}
 	default:
-		if (!get_shape_and_size(p_in, num_bytes, cell_type, &item_hea[0]))
-			return PARSE_ERROR_TENSOR_EXPLORATION;
+		if (!get_shape_and_size(p_in, num_bytes, cell_type, &item_hea[0])) return PARSE_ERROR_TENSOR_EXPLORATION;
 
-		if (skip_space(p_in, num_bytes) != 0)
-			return PARSE_ERROR_EXPECTED_EOF;
+		if (skip_space(p_in, num_bytes) != 0) return PARSE_ERROR_EXPECTED_EOF;
 
 		if (cell_type == CELL_TYPE_UNDEFINED)
 			cell_type = item_hea[0].cell_type;
@@ -1337,7 +1363,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	skip_space(p_in, num_bytes);
 
 	switch (cell_type) {
-	case CELL_TYPE_TUPLE_ITEM: {
+	case CELL_TYPE_TUPLE: {
 		pTransaction p_aux_txn[MAX_ITEMS_IN_KIND];
 
 		get_char(p_in, num_bytes);		// '(')
@@ -1347,11 +1373,10 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			get_item_name(p_in, num_bytes, it_name);
 
 			if (item_hea[i].cell_type == CELL_TYPE_STRING) {
-				StatusCode ret = new_text_block(p_aux_txn[i], item_hea[i], p_in, num_bytes, att);
+				StatusCode ret = new_text_block(p_aux_txn[i], item_hea[i], p_in, num_bytes);
 
 				if (ret != SERVICE_NO_ERROR) {
-					for (int j = i - 1; j >= 0; j--)
-						destroy_transaction(p_aux_txn[j]);
+					for (int j = i - 1; j >= 0; j--) destroy_transaction(p_aux_txn[j]);
 
 					return ret;
 				}
@@ -1359,15 +1384,13 @@ StatusCode Container::new_block(pTransaction &p_txn,
 				int ret = new_block(p_aux_txn[i], item_hea[i].cell_type, item_hea[i].dim, FILL_NEW_DONT_FILL);
 
 				if (ret != SERVICE_NO_ERROR) {
-					for (int j = i - 1; j >= 0; j--)
-						destroy_transaction(p_aux_txn[j]);
+					for (int j = i - 1; j >= 0; j--) destroy_transaction(p_aux_txn[j]);
 
 					return ret;
 				}
 
 				if (!fill_tensor(p_in, num_bytes, p_aux_txn[i]->p_block)) {
-					for (int j = i; j >= 0; j--)
-						destroy_transaction(p_aux_txn[j]);
+					for (int j = i; j >= 0; j--) destroy_transaction(p_aux_txn[j]);
 
 					return PARSE_ERROR_TENSOR_FILLING;
 				}
@@ -1394,14 +1417,16 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		return ret;
 	}
-	case CELL_TYPE_KIND_ITEM: {
+	case CELL_TYPE_BLOCK_KIND:
+	case CELL_TYPE_TUPLE_KIND: {
 		MapSI idx_dims = {};
 
 		get_char(p_in, num_bytes);		// '{')
 
 		for (int i = 0; i < num_items; i++) {
 			Name it_name;
-			get_item_name(p_in, num_bytes, it_name);
+			if (cell_type == CELL_TYPE_TUPLE_KIND)
+				get_item_name(p_in, num_bytes, it_name);
 
 			get_type_and_shape(p_in, num_bytes, &item_hea[i], idx_dims);
 
@@ -1420,6 +1445,8 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			memcpy(&hea[i].range, &item_hea[i].dim, sizeof(TensorDim));
 		}
 
+		int ret;
+
 		if (idx_dims.size() != 0) {
 			AttributeMap dims = {};
 
@@ -1428,9 +1455,31 @@ StatusCode Container::new_block(pTransaction &p_txn,
 			for (it = idx_dims.begin(); it != idx_dims.end(); ++it)
 				dims[it->second] = it->first.c_str();
 
-			return new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
+			ret = new_block(p_txn, num_items, hea, item_name, nullptr, &dims, att);
 		} else
-			return new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
+			ret = new_block(p_txn, num_items, hea, item_name, nullptr, nullptr, att);
+
+		if (ret != SERVICE_NO_ERROR) return ret;
+
+		if (cell_type == CELL_TYPE_BLOCK_KIND)
+			reinterpret_cast<pKind>(p_txn->p_block)->to_block_kind();	// Can no longer fail, size and types are already checked.
+
+		return SERVICE_NO_ERROR;
+	}
+	case CELL_TYPE_OBJECT_KIND: {
+		get_char(p_in, num_bytes);		// '{')
+		get_char(p_in, num_bytes);		// '"')
+
+		int ret = new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, p_in, '.');
+
+		if (ret != SERVICE_NO_ERROR) return ret;
+
+		p_txn->p_block->cell_type = CELL_TYPE_OBJECT_KIND;
+		pChar p_last = p_txn->p_block->get_string(p_txn->p_block->size - 1);
+
+		p_last[strlen(p_last) - 2] = '\0';	// Remove the last '"}'
+
+		return SERVICE_NO_ERROR;
 	}
 	case CELL_TYPE_STRING:
 		return new_text_block(p_txn, item_hea[0], p_in, num_bytes, att);
@@ -1438,8 +1487,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 	int ret = new_block(p_txn, cell_type, item_hea[0].dim, FILL_NEW_DONT_FILL, 0, nullptr, '\n', att);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	if (!fill_tensor(p_in, num_bytes, p_txn->p_block)) {
 		destroy_transaction(p_txn);
@@ -1461,7 +1509,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 						 tensors will use it. (This may imply converting integer to double depending on the specifier.)
 	\param ret_as_string Return the serialization as a tensor of just one string rather than a vector of byte.
 	\param att			 The attributes to set when creating the block. They are immutable. To change the attributes of a Block
-						 use the version of new_jazz_block() with parameter p_from.
+						 use the version of new_block() with parameter p_from.
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 */
@@ -1484,8 +1532,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_LONG_INTEGER:
 		total_bytes = tensor_int_as_text(p_from_raw, nullptr, p_fmt);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
@@ -1493,8 +1540,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_BOOLEAN:
 		total_bytes = tensor_bool_as_text(p_from_raw, nullptr);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
@@ -1502,37 +1548,36 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	case CELL_TYPE_DOUBLE:
 		total_bytes = tensor_float_as_text(p_from_raw, nullptr, p_fmt);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
 	case CELL_TYPE_STRING:
 		total_bytes = tensor_string_as_text(p_from_raw, nullptr);
 
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
 	case CELL_TYPE_TIME:
 		total_bytes = tensor_time_as_text(p_from_raw, nullptr, p_fmt);
 
+		if (total_bytes == 0) return SERVICE_ERROR_BAD_BLOCK;
+
+		break;
+
+	case CELL_TYPE_TUPLE:
+		total_bytes = tuple_as_text((pTuple) p_from_raw, nullptr, p_fmt, item_len);
+
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
 
 		break;
 
-	case CELL_TYPE_TUPLE_ITEM:
-		total_bytes = tensor_tuple_as_text((pTuple) p_from_raw, nullptr, p_fmt, item_len);
-
-		if (total_bytes == 0)
-			return SERVICE_ERROR_BAD_BLOCK;
-
-		break;
-
-	case CELL_TYPE_KIND_ITEM:
-		total_bytes = tensor_kind_as_text((pKind) p_from_raw, nullptr);
+	case CELL_TYPE_BLOCK_KIND:
+	case CELL_TYPE_TUPLE_KIND:
+	case CELL_TYPE_OBJECT_KIND:
+		total_bytes = kind_as_text((pKind) p_from_raw, nullptr);
 
 		if (total_bytes == 0)
 			return SERVICE_ERROR_BAD_BLOCK;
@@ -1543,21 +1588,14 @@ StatusCode Container::new_block(pTransaction &p_txn,
 		return SERVICE_ERROR_WRONG_TYPE;
 	}
 
-	int dim[MAX_TENSOR_RANK];
+	int dim[MAX_TENSOR_RANK] = {0};
 
 	dim[0] = total_bytes;
 	dim[1] = 0;
-#ifdef DEBUG				// Initialize i_dim for Valgrind.
-	dim[2] = 0;
-	dim[3] = 0;
-	dim[4] = 0;
-	dim[5] = 0;
-#endif
 
 	StatusCode ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL, 0, nullptr, 0, att);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	switch (p_from_raw->cell_type) {
 	case CELL_TYPE_BYTE:
@@ -1591,23 +1629,27 @@ StatusCode Container::new_block(pTransaction &p_txn,
 
 		break;
 
-	case CELL_TYPE_TUPLE_ITEM:
-		tensor_tuple_as_text((pTuple) p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt, item_len);
+	case CELL_TYPE_TUPLE:
+		tuple_as_text((pTuple) p_from_raw, (pChar) &p_txn->p_block->tensor, p_fmt, item_len);
 
 		break;
 
-	default:
-		tensor_kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
+	case CELL_TYPE_BLOCK_KIND:
+	case CELL_TYPE_TUPLE_KIND:
+	case CELL_TYPE_OBJECT_KIND:
+		kind_as_text((pKind) p_from_raw, (pChar) &p_txn->p_block->tensor);
 
+		break;
 	}
 
 	if (ret_as_string) {
 		pTransaction p_aux;
 
-		if (new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) &p_txn->p_block->tensor, 0) != SERVICE_NO_ERROR) {
+		ret = new_block(p_aux, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) &p_txn->p_block->tensor, 0);
+		if (ret != SERVICE_NO_ERROR) {
 			destroy_transaction(p_txn);
 
-			return SERVICE_ERROR_NO_MEM;
+			return ret;
 		}
 		std::swap(p_txn->p_block, p_aux->p_block);
 
@@ -1623,7 +1665,7 @@ StatusCode Container::new_block(pTransaction &p_txn,
 	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 						Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction()
 						it when done.
-	\param cell_type	The type of index (from CELL_TYPE_INDEX_II to CELL_TYPE_INDEX_SS)
+	\param cell_type	The type of index (a 48 bit CELL_TYPE_INDEX)
 
 	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
 
@@ -1643,8 +1685,7 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 
 	StatusCode ret = new_transaction(p_txn);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	p_txn->p_block = block_malloc(sizeof(BlockHeader));
 
@@ -1681,6 +1722,8 @@ StatusCode Container::new_block(pTransaction &p_txn, int cell_type) {
 */
 StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
 
+	p_txn = nullptr;
+
 	int num_rows = index.size();
 	int bytes_key = 0, bytes_val = 0;
 
@@ -1695,8 +1738,7 @@ StatusCode Container::new_block(pTransaction &p_txn, Index &index) {
 
 	int ret;
 
-	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR)
-		return ret;
+	if ((ret = new_block(p_key, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_key + 2*num_rows)) != SERVICE_NO_ERROR) return ret;
 
 	if ((ret = new_block(p_val, CELL_TYPE_STRING, dim, FILL_NEW_DONT_FILL, bytes_val + 2*num_rows)) != SERVICE_NO_ERROR) {
 		destroy_transaction(p_key);
@@ -1956,16 +1998,15 @@ StatusCode Container::copy(pChar p_where, pChar p_what) {
 }
 
 
-/** The function call interface for **exec**: Execute an opcode in a formal field.
+/** The function call interface for **exec**: Execute a function or a model.
 
 	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
 					Transaction inside the Container.
 	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
-					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
-	\param p_args	A Tuple passed as argument to the call that is not modified. This may be a pure function in Bebop or have context
-					in Agency.
+					the pipeline. In Core, the key is field/snippet, In Model (via ModelAPI), model/(entry point).
+	\param p_args	A Tuple passed as argument to the call that is not modified.
 
-	\return	SERVICE_NO_ERROR on success (and a valid p_txn), or some negative value (error).
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
 
 Usage-wise, this is equivalent to a new_block() call. On success, it will return a Transaction that belongs to the Container and must
 be destroy_transaction()-ed when the caller is done.
@@ -1979,11 +2020,11 @@ StatusCode Container::exec(pTransaction &p_txn, Locator &function, pTuple p_args
 /** The function call interface for **modify**: In jazz_elements, this is only implemented in Channels.
 
 	\param function	Some description of a service. In general base/entity/key. In Channels the key must be empty and the entity is
-					the pipeline. In Bebop, the key is the opcode and the entity, the field, In Agents, the entity is a context.
+					the pipeline.
 	\param p_args	In Channels: A Tuple with two items, "input" with the data passed to the service and "result" with the data returned.
 					The result will be overridden in-place without any allocation.
 
-	\return	SERVICE_NO_ERROR on success or some negative value (error).
+	\return	SERVICE_ERROR_NOT_APPLICABLE since this method must be implemented in the Container descendants.
 
 modify() is similar to exec(), but, rather than creating a new block with the result, it modifies the Tuple p_args.
 */
@@ -2019,8 +2060,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 		case '~':
 			number = section == 2;
 
-			if (--size < 0)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (--size < 0) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = ch;
 			written	   = true;
@@ -2028,8 +2068,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			break;
 
 		case '.':
-			if (!number)
-				return SERVICE_ERROR_PARSING_NUMBERS;
+			if (!number) return SERVICE_ERROR_PARSING_NUMBERS;
 
 		case 'a' ... 'z':
 		case 'A' ... 'Z':
@@ -2037,8 +2076,7 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			number = false;
 		case '0' ... '9':
 		case '-':
-			if (--size < 0)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (--size < 0) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = ch;
 			written	   = true;
@@ -2046,13 +2084,11 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			break;
 
 		case '/':
-			if (!written)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (!written) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = 0;
 
-			if (++section > 2)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (++section > 2) return SERVICE_ERROR_PARSING_NAMES;
 
 			if (section == 1)
 				p_out = (pChar) &result.entity;
@@ -2065,13 +2101,11 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 			break;
 
 		case 0:
-			if (!written)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (!written) return SERVICE_ERROR_PARSING_NAMES;
 
 			*(p_out++) = 0;
 
-			if (section == 0)
-				return SERVICE_ERROR_PARSING_NAMES;
+			if (section == 0) return SERVICE_ERROR_PARSING_NAMES;
 
 			if (section == 1)
 				result.key[0] = 0;
@@ -2089,7 +2123,13 @@ StatusCode Container::as_locator(Locator &result, pChar p_what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		A valid reference to a block as a locator. E.g. //base/entity/key
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get(pTransaction &p_txn, Locator &what) {
 
@@ -2099,7 +2139,14 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn		A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+						Transaction inside the Container.
+	\param what			A valid reference to a block as a locator. E.g. //base/entity/key
+	\param p_row_filter	The block we want to use as a filter. This is either a tensor of boolean or integer that can_filter(p_from).
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get(pTransaction &p_txn, Locator &what, pBlock p_row_filter) {
 
@@ -2109,7 +2156,14 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pBlock p_row_filte
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		A valid reference to a block as a locator. E.g. //base/entity/key
+	\param name		The name of the item to be selected.
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 
@@ -2122,7 +2176,7 @@ StatusCode Container::get(pTransaction &p_txn, Locator &what, pChar name) {
 	\param location	The solved location of the block.
 	\param what		A valid reference to a block. E.g. //deque/ent/~first, //tree/ent/key~parent, //queue/ent/~highest
 
-	\return	SERVICE_NO_ERROR on success (and a valid location), or some negative value (error).
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
 
 NOTE: This just copies what into location. It will not verify the existence of the block. The function of locate() is to
 evaluate commands in Containers supporting them (E.g, Volatile). Otherwise, it is a trivial conversion from the easy into the native API.
@@ -2137,7 +2191,12 @@ StatusCode Container::locate(Locator &location, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param hea		A StaticBlockHeader structure that will receive the metadata.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::header(StaticBlockHeader &hea, Locator &what) {
 
@@ -2147,7 +2206,13 @@ StatusCode Container::header(StaticBlockHeader &hea, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param p_txn	A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
+					Transaction inside the Container.
+	\param what		Some Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::header(pTransaction &p_txn, Locator &what) {
 
@@ -2157,7 +2222,14 @@ StatusCode Container::header(pTransaction &p_txn, Locator &what) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	Some **destination** Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+	\param p_block	The Block to be stored in Volatile. The Block hash and dated will be updated by this call!!
+	\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA returns
+					the error SERVICE_ERROR_WRONG_ARGUMENTS
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::put(Locator &where, pBlock p_block, int mode) {
 
@@ -2167,7 +2239,11 @@ StatusCode Container::put(Locator &where, pBlock p_block, int mode) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	Some **destination** Locator to the block. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::new_entity(Locator &where) {
 
@@ -2177,7 +2253,11 @@ StatusCode Container::new_entity(Locator &where) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	The block or entity to be removed. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::remove(Locator &where) {
 
@@ -2187,7 +2267,12 @@ StatusCode Container::remove(Locator &where) {
 
 /** The "native" interface: This is what really does the job and **must be implemented in the Container descendants**.
 
-**NOTE**: The root Container class does not implement this.
+	\param where	The block or entity to be written. (See Node Method Reference in the documentation of the class Volatile.)
+	\param what		The block or entity to be read. (See Node Method Reference in the documentation of the class Volatile.)
+
+	\return	SERVICE_NOT_IMPLEMENTED since this method must be implemented in the Container descendants.
+
+	**NOTE**: The root Container class does not implement this.
 */
 StatusCode Container::copy(Locator &where, Locator &what) {
 
@@ -2214,7 +2299,7 @@ StatusCode Container::new_container() {
 #ifdef CATCH_TEST
 		destroy_container();
 #else
-		log(LOG_ERROR, "new_container() called on a running Container().");
+		log(log_error_level, "new_container() called on a running Container().");
 		return SERVICE_ERROR_STARTING;
 #endif
 	}
@@ -2283,18 +2368,21 @@ StatusCode Container::destroy_container() {
 */
 bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item_hea, MapSI &dims) {
 
-	if (skip_space(p_in, num_bytes) < 7)
-		return false;
+	if (skip_space(p_in, num_bytes) < 7) return false;
 
 	if (strncmp(p_in, "INTEGER", 7) == 0) {
 		item_hea->cell_type = CELL_TYPE_INTEGER;
 		num_bytes -= 7;
 		p_in	  += 7;
-	} else if (strncmp(p_in, "DOUBLE", 6) == 0) {
-		item_hea->cell_type = CELL_TYPE_DOUBLE;
-		num_bytes -= 6;
-		p_in	  += 6;
-	} else if (strncmp(p_in, "BYTE", 4) == 0) {
+	} else if (strncmp(p_in, "LONG_INTEGER", 12) == 0) {
+		item_hea->cell_type = CELL_TYPE_LONG_INTEGER;
+		num_bytes -= 12;
+		p_in	  += 12;
+	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12) == 0) {	// IMPORTANT: This must be before BYTE, since it starts with BYTE
+		item_hea->cell_type = CELL_TYPE_BYTE_BOOLEAN;
+		num_bytes -= 12;
+		p_in	  += 12;
+	} else if (strncmp(p_in, "BYTE", 4) == 0) {				// IMPORTANT: Must be after BYTE_BOOLEAN, since it is a prefix of BYTE_BOOLEAN
 		item_hea->cell_type = CELL_TYPE_BYTE;
 		num_bytes -= 4;
 		p_in	  += 4;
@@ -2310,18 +2398,14 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 		item_hea->cell_type = CELL_TYPE_SINGLE;
 		num_bytes -= 6;
 		p_in	  += 6;
+	} else if (strncmp(p_in, "DOUBLE", 6) == 0) {
+		item_hea->cell_type = CELL_TYPE_DOUBLE;
+		num_bytes -= 6;
+		p_in	  += 6;
 	} else if (strncmp(p_in, "TIME", 4) == 0) {
 		item_hea->cell_type = CELL_TYPE_TIME;
 		num_bytes -= 4;
 		p_in	  += 4;
-	} else if (strncmp(p_in, "LONG_INTEGER", 12) == 0) {
-		item_hea->cell_type = CELL_TYPE_LONG_INTEGER;
-		num_bytes -= 12;
-		p_in	  += 12;
-	} else if (strncmp(p_in, "BYTE_BOOLEAN", 12) == 0) {
-		item_hea->cell_type = CELL_TYPE_BYTE_BOOLEAN;
-		num_bytes -= 12;
-		p_in	  += 12;
 	} else if (strncmp(p_in, "FACTOR", 6) == 0) {
 		item_hea->cell_type = CELL_TYPE_FACTOR;
 		num_bytes -= 6;
@@ -2333,11 +2417,9 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 	} else
 		return false;
 
-	if (skip_space(p_in, num_bytes) < 3)
-		return false;
+	if (skip_space(p_in, num_bytes) < 3) return false;
 
-	if (get_char(p_in, num_bytes) != '[')
-		return false;
+	if (get_char(p_in, num_bytes) != '[') return false;
 
 	item_hea->rank = 0;
 
@@ -2345,18 +2427,15 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 
 	while (true) {
 		Name dim_name;
-		if (skip_space(p_in, num_bytes) < 2)
-			return false;
+		if (skip_space(p_in, num_bytes) < 2) return false;
 
 		char cl = *p_in;
 
 		if (cl >= '0' && cl <= '9') {
-			if (!sscanf_int32(p_in, num_bytes, item_hea->dim[item_hea->rank]) || item_hea->dim[item_hea->rank] < 1)
-				return false;
+			if (!sscanf_int32(p_in, num_bytes, item_hea->dim[item_hea->rank]) || item_hea->dim[item_hea->rank] < 1) return false;
 
 		} else if ((cl >= 'A' && cl <= 'Z') || (cl >= 'a' && cl <= 'z')) {
-			if (!get_item_name(p_in, num_bytes, dim_name, false, false))
-				return false;
+			if (!get_item_name(p_in, num_bytes, dim_name, false, false)) return false;
 
 			if (dims.find(dim_name) == dims.end()) {
 				int ix = -(dims.size() + 1);
@@ -2367,19 +2446,15 @@ bool Container::get_type_and_shape(pChar &p_in, int &num_bytes, ItemHeader *item
 			} else
 				item_hea->dim[item_hea->rank] = dims[dim_name];
 		}
-		if (skip_space(p_in, num_bytes) < 1)
-			return false;
+		if (skip_space(p_in, num_bytes) < 1) return false;
 
 		cl = get_char(p_in, num_bytes);
 
-		if (item_hea->rank++ >= MAX_TENSOR_RANK)
-			return false;
+		if (item_hea->rank++ >= MAX_TENSOR_RANK) return false;
 
-		if (cl == ']')
-			return true;
+		if (cl == ']') return true;
 
-		if (cl != ',')
-			return false;
+		if (cl != ',') return false;
 	}
 }
 
@@ -2438,8 +2513,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 	while (true) {
 		unsigned char cursor;
 
-		if (num_bytes == 0)
-			return false;
+		if (num_bytes <= 0) return false;
 
 		cursor = get_char(p_in, num_bytes);
 		state  = parser_state_switch[state].next[cursor];
@@ -2464,8 +2538,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 				if (item_hea->dim[level] < 0)
 					item_hea->dim[level] = n_item.dim[level];
 				else {
-					if (item_hea->dim[level] != n_item.dim[level])
-						return false;
+					if (item_hea->dim[level] != n_item.dim[level]) return false;
 				};
 				level--;
 
@@ -2491,11 +2564,9 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 				if (first_row)
 					item_hea->rank = level + 1;
 				else {
-					if (level >= item_hea->rank)
-						return false;
+					if (level >= item_hea->rank) return false;
 				}
-				if (level >= MAX_TENSOR_RANK)
-					return false;
+				if (level >= MAX_TENSOR_RANK) return false;
 
 				n_item.dim[level] = 0;
 			};
@@ -2506,8 +2577,7 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 		case PSTATE_SEP_STRING:
 		case PSTATE_SEP_TIME:
 			if (cursor == ',') {
-				if (level != item_hea->rank - 1)
-					return false;
+				if (level != item_hea->rank - 1) return false;
 
 				n_item.dim[level]++;
 			}
@@ -2541,6 +2611,10 @@ bool Container::get_shape_and_size(pChar &p_in, int &num_bytes, int cell_type, I
 		case PSTATE_END_STRING:
 			break;
 
+		case PSTATE_EMPTY_FILE:		// Only CELL_TYPE_BYTE supports empty files because there is no NA for bytes. syntax is [] (no space)
+			memset(item_hea->dim, 0, sizeof(TensorDim));
+			return (cursor == ']') && (level == 0) && (cell_type == CELL_TYPE_BYTE) && (item_hea->rank == 1) && (item_hea->item_size == 0);
+
 		default:
 			return false;
 		}
@@ -2573,7 +2647,7 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 	while (true) {
 		unsigned char cursor;
 
-		if (num_bytes == 0)
+		if (num_bytes <= 0)
 			return false;
 
 		cursor = get_char(p_in, num_bytes);
@@ -2691,9 +2765,11 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 		case PSTATE_CONST_STRING_E2:
 		case PSTATE_SEP_STRING:
 			break;
+#ifndef CATCH_TEST
+		default:			// Only binary corruption of the state table can force this, still better keeping it.
 
-		default:
 			return false;
+#endif
 		}
 	}
 }
@@ -2709,6 +2785,11 @@ bool Container::fill_text_buffer(pChar &p_in, int &num_bytes, pChar p_out, int n
 */
 bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
+#ifdef CATCH_TEST
+	if (debug_trigger_failure & TRIGGER_FAIL_FILL_TENSOR)
+		return false;
+#endif
+
 	char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
 	pChar p_st = (pChar) &cell, p_end = (pChar) &cell + sizeof(cell) - 1;
@@ -2722,8 +2803,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2735,8 +2815,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 						*p_st = 0;
 						p_st  = (pChar) &cell;
 
-						if (sscanf(p_st, "%hhu", p_out) != 1)
-							return false;
+						if (sscanf(p_st, "%hhu", p_out) != 1) return false;
 
 						p_out++;
 					}
@@ -2758,24 +2837,27 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 					*p_st = 0;
 					p_st  = (pChar) &cell;
 
-					if (sscanf(p_st, "%hhu", p_out) != 1)
-						return false;
+					if (sscanf(p_st, "%hhu", p_out) != 1) return false;
 
 					p_out++;
 				}
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
 				break;
 
-			default:
+			case PSTATE_EMPTY_FILE:
+				return true;
+
+#ifndef CATCH_TEST
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -2789,8 +2871,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2798,8 +2879,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -2822,22 +2902,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_int_cell(cell, p_st, p_out))
-						return false;
+					if (!push_int_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -2849,8 +2929,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2858,8 +2937,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_int_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -2882,22 +2960,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_int_cell(cell, p_st, p_out))
-						return false;
+					if (!push_int_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -2909,8 +2987,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2918,8 +2995,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -2942,22 +3018,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (!push_bool_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -2969,8 +3045,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -2978,8 +3053,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_INT:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_bool_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3002,22 +3076,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_INT:
 				if (cursor == ',')
-					if (!push_bool_cell(cell, p_st, p_out))
-						return false;
+					if (!push_bool_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_INT:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3029,8 +3103,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3038,8 +3111,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3062,22 +3134,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_REAL:
 				if (cursor == ',')
-					if (!push_real_cell(cell, p_st, p_out))
-						return false;
+					if (!push_real_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_REAL:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3089,8 +3161,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3098,8 +3169,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_REAL:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out))
-						return false;
+					if (level == p_block->rank && !push_real_cell(cell, p_st, p_out)) return false;
 
 					level--;
 
@@ -3122,22 +3192,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_REAL:
 				if (cursor == ',')
-					if (!push_real_cell(cell, p_st, p_out))
-						return false;
+					if (!push_real_cell(cell, p_st, p_out)) return false;
 
 				break;
 
 			case PSTATE_CONST_REAL:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
 
 				return false;
+#endif
 			}
 		}
 	}
@@ -3149,8 +3219,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 		while (true) {
 			unsigned char cursor;
 
-			if (num_bytes == 0)
-				return false;
+			if (num_bytes == 0) return false;
 
 			cursor = get_char(p_in, num_bytes);
 			state  = parser_state_switch[state].next[cursor];
@@ -3158,8 +3227,7 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 			switch (state) {
 			case PSTATE_OUT_TIME:
 				if (cursor == ']') {
-					if (level == p_block->rank && !push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
-						return false;
+					if (level == p_block->rank && !push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME)) return false;
 
 					level--;
 
@@ -3182,21 +3250,22 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 
 			case PSTATE_SEP_TIME:
 				if (cursor == ',')
-					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME))
-						return false;
+					if (!push_time_cell(cell, p_st, p_out, DEF_FLOAT_TIME)) return false;
 
 				break;
 
 			case PSTATE_CONST_TIME:
-				if (p_st == p_end)
-					return false;
+				if (p_st == p_end) return false;
 
 				*(p_st++) = cursor;
 
+#ifndef CATCH_TEST
 				break;
 
-			default:
+			default:			// Only binary corruption of the state table can force this, still better keeping it.
+
 				return false;
+#endif
 			}
 		}
 	}
@@ -3218,7 +3287,10 @@ bool Container::fill_tensor(pChar &p_in, int &num_bytes, pBlock p_block) {
 */
 int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att) {
 
-	p_txn = nullptr;
+#ifdef CATCH_TEST
+	if (debug_trigger_failure & TRIGGER_FAIL_TEXT_BLOCK)
+		return SERVICE_ERROR_TRIGGERED;
+#endif
 
 	int num_cells = item_hea.dim[0];
 
@@ -3230,26 +3302,19 @@ int Container::new_text_block(pTransaction &p_txn, ItemHeader &item_hea, pChar &
 
 	pChar p_txt = (pChar) malloc(bf_size);
 
-	if (p_txt == nullptr)
-		return SERVICE_ERROR_NO_MEM;
+	if (p_txt == nullptr) return SERVICE_ERROR_NO_MEM;
 
 	int *p_is_NA = reinterpret_cast<int *>(malloc(ix_size));
 
 	StatusCode ret;
 
-	if (p_is_NA == nullptr)
-		ret = SERVICE_ERROR_NO_MEM;
-
+	if (p_is_NA == nullptr) ret = SERVICE_ERROR_NO_MEM;
 	else {
 		int *p_hasLN = reinterpret_cast<int *>(malloc(ix_size));
 
-		if (p_hasLN == nullptr)
-			ret = SERVICE_ERROR_NO_MEM;
-
+		if (p_hasLN == nullptr) ret = SERVICE_ERROR_NO_MEM;
 		else {
-			if (!fill_text_buffer(p_in, num_bytes, p_txt, num_cells, p_is_NA, p_hasLN))
-				ret = PARSE_ERROR_TEXT_FILLING;
-
+			if (!fill_text_buffer(p_in, num_bytes, p_txt, num_cells, p_is_NA, p_hasLN)) ret = PARSE_ERROR_TEXT_FILLING;
 			else {
 				ret = new_block(p_txn, CELL_TYPE_STRING, item_hea.dim, FILL_WITH_TEXTFILE, 0, p_txt, '\n', att);
 
@@ -3299,7 +3364,7 @@ int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3365,7 +3430,7 @@ int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 			return total_len + 1;
 		}
 		default:
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3436,7 +3501,7 @@ int Container::tensor_int_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 		return 0;
 	}
 	default:
-		return 0;
+		return -1;
 	}
 }
 
@@ -3455,7 +3520,7 @@ int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3490,7 +3555,7 @@ int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 			return total_len + 1;
 		}
 		default:
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3540,7 +3605,7 @@ int Container::tensor_bool_as_text(pBlock p_block, pChar p_dest) {
 		return 0;
 	}
 	default:
-		return 0;
+		return -1;
 	}
 }
 
@@ -3560,7 +3625,7 @@ int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3601,7 +3666,7 @@ int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 			return total_len + 1;
 		}
 		default:
-			return 0;
+			return -1;
 		}
 	}
 
@@ -3645,7 +3710,7 @@ int Container::tensor_float_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 		return 0;
 	}
 	default:
-		return 0;
+		return -1;
 	}
 }
 
@@ -3679,7 +3744,7 @@ int Container::tensor_string_as_text(pBlock p_block, pChar p_dest) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	if (p_dest == nullptr) {
 		int total_len = p_block->rank;	// Length of opening_brackets()
@@ -3837,7 +3902,7 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	int idx[MAX_TENSOR_RANK] = {0, 0, 0, 0, 0, 0};
 	int rank_1 = p_block->rank - 1;
 
-	p_block->get_dimensions((int *) &shape);
+	p_block->get_dimensions(&shape[0]);
 
 	struct tm timeinfo;
 
@@ -3851,8 +3916,7 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 				total_len += LENGTH_NA_AS_TEXT + separator_len(rank_1, shape, idx);
 
 			else {
-				if (gmtime_r(p_t, &timeinfo) == nullptr)
-					return 0;
+				if (gmtime_r(p_t, &timeinfo) == nullptr) return 0;
 
 				char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
@@ -3874,8 +3938,7 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 			p_dest += LENGTH_NA_AS_TEXT;
 
 		} else {
-			if (gmtime_r(p_t, &timeinfo) == nullptr)
-				return 0;
+			if (gmtime_r(p_t, &timeinfo) == nullptr) return 0;
 
 			p_dest += strftime(p_dest, MAX_SIZE_OF_CELL_AS_TEXT, p_fmt, &timeinfo);
 		}
@@ -3895,14 +3958,14 @@ int Container::tensor_time_as_text(pBlock p_block, pChar p_dest, pChar p_fmt) {
 	\param p_tuple	The raw Tuple to be serialized as text.
 	\param p_dest	Optionally, a pointer with the address to which the output is serialized. (If nullptr, only size counting is done)
 	\param p_fmt	Optionally, format specifier that will be applied to all items. (default is each type uses its default)
-	\param item_len	A buffer storing the length of each item: computed by tensor_tuple_as_text(p_dest == nullptr),
-					used by tensor_tuple_as_text(p_dest != nullptr).
+	\param item_len	A buffer storing the length of each item: computed by tuple_as_text(p_dest == nullptr),
+					used by tuple_as_text(p_dest != nullptr).
 
 	\return	The length in bytes required to store the output if p_dest == nullptr
 
 The serialization includes item names and the content of each tensor as written by the tensor methods.
 */
-int Container::tensor_tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
+int Container::tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]) {
 	if (p_dest == nullptr) {
 		int total_len = 1;		// 3 for opening and closing () + /0 - 2 (for the last item not having final ', ')
 
@@ -4021,290 +4084,188 @@ int Container::tensor_tuple_as_text(pTuple p_tuple, pChar p_dest, pChar p_fmt, i
 
 The serialization includes item names, types and shapes.
 */
-int Container::tensor_kind_as_text(pKind p_kind, pChar p_dest) {
+int Container::kind_as_text(pKind p_kind, pChar p_dest) {
 
 	if (p_dest == nullptr) {
-		int total_len = 1;		// 3 for opening and closing {} + /0 - 2 (for the last item not having final ', ')
+		int total_len;
+		bool named = true;
+		switch (p_kind->cell_type) {
+		case CELL_TYPE_OBJECT_KIND:
+			total_len = 4;			// opening and closing {""} + /0 minus 1 for last name not having final dot
 
-		ItemHeader *p_t = &p_kind->tensor.cell_item[0];
+			for (int i = 0; i < p_kind->size; i++)
+				total_len += 1 + strlen(p_kind->get_string(i));	// 1 for the dot
 
-		for (int i = 0; i < p_kind->size; i++) {
-			char cell [MAX_SIZE_OF_CELL_AS_TEXT];
+			return total_len;
 
-			as_shape(p_t[0].rank, p_t[0].dim, cell, p_kind);
+		case CELL_TYPE_BLOCK_KIND:
+			named = false;
+		case CELL_TYPE_TUPLE_KIND:
+			total_len = 1;		// 3 for opening and closing {} + /0 - 2 (for the last item not having final ', ')
 
-			total_len += 7 + strlen(p_kind->item_name(i)) + strlen(cell);		// 7 == length('"" : , ')
+			ItemHeader *p_t = &p_kind->tensor.cell_item[0];
 
-			switch (p_t[0].cell_type) {
-			case CELL_TYPE_BYTE:
-			case CELL_TYPE_TIME:
-				total_len += 4;
-				break;
+			for (int i = 0; i < p_kind->size; i++) {
+				char cell [MAX_SIZE_OF_CELL_AS_TEXT];
 
-			case CELL_TYPE_GRADE:
-				total_len += 5;
-				break;
+				as_shape(p_t[0].rank, p_t[0].dim, cell, p_kind);
 
-			case CELL_TYPE_FACTOR:
-			case CELL_TYPE_SINGLE:
-			case CELL_TYPE_DOUBLE:
-			case CELL_TYPE_STRING:
-				total_len += 6;
-				break;
+				total_len += 2 + strlen(cell);						// 2 for the []
 
-			case CELL_TYPE_INTEGER:
-			case CELL_TYPE_BOOLEAN:
-				total_len += 7;
-				break;
+				if (named)
+					total_len += 5 + strlen(p_kind->item_name(i));	// 5 for the quotes and the colon as '"..." : '
 
-			case CELL_TYPE_LONG_INTEGER:
-			case CELL_TYPE_BYTE_BOOLEAN:
-				total_len += 12;
-				break;
+				switch (p_t[0].cell_type) {
+				case CELL_TYPE_BYTE:
+				case CELL_TYPE_TIME:
+					total_len += 4;
+					break;
 
-			default:
-				return 0;
+				case CELL_TYPE_GRADE:
+					total_len += 5;
+					break;
+
+				case CELL_TYPE_FACTOR:
+				case CELL_TYPE_SINGLE:
+				case CELL_TYPE_DOUBLE:
+				case CELL_TYPE_STRING:
+					total_len += 6;
+					break;
+
+				case CELL_TYPE_INTEGER:
+				case CELL_TYPE_BOOLEAN:
+					total_len += 7;
+					break;
+
+				case CELL_TYPE_LONG_INTEGER:
+				case CELL_TYPE_BYTE_BOOLEAN:
+					total_len += 12;
+					break;
+
+				default:
+					return 0;
+				}
+
+				p_t++;
 			}
 
-			p_t++;
+			return total_len;
 		}
-
-		return total_len;
 	}
 
-	ItemHeader *p_t = &p_kind->tensor.cell_item[0];
+	bool named = true;
 
 	*(p_dest++) = '{';
 
-	for (int i = 0; i < p_kind->size; i++) {
-		p_dest += sprintf(p_dest, "\"%s\" : ", p_kind->item_name(i));
-
-		switch (p_t[0].cell_type) {
-		case CELL_TYPE_BYTE:
-			strcpy(p_dest, "BYTE");
-			p_dest += 4;
-
-			break;
-
-		case CELL_TYPE_TIME:
-			strcpy(p_dest, "TIME");
-			p_dest += 4;
-
-			break;
-
-		case CELL_TYPE_GRADE:
-			strcpy(p_dest, "GRADE");
-			p_dest += 5;
-
-			break;
-
-		case CELL_TYPE_FACTOR:
-			strcpy(p_dest, "FACTOR");
-			p_dest += 6;
-
-			break;
-
-		case CELL_TYPE_SINGLE:
-			strcpy(p_dest, "SINGLE");
-			p_dest += 6;
-
-			break;
-
-		case CELL_TYPE_DOUBLE:
-			strcpy(p_dest, "DOUBLE");
-			p_dest += 6;
-
-			break;
-
-		case CELL_TYPE_STRING:
-			strcpy(p_dest, "STRING");
-			p_dest += 6;
-
-			break;
-
-		case CELL_TYPE_INTEGER:
-			strcpy(p_dest, "INTEGER");
-			p_dest += 7;
-
-			break;
-
-		case CELL_TYPE_BOOLEAN:
-			strcpy(p_dest, "BOOLEAN");
-			p_dest += 7;
-
-			break;
-
-		case CELL_TYPE_LONG_INTEGER:
-			strcpy(p_dest, "LONG_INTEGER");
-			p_dest += 12;
-
-			break;
-
-		case CELL_TYPE_BYTE_BOOLEAN:
-			strcpy(p_dest, "BYTE_BOOLEAN");
-			p_dest += 12;
-
-			break;
+	switch (p_kind->cell_type) {
+	case CELL_TYPE_OBJECT_KIND:
+		*(p_dest++) = '"';
+		for (int i = 0; i < p_kind->size; i++) {
+			p_dest += sprintf(p_dest, "%s", p_kind->get_string(i));
+			if (i < p_kind->size - 1)
+				*(p_dest++) = '.';
 		}
-		p_dest = as_shape(p_t[0].rank, p_t[0].dim, p_dest, p_kind);
+		*(p_dest++) = '"';
+		break;
 
-		if (i < p_kind->size - 1) {
-			*(p_dest++) = ',';
-			*(p_dest++) = ' ';
+	case CELL_TYPE_BLOCK_KIND:
+		named = false;
+
+	case CELL_TYPE_TUPLE_KIND:
+		ItemHeader *p_t = &p_kind->tensor.cell_item[0];
+
+		for (int i = 0; i < p_kind->size; i++) {
+			if (named)
+				p_dest += sprintf(p_dest, "\"%s\" : ", p_kind->item_name(i));
+
+			switch (p_t[0].cell_type) {
+			case CELL_TYPE_BYTE:
+				strcpy(p_dest, "BYTE");
+				p_dest += 4;
+
+				break;
+
+			case CELL_TYPE_TIME:
+				strcpy(p_dest, "TIME");
+				p_dest += 4;
+
+				break;
+
+			case CELL_TYPE_GRADE:
+				strcpy(p_dest, "GRADE");
+				p_dest += 5;
+
+				break;
+
+			case CELL_TYPE_FACTOR:
+				strcpy(p_dest, "FACTOR");
+				p_dest += 6;
+
+				break;
+
+			case CELL_TYPE_SINGLE:
+				strcpy(p_dest, "SINGLE");
+				p_dest += 6;
+
+				break;
+
+			case CELL_TYPE_DOUBLE:
+				strcpy(p_dest, "DOUBLE");
+				p_dest += 6;
+
+				break;
+
+			case CELL_TYPE_STRING:
+				strcpy(p_dest, "STRING");
+				p_dest += 6;
+
+				break;
+
+			case CELL_TYPE_INTEGER:
+				strcpy(p_dest, "INTEGER");
+				p_dest += 7;
+
+				break;
+
+			case CELL_TYPE_BOOLEAN:
+				strcpy(p_dest, "BOOLEAN");
+				p_dest += 7;
+
+				break;
+
+			case CELL_TYPE_LONG_INTEGER:
+				strcpy(p_dest, "LONG_INTEGER");
+				p_dest += 12;
+
+				break;
+
+			case CELL_TYPE_BYTE_BOOLEAN:
+				strcpy(p_dest, "BYTE_BOOLEAN");
+				p_dest += 12;
+
+				break;
+			}
+			p_dest = as_shape(p_t[0].rank, p_t[0].dim, p_dest, p_kind);
+
+			if (i < p_kind->size - 1) {
+				*(p_dest++) = ',';
+				*(p_dest++) = ' ';
+			}
+			p_t++;
 		}
-		p_t++;
 	}
+
 	*(p_dest++) = '}';
 	*p_dest = 0;
 
 	return 0;
 }
 
+ConfigFile CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
+Logger	   LOGGER(CONFIG, "LOGGER_PATH");
 
 #ifdef CATCH_TEST
 
-void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check) {
-
-	REQUIRE(p_bl1->cell_type == p_bl2->cell_type);
-	REQUIRE(p_bl1->size == p_bl2->size);
-	REQUIRE(p_bl1->rank == p_bl2->rank);
-
-	for (int i = 0; i < p_bl1->rank; i++) {
-		REQUIRE(p_bl1->range.dim[i] == p_bl2->range.dim[i]);
-	}
-
-	bool all_cells_equal = true;
-
-	switch (p_bl1->cell_type) {
-	case CELL_TYPE_BYTE:
-	case CELL_TYPE_BYTE_BOOLEAN:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_byte[i] != p_bl2->tensor.cell_byte[i]) {
-				all_cells_equal = false;
-
-				break;
-			}
-		}
-		break;
-
-	case CELL_TYPE_INTEGER:
-	case CELL_TYPE_FACTOR:
-	case CELL_TYPE_GRADE:
-	case CELL_TYPE_BOOLEAN:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_uint[i] != p_bl2->tensor.cell_uint[i]) {
-				all_cells_equal = false;
-
-				break;
-			}
-		}
-		break;
-
-	case CELL_TYPE_LONG_INTEGER:
-	case CELL_TYPE_TIME:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_ulongint[i] != p_bl2->tensor.cell_ulongint[i]) {
-				all_cells_equal = false;
-
-				break;
-			}
-		}
-		break;
-
-	case CELL_TYPE_SINGLE:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_uint[i] == SINGLE_NA_UINT32) {
-				if (p_bl2->tensor.cell_uint[i] != SINGLE_NA_UINT32)
-					all_cells_equal = false;
-			} else {
-				if (p_bl2->tensor.cell_uint[i] == SINGLE_NA_UINT32)
-					all_cells_equal = false;
-				if (fabs(p_bl1->tensor.cell_single[i] - p_bl2->tensor.cell_single[i]) > 1e-5)
-					all_cells_equal = false;
-			}
-		}
-		break;
-
-	case CELL_TYPE_DOUBLE:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_ulongint[i] == DOUBLE_NA_UINT64) {
-				if (p_bl2->tensor.cell_ulongint[i] != DOUBLE_NA_UINT64)
-					all_cells_equal = false;
-			} else {
-				if (p_bl2->tensor.cell_ulongint[i] == DOUBLE_NA_UINT64)
-					all_cells_equal = false;
-				if (fabs(p_bl1->tensor.cell_double[i] - p_bl2->tensor.cell_double[i]) > 1e-9)
-					all_cells_equal = false;
-			}
-		}
-		break;
-
-	case CELL_TYPE_STRING:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (strcmp(p_bl1->get_string(i), p_bl2->get_string(i)) != 0) {
-				all_cells_equal = false;
-
-				break;
-			}
-		}
-		break;
-
-	case CELL_TYPE_KIND_ITEM:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
-				all_cells_equal = false;
-
-			if (p_bl1->tensor.cell_item[i].rank != p_bl2->tensor.cell_item[i].rank)
-				all_cells_equal = false;
-
-			if (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0)
-				all_cells_equal = false;
-
-			for (int j = 0; j < p_bl1->tensor.cell_item[i].rank; j++) {
-				int d1 = p_bl1->tensor.cell_item[i].dim[j];
-				int d2 = p_bl2->tensor.cell_item[i].dim[j];
-
-				if (d1 > 0) {
- 					if (d2 != d1)
-						all_cells_equal = false;
-				} else if (d2 >= 0)
-					all_cells_equal = false;
-				else {
-					pChar nd1 = (&p_bl1->p_string_buffer()->buffer[-d1]);
-					pChar nd2 = (&p_bl2->p_string_buffer()->buffer[-d2]);
-
-					if (strcmp(nd1, nd2) != 0)
-						all_cells_equal = false;
-				}
-			}
-		}
-		break;
-
-	case CELL_TYPE_TUPLE_ITEM:
-		for (int i = 0; i < p_bl1->size; i++) {
-			if (p_bl1->tensor.cell_item[i].cell_type != p_bl2->tensor.cell_item[i].cell_type)
-				all_cells_equal = false;
-
-			if (p_bl1->tensor.cell_item[i].rank != p_bl2->tensor.cell_item[i].rank)
-				all_cells_equal = false;
-
-			if (strcmp(reinterpret_cast<pKind>(p_bl1)->item_name(i), reinterpret_cast<pKind>(p_bl2)->item_name(i)) != 0)
-				all_cells_equal = false;
-
-			compare_full_blocks(reinterpret_cast<pTuple>(p_bl1)->get_block(i), reinterpret_cast<pTuple>(p_bl1)->get_block(i));
-		}
-		break;
-
-	default:
-		REQUIRE(strcmp("HALT:", "Wrong cell_type.") == 0);		// cppcheck-suppress staticStringCompare
-	}
-
-	if (!skip_value_check)
-		REQUIRE(all_cells_equal);
-}
-
-ConfigFile CONFIG(JAZZ_DEFAULT_CONFIG_PATH);
-Logger	   LOGGER(CONFIG, "LOGGER_PATH");
 Container  CNT(&LOGGER, &CONFIG);
 
 #endif

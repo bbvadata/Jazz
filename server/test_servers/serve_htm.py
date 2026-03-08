@@ -55,5 +55,11 @@ def delete_capital(country_id):
 	abort(404)
 
 
+@app.route('/test/abort/<int:http_code>', methods = ['GET', 'PUT', 'DELETE', 'POST', 'PATCH'])
+def force_error(http_code):
+
+	abort(http_code)
+
+
 if __name__ == '__main__':
 	app.run(host = '0.0.0.0', debug = True)

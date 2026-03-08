@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -37,16 +37,17 @@
 
 #include "src/jazz_elements/persisted.h"
 
-
 namespace jazz_elements
 {
-
-#define INVALID_MDB_DBI			0xefefEFEF		// A constant to flag invalid MDB_dbi handle values.
-
 /*	-----------------------------------------------
 	 Persisted : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
+/** Initialize the Persisted Container without starting it.
+
+	\param a_logger		A pointer to a Logger object.
+	\param a_config		A pointer to a ConfigFile object.
+*/
 Persisted::Persisted(pLogger a_logger, pConfigFile a_config) : Container(a_logger, a_config) {}
 
 
@@ -73,21 +74,20 @@ StatusCode Persisted::start() {
 
 	int ret = Container::start();	// This initializes the one-shot functionality.
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	if (lmdb_env != nullptr) {
-		log(LOG_ERROR, "Persisted::start() failed: nested start() call.");
+		log(log_error_level, "Persisted::start() failed: nested start() call.");
 
 		return SERVICE_ERROR_STARTING;
 	}
 
-	std::string db_path;
+	String db_path;
 
 	bool ok = get_conf_key("MDB_PERSISTENCE_PATH", db_path);
 
 	if (!ok || db_path.length() > MAX_LMDB_HOME_LEN - 1) {
-		log(LOG_ERROR, "Persisted::start() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
+		log(log_error_level, "Persisted::start() failed. Missing or invalid MDB_PERSISTENCE_PATH.");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -112,7 +112,7 @@ StatusCode Persisted::start() {
 #endif
 
 	if (!ok) {
-		log(LOG_ERROR, "Persisted::start() failed. Invalid MHD_* config (integer values).");
+		log(log_error_level, "Persisted::start() failed. Invalid MHD_* config (integer values).");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -120,7 +120,7 @@ StatusCode Persisted::start() {
 	ok = ((fixedmap | writemap | nometasync | nosync | mapasync | nolock | noreadahead | nomeminit) & 0xfffffffe) == 0;
 
 	if (!ok) {
-		log(LOG_ERROR, "Persisted::start() failed. Flags must be 0 or 1.");
+		log(log_error_level, "Persisted::start() failed. Flags must be 0 or 1.");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -135,7 +135,7 @@ StatusCode Persisted::start() {
 					+ MDB_NOMEMINIT*nomeminit;
 
 	if (lmdb_opt.env_set_maxdbs > MAX_POSSIBLE_SOURCES) {
-		log(LOG_ERROR, "Persisted::start() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
+		log(log_error_level, "Persisted::start() failed. The number of databases cannot exceed MAX_POSSIBLE_SOURCES");
 
 		return SERVICE_ERROR_BAD_CONFIG;
 	}
@@ -152,25 +152,25 @@ StatusCode Persisted::start() {
 	log(LOG_INFO, "Creating an LMDB environment.");
 
 	if (mdb_env_create(&lmdb_env) != MDB_SUCCESS) {
-		log(LOG_ERROR, "Persisted::start() failed: mdb_env_create() failed.");
+		log(log_error_level, "Persisted::start() failed: mdb_env_create() failed.");
 
 		return SERVICE_ERROR_STARTING;
 	}
 
 	if (mdb_env_set_maxreaders(lmdb_env, lmdb_opt.env_set_maxreaders) != MDB_SUCCESS) {
-		log(LOG_ERROR, "Persisted::start() failed: mdb_env_set_maxreaders() failed.");
+		log(log_error_level, "Persisted::start() failed: mdb_env_set_maxreaders() failed.");
 
 		return SERVICE_ERROR_STARTING;
 	}
 
 	if (mdb_env_set_maxdbs(lmdb_env, lmdb_opt.env_set_maxdbs) != MDB_SUCCESS) {
-		log(LOG_ERROR, "Persisted::start() failed: mdb_env_set_maxdbs() failed.");
+		log(log_error_level, "Persisted::start() failed: mdb_env_set_maxdbs() failed.");
 
 		return SERVICE_ERROR_STARTING;
 	}
 
 	if (mdb_env_set_mapsize(lmdb_env, ((mdb_size_t)1024)*1024*lmdb_opt.env_set_mapsize) != MDB_SUCCESS) {
-		log(LOG_ERROR, "Persisted::start() failed: mdb_env_set_mapsize() failed.");
+		log(log_error_level, "Persisted::start() failed: mdb_env_set_mapsize() failed.");
 
 		return SERVICE_ERROR_STARTING;
 	}
@@ -178,13 +178,13 @@ StatusCode Persisted::start() {
 	log_printf(LOG_INFO, "Opening LMDB environment at : \"%s\"", lmdb_opt.path);
 
 	if (int lmdb_err = mdb_env_open(lmdb_env, lmdb_opt.path, lmdb_opt.flags, LMDB_UNIX_FILE_PERMISSIONS) != MDB_SUCCESS) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "Persisted::start() failed: mdb_env_open() failed.");
+		log_lmdb_err(log_error_level, lmdb_err, "Persisted::start() failed: mdb_env_open() failed.");
 
 		return SERVICE_ERROR_STARTING;
 	}
 
 	if (!open_all_databases()) {
-		log(LOG_ERROR, "Persisted::start() failed: open_all_sources() failed.");
+		log(log_error_level, "Persisted::start() failed: open_all_sources() failed.");
 
 		return SERVICE_ERROR_STARTING;
 	}
@@ -266,8 +266,13 @@ StatusCode Persisted::get(pTransaction &p_txn, Locator &what) {
 
 	p_txn->status = BLOCK_STATUS_READY;
 
-	if (!p_txn->p_block->check_hash())
-		log_printf(LOG_WARN, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+	if (!p_txn->p_block->check_hash()) {
+		log_printf(log_error_level, "hash64 check failed for //%s/%s/%s", what.base, what.entity, what.key);
+
+		destroy_transaction(p_txn);
+
+		return SERVICE_ERROR_CORRUPTED;
+	}
 
 	return SERVICE_NO_ERROR;
 }
@@ -402,8 +407,8 @@ StatusCode Persisted::header(pTransaction &p_txn, Locator &what) {
 	int hea_size = sizeof(StaticBlockHeader);
 
 	switch (p_blx->cell_type) {
-	case CELL_TYPE_TUPLE_ITEM:
-	case CELL_TYPE_KIND_ITEM:
+	case CELL_TYPE_TUPLE:
+	case CELL_TYPE_TUPLE_KIND:
 		hea_size += p_blx->size*sizeof(ItemHeader);
 	}
 
@@ -475,7 +480,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 	}
 
 	if (int lmdb_err = mdb_txn_begin(lmdb_env, NULL, 0, &lm_tx)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_begin() failed in Persisted::put().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_begin() failed in Persisted::put().");
 
 		return SERVICE_ERROR_WRITE_FAILED;
 	}
@@ -484,7 +489,7 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 
 	if (hh == INVALID_MDB_DBI) {
 		if (int lmdb_err = mdb_dbi_open(lm_tx, where.entity, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::put().");
+			log_lmdb_err(log_error_level, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::put().");
 
 			goto release_txn_and_fail;
 		}
@@ -494,18 +499,18 @@ StatusCode Persisted::put(Locator &where, pBlock p_block, int mode) {
 	MDB_val l_key, l_data;
 
 	l_key.mv_size  = strlen(where.key);
-	l_key.mv_data  = (void *) &where.key;
+	l_key.mv_data  = &where.key[0];
 	l_data.mv_size = p_block->total_bytes;
 	l_data.mv_data = p_block;
 
 	if (int lmdb_err = mdb_put(lm_tx, hh, &l_key, &l_data, 0)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_put() failed in Persisted::put().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_put() failed in Persisted::put().");
 
 		goto release_txn_and_fail;
 	}
 
 	if (int lmdb_err = mdb_txn_commit(lm_tx)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::put().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_commit() failed in Persisted::put().");
 
 		goto release_txn_and_fail;
 	}
@@ -557,7 +562,7 @@ StatusCode Persisted::remove(Locator &where) {
 	pMDB_txn lm_tx;
 
 	if (int lmdb_err = mdb_txn_begin(lmdb_env, NULL, 0, &lm_tx)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_begin() failed in Persisted::remove().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_begin() failed in Persisted::remove().");
 
 		return SERVICE_ERROR_REMOVE_FAILED;
 	}
@@ -566,17 +571,17 @@ StatusCode Persisted::remove(Locator &where) {
 
 	if (hh == INVALID_MDB_DBI) {
 		if (int lmdb_err = mdb_dbi_open(lm_tx, where.entity, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::remove().");
+			log_lmdb_err(log_error_level, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::remove().");
 
 			goto release_txn_and_fail;
 		}
-		source_dbi [where.entity] = hh;
+		source_dbi[where.entity] = hh;
 	}
 
 	MDB_val l_key;
 
 	l_key.mv_size = strlen(where.key);
-	l_key.mv_data = (void *) &where.key;
+	l_key.mv_data = &where.key[0];
 
 	if (int lmdb_err = mdb_del(lm_tx, hh, &l_key, NULL)) {
 		if (lmdb_err != MDB_NOTFOUND)
@@ -588,7 +593,7 @@ StatusCode Persisted::remove(Locator &where) {
 	}
 
 	if (int lmdb_err = mdb_txn_commit(lm_tx)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::remove().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_commit() failed in Persisted::remove().");
 
 		goto release_txn_and_fail;
 	}
@@ -632,11 +637,10 @@ StatusCode Persisted::copy(Locator &where, Locator &what) {
 	\param base_names	A BaseNames map passed by reference to which the base names of this object are added by this call.
 
 	The Persisted object has used-defined databases containing anything, these databases can have any names as long as they do not
-interfere with existing base names. The Api object will forward names that do not match any base names to Persisted in case they
+interfere with existing base names. The API object will forward names that do not match any base names to Persisted in case they
 are the name of a database (and will fail otherwise).
 
-	Besides these user-defined names, there is a number of reserved databases that keep track of objects. "sys" keeps cluster-level
-config, "group" keeps track of all groups (of nodes sharing a sharded resource), "kind" the kinds, "field" the fields, etc.
+	Besides these user-defined names, there is a number of reserved databases that keep track of things and are found in the configuration.
 "static" is a database of objects with attributes BLOCK_ATTRIB_URL and BLOCK_ATTRIB_MIMETYPE exposed via the / API.
 */
 void Persisted::base_names(BaseNames &base_names) {
@@ -678,7 +682,7 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 	}
 
 	if (int lmdb_err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &lm_tx)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_begin() failed in Persisted::lock_pointer_to_block().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_begin() failed in Persisted::lock_pointer_to_block().");
 
 		return nullptr;
 	}
@@ -687,7 +691,7 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 
 	if (hh == INVALID_MDB_DBI) {
 		if (int lmdb_err = mdb_dbi_open(lm_tx, what.entity, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::lock_pointer_to_block().");
+			log_lmdb_err(log_error_level, lmdb_err, "mdb_dbi_open() failed on an already invalid handle in Persisted::lock_pointer_to_block().");
 
 			goto release_txn_and_fail;
 		}
@@ -697,7 +701,7 @@ pBlock Persisted::lock_pointer_to_block(Locator &what, pMDB_txn &lm_tx) {
 	MDB_val l_key, l_data;
 
 	l_key.mv_size = strlen(what.key);
-	l_key.mv_data = (void *) &what.key;
+	l_key.mv_data = &what.key[0];
 
 	if (int lmdb_err = mdb_get(lm_tx, hh, &l_key, &l_data)) {
 		if (lmdb_err != MDB_NOTFOUND)
@@ -725,7 +729,7 @@ release_txn_and_fail:
 void Persisted::done_pointer_to_block(pMDB_txn &lm_tx) {
 
 	if (int lmdb_err = mdb_txn_commit(lm_tx)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::done_pointer_to_block().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_commit() failed in Persisted::done_pointer_to_block().");
 
 		mdb_txn_abort(lm_tx);
 	}
@@ -744,28 +748,28 @@ bool Persisted::open_all_databases() {
 
 	MDB_txn *txn;
 	if (int lmdb_err = mdb_txn_begin(lmdb_env, NULL, MDB_RDONLY, &txn)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_begin() failed in Persisted::open_all_databases().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_begin() failed in Persisted::open_all_databases().");
 
 		goto release_lock_and_fail;
 	}
 
 	MDB_dbi dbi;
 	if (int lmdb_err = mdb_dbi_open(txn, NULL, 0, &dbi)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed in Persisted::open_all_databases().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_dbi_open() failed in Persisted::open_all_databases().");
 
 		goto release_txn_and_fail;
 	}
 
 	MDB_cursor *cursor;
 	if (int lmdb_err = mdb_cursor_open(txn, dbi, &cursor)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_cursor_open() failed in Persisted::open_all_databases().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_cursor_open() failed in Persisted::open_all_databases().");
 
 		goto release_dbi_and_fail;
 	}
 
 	MDB_val key, data;
 	while (!mdb_cursor_get(cursor, &key, &data, MDB_NEXT)) {
-		std::string name((pChar) key.mv_data);
+		String name((pChar) key.mv_data);
 
 		source_dbi[name] = INVALID_MDB_DBI;
 	}
@@ -774,7 +778,7 @@ bool Persisted::open_all_databases() {
 	mdb_dbi_close(lmdb_env, dbi);
 
 	if (int lmdb_err = mdb_txn_commit(txn)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::open_all_databases().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_commit() failed in Persisted::open_all_databases().");
 
 		goto release_txn_and_fail;
 	}
@@ -850,7 +854,7 @@ StatusCode Persisted::new_database(pChar name) {
 
 	MDB_txn *txn;
 	if (int lmdb_err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_begin() failed in Persisted::new_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_begin() failed in Persisted::new_database().");
 
 		ret = SERVICE_ERROR_CREATE_FAILED;
 
@@ -860,7 +864,7 @@ StatusCode Persisted::new_database(pChar name) {
 	MDB_dbi hh;
 
 	if (int lmdb_err = mdb_dbi_open(txn, name, MDB_CREATE, &hh)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed in Persisted::new_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_dbi_open() failed in Persisted::new_database().");
 
 		goto release_txn_and_fail;
 	}
@@ -873,13 +877,13 @@ StatusCode Persisted::new_database(pChar name) {
 	l_data.mv_data = &val;
 
 	if (int lmdb_err = mdb_put(txn, hh, &l_key, &l_data, 0)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_put() failed in Persisted::new_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_put() failed in Persisted::new_database().");
 
 		goto release_dbi_and_fail;
 	}
 
 	if (int lmdb_err = mdb_txn_commit(txn)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::new_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_commit() failed in Persisted::new_database().");
 
 		goto release_dbi_and_fail;
 	}
@@ -927,7 +931,7 @@ StatusCode Persisted::remove_database(pChar name) {
 
 	MDB_txn * txn;
 	if (int lmdb_err = mdb_txn_begin(lmdb_env, NULL, 0, &txn)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_begin() failed in Persisted::remove_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_begin() failed in Persisted::remove_database().");
 
 		goto release_lock_and_fail;
 	}
@@ -936,7 +940,7 @@ StatusCode Persisted::remove_database(pChar name) {
 		MDB_dbi hh;
 
 		if (int lmdb_err = mdb_dbi_open(txn, name, MDB_CREATE, &hh)) {
-			log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_dbi_open() failed in Persisted::remove_database().");
+			log_lmdb_err(log_error_level, lmdb_err, "mdb_dbi_open() failed in Persisted::remove_database().");
 
 			goto release_txn_and_fail;
 		}
@@ -944,13 +948,13 @@ StatusCode Persisted::remove_database(pChar name) {
 	}
 
 	if (int lmdb_err = mdb_drop(txn, source_dbi[name], 1)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_drop() failed in Persisted::remove_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_drop() failed in Persisted::remove_database().");
 
 		goto release_txn_and_fail;
 	}
 
 	if (int lmdb_err = mdb_txn_commit(txn)) {
-		log_lmdb_err(LOG_ERROR, lmdb_err, "mdb_txn_commit() failed in Persisted::remove_database().");
+		log_lmdb_err(log_error_level, lmdb_err, "mdb_txn_commit() failed in Persisted::remove_database().");
 
 		goto release_txn_and_fail;
 	}
@@ -1073,6 +1077,115 @@ void Persisted::log_lmdb_err(int loglevel, int lmdb_err, const char *msg) {
 }
 
 #ifdef CATCH_TEST
+
+/*	-----------------------------------------------------------------------
+	 Persisted : W r a p p e r s   a r o u n d   t h e   l m d b   A P I
+------------------------------------------------------------------------- */
+
+int Persisted::mdb_env_create(MDB_env **env) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_CREATE)
+		return EINVAL;
+
+	return ::mdb_env_create(env);
+}
+
+int Persisted::mdb_env_set_maxreaders(MDB_env *env, unsigned int readers) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SET_MAXREADERS)
+		return EINVAL;
+
+	return ::mdb_env_set_maxreaders(env, readers);
+}
+
+int Persisted::mdb_env_set_maxdbs(MDB_env *env, MDB_dbi dbs) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SET_MAXDBS)
+		return EINVAL;
+
+	return ::mdb_env_set_maxdbs(env, dbs);
+}
+
+int Persisted::mdb_env_set_mapsize(MDB_env *env, mdb_size_t size) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SET_MAPSIZE)
+		return EINVAL;
+
+	return ::mdb_env_set_mapsize(env, size);
+}
+
+int Persisted::mdb_env_open(MDB_env *env, const char *path, unsigned int flags, mdb_mode_t mode) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_OPEN)
+		return EINVAL;
+
+	return ::mdb_env_open(env, path, flags, mode);
+}
+
+int Persisted::mdb_env_sync(MDB_env *env, int force) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_ENV_SYNC)
+		return EINVAL;
+
+	return ::mdb_env_sync(env, force);
+}
+
+int Persisted::mdb_txn_begin(MDB_env *env, MDB_txn *parent, unsigned int flags, MDB_txn **txn) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_TXN_BEGIN)
+		return EINVAL;
+
+	return ::mdb_txn_begin(env, parent, flags, txn);
+}
+
+int Persisted::mdb_dbi_open(MDB_txn *txn, const char *name, unsigned int flags, MDB_dbi *dbi) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_DBI_OPEN)
+		return EINVAL;
+
+	return ::mdb_dbi_open(txn, name, flags, dbi);
+}
+
+int Persisted::mdb_put(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data, unsigned int flags) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_PUT)
+		return EINVAL;
+
+	return ::mdb_put(txn, dbi, key, data, flags);
+}
+
+int Persisted::mdb_txn_commit(MDB_txn *txn) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_TXN_COMMIT)
+		return EINVAL;
+
+	return ::mdb_txn_commit(txn);
+}
+
+int Persisted::mdb_del(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_DEL)
+		return EINVAL;
+
+	return ::mdb_del(txn, dbi, key, data);
+}
+
+int Persisted::mdb_get(MDB_txn *txn, MDB_dbi dbi, MDB_val *key, MDB_val *data) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_GET)
+		return EINVAL;
+
+	return ::mdb_get(txn, dbi, key, data);
+}
+
+int Persisted::mdb_cursor_open(MDB_txn *txn, MDB_dbi dbi, MDB_cursor **cursor) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_CURSOR_OPEN)
+		return EINVAL;
+
+	return ::mdb_cursor_open(txn, dbi, cursor);
+}
+
+int Persisted::mdb_cursor_get(MDB_cursor *cursor, MDB_val *key, MDB_val *data, MDB_cursor_op op) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_CURSOR_GET)
+		return EINVAL;
+
+	return ::mdb_cursor_get(cursor, key, data, op);
+}
+
+int Persisted::mdb_drop(MDB_txn *txn, MDB_dbi dbi, int del) {
+	if (debug_trigger_failure & TRIGGER_FAIL_MDB_DROP)
+		return EINVAL;
+
+	return ::mdb_drop(txn, dbi, del);
+}
 
 Persisted PER(&LOGGER, &CONFIG);
 

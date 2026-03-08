@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -42,7 +42,7 @@ namespace jazz_elements
 
 	\param file_name The file name.
 	\return True if the file exists
- */
+*/
 bool FileExists(const char* file_name) {
 	std::ifstream ff(file_name);
 
@@ -52,12 +52,12 @@ bool FileExists(const char* file_name) {
 
 /** \brief Expand escaped strings at run-time.
 
-Public Domain by Jerry Coffin.
+	Public Domain by Jerry Coffin.
 
-Interprets a string in a manner similar to that the compiler does string literals in a program.	 All escape sequences are
-longer than their translated equivalent, so the string is translated in place and either remains the same length or becomes shorter.
+	Interprets a string in a manner similar to that the compiler does string literals in a program.	 All escape sequences are
+	longer than their translated equivalent, so the string is translated in place and either remains the same length or becomes shorter.
 
-April 17 tests built and compliant with:
+	April 17 tests built and compliant with:
 
     \\a	  07  Alert (Beep, Bell) (added in C89)[1]
     \\b	  08  Backspace
@@ -73,7 +73,10 @@ April 17 tests built and compliant with:
     \\nnn     The byte whose numerical value is given by nnn interpreted as an octal number
     \\xhh     The byte whose numerical value is given by hh… interpreted as a hexadecimal number
 
-https://en.wikipedia.org/wiki/Escape_sequences_in_C
+	https://en.wikipedia.org/wiki/Escape_sequences_in_C
+
+	\param buff The string to be expanded.
+	\return		The expanded string.
 */
 char *ExpandEscapeSequences(char *buff) {
 	char		*pt	 = buff;
@@ -174,54 +177,54 @@ char *ExpandEscapeSequences(char *buff) {
 	it is just the left part before the first space.
 
 	\return The pid of the process if found, 0 if not.
- */
+*/
 pid_t FindProcessIdByName(const char *name) {
-	DIR			  *dir;
-	struct dirent *ent;
-	char		  *endptr;
-	char		   buf[512];
-	char 		  *saveptr1;
+	DIR	*dir;
 
-	if (!(dir = opendir("/proc"))) {
-		perror("can't open /proc");
+	if (dir = opendir("/proc")) {
+		pid_t pid_self = getpid();
 
-		return 0;
-	}
+		const struct dirent	*ent;
 
-	pid_t pid_self = getpid();
+		while((ent = readdir(dir)) != nullptr) {		// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
+														// readdir() (3) is thread safe.
 
-	while((ent = readdir(dir)) != nullptr) {		// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
-													// readdir() (3) is thread safe.
+			char *endptr;
 
-		// if endptr is not null, the directory is not entirely numeric, so ignore it
-		long lpid = strtol(ent->d_name, &endptr, 10);
+			// if endptr is not null, the directory is not entirely numeric, so ignore it
+			long lpid = strtol(ent->d_name, &endptr, 10);
 
-		if (*endptr != '\0') {
-			continue;
-		}
-
-		// try to open the cmdline file
-		snprintf(buf, sizeof(buf), "/proc/%ld/cmdline", lpid);
-		FILE* fp = fopen(buf, "r");
-
-		if (fp) {
-			if (fgets(buf, sizeof(buf), fp) != nullptr) {
-				// check the first token in the file, the program name
-				char* first = strtok_r(buf, " ", &saveptr1);
-
-				// cout << first << endl;
-				if (!strcmp(first, name) && (pid_t) lpid != pid_self) {
-					fclose(fp);
-					closedir(dir);
-
-					return (pid_t) lpid;
-				}
+			if (*endptr != '\0') {
+				continue;
 			}
-			fclose(fp);
-		}
-	}
 
-	closedir(dir);
+			char buf[512];
+
+			// try to open the cmdline file
+			snprintf(buf, sizeof(buf), "/proc/%ld/cmdline", lpid);
+			FILE* fp = fopen(buf, "r");
+
+			if (fp) {
+				if (fgets(buf, sizeof(buf), fp) != nullptr) {
+					char *saveptr1;
+
+					// check the first token in the file, the program name
+					const char* first = strtok_r(buf, " ", &saveptr1);
+
+					// cout << first << endl;
+					if (!strcmp(first, name) && (pid_t) lpid != pid_self) {
+						fclose(fp);
+						closedir(dir);
+
+						return (pid_t) lpid;
+					}
+				}
+				fclose(fp);
+			}
+		}
+
+		closedir(dir);
+	}
 
 	return 0;
 }
@@ -295,7 +298,7 @@ uint64_t MurmurHash64A(const void *key, int len) {
 	\param s Input string
 	\return	 String without space or tab.
 */
-std::string CleanConfigArgument(std::string s) {
+String CleanConfigArgument(String s) {
 	bool in_quote = false;
 
 	for (int i = s.length() - 1; i >= 0; i--) {
@@ -336,11 +339,15 @@ ConfigFile::ConfigFile(const char *input_file_name) {
 bool ConfigFile::load_config(const char *input_file_name) {
 	config.clear();
 
+	if (input_file_name == nullptr)
+		return false;
+
 	std::ifstream fh(input_file_name);
 
-	if (!fh.is_open()) return false;
+	if (!fh.is_open())
+		return false;
 
-	std::string ln, key, val;
+	String ln, key, val;
 
 	while (!fh.eof()) {
 		getline(fh, ln);
@@ -348,11 +355,11 @@ bool ConfigFile::load_config(const char *input_file_name) {
 		size_t p;
 		p = ln.find("//");
 
-		if (p != std::string::npos) ln.erase(p, ln.length());
+		if (p != String::npos) ln.erase(p, ln.length());
 
 		p = ln.find("=");
 
-		if (p != std::string::npos) {
+		if (p != String::npos) {
 			key = CleanConfigArgument(ln.substr(0, p));
 			val = CleanConfigArgument(ln.substr(p + 1, ln.length()));
 
@@ -382,13 +389,13 @@ int ConfigFile::num_keys() {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, int &value) {
-	std::map<std::string, std::string>::iterator it = config.find(key);
+	std::map<String, String>::iterator it = config.find(key);
 
 	if (it == config.end())
 		return false;
 
 	try	{
-		std::string::size_type extra;
+		String::size_type extra;
 
 		int i = stoi(it->second, &extra);
 
@@ -413,13 +420,13 @@ bool ConfigFile::get_key(const char *key, int &value) {
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
 bool ConfigFile::get_key(const char *key, double &value) {
-	std::map<std::string, std::string>::iterator it = config.find(key);
+	std::map<String, String>::iterator it = config.find(key);
 
 	if (it == config.end())
 		return false;
 
 	try {
-		std::string::size_type extra;
+		String::size_type extra;
 
 		double d = stod(it->second, &extra);
 
@@ -443,8 +450,8 @@ bool ConfigFile::get_key(const char *key, double &value) {
 	\param value Value to be returned only when the function returns true.
 	\return		 True when the key exists and can be returned with the specific (overloaded) type.
 */
-bool ConfigFile::get_key(const char *key, std::string &value) {
-	std::map<std::string, std::string>::iterator it = config.find(key);
+bool ConfigFile::get_key(const char *key, String &value) {
+	std::map<String, String>::iterator it = config.find(key);
 
 	if (it == config.end())
 		return false;
@@ -460,12 +467,14 @@ bool ConfigFile::get_key(const char *key, std::string &value) {
 	\param key	The configuration key to be set.
 	\param val	New value of the key as a string (also valid for int and double if the string can be converted).
 */
-void ConfigFile::debug_put(const std::string key, const std::string val) {
+void ConfigFile::debug_put(const String key, const String val) {
 	config[key] = val;
 }
 
 
 /** Initialize the Logger (Method 1: by directly giving it the output_file_name).
+
+	\param output_file_name	The name of the file to log to.
 
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
@@ -479,13 +488,16 @@ Logger::Logger(const char *output_file_name) {
 
 /** Initialize the Logger (Method 2: with a configuration file and a configuration key).
 
+	\param config		The configuration file.
+	\param config_key	The configuration key to be searched.
+
 	Stores a copy of the file name,
 	Calls InitLogger() for the rest of the initialization.
 */
  Logger::Logger(ConfigFile  config, const char *config_key) {
 	file_name[0] = 0;
 
-	std::string log_name;
+	String log_name;
 
 	if (config.get_key(config_key, log_name)) strncpy(file_name, log_name.c_str(), MAX_FILENAME_LENGTH - 1);
 
@@ -580,11 +592,6 @@ void Logger::log(int loglevel, const char *message) {
 #define LEFTAUTO	28
 
 	sprintf(buffer, "%12.6f : %02d : %5zu : ", sec, loglevel, syscall(SYS_gettid));	// This fills LEFTAUTO char
-	while (strlen(buffer) > LEFTAUTO) {
-		int j = strlen(buffer);
-		for (int i = 1; i < j; i++) buffer[i] = buffer[i + 1];
-		buffer[0] = '+';
-	}
 	strncpy(&buffer[LEFTAUTO], message, 256 - LEFTAUTO);					// This fills in the range [LEFTAUTO..254]
 	buffer[255] = '\0';														// Last pos gets the terminator
 

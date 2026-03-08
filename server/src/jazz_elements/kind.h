@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -61,12 +61,23 @@ strings.
 It is a block with special attributes to store an array of Tensor. A Kind is a single Block! A kind has **dimensions** which are integer
 variables that are used to define variable shapes.
 
-Technically, a Kind is a Block of type CELL_TYPE_KIND_ITEM. Each item contains the Tensor metadata.
+Technically, a Kind is a Block of type CELL_TYPE_TUPLE_KIND. Each item contains the Tensor metadata.
 
-Since kinds keep only metadata, the space, unlike in Tuples, is uninterrupted as in a normal block: (header, vector of CELL_TYPE_KIND_ITEM,
+Since kinds keep only metadata, the space, unlike in Tuples, is uninterrupted as in a normal block: (header, vector of CELL_TYPE_TUPLE_KIND,
 attribute keys, StringBuffer).
 
 The StringBuffer contains the item names and dimension names.
+
+How Bebop uses Kinds
+--------------------
+
+In Bebop, Kinds are not only the definition of the metadata of a Tuple, but the type of any object. Bop uses Kind instead of "type" because
+"type" is the data type of the Tensors, Kind is a higher level concept. A Kind can just be: CELL_TYPE_BLOCK_KIND (a single ItemHeader)
+that defines the type of the block, CELL_TYPE_TUPLE_KIND (as before Bop-26) the kind of a Tuple or CELL_TYPE_OBJECT_KIND (which is an
+array or string) with the definition of the kind of an object (which is a path in a hierarchy of object kinds).
+
+Bop uses the attributes: BLOCK_ATTRIB_KIND_DEF (to keep the definition of all the kinds in persistence and assign kinds to objects) and
+BLOCK_ATTRIB_HOME
 
 Creating Kinds
 --------------
@@ -77,7 +88,9 @@ build by parts: new_kind(), add_item() to do the basic building. It also has fun
 Also, kinds should define, these attributes, but that is left to the Container:
 
 - BLOCK_ATTRIB_BLOCKTYPE as the const "Kind"
-- BLOCK_ATTRIB_SOURCE as the location where the definition of the Kind can be found. Kind names are global.
+- BLOCK_ATTRIB_KIND_DEF as the location where the definition of the Kind of any object can be found. Kind names are global.
+- BLOCK_ATTRIB_HOME is the location of any object in persistence. The BLOCK_ATTRIB_HOME of a Kind is the BLOCK_ATTRIB_KIND_DEF of all the
+objects of that Kind.
 
 */
 class Kind : public Block {
@@ -93,7 +106,7 @@ class Kind : public Block {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *item_name(int idx)	{
-			if (idx < 0 | idx >= size)
+			if (idx < 0 || idx >= size)
 				return nullptr;
 
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
@@ -114,6 +127,9 @@ class Kind : public Block {
 		}
 
 		/** Pushes the Kind's dimension names into an std::set.
+
+			\param dims The set where the dimension names will be stored.
+
 		*/
 		inline void dimensions(Dimensions &dims) {
 			for (int i = 0; i < size; i++) {
@@ -125,7 +141,7 @@ class Kind : public Block {
 					if (k < 0) {
 						char *pt = (&p_string_buffer()->buffer[-k]);
 
-						dims.insert(std::string(pt));
+						dims.insert(String(pt));
 					}
 				}
 			}
@@ -137,14 +153,14 @@ class Kind : public Block {
 			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
 			\param att		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
 
-			\return			 False on error (insufficient alloc size for a very conservative minimum).
+			\return			 0, SERVICE_ERROR_WRONG_ARGUMENTS (range of num_items) or SERVICE_ERROR_NO_MEM (insufficient alloc size).
 		*/
-		inline bool new_kind(int		   num_items,
-							 int		   num_bytes,
-			   				 AttributeMap *att = nullptr) {
+		inline int new_kind(int			  num_items,
+							int			  num_bytes,
+			   				AttributeMap *att = nullptr) {
 
-			if (num_items < 1 || num_items >= MAX_ITEMS_IN_KIND)
-				return false;
+			if (num_items < 1 || num_items > MAX_ITEMS_IN_KIND)
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + 2*num_items;
 
@@ -152,19 +168,20 @@ class Kind : public Block {
 				rq_sz += 2*att->size();
 
 			if (num_bytes < rq_sz)
-				return false;
+				return SERVICE_ERROR_NO_MEM;
 
 			memset(&cell_type, 0, num_bytes);
 
-			cell_type	 = CELL_TYPE_KIND_ITEM;
-			rank		 = 1;
-			range.dim[0] = 1;
-			size		 = num_items;
-			total_bytes	 = num_bytes;
+			cell_type	   = CELL_TYPE_TUPLE_KIND;
+			rank		   = 1;
+			range.dim[0]   = 1;
+			size		   = num_items;
+			total_bytes	   = num_bytes;
+			num_attributes = 0;				// set_attributes() is done just once when it is not already set.
 
 			set_attributes(att);
 
-			return true;
+			return SERVICE_NO_ERROR;
 		}
 
 		/** Initializes a Kind object (step 2): Adds each of the items.
@@ -186,12 +203,12 @@ class Kind : public Block {
 		together with their names.
 		*/
 		inline bool add_item(int		   idx,
-			   				 char const   *p_name,
+							 char const   *p_name,
 							 int		  *p_dim,
 							 int		   cell_type,
 							 AttributeMap *p_dims) {
 
-			if (idx < 0 | idx >= size)
+			if (idx < 0 || idx >= size)
 				return false;
 
 			ItemHeader *p_it_hea = &tensor.cell_item[idx];
@@ -237,9 +254,87 @@ class Kind : public Block {
 			return true;
 		}
 
+		/** Creates a Kind for an object (CELL_TYPE_OBJECT_KIND) in just one call.
+
+			\param num_bytes The size in bytes allocated. Should be enough for all names, dimensions and attributes + ItemHeaders.
+			\param p_def	 The definition of the object kind as a string. It is a list of lines separated by sep. Each is a name.
+			\param sep		 The separator for the lines in p_def.
+			\param att		 The attributes for the Kind. Set "as is", without adding BLOCK_ATTRIB_BLOCKTYPE or anything.
+
+			\return			 SERVICE_NO_ERROR or error code for insufficient alloc size or wrong arguments.
+		*/
+		inline int new_object_kind (int			  num_bytes,
+									char const	 *p_def,
+									char		  sep,
+			   						AttributeMap *att = nullptr) {
+			Name name;
+			int num_lines = 1, j = 0;
+			for (char const *p = p_def; *p; p++) {
+				if (*p == sep) {
+					if (j >= sizeof(Name))
+						return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+					j = 0;
+					num_lines++;
+				} else {
+					j++;
+				}
+			}
+			if (j >= sizeof(Name))
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
+
+			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + strlen(p_def) + num_lines*sizeof(int);
+
+			if (att != nullptr)
+				rq_sz += 2*att->size();
+
+			if (rq_sz > num_bytes)
+				return SERVICE_ERROR_NO_MEM;
+
+			cell_type	   = CELL_TYPE_OBJECT_KIND;
+			rank		   = 1;
+			range.dim[0]   = num_lines;
+			size		   = num_lines;
+			total_bytes	   = num_bytes;
+			num_attributes = 0;				// set_attributes() is done just once when it is not already set.
+
+			set_attributes(att);			// This also calls init_string_buffer()
+
+			pStringBuffer psb = p_string_buffer();
+
+			int i = 0;
+			j = 0;
+			for (char const *p = p_def; *p; p++) {
+				if (*p == sep) {
+					name[j] = 0;
+					j = 0;
+					set_string(i, name);
+					i++;
+				} else {
+					name[j++] = *p;
+				}
+			}
+			name[j] = 0;
+			set_string(i, name);
+
+			return SERVICE_NO_ERROR;
+		}
+
+		/** Initializes a Kind object (step 3) when it is just simple Block: Make cell_type = CELL_TYPE_BLOCK_KIND
+
+			\return True if the Kind was converted to a Block Kind, false if wrong type or wrong size.
+		*/
+		inline bool to_block_kind() {
+			if (size != 1 || cell_type != CELL_TYPE_TUPLE_KIND)
+				return false;
+
+			cell_type = CELL_TYPE_BLOCK_KIND;
+			return true;
+		}
+
 		int audit();
 };
-typedef Kind *pKind;
+typedef Kind *pKind;		///< A pointer to a Kind object
 
 } // namespace jazz_elements
 

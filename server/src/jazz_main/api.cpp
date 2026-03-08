@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -42,140 +42,88 @@ namespace jazz_main
 {
 
 /*	-----------------------------------------------
-	 Parser grammar definition
+	 API : I m p l e m e n t a t i o n
 --------------------------------------------------- */
 
-#define REX_SLASH				"[/]"
-#define REX_NAME_FIRST			"[a-zA-Z0-9~]"
-#define REX_NAME_ANY			"[a-zA-Z0-9\\-_~$]"
-#define REX_BASE_SWITCH			"[&]"
-#define REX_INFO_SWITCH			"[\\x00]"
-#define REX_ENT_SWITCH			"[\\x00\\.\\]\\)]"
-#define REX_KEY_SWITCH			"[\\x00\\.:=\\[\\(\\]\\)]"
+/** Constructor for the API service.
 
-#define MAX_NUM_PSTATES			14		///< Maximum number of non error states the parser can be in
-#define NUM_STATE_TRANSITIONS	20		///< Maximum number of state transitions in the parsing grammar. Applies to const only.
-
-/** A vector of StateTransition. This only runs once, on construction of the API object, initializes the LUTs from a sequence of
-StateTransition constants in the source of api.cpp.
+	\param a_logger		A pointer to the Logger object.
+	\param a_config		A pointer to the ConfigFile object.
+	\param a_channels	A pointer to the Channels object.
+	\param a_volatile	A pointer to the Volatile object.
+	\param a_persisted	A pointer to the Persisted object.
+	\param a_core		A pointer to the Core object.
+	\param a_model		A pointer to the ModelsAPI object.
 */
-typedef ParseStateTransition ParseStateTransitions[NUM_STATE_TRANSITIONS];
-
-ParseStateTransitions state_tr = {
-	{PSTATE_INITIAL,	PSTATE_BASE0,		REX_SLASH},
-
-	{PSTATE_BASE0,		PSTATE_NODE0,		REX_SLASH},
-	{PSTATE_BASE0,		PSTATE_IN_BASE,		REX_NAME_FIRST},
-
-	{PSTATE_NODE0,		PSTATE_IN_NODE,		REX_NAME_FIRST},
-	{PSTATE_NODE0,		PSTATE_INFO_SWITCH,	REX_INFO_SWITCH},
-
-	{PSTATE_IN_BASE,	PSTATE_IN_BASE,		REX_NAME_ANY},
-	{PSTATE_IN_BASE,	PSTATE_ENTITY0,		REX_SLASH},
-	{PSTATE_IN_BASE,	PSTATE_BASE_SWITCH,	REX_BASE_SWITCH},
-
-	{PSTATE_IN_NODE,	PSTATE_IN_NODE,		REX_NAME_ANY},
-	{PSTATE_IN_NODE,	PSTATE_DONE_NODE,	REX_SLASH},
-
-	{PSTATE_DONE_NODE,	PSTATE_BASE0,		REX_SLASH},
-
-	{PSTATE_ENTITY0,	PSTATE_IN_ENTITY,	REX_NAME_FIRST},
-
-	{PSTATE_IN_ENTITY,	PSTATE_IN_ENTITY,	REX_NAME_ANY},
-	{PSTATE_IN_ENTITY,	PSTATE_KEY0,		REX_SLASH},
-	{PSTATE_IN_ENTITY,	PSTATE_ENT_SWITCH,	REX_ENT_SWITCH},
-
-	{PSTATE_KEY0,		PSTATE_IN_KEY,		REX_NAME_FIRST},
-	{PSTATE_KEY0,		PSTATE_KEY_SWITCH,	REX_KEY_SWITCH},
-
-	{PSTATE_IN_KEY,		PSTATE_IN_KEY,		REX_NAME_ANY},
-	{PSTATE_IN_KEY,		PSTATE_KEY_SWITCH,	REX_KEY_SWITCH},
-
-	{MAX_NUM_PSTATES}
-};
-
-ParseNextStateLUT parser_state_switch[MAX_NUM_PSTATES];
-
-/*	-----------------------------------------------
-	 Api : I m p l e m e n t a t i o n
---------------------------------------------------- */
-
-Api::Api(pLogger	 a_logger,
+API::API(pLogger	 a_logger,
 		 pConfigFile a_config,
 		 pChannels	 a_channels,
 		 pVolatile	 a_volatile,
 		 pPersisted	 a_persisted,
 		 pCore		 a_core,
-		 pModel		 a_model) : Container(a_logger, a_config) {
+		 pModelsAPI	 a_model) : BaseAPI(a_logger, a_config, a_channels, a_volatile, a_persisted) {
 
-	compile_next_state_LUT(parser_state_switch, MAX_NUM_PSTATES, state_tr);
-
-	p_channels	= a_channels;
-	p_volatile	= a_volatile;
-	p_persisted	= a_persisted;
-	p_core		= a_core;
-	p_model		= a_model;
+	p_core	= a_core;
+	p_model	= a_model;
 
 	www	 = {};
 }
 
 
-Api::~Api() { destroy_container(); }
+API::~API() { destroy_container(); }
 
 
 /** Return object ID.
 
 	\return A string identifying the object that is especially useful to track uplifts and versions.
 */
-pChar const Api::id() {
-    static char arr[] = "Api from Jazz-" JAZZ_VERSION;
+pChar const API::id() {
+    static char arr[] = "API from Jazz-" JAZZ_VERSION;
     return arr;
 }
 
 
 /** Starts the API service
 
-Configuration-wise the API has just two keys:
+	\return		SERVICE_NO_ERROR if successful, an error code otherwise.
 
-- STATIC_HTML_AT_START: which defines a path to a tree of static objects that should be uploaded on start.
-- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
+	Configuration-wise the API has just two keys:
 
-Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
+	- STATIC_HTML_AT_START: which defines a path to a tree of static objects that should be uploaded on start.
+	- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
+
+	Besides that, this function initializes global (and object) variables used by the parser (mostly CharLUT).
 */
-StatusCode Api::start() {
+StatusCode API::start() {
 
-	int ret = Container::start();	// This initializes the one-shot functionality.
+	int ret = BaseAPI::start();	// This initializes the one-shot functionality.
 
 	if (ret != SERVICE_NO_ERROR)
 		return ret;
 
 	BaseNames base = {};
 
-	p_channels->base_names(base);
-	p_volatile->base_names(base);
-	p_persisted->base_names(base);
-
-	for (int i = 0; i < 1024; i++)
-		base_server[i] = nullptr;
+	p_core->base_names(base);
+	p_model->base_names(base);
 
 	for (BaseNames::iterator it = base.begin(); it != base.end(); ++it) {
 		int tt = TenBitsAtAddress(it->first.c_str());
 
 		if (base_server[tt] != nullptr) {
-			log_printf(LOG_ERROR, "Api::start(): Base name conflict with \"%s\"", it->first.c_str());
+			log_printf(LOG_ERROR, "API::start(): Base name conflict with \"%s\"", it->first.c_str());
 
 			return SERVICE_ERROR_STARTING;
 		}
 		base_server[tt] = it->second;
 	}
 
-	std::string statics_path;
+	String statics_path;
 
 	if (get_conf_key("STATIC_HTML_AT_START", statics_path)) {
 		ret = load_statics((pChar) statics_path.c_str(), (pChar) "/", 0);
 
 		if (ret != SERVICE_NO_ERROR) {
-			log_printf(LOG_ERROR, "Api::start(): load_statics() failed loading \"%s\"", statics_path.c_str());
+			log_printf(LOG_ERROR, "API::start(): load_statics() failed loading \"%s\"", statics_path.c_str());
 
 			return ret;
 		}
@@ -189,8 +137,14 @@ StatusCode Api::start() {
 
 
 /** Shuts down the Persisted Service
+
+	\return		SERVICE_NO_ERROR if successful, an error code otherwise.
+
+	Configuration-wise the API has just one key:
+
+	- REMOVE_STATICS_ON_CLOSE: removes the whole database Persisted //static when this service closes.
 */
-StatusCode Api::shut_down() {
+StatusCode API::shut_down() {
 
 	StatusCode err;
 
@@ -199,377 +153,13 @@ StatusCode Api::shut_down() {
 		for (Index::iterator it = www.begin(); it != www.end(); ++it) {
 			strcpy(loc.key, it->second.c_str());
 			if ((err = p_persisted->remove(loc)) != SERVICE_NO_ERROR)
-				log_printf(LOG_MISS, "Api::shut_down(): Persisted.remove(//lmdb/www/%s) returned %d", it->second.c_str(), err);
+				log_printf(LOG_MISS, "API::shut_down(): Persisted.remove(//lmdb/www/%s) returned %d", it->second.c_str(), err);
 		}
 	}
 
 	www.clear();
 
-	return Container::shut_down();	// Closes the one-shot functionality.
-}
-
-
-/** Parse an API url into an APIParseBuffer for later execution.
-
-	\param q_state	A structure with the parts the url successfully parsed ready to be executed.
-	\param p_url	The http url (that has already been checked to start with //)
-	\param method	The http method in [HTTP_NOTUSED .. HTTP_DELETE]
-	\param recurse	True in an assignment while processing the r_value
-
-	\return			Some error code or SERVICE_NO_ERROR if successful.
-
-	When parse() is successful, the content of the APIParseBuffer **must** be executed by a call (that depends on the method) and will
-unlock() all the intermediate blocks.
-
-method | call executed by
--------|-----------------
-HTTP_GET, HTTP_HEAD | Api.http_get()
-HTTP_PUT | Api.http_put()
-HTTP_DELETE | Api.http_delete()
-HTTP_OPTIONS | Nothing: options calls must call with **execution = false**
-
-*/
-bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) {
-
-	int buf_size;
-	pChar p_out;
-
-	if (!recurse) {
-		q_state.l_node[0] = 0;
-		q_state.r_node[0] = 0;
-		q_state.name[0]	  = 0;
-	}
-	q_state.url[0] = 0;
-	q_state.apply  = APPLY_NOTHING;
-	q_state.state  = PSTATE_INITIAL;
-
-	p_url++;	// parse() is only called after checking the trailing //, this skips the first / to set state to PSTATE_INITIAL
-
-	while (true) {
-		unsigned char cursor;
-
-		cursor = *(p_url++);
-		q_state.state = parser_state_switch[q_state.state].next[cursor];
-		if ((q_state.state == PSTATE_KEY_SWITCH) && (cursor == '.') && (p_url[1] <= '9') && (p_url[1] >= '0'))
-			q_state.state = PSTATE_IN_KEY;
-
-		switch (q_state.state) {
-		case PSTATE_NODE0:
-			if (recurse)
-				p_out = (pChar) &q_state.r_node;
-			else
-				p_out = (pChar) &q_state.l_node;
-
-			buf_size = NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_BASE0:
-			if (recurse)
-				p_out = (pChar) &q_state.r_value.base;
-			else
-				p_out = (pChar) &q_state.base;
-
-			buf_size = SHORT_NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_ENTITY0:
-			if (recurse)
-				p_out = (pChar) &q_state.r_value.entity;
-			else
-				p_out = (pChar) &q_state.entity;
-
-			buf_size = NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_KEY0:
-			if (recurse)
-				p_out = (pChar) &q_state.r_value.key;
-			else
-				p_out = (pChar) &q_state.key;
-
-			buf_size = NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_IN_NODE:
-		case PSTATE_IN_BASE:
-		case PSTATE_IN_ENTITY:
-		case PSTATE_IN_KEY:
-			if (buf_size-- == 0) {
-				q_state.state = PSTATE_FAILED;
-
-				return false;
-			}
-			*(p_out++) = cursor;
-			*(p_out)   = 0;
-
-			break;
-
-		case PSTATE_INFO_SWITCH:
-			q_state.base[0]	  = 0;
-			q_state.entity[0] = 0;
-			q_state.key[0]	  = 0;
-
-			if (method == HTTP_GET) {
-				q_state.apply = APPLY_JAZZ_INFO;
-				q_state.state = PSTATE_COMPLETE_OK;
-
-				return true;
-			}
-			q_state.state = PSTATE_FAILED;
-
-			return false;
-
-		case PSTATE_BASE_SWITCH:
-			int mc;
-			if (recurse)
-				mc = move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.r_value.base);
-			else
-				mc = move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url - 1, q_state.base);
-
-			if (mc == RET_MV_CONST_FAILED) {
-				q_state.state = PSTATE_FAILED;
-
-				return false;
-			}
-			q_state.apply = mc == RET_MV_CONST_NOTHING ? APPLY_URL : APPLY_NEW_ENTITY;
-			q_state.state = PSTATE_COMPLETE_OK;
-			if (recurse) {
-				q_state.r_value.entity[0] = 0;
-				q_state.r_value.key[0]	  = 0;
-			} else {
-				q_state.entity[0] = 0;
-				q_state.key[0]	  = 0;
-			}
-			return true;
-
-		case PSTATE_ENT_SWITCH:
-			if (cursor == 0 && method != HTTP_DELETE) {
-				q_state.state = PSTATE_FAILED;
-
-				return false;
-			}
-			q_state.state = PSTATE_COMPLETE_OK;
-			if (recurse)
-				q_state.r_value.key[0] = 0;
-			else
-				q_state.key[0] = 0;
-
-			if (cursor != '.')
-				return true;
-
-			if (method != HTTP_GET || strcmp("new", p_url) != 0) {
-				q_state.state = PSTATE_FAILED;
-
-				return false;
-			}
-			q_state.apply = APPLY_NEW_ENTITY;
-
-			return true;
-
-		case PSTATE_KEY_SWITCH:
-			q_state.state = PSTATE_FAILED;
-
-			if (p_out == (pChar) q_state.key || p_out == (pChar) q_state.r_value.key) {
-				if (cursor != '(')
-					return false;
-
-				if (recurse)
-					q_state.r_value.key[0] = 0;
-				else
-					q_state.key[0] = 0;
-
-				if (method != HTTP_GET)
-					return false;
-
-				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
-					q_state.apply = APPLY_FUNCT_CONST;
-				else if (	*p_url == '/'
-						 && ((recurse && parse_locator(q_state.rr_value, p_url)) || (!recurse && parse_locator(q_state.r_value, p_url))))
-					q_state.apply = APPLY_FUNCTION;
-				else
-					return false;
-
-				q_state.state = PSTATE_COMPLETE_OK;
-
-				return true;
-			}
-
-			switch (cursor) {
-			case 0:
-				q_state.state = PSTATE_COMPLETE_OK;
-
-				return true;
-
-			case '.':
-				if (method != HTTP_GET && method != HTTP_PUT)
-					return false;
-
-				if (strcmp("raw", p_url) == 0) {
-					q_state.state = PSTATE_COMPLETE_OK;
-					q_state.apply = APPLY_RAW;
-
-					return true;
-				}
-				if (strcmp("text", p_url) == 0) {
-					q_state.state = PSTATE_COMPLETE_OK;
-					q_state.apply = APPLY_TEXT;
-
-					return true;
-				}
-				if (method != HTTP_GET)
-					return false;
-
-				if (strcmp("new", p_url) == 0) {
-					q_state.state = PSTATE_COMPLETE_OK;
-					q_state.apply = APPLY_NEW_ENTITY;
-
-					return true;
-				}
-				if (strncmp(p_url, "attribute(", 10) != 0)
-					return false;
-
-				p_url += 10;
-
-				int i_len;
-
-				if (sscanf(p_url, "%i%n", &q_state.r_value.attribute, &i_len) != 1)
-					return false;
-
-				p_url += i_len;
-
-				if (*(p_url++) != ')')
-					return false;
-
-				switch (*(p_url++)) {
-				case 0:
-					q_state.state = PSTATE_COMPLETE_OK;
-					q_state.apply = APPLY_GET_ATTRIBUTE;
-
-					return true;
-
-				case '=':
-					if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
-						q_state.state = PSTATE_COMPLETE_OK;
-						q_state.apply = APPLY_SET_ATTRIBUTE;
-
-						return true;
-					}
-				}
-				return false;
-
-			case ':':
-				if (method != HTTP_GET || strlen(p_url) >= NAME_SIZE)
-					return false;
-
-				strcpy(q_state.name, p_url);
-				q_state.apply = APPLY_NAME;
-				q_state.state = PSTATE_COMPLETE_OK;
-
-				return true;
-
-			case '=':
-				if (recurse || (method != HTTP_GET))
-					return false;
-
-				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING) {
-					q_state.apply = APPLY_ASSIGN_CONST;
-					q_state.state = PSTATE_COMPLETE_OK;
-
-					return true;
-				}
-				if ((*p_url != '/') || !parse(q_state, p_url, HTTP_GET, true))
-					return false;
-
-				switch (q_state.apply) {
-				case APPLY_NOTHING:
-					q_state.apply = APPLY_ASSIGN_NOTHING;
-					return true;
-				case APPLY_NAME:
-					q_state.apply = APPLY_ASSIGN_NAME;
-					return true;
-				case APPLY_URL:
-					q_state.apply = APPLY_ASSIGN_URL;
-					return true;
-				case APPLY_FUNCTION:
-					q_state.apply = APPLY_ASSIGN_FUNCTION;
-					return true;
-				case APPLY_FUNCT_CONST:
-					q_state.apply = APPLY_ASSIGN_FUNCT_CONST;
-					return true;
-				case APPLY_FILTER:
-					q_state.apply = APPLY_ASSIGN_FILTER;
-					return true;
-				case APPLY_FILT_CONST:
-					q_state.apply = APPLY_ASSIGN_FILT_CONST;
-					return true;
-				case APPLY_RAW:
-					q_state.apply = APPLY_ASSIGN_RAW;
-					return true;
-				case APPLY_TEXT:
-					q_state.apply = APPLY_ASSIGN_TEXT;
-					return true;
-				}
-				q_state.state = PSTATE_FAILED;
-
-				return false;
-
-			case '[':
-				if (method != HTTP_GET)
-					return false;
-
-				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
-					q_state.apply = APPLY_FILT_CONST;
-				else if (	*p_url == '/'
-						 && ((recurse && parse_locator(q_state.rr_value, p_url)) || (!recurse && parse_locator(q_state.r_value, p_url))))
-
-					q_state.apply = APPLY_FILTER;
-				else
-					return false;
-
-				q_state.state = PSTATE_COMPLETE_OK;
-
-				return true;
-
-			case '(':
-				if (method != HTTP_GET)
-					return false;
-
-				if (*p_url == '&' && move_const((pChar) &q_state.url, MAX_FILE_OR_URL_SIZE, p_url) == RET_MV_CONST_NOTHING)
-					q_state.apply = APPLY_FUNCT_CONST;
-				else if (	*p_url == '/'
-						 && ((recurse && parse_locator(q_state.rr_value, p_url)) || (!recurse && parse_locator(q_state.r_value, p_url))))
-					q_state.apply = APPLY_FUNCTION;
-				else
-					return false;
-
-				q_state.state = PSTATE_COMPLETE_OK;
-
-				return true;
-
-			default:
-				q_state.state = PSTATE_FAILED;
-
-				return false;
-			}
-			break;
-
-		case PSTATE_DONE_NODE:
-			if (!recurse) {
-				q_state.url[0] = '/';
-				strcpy((pChar) &q_state.url[1], p_url);
-			}
-			break;
-
-		default:
-			q_state.state = PSTATE_FAILED;
-
-			return false;
-		}
-	}
+	return BaseAPI::shut_down();	// Closes the one-shot functionality.
 }
 
 
@@ -582,9 +172,9 @@ bool Api::parse(HttpQueryState &q_state, pChar p_url, int method, bool recurse) 
 	\return			Some error code or SERVICE_NO_ERROR if successful.
 
 */
-MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
+MHD_StatusCode API::get_static(pMHD_Response &response, pChar p_url, bool get_it) {
 
-	Index::iterator it = www.find(std::string(p_url));
+	Index::iterator it = www.find(String(p_url));
 
 	if (it == www.end())
 		return MHD_HTTP_NOT_FOUND;
@@ -631,7 +221,7 @@ MHD_StatusCode Api::get_static(pMHD_Response &response, pChar p_url, bool get_it
 
 	This function searches for a persistence block named ("www", "httpERR_%d") where %d is the code in decimal and serves it as an answer.
 */
-MHD_Result Api::return_error_message(pMHD_Connection connection, pChar p_url, int http_status) {
+MHD_Result API::return_error_message(pMHD_Connection connection, pChar p_url, int http_status) {
 
 	char answer[2048];
 
@@ -695,7 +285,7 @@ q_state.rr_value.p_extra (that pointer will be returned in successive call of th
 SEQUENCE_INCREMENT_CALL may or may not come, if it does, it must allocate bigger blocks and store more data in the same pTransaction.
 SEQUENCE_FINAL_CALL is called just once, it must destroy the pTransaction when done
 */
-MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_state, int sequence) {
+MHD_StatusCode API::http_put(pChar p_upload, size_t size, ApiQueryState &q_state, int sequence) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
@@ -711,7 +301,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 		dim[0] = size;
 
-		if (new_block(p_txn, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
+		if (new_block(p_txn, CELL_TYPE_BYTE, &dim[0], FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR)
 			return MHD_HTTP_INSUFFICIENT_STORAGE;
 
 		memcpy(&p_txn->p_block->tensor.cell_byte[0], p_upload, size);
@@ -729,7 +319,7 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 
 		pTransaction p_aux;
 
-		if (new_block(p_aux, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
+		if (new_block(p_aux, CELL_TYPE_BYTE, &dim[0], FILL_NEW_DONT_FILL) !=  SERVICE_NO_ERROR) {
 			destroy_transaction(p_txn);
 
 			return MHD_HTTP_INSUFFICIENT_STORAGE;
@@ -747,95 +337,19 @@ MHD_StatusCode Api::http_put(pChar p_upload, size_t size, HttpQueryState &q_stat
 	if (unwrap_received(p_txn) != SERVICE_NO_ERROR)
 		return MHD_HTTP_INSUFFICIENT_STORAGE;
 
-	if (q_state.l_node[0] != 0) {
-		int ret = p_channels->forward_put(q_state.l_node, q_state.url, p_txn->p_block);
-
+	switch (put(q_state, p_txn->p_block)) {
+	case SERVICE_NO_ERROR:
 		destroy_transaction(p_txn);
+		return MHD_HTTP_CREATED;
 
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED;
-
-		return MHD_HTTP_BAD_GATEWAY;
-	}
-
-	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-	if (p_container == nullptr) {
+	case SERVICE_ERROR_WRONG_BASE:
 		destroy_transaction(p_txn);
-
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
-	}
 
-	Locator loc;
-
-	switch (q_state.apply) {
-	case APPLY_NOTHING: {
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		int ret = p_container->put(loc, p_txn->p_block);
-
+	default:
 		destroy_transaction(p_txn);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
-		return MHD_HTTP_BAD_GATEWAY;
-
-	case APPLY_RAW: {
-		pTransaction p_aux;
-
-		int ret = new_block(p_aux, p_txn->p_block, CELL_TYPE_UNDEFINED);
-
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		ret = p_container->put(loc, p_aux->p_block);
-
-		destroy_transaction(p_aux);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
-		return MHD_HTTP_BAD_GATEWAY;
-
-	case APPLY_TEXT: {
-		pTransaction p_aux;
-
-		int ret = new_block(p_aux, p_txn->p_block, nullptr, true);
-
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		ret = p_container->put(loc, p_aux->p_block);
-
-		destroy_transaction(p_aux);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
-		return MHD_HTTP_BAD_GATEWAY;
-
-	case APPLY_URL: {
-		int ret = p_container->put(q_state.url, p_txn->p_block);
-
-		destroy_transaction(p_txn);
-
-		if (ret == SERVICE_NO_ERROR)
-			return MHD_HTTP_CREATED; }
-
 		return MHD_HTTP_BAD_GATEWAY;
 	}
-	destroy_transaction(p_txn);
-
-	return MHD_HTTP_BAD_GATEWAY;
 }
 
 
@@ -859,42 +373,21 @@ APPLY_URL: With or without node and just a base.
 In all cases, calls with a node (it can only be l_node) q_state.url contains exactly what has to be forwarded.
 
 */
-MHD_StatusCode Api::http_delete(HttpQueryState &q_state) {
+MHD_StatusCode API::http_delete(ApiQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-	if (q_state.l_node[0] != 0) {
-		if (p_channels->forward_del(q_state.l_node, q_state.url) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK;
+	switch (remove(q_state)) {
+	case SERVICE_NO_ERROR:
+		return MHD_HTTP_OK;
 
-		return MHD_HTTP_NOT_FOUND;
-	}
-
-	pContainer p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-	if (p_container == nullptr)
+	case SERVICE_ERROR_WRONG_BASE:
 		return MHD_HTTP_SERVICE_UNAVAILABLE;
 
-	switch (q_state.apply) {
-	case APPLY_NOTHING: {
-		Locator loc;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		if (p_container->remove(loc) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK; }
-
-		return MHD_HTTP_NOT_FOUND;
-
-	case APPLY_URL:
-		if (p_container->remove((pChar) q_state.url) == SERVICE_NO_ERROR)
-			return MHD_HTTP_OK;
-
+	default:
 		return MHD_HTTP_NOT_FOUND;
 	}
-
-	return MHD_HTTP_NOT_FOUND;
 }
 
 
@@ -921,33 +414,35 @@ APPLY_SET_ATTRIBUTE and APPLY_JAZZ_INFO
 To simplify, this top level function decomposes the logic into smaller parts.
 
 */
-MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
+MHD_StatusCode API::http_get(pMHD_Response &response, ApiQueryState &q_state) {
 
 	if (q_state.state != PSTATE_COMPLETE_OK)
 		return MHD_HTTP_BAD_REQUEST;
 
-	char		 buffer_1k[1024];
-	Locator		 loc;
-	pTransaction p_txn, p_aux;
-	pContainer	 p_container;
-	int			 ret, size;
+	pTransaction p_txn;
 	pChar		 p_str;
 
 	switch (q_state.apply) {
-	case APPLY_NOTHING ... APPLY_TEXT:
-		if (q_state.l_node[0] != 0)
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-		else
-			ret = get_left_local(p_txn, q_state);
+	case APPLY_NOTHING ... APPLY_TEXT: {
+		pBaseAPI p_base_api = (pBaseAPI) base_server[TenBitsAtAddress(q_state.base)];
+		p_base_api = (p_base_api == p_core || p_base_api == p_model) ? p_base_api : this;
 
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
+		switch (p_base_api->get(p_txn, q_state)) {
+		case SERVICE_NO_ERROR:
+			// This condition is required by http. The BaseAPI::get() can return an index block.
+			if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
+				p_txn->p_owner->destroy_transaction(p_txn);
 
-		if (p_txn->p_block->cell_type == CELL_TYPE_INDEX) {
-			p_txn->p_owner->destroy_transaction(p_txn);
+				return MHD_HTTP_BAD_REQUEST;
+			}
+			break;
 
+		case SERVICE_ERROR_WRONG_ARGUMENTS:
 			return MHD_HTTP_BAD_REQUEST;
+		default:
+			return MHD_HTTP_NOT_FOUND;
 		}
+		// This is the "auto-magic" conversion into string from blocks of string with one element.
 		if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
 			p_str = p_txn->p_block->get_string(0);
 			response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
@@ -963,187 +458,79 @@ MHD_StatusCode Api::http_get(pMHD_Response &response, HttpQueryState &q_state) {
 		}
 		p_txn->p_owner->destroy_transaction(p_txn);
 
-		return MHD_HTTP_OK;
+		return MHD_HTTP_OK; }
 
-	case APPLY_ASSIGN_NOTHING ... APPLY_ASSIGN_TEXT:
-		if (q_state.r_node[0] != 0)
-			ret = get_right_remote(p_txn, q_state);
-		else
-			ret = get_right_local(p_txn, q_state);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
-
-		if (q_state.l_node[0] != 0) {
-			sprintf(buffer_1k, "//%s/%s/%s", q_state.base, q_state.entity, q_state.key);
-
-			ret = p_channels->forward_put(q_state.l_node, buffer_1k, p_txn->p_block);
-		} else
-			ret = put_left_local(q_state, p_txn->p_block);
-
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_GATEWAY;
-
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
-
-		return MHD_HTTP_OK;
-
-	case APPLY_ASSIGN_CONST:
-		if (q_state.l_node[0] != 0) {
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-
-			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_BAD_REQUEST;
-		} else {
-			ret = get_right_local(p_txn, q_state);
-
-			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_BAD_REQUEST;
-
-			ret = put_left_local(q_state, p_txn->p_block);
-		}
-		destroy_transaction(p_txn);
-
-		if (ret != SERVICE_NO_ERROR)
+	case APPLY_ASSIGN_NOTHING ... APPLY_NEW_ENTITY:
+	case APPLY_SET_ATTRIBUTE:
+		switch (get(p_txn, q_state)) {
+		case SERVICE_NO_ERROR:
+			break;
+		case SERVICE_ERROR_WRONG_BASE:
+			return MHD_HTTP_SERVICE_UNAVAILABLE;
+		default:
 			return MHD_HTTP_BAD_REQUEST;
-
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
-
-		return MHD_HTTP_OK;
-
-	case APPLY_NEW_ENTITY:
-		if (q_state.l_node[0] != 0) {
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-			if (ret == SERVICE_NO_ERROR)
-				p_channels->destroy_transaction(p_txn); }
-		else {
-			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-			if (p_container == nullptr)
-				return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-			if (q_state.url[0] == 0) {
-				memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-				ret = p_container->new_entity(loc);
-			} else
-				ret = p_container->new_entity((pChar) q_state.url);
 		}
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
 		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
+
+		if (q_state.apply == APPLY_SET_ATTRIBUTE
+			&& q_state.r_value.attribute == BLOCK_ATTRIB_URL
+			&& strcmp(q_state.base, "lmdb") == 0
+			&& strcmp(q_state.entity, "www") == 0)
+				www[q_state.url] = q_state.key;
 
 		return MHD_HTTP_OK;
 
 	case APPLY_GET_ATTRIBUTE:
-		if (q_state.l_node[0] != 0) {
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-
-			if (ret != SERVICE_NO_ERROR)
-				return MHD_HTTP_NOT_FOUND;
-
+		switch (get(p_txn, q_state)) {
+		case SERVICE_NO_ERROR:
+			break;
+		case SERVICE_ERROR_WRONG_BASE:
+			return MHD_HTTP_SERVICE_UNAVAILABLE;
+		default:
+			return MHD_HTTP_NOT_FOUND;
+		}
+		if (q_state.l_node[0] != 0)
 			if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1 && p_txn->p_block->num_attributes == 0) {
 				p_str	 = p_txn->p_block->get_string(0);
 				response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
 			} else {
-				size	 = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
+				int size = (p_txn->p_block->cell_type & 0xff)*p_txn->p_block->size;
 				response = MHD_create_response_from_buffer(size, &p_txn->p_block->tensor, MHD_RESPMEM_MUST_COPY);
 			}
-			p_channels->destroy_transaction(p_txn);
+		else {
+			p_str = p_txn->p_block->get_attribute(q_state.r_value.attribute);
 
-			return MHD_HTTP_OK;
-		}
-		p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
+			if (p_str == nullptr) {
+				p_txn->p_owner->destroy_transaction(p_txn);
 
-		if (p_container == nullptr)
-			return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-		memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-		if (p_container->get(p_txn, loc) != SERVICE_NO_ERROR)
-			return MHD_HTTP_NOT_FOUND;
-
-		p_str = p_txn->p_block->get_attribute(q_state.r_value.attribute);
-
-		if (p_str == nullptr) {
-			p_container->destroy_transaction(p_txn);
-
-			return MHD_HTTP_NOT_FOUND;
+				return MHD_HTTP_NOT_FOUND;
+			}
 		}
 		response = MHD_create_response_from_buffer(strlen(p_str), p_str, MHD_RESPMEM_MUST_COPY);
 
 		MHD_add_response_header(response, MHD_HTTP_HEADER_CONTENT_TYPE, "text/plain; charset=utf-8");
 
-		p_container->destroy_transaction(p_txn);
-
-		return MHD_HTTP_OK;
-
-	case APPLY_SET_ATTRIBUTE:
-		if (q_state.l_node[0] != 0)
-			ret = p_channels->forward_get(p_txn, q_state.l_node, q_state.url);
-		else {
-			p_container = (pContainer) base_server[TenBitsAtAddress(q_state.base)];
-
-			if (p_container == nullptr)
-				return MHD_HTTP_SERVICE_UNAVAILABLE;
-
-			memcpy(&loc, &q_state.base, SIZE_OF_BASE_ENT_KEY);
-
-			if (p_container->get(p_aux, loc) != SERVICE_NO_ERROR)
-				return MHD_HTTP_NOT_FOUND;
-
-			AttributeMap atts;
-			p_aux->p_block->get_attributes(&atts);
-
-			atts[q_state.r_value.attribute] = q_state.url;
-
-			if (new_block(p_txn, p_aux->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
-				p_container->destroy_transaction(p_aux);
-
-				return MHD_HTTP_BAD_REQUEST;
-			}
-			p_container->destroy_transaction(p_aux);
-
-			ret = p_container->put(loc, p_txn->p_block);
-
-			destroy_transaction(p_txn);
-
-			if (   ret == SERVICE_NO_ERROR
-				&& q_state.r_value.attribute == BLOCK_ATTRIB_URL
-				&& strcmp(loc.base, "lmdb") == 0
-				&& strcmp(loc.entity, "www") == 0)
-					www[q_state.url] = loc.key;
-		}
-		if (ret != SERVICE_NO_ERROR)
-			return MHD_HTTP_BAD_REQUEST;
-
-		response = MHD_create_response_from_buffer(1, (char *) "0", MHD_RESPMEM_PERSISTENT);	// cppcheck-suppress cstyleCast
+		p_txn->p_owner->destroy_transaction(p_txn);
 
 		return MHD_HTTP_OK;
 
 	case APPLY_JAZZ_INFO:
-		if (p_channels->search_my_node_index) {
-			p_channels->search_my_node_index = false;
-			if (!find_myself())
-				p_channels->search_my_node_index = true;
-		}
 #ifdef DEBUG
-		std::string st("DEBUG");
+		String st("DEBUG");
 #else
-		std::string st("RELEASE");
+		String st("RELEASE");
 #endif
 		struct utsname unn;
 		uname(&unn);
+
+		char buffer_1k[1024];
 
 		int my_idx	 = p_channels->jazz_node_my_index;
 		int my_port	 = p_channels->jazz_node_port[my_idx];
 		int nn_nodes = p_channels->jazz_node_cluster_size;
 
-		std::string my_name = p_channels->jazz_node_name[my_idx];
-		std::string my_ip	= p_channels->jazz_node_ip[my_idx];
+		String my_name = p_channels->jazz_node_name[my_idx];
+		String my_ip   = p_channels->jazz_node_ip[my_idx];
 
 		sprintf(buffer_1k, "Jazz\n\n version : %s\n build   : %s\n artifact: %s\n jazznode: %s (%s:%d) (%d of %d)\n "
 				"sysname : %s\n hostname: %s\n kernel\x20 : %s\n sysvers : %s\n machine : %s",
@@ -1174,10 +561,10 @@ It also assigns attributes:
 
 	\return		Some error code or SERVICE_NO_ERROR if successful.
 */
-StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_level) {
+StatusCode API::load_statics(pChar p_base_path, pChar p_relative_path, int rec_level) {
 
 	if (!p_persisted->is_running()) {
-		log(LOG_MISS, "Api::load_statics(): Skipped because Persistence is not running.");
+		log(LOG_MISS, "API::load_statics(): Skipped because Persistence is not running.");
 
 		return SERVICE_NO_ERROR;
 	}
@@ -1195,7 +582,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 			Locator loc = {"lmdb", "www", ""};
 			int ret;
 			if ((ret = p_persisted->new_entity(loc)) != SERVICE_NO_ERROR) {
-				log(LOG_ERROR, "Api::load_statics(): Failed to create www database.");
+				log(LOG_ERROR, "API::load_statics(): Failed to create www database.");
 
 		  		closedir(dir);
 
@@ -1211,11 +598,11 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 		while ((ent = readdir(dir)) != nullptr) {	// cppcheck-suppress readdirCalled ; cppcheck is wrong! readdir_r is deprecated and
 													// readdir() (3) is thread safe.
 			if (ent->d_type == DT_REG) {
-				char fn[1024];
+				char fn[2048];						// Compile warning: "output between 1 and 1279 bytes into a destination of size 1024"
 				int ret = snprintf(fn, 1024, "//file/%s%s", root_dir, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
-					log(LOG_ERROR, "Api::load_statics(): File path/name too long.");
+					log(LOG_ERROR, "API::load_statics(): File path/name too long.");
 
 			  		closedir(dir);
 
@@ -1227,7 +614,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				ret = p_channels->get(p_base, (pChar) &fn);
 
 				if (ret != SERVICE_NO_ERROR) {
-					log(LOG_ERROR, "Api::load_statics(): p_channels->get() failed.");
+					log(LOG_ERROR, "API::load_statics(): p_channels->get() failed.");
 
 			  		closedir(dir);
 
@@ -1281,7 +668,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				atts[BLOCK_ATTRIB_MIMETYPE] = mime_type;
 
 				if (new_block(p_txn, p_base->p_block, (pBlock) nullptr, &atts) != SERVICE_NO_ERROR) {
-					log(LOG_ERROR, "Api::load_statics(): new_block() with attributes failed.");
+					log(LOG_ERROR, "API::load_statics(): new_block() with attributes failed.");
 
 					p_channels->destroy_transaction(p_base);
 
@@ -1303,7 +690,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				destroy_transaction(p_txn);
 
 				if (ret != SERVICE_NO_ERROR) {
-					log(LOG_ERROR, "Api::load_statics(): p_persisted->put() failed.");
+					log(LOG_ERROR, "API::load_statics(): p_persisted->put() failed.");
 
 			  		closedir(dir);
 
@@ -1315,7 +702,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 				int ret = snprintf(next_relative_path, 1024, "%s%s/", p_relative_path, ent->d_name);
 
 				if (ret < 0 || ret >= 1024) {
-					log(LOG_ERROR, "Api::load_statics(): nested path too long.");
+					log(LOG_ERROR, "API::load_statics(): nested path too long.");
 
 			  		closedir(dir);
 
@@ -1348,7 +735,7 @@ StatusCode Api::load_statics(pChar p_base_path, pChar p_relative_path, int rec_l
 
 See https://en.wikipedia.org/wiki/Percent-encoding This is utf-8 compatible, utf-8 chars are just percent encoded one byte at a time.
 */
-bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
+bool API::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 
 	if (*(p_url++) != '&')
 		return false;
@@ -1408,279 +795,9 @@ bool Api::expand_url_encoded(pChar p_buff, int buff_size, pChar p_url) {
 }
 
 
-/** Copy the string "as-is" (without percent-decoding) a string into a buffer.
-
-	\param p_buff	 A buffer to store the result. This first char must be a zero on call or it will not write anything, just check for
-					 the return code and return. (This is a trick to avoid overriding the buffer in forward call. This function is an
-					 internal part of parse().)
-	\param buff_size The size of the output buffer (ending zero included).
-	\param p_url	 The input string.
-	\param p_base	 (optional) Prefix with a base to be prefixed
-
-	\return			 RET_MV_CONST_FAILED on error (buffer sizes or start and final characters), RET_MV_CONST_NOTHING normal moving or
-					 RET_MV_CONST_NEW_ENTITY there is a ";.new" ending and no errors.
-
-
-Note: This replaces expand_url_encoded() since the string passed to pares is already %-decoded by libmicrohttpd.
-*/
-int Api::move_const(pChar p_buff, int buff_size, pChar p_url, pChar p_base) {
-
-	if (*(p_url++) != '&')
-		return RET_MV_CONST_FAILED;
-
-	int url_len = strlen(p_url) - 1;
-
-	pChar p_end = p_url + url_len;
-
-	int ret = RET_MV_CONST_NOTHING;
-
-	if (*p_end == 'w') {
-		if ((*(--p_end) != 'e') || (*(--p_end) != 'n') || (*(--p_end) != '.') || (*(--p_end) != ';'))
-			return RET_MV_CONST_FAILED;
-
-		ret		 = RET_MV_CONST_NEW_ENTITY;
-		url_len -= 4;
-	}
-
-	if (*p_end != ';' && *p_end != ']' && *p_end != ')')
-		return RET_MV_CONST_FAILED;
-
-	if (*p_buff != 0)
-		return ret;
-
-	if (p_base != nullptr) {
-		if (buff_size < 4 + SHORT_NAME_SIZE)
-			return RET_MV_CONST_FAILED;
-
-		*(p_buff++) = '/';
-		*(p_buff++) = '/';
-
-		buff_size -= 2;
-
-		for (int i = 0; i < SHORT_NAME_SIZE; i++) {
-			char c = *(p_base++);
-
-			buff_size--;
-
-			if (c == 0) {
-				*(p_buff++) = '/';
-				break;
-			}
-			*(p_buff++) = c;
-		}
-	}
-
-	if (url_len >= buff_size)
-		return RET_MV_CONST_FAILED;
-
-	memcpy(p_buff, p_url, url_len);
-
-	p_buff += url_len;
-
-	*(p_buff) = 0;
-
-	return ret;
-}
-
-
-/** Parse a simple //base/entity/key string (Used inside the main Api.parse()).
-
-	\param loc	 A Locator to store the result (that will be left in undetermined on error).
-	\param p_url The input string.
-
-	\return		 `true` if successful.
-*/
-bool Api::parse_locator(Locator &loc, pChar p_url) {
-
-	int buf_size, state = PSTATE_INITIAL;
-	pChar p_out;
-
-	loc.p_extra = nullptr;
-
-	p_url++;	// parse_locator() is only called after checking the trailing /, this skips the first / to set state to PSTATE_INITIAL
-
-	while (true) {
-		unsigned char cursor;
-
-		cursor = *(p_url++);
-		state = parser_state_switch[state].next[cursor];
-
-		switch (state) {
-		case PSTATE_BASE0:
-			p_out	 = (pChar) &loc.base;
-			buf_size = SHORT_NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_ENTITY0:
-			p_out	 = (pChar) &loc.entity;
-			buf_size = NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_KEY0:
-			p_out	 = (pChar) &loc.key;
-			buf_size = NAME_SIZE - 1;
-
-			break;
-
-		case PSTATE_IN_BASE:
-		case PSTATE_IN_ENTITY:
-		case PSTATE_IN_KEY:
-			if (buf_size-- == 0)
-				return false;
-
-			*(p_out++) = cursor;
-			*(p_out)   = 0;
-
-			break;
-
-		case PSTATE_ENT_SWITCH:
-			loc.key[0] = 0;
-
-		case PSTATE_KEY_SWITCH:
-			if (p_out == (pChar) loc.key)
-				return false;
-
-			switch (cursor) {
-			case 0:
-				return true;
-			case ')':
-			case ']':
-				return *(p_url) == 0;
-			}
-			return false;
-
-		default:
-			return false;
-		}
-	}
-}
-
-
-/** Creates a block from a constant read in the URL.
-
-	\param p_txn	  A pointer to a Transaction passed by reference. If successful, the Container will return a pointer to a
-					  Transaction inside the Container. The caller can only use it read-only and **must** destroy_transaction() when done.
-	\param p_const	  The constant.
-	\param make_tuple Insert it into a Tuple with "input" and "result".
-
-	\return			'true' if successful.
-*/
-bool Api::block_from_const(pTransaction &p_txn, pChar p_const, bool make_tuple) {
-
-	p_txn = nullptr;
-
-	pTransaction p_text, p_tensor, p_result;
-
-	int dim[MAX_TENSOR_RANK];
-
-	if (make_tuple) {
-		int size = strlen(p_const);
-		dim[0] = size;
-		dim[1] = 0;
-
-		if (new_block(p_text, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_DONT_FILL) != SERVICE_NO_ERROR)
-			return false;
-
-		memcpy(&p_text->p_block->tensor, p_const, size);
-	} else {
-		if (new_block(p_text, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_const, 0) != SERVICE_NO_ERROR)
-			return false;
-	}
-
-	if (new_block(p_tensor, p_text->p_block, CELL_TYPE_UNDEFINED) == SERVICE_NO_ERROR)
-		destroy_transaction(p_text);
-	else
-		p_tensor = p_text;
-
-	if (!make_tuple) {
-		p_txn = p_tensor;
-
-		return true;
-	}
-
-	dim[0] = RESULT_BUFFER_SIZE;
-	dim[1] = 0;
-	if (new_block(p_result, CELL_TYPE_BYTE, (int *) &dim, FILL_NEW_WITH_ZERO) !=  SERVICE_NO_ERROR) {
-		destroy_transaction(p_tensor);
-
-		return false;
-	}
-
-	StaticBlockHeader hea[2];
-	Name			  names[2]	 = {"input", "result"};
-	pBlock			  p_block[2] = {p_tensor->p_block, p_result->p_block};
-
-	memcpy(&hea[0], p_block[0], sizeof(StaticBlockHeader));
-	memcpy(&hea[1], p_block[1], sizeof(StaticBlockHeader));
-
-	p_block[0]->get_dimensions(hea[0].range.dim);
-	p_block[1]->get_dimensions(hea[1].range.dim);
-
-	int ret = new_block(p_txn, 2, hea, names, p_block);
-
-	destroy_transaction(p_tensor);
-	destroy_transaction(p_result);
-
-	return ret == SERVICE_NO_ERROR;
-}
-
-
-/** Changes the current name until.
-*/
-bool Api::find_myself() {
-
-	TimePoint tp = {};
-	int64_t t0 = elapsed_mu_sec(tp);
-
-	char name[32];
-
-	sprintf(name, "n%lx", t0 & 0xffffFFFF);
-
-	int old_idx = p_channels->jazz_node_my_index;
-
-	p_channels->jazz_node_my_index = p_channels->jazz_node_cluster_size + 1;
-
-	p_channels->jazz_node_name[p_channels->jazz_node_my_index] = std::string(name);
-	p_channels->jazz_node_ip  [p_channels->jazz_node_my_index] = std::string("");
-	p_channels->jazz_node_port[p_channels->jazz_node_my_index] = 0;
-
-	pTransaction p_txn;
-	Name node;
-
-	for (int i = 1; i < p_channels->jazz_node_my_index; i++) {
-		strcpy(node, p_channels->jazz_node_name[i].c_str());
-
-		if (p_channels->forward_get(p_txn, node, (pChar) "///") == SERVICE_NO_ERROR) {
-			if (p_txn->p_block->cell_type == CELL_TYPE_STRING && p_txn->p_block->size == 1) {
-				if (strstr(p_txn->p_block->get_string(0), name) != nullptr) {
-					p_channels->jazz_node_name.erase(p_channels->jazz_node_my_index);
-					p_channels->jazz_node_port.erase(p_channels->jazz_node_my_index);
-					p_channels->jazz_node_ip.erase(p_channels->jazz_node_my_index);
-
-					p_channels->jazz_node_my_index = i;
-
-					return true;
-				}
-			}
-			p_channels->destroy_transaction(p_txn);
-		}
-	}
-
-	p_channels->jazz_node_name.erase(p_channels->jazz_node_my_index);
-	p_channels->jazz_node_port.erase(p_channels->jazz_node_my_index);
-	p_channels->jazz_node_ip.erase(p_channels->jazz_node_my_index);
-
-	p_channels->jazz_node_my_index = old_idx;
-
-	return false;
-}
-
-
 #ifdef CATCH_TEST
 
-Api	TT_API(&jazz_elements::LOGGER, &jazz_elements::CONFIG, &CHN, &VOL, &PER, &CORE, &MDL);
+API	TT_API(&LOGGER, &CONFIG, &CHN, &VOL, &PER, &COR, &MDL);
 
 #endif
 

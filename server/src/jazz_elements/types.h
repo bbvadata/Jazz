@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -59,7 +59,7 @@
 /*! \brief The namespace for Jazz Utils, Blocks, Kinds, Tuples, Containers, etc.
 
 	This namespace includes utilities, types, constants and structures used by Block, all different block-based data and code structures
-	(Tuple, Kind and Field). All the Services used to allocate/store and communicate blocks (Channels, Volatile, Persisted, ..).
+	(Tuple, Kind, Snippet, ...). All the Services used to allocate/store and communicate blocks (Channels, Volatile, Persisted, ..).
 */
 namespace jazz_elements
 {
@@ -69,11 +69,11 @@ namespace jazz_elements
 #define NAME_LENGTH				NAME_SIZE - 1	///< Maximum length of a Name.name
 #define ONE_MB					(1024*1024)		///< Is used in log_printf() of error/warning messages
 
-/** Number of elements preallocated in thread-specific buffers. Jazz is thread safe in a caller transparent way. The Block level API
-does not normally modify blocks. The few exceptions have a block-specific lock in the Transaction. Services also have a service-specific
-lock. The few services that require full thread awareness (Bebop and API) will allocate a number of Core or APIexecutor objects equal to
-JAZZ_MAX_NUM_THREADS inside the service. This number can be modified down (but not up) via the configuration keys: MHD_THREAD_POOL_SIZE
-and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
+/** Number of elements preallocated in thread-specific buffers. This number can be modified down (but not up) via the configuration keys:
+MHD_THREAD_POOL_SIZE and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread pool size allocated in libmicrohttpd.
+
+There is a specific document on threads called "On the Jazz Actor model (multithreading reference)" in the documentation
+at [host]/develop/rfc2/jazz_actor_model.html
 */
 #define JAZZ_MAX_NUM_THREADS	64
 
@@ -89,6 +89,14 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 // 8 bit cell types
 #define CELL_TYPE_BYTE			0x001		///< A tensor of unsigned 8-bit binaries. NA is not defined for this type
 #define CELL_TYPE_BYTE_BOOLEAN	0x101		///< A tensor 8-bit booleans: 0, 1, BYTE_BOOLEAN_NA = NA
+#define CELL_TYPE_INT8			0x201		///< A tensor of 8-bit signed integers. NA is INTEGER_NA
+
+// 16 bit cell types (Introduced for Bop-25)
+
+#define CELL_TYPE_INT16			0x002		///< A tensor of 16-bit signed integers. No NA is defined for this type
+#define CELL_TYPE_UINT16		0x102		///< A tensor of 16-bit unsigned integers. No NA is defined for this type
+#define CELL_TYPE_FLOAT16		0x202		///< A tensor of IEEE 754 half-precision floating point. NA is standard IEEE 754 NaN
+#define CELL_TYPE_BFLOAT16		0x302		///< A tensor of Brain Floating Point, half-precision. FP16_NAN should be defined if available.
 
 // 32 bit cell types
 #define CELL_TYPE_INTEGER		0x004		///< A tensor of 32-bit signed integers. NA is INTEGER_NA
@@ -97,22 +105,32 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 #define CELL_TYPE_BOOLEAN		0x304		///< A tensor of 32-bit booleans: 0, 1, BOOLEAN_NA = NA
 #define CELL_TYPE_SINGLE		0x404		///< A tensor of IEEE 754 32-bit float (aka single). NA is SINGLE_NA
 #define CELL_TYPE_STRING		0x504		///< A tensor or 32-bit offsets to immutable strings or STRING_NA or STRING_EMPTY
+#define CELL_TYPE_UINT32		0x604		///< A tensor of 32-bit unsigned integers. No NA is defined for this type
 
 // 64 bit cell types
 #define CELL_TYPE_LONG_INTEGER	0x008		///< A tensor of 64-bit signed integers. NA is LONG_INTEGER_NA
 #define CELL_TYPE_TIME			0x108		///< A tensor of 64-bit TimePoint. NA is TIME_POINT_NA
 #define CELL_TYPE_DOUBLE		0x208		///< A vector of floating point numbers. Binary compatible with an R REALSXP (vector of numeric)
+#define CELL_TYPE_UINT64		0x308		///< A tensor of 64-bit unsigned integers. No NA is defined for this type
 
 // 40 byte cell types
-#define CELL_TYPE_TUPLE_ITEM	0x028		///< A vector of ItemHeader (in a Tuple)
-#define CELL_TYPE_KIND_ITEM		0x128		///< A vector of ItemHeader (in a Kind)
+#define CELL_TYPE_TUPLE			0x028		///< A vector of ItemHeader (in a Tuple)
+#define CELL_TYPE_BLOCK_KIND	0x128		///< A vector with just one ItemHeader element defining the Kind of a simple Tensor.
+#define CELL_TYPE_TUPLE_KIND	0x228		///< A vector of ItemHeader (in a Kind) defining the Kind of a Tuple.
+#define CELL_TYPE_OBJECT_KIND	0x704		///< Another flavor of CELL_TYPE_STRING. A vector of strings defining the Kind of any object.
 
 // 48 byte cell types
 #define CELL_TYPE_INDEX			0x030		///< An Index (accessed via a pBlockHeader instead of a pBlock)
 
+// Special cell types (Used in onnx::AttributeProto::AttributeType)
+#define CELL_TYPE_ONNX_GRAPH	0x040		///< An ONNX Graph (Used in If and Loop to define separate computation paths.)
+#define CELL_TYPE_ONNX_TENSOR	0x140		///< An ONNX Tensor (Used in Constant to define a constant tensor.)
+
 // NA values or empty string values for all cell_type values
 #define BYTE_BOOLEAN_NA			0x0ff		///< NA for 8-bit boolean is binary 0xff. Type does not exist in R.
 #define BOOLEAN_NA				0x0ff		///< NA for a 32-bit boolean is binary 0xff. This is R compatible.
+#define FLOAT16_NA				F16_NA		///< NA for a 16-bit float is the value returned by nanf(). CELL_TYPE_FLOAT16
+#define BFLOAT16_NA				BF16_NA		///< NA for a 16-bit bfloat is the value returned by nanf(). CELL_TYPE_BFLOAT16
 #define INTEGER_NA				INT_MIN		///< NA for a 32-bit integer. This is R compatible.
 #define SINGLE_NA				F_NA		///< NA for a float is the value returned by nanf(). Type does not exist in R.
 #define STRING_NA				0			///< NA for a string coded as CELL_TYPE_STRING
@@ -136,14 +154,18 @@ and BEBOP_NUM_CORES. As expected, MHD_THREAD_POOL_SIZE also defines the thread p
 
 #define BLOCK_ATTRIB_
 
-#define BLOCK_ATTRIB_BLOCKTYPE	1			///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
-#define BLOCK_ATTRIB_SOURCE		2			///< The location of the source set by Channels, also Source of a Kind in Persisted
-#define BLOCK_ATTRIB_DEST		3			///< The location of the destination. Less frequent, but may help Channels for a PUT.
-#define BLOCK_ATTRIB_MIMETYPE	4			///< The mime type (can also be some proprietary file spec. E.g., "Adobe PhotoShop Image")
-#define BLOCK_ATTRIB_URL		5			///< A url for the server to expose the file by.
-#define BLOCK_ATTRIB_LANGUAGE	6			///< An http language identifier that will be returned in an API GET call.
+#define BLOCK_ATTRIB_BLOCKTYPE		1		///< The fundamental block type: Tensor, Kind or Tuple. Can also be extended.
+#define BLOCK_ATTRIB_KIND_DEF		2		///< The location of the definition of the Kind of any Block descendant.
+#define BLOCK_ATTRIB_HOME			3		///< The location of the this Block in Persisted.
+#define BLOCK_ATTRIB_MIMETYPE		4		///< HTTP static API: The mime type (can be anything. E.g., "Adobe PhotoShop Image")
+#define BLOCK_ATTRIB_URL			5		///< HTTP static API: A url for the server to expose the file by.
+#define BLOCK_ATTRIB_LANGUAGE		6		///< HTTP static API: An http language identifier that will be returned in an API GET call.
+
+#define BLOCK_ATTRIB_BASE_BOP	  100		///< Base for block attributes in the namespace jazz_bebop. (Defined outside jazz_elements.)
+#define BLOCK_ATTRIB_BASE_MODELS  200		///< Base for block attributes in the namespace jazz_models. (Defined outside jazz_elements.)
 
 /// Values for argument set_has_NA of close_block()
+
 #define SET_HAS_NA_
 
 #define SET_HAS_NA_FALSE		0			///< Set to false without checking
@@ -163,7 +185,8 @@ Names are vanilla ASCII NAME_LENGTH long string starting with a letter and conta
 They can be validated using the function valid_name() or the regex REGEX_VALIDATE_NAME.
 */
 typedef char Name[NAME_SIZE];
-typedef char *pChar;
+typedef Name *pName;						///< A pointer to a Name
+typedef char *pChar;						///< A pointer to a char buffer
 
 
 /** \brief The dimension of a tensor.
@@ -188,25 +211,36 @@ struct ItemHeader {
 };
 
 
+typedef uint16_t ff_fp16;		///< A future (C++23 declares std::float16_t) 16-bit floating point placeholder for float16 and bfloat16.
+
+
 /// A tensor of cell size 1, 4, 8 or sizeof(BlockHeader)
 union Tensor {
 	uint8_t	   cell_byte[0];		///< Cell size for CELL_TYPE_BYTE
+	int8_t	   cell_int8[0];		///< .. CELL_TYPE_INT8
 	bool	   cell_bool[0];		///< .. CELL_TYPE_BYTE_BOOLEAN
+
+	int16_t	   cell_int16[0];		///< .. CELL_TYPE_INT16
+	uint16_t   cell_word[0];		///< .. CELL_TYPE_UINT16
+	ff_fp16	   cell_float16[0];		///< .. CELL_TYPE_FLOAT16 or CELL_TYPE_BFLOAT16
+
 	int		   cell_int[0];			///< .. CELL_TYPE_INTEGER, CELL_TYPE_FACTOR, CELL_TYPE_GRADE, CELL_TYPE_BOOLEAN and CELL_TYPE_STRING
-	uint32_t   cell_uint[0];		///< .. CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
+	uint32_t   cell_uint[0];		///< .. CELL_TYPE_UINT32 or CELL_TYPE_SINGLE or CELL_TYPE_BOOLEAN as 32 bit unsigned
 	float	   cell_single[0];		///< .. CELL_TYPE_SINGLE
+
 	long long  cell_longint[0];		///< .. CELL_TYPE_LONG_INTEGER
 	time_t	   cell_time[0];		///< .. CELL_TYPE_TIME
-	uint64_t   cell_ulongint[0];	///< .. CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
+	uint64_t   cell_ulongint[0];	///< .. CELL_TYPE_UINT64 or CELL_TYPE_DOUBLE or CELL_TYPE_TIME as 64 bit unsigned
 	double	   cell_double[0];		///< .. CELL_TYPE_DOUBLE
 	ItemHeader cell_item[0];		///< .. An array of BlockHeader used by Kinds and Tuples
 };
 
 
-typedef std::set<std::string> Dimensions;				///< An set::set with the dimension names returned by kind.dimensions()
+typedef std::string String;						///< A standard string used in many other places in Jazz
 
+typedef std::set<String> Dimensions;			///< An set::set with the dimension names returned by kind.dimensions()
 
-typedef std::map<std::string, std::string>	Index;		///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
+typedef std::map<String, String>	Index;		///< An Index kept in RAM by Volatile implemented as an stdlib map (string, string)
 
 
 /// Header for a Movable Block (Tensor, Kind or Tuple) or a Dynamic Block (Index)
@@ -229,7 +263,7 @@ struct BlockHeader {
 		Index index;					///< Any kind of Index
 	};
 };
-typedef BlockHeader	*pBlockHeader;
+typedef BlockHeader	*pBlockHeader;		///< A pointer to a BlockHeader
 
 
 /// A Binary Compatible BlockHeader without Index (and therefore constructors/destructors)
@@ -237,31 +271,34 @@ struct StaticBlockHeader {
 	int	cell_type;						///< The type for the cells in the tensor. See CELL_TYPE_*
 	int size;							///< The total number of cells in the tensor
 	TimePoint created;					///< Timestamp when the block was created
-			int	rank;					///< The number of dimensions
-			TensorDim range;			///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
-			int num_attributes;			///< Number of elements in the JazzAttributesMap
-			int total_bytes;			///< Total size of the block everything included
-			bool has_NA;				///< If true, at least one value in the tensor is a NA and block requires NA-aware arithmetic
-			uint64_t hash64;			///< Hash of everything but the header
+	int	rank;							///< The number of dimensions
+	TensorDim range;					///< The dimensions of the tensor in terms of ranges (Max. size is 2 Gb.)
+	int num_attributes;					///< Number of elements in the JazzAttributesMap
+	int total_bytes;					///< Total size of the block everything included
+	bool has_NA;						///< If true, at least one value is a NA and block requires NA-aware arithmetic
+	uint64_t hash64;					///< Hash of everything but the header
 
-			Tensor tensor;				///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
+	Tensor tensor;						///< A tensor for type cell_type and dimensions set by Block.set_dimensions()
 };
-typedef StaticBlockHeader *pStaticBlockHeader;
+typedef StaticBlockHeader *pStaticBlockHeader;	///< A pointer to a StaticBlockHeader
 
 
 /// Structure at the end of a Block, initially created with init_string_buffer()
 struct StringBuffer {
-	bool stop_check_4_match;	///< When the StringBuffer is small, try to match existing indices of the same string to save RAM
-	bool alloc_failed;			///< A previous call to get_string_offset() failed to alloc space for a string
-	int	 last_idx;				///< The index to the first free space after the last stored string
-	int	 buffer_size;			///< The size in bytes of buffer[]
-	char buffer[];				///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
+	bool stop_check_4_match;			///< When the StringBuffer is small, try to match existing indices of the same string to save RAM
+	bool alloc_failed;					///< A previous call to get_string_offset() failed to alloc space for a string
+	int	 last_idx;						///< The index to the first free space after the last stored string
+	int	 buffer_size;					///< The size in bytes of buffer[]
+	char buffer[];						///< The buffer where strings are stored starting with two zeroes for STRING_NA & STRING_EMPTY
 };
-typedef StringBuffer *pStringBuffer;
+typedef StringBuffer *pStringBuffer;	///< A pointer to a StringBuffer
 
 
-extern float  F_NA;		///< NaN in single
-extern double R_NA;		///< NaN in double (binary R-compatible)
+extern float  F_NA;				///< NaN in single
+extern double R_NA;				///< NaN in double (binary R-compatible)
+
+extern uint32_t F_NA_uint32;	///< A binary exact copy of F_NA
+extern uint64_t R_NA_uint64;	///< A binary exact copy of R_NA
 
 } // namespace jazz_elements
 
