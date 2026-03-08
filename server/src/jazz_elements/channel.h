@@ -314,8 +314,7 @@ class Channels : public Container {
 			CURLcode c_ret;
 
 			curl = curl_easy_init();
-			if (!curl)
-				return SERVICE_ERROR_NOT_READY;
+			if (curl == nullptr) return SERVICE_ERROR_NOT_READY;
 
 			GetBuffer buff = {};
 
@@ -384,8 +383,7 @@ class Channels : public Container {
 				return SERVICE_ERROR_IO_ERROR;
 			}
 			size_t buf_size = buff.size();
-			if (buf_size > MAX_BLOCK_SIZE)
-				return SERVICE_ERROR_BLOCK_TOO_BIG;
+			if (buf_size > MAX_BLOCK_SIZE) return SERVICE_ERROR_BLOCK_TOO_BIG;
 
 			buff.push_back(0);
 
@@ -408,8 +406,7 @@ class Channels : public Container {
 			CURLcode c_ret;
 
 			curl = curl_easy_init();
-			if (!curl)
-				return SERVICE_ERROR_NOT_READY;
+			if (curl == nullptr) return SERVICE_ERROR_NOT_READY;
 
 			PutBuffer put_buff;
 
@@ -516,8 +513,7 @@ class Channels : public Container {
 			CURLcode c_ret;
 
 			curl = curl_easy_init();
-			if (!curl)
-				return SERVICE_ERROR_NOT_READY;
+			if (curl == nullptr) return SERVICE_ERROR_NOT_READY;
 
 			curl_easy_setopt(curl, CURLOPT_URL, url);
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);

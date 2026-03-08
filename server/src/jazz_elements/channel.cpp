@@ -151,8 +151,7 @@ StatusCode Channels::start() {
 
 	int ret = Container::start();	// This initializes the one-shot functionality.
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	String my_name;
 
@@ -178,8 +177,7 @@ StatusCode Channels::start() {
 
 		jazz_node_name[i] = s;
 
-		if (my_name == s)
-			jazz_node_my_index = i;
+		if (my_name == s) jazz_node_my_index = i;
 
 		sprintf(key, "JAZZ_NODE_IP_%i", i);
 
@@ -233,7 +231,6 @@ StatusCode Channels::start() {
 				int s = getnameinfo(ifa->ifa_addr, family_size, host, NI_MAXHOST, nullptr, 0, NI_NUMERICHOST);
 				if (s != 0) {
 					log_printf(log_error_level, "Channels::start() getnameinfo() failed: %s", gai_strerror(s));
-
 					freeifaddrs(ifaddr);
 
 					return EXIT_FAILURE;
@@ -316,9 +313,9 @@ StatusCode Channels::shut_down() {
 		zmq_ok		= false;
 	}
 
-	for (ConnMap::iterator it = connect.begin(); it != connect.end(); ++it) {
+	for (ConnMap::iterator it = connect.begin(); it != connect.end(); ++it)
 		it->second.clear();
-	}
+
 	connect.clear();
 
 	return Container::shut_down();	// Closes the one-shot functionality.
@@ -364,8 +361,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 			Index idx = {};
 
 			DIR *dir;
-			if ((dir = opendir(p_what)) == nullptr)
-				return SERVICE_ERROR_IO_ERROR;
+			if ((dir = opendir(p_what)) == nullptr) return SERVICE_ERROR_IO_ERROR;
 
 			struct dirent *ent;
 
@@ -386,15 +382,13 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 		}
 
 		if (S_ISREG(p_stat.st_mode)) {
-			if (p_stat.st_size > MAX_BLOCK_SIZE)
-				return SERVICE_ERROR_BLOCK_TOO_BIG;
+			if (p_stat.st_size > MAX_BLOCK_SIZE) return SERVICE_ERROR_BLOCK_TOO_BIG;
 
 			int dim[MAX_TENSOR_RANK] = {(int) p_stat.st_size, 0};
 
 			ret = new_block(p_txn, CELL_TYPE_BYTE, dim, FILL_NEW_DONT_FILL);
 
-			if (ret != SERVICE_NO_ERROR)
-				return ret;
+			if (ret != SERVICE_NO_ERROR) return ret;
 
 			bool read_ok = false;
 			FILE *fp;
@@ -429,8 +423,7 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 
 			it = connect.find(p_what);
 
-			if (it == connect.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if (it == connect.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			return new_block(p_txn, it->second);
 		}
@@ -456,21 +449,17 @@ StatusCode Channels::get(pTransaction &p_txn, pChar p_what) {
 		return curl_get(p_txn, p_what); }
 
 	case BASE_0_MQ_10BIT:
-		if (!zmq_ok)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
+		if (!zmq_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		p_what += 4;
-		if (*p_what++ != '/')
-			return SERVICE_ERROR_WRONG_BASE;
+		if (*p_what++ != '/') return SERVICE_ERROR_WRONG_BASE;
 
-		if (strncmp(p_what, "pipeline/", 9) != 0)
-			return SERVICE_ERROR_WRONG_ARGUMENTS;
+		if (strncmp(p_what, "pipeline/", 9) != 0) return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 		p_what += 9;
 		PipeMap::iterator it = pipes.find(p_what);
 
-		if (it == pipes.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it == pipes.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, it->second.endpoint);
 	}
@@ -622,14 +611,12 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 
 		FILE *fp;
 		fp = fopen(p_where, "wb");
-		if (fp == nullptr)
-			return SERVICE_ERROR_IO_ERROR;
+		if (fp == nullptr) return SERVICE_ERROR_IO_ERROR;
 
 		size_t w_len = fwrite(p_buff, 1, size, fp);
 		fclose(fp);
 
-		if (w_len != size)
-			return SERVICE_ERROR_IO_ERROR;}
+		if (w_len != size) return SERVICE_ERROR_IO_ERROR;}
 
 		return SERVICE_NO_ERROR;
 
@@ -671,8 +658,7 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 				idx[p_key->get_string(i)] = p_val->get_string(i);
 			}
 
-			if (idx.find("URL") == idx.end())
-				return SERVICE_ERROR_WRONG_ARGUMENTS;
+			if (idx.find("URL") == idx.end()) return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 			connect[p_where] = idx;
 
@@ -726,6 +712,7 @@ StatusCode Channels::put(pChar p_where, pBlock p_block, int mode) {
 
 		if (   (zmq_context == nullptr) || ((sock.requester = zmq_socket(zmq_context, ZMQ_REQ)) == nullptr)
 			|| (zmq_connect(sock.requester, sock.endpoint) != 0)) {
+
 			if (sock.requester != nullptr)
 				zmq_close(sock.requester);
 
@@ -757,20 +744,16 @@ StatusCode Channels::new_entity(pChar p_where) {
 	int base = TenBitsAtAddress(p_where);
 
 	if (base == BASE_FILE_10BIT) {
-		if (file_lev < 2)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
+		if (file_lev < 2) return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		p_where += 4;
-		if (*p_where++ != '/')
-			return SERVICE_ERROR_WRONG_BASE;
+		if (*p_where++ != '/') return SERVICE_ERROR_WRONG_BASE;
 
 		if (file_lev == 2) {
 		    struct stat p_stat;
-			if (stat(p_where, &p_stat) == 0)
-				return SERVICE_ERROR_BASE_FORBIDDEN;
+			if (stat(p_where, &p_stat) == 0) return SERVICE_ERROR_BASE_FORBIDDEN;
 		}
-		if (mkdir(p_where, 0700) == 0)
-			return SERVICE_NO_ERROR;
+		if (mkdir(p_where, 0700) == 0) return SERVICE_NO_ERROR;
 
 		return SERVICE_ERROR_IO_ERROR;
 	}
@@ -789,45 +772,39 @@ StatusCode Channels::new_entity(pChar p_where) {
 */
 StatusCode Channels::remove(pChar p_where) {
 
-	if ((*p_where++ != '/') || (*p_where++ != '/') || (*p_where == 0))
-		return SERVICE_ERROR_WRONG_ARGUMENTS;
+	if ((*p_where++ != '/') || (*p_where++ != '/') || (*p_where == 0)) return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 	int base = TenBitsAtAddress(p_where);
 
 	switch (base) {
 	case BASE_FILE_10BIT:
-		if (file_lev < 3)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
+		if (file_lev < 3) return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		p_where += 4;
 		if (*p_where++ != '/')
 			return SERVICE_ERROR_WRONG_BASE;
 
 	    struct stat p_stat;
-		if (stat(p_where, &p_stat) != 0)
-			return SERVICE_ERROR_BLOCK_NOT_FOUND;
+		if (stat(p_where, &p_stat) != 0) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 		if (S_ISREG(p_stat.st_mode)) {
-			if (std::remove(p_where) != 0)
-				return SERVICE_ERROR_IO_ERROR;
+			if (std::remove(p_where) != 0) return SERVICE_ERROR_IO_ERROR;
 
 			return SERVICE_NO_ERROR;
 		}
 		if (S_ISDIR(p_stat.st_mode)) {
-			if (std::filesystem::remove_all(p_where) < 1)	// Returns the number of items removed
-				return SERVICE_ERROR_IO_ERROR;
+			// Returns the number of items removed
+			if (std::filesystem::remove_all(p_where) < 1) return SERVICE_ERROR_IO_ERROR;
 
 			return SERVICE_NO_ERROR;
 		}
 		return SERVICE_ERROR_IO_ERROR;
 
 	case BASE_HTTP_10BIT: {
-		if (!curl_ok)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
+		if (!curl_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		p_where += 4;
-		if (*p_where++ != '/')
-			return SERVICE_ERROR_WRONG_BASE;
+		if (*p_where++ != '/') return SERVICE_ERROR_WRONG_BASE;
 
 		ConnMap::iterator it;
 
@@ -836,8 +813,7 @@ StatusCode Channels::remove(pChar p_where) {
 
 			it = connect.find(p_where);
 
-			if (it == connect.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if (it == connect.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			connect.erase(it);
 
@@ -857,29 +833,24 @@ StatusCode Channels::remove(pChar p_where) {
 			if (pt != nullptr)
 				url += ++pt;
 
-			if (it->second.size() > 1)
-				return curl_remove(url.c_str(), &it->second);
-			else
-				return curl_remove(url.c_str());
+			if (it->second.size() > 1) return curl_remove(url.c_str(), &it->second);
+
+			return curl_remove(url.c_str());
 		}
 		return curl_remove(p_where); }
 
 	case BASE_0_MQ_10BIT:
-		if (!zmq_ok)
-			return SERVICE_ERROR_BASE_FORBIDDEN;
+		if (!zmq_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		p_where += 4;
-		if (*p_where++ != '/')
-			return SERVICE_ERROR_WRONG_BASE;
+		if (*p_where++ != '/') return SERVICE_ERROR_WRONG_BASE;
 
-		if (strncmp(p_where, "pipeline/", 9) != 0)
-			return SERVICE_ERROR_WRONG_ARGUMENTS;
+		if (strncmp(p_where, "pipeline/", 9) != 0) return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 		p_where += 9;
 		PipeMap::iterator it = pipes.find(p_where);
 
-		if (it == pipes.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it == pipes.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		zmq_close(it->second.requester);
 
@@ -907,8 +878,7 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 
 	int ret = get(p_txn, p_what);
 
-	if (ret != SERVICE_NO_ERROR)
-		return ret;
+	if (ret != SERVICE_NO_ERROR) return ret;
 
 	int mode;
 
@@ -916,9 +886,11 @@ StatusCode Channels::copy(pChar p_where, pChar p_what) {
 	case BASE_FILE_10BIT:
 		mode = WRITE_AS_CONTENT;
 		break;
+
 	case BASE_HTTP_10BIT:
 		mode = WRITE_AS_STRING | WRITE_AS_FULL_BLOCK;
 		break;
+
 	default:
 		mode = WRITE_AS_FULL_BLOCK;
 	}
@@ -947,8 +919,7 @@ to run their own models.
 StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
 	if (   p_args->cell_type != CELL_TYPE_TUPLE || p_args->size != 2
-		|| p_args->index((pChar) "input") != 0 || p_args->index((pChar) "result") != 1)
-		return SERVICE_ERROR_WRONG_ARGUMENTS;
+		|| p_args->index((pChar) "input") != 0 || p_args->index((pChar) "result") != 1) return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 	int base = TenBitsAtAddress(function.base);
 
@@ -958,8 +929,7 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
 		if (   p_args->get_block(0)->cell_type != CELL_TYPE_BYTE || p_args->get_block(0)->rank != 1
-			|| p_args->get_block(1)->cell_type != CELL_TYPE_BYTE || p_args->get_block(1)->rank != 1)
-			return SERVICE_ERROR_WRONG_ARGUMENTS;
+			|| p_args->get_block(1)->cell_type != CELL_TYPE_BYTE || p_args->get_block(1)->rank != 1) return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 		int size_input  = p_args->get_block(0)->size;
 		int size_result = p_args->get_block(1)->size;
@@ -970,8 +940,7 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		char script[] = "/tmp/jzz-srcXXXXXX";
 		int fd = mkstemp(script);
 
-		if (fd < 0)
-			return SERVICE_ERROR_IO_ERROR;
+		if (fd < 0) return SERVICE_ERROR_IO_ERROR;
 
 		if (write(fd, p_input, size_input) != size_input) {
 			close(fd);
@@ -986,8 +955,7 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
 		fp = popen(buffer, "r");
 
-		if (fp == nullptr)
-			return SERVICE_ERROR_IO_ERROR;
+		if (fp == nullptr) return SERVICE_ERROR_IO_ERROR;
 
 		while (fgets(buffer, 128, fp) != nullptr) {
 			int ll = strlen(buffer);
@@ -1050,8 +1018,7 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		}
 		PipeMap::iterator it = pipes.find(function.entity);
 
-		if (it == pipes.end())
-			return SERVICE_ERROR_ENTITY_NOT_FOUND;
+		if (it == pipes.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 		int size_input  = p_args->get_block(0)->size;
 		int size_result = p_args->get_block(1)->size;
@@ -1061,11 +1028,9 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
 		memset(p_result, 0, size_result);
 
-		if (zmq_send(it->second.requester, p_input, size_input, 0) < 0)
-			return SERVICE_ERROR_IO_ERROR;
+		if (zmq_send(it->second.requester, p_input, size_input, 0) < 0) return SERVICE_ERROR_IO_ERROR;
 
-		if (zmq_recv(it->second.requester, p_result, size_result, 0) < 0)
-			return SERVICE_ERROR_IO_ERROR;
+		if (zmq_recv(it->second.requester, p_result, size_result, 0) < 0) return SERVICE_ERROR_IO_ERROR;
 
 		return SERVICE_NO_ERROR;
 	}
@@ -1100,11 +1065,9 @@ MHD_StatusCode Channels::forward_get(pTransaction &p_txn, Name node, pChar p_url
 
 	char buffer[1024];
 
-	if (!curl_ok)
-		return SERVICE_ERROR_BASE_FORBIDDEN;
+	if (!curl_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
 
-	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
-		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
+	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer))) return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
 	return curl_get(p_txn, buffer);
 }
@@ -1123,11 +1086,9 @@ MHD_StatusCode Channels::forward_put(Name node, pChar p_url, pBlock p_block, int
 
 	char buffer[1024];
 
-	if (!curl_ok)
-		return SERVICE_ERROR_BASE_FORBIDDEN;
+	if (!curl_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
 
-	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
-		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
+	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer))) return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
 	if (p_block->hash64 == 0)
 		p_block->close_block();
@@ -1147,11 +1108,9 @@ MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 
 	char buffer[1024];
 
-	if (!curl_ok)
-		return SERVICE_ERROR_BASE_FORBIDDEN;
+	if (!curl_ok) return SERVICE_ERROR_BASE_FORBIDDEN;
 
-	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer)))
-		return SERVICE_ERROR_UNKNOWN_JAZZNODE;
+	if (!compose_url(buffer, (pChar) node, p_url, sizeof(buffer))) return SERVICE_ERROR_UNKNOWN_JAZZNODE;
 
 	return curl_remove(buffer);
 }
