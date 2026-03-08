@@ -997,32 +997,20 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 		if (!zmq_ok)
 			return SERVICE_ERROR_BASE_FORBIDDEN;
 
-		switch (p_args->get_block(0)->cell_type) {
-		case CELL_TYPE_BYTE:
-		case CELL_TYPE_BYTE_BOOLEAN:
-		case CELL_TYPE_INTEGER:
-		case CELL_TYPE_FACTOR:
-		case CELL_TYPE_GRADE:
-		case CELL_TYPE_BOOLEAN:
-		case CELL_TYPE_SINGLE:
-		case CELL_TYPE_LONG_INTEGER:
-		case CELL_TYPE_TIME:
-		case CELL_TYPE_DOUBLE:
+		switch (p_args->get_block(0)->cell_type & 0xff) {
+		case 1:
+		case 2:
+		case 4:
+		case 8:
 			break;
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
 		}
-		switch (p_args->get_block(1)->cell_type) {
-		case CELL_TYPE_BYTE:
-		case CELL_TYPE_BYTE_BOOLEAN:
-		case CELL_TYPE_INTEGER:
-		case CELL_TYPE_FACTOR:
-		case CELL_TYPE_GRADE:
-		case CELL_TYPE_BOOLEAN:
-		case CELL_TYPE_SINGLE:
-		case CELL_TYPE_LONG_INTEGER:
-		case CELL_TYPE_TIME:
-		case CELL_TYPE_DOUBLE:
+		switch (p_args->get_block(1)->cell_type & 0xff) {
+		case 1:
+		case 2:
+		case 4:
+		case 8:
 			break;
 		default:
 			return SERVICE_ERROR_WRONG_ARGUMENTS;
