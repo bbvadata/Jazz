@@ -37,6 +37,9 @@
 #pragma once
 #include "src/jazz_bebop/base_api.h"
 
+//TODO: Make a test of header() of every container (Volatile, Persisted and Channel) they must all return the metadata: In ordinary blocks
+//		that is the header, in tuples, the main header and the array of headers of the items, in kinds, everything. Must support all
+//		the type of kinds: CELL_TYPE_BLOCK_KIND, CELL_TYPE_TUPLE_KIND and CELL_TYPE_OBJECT_KIND.
 
 using namespace jazz_bebop;
 
