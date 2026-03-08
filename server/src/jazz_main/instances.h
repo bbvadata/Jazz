@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -63,7 +63,7 @@ namespace jazz_main
 
 using namespace jazz_elements;
 using namespace jazz_bebop;
-using namespace jazz_model;
+using namespace jazz_models;
 
 /*	-----------------------------
 	  I n s t a n t i a t i n g
@@ -73,17 +73,17 @@ using namespace jazz_model;
 
 // Block containers:
 
-extern Channels	 CHANNELS;		// The container channeling blocks.
-extern Volatile	 VOLATILE;		// The container allocating volatile blocks.
-extern Persisted PERSISTED;		// The container allocating persisted blocks.
+extern Channels	 CHANNELS;		///< The container channeling blocks.
+extern Volatile	 VOLATILE;		///< The container allocating volatile blocks.
+extern Persisted PERSISTED;		///< The container allocating persisted blocks.
 
 // Code execution:
 
-extern Core CORE;				// The container running Bop code.
+extern Core CORE;				///< The container running Bop code.
 
 // Http server:
 
-extern HttpServer HTTP;			// The server
+extern HttpServer HTTP;			///< The server
 
 // SIGTERM Callback and http server daemon:
 

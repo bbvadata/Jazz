@@ -1,0 +1,29 @@
+{
+  "name": "Bebop",
+  "scopeName": "source.bebop",
+  "fileTypes": ["bop"],
+  "patterns": [
+    {
+      "name": "comment.line.double-slash.bebop",
+      "match": "//.*$"
+    },
+    {
+      "name": "comment.block.bebop",
+      "begin": "/\\*",
+      "end": "\\*/"
+    },
+    {
+      "name": "keyword.control.bebop",
+      "match": "\\b(record|enum|service|message|struct|readonly|map|array)\\b"
+    },
+    {
+      "name": "string.quoted.double.bebop",
+      "begin": "\"",
+      "end": "\""
+    },
+    {
+      "name": "constant.numeric.bebop",
+      "match": "\\b[0-9]+\\b"
+    }
+  ]
+}

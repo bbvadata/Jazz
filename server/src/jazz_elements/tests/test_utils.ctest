@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -30,6 +30,12 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+
+
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_elements/utils.h"
 
 
 using namespace jazz_elements;
@@ -247,7 +253,33 @@ SCENARIO("Testing ExpandEscapeSequences().") {
 
 SCENARIO("Testing FindProcessIdByName().") {
 	REQUIRE(FindProcessIdByName("aa0a30761d28f10edac1a8a8de832ed2") == 0);
-//	REQUIRE(FindProcessIdByName("/usr/bin/") != 0);
+	REQUIRE(FindProcessIdByName("/usr/lib/systemd/systemd") != 0);
+}
+
+
+SCENARIO("Testing FileExists() and base Service methods.") {
+	char fn[128];
+	sprintf(fn, "/tmp/jzz_unit_utils_service_%i.tmp", (int)getpid());
+	remove(fn);
+
+	REQUIRE(FileExists(fn) == false);
+
+	FILE *fh = fopen(fn, "w");
+	REQUIRE(fh != nullptr);
+	if (fh != nullptr) {
+		fputs("Jazz unit test file\n", fh);
+		fclose(fh);
+	}
+
+	REQUIRE(FileExists(fn) == true);
+	remove(fn);
+	REQUIRE(FileExists(fn) == false);
+
+	Service svc(nullptr, nullptr);
+
+	REQUIRE(!strcmp(svc.id(), "!ABSTRACT CLASS!"));
+	REQUIRE(svc.start() == SERVICE_NOT_IMPLEMENTED);
+	REQUIRE(svc.shut_down() == SERVICE_NOT_IMPLEMENTED);
 }
 
 
@@ -532,9 +564,9 @@ SCENARIO("Testing valid_name().") {
 
 
 SCENARIO("Testing CleanConfigArgument().") {
-	std::string a("This Is\tIt");
+	String a("This Is\tIt");
 
-	std::string b = CleanConfigArgument(a);
+	String b = CleanConfigArgument(a);
 
 	REQUIRE(b == "ThisIsIt");
 
@@ -570,7 +602,7 @@ SCENARIO("Testing class ConfigFile") {
 
 	int	   tt_cfg_i = 54321;
 	double tt_cfg_d = 123.456;
-	std::string tt_cfg_s ("nothing");
+	String tt_cfg_s ("nothing");
 
 	REQUIRE(!conf1.get_key("key00", tt_cfg_i));
 	REQUIRE(!conf1.get_key("key00", tt_cfg_d));
@@ -697,6 +729,12 @@ SCENARIO("Testing class ConfigFile") {
 	REQUIRE(conf2.get_key("one zero", tt_cfg_s));
 
 	REQUIRE((tt_cfg_i == 10 && tt_cfg_d == 10.0 && tt_cfg_s.compare("10") == 0));
+
+	ConfigFile conf3(nullptr);
+
+	REQUIRE(conf3.num_keys() == 0);
+
+	REQUIRE(conf3.load_config(nullptr) == false);
 }
 
 
@@ -732,7 +770,7 @@ SCENARIO("Testing class Logger") {
 
 	ConfigFile J_CONFIG("/tmp/jzz_unit_cnf.ini");
 
-	std::string key;
+	String key;
 
 	J_CONFIG.get_key("LOGGER_PATH", key);
 

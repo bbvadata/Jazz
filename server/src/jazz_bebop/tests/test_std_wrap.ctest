@@ -1,0 +1,194 @@
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
+
+	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
+	  exclusively for the use in the Jazz server software.
+
+	  Copyright 2009-2012 Jacques Basaldúa
+
+	2. BBVA - Jazz: A lightweight analytical web server for data-driven applications.
+
+      Copyright 2016-2017 Banco Bilbao Vizcaya Argentaria, S.A.
+
+      This product includes software developed at
+
+      BBVA (https://www.bbva.com/)
+
+	3. LMDB, Copyright 2011-2017 Howard Chu, Symas Corp. All rights reserved.
+
+	  Licensed under http://www.OpenLDAP.org/license.html
+
+
+	  Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+
+	  http://www.apache.org/licenses/LICENSE-2.0
+
+	  Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+*/
+
+
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_bebop/std_wrap.h"
+
+
+using namespace jazz_bebop;
+
+
+// Tests
+// -----
+
+SCENARIO("Testing stdName, stdNames, std::map<stdName, ..>") {
+
+	REQUIRE(sizeof(Name) == sizeof(stdName));
+
+	stdNames names {stdName((pChar) "Charlie"), stdName((pChar) "Bob"), stdName((pChar) "Alice")};
+
+	REQUIRE(names.size() == 3);
+
+	std::sort(names.begin(), names.end());
+
+	REQUIRE(names[0] == stdName((pChar) "Alice"));
+	REQUIRE(names[1] == stdName((pChar) "Bob"));
+	REQUIRE(names[2] == stdName((pChar) "Charlie"));
+
+	names.push_back(stdName((pChar) "Donald"));
+
+	REQUIRE(names.size() == 4);
+
+	stdName last_name = names.back();
+	names.pop_back();
+
+	REQUIRE(names.size() == 3);
+
+	std::map<stdName, int> dict;
+	dict[stdName((pChar) "Charlie")] = 3;
+	dict[stdName((pChar) "Bob")]	 = 2;
+	dict[stdName((pChar) "Alice")]	 = 1;
+	REQUIRE(dict.size() == 3);
+
+	REQUIRE(dict[stdName((pChar) "Alice")]	 == 1);
+	REQUIRE(dict[stdName((pChar) "Bob")]	 == 2);
+	REQUIRE(dict[stdName((pChar) "Charlie")] == 3);
+}
+
+
+
+SCENARIO("Testing stdLocator, stdLocators, std::map<stdLocator, ..>") {
+
+	REQUIRE(sizeof(Locator) == sizeof(stdLocator));
+
+	auto make_locator = [](const char *base, const char *entity, const char *key) {
+		Locator loc{};
+		strncpy(loc.base, base, SHORT_NAME_SIZE);
+		loc.base[SHORT_NAME_SIZE - 1] = 0;
+		strncpy(loc.entity, entity, NAME_SIZE);
+		loc.entity[NAME_LENGTH] = 0;
+		strncpy(loc.key, key, NAME_SIZE);
+		loc.key[NAME_LENGTH] = 0;
+		loc.attribute = 0;
+		return loc;
+	};
+
+	stdLocators locators {
+		stdLocator(make_locator("NodeB", "EntityZ", "KeyB")),
+		stdLocator(make_locator("NodeA", "EntityZ", "KeyA")),
+		stdLocator(make_locator("NodeA", "EntityA", "KeyC"))
+	};
+
+	REQUIRE(locators.size() == 3);
+
+	std::sort(locators.begin(), locators.end());
+
+	REQUIRE(locators[0] == stdLocator(make_locator("NodeA", "EntityA", "KeyC")));
+	REQUIRE(locators[1] == stdLocator(make_locator("NodeA", "EntityZ", "KeyA")));
+	REQUIRE(locators[2] == stdLocator(make_locator("NodeB", "EntityZ", "KeyB")));
+
+	locators.push_back(stdLocator(make_locator("NodeC", "EntityB", "KeyD")));
+
+	REQUIRE(locators.size() == 4);
+
+	stdLocator last_locator = locators.back();
+	locators.pop_back();
+
+	REQUIRE(locators.size() == 3);
+
+	std::map<stdLocator, int> dict;
+	dict[stdLocator(make_locator("NodeB", "EntityZ", "KeyB"))] = 3;
+	dict[stdLocator(make_locator("NodeA", "EntityZ", "KeyA"))] = 2;
+	dict[stdLocator(make_locator("NodeA", "EntityA", "KeyC"))] = 1;
+	REQUIRE(dict.size() == 3);
+
+	REQUIRE(dict[stdLocator(make_locator("NodeA", "EntityA", "KeyC"))] == 1);
+	REQUIRE(dict[stdLocator(make_locator("NodeA", "EntityZ", "KeyA"))] == 2);
+	REQUIRE(dict[stdLocator(make_locator("NodeB", "EntityZ", "KeyB"))] == 3);
+}
+
+
+SCENARIO("Testing stdAPIQueryState, stdAPIQueryStates, std::map<stdAPIQueryState, ..>") {
+
+	REQUIRE(sizeof(ApiQueryState) == sizeof(stdAPIQueryState));
+
+	auto make_api_query_state = [](int state, int apply, const char *base, const char *entity, const char *key) {
+		ApiQueryState q{};
+		q.state = state;
+		q.apply = apply;
+
+		auto copy_name = [](char *dest, size_t size, const char *src) {
+			strncpy(dest, src, size);
+			dest[size - 1] = 0;
+		};
+
+		copy_name(q.base, SHORT_NAME_SIZE, base);
+		copy_name(q.entity, NAME_SIZE, entity);
+		copy_name(q.key, NAME_SIZE, key);
+
+		Locator loc{};
+		copy_name(loc.base, SHORT_NAME_SIZE, base);
+		copy_name(loc.entity, NAME_SIZE, entity);
+		copy_name(loc.key, NAME_SIZE, key);
+		q.r_value = loc;
+		q.rr_value = loc;
+
+		return q;
+	};
+
+	stdAPIQueryStates q_states {
+		stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB")),
+		stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA")),
+		stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC"))
+	};
+
+	REQUIRE(q_states.size() == 3);
+
+	std::sort(q_states.begin(), q_states.end());
+
+	REQUIRE(q_states[0] == stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA")));
+	REQUIRE(q_states[1] == stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB")));
+	REQUIRE(q_states[2] == stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC")));
+
+	q_states.push_back(stdAPIQueryState(make_api_query_state(4, 40, "BaseD", "EntityD", "KeyD")));
+
+	REQUIRE(q_states.size() == 4);
+
+	stdAPIQueryState last_state = q_states.back();
+	q_states.pop_back();
+
+	REQUIRE(q_states.size() == 3);
+
+	std::map<stdAPIQueryState, int> dict;
+	dict[stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC"))] = 3;
+	dict[stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB"))] = 2;
+	dict[stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA"))] = 1;
+	REQUIRE(dict.size() == 3);
+
+	REQUIRE(dict[stdAPIQueryState(make_api_query_state(1, 10, "BaseA", "EntityC", "KeyA"))] == 1);
+	REQUIRE(dict[stdAPIQueryState(make_api_query_state(2, 20, "BaseB", "EntityB", "KeyB"))] == 2);
+	REQUIRE(dict[stdAPIQueryState(make_api_query_state(3, 30, "BaseC", "EntityA", "KeyC"))] == 3);
+}

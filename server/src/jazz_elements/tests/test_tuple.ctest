@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,8 +32,13 @@
 */
 
 
-using namespace jazz_elements;
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_elements/tuple.h"
 
+
+using namespace jazz_elements;
 
 // Tests
 // -----
@@ -198,16 +203,16 @@ SCENARIO("Testing tuple") {
 	AttributeMap attr_kind = {};
 
 	attr_kind[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "kind";
-	attr_kind[BLOCK_ATTRIB_SOURCE]	  = (pChar) "sys.kinds.ThisKind";
+	attr_kind[BLOCK_ATTRIB_KIND_DEF]	  = (pChar) "sys.kinds.ThisKind";
 
-	REQUIRE(p_kind1->new_kind(1, 4096, &attr_kind));
+	REQUIRE(p_kind1->new_kind(1, 4096, &attr_kind) == SERVICE_NO_ERROR);
 	REQUIRE(p_kind1->add_item(0, "buffer", image_fixed.dim, CELL_TYPE_BYTE, nullptr));
 
-	REQUIRE(p_kind2->new_kind(2, 4096, &attr_kind));
+	REQUIRE(p_kind2->new_kind(2, 4096, &attr_kind) == SERVICE_NO_ERROR);
 	REQUIRE(p_kind2->add_item(0, "buffer", image_var.dim, CELL_TYPE_BYTE,	&dims));
 	REQUIRE(p_kind2->add_item(1, "title",  title.dim,	  CELL_TYPE_STRING, &dims));
 
-	REQUIRE(p_kind3->new_kind(3, 4096, &attr_kind));
+	REQUIRE(p_kind3->new_kind(3, 4096, &attr_kind) == SERVICE_NO_ERROR);
 	REQUIRE(p_kind3->add_item(0, "buffer", video_var.dim, CELL_TYPE_BYTE,	 &dims));
 	REQUIRE(p_kind3->add_item(1, "audio",  audio_var.dim, CELL_TYPE_INTEGER, &dims));
 	REQUIRE(p_kind3->add_item(2, "title",  title.dim,	  CELL_TYPE_STRING,  &dims));
@@ -216,7 +221,7 @@ SCENARIO("Testing tuple") {
 
 	REQUIRE(p_kind1->audit() == MIXED_TYPE_KIND);
 
-	REQUIRE(p_kind1->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind1->cell_type	  == CELL_TYPE_TUPLE_KIND);
 	REQUIRE(p_kind1->rank		  == 1);
 	REQUIRE(p_kind1->range.dim[0] == 1);
 	REQUIRE(p_kind1->size		  == 1);
@@ -228,11 +233,11 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind1->item_name(0), "buffer"));
 
 	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+	REQUIRE(!strcmp(p_kind1->get_attribute(BLOCK_ATTRIB_KIND_DEF),	"sys.kinds.ThisKind"));
 
 	REQUIRE(p_kind2->audit() == MIXED_TYPE_KIND);
 
-	REQUIRE(p_kind2->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind2->cell_type	  == CELL_TYPE_TUPLE_KIND);
 	REQUIRE(p_kind2->rank		  == 1);
 	REQUIRE(p_kind2->range.dim[0] == 1);
 	REQUIRE(p_kind2->size		  == 2);
@@ -248,7 +253,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind2->item_name(1), "title"));
 
 	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+	REQUIRE(!strcmp(p_kind2->get_attribute(BLOCK_ATTRIB_KIND_DEF),	"sys.kinds.ThisKind"));
 
 	Dimensions kdims = {};
 	p_kind2->dimensions(kdims);
@@ -256,7 +261,7 @@ SCENARIO("Testing tuple") {
 
 	REQUIRE(p_kind3->audit() == MIXED_TYPE_KIND);
 
-	REQUIRE(p_kind3->cell_type	  == CELL_TYPE_KIND_ITEM);
+	REQUIRE(p_kind3->cell_type	  == CELL_TYPE_TUPLE_KIND);
 	REQUIRE(p_kind3->rank		  == 1);
 	REQUIRE(p_kind3->range.dim[0] == 1);
 	REQUIRE(p_kind3->size		  == 3);
@@ -276,7 +281,7 @@ SCENARIO("Testing tuple") {
 	REQUIRE(!strcmp(p_kind3->item_name(2), "title"));
 
 	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_BLOCKTYPE), "kind"));
-	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_SOURCE),	"sys.kinds.ThisKind"));
+	REQUIRE(!strcmp(p_kind3->get_attribute(BLOCK_ATTRIB_KIND_DEF),	"sys.kinds.ThisKind"));
 
 	Dimensions kdims2 = {};
 	p_kind3->dimensions(kdims2);
@@ -294,7 +299,7 @@ SCENARIO("Testing tuple") {
 	AttributeMap attr_tuple = {};
 
 	attr_tuple[BLOCK_ATTRIB_BLOCKTYPE] = (pChar) "tuple";
-	attr_tuple[BLOCK_ATTRIB_SOURCE]	   = (pChar) "ThisTuple";
+	attr_tuple[BLOCK_ATTRIB_KIND_DEF]	   = (pChar) "ThisTuple";
 
 	// p_bl1->set_dimensions(image_fixed.dim);
 	// p_bl2->set_dimensions(image_sol1.dim);
@@ -555,6 +560,15 @@ SCENARIO("Testing tuple") {
 
 	blocks[0] = p_bl1;
 	blocks[1] = nullptr;
+
+	REQUIRE(p_tup5->new_tuple(0, nullptr, tup_pic, 0, nullptr) == SERVICE_ERROR_WRONG_ARGUMENTS);
+	REQUIRE(p_tup5->new_tuple(MAX_ITEMS_IN_KIND + 1, blocks, tup_pic, 8192, &attr_tuple) == SERVICE_ERROR_WRONG_ARGUMENTS);
+	REQUIRE(p_tup5->new_tuple(MAX_ITEMS_IN_KIND, blocks, tup_pic, 0, &attr_tuple) == SERVICE_ERROR_NO_MEM);
+
+	p_bl1->cell_type = CELL_TYPE_ONNX_GRAPH;
+	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8192, nullptr) == SERVICE_ERROR_WRONG_TYPE);
+
+	p_bl1->cell_type = CELL_TYPE_BYTE;
 
 	REQUIRE(p_tup5->new_tuple(1, blocks, tup_fix, 8, &attr_tuple) == SERVICE_ERROR_NO_MEM);
 

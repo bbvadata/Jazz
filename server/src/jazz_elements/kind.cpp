@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -38,14 +38,26 @@
 namespace jazz_elements
 {
 
-/** Check the internal validity of a Kind (item structure, dimensions, etc.)
-not repeated of invalid item names.
+/** \brief Audit a Kind.
+
+	Check the internal validity of a Kind (item structure, dimensions, etc.) not repeated or invalid item names.
 
 	\return MIXED_TYPE_INVALID on error or MIXED_TYPE_KIND if every check passes ok.
 */
 int Kind::audit() {
-	if (cell_type != CELL_TYPE_KIND_ITEM || size <= 0)
+
+	if (size <= 0)
 		return MIXED_TYPE_INVALID;
+
+	switch (cell_type) {
+	case CELL_TYPE_BLOCK_KIND:
+	case CELL_TYPE_TUPLE_KIND:
+		break;
+	case CELL_TYPE_OBJECT_KIND:
+		return MIXED_TYPE_KIND;
+	default:
+		return MIXED_TYPE_INVALID;
+	}
 
 	std::set <int> items;
 
@@ -71,9 +83,6 @@ int Kind::audit() {
 		for (int j = 0; j < p_it_hea->rank; j++) {
 			int k = p_it_hea->dim[j];
 			if (k < 0) {
-				if (items.find(-k) != items.end())
-					return MIXED_TYPE_INVALID;
-
 				if (!valid_name(&p_string_buffer()->buffer[-k]))
 					return MIXED_TYPE_INVALID;
 			}

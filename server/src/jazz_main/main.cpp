@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -42,11 +42,11 @@
 using namespace std;
 using namespace jazz_main;
 using namespace jazz_bebop;
-using namespace jazz_model;
+using namespace jazz_models;
 
 
 /** Display the Jazz logo message automatically appending JAZZ_VERSION.
- */
+*/
 void show_credits() {
 	cout << "\x20 888888" << endl
 		 << "\x20 \x20 `88b" << endl
@@ -73,7 +73,7 @@ void show_credits() {
 
 
 /** Explain usage of the command line interface to stdout.
- */
+*/
 void show_usage() {
 	cout << "\x20 usage: jazz <config> start | stop | status" << endl << endl
 
@@ -124,7 +124,7 @@ When the command is "status":
 When the command is anything else, too many or too few:
 	show help + EXIT_FAILURE
 
- */
+*/
 int main(int argc, char* argv[]) {
 	int cmd = (argc < 2 || argc > 3) ? CMD_HELP : parse_command(argv[argc - 1]);
 
@@ -192,26 +192,7 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&PACK)) {
-			stop_service(&PERSISTED);
-			stop_service(&VOLATILE);
-			stop_service(&CHANNELS);
-
-			exit(EXIT_FAILURE);
-		}
-
-		if (!start_service(&FIELD)) {
-			stop_service(&PACK);
-			stop_service(&PERSISTED);
-			stop_service(&VOLATILE);
-			stop_service(&CHANNELS);
-
-			exit(EXIT_FAILURE);
-		}
-
 		if (!start_service(&CORE)) {
-			stop_service(&FIELD);
-			stop_service(&PACK);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);
 			stop_service(&CHANNELS);
@@ -219,10 +200,8 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&SEMSPACE)) {
+		if (!start_service(&MODELS_API)) {
 			stop_service(&CORE);
-			stop_service(&FIELD);
-			stop_service(&PACK);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);
 			stop_service(&CHANNELS);
@@ -230,24 +209,9 @@ int main(int argc, char* argv[]) {
 			exit(EXIT_FAILURE);
 		}
 
-		if (!start_service(&MODEL)) {
-			stop_service(&SEMSPACE);
+		if (!start_service(&HTTP_API)) {
+			stop_service(&MODELS_API);
 			stop_service(&CORE);
-			stop_service(&FIELD);
-			stop_service(&PACK);
-			stop_service(&PERSISTED);
-			stop_service(&VOLATILE);
-			stop_service(&CHANNELS);
-
-			exit(EXIT_FAILURE);
-		}
-
-		if (!start_service(&API)) {
-			stop_service(&MODEL);
-			stop_service(&SEMSPACE);
-			stop_service(&CORE);
-			stop_service(&FIELD);
-			stop_service(&PACK);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);
 			stop_service(&CHANNELS);
@@ -260,12 +224,9 @@ int main(int argc, char* argv[]) {
 
 		if (ret_code != EXIT_SUCCESS) {
 			stop_service(&HTTP);
-			stop_service(&API);
-			stop_service(&MODEL);
-			stop_service(&SEMSPACE);
+			stop_service(&HTTP_API);
+			stop_service(&MODELS_API);
 			stop_service(&CORE);
-			stop_service(&FIELD);
-			stop_service(&PACK);
 			stop_service(&PERSISTED);
 			stop_service(&VOLATILE);
 			stop_service(&CHANNELS);

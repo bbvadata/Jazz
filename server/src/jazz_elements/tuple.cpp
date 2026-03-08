@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -45,7 +45,7 @@ namespace jazz_elements
 int Tuple::audit() {
 	int dims[MAX_TENSOR_RANK];
 
-	if (cell_type != CELL_TYPE_TUPLE_ITEM || size <= 0)
+	if (cell_type != CELL_TYPE_TUPLE || size <= 0)
 		return MIXED_TYPE_INVALID;
 
 	for (int i = 0; i < size; i++) {

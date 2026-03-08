@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -64,9 +64,9 @@ Physically, like a Kind, it is a single block with some differences:
 - It holds data and metadata.
 - It has constant values for the dimensions.
 - It has a one step creation process: new_tuple().
-- It also stores all the Blocks "as is" in the same space (after its header, vector of CELL_TYPE_KIND_ITEM, attribute keys and StringBuffer)
+- It also stores all the Blocks "as is" in the same space (after its header, vector of CELL_TYPE_TUPLE_KIND, attribute keys and StringBuffer)
 - The data stored &tensor is the metadata (like in a Kind) and the method .block(item) returns a pointer to each Block.
-- A Tuple is a Block of type CELL_TYPE_TUPLE_ITEM (instead of CELL_TYPE_KIND_ITEM).
+- A Tuple is a Block of type CELL_TYPE_TUPLE (instead of CELL_TYPE_TUPLE_KIND).
 - The StringBuffer contains the item names and Tuple attributes. Blocks may have their own StringBuffers
 
 Also, Tuples should define, if the Container sets them as expected, the attribute:
@@ -113,8 +113,8 @@ class Tuple : public Block {
 									int			  num_bytes,
 									AttributeMap *att = nullptr) {
 
-			if (num_items < 1 || num_items >= MAX_ITEMS_IN_KIND)
-				return false;
+			if (num_items < 1 || num_items > MAX_ITEMS_IN_KIND)
+				return SERVICE_ERROR_WRONG_ARGUMENTS;
 
 			int rq_sz = sizeof(BlockHeader) + sizeof(StringBuffer) + num_items*sizeof(ItemHeader) + 2*num_items;
 
@@ -126,7 +126,7 @@ class Tuple : public Block {
 
 			memset(&cell_type, 0, rq_sz);
 
-			cell_type	 = CELL_TYPE_TUPLE_ITEM;
+			cell_type	 = CELL_TYPE_TUPLE;
 			rank		 = 1;
 			range.dim[0] = 1;
 			size		 = num_items;
@@ -162,9 +162,6 @@ class Tuple : public Block {
 
 			int *p_dest = align64bit((uintptr_t) &psb->buffer[psb->last_idx]);
 
-			if ((uintptr_t) p_dest - (uintptr_t) &cell_type > num_bytes)
-				return SERVICE_ERROR_NO_MEM;					// May never happen. "(p_it_hea->name <= STRING_EMPTY)" catches it first.
-
 			psb->buffer_size = (uintptr_t) p_dest - ((uintptr_t) &psb->buffer[0]);
 
 			for (int i = 0; i < num_items; i++) {
@@ -193,7 +190,7 @@ class Tuple : public Block {
 			NOTE: Use the pointer as read-only (more than one cell may point to the same value) and never try to free it.
 		*/
 		inline char *item_name(int idx)	{
-			if (idx < 0 | idx >= size)
+			if (idx < 0 || idx >= size)
 				return nullptr;
 
 			return reinterpret_cast<char *>(&p_string_buffer()->buffer[tensor.cell_item[idx].name]);
@@ -232,17 +229,19 @@ class Tuple : public Block {
 
 		/** Verifies if a Tuple is of a Kind.
 
+			\param kind The possibly matching Kind.
+
 			\return True if the Tuple can be linked to a Kind (regardless of BLOCK_ATTRIB_KIND)
 		*/
 		inline bool is_a(pKind kind) {
-			if (kind->cell_type != CELL_TYPE_KIND_ITEM | kind->size != size)
+			if (kind->cell_type != CELL_TYPE_TUPLE_KIND || kind->size != size)
 				return false;
 
-			std::map<std::string, int> dimension;
+			std::map<String, int> dimension;
 
 			for (int i = 0; i < size; i++) {
 				if (  kind->tensor.cell_item[i].cell_type != tensor.cell_item[i].cell_type
-					| kind->tensor.cell_item[i].rank	  != tensor.cell_item[i].rank)
+					|| kind->tensor.cell_item[i].rank	  != tensor.cell_item[i].rank)
 					return false;
 
 				if (strcmp(kind->item_name(i), item_name(i)))
@@ -252,7 +251,7 @@ class Tuple : public Block {
 					int d_k = kind->tensor.cell_item[i].dim[j];
 
 					if (d_k < 0) {
-						std::string dim_name(reinterpret_cast<char *>(&kind->p_string_buffer()->buffer[-d_k]));
+						String dim_name(reinterpret_cast<char *>(&kind->p_string_buffer()->buffer[-d_k]));
 						if (dimension.count(dim_name)) {
 							if (dimension[dim_name] != tensor.cell_item[i].dim[j])
 								return false;
@@ -271,7 +270,7 @@ class Tuple : public Block {
 
 		int audit();
 };
-typedef Tuple *pTuple;
+typedef Tuple *pTuple;		///< A pointer to a Tuple object
 
 } // namespace jazz_elements
 

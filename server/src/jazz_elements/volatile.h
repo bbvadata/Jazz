@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -46,7 +46,6 @@
 
 #ifndef INCLUDED_JAZZ_ELEMENTS_VOLATILE
 #define INCLUDED_JAZZ_ELEMENTS_VOLATILE
-
 
 namespace jazz_elements
 {
@@ -110,12 +109,25 @@ struct VolatileTransaction: Transaction {
 
 */
 struct EntityKeyHash {
-	uint64_t ent_hash, key_hash;
+	uint64_t ent_hash;						///< The hash of the entity name.
+	uint64_t key_hash;						///< The hash of the key name.
 
+	/** \brief Constructor for EntityKeyHash.
+		\param o The other EntityKeyHash to compare with.
+		\return True if the two hashes are equal.
+
+		This is a requirement to sort EntityKeyHash objects.
+	*/
 	bool operator==(const EntityKeyHash &o) const {
 		return ent_hash == o.ent_hash && key_hash == o.key_hash;
 	}
 
+	/** \brief Constructor for EntityKeyHash.
+		\param o The other EntityKeyHash to compare with.
+		\return True if is object is less than the other.
+
+		This is a requirement to sort EntityKeyHash objects.
+	*/
 	bool operator<(const EntityKeyHash &o) const {
 		return ent_hash < o.ent_hash || (ent_hash == o.ent_hash && key_hash < o.key_hash);
 	}
@@ -147,7 +159,7 @@ This map allows locating entity root VolatileTransactions for creating and destr
 typedef std::map<uint64_t, QueueEnt> HashQueueEntMap;
 
 
-/** \brief EntKeyVolXctMap: A map from (entity,key) hashes to pointers to VolatileTransaction.
+/** \brief EntKeyVolXctMap: A map from (entity, key) hashes to pointers to VolatileTransaction.
 
 This map allows locating any nodes.
 */
@@ -171,8 +183,8 @@ This map allows doing the reverse conversion to a hash() function finding out th
 typedef std::map<uint64_t, NameUse> HashNameUseMap;
 
 
-/// A pointer to an std::string
-typedef std::string* pString;
+/// A pointer to an String
+typedef String* pString;
 
 
 /** \brief Volatile: A Service to manage data objects in RAM.
@@ -232,8 +244,7 @@ class Volatile : public Container {
 
 	public:
 
-		Volatile(pLogger	 a_logger,
-				 pConfigFile a_config);
+		Volatile(pLogger a_logger, pConfigFile a_config);
 	   ~Volatile();
 
 		virtual pChar const id();
@@ -278,7 +289,7 @@ class Volatile : public Container {
 		virtual StatusCode copy		 (Locator			&where,
 									  Locator			&what);
 
-		// Support for container names in the API .base_names()
+		// Support for container names in the BaseAPI .base_names()
 
 		void base_names(BaseNames &base_names);
 
@@ -313,15 +324,13 @@ class Volatile : public Container {
 		*/
 		inline StatusCode populate_index(Index &index, pBlock p_block) {
 
-			if (p_block->cell_type != CELL_TYPE_TUPLE_ITEM || p_block->size != 2)
-				return SERVICE_ERROR_BAD_BLOCK;
+			if (p_block->cell_type != CELL_TYPE_TUPLE || p_block->size != 2) return SERVICE_ERROR_BAD_BLOCK;
 
 			pBlock p_key = pTuple(p_block)->get_block(0);
 			pBlock p_val = pTuple(p_block)->get_block(1);
 
 			if (   p_key->cell_type != CELL_TYPE_STRING || p_val->cell_type != CELL_TYPE_STRING
-				|| p_key->rank != 1 || p_val->rank != 1 || p_key->size != p_val->size)
-				return SERVICE_ERROR_BAD_BLOCK;
+				|| p_key->rank != 1 || p_val->rank != 1 || p_key->size != p_val->size) return SERVICE_ERROR_BAD_BLOCK;
 
 			for (int i = 0; i < p_key->size; i++)
 				index[p_key->get_string(i)] = p_val->get_string(i);
@@ -338,25 +347,24 @@ class Volatile : public Container {
 			\param p_block	The block to be put (a copy of it).
 			\param mode		Some writing restriction, either WRITE_ONLY_IF_EXISTS or WRITE_ONLY_IF_NOT_EXISTS. WRITE_TENSOR_DATA
 							is the only supported option.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 		*/
 		inline StatusCode put_queue_insert(uint64_t ent_hash, Name &key, double priority, pBlock p_block, int mode) {
 			HashQueueEntMap::iterator it_queue = queue_ent.find(ent_hash);
 
-			if (it_queue == queue_ent.end())
-				return SERVICE_ERROR_ENTITY_NOT_FOUND;
+			if (it_queue == queue_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 			EntityKeyHash ek = {ent_hash, hash(key)};
 			EntKeyVolXctMap::iterator it_item = queue_key.find(ek);
 
 			if (it_item != queue_key.end()) {
-				if (mode & WRITE_ONLY_IF_NOT_EXISTS)
-					return SERVICE_ERROR_WRITE_FORBIDDEN;
+				if (mode & WRITE_ONLY_IF_NOT_EXISTS) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 				pVolatileTransaction p_item = it_item->second;
 
 				pBlock p_new = block_malloc(p_block->total_bytes);
-				if (p_new == nullptr)
-					return SERVICE_ERROR_NO_MEM;
+				if (p_new == nullptr) return SERVICE_ERROR_NO_MEM;
 
 				alloc_bytes -= p_item->p_block->total_bytes;
 				free(p_item->p_block);
@@ -381,14 +389,12 @@ class Volatile : public Container {
 
 				return SERVICE_NO_ERROR;
 			}
-			if (mode & WRITE_ONLY_IF_EXISTS)
-				return SERVICE_ERROR_WRITE_FORBIDDEN;
+			if (mode & WRITE_ONLY_IF_EXISTS) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 			if (it_queue->second.queue_use == it_queue->second.queue_size) {
 				pVolatileTransaction p_lowest = aat_lowest_priority(it_queue->second.p_root);
 
-				if (p_lowest->priority >= priority)
-					return SERVICE_ERROR_LOW_PRIORITY;
+				if (p_lowest->priority >= priority) return SERVICE_ERROR_LOW_PRIORITY;
 
 				destroy_item(BASE_QUEUE_10BIT, ent_hash, p_lowest);
 			}
@@ -397,8 +403,7 @@ class Volatile : public Container {
 
 			int ret = new_transaction(p_txn);
 
-			if (ret != SERVICE_NO_ERROR)
-				return ret;
+			if (ret != SERVICE_NO_ERROR) return ret;
 
 			pBlock p_new = block_malloc(p_block->total_bytes);
 			if (p_new == nullptr) {
@@ -432,14 +437,15 @@ class Volatile : public Container {
 			\param key		The key
 			\param p_block	The block to be put (a copy of it).
 			\param first	An optional parameter to allow inserting from the bottom of the queue, rather than the end.
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 		*/
 		inline StatusCode put_in_deque(HashVolXctMap::iterator it_ent, EntityKeyHash &ek, Name &key, pBlock p_block, bool first = false) {
 
 			pTransaction p_txn;
 			int			 ret;
 
-			if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
-				return ret;
+			if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR) return ret;
 
 			pBlock p_new = block_malloc(p_block->total_bytes);
 			if (p_new == nullptr) {
@@ -494,21 +500,21 @@ class Volatile : public Container {
 			\param key		The key
 			\param parent	The parent key the must exist unless the tree entity is empty, in which case it should be ~void
 			\param p_block	The block to be put (a copy of it).
+
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
 		*/
 		inline StatusCode put_in_tree(HashVolXctMap::iterator it_ent, EntityKeyHash &ek, Name &key, Name &parent, pBlock p_block) {
 
 			pVolatileTransaction p_root, p_parent = nullptr, p_next = nullptr;;
 
 			if ((p_root = it_ent->second) != nullptr) {
-				if (tree_key.find(ek) != tree_key.end())
-					return SERVICE_ERROR_WRITE_FORBIDDEN;
+				if (tree_key.find(ek) != tree_key.end()) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 				EntityKeyHash parent_ek = {ek.ent_hash, hash(parent)};
 
 				EntKeyVolXctMap::iterator it;
 
-				if ((it = tree_key.find(parent_ek)) == tree_key.end())
-					return SERVICE_ERROR_PARENT_NOT_FOUND;
+				if ((it = tree_key.find(parent_ek)) == tree_key.end()) return SERVICE_ERROR_PARENT_NOT_FOUND;
 
 				p_parent = it->second;
 				p_next	 = p_parent->p_child;
@@ -517,8 +523,7 @@ class Volatile : public Container {
 			pTransaction p_txn;
 			int			 ret;
 
-			if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR)
-				return ret;
+			if ((ret = new_transaction(p_txn)) != SERVICE_NO_ERROR) return ret;
 
 			pBlock p_new = block_malloc(p_block->total_bytes);
 			if (p_new == nullptr) {
@@ -554,14 +559,16 @@ class Volatile : public Container {
 			\param p_replace The VolatileTransaction whose block will be replaced
 			\param p_block	 The new block.
 
+			\return	SERVICE_NO_ERROR on success or some negative value (error).
+
 			This does not support Index, it is assumed that the pVolatileTransaction was located by key and the key does not change
 			and therefore, ther is no need to do name[] mingling or destroy_transaction()
 		*/
 		inline StatusCode put_replace(pVolatileTransaction p_replace, pBlock p_block) {
 
 			pBlock p_new = block_malloc(p_block->total_bytes);
-			if (p_new == nullptr)
-				return SERVICE_ERROR_NO_MEM;
+
+			if (p_new == nullptr) return SERVICE_ERROR_NO_MEM;
 
 			alloc_bytes -= p_replace->p_block->total_bytes;
 			free(p_replace->p_block);
@@ -587,21 +594,18 @@ class Volatile : public Container {
 		*/
 		inline StatusCode put_index(Index &index, pChar key, pBlock p_block, int mode) {
 
-			if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1)
-				return SERVICE_ERROR_BAD_BLOCK;
+			if (p_block->cell_type != CELL_TYPE_STRING || p_block->size != 1) return SERVICE_ERROR_BAD_BLOCK;
 
 			Index::iterator it = index.find(key);
 
 			if (it == index.end()) {
-				if (mode & WRITE_ONLY_IF_EXISTS)
-					return SERVICE_ERROR_WRITE_FORBIDDEN;
+				if (mode & WRITE_ONLY_IF_EXISTS) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 				index[key] = p_block->get_string(0);
 
 				return SERVICE_NO_ERROR;
 			}
-			if (mode & WRITE_ONLY_IF_NOT_EXISTS)
-				return SERVICE_ERROR_WRITE_FORBIDDEN;
+			if (mode & WRITE_ONLY_IF_NOT_EXISTS) return SERVICE_ERROR_WRITE_FORBIDDEN;
 
 			index[key] = p_block->get_string(0);
 
@@ -698,8 +702,7 @@ class Volatile : public Container {
 
 			HashNameUseMap::iterator it = name.find(hash);
 
-			if (it == name.end())
-				return;
+			if (it == name.end()) return;
 
 			if (--name[hash].use == 0)
 				name.erase(it);
@@ -709,7 +712,7 @@ class Volatile : public Container {
 		/** Internal non-copy version of get() form 1.
 
 			\param p_txn	A Transaction **inside the Container** that will be returned for anything except an index.
-			\param p_str	A pointer to a std::string.c_str() **inside the Container** for index.
+			\param p_str	A pointer to a String.c_str() **inside the Container** for index.
 			\param pop_ent	The hash of the entity from which the returned block is expected to be pop()-ed.
 			\param what		Some Locator to the block, just like what get() expects.
 
@@ -731,8 +734,7 @@ class Volatile : public Container {
 			case BASE_DEQUE_10BIT: {
 				HashVolXctMap::iterator it_ent = deque_ent.find(ek.ent_hash);
 
-				if (it_ent == deque_ent.end())
-					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+				if (it_ent == deque_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 				p_root = it_ent->second; }
 
@@ -741,8 +743,7 @@ class Volatile : public Container {
 			case BASE_INDEX_10BIT: {
 				HashVolXctMap::iterator it_ent = index_ent.find(ek.ent_hash);
 
-				if (it_ent == index_ent.end())
-					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+				if (it_ent == index_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 				p_root = it_ent->second; }
 
@@ -751,8 +752,7 @@ class Volatile : public Container {
 			case BASE_QUEUE_10BIT: {
 				HashQueueEntMap::iterator it_ent = queue_ent.find(ek.ent_hash);
 
-				if (it_ent == queue_ent.end())
-					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+				if (it_ent == queue_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 				p_root = it_ent->second.p_root; }
 
@@ -761,8 +761,7 @@ class Volatile : public Container {
 			case BASE_TREE_10BIT: {
 				HashVolXctMap::iterator it_ent = tree_ent.find(ek.ent_hash);
 
-				if (it_ent == tree_ent.end())
-					return SERVICE_ERROR_ENTITY_NOT_FOUND;
+				if (it_ent == tree_ent.end()) return SERVICE_ERROR_ENTITY_NOT_FOUND;
 
 				p_root = it_ent->second; }
 
@@ -772,8 +771,7 @@ class Volatile : public Container {
 				return SERVICE_ERROR_WRONG_BASE;
 			}
 
-			if (p_root == nullptr)
-				return SERVICE_ERROR_EMPTY_ENTITY;
+			if (p_root == nullptr) return SERVICE_ERROR_EMPTY_ENTITY;
 
 			Name key, second;
 			int	 command;
@@ -788,8 +786,7 @@ class Volatile : public Container {
 					ek.key_hash = hash(key);
 					EntKeyVolXctMap::iterator it;
 
-					if ((it = deque_key.find(ek)) == deque_key.end())
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if ((it = deque_key.find(ek)) == deque_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = it->second;
 					p_str = nullptr; }
@@ -800,8 +797,7 @@ class Volatile : public Container {
 					ek.key_hash = hash(key);
 					EntKeyVolXctMap::iterator it;
 
-					if ((it = queue_key.find(ek)) == queue_key.end())
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if ((it = queue_key.find(ek)) == queue_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = it->second;
 					p_str = nullptr; }
@@ -812,8 +808,7 @@ class Volatile : public Container {
 					ek.key_hash = hash(key);
 					EntKeyVolXctMap::iterator it;
 
-					if ((it = tree_key.find(ek)) == tree_key.end())
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if ((it = tree_key.find(ek)) == tree_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = it->second;
 					p_str = nullptr; }
@@ -823,8 +818,7 @@ class Volatile : public Container {
 				default: {
 					Index::iterator it;
 
-					if ((it = p_root->p_hea->index.find(key)) == p_root->p_hea->index.end())
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if ((it = p_root->p_hea->index.find(key)) == p_root->p_hea->index.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = nullptr;
 					p_str = &it->second; }
@@ -833,38 +827,32 @@ class Volatile : public Container {
 				}
 
 			case COMMAND_CHILD_10BIT: {
-				if (base != BASE_TREE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (base != BASE_TREE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
 
-				if ((it = tree_key.find(ek)) == tree_key.end())
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				if ((it = tree_key.find(ek)) == tree_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_txn = it->second->p_child;
 
-				if (p_txn == nullptr)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				if (p_txn == nullptr) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_str = nullptr; }
 
 				return SERVICE_NO_ERROR;
 
 			case COMMAND_PARENT_10BIT: {
-				if (base != BASE_TREE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (base != BASE_TREE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
 
-				if ((it = tree_key.find(ek)) == tree_key.end())
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				if ((it = tree_key.find(ek)) == tree_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_txn = it->second->p_parent;
 
-				if (p_txn == nullptr)
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				if (p_txn == nullptr) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_str = nullptr; }
 
@@ -876,21 +864,18 @@ class Volatile : public Container {
 
 				switch (base) {
 				case BASE_TREE_10BIT: {
-					if ((it = tree_key.find(ek)) == tree_key.end())
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if ((it = tree_key.find(ek)) == tree_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = it->second->p_next;
 
-					if (p_txn == nullptr)
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if (p_txn == nullptr) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_str = nullptr; }
 
 					return SERVICE_NO_ERROR;
 
 				case BASE_DEQUE_10BIT: {
-					if ((it = deque_key.find(ek)) == deque_key.end())
-						return SERVICE_ERROR_BLOCK_NOT_FOUND;
+					if ((it = deque_key.find(ek)) == deque_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 					p_txn = it->second->p_next;
 					p_str = nullptr; }
@@ -900,14 +885,12 @@ class Volatile : public Container {
 				return SERVICE_ERROR_PARSING_COMMAND; }
 
 			case COMMAND_PREV_10BIT: {
-				if (base != BASE_DEQUE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (base != BASE_DEQUE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
 				ek.key_hash = hash(key);
 				EntKeyVolXctMap::iterator it;
 
-				if ((it = deque_key.find(ek)) == deque_key.end())
-					return SERVICE_ERROR_BLOCK_NOT_FOUND;
+				if ((it = deque_key.find(ek)) == deque_key.end()) return SERVICE_ERROR_BLOCK_NOT_FOUND;
 
 				p_txn = it->second->p_parent;
 				p_str = nullptr; }
@@ -916,11 +899,9 @@ class Volatile : public Container {
 
 			case COMMAND_HIGH_10BIT:
 			case COMMAND_XHIGH_10BIT: {
-				if (base != BASE_QUEUE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (base != BASE_QUEUE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
-				if (p_root == nullptr)
-					return SERVICE_ERROR_EMPTY_ENTITY;
+				if (p_root == nullptr) return SERVICE_ERROR_EMPTY_ENTITY;
 
 				p_txn = aat_highest_priority(p_root);
 				p_str = nullptr;
@@ -932,11 +913,9 @@ class Volatile : public Container {
 
 			case COMMAND_LOW_10BIT:
 			case COMMAND_XLOW_10BIT: {
-				if (base != BASE_QUEUE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (base != BASE_QUEUE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
-				if (p_root == nullptr)
-					return SERVICE_ERROR_EMPTY_ENTITY;
+				if (p_root == nullptr) return SERVICE_ERROR_EMPTY_ENTITY;
 
 				p_txn = aat_lowest_priority(p_root);
 				p_str = nullptr;
@@ -948,11 +927,10 @@ class Volatile : public Container {
 
 			case COMMAND_FIRST_10BIT:
 			case COMMAND_PFIRST_10BIT: {
-				if (base != BASE_DEQUE_10BIT && (base != BASE_TREE_10BIT || command == COMMAND_PFIRST_10BIT))
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (   (base != BASE_DEQUE_10BIT)
+					&& (base != BASE_TREE_10BIT || command == COMMAND_PFIRST_10BIT)) return SERVICE_ERROR_PARSING_COMMAND;
 
-				if (p_root == nullptr)
-					return SERVICE_ERROR_EMPTY_ENTITY;
+				if (p_root == nullptr) return SERVICE_ERROR_EMPTY_ENTITY;
 
 				p_txn = p_root;
 				p_str = nullptr;
@@ -964,11 +942,9 @@ class Volatile : public Container {
 
 			case COMMAND_LAST_10BIT:
 			case COMMAND_PLAST_10BIT: {
-				if (base != BASE_DEQUE_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
+				if (base != BASE_DEQUE_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
 
-				if (p_root == nullptr)
-					return SERVICE_ERROR_EMPTY_ENTITY;
+				if (p_root == nullptr) return SERVICE_ERROR_EMPTY_ENTITY;
 
 				p_txn = p_root->p_prev;
 				p_str = nullptr;
@@ -977,19 +953,17 @@ class Volatile : public Container {
 					pop_ent = ek.ent_hash; }
 
 				return SERVICE_NO_ERROR;
-
-			case COMMAND_GET_10BIT:
-				if (base != BASE_INDEX_10BIT)
-					return SERVICE_ERROR_PARSING_COMMAND;
-
-				p_txn = nullptr;
-				p_str = nullptr;
-				pop_ent = ek.ent_hash;
-
-				return SERVICE_NO_ERROR;
 			}
 
-			return SERVICE_ERROR_PARSING_COMMAND;
+//			case command == COMMAND_GET_10BIT:	This condition cannot fail or parse_command() would have.
+
+			if (base != BASE_INDEX_10BIT) return SERVICE_ERROR_PARSING_COMMAND;
+
+			p_txn = nullptr;
+			p_str = nullptr;
+			pop_ent = ek.ent_hash;
+
+			return SERVICE_NO_ERROR;
 		}
 
 
@@ -1029,13 +1003,11 @@ class Volatile : public Container {
 					return !is_put;
 
 				default:
-					if (!is_put || key_in[1] < '0' || key_in[1] > '9')
-						return false;
+					if (!is_put || key_in[1] < '0' || key_in[1] > '9') return false;
 
 					int size, r_len;
 
-					if (sscanf(&key_in[1], "%d%n", &size, &r_len) != 1 || size <= 0 || key_in[r_len + 1] != 0)
-						return false;
+					if (sscanf(&key_in[1], "%d%n", &size, &r_len) != 1 || size <= 0 || key_in[r_len + 1] != 0) return false;
 
 					command = COMMAND_SIZE + size;
 
@@ -1133,6 +1105,8 @@ class Volatile : public Container {
 			\param p_item The item that will be inserted or deleted.
 			\param p_tree The AA subtree compared with the item,.
 
+			\return		  True if the item is to the left of the tree.
+
 			Note: This should be the only way to break ties when p_item->priority == p_tree->priority.
 		*/
 		inline bool aat_to_left(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
@@ -1216,14 +1190,11 @@ class Volatile : public Container {
 		*/
 		inline bool aat_is_in_tree(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
 
-			if (p_tree == nullptr || p_item == nullptr)
-				return false;
+			if (p_tree == nullptr || p_item == nullptr) return false;
 
-			if (p_item == p_tree)
-				return true;
+			if (p_item == p_tree) return true;
 
-			if (aat_to_left(p_item, p_tree))
-				return aat_is_in_tree(p_item, p_tree->p_prev);
+			if (aat_to_left(p_item, p_tree)) return aat_is_in_tree(p_item, p_tree->p_prev);
 
 			return aat_is_in_tree(p_item, p_tree->p_next);
 		};
@@ -1267,8 +1238,7 @@ class Volatile : public Container {
 					return p_kill->p_prev;				// Disconnect p_kill
 				}
 			}
-			if (p_parent != p_tree)
-				return aat_rebalance(p_kill);
+			if (p_parent != p_tree) return aat_rebalance(p_kill);
 
 			else {
 				p_deep->level  = p_tree->level;
@@ -1291,16 +1261,13 @@ class Volatile : public Container {
 		*/
 		inline pVolatileTransaction aat_remove(pVolatileTransaction p_item, pVolatileTransaction p_tree) {
 
-			if (p_tree == nullptr || p_item == nullptr)
-				return p_tree;
+			if (p_tree == nullptr || p_item == nullptr) return p_tree;
 
 			if (p_item == p_tree) {
-				if (p_tree->p_prev == nullptr)
-					return p_tree->p_next;
+				if (p_tree->p_prev == nullptr) return p_tree->p_next;
 
 				else {
-					if (p_tree->p_next == nullptr)
-						return p_tree->p_prev;
+					if (p_tree->p_next == nullptr) return p_tree->p_prev;
 
 					else {
 						pVolatileTransaction p_deep = nullptr;
@@ -1334,12 +1301,8 @@ class Volatile : public Container {
 				else {
 					int should_be = p_item->p_next->level + 1;
 
-					if (should_be < p_item->level) {
+					if (should_be < p_item->level)
 						p_item->level = should_be;
-
-						if (should_be < p_item->p_next->level)
-							p_item->p_next->level = should_be;
-					}
 				}
 			} else {
 				if (p_item->p_next == nullptr) {
@@ -1461,13 +1424,17 @@ It may very well be impossible, who knows. Just keep it as a remark, unless some
 			return p_tree;
 		};
 
-		uint64_t		key_seed;
-		HashNameUseMap	name {};
-		HashQueueEntMap queue_ent {};
-		HashVolXctMap	deque_ent {}, tree_ent {}, index_ent {};
-		EntKeyVolXctMap deque_key {}, queue_key {}, tree_key {};
+		uint64_t		key_seed;			///< Seed to create unique key ids
+		HashNameUseMap	name {};			///< Map of names and to do reverse conversion to a hash() (including count of uses)
+		HashQueueEntMap queue_ent {};		///< Map of queues
+		HashVolXctMap	deque_ent {};		///< Map of deques
+		HashVolXctMap	tree_ent {};		///< Map of trees
+		HashVolXctMap	index_ent {};		///< Map of indices
+		EntKeyVolXctMap deque_key {};		///< Map of deque (entity, key) hashes to pointers to VolatileTransaction.
+		EntKeyVolXctMap queue_key {};		///< Map of queue (entity, key) hashes to pointers to VolatileTransaction.
+		EntKeyVolXctMap tree_key {};		///< Map of tree (entity, key) hashes to pointers to VolatileTransaction.
 };
-typedef Volatile *pVolatile;
+typedef Volatile *pVolatile;				///< Pointer to Volatile
 
 #ifdef CATCH_TEST
 

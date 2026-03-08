@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -53,7 +53,6 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_CONTAINER
 #define INCLUDED_JAZZ_ELEMENTS_CONTAINER
 
-
 namespace jazz_elements
 {
 
@@ -81,7 +80,7 @@ namespace jazz_elements
 #define FILL_NEW_DONT_FILL				  0		///< Don't initialize at all.
 #define FILL_NEW_WITH_ZERO				  1		///< Initialize with binary zero.
 #define FILL_NEW_WITH_NA				  2		///< Initialize with the appropriate NA for the cell_type.
-#define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_jazz_block().
+#define FILL_WITH_TEXTFILE				  3		///< Initialize a tensor with the content of argument p_text in new_block().
 
 #define BUILD_TUPLE						  1		///< Build a Tuple out of data items or fail.
 #define BUILD_KIND						  2		///< Build a Kind out of metadata items or fail.
@@ -112,25 +111,37 @@ namespace jazz_elements
 #define WRITE_AS_STRING					0x04	///< Highest priority, string if CELL_TYPE_STRING or a C string inside CELL_TYPE_BYTE.
 #define WRITE_AS_CONTENT				0x08	///< Next priority, only for tensors of any type, just write the binary data.
 #define WRITE_AS_FULL_BLOCK				0x10	///< Lowest priority, write full block, can always be done.
-#define WRITE_AS_ANY_WRITE				0x1C	///< if mode & this is zero, use base default
+#define WRITE_AS_ANY_WRITE				0x1C	///< If mode & this is zero, use base default.
+
+// Bit masks to trigger failures in tests when set in debug_trigger_failure
+#define TRIGGER_FAIL_TEXT_BLOCK			0x01	///< Trigger a failure in new_text_block() to test error handling.
+#define TRIGGER_FAIL_FILL_TENSOR		0x02	///< Trigger a failure in fill_tensor() to test error handling.
+#define TRIGGER_FAIL_NEW_STRING_BLOCK	0x04	///< Trigger a failure in new_block() (1) creating a string.
+
 
 /** \brief A lookup table for all the possible values of a char mapped into an 8-bit state.
 */
 struct ParseNextStateLUT {
-	unsigned char next[EIGHT_BIT_LONG];
+	unsigned char next[EIGHT_BIT_LONG];			///< The next state for each possible char.
 };
 
 
 /** \brief A way to build constants defining the transition from one state to the next via a regex.
 */
 struct ParseStateTransition {
-	int  from;
-	int	 to;
-	char rex[MAX_TRANSITION_REGEX_LEN];
+	int  from;									///< The state to transition from.
+	int	 to;									///< The state to transition to.
+	char rex[MAX_TRANSITION_REGEX_LEN];			///< The regex that, when matched, the transition applies.
 };
 
 
-/// The ParseNextStateLUT compiler: (This is only used to create constants used by parsers.)
+/** The ParseNextStateLUT compiler
+	\param lut			The array to fill with the LUT.
+	\param num_states	The number of states in the LUT.
+	\param trans		The array of transitions to use to fill the LUT.
+
+	(This is only used to create constants used by parsers.)
+*/
 void compile_next_state_LUT(ParseNextStateLUT lut[], int num_states, ParseStateTransition trans[]);
 
 
@@ -143,7 +154,7 @@ typedef class Container *pContainer;
 
 
 /// A map of names for the containers (or structure engines like "map" or "tree" inside Volatile).
-typedef std::map<std::string, pContainer> BaseNames;
+typedef std::map<String, pContainer> BaseNames;
 
 
 /** \brief Transaction: A wrapper over a Block that defines the communication of a block with a Container.
@@ -155,17 +166,17 @@ Transaction allocation is only handled by the owner, a Container or descendant.
 */
 struct Transaction {
 	union {
-		pBlock			p_block;	///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Tensor, Kind and Tuple
-		pBlockHeader	p_hea;		///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Index
+		pBlock			p_block;			///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Tensor, Kind and Tuple
+		pBlockHeader	p_hea;				///< A pointer to the Block (if status == BLOCK_STATUS_READY) for Index
 	};
-	Lock32				_lock_;		///< An atomically updated int to lock the Transaction to support modifying the Block
-	int					status;		///< The status of the block transaction
-	pContainer			p_owner;	///< A pointer to the Container instance serving API calls related to this block
+	Lock32				_lock_;				///< An atomically updated int to lock the Transaction to support modifying the Block
+	int					status;				///< The status of the block transaction
+	pContainer			p_owner;			///< A pointer to the Container instance serving API calls related to this block
 };
-typedef Transaction *pTransaction;
+typedef Transaction *pTransaction;			///< A pointer to a Transaction
 
 
-typedef struct ExtraLocator	*pExtraLocator;
+typedef struct ExtraLocator	*pExtraLocator;	///< A pointer to an ExtraLocator
 
 /** \brief Locator: A minimal structure to define the location of resources inside a Container.
 
@@ -181,27 +192,28 @@ struct Locator {
 	Name key;						///< A key identifying a block inside the entity.
 
 	union {
-		int			  attribute;	///< Used by Api to store the attribute
+		int			  attribute;	///< Used by API to store the attribute
 		pExtraLocator p_extra;		///< A pointer to extend this structure with Container specific data (like URLs, cookies, credentials).
 	};
 };
+typedef Locator *pLocator;			///< A pointer to a Locator
 
 
 /// An internal (for Container) Transaction with pointers for a deque
 struct StoredTransaction: Transaction {
-	StoredTransaction *p_next;
+	StoredTransaction *p_next;						///< A pointer to the next StoredTransaction
 };
-typedef StoredTransaction *pStoredTransaction;
+typedef StoredTransaction *pStoredTransaction;		///< A pointer to a StoredTransaction
 
 
 /// An internal map for managing dimension parsing
-typedef std::map<std::string, int>	MapSI;
+typedef std::map<String, int>	MapSI;
 
 
 /** \brief Container: A Service to manage Jazz blocks. All Jazz blocks are managed by this or a descendant of this.
 
 This is the root class for all containers. It is basically an abstract class with some helpful methods but is not instanced as an object.
-Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, E.g., the Api.
+Its descendants are: Channels, Volatile and Persisted (in jazz_elements) + anything allocating RAM, E.g., the API.
 
 There is no class Channel (in singular), copy() is a method that copies blocks across Containers (or different media in Channels).
 Channels does all the block transactions across media (files, folders, shell, urls, zeroMQ pipes, Index types, ...).
@@ -252,11 +264,8 @@ Code execution
 --------------
 
 Code execution covers the methods exec (both for functions and mutators) and modify (a special logic used in channel). Code execution
-both runs at "lower level" (opcodes and snippets) or at higher level (concept, semspace, model). Everything goes through exec() both
-functions and mutators. See the doc in the namespace jazz_bebop for details.
-
-Calling OpCodes and sippets from a container always wraps around the arguments. This means, even is the opcode is a mutator it does not
-modify the original tensor but does a copy-on-write, modifies the copy and returns the copy.
+both runs at "lower level" (Core) to run a compiled pipe or at higher level (ModelsAPI). Everything goes through exec() both
+functions and mutators.
 
 new_block()
 -----------
@@ -279,8 +288,7 @@ class Container : public Service {
 
 	public:
 
-		Container(pLogger	   a_logger,
-				   pConfigFile a_config);
+		Container(pLogger a_logger, pConfigFile a_config);
 	   ~Container();
 
 	   // Service API
@@ -291,7 +299,7 @@ class Container : public Service {
 		// .enter_read() .enter_write() .leave_read() .leave_write() .lock_container() .unlock_container()
 
 		void enter_read	(pTransaction p_txn);
-		void enter_write(pTransaction p_txn);
+		void enter_write(pTransaction p_txn, int total_times = 0);
 		void leave_read	(pTransaction p_txn);
 		void leave_write(pTransaction p_txn);
 
@@ -419,11 +427,30 @@ class Container : public Service {
 			\param p_txn  An already allocated transaction with the data in an array of rank 1 of CELL_TYPE_BYTE
 			\return		  SERVICE_NO_ERROR except if alloc is necessary and fails, then SERVICE_ERROR_NO_MEM and destroys the p_txn.
 
-		Logic:	If the content is a valid (== hash64-checked) block -> The block is replaced by the block inside
-				else, if the content is a string (its length == the length of the block) -> The block is replaced by a CELL_TYPE_STRING
-					  else, -> it is left as it is.
+		Warning: This function destroys the transaction in case of error. That is how it is used in the API.
+
+		Logic: The block is either a string (CELL_TYPE_STRING of size 1) or a vector or bytes (CELL_TYPE_BYTE of rank 1), anything else
+			   produces an error. If it is a string, it is kept as it is.
+			Else: If the content is a valid (== hash64-checked) block -> The block is replaced by the block inside
+			Else: If the content is anything but a string (its length != the length of the block), it is left as it is.
+			Else: The block is replaced by a CELL_TYPE_STRING
 		*/
 		inline StatusCode unwrap_received(pTransaction &p_txn) {
+
+			if (p_txn->p_block->cell_type == CELL_TYPE_STRING)
+				if (p_txn->p_block->size == 1)
+					return SERVICE_NO_ERROR;	// The block is already a string, we just leave it as it is.
+				else {
+					destroy_transaction(p_txn);
+
+					return SERVICE_ERROR_WRONG_TYPE;
+				}
+
+			if ((p_txn->p_block->cell_type != CELL_TYPE_BYTE) || (p_txn->p_block->rank != 1)) {
+				destroy_transaction(p_txn);
+
+				return SERVICE_ERROR_WRONG_TYPE;
+			}
 
 			pBlock p_blk = (pBlock) &p_txn->p_block->tensor.cell_byte[0];
 			int	   size  = p_txn->p_block->size;
@@ -444,8 +471,10 @@ class Container : public Service {
 
 				return SERVICE_NO_ERROR;
 			}
-			if (strnlen((pChar) p_blk, size) != size)
-				return SERVICE_NO_ERROR;
+
+			int block_len = strnlen((pChar) p_blk, size);
+			if (block_len < size - 1)
+				return SERVICE_NO_ERROR;	// This is when the content is not a string, we just leave it as it is.
 
 			pTransaction p_aux;
 
@@ -508,7 +537,7 @@ class Container : public Service {
 			return new_block(p_txn, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) p_maybe_block, 0);
 		}
 
-		// Support for container names in the API .base_names()
+		// Support for container names in the BaseAPI .base_names()
 
 		void base_names(BaseNames &base_names);
 
@@ -517,6 +546,9 @@ class Container : public Service {
 #endif
 
 		/** An std::malloc() that increases .alloc_bytes on each call and fails on over-allocation.
+
+			\param size	The size in bytes to allocate.
+			\return		A pointer to the allocated memory or nullptr if the allocation would exceed .fail_alloc_bytes.
 		*/
 		inline void* malloc(size_t size) {
 			if (alloc_bytes + size >= fail_alloc_bytes)
@@ -527,15 +559,13 @@ class Container : public Service {
 			if (ret != nullptr)
 				alloc_bytes += size;
 
-#ifdef CATCH_TEST
-			if ((uint64_t) ret & 0x7)
-				log(LOG_ERROR, "Misaligned block !!");
-#endif
-
 			return ret;
 		}
 
-		/** A spacial alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed valid by destroy_transaction().
+		/** A special alloc for blocks owned by a Transaction. It clears cell_type and total_bytes assumed valid by destroy_transaction().
+
+			\param size	The size in bytes to allocate.
+			\return		A pointer to the allocated new Block.
 		*/
 		inline pBlock block_malloc(size_t size) {
 			pBlock p_blk = (pBlock) malloc(size);
@@ -550,20 +580,26 @@ class Container : public Service {
 
 		/** A private hard lock for Container-critical operations. E.g., Adding a new block to the deque.
 
+			\param total_times An optional (typically for debugging) option to give up after a number of yield() calls.
+
 			Needless to say: Use only for a few clock-cycles over the critical part and always unlock_container() no matter what.
 		*/
-		inline void lock_container() {
-			int		retry = 0;
-			int32_t lock = 0;
-			int32_t next = 1;
+		inline void lock_container(int total_times = 0) {
+			int	retry = 0;
 
 			while (true) {
+				int32_t lock = 0;
+				int32_t next = 1;
 				if (_lock_.compare_exchange_weak(lock, next))
 					return;
 
 				if (++retry > LOCK_NUM_RETRIES_BEFORE_YIELD) {
 					std::this_thread::yield();
 					retry = 0;
+					if (total_times) {
+						if (--total_times == 0)
+							return;
+					}
 				}
 			}
 		}
@@ -585,18 +621,21 @@ class Container : public Service {
 			return (c < 65) ? c - 48 : (c > 96) ? c - 87 : c - 55;
 		}
 
-		int max_transactions;
-		uint64_t warn_alloc_bytes, fail_alloc_bytes, alloc_bytes;
-		pTransaction p_buffer, p_free;
-		bool alloc_warning_issued;
-
-		Lock32 _lock_;
+		int max_transactions;				///< The configured ONE_SHOT_MAX_TRANSACTIONS
+		uint64_t warn_alloc_bytes;			///< Taken from ONE_SHOT_WARN_BLOCK_KBYTES
+		uint64_t fail_alloc_bytes;			///< Taken from ONE_SHOT_ERROR_BLOCK_KBYTES
+		uint64_t alloc_bytes;				///< The current allocation in bytes
+		pTransaction p_buffer;				///< The buffer for the transactions
+		pTransaction p_free;				///< The free list of transactions
+		bool alloc_warning_issued;			///< True if a warning was issued for over-allocation
+		Lock32 _lock_;						///< A lock for the deque of transactions
+		int log_error_level = LOG_ERROR;	///< The log level for LMDB errors made a variable to silence it in tests
 
 #ifndef CATCH_TEST
 	private:
 #endif
 
-		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+		char HEX[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};	///< Hex chars
 
 		StatusCode new_container();
 
@@ -645,10 +684,16 @@ class Container : public Service {
 			\param p_out		The Name buffer that gets the answer if no error was found
 			\param check_quotes	Expects the name to be quoted (like item names) or not (like dimensions)
 			\param check_colon	Expects the name to be followed by a colon (like item names).
+			\param dot_ended	Accepts a dot as the end of the name. Also, the quote, to parse "x.y.z" as 3 names.
 
 			\return	True on success
 		*/
-		inline bool get_item_name(pChar &p_in, int &num_bytes, pChar p_out, bool check_quotes = true, bool check_colon = true) {
+		inline bool get_item_name(pChar &p_in,
+								  int   &num_bytes,
+								  pChar	 p_out,
+								  bool	 check_quotes = true,
+								  bool	 check_colon = true,
+								  bool	 dot_ended = false) {
 			if (skip_space(p_in, num_bytes) <= 1)
 				return false;
 
@@ -666,9 +711,12 @@ class Container : public Service {
 				if (!check_quotes && (*p_in == ',' || *p_in == ']'))
 					break;
 
+				if (dot_ended && (*p_in == '.'))
+					break;
+
 				ch = get_char(p_in, num_bytes);
 
-				if (check_quotes && ch == '"')
+				if ((check_quotes || dot_ended) && ch == '"')
 					break;
 
 				if (ch < '0' || ch > 'z' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || ch == 0x60)
@@ -888,8 +936,7 @@ class Container : public Service {
 				return false;
 
 			time_t xx = timegm(&timeinfo);
-			if (xx < 0)
-				return false;
+			if (xx < 0) return false;
 
 			*(p_out++) = xx;
 
@@ -901,15 +948,15 @@ class Container : public Service {
 		bool fill_text_buffer	 (pChar &p_in, int &num_bytes, pChar p_out, int num_cells, int is_NA[], int hasLN[]);
 		bool fill_tensor		 (pChar &p_in, int &num_bytes, pBlock p_block);
 
-		int new_text_block		 (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att);
+		int new_text_block		 (pTransaction &p_txn, ItemHeader &item_hea, pChar &p_in, int &num_bytes, AttributeMap *att = nullptr);
 
 		int tensor_int_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_bool_as_text	 (pBlock p_block, pChar p_dest);
 		int tensor_float_as_text (pBlock p_block, pChar p_dest, pChar p_fmt);
 		int tensor_string_as_text(pBlock p_block, pChar p_dest);
 		int tensor_time_as_text	 (pBlock p_block, pChar p_dest, pChar p_fmt);
-		int tensor_tuple_as_text (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]);
-		int tensor_kind_as_text	 (pKind  p_kind,  pChar p_dest);
+		int tuple_as_text		 (pTuple p_tuple, pChar p_dest, pChar p_fmt, int item_len[]);
+		int kind_as_text		 (pKind  p_kind,  pChar p_dest);
 
 		/** Writes opening brackets for a tensor
 
@@ -929,6 +976,8 @@ class Container : public Service {
 			\param p_ret	The cursor to the output buffer
 			\param dim		The shape
 			\param p_kind	The kind from which dimension names should be read
+
+			\return	The cursor to the output buffer updated by the text written
 		*/
 		inline pChar as_shape(int rank, int dim[], pChar p_ret, pKind p_kind) {
 			*(p_ret++) = '[';
@@ -1025,19 +1074,24 @@ class Container : public Service {
 			}
 			return ret;
 		}
+
+#ifdef CATCH_TEST
+	uint32_t debug_trigger_failure = 0;
+#endif
+
 };
 
+// Instancing container, logger and config
+// ---------------------------------------
+
+extern ConfigFile CONFIG;	///< The configuration file
+extern Logger	  LOGGER;	///< The logger
 
 #ifdef CATCH_TEST
 
 void compare_full_blocks(pBlock p_bl1, pBlock p_bl2, bool skip_value_check = false);
 
-// Instancing container, logger and config
-// ---------------------------------------
-
-extern ConfigFile CONFIG;
-extern Logger	  LOGGER;
-extern Container  CNT;
+extern Container  CNT;		///< A container for the tests
 
 #endif
 

@@ -1,0 +1,13 @@
+aaa
+
+a = 24
+
+f = 6 // This is a remark
+
+a = 23.4
+
+/* Never do this
+   ------------- */
+
+
+message a = "Hello!"

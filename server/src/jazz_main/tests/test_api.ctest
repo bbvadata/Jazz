@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -32,13 +32,27 @@
 */
 
 
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_main/api.h"
+
+#include <filesystem>
+
 using namespace jazz_main;
 
 
 // Tests
 // -----
 
-SCENARIO("Testing all Containers start()/shut_down()") {
+SCENARIO("Testing API constants match HTTP API constants") {
+	REQUIRE(HTTP_GET == BASE_API_GET);
+	REQUIRE(HTTP_PUT == BASE_API_PUT);
+	REQUIRE(HTTP_DELETE == BASE_API_DELETE);
+}
+
+
+SCENARIO("Testing all Containers start()/shut_down() at API level") {
 
 	GIVEN("The instances are constructed, but not yet started") {
 		REQUIRE(TT_API.p_channels	== &CHN);
@@ -46,23 +60,33 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 		REQUIRE(TT_API.p_persisted	== &PER);
 	}
 
+	std::filesystem::remove_all("./jazz_dbg_mdb/");
+
 	REQUIRE(CHN.start()	== 0);
 	REQUIRE(VOL.start()	== 0);
 	REQUIRE(PER.start() == 0);
+	REQUIRE(COR.start() == 0);
+	REQUIRE(MDL.start() == 0);
 
 	REQUIRE(TT_API.start() == 0);
 
 	GIVEN("The instances are started") {
-		REQUIRE(base_server[TenBitsAtAddress("bash")]  == &CHN);
-		REQUIRE(base_server[TenBitsAtAddress("file")]  == &CHN);
-		REQUIRE(base_server[TenBitsAtAddress("http")]  == &CHN);
-		REQUIRE(base_server[TenBitsAtAddress("0-mq")]  == &CHN);
-		REQUIRE(base_server[TenBitsAtAddress("deque")] == &VOL);
-		REQUIRE(base_server[TenBitsAtAddress("index")] == &VOL);
-		REQUIRE(base_server[TenBitsAtAddress("queue")] == &VOL);
-		REQUIRE(base_server[TenBitsAtAddress("tree")]  == &VOL);
-		REQUIRE(base_server[TenBitsAtAddress("lmdb")]  == &PER);
-		REQUIRE(base_server[TenBitsAtAddress("zqt")]   == nullptr);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("bash")]	== &CHN);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("file")]	== &CHN);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("http")]	== &CHN);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("0-mq")]	== &CHN);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("deque")]	== &VOL);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("index")]	== &VOL);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("queue")]	== &VOL);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("tree")]	== &VOL);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("lmdb")]	== &PER);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("bop")]		== &COR);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("bebop")]	== &COR);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("compile")]	== &COR);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("onnx")]	== &COR);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("brane")]	== &MDL);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("resolve")]	== &MDL);
+		REQUIRE(TT_API.base_server[TenBitsAtAddress("zqt")]		== nullptr);
 	}
 
 	REQUIRE(TT_API.shut_down() == 0);
@@ -70,9 +94,12 @@ SCENARIO("Testing all Containers start()/shut_down()") {
 	REQUIRE(CHN.shut_down() == 0);
 	REQUIRE(VOL.shut_down() == 0);
 	REQUIRE(PER.shut_down() == 0);
+	REQUIRE(COR.shut_down() == 0);
+	REQUIRE(MDL.shut_down() == 0);
 }
 
-SCENARIO("Testing api.parse") {
+
+SCENARIO("Testing API.parse") {
 	REQUIRE(TT_API.start() == 0);
 
 	GIVEN("We want to test parse_locator()") {
@@ -291,7 +318,7 @@ SCENARIO("Testing api.parse") {
 	}
 
 	GIVEN("We want to test parse()") {
-		HttpQueryState hqs;
+		ApiQueryState hqs;
 
 		hqs.l_node[0] = 'a';
 		hqs.r_node[0] = 'b';
@@ -742,6 +769,15 @@ SCENARIO("Testing api.parse") {
 		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_ent/r_key]", HTTP_GET));
 
 		REQUIRE(hqs.state == PSTATE_FAILED);
+
+		hqs.r_value.entity[0] = 1;
+		hqs.r_value.key[0]	  = 1;
+		REQUIRE(TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_en]", HTTP_GET));
+
+		REQUIRE(hqs.state == PSTATE_COMPLETE_OK);
+
+		REQUIRE(strcmp(hqs.r_value.entity, "r_en") == 0);
+		REQUIRE(hqs.r_value.key[0] == 0);
 
 		REQUIRE(!TT_API.parse(hqs, (pChar) "///node//base_s3/entity2/key4=//r_base/r_ent/r_key", HTTP_PUT));
 
@@ -1946,7 +1982,7 @@ SCENARIO("Testing api.parse") {
 	}
 
 	GIVEN("We test parse() for PUT and DELETE") {
-		HttpQueryState hqs;
+		ApiQueryState hqs;
 
 		hqs.l_node[0] = 'a';
 		hqs.r_node[0] = 'b';
@@ -2499,9 +2535,9 @@ SCENARIO("Testing api.parse") {
 
 SCENARIO("Testing API struct sizes and positions") {
 
-	REQUIRE(sizeof(HttpQueryState) == 2048);
+	REQUIRE(sizeof(ApiQueryState) == 2048);
 
-	HttpQueryState q_state;
+	ApiQueryState q_state;
 	Locator loc;
 
 	strcpy(q_state.base,   "base");

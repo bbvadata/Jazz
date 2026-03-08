@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -35,9 +35,97 @@
 #include "src/jazz_bebop/bop.h"
 
 
+//TODO: All this Fields idea is obsolete. The Fields server is just a Space, but the function is still needed.
+//TODO: Remove FIELD_STORAGE_ENTITY from the config as it no longer exists.
+
+// ///> The name of the Fields class required by Spaces.
+// Name NAME_CLASS_FIELDS = "Fields";
+
+// /*	-----------------------------------------------
+// 	 Fields : I m p l e m e n t a t i o n
+// --------------------------------------------------- */
+
+// /** \brief Bop: Start the Fields.
+
+// 	\param api	 A pointer to a BaseAPI that provides access to containers.
+// */
+// Fields::Fields(pBaseAPI api) : Space(api, &NAME_CLASS_FIELDS) {
+// 	p_api = api;
+// }
+
+
+// /** Starts the Fields service
+
+// 	\return SERVICE_NO_ERROR if successful, an error code otherwise.
+// */
+// StatusCode Fields::start() {
+
+// 	int ret = Fields::start();
+
+// 	if (ret != SERVICE_NO_ERROR)
+// 		return ret;
+
+// 	String s;
+
+// 	if (!get_conf_key("FIELD_STORAGE_ENTITY", s)) {
+// 		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY not found in Fields::start");
+
+// 		return SERVICE_ERROR_BAD_CONFIG;
+// 	}
+
+// 	if ((s.length() < 1) || (s.length() >= sizeof(Name))) {
+// 		log(LOG_ERROR, "Config key FIELD_STORAGE_ENTITY is not a valid base in Fields::start");
+
+// 		return SERVICE_ERROR_BAD_CONFIG;
+// 	}
+
+// 	strcpy(storage_ent, s.c_str());
+
+// 	p_volatile	= p_api->get_volatile();
+// 	p_persisted	= p_api->get_persisted();
+
+// 	if (p_volatile == nullptr || p_persisted == nullptr) {
+// 		log(LOG_ERROR, "Volatile or Persisted container not valid in BaseAPI detected in Fields::start");
+
+// 		return SERVICE_ERROR_WRONG_ARGUMENTS;
+// 	}
+
+// 	return true;
+// }
+
+
+// /** Return object ID.
+
+// 	\return A string identifying the object that is especially useful to track uplifts and versions.
+// */
+// pChar const Fields::id() {
+//     static char arr[] = "Fields from Jazz-" JAZZ_VERSION;
+//     return arr;
+// }
+
+
+// #ifdef CATCH_TEST
+
+// Fields FIELDS(&BAPI);
+
+// #endif
+
+
 namespace jazz_bebop
 {
 
+/*	-----------------------------------------------
+	 Bop : I m p l e m e n t a t i o n
+--------------------------------------------------- */
+
+/** \brief Bop: Start the compiler.
+
+	\param a_logger		A pointer to the logger.
+	\param a_config		A pointer to the configuration.
+*/
+Bop::Bop(pLogger a_logger, pConfigFile a_config) : Service(a_logger, a_config), opcodes(a_logger, a_config) {}
+
+Bop::~Bop() {}
 
 } // namespace jazz_bebop
 

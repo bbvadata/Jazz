@@ -1,4 +1,4 @@
-/* Jazz (c) 2018-2024 kaalam.ai (The Authors of Jazz), using (under the same license):
+/* Jazz (c) 2018-2026 kaalam.ai (The Authors of Jazz), using (under the same license):
 
 	1. Biomodelling - The AATBlockQueue class (c) Jacques Basaldúa, 2009-2012 licensed
 	  exclusively for the use in the Jazz server software.
@@ -30,6 +30,12 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
+
+
+// This is a double inclusion! It is required for VSCode' Intellisense to work properly. This file is itself included in the
+// .cpp file of the same name for unit testing. It has no effect on compilation.
+#pragma once
+#include "src/jazz_elements/channel.h"
 
 
 using namespace jazz_elements;
@@ -92,10 +98,50 @@ SCENARIO("Basics tests") {
 }
 
 
+SCENARIO("Testing curl wrapper") {
+
+	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_INIT;
+	REQUIRE(CHN.curl_easy_init() == nullptr);
+
+	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_PERFORM;
+	REQUIRE(CHN.curl_easy_perform(nullptr) == CURLE_COULDNT_CONNECT);
+
+	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_GETINFO;
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, nullptr) == CURLE_COULDNT_CONNECT);
+
+	CHN.debug_trigger_failure = 0;
+
+	uint64_t response_code = 33;
+
+	CHN.curl_easy_return_code = MHD_HTTP_NOT_ACCEPTABLE;
+
+	REQUIRE(CHN.curl_easy_perform(nullptr) == MHD_HTTP_NOT_ACCEPTABLE);
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, &response_code) == MHD_HTTP_NOT_ACCEPTABLE);
+	REQUIRE(response_code == 33);
+
+	CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+	CHN.curl_easy_response	  = MHD_HTTP_CONFLICT;
+
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, &response_code) == CURLE_OK);
+	REQUIRE(response_code == MHD_HTTP_CONFLICT);
+
+	CHN.curl_easy_return_code = 0;
+	CHN.curl_easy_response	  = 0;
+
+	REQUIRE(CHN.curl_easy_perform(nullptr) == 0);
+	REQUIRE(CHN.curl_easy_getinfo(nullptr, CURLINFO_NONE, &response_code) == 0);
+	REQUIRE(response_code == 0);
+
+	CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+	CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
+}
+
+
 SCENARIO("Testing compose_url()") {
 
 	REQUIRE(CHN.start() == SERVICE_NO_ERROR);
 
+	REQUIRE(strstr(CHN.id(), "Channels from Jazz-") != nullptr);
 	REQUIRE(CHN.max_transactions > 0);
 	REQUIRE(CHN.alloc_bytes == CHN.max_transactions*sizeof(StoredTransaction));
 	REQUIRE(CHN.warn_alloc_bytes > 0);
@@ -424,7 +470,7 @@ SCENARIO("Testing bash end-to-end") {
 			CHN.can_bash = 1;
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
-			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
@@ -516,6 +562,13 @@ SCENARIO("Testing file end-to-end") {
 		pTransaction p_tx_pop, p_tx_str, p_tx_chr, p_tx_int, p_tx_rea, p_tx_tim, p_tx_fil, p_tx_xlt;
 
 		int dim[MAX_TENSOR_RANK] = {20, 5, 0};
+
+		uint64_t alloc_backup = CHN.fail_alloc_bytes;
+		CHN.fail_alloc_bytes = CHN.alloc_bytes + 140;					// Requires 139 for the first block + 187 for the second. This
+		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_ERROR_NO_MEM);	// forces failure on the second block.
+		REQUIRE(p_tx_pop == nullptr);
+
+		CHN.fail_alloc_bytes = alloc_backup;
 
 		REQUIRE(CHN.new_block(p_tx_pop, txt) == SERVICE_NO_ERROR);
 		REQUIRE(CHN.new_block(p_tx_str, CELL_TYPE_STRING, nullptr, FILL_WITH_TEXTFILE, 0, (pChar) "Line\ntwo\nthree") == 0);
@@ -614,7 +667,7 @@ SCENARIO("Testing file end-to-end") {
 
 				p_blk = p_txn->p_block;
 
-				REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+				REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 				REQUIRE(p_blk->size == 2);
 				REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 				REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -649,7 +702,7 @@ SCENARIO("Testing file end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1182,7 +1235,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
-			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
@@ -1197,7 +1250,7 @@ SCENARIO("Testing 0-mq end-to-end") {
 
 			REQUIRE(CHN.modify(fun, (pTuple) p_tx_xlt->p_block) == SERVICE_NO_ERROR);
 
-			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_tx_xlt->p_block->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_tx_xlt->p_block->size == 2);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "input") == 0);
 			REQUIRE(pTuple(p_tx_xlt->p_block)->index((pChar) "result") == 1);
@@ -1336,6 +1389,13 @@ SCENARIO("Testing http end-to-end") {
 
 		REQUIRE(CHN.new_block(p_tx_xlt, 2, hea, names, p_block) == SERVICE_NO_ERROR);
 
+		uint64_t alloc_backup = CHN.fail_alloc_bytes;
+		CHN.fail_alloc_bytes = 1;
+		REQUIRE(CHN.new_block(p_tx_ix1, CELL_TYPE_INDEX) == SERVICE_ERROR_NO_MEM);
+		REQUIRE(p_tx_ix1 == nullptr);
+
+		CHN.fail_alloc_bytes = alloc_backup;
+
 		REQUIRE(CHN.new_block(p_tx_ix1, CELL_TYPE_INDEX) == SERVICE_NO_ERROR);
 
 		p_tx_ix1->p_hea->index["URL"] = "http://127.0.0.1:5000/test/capital/";
@@ -1348,7 +1408,7 @@ SCENARIO("Testing http end-to-end") {
 		pTuple p_tup;
 		pBlock p_key, p_val, p_blk = p_tx_tp1->p_block;
 
-		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 		REQUIRE(p_blk->size == 2);
 		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 		REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1372,7 +1432,7 @@ SCENARIO("Testing http end-to-end") {
 
 		p_blk = p_tx_tp1->p_block;
 
-		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+		REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 		REQUIRE(p_blk->size == 2);
 		REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 		REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1398,7 +1458,47 @@ SCENARIO("Testing http end-to-end") {
 		}
 		WHEN("We test put()/get()/remove() on direct links") {
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
+
+			// Cannot write a tensor of double as a string so the server won't get any request
+			REQUIRE(CHN.put(url, p_tx_rea->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_PERFORM;
+
+			// The next 2 attempt are force to fail so the server won't get any request
+
+			REQUIRE(CHN.put(url, p_tx_rea->p_block, WRITE_AS_CONTENT)	 == SERVICE_ERROR_IO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_rea->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.debug_trigger_failure = 0;
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_ACCESS_DENIED;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_READ_FORBIDDEN);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_FILE_NOT_FOUND;
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			CHN.curl_easy_return_code = 54321;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURLE_OK;
+
+			CHN.curl_easy_response = MHD_HTTP_BAD_REQUEST;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.curl_easy_response = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_MISC_SERVER);
+
+			CHN.curl_easy_response = MHD_HTTP_UNAUTHORIZED;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_READ_FORBIDDEN);
+
+			CHN.curl_easy_response = 54321;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+			CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
+
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Spain");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1409,6 +1509,33 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Berlin");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_ACCESS_DENIED;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_FILE_NOT_FOUND;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			CHN.curl_easy_return_code = 54321;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURLE_OK;
+
+			CHN.curl_easy_response = MHD_HTTP_BAD_REQUEST;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.curl_easy_response = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_MISC_SERVER);
+
+			CHN.curl_easy_response = MHD_HTTP_UNAUTHORIZED;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			CHN.curl_easy_response = 54321;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+			CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
+
 			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
@@ -1416,6 +1543,29 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(p_txn->p_block->size == 1);
 			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Berlin\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_ACCESS_DENIED;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_FILE_NOT_FOUND;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			CHN.curl_easy_return_code = 54321;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURLE_OK;
+
+			CHN.curl_easy_response = MHD_HTTP_BAD_REQUEST;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.curl_easy_response = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_MISC_SERVER);
+
+			CHN.curl_easy_response = 54321;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+			CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
 
 			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
@@ -1477,7 +1627,7 @@ SCENARIO("Testing http end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1528,7 +1678,7 @@ SCENARIO("Testing http end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
@@ -1566,7 +1716,7 @@ SCENARIO("Testing http end-to-end") {
 
 			p_blk = p_txn->p_block;
 
-			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE_ITEM);
+			REQUIRE(p_blk->cell_type == CELL_TYPE_TUPLE);
 			REQUIRE(p_blk->size == 2);
 			REQUIRE((p_tup = (pTuple) p_blk)->index((pChar) "key") == 0);
 			REQUIRE(p_tup->index((pChar) "value") == 1);
