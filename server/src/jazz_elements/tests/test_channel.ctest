@@ -98,6 +98,25 @@ SCENARIO("Basics tests") {
 }
 
 
+SCENARIO("Testing curl wrapper") {
+
+	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_INIT;
+	REQUIRE(CHN.curl_easy_init() == nullptr);
+
+	CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_PERFORM;
+	REQUIRE(CHN.curl_easy_perform(nullptr) == CURLE_COULDNT_CONNECT);
+
+	CHN.debug_trigger_failure = 0;
+	CHN.curl_easy_return_code = MHD_HTTP_NOT_ACCEPTABLE;
+	REQUIRE(CHN.curl_easy_perform(nullptr) == MHD_HTTP_NOT_ACCEPTABLE);
+
+	CHN.curl_easy_return_code = 0;
+	REQUIRE(CHN.curl_easy_perform(nullptr) == 0);
+
+	CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+}
+
+
 SCENARIO("Testing compose_url()") {
 
 	REQUIRE(CHN.start() == SERVICE_NO_ERROR);

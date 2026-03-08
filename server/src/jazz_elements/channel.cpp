@@ -44,8 +44,6 @@
 
 #include "src/jazz_elements/channel.h"
 
-//TODO: Increase test coverage to 100%.
-
 namespace jazz_elements
 {
 
@@ -1159,6 +1157,25 @@ MHD_StatusCode Channels::forward_del(Name node, pChar p_url) {
 }
 
 #ifdef CATCH_TEST
+
+CURL *Channels::curl_easy_init() {
+	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_INIT)
+		return nullptr;
+
+	return ::curl_easy_init();
+}
+
+
+CURLcode Channels::curl_easy_perform(CURL *curl) {
+	if (debug_trigger_failure & TRIGGER_FAIL_CURL_EASY_PERFORM)
+		return CURLE_COULDNT_CONNECT;
+
+	if (curl_easy_return_code != CURL_EASY_NO_BYPASS)
+		return (CURLcode) curl_easy_return_code;
+
+	return ::curl_easy_perform(curl);
+}
+
 
 Channels CHN(&LOGGER, &CONFIG);
 
