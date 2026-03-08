@@ -942,22 +942,30 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 
 		if (fd < 0) return SERVICE_ERROR_IO_ERROR;
 
-		if (write(fd, p_input, size_input) != size_input) {
+		int written = write(fd, p_input, size_input);
+
+#ifdef CATCH_TEST
+		if (debug_trigger_failure & TRIGGER_FAIL_BASH)
+			written = -1;
+#endif
+
+		if (written != size_input) {
 			close(fd);
 			return SERVICE_ERROR_IO_ERROR;
 		}
 		close(fd);
 
-		FILE *fp;
 		char buffer[128];
 
 		sprintf(buffer, "bash %s", script);
 
-		fp = popen(buffer, "r");
+		FILE *fp = popen(buffer, "r");
 
 		if (fp == nullptr) return SERVICE_ERROR_IO_ERROR;
 
-		while (fgets(buffer, 128, fp) != nullptr) {
+		bool interrupted = false;
+
+		while (fgets(buffer, 127, fp) != nullptr) {
 			int ll = strlen(buffer);
 			if (ll < size_result) {
 				if (ll > 0) {
@@ -966,11 +974,14 @@ StatusCode Channels::modify(Locator &function, pTuple p_args) {
 					size_result	-= ll;
 				}
 			} else {
-				ll = size_result - 1;
-				memcpy(p_result, buffer, ll);
-				p_result	+= ll;
-				size_result	-= ll;
-				break;
+				if (!interrupted) {
+					ll = size_result - 1;			// This only runs the first time, but ..
+					memcpy(p_result, buffer, ll);
+					p_result	+= ll;
+					size_result	-= ll;
+				}
+				interrupted = true;					// .. the fgets() loop must continue til the child process created by popen() finishes.
+													// .. or pclose() will fail.
 			}
 		}
 		memset(p_result, 0, size_result);
