@@ -1458,7 +1458,47 @@ SCENARIO("Testing http end-to-end") {
 		}
 		WHEN("We test put()/get()/remove() on direct links") {
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
+
+			// Cannot write a tensor of double as a string so the server won't get any request
+			REQUIRE(CHN.put(url, p_tx_rea->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.debug_trigger_failure = TRIGGER_FAIL_CURL_EASY_PERFORM;
+
+			// The next 2 attempt are force to fail so the server won't get any request
+
+			REQUIRE(CHN.put(url, p_tx_rea->p_block, WRITE_AS_CONTENT)	 == SERVICE_ERROR_IO_ERROR);
+			REQUIRE(CHN.put(url, p_tx_rea->p_block, WRITE_AS_FULL_BLOCK) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.debug_trigger_failure = 0;
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_ACCESS_DENIED;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_READ_FORBIDDEN);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_FILE_NOT_FOUND;
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			CHN.curl_easy_return_code = 54321;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURLE_OK;
+
+			CHN.curl_easy_response = MHD_HTTP_BAD_REQUEST;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.curl_easy_response = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_MISC_SERVER);
+
+			CHN.curl_easy_response = MHD_HTTP_UNAUTHORIZED;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_READ_FORBIDDEN);
+
+			CHN.curl_easy_response = 54321;
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+			CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
+
+			REQUIRE(CHN.get(p_txn, url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Spain");
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
 			REQUIRE(p_txn->p_block->cell_type == CELL_TYPE_STRING);
@@ -1469,6 +1509,33 @@ SCENARIO("Testing http end-to-end") {
 			strcpy((pChar) &p_tx_buf->p_block->tensor.cell_byte[0], "Berlin");
 
 			strcpy(url, "//http/http://127.0.0.1:5000/test/capital/Germany");
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_ACCESS_DENIED;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_FILE_NOT_FOUND;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			CHN.curl_easy_return_code = 54321;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURLE_OK;
+
+			CHN.curl_easy_response = MHD_HTTP_BAD_REQUEST;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.curl_easy_response = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_MISC_SERVER);
+
+			CHN.curl_easy_response = MHD_HTTP_UNAUTHORIZED;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			CHN.curl_easy_response = 54321;
+			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+			CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
+
 			REQUIRE(CHN.put(url, p_tx_buf->p_block, WRITE_AS_STRING) == SERVICE_NO_ERROR);
 
 			REQUIRE(CHN.get(p_txn, url) == SERVICE_NO_ERROR);
@@ -1476,6 +1543,29 @@ SCENARIO("Testing http end-to-end") {
 			REQUIRE(p_txn->p_block->size == 1);
 			REQUIRE(strcmp(p_txn->p_block->get_string(0), "\"Berlin\"\n") == 0);
 			CHN.destroy_transaction(p_txn);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_ACCESS_DENIED;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_WRITE_FORBIDDEN);
+
+			CHN.curl_easy_return_code = CURLE_REMOTE_FILE_NOT_FOUND;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
+
+			CHN.curl_easy_return_code = 54321;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURLE_OK;
+
+			CHN.curl_easy_response = MHD_HTTP_BAD_REQUEST;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_WRONG_ARGUMENTS);
+
+			CHN.curl_easy_response = MHD_HTTP_INTERNAL_SERVER_ERROR;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_MISC_SERVER);
+
+			CHN.curl_easy_response = 54321;
+			REQUIRE(CHN.remove(url) == SERVICE_ERROR_IO_ERROR);
+
+			CHN.curl_easy_return_code = CURL_EASY_NO_BYPASS;
+			CHN.curl_easy_response	  = CURL_EASY_NO_BYPASS;
 
 			REQUIRE(CHN.remove(url) == SERVICE_NO_ERROR);
 			REQUIRE(CHN.remove(url) == SERVICE_ERROR_BLOCK_NOT_FOUND);
