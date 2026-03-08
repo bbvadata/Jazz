@@ -52,8 +52,6 @@
 #ifndef INCLUDED_JAZZ_ELEMENTS_CHANNEL
 #define INCLUDED_JAZZ_ELEMENTS_CHANNEL
 
-//TODO: Increase test coverage to 100%.
-
 namespace jazz_elements
 {
 
@@ -90,6 +88,15 @@ namespace jazz_elements
 #define APPLY_GET_ATTRIBUTE				20		///< {///node}//base/entity/key.attribute(123) (read attribute 123 with HTTP_GET)
 #define APPLY_SET_ATTRIBUTE				21		///< {///node}////base/entity/key.attribute(46)=& url_encoded ; (set attrib. with HTTP_GET)
 #define APPLY_JAZZ_INFO					22		///< /// Show the server info.
+
+
+// Bit masks to trigger curl failures in Channel wrappers during tests.
+
+#define CURL_EASY_NO_BYPASS				-1				///< Any value >= 0 is returned bypassing the real curl function.
+
+// #define TRIGGER_FAIL_MDB_DROP		(1u << 14)	This is the highest bit used in Persisted,
+#define TRIGGER_FAIL_CURL_EASY_INIT		(1u << 15)		///< Trigger a failure in curl_easy_init() to test error handling.
+#define TRIGGER_FAIL_CURL_EASY_PERFORM	(1u << 16)		///< Trigger a failure in curl_easy_perform() to test error handling.
 
 
 /// A map for defining http config names
@@ -658,6 +665,14 @@ class Channels : public Container {
 		ConnMap connect = {};			///< A map of http connections
 
 		void *zmq_context = nullptr;	///< The zeroMQ context
+
+#ifdef CATCH_TEST
+		CURL *	 curl_easy_init	  ();
+		CURLcode curl_easy_perform(CURL *curl);
+
+		int curl_easy_return_code = CURL_EASY_NO_BYPASS;
+#endif
+
 };
 typedef Channels *pChannels;			///< A pointer to a Channels
 
